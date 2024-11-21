@@ -19,9 +19,10 @@ export interface StatusType extends mastodon.v1.Status {
     recommended?: boolean;
     similarity?: number;
     scores?: weightsType;
-    value?: number;
+    value?: number;  // This is the number that the final algorithmic sorting is done on
     reblog?: StatusType;
     reblogBy?: string;
+    timeDiscount?: number;
 }
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<StatusType[]>;

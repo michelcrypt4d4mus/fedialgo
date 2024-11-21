@@ -54,6 +54,7 @@ export default class TheAlgorithm {
     }
 
     async getFeed(): Promise<StatusType[]> {
+        console.log("getFeed() called in fedialgo package");
         const { fetchers, featureScorers, feedScorer } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
         this.feed = response.flat();
@@ -96,8 +97,10 @@ export default class TheAlgorithm {
         // Add Time Penalty
         scoredFeed = scoredFeed.map((item: StatusType) => {
             const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
-            const timediscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
-            item.value = (item.value ?? 0) * timediscount
+            const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+            console.warn(`Computed timeDiscount for status ${item.uri}: ${timeDiscount}`);
+            item.value = (item.value ?? 0) * timeDiscount;
+            item.timeDiscount = timeDiscount;
             return item;
         })
 
