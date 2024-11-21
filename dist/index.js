@@ -20,6 +20,7 @@ class TheAlgorithm {
         new scorer_1.interactsFeatureScorer(),
         new scorer_1.topPostFeatureScorer(),
         new chaosFeatureScorer_1.default(),
+        new scorer_1.numFavoritesScorer(),
     ];
     feedScorer = [new scorer_1.reblogsFeedScorer(), new scorer_1.diversityFeedScorer()];
     feed = [];

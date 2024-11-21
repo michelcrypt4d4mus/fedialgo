@@ -6,6 +6,7 @@ import {
     FeatureScorer,
     FeedScorer,
     interactsFeatureScorer,
+    numFavoritesScorer,
     reblogsFeatureScorer,
     reblogsFeedScorer,
     topPostFeatureScorer
@@ -18,6 +19,7 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import weightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
+
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
     fetchers = [getHomeFeed, topPostsFeed];
@@ -27,6 +29,7 @@ export default class TheAlgorithm {
         new interactsFeatureScorer(),
         new topPostFeatureScorer(),
         new chaosFeatureScorer(),
+        new numFavoritesScorer(),
     ];
     feedScorer = [new reblogsFeedScorer(), new diversityFeedScorer()];
     feed: StatusType[] = [];
