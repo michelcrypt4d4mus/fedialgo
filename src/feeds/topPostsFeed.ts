@@ -8,7 +8,6 @@ export default async function getTopPostFeed(api: mastodon.rest.Client): Promise
     const core_servers = await FeatureStore.getCoreServer(api)
     let results: StatusType[][] = [];
 
-
     //Get Top Servers
     const servers = Object.keys(core_servers).sort((a, b) => {
         return core_servers[b] - core_servers[a]
