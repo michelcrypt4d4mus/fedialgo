@@ -30,9 +30,9 @@ in `fedialgo` directory after changes and they will automatically be detected
 ### Demo App
 `fedialgo` is just a node package. You don't use it on its own in the form in this repo; it has to be imported into some other app. Thankfully there's a simple demo app that spins up a webserver, pulls your feed and scores it with the algorithm in this repo, and then presents it to your browser at `http://localhost:3000/` over in [the `foryoufeed` repo](https://github.com/pkreissel/foryoufeed).
 
-## Usage
+## Package Usage
 
-### Basic Feed:
+### Weight An Account's Feed:
 ```typescript
 import TheAlgorithm from "fedialgo"
 import { login, mastodon } from "masto";
@@ -44,13 +44,12 @@ const api: mastodon.Client = await login({
 const currUser = await api.v1.accounts.verifyCredentials()
 const algo = new TheAlgorithm(api, currUser)
 const feed = await algo.getFeed()
+```
 
- ```
-
- ### Adjust Weights:
+### Adjust Weights:
 The algorithm uses features and their weights to determine the order of the posts.
+You could e.g. show the weights to the user, who can then decide to change them.
 
- You could e.g. show the weights to the user, who can then decide to change them.
 ```typescript
 let weights = await algo.getWeights()
 weights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
@@ -66,5 +65,10 @@ const scores = status.scores
 const newWeights = await algoObj.weightAdjust(scores)
 ```
 
-
+# Contributing
+### Developer Setup
+Install the dev dependencies with `npm install --dev`.
 This is untested early alpha so might be due to massive unannounced changes.
+
+#### Running Tests
+`npm run test`
