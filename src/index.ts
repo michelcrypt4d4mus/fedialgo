@@ -79,7 +79,7 @@ export default class TheAlgorithm {
 
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._getValueFromScores(scoreObj);
+            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name fot this number
             scoredFeed.push(status);
         }
 
