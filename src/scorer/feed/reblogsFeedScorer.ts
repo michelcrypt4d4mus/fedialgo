@@ -3,7 +3,7 @@ import { StatusType } from "../../types";
 
 export default class reblogsFeedScorer extends FeedScorer {
     constructor() {
-        super("reblogsFeed", "More Weight to posts that are reblogged a lot", 6);
+        super("reblogsFeed", "Favor posts that have been retooted many times", 6);
     }
 
     feedExtractor(feed: StatusType[]) {

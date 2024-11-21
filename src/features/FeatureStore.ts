@@ -48,6 +48,7 @@ export default class FeatureStorage extends Storage {
         }
     }
 
+    // Returns the Mastodon server the user is currently logged in to
     static async getCoreServer(api: mastodon.rest.Client): Promise<serverFeatureType> {
         const coreServer: serverFeatureType = await this.get(Key.CORE_SERVER) as serverFeatureType;
         console.log(coreServer);

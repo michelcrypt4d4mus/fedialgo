@@ -1,4 +1,5 @@
 # fedialgo
+This is untested early alpha so might be due to massive unannounced changes.
 
 [![Fedialgo Build and Test](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml/badge.svg)](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml)
 Fedialgo is an typescript module, that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It uses React Native Async Storage, so it should also work in React Native Projects, but havent tested it yet.
@@ -30,9 +31,9 @@ in `fedialgo` directory after changes and they will automatically be detected
 ### Demo App
 `fedialgo` is just a node package. You don't use it on its own in the form in this repo; it has to be imported into some other app. Thankfully there's a simple demo app that spins up a webserver, pulls your feed and scores it with the algorithm in this repo, and then presents it to your browser at `http://localhost:3000/` over in [the `foryoufeed` repo](https://github.com/pkreissel/foryoufeed).
 
-## Usage
+## Package Usage
 
-### Basic Feed:
+### Weight An Account's Feed:
 ```typescript
 import TheAlgorithm from "fedialgo"
 import { login, mastodon } from "masto";
@@ -44,13 +45,12 @@ const api: mastodon.Client = await login({
 const currUser = await api.v1.accounts.verifyCredentials()
 const algo = new TheAlgorithm(api, currUser)
 const feed = await algo.getFeed()
+```
 
- ```
-
- ### Adjust Weights:
+### Adjust Weights:
 The algorithm uses features and their weights to determine the order of the posts.
+You could e.g. show the weights to the user, who can then decide to change them.
 
- You could e.g. show the weights to the user, who can then decide to change them.
 ```typescript
 let weights = await algo.getWeights()
 weights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
@@ -66,5 +66,9 @@ const scores = status.scores
 const newWeights = await algoObj.weightAdjust(scores)
 ```
 
+# Contributing
+### Developer Setup
+If necessary install the dev dependencies with `npm install --include=dev`.
 
-This is untested early alpha so might be due to massive unannounced changes.
+#### Running Test Suite
+`npm run test`
