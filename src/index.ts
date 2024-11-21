@@ -1,13 +1,13 @@
 import { mastodon } from "masto";
 import { FeedFetcher, StatusType, weightsType } from "./types";
 import {
-    favsFeatureScorer,
-    interactsFeatureScorer,
-    reblogsFeatureScorer,
     diversityFeedScorer,
-    reblogsFeedScorer,
+    favsFeatureScorer,
     FeatureScorer,
     FeedScorer,
+    interactsFeatureScorer,
+    reblogsFeatureScorer,
+    reblogsFeedScorer,
     topPostFeatureScorer
 } from "./scorer";
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
@@ -107,7 +107,7 @@ export default class TheAlgorithm {
         //Remove duplicates
         scoredFeed = [...new Map(scoredFeed.map((item: StatusType) => [item["uri"], item])).values()];
 
-        this.feed = scoredFeed
+        this.feed = scoredFeed;
         return this.feed;
     }
 

@@ -1,6 +1,6 @@
 import FeatureScorer from '../FeatureScorer';
-import { StatusType, } from "../../types";
 import { mastodon } from "masto";
+import { StatusType, } from "../../types";
 
 export default class topPostFeatureScorer extends FeatureScorer {
     constructor() {
@@ -15,4 +15,4 @@ export default class topPostFeatureScorer extends FeatureScorer {
     async score(_api: mastodon.rest.Client, status: StatusType) {
         return status.topPost ? 1 : 0;
     }
-}
+};
