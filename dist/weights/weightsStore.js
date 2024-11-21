@@ -23,6 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Stores the user's preferred weight for each post scorer.
+ */
 const Storage_1 = __importStar(require("../Storage"));
 class weightsStore extends Storage_1.default {
     static async getWeight(verboseName) {

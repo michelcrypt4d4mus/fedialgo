@@ -10,7 +10,7 @@ class favsFeatureScorer extends FeatureScorer_1.default {
         super({
             featureGetter: (api) => FeatureStore_1.default.getTopFavs(api),
             verboseName: "Favs",
-            description: "Posts that are from your most favorited users",
+            description: "Favor posts from users whose posts you have favorited a lot in the past",
             defaultWeight: 1,
         });
     }
@@ -19,3 +19,4 @@ class favsFeatureScorer extends FeatureScorer_1.default {
     }
 }
 exports.default = favsFeatureScorer;
+;

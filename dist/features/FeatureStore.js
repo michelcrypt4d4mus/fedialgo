@@ -69,6 +69,7 @@ class FeatureStorage extends Storage_1.default {
             return interacts;
         }
     }
+    // Returns the Mastodon server the user is currently logged in to
     static async getCoreServer(api) {
         const coreServer = await this.get(Storage_1.Key.CORE_SERVER);
         console.log(coreServer);
@@ -84,3 +85,4 @@ class FeatureStorage extends Storage_1.default {
     }
 }
 exports.default = FeatureStorage;
+;

@@ -1,5 +1,5 @@
-import { weightsType } from "../types";
 import Storage from "../Storage";
+import { weightsType } from "../types";
 export default class weightsStore extends Storage {
     static getWeight(verboseName: string): Promise<weightsType>;
     static setWeights(weights: weightsType, verboseName: string): Promise<void>;

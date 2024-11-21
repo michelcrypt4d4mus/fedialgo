@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
 class reblogsFeedScorer extends FeedScorer_1.default {
     constructor() {
-        super("reblogsFeed", "More Weight to posts that are reblogged a lot", 6);
+        super("reblogsFeed", "Favor posts that have been retooted many times", 6);
     }
     feedExtractor(feed) {
         // for each uri in the feed, count the number of times it appears

@@ -9,7 +9,7 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
         super({
             featureGetter: (_api) => { return Promise.resolve({}); },
             verboseName: "TopPosts",
-            description: "Posts that are trending on multiple of your most popular instances",
+            description: "Favor posts that are trending in the Fediverse",
             defaultWeight: 1,
         });
     }
@@ -18,3 +18,4 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
     }
 }
 exports.default = topPostFeatureScorer;
+;

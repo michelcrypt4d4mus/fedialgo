@@ -10,7 +10,7 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
         super({
             featureGetter: (api) => { return FeatureStore_1.default.getTopReblogs(api); },
             verboseName: "Reblogs",
-            description: "Posts that are from your most reblogger users",
+            description: "Favor posts from accounts you have retooted a lot",
             defaultWeight: 3,
         });
     }
@@ -21,3 +21,4 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
     }
 }
 exports.default = reblogsFeatureScorer;
+;

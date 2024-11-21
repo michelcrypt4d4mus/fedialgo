@@ -3,6 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Gives higher weight to posts from users that have often interacted with your posts.
+ */
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
 class interactsFeatureScorer extends FeatureScorer_1.default {
@@ -10,7 +13,7 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
         super({
             featureGetter: (api) => { return FeatureStore_1.default.getTopInteracts(api); },
             verboseName: "Interacts",
-            description: "Posts that are from users, that often interact with your posts",
+            description: "Favor posts from users that most frequently interact with your posts",
             defaultWeight: 2,
         });
     }
@@ -19,3 +22,4 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
     }
 }
 exports.default = interactsFeatureScorer;
+;
