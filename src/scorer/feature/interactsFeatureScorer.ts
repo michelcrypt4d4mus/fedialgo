@@ -1,7 +1,11 @@
+/*
+ * Gives higher weight to posts from users that have often interacted with your posts.
+ */
 import FeatureScorer from "../FeatureScorer";
-import { StatusType } from "../../types";
-import { mastodon } from "masto";
 import FeatureStorage from "../../features/FeatureStore";
+import { mastodon } from "masto";
+import { StatusType } from "../../types";
+
 
 export default class interactsFeatureScorer extends FeatureScorer {
     constructor() {
@@ -14,6 +18,6 @@ export default class interactsFeatureScorer extends FeatureScorer {
     }
 
     async score(_api: mastodon.rest.Client, status: StatusType) {
-        return (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0
+        return (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0;
     }
-}
+};

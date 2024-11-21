@@ -1,5 +1,9 @@
-import { weightsType } from "../types";
+/*
+ * Stores the user's preferred weight for each post scorer.
+ */
 import Storage, { Key } from "../Storage";
+import { weightsType } from "../types";
+
 
 export default class weightsStore extends Storage {
     static async getWeight(verboseName: string) {
@@ -18,7 +22,7 @@ export default class weightsStore extends Storage {
         const weights: weightsType = {}
         for (const verboseName of verboseNames) {
             const weight = await this.getWeight(verboseName);
-            weights[verboseName] = weight[verboseName]
+            weights[verboseName] = weight[verboseName];
         }
         return weights;
     }

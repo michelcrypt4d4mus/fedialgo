@@ -1,27 +1,27 @@
 import { mastodon } from "masto";
 import { FeedFetcher, StatusType, weightsType } from "./types";
 import {
-    favsFeatureScorer,
-    interactsFeatureScorer,
-    reblogsFeatureScorer,
     diversityFeedScorer,
-    reblogsFeedScorer,
+    favsFeatureScorer,
     FeatureScorer,
     FeedScorer,
+    interactsFeatureScorer,
+    reblogsFeatureScorer,
+    reblogsFeedScorer,
     topPostFeatureScorer
 } from "./scorer";
-import weightsStore from "./weights/weightsStore";
-import getHomeFeed from "./feeds/homeFeed";
-import topPostsFeed from "./feeds/topPostsFeed";
-import Storage from "./Storage";
-import Paginator from "./Paginator"
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
+import getHomeFeed from "./feeds/homeFeed";
+import Paginator from "./Paginator";
+import Storage from "./Storage";
+import topPostsFeed from "./feeds/topPostsFeed";
+import weightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
     fetchers = [getHomeFeed, topPostsFeed];
-    featureScorer = [
+    featureScorers = [
         new favsFeatureScorer(),
         new reblogsFeatureScorer(),
         new interactsFeatureScorer(),
@@ -48,29 +48,29 @@ export default class TheAlgorithm {
         feedScorer: Array<FeedScorer>
     ) {
         this.fetchers = fetchers;
-        this.featureScorer = featureScorer;
+        this.featureScorers = featureScorer;
         this.feedScorer = feedScorer;
         return this.getFeed();
     }
 
     async getFeed(): Promise<StatusType[]> {
-        const { fetchers, featureScorer, feedScorer } = this;
+        const { fetchers, featureScorers, feedScorer } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
         this.feed = response.flat();
 
         // Load and Prepare Features
-        await Promise.all(featureScorer.map(scorer => scorer.getFeature(this.api)));
+        await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorer.map(scorer => scorer.setFeed(this.feed)));
 
         // Get Score Names
-        const scoreNames = featureScorer.map(scorer => scorer.getVerboseName());
+        const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
         const feedScoreNames = feedScorer.map(scorer => scorer.getVerboseName());
 
         // Score Feed
         let scoredFeed: StatusType[] = []
         for (const status of this.feed) {
             // Load Scores for each status
-            const featureScore = await Promise.all(featureScorer.map(scorer => scorer.score(this.api, status)));
+            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, status)));
             const feedScore = await Promise.all(feedScorer.map(scorer => scorer.score(status)));
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
@@ -107,7 +107,7 @@ export default class TheAlgorithm {
         //Remove duplicates
         scoredFeed = [...new Map(scoredFeed.map((item: StatusType) => [item["uri"], item])).values()];
 
-        this.feed = scoredFeed
+        this.feed = scoredFeed;
         return this.feed;
     }
 
@@ -128,18 +128,18 @@ export default class TheAlgorithm {
     }
 
     getWeightNames(): string[] {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         return [...scorers.map(scorer => scorer.getVerboseName())]
     }
 
     async setDefaultWeights(): Promise<void> {
         //Set Default Weights if they don't exist
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         Promise.all(scorers.map(scorer => weightsStore.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())))
     }
 
     getWeightDescriptions(): string[] {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         return [...scorers.map(scorer => scorer.getDescription())]
     }
 
@@ -171,7 +171,7 @@ export default class TheAlgorithm {
     }
 
     getDescription(verboseName: string): string {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         const scorer = scorers.find(scorer => scorer.getVerboseName() === verboseName);
         if (scorer) {
             return scorer.getDescription();
@@ -179,12 +179,23 @@ export default class TheAlgorithm {
         return "";
     }
 
+    //Adjust post weights based on user's chosen slider values
     async weightAdjust(statusWeights: weightsType, step = 0.001): Promise<weightsType | undefined> {
-        //Adjust Weights based on user interaction
         if (statusWeights == undefined) return;
-        const mean = Object.values(statusWeights).filter((value: number) => !isNaN(value)).reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0) / Object.values(statusWeights).length;
+
+        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
+        const total = Object.values(statusWeights)
+                            .filter((value: number) => !isNaN(value))
+                            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
+        const mean = total / Object.values(statusWeights).length;
+
+        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
         const currentWeight: weightsType = await this.getWeights()
-        const currentMean = Object.values(currentWeight).filter((value: number) => !isNaN(value)).reduce((accumulator, currentValue) => accumulator + currentValue, 0) / Object.values(currentWeight).length;
+        const currentTotal = Object.values(currentWeight)
+                                   .filter((value: number) => !isNaN(value))
+                                   .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        const currentMean = currentTotal / Object.values(currentWeight).length;
+
         for (const key in currentWeight) {
             const reweight = 1 - (Math.abs(statusWeights[key]) / mean) / (currentWeight[key] / currentMean);
             currentWeight[key] = currentWeight[key] - step * currentWeight[key] * reweight;
@@ -194,6 +205,6 @@ export default class TheAlgorithm {
     }
 
     list() {
-        return new Paginator(this.feed)
+        return new Paginator(this.feed);
     }
 }
