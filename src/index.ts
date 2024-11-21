@@ -28,16 +28,17 @@ export default class TheAlgorithm {
         new topPostFeatureScorer(),
         new chaosFeatureScorer(),
     ];
-    feedScorer = [new reblogsFeedScorer(), new diversityFeedScorer()]
+    feedScorer = [new reblogsFeedScorer(), new diversityFeedScorer()];
     feed: StatusType[] = [];
     api: mastodon.rest.Client;
+
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator: (((scores: weightsType) => Promise<number>) | null) = null) {
         this.api = api;
         this.user = user;
         Storage.setIdentity(user);
         Storage.logOpening();
         if (valueCalculator) {
-            this._getValueFromScores = valueCalculator;
+            this._computeFinalScore = valueCalculator;
         }
         this.setDefaultWeights();
     }
@@ -80,7 +81,7 @@ export default class TheAlgorithm {
 
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name for this number
+            status["value"] = await this._computeFinalScore(scoreObj); // TODO: "value" is not a good name for this number
             scoredFeed.push(status);
         }
 
@@ -137,7 +138,7 @@ export default class TheAlgorithm {
 
     // Compute a weighted score value for a status based on the various inputs by scaling the
     // numerical score value in each criteria by the user setting that comes from the GUI sliders.
-    private async _getValueFromScores(scores: weightsType): Promise<number> {
+    private async _computeFinalScore(scores: weightsType): Promise<number> {
         const weights = await weightsStore.getWeightsMulti(Object.keys(scores));
 
         return Object.keys(scores).reduce((score: number, cur) => {
@@ -174,16 +175,17 @@ export default class TheAlgorithm {
         for (const key in weights) {
             if (weights[key] == undefined || weights[key] == null || isNaN(weights[key])) {
                 console.log("Weights not set because of error");
-                return this.feed
+                return this.feed;
             }
         }
         await weightsStore.setWeightsMulti(weights);
-        const scoredFeed: StatusType[] = []
+        const scoredFeed: StatusType[] = [];
+
         for (const status of this.feed) {
             if (!status["scores"]) {
                 return this.getFeed();
             }
-            status["value"] = await this._getValueFromScores(status["scores"]);
+            status["value"] = await this._computeFinalScore(status["scores"]);
             scoredFeed.push(status);
         }
         // TODO: this is still using the old weird sorting mechanics

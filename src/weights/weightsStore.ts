@@ -42,5 +42,4 @@ export default class weightsStore extends Storage {
         }
         return false;
     }
-
-}
+};
