@@ -13,6 +13,6 @@ export default class topPostFeatureScorer extends FeatureScorer {
     }
 
     async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status.topPost ? 1 : 0
+        return status.topPost ? 1 : 0;
     }
 }

@@ -179,12 +179,23 @@ export default class TheAlgorithm {
         return "";
     }
 
+    //Adjust post weights based on user's chosen slider values
     async weightAdjust(statusWeights: weightsType, step = 0.001): Promise<weightsType | undefined> {
-        //Adjust Weights based on user interaction
         if (statusWeights == undefined) return;
-        const mean = Object.values(statusWeights).filter((value: number) => !isNaN(value)).reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0) / Object.values(statusWeights).length;
+
+        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
+        const total = Object.values(statusWeights)
+                            .filter((value: number) => !isNaN(value))
+                            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
+        const mean = total / Object.values(statusWeights).length;
+
+        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
         const currentWeight: weightsType = await this.getWeights()
-        const currentMean = Object.values(currentWeight).filter((value: number) => !isNaN(value)).reduce((accumulator, currentValue) => accumulator + currentValue, 0) / Object.values(currentWeight).length;
+        const currentTotal = Object.values(currentWeight)
+                                   .filter((value: number) => !isNaN(value))
+                                   .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        const currentMean = currentTotal / Object.values(currentWeight).length;
+
         for (const key in currentWeight) {
             const reweight = 1 - (Math.abs(statusWeights[key]) / mean) / (currentWeight[key] / currentMean);
             currentWeight[key] = currentWeight[key] - step * currentWeight[key] * reweight;
