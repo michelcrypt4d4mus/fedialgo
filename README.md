@@ -72,3 +72,10 @@ If necessary install the dev dependencies with `npm install --include=dev`.
 
 #### Running Test Suite
 `npm run test`
+
+### TODO
+1. Add scorers for:
+   * number of replies
+   * number of favorites
+   * number (and size?) of `mediaAttachments`
+   * movies vs. images

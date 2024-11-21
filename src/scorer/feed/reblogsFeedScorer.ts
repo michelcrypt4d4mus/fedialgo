@@ -2,6 +2,7 @@ import FeedScorer from "../FeedScorer";
 import { StatusType } from "../../types";
 
 export default class reblogsFeedScorer extends FeedScorer {
+    // TODO: rename to reblogCount
     constructor() {
         super("reblogsFeed", "Favor posts that have been retooted many times", 6);
     }

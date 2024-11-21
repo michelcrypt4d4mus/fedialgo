@@ -10,7 +10,7 @@ import Storage, { Key } from "../Storage";
 export default class FeatureStorage extends Storage {
     static async getTopFavs(api: mastodon.rest.Client): Promise<accFeatureType> {
         const topFavs: accFeatureType = await this.get(Key.TOP_FAVS) as accFeatureType;
-        console.log(topFavs);
+        console.log("topFavs", topFavs);
 
         if (topFavs != null && await this.getOpenings() % 10 < 9) {
             return topFavs;
@@ -23,7 +23,7 @@ export default class FeatureStorage extends Storage {
 
     static async getTopReblogs(api: mastodon.rest.Client): Promise<accFeatureType> {
         const topReblogs: accFeatureType = await this.get(Key.TOP_REBLOGS) as accFeatureType;
-        console.log(topReblogs);
+        console.log("topReblogs", topReblogs);
 
         if (topReblogs != null && await this.getOpenings() % 10 < 9) {
             return topReblogs;
@@ -37,7 +37,7 @@ export default class FeatureStorage extends Storage {
 
     static async getTopInteracts(api: mastodon.rest.Client): Promise<accFeatureType> {
         const topInteracts: accFeatureType = await this.get(Key.TOP_INTERACTS) as accFeatureType;
-        console.log(topInteracts);
+        console.log("topInteracts", topInteracts);
 
         if (topInteracts != null && await this.getOpenings() % 10 < 9) {
             return topInteracts;
@@ -51,7 +51,7 @@ export default class FeatureStorage extends Storage {
     // Returns the Mastodon server the user is currently logged in to
     static async getCoreServer(api: mastodon.rest.Client): Promise<serverFeatureType> {
         const coreServer: serverFeatureType = await this.get(Key.CORE_SERVER) as serverFeatureType;
-        console.log(coreServer);
+        console.log("coreServer", coreServer);
 
         if (coreServer != null && await this.getOpenings() % 10 != 9) {
             return coreServer;
