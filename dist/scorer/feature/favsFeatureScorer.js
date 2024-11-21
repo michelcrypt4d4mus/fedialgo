@@ -3,6 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Score how many times the current user has favorited the tooter in the past.
+ */
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
 class favsFeatureScorer extends FeatureScorer_1.default {

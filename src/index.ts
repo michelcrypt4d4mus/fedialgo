@@ -3,6 +3,7 @@ import { FeedFetcher, StatusType, weightsType } from "./types";
 import {
     favsFeatureScorer,
     interactsFeatureScorer,
+    numFavoritesScorer,
     reblogsFeatureScorer,
     diversityFeedScorer,
     reblogsFeedScorer,
@@ -27,6 +28,7 @@ export default class TheAlgorithm {
         new interactsFeatureScorer(),
         new topPostFeatureScorer(),
         new chaosFeatureScorer(),
+        new numFavoritesScorer(),
     ];
     feedScorer = [new reblogsFeedScorer(), new diversityFeedScorer()]
     feed: StatusType[] = [];

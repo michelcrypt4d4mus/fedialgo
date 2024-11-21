@@ -4,6 +4,7 @@ import reblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import topPostFeatureScorer from "./feature/topPostFeatureScorer";
 import diversityFeedScorer from "./feed/diversityFeedScorer";
 import reblogsFeedScorer from "./feed/reblogsFeedScorer";
+import numFavoritesScorer from "./feature/numFavoritesScorer";
 import FeedScorer from "./FeedScorer";
 import FeatureScorer from "./FeatureScorer";
 
@@ -14,6 +15,7 @@ export {
     reblogsFeatureScorer,
     topPostFeatureScorer,
     diversityFeedScorer,
+    numFavoritesScorer,
     reblogsFeedScorer,
     FeedScorer,
     FeatureScorer
