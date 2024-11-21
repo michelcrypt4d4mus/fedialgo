@@ -117,7 +117,9 @@ export default class TheAlgorithm {
         });
 
         //Remove duplicates
+        console.log(`Before removing duplicates feed contains ${scoredFeed.length} statuses`);
         scoredFeed = [...new Map(scoredFeed.map((item: StatusType) => [item["uri"], item])).values()];
+        console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
 
         this.feed = scoredFeed;
         return this.feed;
@@ -130,10 +132,12 @@ export default class TheAlgorithm {
         }, {});
     }
 
+    // Compute a weighted score value for a status based on the various inputs by scaling the
+    // numerical score value in each criteria by the user setting that comes from the GUI sliders.
     private async _getValueFromScores(scores: weightsType): Promise<number> {
         const weights = await weightsStore.getWeightsMulti(Object.keys(scores));
         const weightedScores = Object.keys(scores).reduce((obj: number, cur) => {
-            obj = obj + (scores[cur] ?? 0) * (weights[cur] ?? 0)
+            obj = obj + (scores[cur] ?? 0) * (weights[cur] ?? 0);
             return obj;
         }, 0);
         return weightedScores;
@@ -162,6 +166,8 @@ export default class TheAlgorithm {
     }
 
     async setWeights(weights: weightsType): Promise<StatusType[]> {
+        console.log("setWeights() called in fedialgo package");
+
         //prevent weights from being set to 0
         for (const key in weights) {
             if (weights[key] == undefined || weights[key] == null || isNaN(weights[key])) {
