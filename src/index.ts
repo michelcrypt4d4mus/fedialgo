@@ -101,8 +101,20 @@ export default class TheAlgorithm {
             return item;
         })
 
-        // Sort Feed
-        scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+        // Sort Feed (TODO: why was this using minus as the sort parameter?)
+        // scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+        scoredFeed = scoredFeed.sort((a, b) => {
+            const aWeightedScore = a.value ?? 0;
+            const bWeightedScore = b.value ?? 0;
+
+            if (aWeightedScore < bWeightedScore) {
+                return -1;
+            } else if (aWeightedScore > bWeightedScore) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
 
         //Remove duplicates
         scoredFeed = [...new Map(scoredFeed.map((item: StatusType) => [item["uri"], item])).values()];
@@ -166,6 +178,7 @@ export default class TheAlgorithm {
             status["value"] = await this._getValueFromScores(status["scores"]);
             scoredFeed.push(status);
         }
+        // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
         return this.feed;
     }
