@@ -244,4 +244,4 @@ export default class TheAlgorithm {
     list() {
         return new Paginator(this.feed);
     }
-}
+};

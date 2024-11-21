@@ -203,3 +203,4 @@ class TheAlgorithm {
     }
 }
 exports.default = TheAlgorithm;
+;
