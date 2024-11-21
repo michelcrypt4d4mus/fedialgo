@@ -84,7 +84,7 @@ export default class TheAlgorithm {
             scoredFeed.push(status);
         }
 
-        // Remove Replies, Stuff Already Retweeted, and Nulls
+        // Remove Replies, stuff already retooted, and Nulls
         scoredFeed = scoredFeed
             .filter((item: StatusType) => item != undefined)
             .filter((item: StatusType) => item.inReplyToId === null)
