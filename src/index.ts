@@ -98,7 +98,6 @@ export default class TheAlgorithm {
         scoredFeed = scoredFeed.map((item: StatusType) => {
             const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
             const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
-            console.warn(`Computed timeDiscount for status ${item.uri}: ${timeDiscount}`);
             item.value = (item.value ?? 0) * timeDiscount;
             item.timeDiscount = timeDiscount;
             return item;
