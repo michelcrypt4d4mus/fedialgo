@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
 class reblogsFeedScorer extends FeedScorer_1.default {
+    // TODO: rename to reblogCount
     constructor() {
         super("reblogsFeed", "Favor posts that have been retooted many times", 6);
     }

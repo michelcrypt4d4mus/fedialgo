@@ -62,3 +62,4 @@ class weightsStore extends Storage_1.default {
     }
 }
 exports.default = weightsStore;
+;

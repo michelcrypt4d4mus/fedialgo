@@ -15,7 +15,7 @@ export default class TheAlgorithm {
     getFeedAdvanced(fetchers: Array<FeedFetcher>, featureScorer: Array<FeatureScorer>, feedScorer: Array<FeedScorer>): Promise<StatusType[]>;
     getFeed(): Promise<StatusType[]>;
     private _getScoreObj;
-    private _getValueFromScores;
+    private _computeFinalScore;
     getWeightNames(): string[];
     setDefaultWeights(): Promise<void>;
     getWeightDescriptions(): string[];

@@ -30,7 +30,7 @@ class TheAlgorithm {
         Storage_1.default.setIdentity(user);
         Storage_1.default.logOpening();
         if (valueCalculator) {
-            this._getValueFromScores = valueCalculator;
+            this._computeFinalScore = valueCalculator;
         }
         this.setDefaultWeights();
     }
@@ -61,9 +61,16 @@ class TheAlgorithm {
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
+            const weights = await weightsStore_1.default.getWeightsMulti(Object.keys(scoreObj));
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name for this number
+            status["weightedScores"] = Object.assign({}, scoreObj);
+            // Add raw weighted scores for logging purposes
+            for (const scoreName in scoreObj) {
+                status["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
+            }
+            // TODO: "value" is not a good name for this. We should use "score", "weightedScore", or "computedScore"
+            status["value"] = await this._computeFinalScore(scoreObj);
             scoredFeed.push(status);
         }
         // Remove Replies, stuff already retooted, and Nulls
@@ -111,9 +118,9 @@ class TheAlgorithm {
             return obj;
         }, {});
     }
-    // Compute a weighted score value for a status based on the various inputs by scaling the
-    // numerical score value in each criteria by the user setting that comes from the GUI sliders.
-    async _getValueFromScores(scores) {
+    // Compute a weighted score a toot based by multiplying the value of each numerical property
+    // by the user's chosen weighting for that property (the one configured with the GUI sliders).
+    async _computeFinalScore(scores) {
         const weights = await weightsStore_1.default.getWeightsMulti(Object.keys(scores));
         return Object.keys(scores).reduce((score, cur) => {
             return score + (scores[cur] ?? 0) * (weights[cur] ?? 0);
@@ -152,7 +159,7 @@ class TheAlgorithm {
             if (!status["scores"]) {
                 return this.getFeed();
             }
-            status["value"] = await this._getValueFromScores(status["scores"]);
+            status["value"] = await this._computeFinalScore(status["scores"]);
             scoredFeed.push(status);
         }
         // TODO: this is still using the old weird sorting mechanics

@@ -19,6 +19,7 @@ export interface StatusType extends mastodon.v1.Status {
     recommended?: boolean;
     similarity?: number;
     scores?: weightsType;
+    weightedScores?: weightsType;
     value?: number;  // This is the number that the final algorithmic sorting is done on
     reblog?: StatusType;
     reblogBy?: string;

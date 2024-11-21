@@ -78,10 +78,19 @@ export default class TheAlgorithm {
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
+            const weights = await weightsStore.getWeightsMulti(Object.keys(scoreObj));
 
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._computeFinalScore(scoreObj); // TODO: "value" is not a good name for this number
+            status["weightedScores"] = Object.assign({}, scoreObj);
+
+            // Add raw weighted scores for logging purposes
+            for (const scoreName in scoreObj) {
+                status["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
+            }
+
+            // TODO: "value" is not a good name for this. We should use "score", "weightedScore", or "computedScore"
+            status["value"] = await this._computeFinalScore(scoreObj);
             scoredFeed.push(status);
         }
 
@@ -136,8 +145,8 @@ export default class TheAlgorithm {
         }, {});
     }
 
-    // Compute a weighted score value for a status based on the various inputs by scaling the
-    // numerical score value in each criteria by the user setting that comes from the GUI sliders.
+    // Compute a weighted score a toot based by multiplying the value of each numerical property
+    // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     private async _computeFinalScore(scores: weightsType): Promise<number> {
         const weights = await weightsStore.getWeightsMulti(Object.keys(scores));
 
