@@ -1,13 +1,13 @@
 import { mastodon } from "masto";
 import { FeedFetcher, StatusType, weightsType } from "./types";
-import { diversityFeedScorer, favsFeatureScorer, FeatureScorer, FeedScorer, interactsFeatureScorer, numFavoritesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
+import { diversityFeedScorer, favsFeatureScorer, FeatureScorer, FeedScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
     fetchers: (typeof getHomeFeed)[];
-    featureScorers: (favsFeatureScorer | interactsFeatureScorer | reblogsFeatureScorer | topPostFeatureScorer | numFavoritesScorer | chaosFeatureScorer)[];
+    featureScorers: (favsFeatureScorer | interactsFeatureScorer | reblogsFeatureScorer | topPostFeatureScorer | numFavoritesScorer | numRepliesScorer | chaosFeatureScorer)[];
     feedScorer: (diversityFeedScorer | reblogsFeedScorer)[];
     feed: StatusType[];
     api: mastodon.rest.Client;

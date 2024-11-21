@@ -7,6 +7,7 @@ import {
     FeedScorer,
     interactsFeatureScorer,
     numFavoritesScorer,
+    numRepliesScorer,
     reblogsFeatureScorer,
     reblogsFeedScorer,
     topPostFeatureScorer
@@ -30,6 +31,7 @@ export default class TheAlgorithm {
         new topPostFeatureScorer(),
         new chaosFeatureScorer(),
         new numFavoritesScorer(),
+        new numRepliesScorer(),
     ];
     feedScorer = [new reblogsFeedScorer(), new diversityFeedScorer()];
     feed: StatusType[] = [];
