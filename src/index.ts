@@ -10,18 +10,18 @@ import {
     FeedScorer,
     topPostFeatureScorer
 } from "./scorer";
-import weightsStore from "./weights/weightsStore";
-import getHomeFeed from "./feeds/homeFeed";
-import topPostsFeed from "./feeds/topPostsFeed";
-import Storage from "./Storage";
-import Paginator from "./Paginator"
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
+import getHomeFeed from "./feeds/homeFeed";
+import Paginator from "./Paginator";
+import Storage from "./Storage";
+import topPostsFeed from "./feeds/topPostsFeed";
+import weightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
     fetchers = [getHomeFeed, topPostsFeed];
-    featureScorer = [
+    featureScorers = [
         new favsFeatureScorer(),
         new reblogsFeatureScorer(),
         new interactsFeatureScorer(),
@@ -48,29 +48,29 @@ export default class TheAlgorithm {
         feedScorer: Array<FeedScorer>
     ) {
         this.fetchers = fetchers;
-        this.featureScorer = featureScorer;
+        this.featureScorers = featureScorer;
         this.feedScorer = feedScorer;
         return this.getFeed();
     }
 
     async getFeed(): Promise<StatusType[]> {
-        const { fetchers, featureScorer, feedScorer } = this;
+        const { fetchers, featureScorers, feedScorer } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
         this.feed = response.flat();
 
         // Load and Prepare Features
-        await Promise.all(featureScorer.map(scorer => scorer.getFeature(this.api)));
+        await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorer.map(scorer => scorer.setFeed(this.feed)));
 
         // Get Score Names
-        const scoreNames = featureScorer.map(scorer => scorer.getVerboseName());
+        const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
         const feedScoreNames = feedScorer.map(scorer => scorer.getVerboseName());
 
         // Score Feed
         let scoredFeed: StatusType[] = []
         for (const status of this.feed) {
             // Load Scores for each status
-            const featureScore = await Promise.all(featureScorer.map(scorer => scorer.score(this.api, status)));
+            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, status)));
             const feedScore = await Promise.all(feedScorer.map(scorer => scorer.score(status)));
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
@@ -128,18 +128,18 @@ export default class TheAlgorithm {
     }
 
     getWeightNames(): string[] {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         return [...scorers.map(scorer => scorer.getVerboseName())]
     }
 
     async setDefaultWeights(): Promise<void> {
         //Set Default Weights if they don't exist
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         Promise.all(scorers.map(scorer => weightsStore.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())))
     }
 
     getWeightDescriptions(): string[] {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         return [...scorers.map(scorer => scorer.getDescription())]
     }
 
@@ -171,7 +171,7 @@ export default class TheAlgorithm {
     }
 
     getDescription(verboseName: string): string {
-        const scorers = [...this.featureScorer, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorer];
         const scorer = scorers.find(scorer => scorer.getVerboseName() === verboseName);
         if (scorer) {
             return scorer.getDescription();
@@ -194,6 +194,6 @@ export default class TheAlgorithm {
     }
 
     list() {
-        return new Paginator(this.feed)
+        return new Paginator(this.feed);
     }
 }
