@@ -18,6 +18,7 @@ export interface StatusType extends mastodon.v1.Status {
     reblog?: StatusType;
     reblogBy?: string;
     timeDiscount?: number;
+    rawScore?: number;
 }
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<StatusType[]>;
 export type Scorer = (api: mastodon.rest.Client, status: StatusType) => number;

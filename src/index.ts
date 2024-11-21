@@ -80,7 +80,7 @@ export default class TheAlgorithm {
 
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name fot this number
+            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name for this number
             scoredFeed.push(status);
         }
 
@@ -98,7 +98,8 @@ export default class TheAlgorithm {
         scoredFeed = scoredFeed.map((item: StatusType) => {
             const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
             const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
-            item.value = (item.value ?? 0) * timeDiscount;
+            item.rawScore = item.value ?? 0;
+            item.value = (item.value ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
             item.timeDiscount = timeDiscount;
             return item;
         })
@@ -110,9 +111,9 @@ export default class TheAlgorithm {
             const bWeightedScore = b.value ?? 0;
 
             if (aWeightedScore < bWeightedScore) {
-                return -1;
-            } else if (aWeightedScore > bWeightedScore) {
                 return 1;
+            } else if (aWeightedScore > bWeightedScore) {
+                return -1;
             } else {
                 return 0;
             }
@@ -138,11 +139,10 @@ export default class TheAlgorithm {
     // numerical score value in each criteria by the user setting that comes from the GUI sliders.
     private async _getValueFromScores(scores: weightsType): Promise<number> {
         const weights = await weightsStore.getWeightsMulti(Object.keys(scores));
-        const weightedScores = Object.keys(scores).reduce((obj: number, cur) => {
-            obj = obj + (scores[cur] ?? 0) * (weights[cur] ?? 0);
-            return obj;
+
+        return Object.keys(scores).reduce((score: number, cur) => {
+            return score + (scores[cur] ?? 0) * (weights[cur] ?? 0);
         }, 0);
-        return weightedScores;
     }
 
     getWeightNames(): string[] {

@@ -63,10 +63,10 @@ class TheAlgorithm {
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
             // Add Weight Object to Status
             status["scores"] = scoreObj;
-            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name fot this number
+            status["value"] = await this._getValueFromScores(scoreObj); // TODO: "value" is not a good name for this number
             scoredFeed.push(status);
         }
-        // Remove Replies, Stuff Already Retweeted, and Nulls
+        // Remove Replies, stuff already retooted, and Nulls
         scoredFeed = scoredFeed
             .filter((item) => item != undefined)
             .filter((item) => item.inReplyToId === null)
@@ -78,7 +78,8 @@ class TheAlgorithm {
         scoredFeed = scoredFeed.map((item) => {
             const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
             const timeDiscount = Math.pow((1 + 0.05), -Math.pow((seconds / 3600), 2));
-            item.value = (item.value ?? 0) * timeDiscount;
+            item.rawScore = item.value ?? 0;
+            item.value = (item.value ?? 0) * timeDiscount; // TODO: rename to "score" or "weightedScore"
             item.timeDiscount = timeDiscount;
             return item;
         });
@@ -88,10 +89,10 @@ class TheAlgorithm {
             const aWeightedScore = a.value ?? 0;
             const bWeightedScore = b.value ?? 0;
             if (aWeightedScore < bWeightedScore) {
-                return -1;
+                return 1;
             }
             else if (aWeightedScore > bWeightedScore) {
-                return 1;
+                return -1;
             }
             else {
                 return 0;
@@ -114,11 +115,9 @@ class TheAlgorithm {
     // numerical score value in each criteria by the user setting that comes from the GUI sliders.
     async _getValueFromScores(scores) {
         const weights = await weightsStore_1.default.getWeightsMulti(Object.keys(scores));
-        const weightedScores = Object.keys(scores).reduce((obj, cur) => {
-            obj = obj + (scores[cur] ?? 0) * (weights[cur] ?? 0);
-            return obj;
+        return Object.keys(scores).reduce((score, cur) => {
+            return score + (scores[cur] ?? 0) * (weights[cur] ?? 0);
         }, 0);
-        return weightedScores;
     }
     getWeightNames() {
         const scorers = [...this.featureScorers, ...this.feedScorer];
