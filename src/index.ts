@@ -121,27 +121,28 @@ export default class TheAlgorithm {
                 item.value = (item.value ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
                 item.timeDiscount = timeDiscount;
                 return item;
-            })
-            .sort((a, b) => {
-                // Sort Feed. TODO: why was this using minus as the sort parameter before, like this:
-                //                  scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
-                const aWeightedScore = a.value ?? 0;
-                const bWeightedScore = b.value ?? 0;
-
-                if (aWeightedScore < bWeightedScore) {
-                    return 1;
-                } else if (aWeightedScore > bWeightedScore) {
-                    return -1;
-                } else {
-                    return 0;
-                }
             });
 
         // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         console.log(`Before removing duplicates feed contains ${scoredFeed.length} statuses`);
         scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
         console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
-        this.feed = scoredFeed;
+
+        // Sort Feed. TODO: why was this using minus as the sort parameter before, like this:
+        //                  scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+        this.feed = scoredFeed.sort((a, b) => {
+            const aWeightedScore = a.value ?? 0;
+            const bWeightedScore = b.value ?? 0;
+
+            if (aWeightedScore < bWeightedScore) {
+                return 1;
+            } else if (aWeightedScore > bWeightedScore) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
         return this.feed;
     }
 
