@@ -12,7 +12,7 @@
         "ES2022.error"
     ],
     "include": [
-        "src"
+        "src/**/*",
     ],
     "exclude": [
         "node_modules",

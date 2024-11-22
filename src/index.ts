@@ -21,8 +21,6 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
-exports.condensedStatus = condensedStatus;
-
 
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
@@ -268,3 +266,7 @@ export default class TheAlgorithm {
         return new Paginator(this.feed);
     }
 };
+
+
+// module.exports.condensedStatus = condensedStatus;
+export function condensedStatus;
