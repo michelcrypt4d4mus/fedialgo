@@ -25,15 +25,12 @@ exports._transformKeys = _transformKeys;
 const mastodonFetch = async (server, endpoint) => {
     try {
         const json = await axios_1.default.get(`https://${server}${endpoint}`);
-        if (!(json.status === 200) || !json.data) {
-            console.error(`Error fetching data for server ${server}:`, json);
-            return;
-        }
-        const data = (0, exports._transformKeys)(json.data, change_case_1.camelCase);
-        return data;
+        if (!(json.status === 200) || !json.data)
+            throw json;
+        return (0, exports._transformKeys)(json.data, change_case_1.camelCase);
     }
     catch (error) {
-        console.error(`Error fetching data for server ${server}:`, error);
+        console.warn(`Error fetching data for server ${server}:`, error);
         return;
     }
 };

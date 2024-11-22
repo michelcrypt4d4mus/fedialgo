@@ -27,15 +27,11 @@ export const _transformKeys = <T>(
 
 export const mastodonFetch = async <T>(server: string, endpoint: string): Promise<T | undefined> => {
     try {
-        const json = await axios.get<T>(`https://${server}${endpoint}`)
-        if (!(json.status === 200) || !json.data) {
-            console.error(`Error fetching data for server ${server}:`, json);
-            return
-        }
-        const data: T = _transformKeys(json.data, camelCase)
-        return data;
+        const json = await axios.get<T>(`https://${server}${endpoint}`);
+        if (!(json.status === 200) || !json.data) throw json;
+        return _transformKeys(json.data, camelCase);
     } catch (error) {
-        console.error(`Error fetching data for server ${server}:`, error);
-        return
+        console.warn(`Error fetching data for server ${server}:`, error);
+        return;
     }
 }
