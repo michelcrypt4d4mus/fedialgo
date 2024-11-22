@@ -13,7 +13,6 @@ const Storage_1 = __importDefault(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
-module.exports.condensedStatus = helpers_1.condensedStatus;
 class TheAlgorithm {
     user;
     feed = [];
@@ -224,3 +223,5 @@ class TheAlgorithm {
 }
 exports.default = TheAlgorithm;
 ;
+exports.condensedStatus = helpers_1.condensedStatus;
+// export function condensedStatus;

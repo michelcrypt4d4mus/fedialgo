@@ -3,4 +3,5 @@ coverage
 .env
 
 .DS_Store
+# Can't ignore dist/ until there's a better solution for building and releasing the package
 #dist/

@@ -268,5 +268,5 @@ export default class TheAlgorithm {
 };
 
 
-// module.exports.condensedStatus = condensedStatus;
-export function condensedStatus;
+exports.condensedStatus = condensedStatus;
+// export function condensedStatus;
