@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
-import { accFeatureType } from "../types";
+import { AccountFeature } from "../types";
 
-export default async function interactFeature(api: mastodon.rest.Client): Promise<accFeatureType> {
+export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     let results: mastodon.v1.Notification[] = [];
     let pages = 3;
     try {

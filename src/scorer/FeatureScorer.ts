@@ -1,8 +1,8 @@
 import { mastodon } from "masto"
-import { accFeatureType, StatusType } from "../types";
+import { AccountFeature, StatusType } from "../types";
 
 interface RankParams {
-    featureGetter: (api: mastodon.rest.Client) => Promise<accFeatureType>,
+    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
     verboseName: string,
     description?: string,
     defaultWeight?: number,
@@ -10,11 +10,12 @@ interface RankParams {
 
 
 export default class FeatureScorer {
-    featureGetter: (api: mastodon.rest.Client) => Promise<accFeatureType>;
+    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>;
+    feature: AccountFeature = {};
+
     private _verboseName: string;
     private _isReady: boolean = false;
     private _description: string = "";
-    feature: accFeatureType = {};
     private _defaultWeight: number = 1;
 
     constructor(params: RankParams) {

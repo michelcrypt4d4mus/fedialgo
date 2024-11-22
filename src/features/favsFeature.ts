@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
-import { accFeatureType } from "../types";
+import { AccountFeature } from "../types";
 
-export default async function favFeature(api: mastodon.rest.Client): Promise<accFeatureType> {
+export default async function favFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     let results: mastodon.v1.Status[] = [];
     let pages = 3;
     try {
@@ -18,7 +18,7 @@ export default async function favFeature(api: mastodon.rest.Client): Promise<acc
     }
 
 
-    const favFrequ = results.reduce((accumulator: accFeatureType, status: mastodon.v1.Status,) => {
+    const favFrequ = results.reduce((accumulator: AccountFeature, status: mastodon.v1.Status,) => {
         if (!status.account) return accumulator;
         if (status.account.acct in accumulator) {
             accumulator[status.account.acct] += 1;

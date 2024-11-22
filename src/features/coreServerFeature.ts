@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 
 import { mastodonFetch } from "../helpers";
-import { serverFeatureType } from "../types";
+import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
 const NUM_SERVERS_TO_RETURN = 20;
@@ -18,7 +18,7 @@ async function getMonthlyUsers(server: string): Promise<number> {
     }
 }
 
-export default async function coreServerFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<serverFeatureType> {
+export default async function coreServerFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<ServerFeature> {
     let results: mastodon.v1.Account[] = [];
     let pages = 10;
 
@@ -35,7 +35,7 @@ export default async function coreServerFeature(api: mastodon.rest.Client, user:
         return {};
     }
 
-    const serverFrequ = results.reduce((accumulator: serverFeatureType, follower: mastodon.v1.Account) => {
+    const serverFrequ = results.reduce((accumulator: ServerFeature, follower: mastodon.v1.Account) => {
         const server = follower.url.split("@")[0].split("https://")[1];
         if (server in accumulator) {
             accumulator[server] += 1;

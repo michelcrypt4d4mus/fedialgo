@@ -1,9 +1,10 @@
 /*
  * Score how many times the current user has favorited the tooter in the past.
  */
+import { mastodon } from 'masto';
+
 import FeatureScorer from '../FeatureScorer';
 import FeatureStorage from '../../features/FeatureStore';
-import { mastodon } from 'masto';
 import { StatusType } from '../../types';
 
 

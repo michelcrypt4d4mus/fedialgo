@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 
 import { TOP_POSTS } from "./scorer/feature/topPostFeatureScorer";
 import { condensedStatus } from "./helpers";
-import { StatusType, weightsType } from "./types";
+import { StatusType, ScoresType } from "./types";
 import {
     diversityFeedScorer,
     favsFeatureScorer,
@@ -46,7 +46,7 @@ export default class TheAlgorithm {
     feed: StatusType[] = [];
     api: mastodon.rest.Client;
 
-    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator: (((scores: weightsType) => Promise<number>) | null) = null) {
+    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator: (((scores: ScoresType) => Promise<number>) | null) = null) {
         this.api = api;
         this.user = user;
         Storage.setIdentity(user);
@@ -145,8 +145,8 @@ export default class TheAlgorithm {
         return this.feed;
     }
 
-    private _getScoreObj(scoreNames: string[], scores: number[]): weightsType {
-        return scoreNames.reduce((obj: weightsType, cur, i) => {
+    private _getScoreObj(scoreNames: string[], scores: number[]): ScoresType {
+        return scoreNames.reduce((obj: ScoresType, cur, i) => {
             obj[cur] = scores[i];
             return obj;
         }, {});
@@ -154,7 +154,7 @@ export default class TheAlgorithm {
 
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-    private async _computeFinalScore(scores: weightsType): Promise<number> {
+    private async _computeFinalScore(scores: ScoresType): Promise<number> {
         const userWeightings = await weightsStore.getWeightsMulti(Object.keys(scores));
         let trendingTootWeighting = userWeightings[TOP_POSTS] || 0;
 
@@ -193,13 +193,13 @@ export default class TheAlgorithm {
         return [...scorers.map(scorer => scorer.getDescription())]
     }
 
-    async getWeights(): Promise<weightsType> {
+    async getWeights(): Promise<ScoresType> {
         const verboseNames = this.getWeightNames();
         const weights = await weightsStore.getWeightsMulti(verboseNames);
         return weights;
     }
 
-    async setWeights(weights: weightsType): Promise<StatusType[]> {
+    async setWeights(weights: ScoresType): Promise<StatusType[]> {
         console.log("setWeights() called in fedialgo package with 'weights' arg:", weights);
 
         //prevent weights from being set to 0
@@ -235,7 +235,7 @@ export default class TheAlgorithm {
     }
 
     //Adjust post weights based on user's chosen slider values
-    async weightAdjust(statusWeights: weightsType, step = 0.001): Promise<weightsType | undefined> {
+    async weightAdjust(statusWeights: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
         if (statusWeights == undefined) return;
 
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
@@ -245,7 +245,7 @@ export default class TheAlgorithm {
         const mean = total / Object.values(statusWeights).length;
 
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const currentWeight: weightsType = await this.getWeights()
+        const currentWeight: ScoresType = await this.getWeights()
         const currentTotal = Object.values(currentWeight)
                                    .filter((value: number) => !isNaN(value))
                                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);

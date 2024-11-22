@@ -1,17 +1,18 @@
 import { mastodon } from 'masto';
 
-export type StorageValue = serverFeatureType | accFeatureType | mastodon.v1.Account | weightsType | string;
 
-export interface weightsType {
-    [key: string]: number; // Replace 'any' with the desired value type (e.g., string, number, etc.)
+export type StorageValue = ServerFeature | AccountFeature | mastodon.v1.Account | ScoresType | string;
+
+export interface ScoresType {
+    [key: string]: number;
 };
 
-export type accFeatureType = {
-    [key: mastodon.v1.Account["acct"]]: number; // Replace 'any' with the desired value type (e.g., string, number, etc.)
+export type AccountFeature = {
+    [key: mastodon.v1.Account["acct"]]: number;
 };
 
-export type serverFeatureType = {
-    [key: mastodon.v1.Instance["uri"]]: number; // Replace 'any' with the desired value type (e.g., string, number, etc.)
+export type ServerFeature = {
+    [key: mastodon.v1.Instance["uri"]]: number;
 };
 
 export interface StatusType extends mastodon.v1.Status {
@@ -21,11 +22,11 @@ export interface StatusType extends mastodon.v1.Status {
     reblogBy?: string;
     recommended?: boolean;
     similarity?: number;
-    scores?: weightsType;
+    scores?: ScoresType;
     timeDiscount?: number;  // Multiplier that reduces the score of older posts
     topPost?: number;
     value?: number;
-    weightedScores?: weightsType;
+    weightedScores?: ScoresType;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<StatusType[]>;
