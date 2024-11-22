@@ -1,4 +1,6 @@
 import { mastodon } from "masto";
+
+import { condensedStatus } from "./helpers";
 import { FeedFetcher, StatusType, weightsType } from "./types";
 import {
     diversityFeedScorer,
@@ -63,7 +65,12 @@ export default class TheAlgorithm {
         console.log("getFeed() called in fedialgo package");
         const { fetchers, featureScorers, feedScorer } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
-        this.feed = response.flat();
+
+        // Inject condensedStatus instance method. TODO: this feels like not the right place to do this.
+        this.feed = response.flat().map((status) => {
+            status.condensedStatus = () => condensedStatus(status);
+            return status;
+        });
 
         // Load and Prepare Features
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));

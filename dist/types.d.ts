@@ -10,6 +10,7 @@ export type serverFeatureType = {
     [key: mastodon.v1.Instance["uri"]]: number;
 };
 export interface StatusType extends mastodon.v1.Status {
+    condensedStatus?: () => object;
     rawScore?: number;
     reblog?: StatusType;
     reblogBy?: string;

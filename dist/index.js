@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const helpers_1 = require("./helpers");
 const scorer_1 = require("./scorer");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
@@ -46,7 +47,11 @@ class TheAlgorithm {
         console.log("getFeed() called in fedialgo package");
         const { fetchers, featureScorers, feedScorer } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)));
-        this.feed = response.flat();
+        // Inject condensedStatus instance method. TODO: this feels like not the right place to do this.
+        this.feed = response.flat().map((status) => {
+            status.condensedStatus = () => (0, helpers_1.condensedStatus)(status);
+            return status;
+        });
         // Load and Prepare Features
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorer.map(scorer => scorer.setFeed(this.feed)));

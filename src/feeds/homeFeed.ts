@@ -3,6 +3,7 @@
  * the home timeline feed of a user (AKA "what most people see first upon opening Mastodon").
  */
 import Storage from "../Storage";
+import { condensedStatus } from "../helpers";
 import { mastodon } from "masto";
 import { StatusType } from "../types";
 

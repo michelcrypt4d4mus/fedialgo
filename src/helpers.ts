@@ -1,11 +1,15 @@
 import axios from "axios";
 import { camelCase } from "change-case";
+import { StatusType } from "./types";
+
+const CONTENT_CHARS_TO_LOG = 150;
 
 
 //Masto does not support top posts from foreign servers, so we have to do it manually
 export const isRecord = (x: unknown): x is Record<string, unknown> => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 }
+
 
 // Apply a transform() function to all keys in a nested object.
 export const _transformKeys = <T>(data: T, transform: (key: string) => string): T => {
@@ -24,6 +28,7 @@ export const _transformKeys = <T>(data: T, transform: (key: string) => string): 
     return data as T;
 };
 
+
 // Retrieve Mastodon server information from a given server and endpoint
 export const mastodonFetch = async <T>(server: string, endpoint: string): Promise<T | undefined> => {
     try {
@@ -38,4 +43,44 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
         console.warn(`Error fetching data for server ${server}:`, error);
         return;
     }
+};
+
+
+// Returns a simplified version of the status for logging
+export const condensedStatus = (status: StatusType) => {
+    let content = status.reblog?.content || status.content || "";
+    if (content.length > CONTENT_CHARS_TO_LOG) content = content.slice(0, CONTENT_CHARS_TO_LOG) + '...';
+
+    let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
+    if (mediaAttachments.length == 0) mediaAttachments = [];
+
+    const statusObj = {
+        FROM: `${status.account.displayName} (${status.account.acct}) [${status.createdAt}]`,
+        URL: status.url,
+        content: content,
+        retootOf: status.reblog ? `${status.reblog.account.acct} (${status.reblog.createdAt})` : null,
+        inReplyToId: status.inReplyToId,
+        mediaAttachments: mediaAttachments,
+
+        properties: {
+            favouritesCount: status.favouritesCount,
+            reblogsCount: status.reblogsCount,
+            repliesCount: status.repliesCount,
+            tags: (status.tags || status.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
+        },
+
+        score: {
+            timeWeightedScore: status.value,
+            rawScore: status.rawScore,
+            timeDiscount: status.timeDiscount,
+            scoreComponents: status.scores,
+            scoreComponentsWeighted: status.weightedScores,
+        },
+
+        raw: status,
+    };
+
+    return Object.keys(statusObj)
+                 .filter((k) => statusObj[k as keyof typeof statusObj] != null)
+                 .reduce((obj, k) => ({ ...obj, [k]: statusObj[k as keyof typeof statusObj] }), {});
 };

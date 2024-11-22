@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
+exports.condensedStatus = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
+const CONTENT_CHARS_TO_LOG = 150;
 //Masto does not support top posts from foreign servers, so we have to do it manually
 const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
@@ -42,3 +43,38 @@ const mastodonFetch = async (server, endpoint) => {
     }
 };
 exports.mastodonFetch = mastodonFetch;
+// Returns a simplified version of the status for logging
+const condensedStatus = (status) => {
+    let content = status.reblog?.content || status.content || "";
+    if (content.length > CONTENT_CHARS_TO_LOG)
+        content = content.slice(0, CONTENT_CHARS_TO_LOG) + '...';
+    let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
+    if (mediaAttachments.length == 0)
+        mediaAttachments = [];
+    const statusObj = {
+        FROM: `${status.account.displayName} (${status.account.acct}) [${status.createdAt}]`,
+        URL: status.url,
+        content: content,
+        retootOf: status.reblog ? `${status.reblog.account.acct} (${status.reblog.createdAt})` : null,
+        inReplyToId: status.inReplyToId,
+        mediaAttachments: mediaAttachments,
+        properties: {
+            favouritesCount: status.favouritesCount,
+            reblogsCount: status.reblogsCount,
+            repliesCount: status.repliesCount,
+            tags: (status.tags || status.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
+        },
+        score: {
+            timeWeightedScore: status.value,
+            rawScore: status.rawScore,
+            timeDiscount: status.timeDiscount,
+            scoreComponents: status.scores,
+            scoreComponentsWeighted: status.weightedScores,
+        },
+        raw: status,
+    };
+    return Object.keys(statusObj)
+        .filter((k) => statusObj[k] != null)
+        .reduce((obj, k) => ({ ...obj, [k]: statusObj[k] }), {});
+};
+exports.condensedStatus = condensedStatus;

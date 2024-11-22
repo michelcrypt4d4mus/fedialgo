@@ -15,6 +15,7 @@ export type serverFeatureType = {
 };
 
 export interface StatusType extends mastodon.v1.Status {
+    condensedStatus?: () => object;
     rawScore?: number;  // Score before applying timeDiscount
     reblog?: StatusType;
     reblogBy?: string;
