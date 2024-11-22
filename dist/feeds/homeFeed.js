@@ -14,7 +14,8 @@ const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 async function getHomeFeed(api, _user) {
     let pagesRetrieved = 0;
     let results = [];
-    // Don't load posts more than MAX_TIMELINE_HOURS old.
+    // We should already have toots cached up until the last time this app was opened so we
+    // don't need to re-retrieve them but in any case never load toots more than MAX_TIMELINE_HOURS old.
     const lastOpened = new Date((await Storage_1.default.getLastOpened() ?? 0) - 600);
     const cutoffTimelineAt = new Date(Date.now() - TIMELINE_LOOKBACK_MS);
     const timelineCutoff = lastOpened < cutoffTimelineAt ? cutoffTimelineAt : lastOpened;
