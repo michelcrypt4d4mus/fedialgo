@@ -1,7 +1,7 @@
 import FeedScorer from "../FeedScorer";
 import { StatusType } from "../../types";
 
-const DEFAULT_REBLOGS_WEIGHT = 6;
+const DEFAULT_REBLOGS_WEIGHT = 2;
 
 
 export default class reblogsFeedScorer extends FeedScorer {
