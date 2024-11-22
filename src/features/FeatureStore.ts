@@ -1,10 +1,11 @@
 import { mastodon } from "masto";
-import { ServerFeature, AccountFeature } from "../types";
-import FavsFeature from "./favsFeature";
-import reblogsFeature from "./reblogsFeature";
-import interactsFeature from "./interactsFeature";
+
 import coreServerFeature from "./coreServerFeature";
+import FavsFeature from "./favsFeature";
+import interactsFeature from "./interactsFeature";
+import reblogsFeature from "./reblogsFeature";
 import Storage, { Key } from "../Storage";
+import { ServerFeature, AccountFeature } from "../types";
 
 
 export default class FeatureStorage extends Storage {

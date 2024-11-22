@@ -24,7 +24,13 @@ import WeightsStore from "./weights/weightsStore";
 
 export default class TheAlgorithm {
     user: mastodon.v1.Account;
-    fetchers = [getHomeFeed, topPostsFeed];
+    feed: StatusType[] = [];
+    api: mastodon.rest.Client;
+
+    fetchers = [
+        getHomeFeed,
+        topPostsFeed
+    ];
 
     // I think these scorers work in a standalone way and don't require the complete list to work?
     featureScorers = [
@@ -42,9 +48,6 @@ export default class TheAlgorithm {
         new diversityFeedScorer(),
         new reblogsFeedScorer(),
     ];
-
-    feed: StatusType[] = [];
-    api: mastodon.rest.Client;
 
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator: (((scores: ScoresType) => Promise<number>) | null) = null) {
         this.api = api;
@@ -128,7 +131,7 @@ export default class TheAlgorithm {
         scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
         console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
 
-        // *NOTE: This must come after the deduplication step. Sort feed based on score from high to low.*
+        // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
         this.feed = scoredFeed.sort((a, b) => {
             const aWeightedScore = a.value ?? 0;
             const bWeightedScore = b.value ?? 0;
@@ -170,7 +173,7 @@ export default class TheAlgorithm {
             score *= trendingTootWeighting;
         }
 
-        console.log(`Computed score with: `, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
+        console.debug(`Computed score with: `, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
         return score;
     }
 
