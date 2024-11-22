@@ -268,5 +268,6 @@ export default class TheAlgorithm {
 };
 
 
-exports.condensedStatus = condensedStatus;
+// exports.condensedStatus = condensedStatus;
 // export function condensedStatus;
+export { condensedStatus };
