@@ -17,7 +17,7 @@ export interface StatusType extends mastodon.v1.Status {
     similarity?: number;
     scores?: weightsType;
     timeDiscount?: number;
-    topPost?: boolean;
+    topPost?: number;
     value?: number;
     weightedScores?: weightsType;
 }
