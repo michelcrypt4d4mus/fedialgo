@@ -20,3 +20,4 @@ class favsFeatureScorer extends FeatureScorer_1.default {
 }
 exports.default = favsFeatureScorer;
 ;
+//# sourceMappingURL=favsFeatureScorer.js.map

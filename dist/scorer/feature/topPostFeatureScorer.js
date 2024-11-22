@@ -23,3 +23,4 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
 }
 exports.default = topPostFeatureScorer;
 ;
+//# sourceMappingURL=topPostFeatureScorer.js.map

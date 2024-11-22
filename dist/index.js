@@ -225,3 +225,4 @@ class TheAlgorithm {
 }
 exports.TheAlgorithm = TheAlgorithm;
 ;
+//# sourceMappingURL=index.js.map

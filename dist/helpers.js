@@ -88,3 +88,4 @@ exports.condensedStatus = condensedStatus;
 const describeAccount = (status) => {
     return `${status.account.displayName} (${status.account.acct})`;
 };
+//# sourceMappingURL=helpers.js.map

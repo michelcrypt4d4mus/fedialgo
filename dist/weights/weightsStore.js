@@ -66,3 +66,4 @@ class WeightsStore extends Storage_1.default {
 }
 exports.default = WeightsStore;
 ;
+//# sourceMappingURL=weightsStore.js.map

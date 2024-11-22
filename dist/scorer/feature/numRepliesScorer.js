@@ -23,3 +23,4 @@ class numRepliesScorer extends FeatureScorer_1.default {
 }
 exports.default = numRepliesScorer;
 ;
+//# sourceMappingURL=numRepliesScorer.js.map

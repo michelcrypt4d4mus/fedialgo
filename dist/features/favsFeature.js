@@ -30,3 +30,4 @@ async function favFeature(api) {
     return favFrequ;
 }
 exports.default = favFeature;
+//# sourceMappingURL=favsFeature.js.map

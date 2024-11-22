@@ -21,3 +21,4 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
 }
 exports.default = interactsFeatureScorer;
 ;
+//# sourceMappingURL=interactsFeatureScorer.js.map

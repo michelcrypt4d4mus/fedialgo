@@ -23,3 +23,4 @@ class numFavoritesScorer extends FeatureScorer_1.default {
 }
 exports.default = numFavoritesScorer;
 ;
+//# sourceMappingURL=numFavoritesScorer.js.map

@@ -49,3 +49,4 @@ class ForYouPaginator {
     }
 }
 exports.default = ForYouPaginator;
+//# sourceMappingURL=Paginator.js.map

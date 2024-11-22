@@ -86,3 +86,4 @@ class FeatureStorage extends Storage_1.default {
 }
 exports.default = FeatureStorage;
 ;
+//# sourceMappingURL=FeatureStore.js.map
