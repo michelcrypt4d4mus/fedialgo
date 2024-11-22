@@ -43,8 +43,7 @@ async function topPostsFeed(api) {
             return status;
         })
             .slice(0, NUM_TOP_POSTS_PER_SERVER);
-        console.log(`topTootsOnServer for ${server}: `, topTootsOnServer);
-        console.log(`condensedTopToots for ${server}: `, topTootsOnServer.map(helpers_1.condensedStatus));
+        console.log(`topToots for server '${server}': `, topTootsOnServer.map(helpers_1.condensedStatus));
         return topTootsOnServer;
     }));
     const lastOpened = new Date((await Storage_1.default.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);

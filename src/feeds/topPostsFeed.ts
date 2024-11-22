@@ -46,12 +46,12 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
         // Inject a topPost property to each StatusType that is reverse-ordered
         // (e.g most popular trending toot gets a 10, least popular is 1)
         topTootsOnServer =  topTootsOnServer.filter(status => status?.favouritesCount > 0 || status?.reblogsCount > 0)
+                                            .slice(0, NUM_TOP_POSTS_PER_SERVER)
                                             .map((status: StatusType, i: number) => {
                                                 status.topPost = NUM_TOP_POSTS_PER_SERVER - i;
-                                                console.log(`topPostsFeed status:`, status);
                                                 return status;
-                                            })
-                                            .slice(0, NUM_TOP_POSTS_PER_SERVER);
+                                            });
+
 
         console.log(`topToots for server '${server}': `, topTootsOnServer.map(condensedStatus));
         return topTootsOnServer;

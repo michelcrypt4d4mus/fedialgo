@@ -14,7 +14,7 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
         });
     }
     async score(_api, status) {
-        return status.topPost ? 1 : 0;
+        return status.topPost || 0;
     }
 }
 exports.default = topPostFeatureScorer;
