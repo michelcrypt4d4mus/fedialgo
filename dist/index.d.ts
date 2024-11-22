@@ -25,4 +25,4 @@ export default class TheAlgorithm {
     weightAdjust(statusWeights: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
 }
-export { condensedStatus };
+export { condensedStatus, StatusType, ScoresType, };
