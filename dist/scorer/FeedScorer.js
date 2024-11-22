@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class FeedScorer {
+    features = {};
     _verboseName = "BaseScorer";
     _isReady = false;
     _description = "";
     _defaultWeight = 1;
-    features = {};
     constructor(verboseName, description, defaultWeight) {
         this._verboseName = verboseName;
         this._description = description || "";

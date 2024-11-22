@@ -59,11 +59,10 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
                                             return status;
                                         });
 
-
         console.log(`topToots for server '${server}': `, serverTopToots.map(condensedStatus));
         return serverTopToots;
     }))
 
     const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
     return trendingToots.flat().filter((status: StatusType) => new Date(status.createdAt) > lastOpenedAt);
-}
+};

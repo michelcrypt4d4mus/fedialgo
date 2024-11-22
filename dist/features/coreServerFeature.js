@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../helpers");
+const NUM_SERVERS_TO_CHECK = 30;
+const NUM_SERVERS_TO_RETURN = 20;
 async function getMonthlyUsers(server) {
     try {
         const instance = await (0, helpers_1.mastodonFetch)(server, "api/v2/instance");
@@ -38,13 +40,17 @@ async function coreServerFeature(api, user) {
         }
         return accumulator;
     }, {});
-    console.log(serverFrequ);
-    // for top 20 servers
-    const top20 = Object.keys(serverFrequ).sort((a, b) => serverFrequ[b] - serverFrequ[a]).slice(0, 30);
-    console.log("Top 30 servers: ", top20);
-    const monthlyUsers = await Promise.all(top20.map(server => getMonthlyUsers(server)));
-    console.log("Monthly Users: ", monthlyUsers);
-    const overrepresentedServerFrequ = top20.reduce((acc, server, index) => {
+    console.log(`serverFrequ: `, serverFrequ);
+    const popularServers = Object.keys(serverFrequ)
+        .sort((a, b) => serverFrequ[b] - serverFrequ[a])
+        .slice(0, NUM_SERVERS_TO_CHECK);
+    console.log(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
+    const monthlyUsers = await Promise.all(popularServers.map(server => {
+        const serverMonthlyUsers = getMonthlyUsers(server);
+        console.log(`Monthly users for ${server}: `, serverMonthlyUsers);
+        return serverMonthlyUsers;
+    }));
+    const overrepresentedServerFrequ = popularServers.reduce((acc, server, index) => {
         const activeUsers = monthlyUsers[index];
         if (activeUsers < 10)
             return acc;

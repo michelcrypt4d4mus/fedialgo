@@ -12,11 +12,11 @@ const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_SERVERS_TO_POLL = 10;
 const NUM_TOP_POSTS_PER_SERVER = 10;
 async function topPostsFeed(api) {
-    const core_servers = await FeatureStore_1.default.getCoreServer(api);
+    const coreServers = await FeatureStore_1.default.getCoreServer(api);
     let trendingToots = [];
     // Get list of top mastodon servers // TODO: what does "top" mean here?
-    const servers = Object.keys(core_servers)
-        .sort((a, b) => (core_servers[b] - core_servers[a])) // TODO: wtf is this comparison?
+    const servers = Object.keys(coreServers)
+        .sort((a, b) => (coreServers[b] - coreServers[a])) // TODO: wtf is this comparison?
         .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0) // Remove weird records
         .slice(0, NUM_SERVERS_TO_POLL);
     if (servers.length > 0) {
@@ -54,3 +54,4 @@ async function topPostsFeed(api) {
     return trendingToots.flat().filter((status) => new Date(status.createdAt) > lastOpenedAt);
 }
 exports.default = topPostsFeed;
+;

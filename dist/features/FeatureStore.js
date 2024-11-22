@@ -34,7 +34,7 @@ const Storage_1 = __importStar(require("../Storage"));
 class FeatureStorage extends Storage_1.default {
     static async getTopFavs(api) {
         const topFavs = await this.get(Storage_1.Key.TOP_FAVS);
-        console.log("topFavs", topFavs);
+        console.log("Accounts user has favorited the most in the past", topFavs);
         if (topFavs != null && await this.getOpenings() % 10 < 9) {
             return topFavs;
         }
@@ -46,7 +46,7 @@ class FeatureStorage extends Storage_1.default {
     }
     static async getTopReblogs(api) {
         const topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
-        console.log("topReblogs", topReblogs);
+        console.log("Accounts user has retooted the most in the past", topReblogs);
         if (topReblogs != null && await this.getOpenings() % 10 < 9) {
             return topReblogs;
         }
@@ -59,7 +59,7 @@ class FeatureStorage extends Storage_1.default {
     }
     static async getTopInteracts(api) {
         const topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
-        console.log("topInteracts", topInteracts);
+        console.log("Accounts that have interacted the most with user's toots", topInteracts);
         if (topInteracts != null && await this.getOpenings() % 10 < 9) {
             return topInteracts;
         }

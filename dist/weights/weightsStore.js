@@ -35,6 +35,7 @@ class weightsStore extends Storage_1.default {
         }
         return { [verboseName]: 1 };
     }
+    // Update the persistent storage with a single user weighting
     static async setWeights(weights, verboseName) {
         await this.set(Storage_1.Key.WEIGHTS, weights, true, verboseName);
     }
@@ -46,6 +47,7 @@ class weightsStore extends Storage_1.default {
         }
         return weights;
     }
+    // Update the persistent storage with all user weightings at the same time
     static async setWeightsMulti(weights) {
         for (const verboseName in weights) {
             await this.setWeights({ [verboseName]: weights[verboseName] }, verboseName);

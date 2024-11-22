@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const helpers_1 = require("./helpers");
 const scorer_1 = require("./scorer");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
@@ -15,16 +16,21 @@ const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 class TheAlgorithm {
     user;
     fetchers = [homeFeed_1.default, topPostsFeed_1.default];
+    // I think these scorers work in a standalone way and don't require the complete list to work?
     featureScorers = [
-        new scorer_1.favsFeatureScorer(),
-        new scorer_1.reblogsFeatureScorer(),
-        new scorer_1.interactsFeatureScorer(),
-        new scorer_1.topPostFeatureScorer(),
         new chaosFeatureScorer_1.default(),
+        new scorer_1.favsFeatureScorer(),
+        new scorer_1.interactsFeatureScorer(),
         new scorer_1.numFavoritesScorer(),
         new scorer_1.numRepliesScorer(),
+        new scorer_1.reblogsFeatureScorer(),
+        new scorer_1.topPostFeatureScorer(),
     ];
-    feedScorer = [new scorer_1.reblogsFeedScorer(), new scorer_1.diversityFeedScorer()];
+    // I think these scorers require the complete list and info about past user behavior to work?
+    feedScorers = [
+        new scorer_1.diversityFeedScorer(),
+        new scorer_1.reblogsFeedScorer(),
+    ];
     feed = [];
     api;
     constructor(api, user, valueCalculator = null) {
@@ -37,33 +43,27 @@ class TheAlgorithm {
         }
         this.setDefaultWeights();
     }
-    async getFeedAdvanced(fetchers, featureScorer, feedScorer) {
-        this.fetchers = fetchers;
-        this.featureScorers = featureScorer;
-        this.feedScorer = feedScorer;
-        return this.getFeed();
-    }
     async getFeed() {
-        console.log("getFeed() called in fedialgo package");
-        const { fetchers, featureScorers, feedScorer } = this;
+        console.debug("getFeed() called in fedialgo package");
+        const { fetchers, featureScorers, feedScorers } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)));
-        // Inject condensedStatus instance method. TODO: this feels like not the right place to do this.
+        // Inject condensedStatus instance method. // TODO: this feels like not the right place to do this.
         this.feed = response.flat().map((status) => {
             status.condensedStatus = () => (0, helpers_1.condensedStatus)(status);
             return status;
         });
         // Load and Prepare Features
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
-        await Promise.all(feedScorer.map(scorer => scorer.setFeed(this.feed)));
+        await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
         // Get Score Names
         const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
-        const feedScoreNames = feedScorer.map(scorer => scorer.getVerboseName());
+        const feedScoreNames = feedScorers.map(scorer => scorer.getVerboseName());
         // Score Feed
         let scoredFeed = [];
         for (const status of this.feed) {
             // Load Scores for each status
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, status)));
-            const feedScore = await Promise.all(feedScorer.map(scorer => scorer.score(status)));
+            const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(status)));
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
@@ -129,21 +129,30 @@ class TheAlgorithm {
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
         const weights = await weightsStore_1.default.getWeightsMulti(Object.keys(scores));
-        return Object.keys(scores).reduce((score, cur) => {
+        let trendingTootWeighting = weights[topPostFeatureScorer_1.TOP_POSTS] || 0;
+        let score = Object.keys(scores).reduce((score, cur) => {
             return score + (scores[cur] ?? 0) * (weights[cur] ?? 0);
         }, 0);
+        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
+        // high scores. To fix this we hack a final adjustment to the score by multiplying by the
+        // trending toot weighting if the weighting is less than 1.0.
+        if (scores[topPostFeatureScorer_1.TOP_POSTS] > 0 && trendingTootWeighting < 1.0) {
+            console.log(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
+            score *= trendingTootWeighting;
+        }
+        return score;
     }
     getWeightNames() {
-        const scorers = [...this.featureScorers, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorers];
         return [...scorers.map(scorer => scorer.getVerboseName())];
     }
     async setDefaultWeights() {
         //Set Default Weights if they don't exist
-        const scorers = [...this.featureScorers, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorers];
         Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())));
     }
     getWeightDescriptions() {
-        const scorers = [...this.featureScorers, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorers];
         return [...scorers.map(scorer => scorer.getDescription())];
     }
     async getWeights() {
@@ -152,7 +161,7 @@ class TheAlgorithm {
         return weights;
     }
     async setWeights(weights) {
-        console.log("setWeights() called in fedialgo package");
+        console.log("setWeights() called in fedialgo package with 'weights' arg:", weights);
         //prevent weights from being set to 0
         for (const key in weights) {
             if (weights[key] == undefined || weights[key] == null || isNaN(weights[key])) {
@@ -174,7 +183,7 @@ class TheAlgorithm {
         return this.feed;
     }
     getDescription(verboseName) {
-        const scorers = [...this.featureScorers, ...this.feedScorer];
+        const scorers = [...this.featureScorers, ...this.feedScorers];
         const scorer = scorers.find(scorer => scorer.getVerboseName() === verboseName);
         if (scorer) {
             return scorer.getDescription();
