@@ -193,6 +193,7 @@ export default class TheAlgorithm {
         return [...scorers.map(scorer => scorer.getDescription())]
     }
 
+    // Return the user's current weightings for each toot scorer
     async getWeights(): Promise<ScoresType> {
         const verboseNames = this.getWeightNames();
         const weights = await weightsStore.getWeightsMulti(verboseNames);
