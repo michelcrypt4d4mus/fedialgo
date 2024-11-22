@@ -1,3 +1,5 @@
+(Forked from [pkreissel's original implementation](https://github.com/pkreissel/fedialgo))
+
 # fedialgo
 This is untested early alpha so might be due to massive unannounced changes.
 
