@@ -4,7 +4,7 @@ import FeatureScorer from '../FeatureScorer';
 import { StatusType, } from "../../types";
 
 export const TOP_POSTS = "topPosts";
-export const TOP_POSTS_DEFAULT_WEIGHT = 0.2;
+export const TOP_POSTS_DEFAULT_WEIGHT = 0.1;
 
 
 export default class topPostFeatureScorer extends FeatureScorer {

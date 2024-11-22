@@ -170,7 +170,7 @@ export default class TheAlgorithm {
             score *= trendingTootWeighting;
         }
 
-        console.log(`Computed score with: `, scores, `\nand userWeightings: `, userWeightings, `\nand got: `, score);
+        console.log(`Computed score with: `, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
         return score;
     }
 
