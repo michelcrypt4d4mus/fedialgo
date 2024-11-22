@@ -1,5 +1,6 @@
 import axios from "axios";
 import { camelCase } from "change-case";
+
 import { StatusType } from "./types";
 
 const MAX_CONTENT_CHARS = 150;
