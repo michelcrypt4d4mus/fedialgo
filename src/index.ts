@@ -199,8 +199,8 @@ export default class TheAlgorithm {
         return weights;
     }
 
-    async setWeights(weights: ScoresType): Promise<StatusType[]> {
-        console.log("setWeights() called in fedialgo package with 'weights' arg:", weights);
+    async weightTootsInFeed(weights: ScoresType): Promise<StatusType[]> {
+        console.log("weightTootsInFeed() called in fedialgo package with 'weights' arg:", weights);
 
         //prevent weights from being set to 0
         for (const key in weights) {
@@ -255,7 +255,7 @@ export default class TheAlgorithm {
             const reweight = 1 - (Math.abs(statusWeights[key]) / mean) / (currentWeight[key] / currentMean);
             currentWeight[key] = currentWeight[key] - step * currentWeight[key] * reweight;
         }
-        await this.setWeights(currentWeight);
+        await this.weightTootsInFeed(currentWeight);
         return currentWeight;
     }
 
