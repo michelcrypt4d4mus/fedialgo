@@ -54,7 +54,7 @@ export const condensedStatus = (status: StatusType) => {
     let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
     if (mediaAttachments.length == 0) mediaAttachments = [];
     let tooterLabel = describePoster(status);
-    if (status.reblog) tooterLabel += ` ｟⬆️ RETOOT ⬆️ of ${describePoster(status.reblog)}｠`;
+    if (status.reblog) tooterLabel += ` ｟⬆️⬆️RETOOT of ${describePoster(status.reblog)}⬆️⬆️｠`;
 
     const statusObj = {
         FROM: `${tooterLabel} [${status.createdAt}]`,
