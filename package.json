@@ -3,8 +3,8 @@
     "version": "0.0.2",
     "description": "Fedialgo is a package for sorting Mastodon Posts in your timeline according to a user controlled algorithm",
     "type": "module",
-    "module": "dist/index.js",
-    "types": "./dist/types.d.ts",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "import": {
