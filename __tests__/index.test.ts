@@ -1,5 +1,5 @@
 // Integration tests for the algorithm
-import TheAlgorithm from '../src/index';
+import { TheAlgorithm } from '../src/index';
 import { createRestAPIClient, mastodon } from "masto"
 import Storage from '../src/Storage';
 import dotenv from 'dotenv';

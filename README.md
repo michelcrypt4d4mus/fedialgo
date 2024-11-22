@@ -35,8 +35,8 @@ in `fedialgo` directory after changes and they will automatically be detected
 
 ### Weight An Account's Feed:
 ```typescript
-import TheAlgorithm from "fedialgo"
 import { login, mastodon } from "masto";
+import { TheAlgorithm } from "fedialgo"
 
 const api: mastodon.Client = await login({
                     url: user.server,
