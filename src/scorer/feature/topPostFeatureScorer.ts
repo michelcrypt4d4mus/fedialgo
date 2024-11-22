@@ -17,7 +17,8 @@ export default class topPostFeatureScorer extends FeatureScorer {
         });
     }
 
+    // TODO: rename topPostRank
     async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status.topPost || 0;  // TODO: rename topPostRank
+        return status.topPost || 0;
     }
 };

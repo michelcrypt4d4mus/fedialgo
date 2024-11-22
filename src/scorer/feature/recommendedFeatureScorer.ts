@@ -1,9 +1,10 @@
 /*
  * CURRENTLY UNUSED
  */
+import { mastodon } from "masto";
+
 import FeatureScorer from '../FeatureScorer';
 import { StatusType } from "../../types";
-import { mastodon } from "masto";
 
 
 export default class recommendedFeatureScorer extends FeatureScorer {

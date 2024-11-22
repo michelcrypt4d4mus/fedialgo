@@ -26,6 +26,7 @@ export const _transformKeys = <T>(data: T, transform: (key: string) => string): 
             ]),
         ) as T;
     }
+
     return data as T;
 };
 
@@ -41,7 +42,7 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
             throw json;
         }
     } catch (error) {
-        console.warn(`Error fetching data for server ${server}:`, error);
+        console.warn(`Error fetching data for server ${server}: `, error);
         return;
     }
 };
@@ -53,8 +54,8 @@ export const condensedStatus = (status: StatusType) => {
     let content = status.reblog?.content || status.content || "";
     if (content.length > MAX_CONTENT_CHARS) content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
     // Account info
-    let accountLabel = describePoster(status);
-    if (status.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describePoster(status.reblog)}⬆️⬆️｠`;
+    let accountLabel = describeAccount(status);
+    if (status.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(status.reblog)}⬆️⬆️｠`;
     // Attachment info
     let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
     if (mediaAttachments.length == 0) mediaAttachments = [];
@@ -63,7 +64,7 @@ export const condensedStatus = (status: StatusType) => {
         FROM: `${accountLabel} [${status.createdAt}]`,
         URL: status.url,
         content: content,
-        retootOf: status.reblog ? `${describePoster(status.reblog)} (${status.reblog.createdAt})` : null,
+        retootOf: status.reblog ? `${describeAccount(status.reblog)} (${status.reblog.createdAt})` : null,
         inReplyToId: status.inReplyToId,
         mediaAttachments: mediaAttachments,
         raw: status,
@@ -91,6 +92,6 @@ export const condensedStatus = (status: StatusType) => {
 
 
 // Build a string that contains the display name, account name, etc. for a given post.
-const describePoster = (status: StatusType): string => {
+const describeAccount = (status: StatusType): string => {
     return `${status.account.displayName} (${status.account.acct})`;
 };
