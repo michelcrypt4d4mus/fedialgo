@@ -79,3 +79,7 @@ If necessary install the dev dependencies with `npm install --include=dev`.
    * number of favorites
    * number (and size?) of `mediaAttachments`
    * movies vs. images
+
+
+# Resources
+* [Compiling and bundling TypeScript libraries with Webpack](https://marcobotto.com/blog/compiling-and-bundling-typescript-libraries-with-webpack/)

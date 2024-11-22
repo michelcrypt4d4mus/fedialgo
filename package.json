@@ -1,4 +1,4 @@
-    {
+{
     "name": "fedialgo",
     "version": "0.0.2",
     "description": "Fedialgo is a package for sorting Mastodon Posts in your timeline according to a user controlled algorithm",
@@ -46,4 +46,4 @@
         "axios": "^1.7.2",
         "masto": "^6.1.0"
     }
-    }
+}
