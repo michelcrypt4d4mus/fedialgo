@@ -8,13 +8,13 @@
     "exports": {
         ".": {
             "import": {
-                "types": "./dist/types.d.js",
+                "types": "./dist/types.d.ts",
                 "default": "./dist/index.js"
             }
         },
         "./helpers": {
             "import": {
-                "types": "./dist/helpers.d.js",
+                "types": "./dist/helpers.d.ts",
                 "default": "./dist/helpers.js"
             }
         }
