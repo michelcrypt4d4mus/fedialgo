@@ -1,10 +1,10 @@
 /*
- * Compute which account this user retoots the most often lately.
+ * Compute which accounts this user retoots the most often lately.
  */
 import { mastodon } from "masto";
 
-const NUM_PAGES_OF_USER_TOOTS = 3;
-const NUM_TOOTS_TO_SCAN = 100;
+const MAX_PAGES_OF_USER_TOOTS = 3;
+const MAX_TOOTS_TO_SCAN = 100;
 
 
 export default async function getReblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>> {
@@ -12,12 +12,12 @@ export default async function getReblogsFeature(api: mastodon.rest.Client, user:
     let pageNumber = 0;
 
     try {
-        for await (const page of api.v1.accounts.$select(user.id).statuses.list({ limit: NUM_TOOTS_TO_SCAN })) {
+        for await (const page of api.v1.accounts.$select(user.id).statuses.list({ limit: MAX_TOOTS_TO_SCAN })) {
             results = results.concat(page);
             pageNumber++;
             console.log(`Retrieved page ${pageNumber} of current user's toots...`);
 
-            if (pageNumber == NUM_PAGES_OF_USER_TOOTS || results.length >= NUM_TOOTS_TO_SCAN) {
+            if (pageNumber == MAX_PAGES_OF_USER_TOOTS || results.length >= MAX_TOOTS_TO_SCAN) {
                 console.log(`Halting old toot retrieval at page ${pageNumber} with ${results.length} toots)...`);
                 break;
             }
