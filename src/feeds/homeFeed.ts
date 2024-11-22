@@ -15,7 +15,8 @@ export default async function getHomeFeed(api: mastodon.rest.Client, _user: mast
     let pagesRetrieved = 0;
     let results: StatusType[] = [];
 
-    // Don't load posts more than MAX_TIMELINE_HOURS old.
+    // We should already have toots cached up until the last time this app was opened so we
+    // don't need to re-retrieve them but in any case never load toots more than MAX_TIMELINE_HOURS old.
     const lastOpened = new Date((await Storage.getLastOpened() ?? 0) - 600);
     const cutoffTimelineAt = new Date(Date.now() - TIMELINE_LOOKBACK_MS);
     const timelineCutoff = lastOpened < cutoffTimelineAt ? cutoffTimelineAt : lastOpened;
