@@ -1,6 +1,7 @@
 import { mastodon } from "masto";
+
+import { mastodonFetch } from "../helpers";
 import { serverFeatureType } from "../types";
-import { _transformKeys, mastodonFetch } from "../helpers";
 
 
 async function getMonthlyUsers(server: string): Promise<number> {
