@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.condensedStatus = void 0;
+exports.TheAlgorithm = exports.condensedStatus = void 0;
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
@@ -223,5 +223,5 @@ class TheAlgorithm {
         return new Paginator_1.default(this.feed);
     }
 }
-exports.default = TheAlgorithm;
+exports.TheAlgorithm = TheAlgorithm;
 ;
