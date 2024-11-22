@@ -3,8 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.condensedStatus = void 0;
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const helpers_1 = require("./helpers");
+Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
 const scorer_1 = require("./scorer");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
@@ -223,5 +225,3 @@ class TheAlgorithm {
 }
 exports.default = TheAlgorithm;
 ;
-exports.condensedStatus = helpers_1.condensedStatus;
-// export function condensedStatus;

@@ -1,4 +1,5 @@
 import { mastodon } from "masto";
+import { condensedStatus } from "./helpers";
 import { StatusType, ScoresType } from "./types";
 import { diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
@@ -24,3 +25,4 @@ export default class TheAlgorithm {
     weightAdjust(statusWeights: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
 }
+export { condensedStatus };
