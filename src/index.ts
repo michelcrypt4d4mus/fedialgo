@@ -270,4 +270,8 @@ export default class TheAlgorithm {
 
 // exports.condensedStatus = condensedStatus;
 // export function condensedStatus;
-export { condensedStatus };
+export {
+    condensedStatus,
+    StatusType,
+    ScoresType,
+};
