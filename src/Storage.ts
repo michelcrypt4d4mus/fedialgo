@@ -12,7 +12,7 @@ export enum Key {
     TOP_REBLOGS = 'reblogs',
     USER = 'algouser',
     WEIGHTS = 'weights',
-}
+};
 
 
 export default class Storage {

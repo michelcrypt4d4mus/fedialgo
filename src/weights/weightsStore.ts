@@ -21,10 +21,12 @@ export default class weightsStore extends Storage {
 
     static async getWeightsMulti(verboseNames: string[]) {
         const weights: weightsType = {}
+
         for (const verboseName of verboseNames) {
             const weight = await this.getWeight(verboseName);
             weights[verboseName] = weight[verboseName];
         }
+
         return weights;
     }
 
@@ -38,10 +40,13 @@ export default class weightsStore extends Storage {
     static async defaultFallback(verboseName: string, defaultWeight: number): Promise<boolean> {
         // If the weight is not set, set it to the default weight
         const weight = await this.get(Key.WEIGHTS, true, verboseName) as weightsType;
+        console.log(`Loaded default ${verboseName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+
         if (weight == null) {
             await this.setWeights({ [verboseName]: defaultWeight }, verboseName);
             return true;
         }
+
         return false;
     }
 };

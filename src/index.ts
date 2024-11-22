@@ -55,6 +55,10 @@ export default class TheAlgorithm {
             this._computeFinalScore = valueCalculator;
         }
         this.setDefaultWeights();
+
+        this.featureScorers.forEach(scorer => {
+            console.log(`Set defaultWeight for ${scorer.constructor.name} to ${scorer.getDefaultWeight()}`);
+        });
     }
 
     async getFeed(): Promise<StatusType[]> {

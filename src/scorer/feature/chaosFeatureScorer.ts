@@ -12,6 +12,6 @@ export default class chaosFeatureScorer extends FeatureScorer {
     }
 
     async score() {
-        return Math.random() > 0.9 ? 1 : 0
+        return Math.random() > 0.9 ? 1 : 0;
     }
 }

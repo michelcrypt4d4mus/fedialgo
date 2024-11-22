@@ -6,7 +6,7 @@ interface RankParams {
     verboseName: string,
     description?: string,
     defaultWeight?: number,
-}
+};
 
 
 export default class FeatureScorer {
@@ -30,7 +30,7 @@ export default class FeatureScorer {
     }
 
     async score(_api: mastodon.rest.Client, _status: StatusType): Promise<number> {
-        return 0
+        return 0;
     }
 
     getVerboseName() {

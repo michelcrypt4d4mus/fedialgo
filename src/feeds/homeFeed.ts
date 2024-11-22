@@ -27,7 +27,7 @@ export default async function getHomeFeed(api: mastodon.rest.Client, _user: mast
     for await (const page of api.v1.timelines.home.list()) {
         results = results.concat(page as StatusType[]);
         pagesRetrieved++;
-        console.log(`Successfully retrieved page ${pagesRetrieved} of home feed w/${page.length} toots...`);
+        console.log(`Retrieved page ${pagesRetrieved} of home feed with ${page.length} toots...`);
 
         // break if we've pulled MAX_PAGES pages status is older than MAX_TIMELINE_HOURS old
         if (pagesRetrieved == MAX_PAGES || new Date(page[0].createdAt) < timelineCutoff) {
