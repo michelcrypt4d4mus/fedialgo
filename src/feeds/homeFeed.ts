@@ -3,12 +3,11 @@
  * the home timeline feed of a user (AKA "what most people see first upon opening Mastodon").
  */
 import Storage from "../Storage";
-import { condensedStatus } from "../helpers";
 import { mastodon } from "masto";
 import { StatusType } from "../types";
 
-const MAX_PAGES = 10;
-const MAX_TIMELINE_HOURS = 24;
+const MAX_PAGES = 16;
+const MAX_TIMELINE_HOURS = 72;
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 const LAST_OPENED_LOOKBACK_MS = 60 * 1000;  // Lookback an extra minute beyond last opened time just in case
 
