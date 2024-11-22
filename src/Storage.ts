@@ -1,18 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StorageValue } from "./types";
 import { mastodon } from "masto";
 
+import { StorageValue } from "./types";
+
 export enum Key {
-    TOP_FAVS = 'favs',
-    TOP_REBLOGS = 'reblogs',
-    TOP_INTERACTS = 'interacts',
     CORE_SERVER = 'coreServer',
+    LAST_OPENED = "lastOpened",
+    OPENINGS = "openings",
+    TOP_FAVS = 'favs',
+    TOP_INTERACTS = 'interacts',
+    TOP_REBLOGS = 'reblogs',
     USER = 'algouser',
     WEIGHTS = 'weights',
-    OPENINGS = "openings",
-    LAST_OPENED = "lastOpened",
 }
-
 
 
 export default class Storage {

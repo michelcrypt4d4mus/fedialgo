@@ -76,10 +76,9 @@ export default class TheAlgorithm {
         const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
         const feedScoreNames = feedScorers.map(scorer => scorer.getVerboseName());
 
-        // Score Feed
-        let scoredFeed: StatusType[] = []
+        // Score Feed (should be mutating the status AKA toot objects in place
         for (const status of this.feed) {
-            // Load Scores for each status
+            // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, status)));
             const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(status)));
             // Turn Scores into Weight Objects
@@ -88,7 +87,8 @@ export default class TheAlgorithm {
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
             const weights = await weightsStore.getWeightsMulti(Object.keys(scoreObj));
 
-            // Add Weight Object to Status
+            // Add the various weighted and unweighted scores in the various categories to the status object
+            // mostly for logging purposes.
             status["scores"] = scoreObj;
             status["weightedScores"] = Object.assign({}, scoreObj);
 
@@ -99,49 +99,44 @@ export default class TheAlgorithm {
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", or "computedScore"
             status["value"] = await this._computeFinalScore(scoreObj);
-            scoredFeed.push(status);
         }
 
         // Remove Replies, stuff already retooted, and Nulls
-        scoredFeed = scoredFeed
+        let scoredFeed = this.feed
             .filter((item: StatusType) => item != undefined)
             .filter((item: StatusType) => item.inReplyToId === null)
             .filter((item: StatusType) => item.content.includes("RT @") === false)
             .filter((item: StatusType) => !(item?.reblog?.reblogged ?? false))
             .filter((item: StatusType) => !(item?.reblog?.muted ?? false))
             .filter((item: StatusType) => !(item?.muted ?? false))
+            .map((item: StatusType) => {
+                // Multiple by time decay penalty
+                const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
+                const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+                item.rawScore = item.value ?? 0;
+                item.value = (item.value ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
+                item.timeDiscount = timeDiscount;
+                return item;
+            })
+            .sort((a, b) => {
+                // Sort Feed. TODO: why was this using minus as the sort parameter before, like this:
+                //                  scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+                const aWeightedScore = a.value ?? 0;
+                const bWeightedScore = b.value ?? 0;
 
+                if (aWeightedScore < bWeightedScore) {
+                    return 1;
+                } else if (aWeightedScore > bWeightedScore) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
 
-        // Add Time Penalty
-        scoredFeed = scoredFeed.map((item: StatusType) => {
-            const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
-            const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
-            item.rawScore = item.value ?? 0;
-            item.value = (item.value ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
-            item.timeDiscount = timeDiscount;
-            return item;
-        })
-
-        // Sort Feed (TODO: why was this using minus as the sort parameter?)
-        // scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
-        scoredFeed = scoredFeed.sort((a, b) => {
-            const aWeightedScore = a.value ?? 0;
-            const bWeightedScore = b.value ?? 0;
-
-            if (aWeightedScore < bWeightedScore) {
-                return 1;
-            } else if (aWeightedScore > bWeightedScore) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
-        //Remove duplicates
+        // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         console.log(`Before removing duplicates feed contains ${scoredFeed.length} statuses`);
-        scoredFeed = [...new Map(scoredFeed.map((item: StatusType) => [item["uri"], item])).values()];
+        scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
         console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
-
         this.feed = scoredFeed;
         return this.feed;
     }
@@ -156,11 +151,11 @@ export default class TheAlgorithm {
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     private async _computeFinalScore(scores: weightsType): Promise<number> {
-        const weights = await weightsStore.getWeightsMulti(Object.keys(scores));
-        let trendingTootWeighting = weights[TOP_POSTS] || 0;
+        const userWeightings = await weightsStore.getWeightsMulti(Object.keys(scores));
+        let trendingTootWeighting = userWeightings[TOP_POSTS] || 0;
 
         let score = Object.keys(scores).reduce((score: number, cur) => {
-            return score + (scores[cur] ?? 0) * (weights[cur] ?? 0);
+            return score + (scores[cur] ?? 0) * (userWeightings[cur] ?? 0);
         }, 0);
 
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
@@ -171,6 +166,7 @@ export default class TheAlgorithm {
             score *= trendingTootWeighting;
         }
 
+        console.log(`Computed score with: `, scores, `\nand userWeightings: `, userWeightings, `\nand got: `, score);
         return score;
     }
 

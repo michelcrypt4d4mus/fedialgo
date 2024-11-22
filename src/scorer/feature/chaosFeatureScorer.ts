@@ -1,5 +1,6 @@
 import FeatureScorer from '../FeatureScorer'
 
+
 export default class chaosFeatureScorer extends FeatureScorer {
     constructor() {
         super({
@@ -9,6 +10,7 @@ export default class chaosFeatureScorer extends FeatureScorer {
             defaultWeight: 1,
         })
     }
+
     async score() {
         return Math.random() > 0.9 ? 1 : 0
     }

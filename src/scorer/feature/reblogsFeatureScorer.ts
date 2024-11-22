@@ -1,7 +1,11 @@
-import FeatureScorer from "../FeatureScorer";
-import { StatusType } from "../../types";
 import { mastodon } from "masto";
+
+import FeatureScorer from "../FeatureScorer";
 import FeatureStorage from "../../features/FeatureStore";
+import { StatusType } from "../../types";
+
+const DEFAULT_RETOOTED_USER_WEIGHT = 3;
+
 
 export default class reblogsFeatureScorer extends FeatureScorer {
     constructor() {
@@ -9,7 +13,7 @@ export default class reblogsFeatureScorer extends FeatureScorer {
             featureGetter: (api: mastodon.rest.Client) => { return FeatureStorage.getTopReblogs(api) },
             verboseName: "Reblogs",
             description: "Favor posts from accounts you have retooted a lot",
-            defaultWeight: 3,
+            defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
         })
     }
 

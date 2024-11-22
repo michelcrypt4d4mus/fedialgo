@@ -42,20 +42,20 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
             return [];
         }
 
-        // Ignore toots that have 0 favourites or reblogs.
+        // Ignore toots that have no favourites or retoots.
         // Inject a topPost score property that is reverse-ordered, e.g most popular trending
         // toot gets NUM_TOP_POSTS_PER_SERVER points, least trending gets 1).
         serverTopToots =  serverTopToots.filter(status => status?.favouritesCount > 0 || status?.reblogsCount > 0)
                                         .slice(0, NUM_TOP_POSTS_PER_SERVER)
                                         .map((status: StatusType, i: number) => {
-                                            status.topPost = NUM_TOP_POSTS_PER_SERVER - i;
+                                            // Inject the @server info to the account string
                                             const acct = status.account.acct;
 
-                                            // Inject the @server info to the account string
                                             if (acct && !acct.includes("@")) {
                                                 status.account.acct = `${acct}@${status.account.url.split("/")[2]}`;
                                             }
 
+                                            status.topPost = NUM_TOP_POSTS_PER_SERVER - i;  // inject topPost score
                                             return status;
                                         });
 
