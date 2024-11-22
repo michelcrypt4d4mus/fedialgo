@@ -28,34 +28,29 @@ async function topPostsFeed(api) {
     }
     // Pull top trending toots from each server
     trendingToots = await Promise.all(servers.map(async (server) => {
-        let topTootsOnServer = await (0, helpers_2.mastodonFetch)(server, "api/v1/trends/statuses");
-        if (!topTootsOnServer || topTootsOnServer.length == 0) {
-            console.warn(`Failed to get trending toots from '${server}'! topTootsOnServer: `, topTootsOnServer);
+        let serverTopToots = await (0, helpers_2.mastodonFetch)(server, "api/v1/trends/statuses");
+        if (!serverTopToots || serverTopToots.length == 0) {
+            console.warn(`Failed to get trending toots from '${server}'! serverTopToots: `, serverTopToots);
             return [];
         }
         // Ignore toots that have 0 favourites or reblogs.
-        // Inject a topPost property to each StatusType that is reverse-ordered
-        // (e.g most popular trending toot gets a 10, least popular is 1)
-        topTootsOnServer = topTootsOnServer.filter(status => status?.favouritesCount > 0 || status?.reblogsCount > 0)
+        // Inject a topPost score property that is reverse-ordered, e.g most popular trending
+        // toot gets NUM_TOP_POSTS_PER_SERVER points, least trending gets 1).
+        serverTopToots = serverTopToots.filter(status => status?.favouritesCount > 0 || status?.reblogsCount > 0)
+            .slice(0, NUM_TOP_POSTS_PER_SERVER)
             .map((status, i) => {
             status.topPost = NUM_TOP_POSTS_PER_SERVER - i;
-            console.log(`topPostsFeed status:`, status);
+            const acct = status.account.acct;
+            // Inject the @server info to the account string
+            if (acct && !acct.includes("@")) {
+                status.account.acct = `${acct}@${status.account.url.split("/")[2]}`;
+            }
             return status;
-        })
-            .slice(0, NUM_TOP_POSTS_PER_SERVER);
-        console.log(`topToots for server '${server}': `, topTootsOnServer.map(helpers_1.condensedStatus));
-        return topTootsOnServer;
+        });
+        console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
+        return serverTopToots;
     }));
-    const lastOpened = new Date((await Storage_1.default.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
-    return trendingToots.flat().filter((status) => new Date(status.createdAt) > lastOpened)
-        .map((status) => {
-        const acct = status.account.acct;
-        // TODO: this belongs in the Promise.all() above
-        if (acct && !acct.includes("@")) {
-            // Inject the @server info to the account object
-            status.account.acct = `${acct}@${status.account.url.split("/")[2]}`;
-        }
-        return status;
-    });
+    const lastOpenedAt = new Date((await Storage_1.default.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
+    return trendingToots.flat().filter((status) => new Date(status.createdAt) > lastOpenedAt);
 }
 exports.default = topPostsFeed;
