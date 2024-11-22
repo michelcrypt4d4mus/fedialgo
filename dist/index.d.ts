@@ -5,7 +5,7 @@ import { diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavo
 import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
-export default class TheAlgorithm {
+declare class TheAlgorithm {
     user: mastodon.v1.Account;
     feed: StatusType[];
     api: mastodon.rest.Client;
@@ -25,4 +25,4 @@ export default class TheAlgorithm {
     weightAdjust(statusWeights: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
 }
-export { condensedStatus, StatusType, ScoresType, };
+export { TheAlgorithm as default, condensedStatus, StatusType, ScoresType, };

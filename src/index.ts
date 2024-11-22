@@ -22,7 +22,7 @@ import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 
-export default class TheAlgorithm {
+class TheAlgorithm {
     user: mastodon.v1.Account;
     feed: StatusType[] = [];
     api: mastodon.rest.Client;
@@ -271,6 +271,7 @@ export default class TheAlgorithm {
 // exports.condensedStatus = condensedStatus;
 // export function condensedStatus;
 export {
+    TheAlgorithm as default,
     condensedStatus,
     StatusType,
     ScoresType,
