@@ -5,7 +5,7 @@ import Storage, { Key } from "../Storage";
 import { ScoresType } from "../types";
 
 
-export default class weightsStore extends Storage {
+export default class WeightsStore extends Storage {
     static async getWeight(verboseName: string) {
         const weight = await this.get(Key.WEIGHTS, true, verboseName) as ScoresType;
         if (weight != null) {

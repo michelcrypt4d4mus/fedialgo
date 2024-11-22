@@ -18,7 +18,7 @@ import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
-import weightsStore from "./weights/weightsStore";
+import WeightsStore from "./weights/WeightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 
@@ -89,20 +89,20 @@ export default class TheAlgorithm {
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
-            const weights = await weightsStore.getWeightsMulti(Object.keys(scoreObj));
+            const weights = await WeightsStore.getWeightsMulti(Object.keys(scoreObj));
 
             // Add the various weighted and unweighted scores in the various categories to the status object
             // mostly for logging purposes.
-            status["scores"] = scoreObj;
-            status["weightedScores"] = Object.assign({}, scoreObj);
+            status.scores = scoreObj;  // TODO maybe rename this to scoreComponents or featureScores?
+            status.weightedScores = Object.assign({}, scoreObj);
 
             // Add raw weighted scores for logging purposes
             for (const scoreName in scoreObj) {
                 status["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
             }
 
-            // TODO: "value" is not a good name for this. We should use "score", "weightedScore", or "computedScore"
-            status["value"] = await this._computeFinalScore(scoreObj);
+            // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
+            status.value = await this._computeFinalScore(scoreObj);
         }
 
         // Remove Replies, stuff already retooted, and Nulls
@@ -128,8 +128,7 @@ export default class TheAlgorithm {
         scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
         console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
 
-        // Sort Feed. TODO: why was this using minus as the sort parameter before, like this:
-        //                  scoredFeed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+        // *NOTE: This must come after the deduplication step. Sort feed based on score from high to low.*
         this.feed = scoredFeed.sort((a, b) => {
             const aWeightedScore = a.value ?? 0;
             const bWeightedScore = b.value ?? 0;
@@ -156,7 +155,7 @@ export default class TheAlgorithm {
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     private async _computeFinalScore(scores: ScoresType): Promise<number> {
-        const userWeightings = await weightsStore.getWeightsMulti(Object.keys(scores));
+        const userWeightings = await WeightsStore.getWeightsMulti(Object.keys(scores));
         let trendingTootWeighting = userWeightings[TOP_POSTS] || 0;
 
         let score = Object.keys(scores).reduce((score: number, cur) => {
@@ -183,7 +182,7 @@ export default class TheAlgorithm {
     async setDefaultWeights(): Promise<void> {
         //Set Default Weights if they don't exist
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        Promise.all(scorers.map(scorer => weightsStore.defaultFallback(
+        Promise.all(scorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getVerboseName(),
             scorer.getDefaultWeight()
         )));
@@ -197,22 +196,21 @@ export default class TheAlgorithm {
     // Return the user's current weightings for each toot scorer
     async getWeights(): Promise<ScoresType> {
         const verboseNames = this.getWeightNames();
-        const weights = await weightsStore.getWeightsMulti(verboseNames);
+        const weights = await WeightsStore.getWeightsMulti(verboseNames);
         return weights;
     }
 
-    async weightTootsInFeed(weights: ScoresType): Promise<StatusType[]> {
-        console.log("weightTootsInFeed() called in fedialgo package with 'weights' arg:", weights);
-
-        //prevent weights from being set to 0
-        for (const key in weights) {
-            if (weights[key] == undefined || weights[key] == null || isNaN(weights[key])) {
-                console.log("Weights not set because of error");
+    async weightTootsInFeed(userWeights: ScoresType): Promise<StatusType[]> {
+        //prevent userWeights from being set to 0
+        for (const key in userWeights) {
+            if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
+                console.error("Weights not set because of error");
                 return this.feed;
             }
         }
 
-        await weightsStore.setWeightsMulti(weights);
+        console.log("weightTootsInFeed() called in fedialgo package with 'userWeights' arg:", userWeights);
+        await WeightsStore.setWeightsMulti(userWeights);
         const scoredFeed: StatusType[] = [];
 
         for (const status of this.feed) {
