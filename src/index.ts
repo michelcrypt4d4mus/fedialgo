@@ -18,7 +18,7 @@ import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
-import WeightsStore from "./weights/WeightsStore";
+import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 
