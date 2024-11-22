@@ -24,13 +24,11 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
                           .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)  // Remove weird records
                           .slice(0, NUM_SERVERS_TO_POLL);
 
-    for (const s in servers) {
-        console.log(`Found mastodon server: `, s);
-    }
-
     if (servers.length === 0) {
         console.warn("No mastodon servers found to get topPostsFeed data from!");
         return [];
+    } else {
+        servers.forEach(s => console.log(`Found mastodon server: `, s));
     }
 
     results = await Promise.all(servers.map(async (server: string): Promise<StatusType[]> => {
