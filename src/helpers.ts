@@ -53,9 +53,11 @@ export const condensedStatus = (status: StatusType) => {
 
     let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
     if (mediaAttachments.length == 0) mediaAttachments = [];
+    let tooterLabel = describePoster(status);
+    if (status.reblog) tooterLabel += ` ｟⬆️ RETOOT ⬆️ of ${describePoster(status.reblog)}｠`;
 
     const statusObj = {
-        FROM: `${status.account.displayName} (${status.account.acct}) [${status.createdAt}]`,
+        FROM: `${tooterLabel} [${status.createdAt}]`,
         URL: status.url,
         content: content,
         retootOf: status.reblog ? `${status.reblog.account.acct} (${status.reblog.createdAt})` : null,
@@ -83,4 +85,11 @@ export const condensedStatus = (status: StatusType) => {
     return Object.keys(statusObj)
                  .filter((k) => statusObj[k as keyof typeof statusObj] != null)
                  .reduce((obj, k) => ({ ...obj, [k]: statusObj[k as keyof typeof statusObj] }), {});
+};
+
+
+// Build a string that contains the display name, account name, etc. for a given post.
+const describePoster = (status: StatusType): string => {
+    // if (!status?.account) return null;
+    return `${status.account.displayName} (${status.account.acct})`;
 };
