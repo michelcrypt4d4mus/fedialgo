@@ -3,7 +3,9 @@
         "declaration": true,
         "esModuleInterop": true,
         "module": "commonjs",
+        "moduleResolution": "node",
         "outDir": "dist",
+        "sourceMap": true,
         "strict": true,
         "target": "ES2022"
     },
