@@ -57,9 +57,9 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
         return topTootsOnServer;
     }))
 
-    const lastOpened = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
+    const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
 
-    return trendingToots.flat().filter((status: StatusType) => new Date(status.createdAt) > lastOpened)
+    return trendingToots.flat().filter((status: StatusType) => new Date(status.createdAt) > lastOpenedAt)
                         .map((status: StatusType) => {
                             const acct = status.account.acct;
                             // TODO: this belongs in the Promise.all() above
