@@ -6,29 +6,12 @@ This is untested early alpha so might be due to massive unannounced changes.
 [![Fedialgo Build and Test](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml/badge.svg)](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml)
 Fedialgo is an typescript module, that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It uses React Native Async Storage, so it should also work in React Native Projects, but havent tested it yet.
 
-##
-Install directly from github:
+## Installation
+Install directly from github with `npm`:
 ```console
-npm install github:pkreissel/fedialgo
+npm install github:michelcrypt4d4mus/fedialgo
 ```
 
-## Local Install
-Clone the repo and cd into it.
-
-Run:
-```console
-npm install
-npm link
-```
-Then in your local project:
-```console
-npm link fedialgo
-```
-Use // @ts-ignore if you run into Typescript warnings (because your project might also use masto)
-```console
-npm run build
-```
-in `fedialgo` directory after changes and they will automatically be detected
 
 ### Demo App
 `fedialgo` is just a node package. You don't use it on its own in the form in this repo; it has to be imported into some other app. Thankfully there's a simple demo app that spins up a webserver, pulls your feed and scores it with the algorithm in this repo, and then presents it to your browser at `http://localhost:3000/` over in [the `foryoufeed` repo](https://github.com/pkreissel/foryoufeed).
@@ -72,13 +55,36 @@ const newWeights = await algoObj.weightAdjust(scores)
 ### Developer Setup
 If necessary install the dev dependencies with `npm install --include=dev`.
 
-#### Running Test Suite
+### Deploying Changes
+For changes to propagate you must run `npm run build` to generate changes to files in `dist/` and then check those files into git.
+
+### Developing Against a Local Repo
+Clone this repo and cd into it. Then run:
+
+```console
+npm install
+npm link
+```
+
+Then `cd` to the `node.js` project that is going to host this package and run this:
+```console
+npm link fedialgo
+```
+
+### Running Test Suite
 `npm run test`
+
+
+### Miscellaneous
+Use // @ts-ignore if you run into Typescript warnings (because your project might also use masto)
+```console
+npm run build
+```
+in `fedialgo` directory after changes and they will automatically be detected
+
 
 ### TODO
 1. Add scorers for:
-   * number of replies
-   * number of favorites
    * number (and size?) of `mediaAttachments`
    * movies vs. images
 
