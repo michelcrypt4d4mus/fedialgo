@@ -17,12 +17,12 @@ const NUM_TOP_POSTS_PER_SERVER = 10;
 
 
 export default async function topPostsFeed(api: mastodon.rest.Client): Promise<StatusType[]> {
-    const core_servers = await FeatureStore.getCoreServer(api)
+    const coreServers = await FeatureStore.getCoreServer(api)
     let trendingToots: StatusType[][] = [];
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
-    const servers = Object.keys(core_servers)
-                          .sort((a, b) => (core_servers[b] - core_servers[a]))  // TODO: wtf is this comparison?
+    const servers = Object.keys(coreServers)
+                          .sort((a, b) => (coreServers[b] - coreServers[a]))  // TODO: wtf is this comparison?
                           .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)  // Remove weird records
                           .slice(0, NUM_SERVERS_TO_POLL);
 

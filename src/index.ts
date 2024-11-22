@@ -175,7 +175,10 @@ export default class TheAlgorithm {
     async setDefaultWeights(): Promise<void> {
         //Set Default Weights if they don't exist
         const scorers = [...this.featureScorers, ...this.feedScorer];
-        Promise.all(scorers.map(scorer => weightsStore.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())))
+        Promise.all(scorers.map(scorer => weightsStore.defaultFallback(
+            scorer.getVerboseName(),
+            scorer.getDefaultWeight()
+        )));
     }
 
     getWeightDescriptions(): string[] {
@@ -190,7 +193,7 @@ export default class TheAlgorithm {
     }
 
     async setWeights(weights: weightsType): Promise<StatusType[]> {
-        console.log("setWeights() called in fedialgo package");
+        console.log("setWeights() called in fedialgo package with 'weights' arg:", weights);
 
         //prevent weights from being set to 0
         for (const key in weights) {
@@ -199,6 +202,7 @@ export default class TheAlgorithm {
                 return this.feed;
             }
         }
+
         await weightsStore.setWeightsMulti(weights);
         const scoredFeed: StatusType[] = [];
 

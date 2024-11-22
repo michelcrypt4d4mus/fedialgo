@@ -1,14 +1,17 @@
-import { mastodon } from "masto"
+/*
+ * Base class that other toot scorers extend.
+ */
+import { mastodon } from "masto";
 import { StatusType } from "../types";
 
+
 export default class FeedScorer {
+    features: Record<string, number> = {};
+
     private _verboseName: string = "BaseScorer";
     private _isReady: boolean = false;
     private _description: string = "";
     private _defaultWeight: number = 1;
-
-    features: Record<string, number> = {};
-
 
     constructor(verboseName: string, description?: string, defaultWeight?: number) {
         this._verboseName = verboseName;
@@ -39,6 +42,7 @@ export default class FeedScorer {
     getDescription() {
         return this._description;
     }
+
     getDefaultWeight() {
         return this._defaultWeight;
     }
