@@ -45,7 +45,7 @@ const mastodonFetch = async (server, endpoint) => {
 exports.mastodonFetch = mastodonFetch;
 // Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
 async function mastodonFetchPages(fetchMethod, min_pages, max_records) {
-    console.log(`mastodonFetchPages() called fetcher=${fetchMethod}, min_pages=${min_pages}, max_records=${max_records}`);
+    console.log(`mastodonFetchPages() called with min_pages=${min_pages}, max_records=${max_records}`);
     let results = [];
     let pageNumber = 0;
     try {
