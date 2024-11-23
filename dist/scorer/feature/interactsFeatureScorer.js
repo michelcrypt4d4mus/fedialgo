@@ -9,10 +9,10 @@ const INTERACTIONS_DEFAULT_WEIGHT = 2;
 class interactsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            featureGetter: (api) => { return FeatureStore_1.default.getTopInteracts(api); },
-            scoreName: "Interacts",
             description: "Favor posts from users that most frequently interact with your posts",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
+            featureGetter: (api) => FeatureStore_1.default.getTopInteracts(api),
+            scoreName: "Interacts",
         });
     }
     async score(_api, toot) {

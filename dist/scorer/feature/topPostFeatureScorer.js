@@ -10,10 +10,10 @@ exports.TRENDING_POSTS_DEFAULT_WEIGHT = 0.1;
 class topPostFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            featureGetter: (_api) => { return Promise.resolve({}); },
-            scoreName: exports.TRENDING_POSTS,
             description: "Favor posts that are trending in the Fediverse",
             defaultWeight: exports.TRENDING_POSTS_DEFAULT_WEIGHT,
+            featureGetter: (_api) => { return Promise.resolve({}); },
+            scoreName: exports.TRENDING_POSTS,
         });
     }
     // TODO: rename topPostRank

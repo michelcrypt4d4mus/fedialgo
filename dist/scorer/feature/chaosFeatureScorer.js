@@ -10,10 +10,10 @@ const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 class chaosFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            featureGetter: (async () => { return {}; }),
-            scoreName: "Chaos",
             description: "Insert Randomness and Chaos into the feed - because its fair",
             defaultWeight: 1,
+            featureGetter: (async () => { return {}; }),
+            scoreName: "Chaos",
         });
     }
     async score() {

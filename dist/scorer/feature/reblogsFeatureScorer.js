@@ -10,10 +10,10 @@ const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 class reblogsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            featureGetter: (api) => { return FeatureStore_1.default.getTopReblogs(api); },
-            scoreName: "Reblogs",
             description: "Favor posts from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
+            featureGetter: (api) => FeatureStore_1.default.getTopReblogs(api),
+            scoreName: "Reblogs",
         });
     }
     async score(_api, toot) {
