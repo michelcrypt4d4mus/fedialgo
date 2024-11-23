@@ -183,7 +183,7 @@ class TheAlgorithm {
             }
         }
 
-        console.log("weightTootsInFeed() called in fedialgo pkg. 'userWeights' arg:", userWeights);
+        console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         await WeightsStore.setScoreWeightsMulti(userWeights);
         const scoredFeed: Toot[] = [];
 
@@ -275,7 +275,7 @@ class TheAlgorithm {
 // export function condensedStatus;
 export {
     condensedStatus,
-    Toot,
     ScoresType,
     TheAlgorithm,
+    Toot,
 };
