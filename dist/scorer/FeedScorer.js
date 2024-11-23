@@ -19,8 +19,10 @@ class FeedScorer {
         throw new Error("Method not implemented.");
     }
     async score(_toot) {
-        if (!this._isReady)
+        if (!this._isReady) {
+            console.warn("FeedScorer not ready");
             throw new Error("FeedScorer not ready");
+        }
         return 0;
     }
     getScoreName() {

@@ -29,7 +29,7 @@ export default class diversityFeedScorer extends FeedScorer {
     // Note that the penalty for frequent tooters decreases by 1 each time a toot is scored
     async score(toot: Toot) {
         super.score(toot);  // Check if ready
-        this.features[toot.account.acct] +=  1;
+        this.features[toot.account.acct] += 1;
         return this.features[toot.account.acct];
     }
 };

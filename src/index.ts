@@ -61,12 +61,8 @@ class TheAlgorithm {
         this.user = user;
         Storage.setIdentity(user);
         Storage.logOpening();
-
-        if (valueCalculator) {
-            this._computeFinalScore = valueCalculator;
-        }
-
         this.setDefaultWeights();
+        if (valueCalculator) this._computeFinalScore = valueCalculator;
     }
 
     async getFeed(): Promise<Toot[]> {
@@ -97,57 +93,52 @@ class TheAlgorithm {
         const scoreNames = featureScorers.map(scorer => scorer.getScoreName());
         const feedScoreNames = feedScorers.map(scorer => scorer.getScoreName());
 
+        // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
+        let cleanFeed = this.feed.filter(isValidForFeed);
+        const numRemoved = this.feed.length - cleanFeed.length;
+        const numValid = cleanFeed.length;
+        console.log(`Removed ${numRemoved} invalid toots out of ${this.feed.length} from feed, leaving ${cleanFeed.length}.`);
+
+        // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
+        cleanFeed = [...new Map(cleanFeed.map((toot: Toot) => [toot.uri, toot])).values()];
+        const numDupes = numValid - cleanFeed.length;
+        console.log(`Removed ${numDupes} duplicate toots, leaving ${cleanFeed.length}.`);
+        this.feed = cleanFeed;
+
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
-            console.debug(`Scoring toot #${toot.id}...`);
+            console.debug(`Scoring toot #${toot.id}: `, toot);
+
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
             const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
+
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
             const weights = await WeightsStore.getScoreWeightsMulti(Object.keys(scoreObj));
 
-            // Add the various weighted and unweighted scores in the various categories to the toot object
-            // mostly for logging purposes.
+            // Add scores including weighted & unweighted components to the Toot for debugging/inspection
+            toot.rawScore = (await this._computeFinalScore(scoreObj)) || 0;
             toot.scores = scoreObj;  // TODO maybe rename this to scoreComponents or featureScores?
             toot.weightedScores = Object.assign({}, scoreObj);
 
-            // Add raw weighted scores for logging purposes
             for (const scoreName in scoreObj) {
-                toot["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
+                toot.weightedScores[scoreName] = (scoreObj[scoreName] || 0) * (weights[scoreName] || 0);
             }
 
+            // Multiple rawScore by time decay penalty to get a final value
+            const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
+            const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = await this._computeFinalScore(scoreObj);
+            toot.value = (toot.rawScore ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
+            toot.timeDiscount = timeDiscount;
         }
 
-        // Remove Replies, stuff already retooted, and Nulls
-        let scoredFeed = this.feed
-            .filter((item: Toot) => item != undefined)
-            .filter((item: Toot) => item.inReplyToId === null)
-            .filter((item: Toot) => item.content.includes("RT @") === false)
-            .filter((item: Toot) => !(item?.reblog?.reblogged ?? false))
-            .filter((item: Toot) => !(item?.reblog?.muted ?? false))
-            .filter((item: Toot) => !(item?.muted ?? false))
-            .map((item: Toot) => {
-                // Multiple by time decay penalty
-                const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
-                const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
-                item.rawScore = item.value ?? 0;
-                item.value = (item.value ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
-                item.timeDiscount = timeDiscount;
-                return item;
-            });
-
-        // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
-        console.log(`Before removing duplicates feed contains ${scoredFeed.length} toots`);
-        scoredFeed = [...new Map(scoredFeed.map((toot: Toot) => [toot["uri"], toot])).values()];
-        console.log(`After removing duplicates feed contains ${scoredFeed.length} toots`);
-
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
-        this.feed = scoredFeed.sort((a, b) => {
+        this.feed = this.feed.sort((a, b) => {
             const aWeightedScore = a.value ?? 0;
             const bWeightedScore = b.value ?? 0;
 
@@ -286,6 +277,27 @@ class TheAlgorithm {
             return obj;
         }, {});
     }
+};
+
+
+const isValidForFeed = (toot: Toot): boolean => {
+    if (toot == undefined) return false;
+    if (toot?.inReplyToId !== null) return false;  // Remove replies
+    if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
+    if (toot?.content?.includes("RT @")) return false;  // Remove retweets (???)
+
+    // Remove reblogs (???)
+    if (toot?.reblog?.reblogged) {
+        console.log(`Removed reblogged toot: `, toot);
+        return false;
+    }
+
+    if (Date.now() >= (new Date(toot.createdAt)).getTime()) {
+        console.warn(`Removed toot with future timestamp: `, toot);
+        return false;
+    }
+
+    return true;
 };
 
 

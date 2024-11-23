@@ -32,7 +32,11 @@ export default class FeedScorer {
     }
 
     async score(_toot: mastodon.v1.Status): Promise<number> {
-        if (!this._isReady) throw new Error("FeedScorer not ready");
+        if (!this._isReady) {
+            console.warn("FeedScorer not ready");
+            throw new Error("FeedScorer not ready");
+        }
+
         return 0;
     }
 
