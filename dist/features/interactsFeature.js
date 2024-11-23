@@ -1,22 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const helpers_1 = require("../helpers");
 const NUM_PAGES_TO_SCAN = 3;
+const MIN_RECORDS = 80;
 async function interactFeature(api) {
-    let results = [];
-    let pages = NUM_PAGES_TO_SCAN;
-    try {
-        for await (const page of api.v1.notifications.list({ limit: 80 })) {
-            results = results.concat(page);
-            pages--;
-            if (pages === 0 || results.length < 80) {
-                break;
-            }
-        }
-    }
-    catch (e) {
-        console.error(e);
-        return {};
-    }
+    let results = await (0, helpers_1.mastodonFetchPages)(api.v1.notifications.list, NUM_PAGES_TO_SCAN, MIN_RECORDS);
+    console.log(`Retrieved notifications with interactFeature() AND mastodonFetchPages(): `, results);
     const interactFrequ = results.reduce((accumulator, status) => {
         if (!status.account)
             return accumulator;

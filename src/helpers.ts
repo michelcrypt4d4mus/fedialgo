@@ -61,7 +61,7 @@ export async function mastodonFetchPages<T>(
 
     try {
         for await (const page of fetchMethod({ limit: max_records })) {
-            results = results.concat(page);
+            results = results.concat(page as T[]);
             pageNumber++;
             console.log(`Retrieved page ${pageNumber} of current user's records...`);
 

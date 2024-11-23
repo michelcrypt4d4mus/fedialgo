@@ -5,6 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
+import { mastodonFetchPages } from "../helpers";
 import { Toot } from "../types";
 
 const MAX_PAGES = 16;

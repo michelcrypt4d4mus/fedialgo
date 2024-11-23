@@ -5,28 +5,22 @@
 import { mastodon } from "masto";
 
 import { AccountFeature } from "../types";
+import { mastodonFetchPages } from "../helpers";
 
 const NUM_PAGES_TO_SCAN = 3;
+const MIN_RECORDS = 80;
 
 
 export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
-    let results: mastodon.v1.Notification[] = [];
-    let pages = NUM_PAGES_TO_SCAN;
+    let results = await mastodonFetchPages<mastodon.v1.Notification>(
+        api.v1.notifications.list,
+        NUM_PAGES_TO_SCAN,
+        MIN_RECORDS
+    );
 
-    try {
-        for await (const page of api.v1.notifications.list({ limit: 80 })) {
-            results = results.concat(page)
-            pages--;
-            if (pages === 0 || results.length < 80) {
-                break;
-            }
-        }
-    } catch (e) {
-        console.error(e)
-        return {};
-    }
+    console.log(`Retrieved notifications with interactFeature() AND mastodonFetchPages(): `, results);
 
-    const interactFrequ = results.reduce((accumulator: Record<string, number>, status: mastodon.v1.Notification,) => {
+    const interactFrequ = results.reduce((accumulator: Record<string, number>, status: mastodon.v1.Notification) => {
         if (!status.account) return accumulator;
 
         if (status.account.acct in accumulator) {
