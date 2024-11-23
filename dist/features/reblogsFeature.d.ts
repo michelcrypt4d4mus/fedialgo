@@ -1,2 +1,2 @@
 import { mastodon } from "masto";
-export default function reblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>>;
+export default function getReblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>>;
