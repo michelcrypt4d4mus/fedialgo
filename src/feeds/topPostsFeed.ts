@@ -18,7 +18,7 @@ const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
 export default async function topPostsFeed(api: mastodon.rest.Client): Promise<Toot[]> {
-    const coreServers = await FeatureStore.getCoreServer(api)
+    const coreServers = await FeatureStore.getCoreServer(api);
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
     const servers = Object.keys(coreServers)
