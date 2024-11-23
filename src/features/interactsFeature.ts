@@ -1,6 +1,6 @@
 /*
  * This feature will return a dictionary with the number of interactions with other accounts in the last
-  N pages of notifications.
+ * pages of notifications.
  */
 import { mastodon } from "masto";
 
@@ -28,6 +28,7 @@ export default async function interactFeature(api: mastodon.rest.Client): Promis
 
     const interactFrequ = results.reduce((accumulator: Record<string, number>, status: mastodon.v1.Notification,) => {
         if (!status.account) return accumulator;
+
         if (status.account.acct in accumulator) {
             accumulator[status.account.acct] += 1;
         } else {
