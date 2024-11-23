@@ -51,4 +51,4 @@ export default class FeatureScorer {
     getDefaultWeight() {
         return this._defaultWeight;
     }
-}
+};
