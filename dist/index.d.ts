@@ -14,7 +14,6 @@ declare class TheAlgorithm {
     feedScorers: (diversityFeedScorer | reblogsFeedScorer)[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
     getFeed(): Promise<Toot[]>;
-    private _computeFinalScore;
     getScorerNames(): string[];
     setDefaultWeights(): Promise<void>;
     getScoreWeights(): Promise<ScoresType>;
@@ -22,6 +21,7 @@ declare class TheAlgorithm {
     getDescription(scorerName: string): string;
     weightAdjust(statusWeights: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
+    private _computeFinalScore;
     private _getScoreObj;
 }
 export { condensedStatus, Toot, ScoresType, TheAlgorithm, };

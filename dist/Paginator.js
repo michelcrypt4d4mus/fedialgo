@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Paginator {
-    data;
     currentIndex;
+    data;
     direction;
     constructor(data) {
         this.data = data;
