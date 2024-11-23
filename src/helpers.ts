@@ -49,7 +49,7 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
 };
 
 
-// Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
+// Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
 export async function mastodonFetchPages<T>(
     fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
     min_pages: number,
@@ -77,7 +77,6 @@ export async function mastodonFetchPages<T>(
 
     return results;
 }
-
 
 
 // Returns a simplified version of the status for logging

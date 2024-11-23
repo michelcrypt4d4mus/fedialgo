@@ -6,22 +6,8 @@ const NUM_SERVERS_TO_RETURN = 20;
 const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
 async function coreServerFeature(api, user) {
-    let results = [];
-    let pageNumber = 0;
-    try {
-        for await (const page of api.v1.accounts.$select(user.id).following.list({ limit: SERVER_RECORDS_TO_PULL })) {
-            results = results.concat(page);
-            pageNumber++;
-            console.log(`Retrieved page ${pageNumber} of coreServerFeature with ${page.length} entries...`);
-            if (pageNumber >= NUM_SERVER_PAGES_TO_PULL || results.length >= SERVER_RECORDS_TO_PULL) {
-                break;
-            }
-        }
-    }
-    catch (e) {
-        console.error(e);
-        return {};
-    }
+    let results = (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
+    console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
     const serverFrequ = results.reduce((accumulator, follower) => {
         const server = follower.url.split("@")[0].split("https://")[1];
         if (server in accumulator) {
@@ -32,7 +18,7 @@ async function coreServerFeature(api, user) {
         }
         return accumulator;
     }, {});
-    console.debug(`serverFrequ: `, serverFrequ);
+    console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
     const popularServers = Object.keys(serverFrequ)
         .sort((a, b) => serverFrequ[b] - serverFrequ[a])
         .slice(0, NUM_SERVERS_TO_CHECK);

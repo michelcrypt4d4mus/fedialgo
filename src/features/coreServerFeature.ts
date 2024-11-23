@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetch } from "../helpers";
+import { mastodonFetch, mastodonFetchPages } from "../helpers";
 import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
@@ -16,23 +16,13 @@ export default async function coreServerFeature(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<ServerFeature> {
-    let results: mastodon.v1.Account[] = [];
-    let pageNumber = 0;
+    let results = await mastodonFetchPages<mastodon.v1.Account>(
+        api.v1.accounts.$select(user.id).following.list,
+        NUM_SERVER_PAGES_TO_PULL,
+        SERVER_RECORDS_TO_PULL
+    );
 
-    try {
-        for await (const page of api.v1.accounts.$select(user.id).following.list({ limit: SERVER_RECORDS_TO_PULL })) {
-            results = results.concat(page)
-            pageNumber++;
-            console.log(`Retrieved page ${pageNumber} of coreServerFeature with ${page.length} entries...`);
-
-            if (pageNumber >= NUM_SERVER_PAGES_TO_PULL || results.length >= SERVER_RECORDS_TO_PULL) {
-                break;
-            }
-        }
-    } catch (e) {
-        console.error(e);
-        return {};
-    }
+    console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
 
     const serverFrequ = results.reduce((accumulator: ServerFeature, follower: mastodon.v1.Account) => {
         const server = follower.url.split("@")[0].split("https://")[1];
@@ -46,7 +36,7 @@ export default async function coreServerFeature(
         return accumulator;
     }, {})
 
-    console.debug(`serverFrequ: `, serverFrequ);
+    console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
     const popularServers = Object.keys(serverFrequ)
                                  .sort((a, b) => serverFrequ[b] - serverFrequ[a])
                                  .slice(0, NUM_SERVERS_TO_CHECK)
