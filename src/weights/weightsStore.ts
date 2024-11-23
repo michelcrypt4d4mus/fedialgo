@@ -16,7 +16,7 @@ export default class WeightsStore extends Storage {
         await this.set(Key.WEIGHTS, weights, true, scoreName);
     }
 
-    static async getScoreWeightsMulti(scoreNames: string[]) {
+    static async getUserWeightsMulti(scoreNames: string[]) {
         const weights: ScoresType = {};
 
         for (const scoreName of scoreNames) {

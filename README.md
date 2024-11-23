@@ -39,7 +39,7 @@ The algorithm uses properties of a toot and the user configured weights to deter
 You could e.g. show the weights to the user, who can then decide to change them.
 
 ```typescript
-let weights = await algo.getScoreWeights()
+let weights = await algo.getUserWeights()
 weights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
 let newWeights = weights
 const newFeed = await algoObj.setScoreWeights(newWeights)

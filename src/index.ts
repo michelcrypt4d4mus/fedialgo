@@ -105,7 +105,7 @@ class TheAlgorithm {
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
-            const weights = await WeightsStore.getScoreWeightsMulti(Object.keys(scoreObj));
+            const weights = await WeightsStore.getUserWeightsMulti(Object.keys(scoreObj));
 
             // Add scores including weighted & unweighted components to the Toot for debugging/inspection
             toot.rawScore = (await this._computeFinalScore(scoreObj)) || 0;
@@ -156,10 +156,9 @@ class TheAlgorithm {
         )));
     }
 
-    // Return the user's current weightings for each toot scorer
-    async getScoreWeights(): Promise<ScoresType> {
-        const scorerNames = this.getScorerNames();
-        return await WeightsStore.getScoreWeightsMulti(scorerNames);
+    // Return the user's current weightings for each score category
+    async getUserWeights(): Promise<ScoresType> {
+        return await WeightsStore.getUserWeightsMulti(this.getScorerNames());
     }
 
     // I think this is the main function that gets called when the user changes the weights of the sliders?
@@ -208,31 +207,33 @@ class TheAlgorithm {
         }
     }
 
-    //Adjust post weights based on user's chosen slider values
-    async weightAdjust(statusWeights: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
-        console.debug(`weightAdjust() called with 'statusWeights' arg: `, statusWeights);
-        if (statusWeights == undefined) return;
+    // Adjust toot weights based on user's chosen slider values
+    async weightAdjust(tootScores: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
+        console.debug(`weightAdjust() called with 'tootScores' arg: `, tootScores);
+        if (tootScores == undefined) return;
 
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
-        const total = Object.values(statusWeights)
+        const total = Object.values(tootScores)
                             .filter((value: number) => !isNaN(value))
                             .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-        const mean = total / Object.values(statusWeights).length;
+        const mean = total / Object.values(tootScores).length;
 
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const currentWeight: ScoresType = await this.getScoreWeights()
-        const currentTotal = Object.values(currentWeight)
+        const newTootScores: ScoresType = await this.getUserWeights()
+
+        const userWeightTotal = Object.values(newTootScores)
                                    .filter((value: number) => !isNaN(value))
                                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        const currentMean = currentTotal / Object.values(currentWeight).length;
 
-        for (const key in currentWeight) {
-            const reweight = 1 - (Math.abs(statusWeights[key]) / mean) / (currentWeight[key] / currentMean);
-            currentWeight[key] = currentWeight[key] - step * currentWeight[key] * reweight;
+        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
+
+        for (const key in newTootScores) {
+            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
+            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
         }
 
-        await this.weightTootsInFeed(currentWeight);
-        return currentWeight;
+        await this.weightTootsInFeed(newTootScores);
+        return newTootScores;
     }
 
     list() {
@@ -243,7 +244,7 @@ class TheAlgorithm {
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     private async _computeFinalScore(scores: ScoresType): Promise<number> {
         console.debug(`_computeFinalScore() called with 'scores' arg: `, scores);
-        const userWeightings = await WeightsStore.getScoreWeightsMulti(Object.keys(scores));
+        const userWeightings = await WeightsStore.getUserWeightsMulti(Object.keys(scores));
         const trendingTootWeighting = userWeightings[TRENDING_POSTS] || 0;
 
         let score = Object.keys(scores).reduce((score: number, scoreName: string) => {
