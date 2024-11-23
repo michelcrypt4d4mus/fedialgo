@@ -4,7 +4,7 @@
 import FeatureScorer from '../FeatureScorer';
 import FeatureStorage from '../../features/FeatureStore';
 import { mastodon } from 'masto';
-import { StatusType } from '../../types';
+import { Toot } from '../../types';
 
 
 export default class numRepliesScorer extends FeatureScorer {
@@ -17,7 +17,7 @@ export default class numRepliesScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, toot: StatusType) {
+    async score(_api: mastodon.rest.Client, toot: Toot) {
         return toot?.repliesCount || 0;
     }
 };

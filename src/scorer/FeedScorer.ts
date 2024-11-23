@@ -2,7 +2,7 @@
  * Base class that other toot scorers extend.
  */
 import { mastodon } from "masto";
-import { StatusType } from "../types";
+import { Toot } from "../types";
 
 
 export default class FeedScorer {
@@ -19,12 +19,12 @@ export default class FeedScorer {
         this._defaultWeight = defaultWeight || 1;
     }
 
-    async setFeed(feed: StatusType[]) {
+    async setFeed(feed: Toot[]) {
         this.features = await this.feedExtractor(feed)
         this._isReady = true;
     }
 
-    feedExtractor(_feed: StatusType[]): Record<string, number> {
+    feedExtractor(_feed: Toot[]): Record<string, number> {
         throw new Error("Method not implemented.");
     }
 

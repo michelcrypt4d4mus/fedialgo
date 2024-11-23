@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 
 import { TRENDING_POSTS } from "./scorer/feature/topPostFeatureScorer";
 import { condensedStatus } from "./helpers";
-import { StatusType, ScoresType } from "./types";
+import { Toot, ScoresType } from "./types";
 import {
     diversityFeedScorer,
     favsFeatureScorer,
@@ -24,7 +24,7 @@ import WeightsStore from "./weights/weightsStore";
 
 class TheAlgorithm {
     user: mastodon.v1.Account;
-    feed: StatusType[] = [];
+    feed: Toot[] = [];
     api: mastodon.rest.Client;
 
     fetchers = [
@@ -64,7 +64,7 @@ class TheAlgorithm {
         });
     }
 
-    async getFeed(): Promise<StatusType[]> {
+    async getFeed(): Promise<Toot[]> {
         console.debug("getFeed() called in fedialgo package");
         const { fetchers, featureScorers, feedScorers } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
@@ -110,13 +110,13 @@ class TheAlgorithm {
 
         // Remove Replies, stuff already retooted, and Nulls
         let scoredFeed = this.feed
-            .filter((item: StatusType) => item != undefined)
-            .filter((item: StatusType) => item.inReplyToId === null)
-            .filter((item: StatusType) => item.content.includes("RT @") === false)
-            .filter((item: StatusType) => !(item?.reblog?.reblogged ?? false))
-            .filter((item: StatusType) => !(item?.reblog?.muted ?? false))
-            .filter((item: StatusType) => !(item?.muted ?? false))
-            .map((item: StatusType) => {
+            .filter((item: Toot) => item != undefined)
+            .filter((item: Toot) => item.inReplyToId === null)
+            .filter((item: Toot) => item.content.includes("RT @") === false)
+            .filter((item: Toot) => !(item?.reblog?.reblogged ?? false))
+            .filter((item: Toot) => !(item?.reblog?.muted ?? false))
+            .filter((item: Toot) => !(item?.muted ?? false))
+            .map((item: Toot) => {
                 // Multiple by time decay penalty
                 const seconds = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / 1000);
                 const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
@@ -128,7 +128,7 @@ class TheAlgorithm {
 
         // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         console.log(`Before removing duplicates feed contains ${scoredFeed.length} toots`);
-        scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
+        scoredFeed = [...new Map(scoredFeed.map((toot: Toot) => [toot["uri"], toot])).values()];
         console.log(`After removing duplicates feed contains ${scoredFeed.length} toots`);
 
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
@@ -203,7 +203,7 @@ class TheAlgorithm {
         return weights;
     }
 
-    async weightTootsInFeed(userWeights: ScoresType): Promise<StatusType[]> {
+    async weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]> {
         //prevent userWeights from being set to 0
         for (const key in userWeights) {
             if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
@@ -214,7 +214,7 @@ class TheAlgorithm {
 
         console.log("weightTootsInFeed() called in fedialgo package with 'userWeights' arg:", userWeights);
         await WeightsStore.setWeightsMulti(userWeights);
-        const scoredFeed: StatusType[] = [];
+        const scoredFeed: Toot[] = [];
 
         for (const toot of this.feed) {
             if (!toot["scores"]) {
@@ -272,7 +272,7 @@ class TheAlgorithm {
 // export function condensedStatus;
 export {
     condensedStatus,
-    StatusType,
+    Toot,
     ScoresType,
     TheAlgorithm,
 };

@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 
 import FeatureScorer from '../FeatureScorer';
-import { StatusType, } from "../../types";
+import { Toot, } from "../../types";
 
 export const TRENDING_POSTS = "topPosts";
 export const TRENDING_POSTS_DEFAULT_WEIGHT = 0.1;
@@ -18,7 +18,7 @@ export default class topPostFeatureScorer extends FeatureScorer {
     }
 
     // TODO: rename topPostRank
-    async score(_api: mastodon.rest.Client, toot: StatusType) {
+    async score(_api: mastodon.rest.Client, toot: Toot) {
         return toot.topPost || 0;
     }
 };

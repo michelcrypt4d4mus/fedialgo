@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../FeatureScorer";
 import FeatureStorage from "../../features/FeatureStore";
-import { StatusType } from "../../types";
+import { Toot } from "../../types";
 
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
@@ -18,7 +18,7 @@ export default class reblogsFeatureScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, toot: StatusType) {
+    async score(_api: mastodon.rest.Client, toot: Toot) {
         const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
         let reblogScore: number = 0;
 

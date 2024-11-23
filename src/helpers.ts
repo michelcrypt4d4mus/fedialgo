@@ -1,7 +1,7 @@
 import axios from "axios";
 import { camelCase } from "change-case";
 
-import { StatusType } from "./types";
+import { Toot } from "./types";
 
 const MAX_CONTENT_CHARS = 150;
 
@@ -49,7 +49,7 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
 
 
 // Returns a simplified version of the status for logging
-export const condensedStatus = (status: StatusType) => {
+export const condensedStatus = (status: Toot) => {
     // Contents of post (the text)
     let content = status.reblog?.content || status.content || "";
     if (content.length > MAX_CONTENT_CHARS) content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
@@ -92,6 +92,6 @@ export const condensedStatus = (status: StatusType) => {
 
 
 // Build a string that contains the display name, account name, etc. for a given post.
-const describeAccount = (status: StatusType): string => {
+const describeAccount = (status: Toot): string => {
     return `${status.account.displayName} (${status.account.acct})`;
 };

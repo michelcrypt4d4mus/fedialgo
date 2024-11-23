@@ -1,5 +1,5 @@
 import FeedScorer from "../FeedScorer";
-import { StatusType } from "../../types";
+import { Toot } from "../../types";
 
 const DEFAULT_REBLOGS_WEIGHT = 2;
 
@@ -14,8 +14,8 @@ export default class reblogsFeedScorer extends FeedScorer {
     }
 
     // for each uri in the feed, count the number of times it appears
-    feedExtractor(feed: StatusType[]) {
-        return feed.reduce((obj: Record<string, number>, toot: StatusType) => {
+    feedExtractor(feed: Toot[]) {
+        return feed.reduce((obj: Record<string, number>, toot: Toot) => {
             obj[toot.uri] = (obj[toot.uri] || 0) + 1;
 
             if (toot.reblog) {
@@ -26,7 +26,7 @@ export default class reblogsFeedScorer extends FeedScorer {
         }, {});
     }
 
-    async score(toot: StatusType) {
+    async score(toot: Toot) {
         super.score(toot);  // checks if ready
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }

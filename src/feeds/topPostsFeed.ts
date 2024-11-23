@@ -8,7 +8,7 @@ import FeatureStore from "../features/FeatureStore";
 import Storage from "../Storage";
 import { condensedStatus } from "../helpers";
 import { mastodonFetch } from "../helpers";
-import { StatusType } from "../types";
+import { Toot } from "../types";
 
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
@@ -17,7 +17,7 @@ const NUM_TRENDING_POSTS_PER_SERVER = 10;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
-export default async function topPostsFeed(api: mastodon.rest.Client): Promise<StatusType[]> {
+export default async function topPostsFeed(api: mastodon.rest.Client): Promise<Toot[]> {
     const coreServers = await FeatureStore.getCoreServer(api)
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
@@ -32,11 +32,11 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
     }
 
     console.log(`Found top mastodon servers: `, servers);
-    let trendingToots: StatusType[][] = [];
+    let trendingToots: Toot[][] = [];
 
     // Pull top trending toots from each server
-    trendingToots = await Promise.all(servers.map(async (server: string): Promise<StatusType[]> => {
-        let serverTopToots = await mastodonFetch<StatusType[]>(server, TRENDING_TOOTS_REST_PATH);
+    trendingToots = await Promise.all(servers.map(async (server: string): Promise<Toot[]> => {
+        let serverTopToots = await mastodonFetch<Toot[]>(server, TRENDING_TOOTS_REST_PATH);
 
         if (!serverTopToots || serverTopToots.length == 0) {
             console.warn(`Failed to get trending toots from '${server}'! serverTopToots: `, serverTopToots);
@@ -48,7 +48,7 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
         // toot gets NUM_TRENDING_POSTS_PER_SERVER points, least trending gets 1).
         serverTopToots =  serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
                                         .slice(0, NUM_TRENDING_POSTS_PER_SERVER)
-                                        .map((toot: StatusType, i: number) => {
+                                        .map((toot: Toot, i: number) => {
                                             // Inject the @server info to the account string
                                             const acct = toot.account.acct;
 
@@ -66,5 +66,5 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
     }))
 
     const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
-    return trendingToots.flat().filter((toot: StatusType) => new Date(toot.createdAt) > lastOpenedAt);
+    return trendingToots.flat().filter((toot: Toot) => new Date(toot.createdAt) > lastOpenedAt);
 };

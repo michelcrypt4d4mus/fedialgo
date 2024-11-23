@@ -4,7 +4,7 @@
  * any external information.
  */
 import { mastodon } from "masto"
-import { AccountFeature, StatusType } from "../types";
+import { AccountFeature, Toot } from "../types";
 
 
 interface RankParams {
@@ -36,7 +36,7 @@ export default class FeatureScorer {
         this.feature = await this.featureGetter(api);
     }
 
-    async score(_api: mastodon.rest.Client, _toot: StatusType): Promise<number> {
+    async score(_api: mastodon.rest.Client, _toot: Toot): Promise<number> {
         return 0;
     }
 

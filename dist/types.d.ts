@@ -9,10 +9,10 @@ export type AccountFeature = {
 export type ServerFeature = {
     [key: mastodon.v1.Instance["uri"]]: number;
 };
-export interface StatusType extends mastodon.v1.Status {
+export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     rawScore?: number;
-    reblog?: StatusType;
+    reblog?: Toot;
     reblogBy?: string;
     recommended?: boolean;
     similarity?: number;
@@ -22,5 +22,5 @@ export interface StatusType extends mastodon.v1.Status {
     value?: number;
     weightedScores?: ScoresType;
 }
-export type FeedFetcher = (api: mastodon.rest.Client) => Promise<StatusType[]>;
-export type Scorer = (api: mastodon.rest.Client, status: StatusType) => number;
+export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
+export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;

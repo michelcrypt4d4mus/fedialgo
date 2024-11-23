@@ -1,5 +1,5 @@
 import FeedScorer from "../FeedScorer";
-import { StatusType } from "../../types";
+import { Toot } from "../../types";
 
 
 export default class diversityFeedScorer extends FeedScorer {
@@ -7,7 +7,7 @@ export default class diversityFeedScorer extends FeedScorer {
         super("Diversity", "Disfavor posts from users that you have seen a lot of posts from already");
     }
 
-    feedExtractor(feed: StatusType[]): Record<string, number> {
+    feedExtractor(feed: Toot[]): Record<string, number> {
         // this prevents just always the first post from being shown
         const sortRandom = () => Math.random() - 0.5;
 
@@ -20,7 +20,7 @@ export default class diversityFeedScorer extends FeedScorer {
         );
     }
 
-    async score(toot: StatusType) {
+    async score(toot: Toot) {
         super.score(toot);
         const frequ = this.features[toot.account.acct];
         this.features[toot.account.acct] = frequ + 1;

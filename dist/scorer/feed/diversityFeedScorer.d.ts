@@ -1,7 +1,7 @@
 import FeedScorer from "../FeedScorer";
-import { StatusType } from "../../types";
+import { Toot } from "../../types";
 export default class diversityFeedScorer extends FeedScorer {
     constructor();
-    feedExtractor(feed: StatusType[]): Record<string, number>;
-    score(toot: StatusType): Promise<number>;
+    feedExtractor(feed: Toot[]): Record<string, number>;
+    score(toot: Toot): Promise<number>;
 }
