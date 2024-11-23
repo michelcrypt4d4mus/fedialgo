@@ -43,7 +43,6 @@ const mastodonFetch = async (server, endpoint) => {
     }
 };
 exports.mastodonFetch = mastodonFetch;
-// export type PageParams<subtype extends mastodon.DefaultPaginationParams= mastodon.DefaultPaginationParams> = Datatype<subtype, 'usd'>;
 // Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
 async function mastodonFetchPages(fetchMethod, min_pages, max_records) {
     console.log(`mastodonFetchPages() called fetcher=${fetchMethod}, min_pages=${min_pages}, max_records=${max_records}`);
