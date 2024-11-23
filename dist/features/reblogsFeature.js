@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const MAX_PAGES_OF_USER_TOOTS = 3;
 const MAX_TOOTS_TO_SCAN = 100;
-async function getReblogsFeature(api, user) {
+async function reblogsFeature(api, user) {
     let recentToots = [];
     let pageNumber = 0;
     try {
@@ -38,5 +38,5 @@ async function getReblogsFeature(api, user) {
     console.log(`Most retooted users retootedUserCounts: `, retootedUserCounts);
     return retootedUserCounts;
 }
-exports.default = getReblogsFeature;
+exports.default = reblogsFeature;
 //# sourceMappingURL=reblogsFeature.js.map
