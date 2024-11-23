@@ -1,3 +1,6 @@
+/*
+ * Implements a mastodon.Paginator to allow paging through the results of an API call.
+ */
 import { mastodon } from "masto";
 
 
@@ -5,11 +8,13 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
     data: mastodon.v1.Status[]
     currentIndex: number
     direction: "next" | "prev"
+
     constructor(data: mastodon.v1.Status[]) {
         this.data = data
         this.currentIndex = 0
         this.direction = "next"
     }
+
     return(value: PromiseLike<undefined> | undefined): Promise<IteratorResult<mastodon.v1.Status[], undefined>> {
         throw new Error(`Method not implemented. ${value}`);
     }

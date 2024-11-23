@@ -9,7 +9,7 @@ import { AccountFeature, Toot } from "../types";
 
 interface RankParams {
     featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
-    verboseName: string,
+    scoreName: string,
     description?: string,
     defaultWeight?: number,
 };
@@ -19,14 +19,14 @@ export default class FeatureScorer {
     featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>;
     feature: AccountFeature = {};
 
-    private _verboseName: string;
+    private _scoreName: string;
     private _isReady: boolean = false;
     private _description: string = "";
     private _defaultWeight: number = 1;
 
     constructor(params: RankParams) {
         this.featureGetter = params.featureGetter;
-        this._verboseName = params.verboseName;
+        this._scoreName = params.scoreName;
         this._description = params.description || "";
         this._defaultWeight = params.defaultWeight || 1;
     }
@@ -41,7 +41,7 @@ export default class FeatureScorer {
     }
 
     getVerboseName() {
-        return this._verboseName;
+        return this._scoreName;
     }
 
     getDescription() {

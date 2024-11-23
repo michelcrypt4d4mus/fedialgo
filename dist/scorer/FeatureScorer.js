@@ -4,13 +4,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class FeatureScorer {
     featureGetter;
     feature = {};
-    _verboseName;
+    _scoreName;
     _isReady = false;
     _description = "";
     _defaultWeight = 1;
     constructor(params) {
         this.featureGetter = params.featureGetter;
-        this._verboseName = params.verboseName;
+        this._scoreName = params.scoreName;
         this._description = params.description || "";
         this._defaultWeight = params.defaultWeight || 1;
     }
@@ -22,7 +22,7 @@ class FeatureScorer {
         return 0;
     }
     getVerboseName() {
-        return this._verboseName;
+        return this._scoreName;
     }
     getDescription() {
         return this._description;

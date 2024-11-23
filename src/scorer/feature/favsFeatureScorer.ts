@@ -12,7 +12,7 @@ export default class favsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getTopFavs(api),
-            verboseName: "Favs",
+            scoreName: "Favs",
             description: "Favor posts from users whose posts you have favorited a lot in the past",
             defaultWeight: 1,
         })

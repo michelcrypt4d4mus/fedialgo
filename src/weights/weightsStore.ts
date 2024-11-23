@@ -6,44 +6,41 @@ import { ScoresType } from "../types";
 
 
 export default class WeightsStore extends Storage {
-    static async getWeight(verboseName: string) {
-        const weight = await this.get(Key.WEIGHTS, true, verboseName) as ScoresType;
-        if (weight != null) {
-            return weight;
-        }
-        return { [verboseName]: 1 };
+    static async getScoreWeight(scoreName: string) {
+        const weight = await this.get(Key.WEIGHTS, true, scoreName) as ScoresType;
+        return weight != null ? weight : { [scoreName]: 1 };
     }
 
     // Update the persistent storage with a single user weighting
-    static async setWeights(weights: ScoresType, verboseName: string) {
-        await this.set(Key.WEIGHTS, weights, true, verboseName);
+    static async setScoreWeights(weights: ScoresType, scoreName: string) {
+        await this.set(Key.WEIGHTS, weights, true, scoreName);
     }
 
-    static async getWeightsMulti(verboseNames: string[]) {
+    static async getScoreWeightsMulti(scoreNames: string[]) {
         const weights: ScoresType = {}
 
-        for (const verboseName of verboseNames) {
-            const weight = await this.getWeight(verboseName);
-            weights[verboseName] = weight[verboseName];
+        for (const scoreName of scoreNames) {
+            const weight = await this.getScoreWeight(scoreName);
+            weights[scoreName] = weight[scoreName];
         }
 
         return weights;
     }
 
     // Update the persistent storage with all user weightings at the same time
-    static async setWeightsMulti(weights: ScoresType) {
-        for (const verboseName in weights) {
-            await this.setWeights({ [verboseName]: weights[verboseName] }, verboseName);
+    static async setScoreWeightsMulti(weights: ScoresType) {
+        for (const scoreName in weights) {
+            await this.setScoreWeights({ [scoreName]: weights[scoreName] }, scoreName);
         }
     }
 
-    static async defaultFallback(verboseName: string, defaultWeight: number): Promise<boolean> {
+    static async defaultFallback(scoreName: string, defaultWeight: number): Promise<boolean> {
         // If the weight is not set, set it to the default weight
-        const weight = await this.get(Key.WEIGHTS, true, verboseName) as ScoresType;
-        console.log(`Loaded default ${verboseName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+        const weight = await this.get(Key.WEIGHTS, true, scoreName) as ScoresType;
+        console.log(`Loaded default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
 
         if (weight == null) {
-            await this.setWeights({ [verboseName]: defaultWeight }, verboseName);
+            await this.setScoreWeights({ [scoreName]: defaultWeight }, scoreName);
             return true;
         }
 

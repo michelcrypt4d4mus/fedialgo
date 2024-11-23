@@ -11,7 +11,7 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (_api) => { return Promise.resolve({}); },
-            verboseName: exports.TRENDING_POSTS,
+            scoreName: exports.TRENDING_POSTS,
             description: "Favor posts that are trending in the Fediverse",
             defaultWeight: exports.TRENDING_POSTS_DEFAULT_WEIGHT,
         });

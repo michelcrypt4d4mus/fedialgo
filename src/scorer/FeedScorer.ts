@@ -8,13 +8,13 @@ import { Toot } from "../types";
 export default class FeedScorer {
     features: Record<string, number> = {};
 
-    private _verboseName: string = "BaseScorer";
+    private _scoreName: string = "BaseScorer";
     private _isReady: boolean = false;
     private _description: string = "";
     private _defaultWeight: number = 1;
 
-    constructor(verboseName: string, description?: string, defaultWeight?: number) {
-        this._verboseName = verboseName;
+    constructor(scoreName: string, description?: string, defaultWeight?: number) {
+        this._scoreName = scoreName;
         this._description = description || "";
         this._defaultWeight = defaultWeight || 1;
     }
@@ -34,7 +34,7 @@ export default class FeedScorer {
     }
 
     getVerboseName() {
-        return this._verboseName;
+        return this._scoreName;
     }
 
     getDescription() {

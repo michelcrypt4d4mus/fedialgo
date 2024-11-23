@@ -8,7 +8,7 @@ export default class chaosFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             featureGetter: (async () => { return {} }),
-            verboseName: "Chaos",
+            scoreName: "Chaos",
             description: "Insert Randomness and Chaos into the feed - because its fair",
             defaultWeight: 1,
         })

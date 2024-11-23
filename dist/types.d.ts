@@ -1,5 +1,4 @@
 import { mastodon } from 'masto';
-export type StorageValue = ServerFeature | AccountFeature | mastodon.v1.Account | ScoresType | string;
 export interface ScoresType {
     [key: string]: number;
 }
@@ -24,3 +23,4 @@ export interface Toot extends mastodon.v1.Status {
 }
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;
+export type StorageValue = ServerFeature | AccountFeature | mastodon.v1.Account | ScoresType | string;

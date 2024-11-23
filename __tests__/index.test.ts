@@ -30,7 +30,7 @@ describe('TheAlgorithm', () => {
         expect(await Storage.getIdentity()).toEqual(user);
         expect(await Storage.getLastOpened()).toBeDefined();
         expect(await Storage.getOpenings()).toBeGreaterThan(0);
-        const weights = await algo.getWeights();
+        const weights = await algo.getScoreWeights();
         expect(weights).toBeDefined();
         expect(Object.values(weights).reduce((a, b) => a && Boolean(b), true)).toBe(true);
     })
@@ -53,7 +53,7 @@ describe('TheAlgorithm', () => {
     })
 
     it("should change weights", async () => {
-        const weights = await algo.getWeights();
+        const weights = await algo.getScoreWeights();
         const newWeights = { ...weights, Favs: 5 }
         const adjusted = await algo.weightAdjust(newWeights);
         console.log(adjusted);

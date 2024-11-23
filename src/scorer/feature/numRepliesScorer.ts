@@ -11,7 +11,7 @@ export default class numRepliesScorer extends FeatureScorer {
     constructor() {
         super({
             featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getTopFavs(api),
-            verboseName: "numReplies",
+            scoreName: "numReplies",
             description: "Favor posts that have been replied to many times",
             defaultWeight: 1,
         })

@@ -12,7 +12,7 @@ class numRepliesScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => FeatureStore_1.default.getTopFavs(api),
-            verboseName: "numReplies",
+            scoreName: "numReplies",
             description: "Favor posts that have been replied to many times",
             defaultWeight: 1,
         });

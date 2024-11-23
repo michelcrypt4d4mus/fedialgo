@@ -39,10 +39,10 @@ The algorithm uses features and their weights to determine the order of the post
 You could e.g. show the weights to the user, who can then decide to change them.
 
 ```typescript
-let weights = await algo.getWeights()
+let weights = await algo.getScoreWeights()
 weights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
 let newWeights = weights
-const newFeed = await algoObj.setWeights(newWeights)
+const newFeed = await algoObj.setScoreWeights(newWeights)
 ```
 
 #### Learn Weights

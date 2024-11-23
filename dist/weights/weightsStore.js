@@ -28,37 +28,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const Storage_1 = __importStar(require("../Storage"));
 class WeightsStore extends Storage_1.default {
-    static async getWeight(verboseName) {
-        const weight = await this.get(Storage_1.Key.WEIGHTS, true, verboseName);
-        if (weight != null) {
-            return weight;
-        }
-        return { [verboseName]: 1 };
+    static async getScoreWeight(scoreName) {
+        const weight = await this.get(Storage_1.Key.WEIGHTS, true, scoreName);
+        return weight != null ? weight : { [scoreName]: 1 };
     }
     // Update the persistent storage with a single user weighting
-    static async setWeights(weights, verboseName) {
-        await this.set(Storage_1.Key.WEIGHTS, weights, true, verboseName);
+    static async setScoreWeights(weights, scoreName) {
+        await this.set(Storage_1.Key.WEIGHTS, weights, true, scoreName);
     }
-    static async getWeightsMulti(verboseNames) {
+    static async getScoreWeightsMulti(scoreNames) {
         const weights = {};
-        for (const verboseName of verboseNames) {
-            const weight = await this.getWeight(verboseName);
-            weights[verboseName] = weight[verboseName];
+        for (const scoreName of scoreNames) {
+            const weight = await this.getScoreWeight(scoreName);
+            weights[scoreName] = weight[scoreName];
         }
         return weights;
     }
     // Update the persistent storage with all user weightings at the same time
-    static async setWeightsMulti(weights) {
-        for (const verboseName in weights) {
-            await this.setWeights({ [verboseName]: weights[verboseName] }, verboseName);
+    static async setScoreWeightsMulti(weights) {
+        for (const scoreName in weights) {
+            await this.setScoreWeights({ [scoreName]: weights[scoreName] }, scoreName);
         }
     }
-    static async defaultFallback(verboseName, defaultWeight) {
+    static async defaultFallback(scoreName, defaultWeight) {
         // If the weight is not set, set it to the default weight
-        const weight = await this.get(Storage_1.Key.WEIGHTS, true, verboseName);
-        console.log(`Loaded default ${verboseName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+        const weight = await this.get(Storage_1.Key.WEIGHTS, true, scoreName);
+        console.log(`Loaded default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
         if (weight == null) {
-            await this.setWeights({ [verboseName]: defaultWeight }, verboseName);
+            await this.setScoreWeights({ [scoreName]: defaultWeight }, scoreName);
             return true;
         }
         return false;

@@ -12,7 +12,7 @@ export default class reblogsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             featureGetter: (api: mastodon.rest.Client) => { return FeatureStorage.getTopReblogs(api) },
-            verboseName: "Reblogs",
+            scoreName: "Reblogs",
             description: "Favor posts from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
         })

@@ -8,7 +8,7 @@ class recommendedFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (_api) => { return Promise.resolve({}); },
-            verboseName: "Recommended",
+            scoreName: "Recommended",
             description: "Posts that are recommended by AI embeddings",
             defaultWeight: 1,
         });

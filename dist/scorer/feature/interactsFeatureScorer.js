@@ -10,7 +10,7 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => { return FeatureStore_1.default.getTopInteracts(api); },
-            verboseName: "Interacts",
+            scoreName: "Interacts",
             description: "Favor posts from users that most frequently interact with your posts",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
         });

@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.condensedStatus = void 0;
-const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
+const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
-const scorer_1 = require("./scorer");
+const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
@@ -16,9 +16,9 @@ const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 class TheAlgorithm {
+    api;
     user;
     feed = [];
-    api;
     fetchers = [
         homeFeed_1.default,
         topPostsFeed_1.default
@@ -47,9 +47,6 @@ class TheAlgorithm {
             this._computeFinalScore = valueCalculator;
         }
         this.setDefaultWeights();
-        this.featureScorers.forEach(scorer => {
-            console.log(`Set defaultWeight for ${scorer.constructor.name} to ${scorer.getDefaultWeight()}`);
-        });
     }
     async getFeed() {
         console.debug("getFeed() called in fedialgo package");
@@ -75,7 +72,7 @@ class TheAlgorithm {
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
-            const weights = await weightsStore_1.default.getWeightsMulti(Object.keys(scoreObj));
+            const weights = await weightsStore_1.default.getScoreWeightsMulti(Object.keys(scoreObj));
             // Add the various weighted and unweighted scores in the various categories to the toot object
             // mostly for logging purposes.
             toot.scores = scoreObj; // TODO maybe rename this to scoreComponents or featureScores?
@@ -124,16 +121,10 @@ class TheAlgorithm {
         });
         return this.feed;
     }
-    _getScoreObj(scoreNames, scores) {
-        return scoreNames.reduce((obj, cur, i) => {
-            obj[cur] = scores[i];
-            return obj;
-        }, {});
-    }
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
-        const userWeightings = await weightsStore_1.default.getWeightsMulti(Object.keys(scores));
+        const userWeightings = await weightsStore_1.default.getScoreWeightsMulti(Object.keys(scores));
         let trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
         let score = Object.keys(scores).reduce((score, cur) => {
             return score + (scores[cur] ?? 0) * (userWeightings[cur] ?? 0);
@@ -148,24 +139,19 @@ class TheAlgorithm {
         console.debug(`Computed score with: `, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
         return score;
     }
-    getWeightNames() {
+    getScorerNames() {
         const scorers = [...this.featureScorers, ...this.feedScorers];
         return [...scorers.map(scorer => scorer.getVerboseName())];
     }
+    // Set Default Weights if they don't exist
     async setDefaultWeights() {
-        //Set Default Weights if they don't exist
         const scorers = [...this.featureScorers, ...this.feedScorers];
         Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())));
     }
-    getWeightDescriptions() {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-        return [...scorers.map(scorer => scorer.getDescription())];
-    }
     // Return the user's current weightings for each toot scorer
-    async getWeights() {
-        const verboseNames = this.getWeightNames();
-        const weights = await weightsStore_1.default.getWeightsMulti(verboseNames);
-        return weights;
+    async getScoreWeights() {
+        const scorerNames = this.getScorerNames();
+        return await weightsStore_1.default.getScoreWeightsMulti(scorerNames);
     }
     async weightTootsInFeed(userWeights) {
         //prevent userWeights from being set to 0
@@ -175,27 +161,29 @@ class TheAlgorithm {
                 return this.feed;
             }
         }
-        console.log("weightTootsInFeed() called in fedialgo package with 'userWeights' arg:", userWeights);
-        await weightsStore_1.default.setWeightsMulti(userWeights);
+        console.log("weightTootsInFeed() called in fedialgo pkg. 'userWeights' arg:", userWeights);
+        await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         const scoredFeed = [];
         for (const toot of this.feed) {
-            if (!toot["scores"]) {
+            if (!toot.scores)
                 return this.getFeed();
-            }
-            toot["value"] = await this._computeFinalScore(toot["scores"]);
+            toot.value = await this._computeFinalScore(toot.scores);
             scoredFeed.push(toot);
         }
         // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
         return this.feed;
     }
-    getDescription(verboseName) {
+    // Get the longform human readable description for a given scorer
+    getDescription(scorerName) {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        const scorer = scorers.find(scorer => scorer.getVerboseName() === verboseName);
+        const scorer = scorers.find(scorer => scorer.getVerboseName() === scorerName);
         if (scorer) {
             return scorer.getDescription();
         }
-        return "";
+        else {
+            return "No description found";
+        }
     }
     //Adjust post weights based on user's chosen slider values
     async weightAdjust(statusWeights, step = 0.001) {
@@ -207,7 +195,7 @@ class TheAlgorithm {
             .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
         const mean = total / Object.values(statusWeights).length;
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const currentWeight = await this.getWeights();
+        const currentWeight = await this.getScoreWeights();
         const currentTotal = Object.values(currentWeight)
             .filter((value) => !isNaN(value))
             .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
@@ -221,6 +209,12 @@ class TheAlgorithm {
     }
     list() {
         return new Paginator_1.default(this.feed);
+    }
+    _getScoreObj(scoreNames, scores) {
+        return scoreNames.reduce((obj, cur, i) => {
+            obj[cur] = scores[i];
+            return obj;
+        }, {});
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

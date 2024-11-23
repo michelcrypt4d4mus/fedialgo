@@ -11,7 +11,7 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => { return FeatureStore_1.default.getTopReblogs(api); },
-            verboseName: "Reblogs",
+            scoreName: "Reblogs",
             description: "Favor posts from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
         });

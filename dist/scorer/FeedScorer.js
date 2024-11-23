@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class FeedScorer {
     features = {};
-    _verboseName = "BaseScorer";
+    _scoreName = "BaseScorer";
     _isReady = false;
     _description = "";
     _defaultWeight = 1;
-    constructor(verboseName, description, defaultWeight) {
-        this._verboseName = verboseName;
+    constructor(scoreName, description, defaultWeight) {
+        this._scoreName = scoreName;
         this._description = description || "";
         this._defaultWeight = defaultWeight || 1;
     }
@@ -24,7 +24,7 @@ class FeedScorer {
         return 0;
     }
     getVerboseName() {
-        return this._verboseName;
+        return this._scoreName;
     }
     getDescription() {
         return this._description;

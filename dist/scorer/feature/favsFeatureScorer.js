@@ -9,7 +9,7 @@ class favsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => FeatureStore_1.default.getTopFavs(api),
-            verboseName: "Favs",
+            scoreName: "Favs",
             description: "Favor posts from users whose posts you have favorited a lot in the past",
             defaultWeight: 1,
         });
