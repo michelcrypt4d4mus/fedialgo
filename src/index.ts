@@ -68,23 +68,10 @@ class TheAlgorithm {
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
         const { fetchers, featureScorers, feedScorers } = this;
-        const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
+        const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)));
+        this.feed = response.flat();
 
-        // Inject condensedStatus instance method. // TODO: this feels like not the right place to do this.
-        this.feed = response.flat().map((toot) => {
-            toot.condensedStatus = () => condensedStatus(toot);
-            return toot;
-        });
-
-        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        const futureToots = this.feed.filter((status) => Date.now() < (new Date(status.createdAt)).getTime());
-        this.feed = this.feed.filter((status) => Date.now() >= (new Date(status.createdAt)).getTime());
-
-        if (futureToots.length > 0) {
-            console.warn(`Removed ${futureToots.length} toots bc they were in the future:`, futureToots);
-        }
-
-        // Load and Prepare Features
+        // Load and Prepare scored Features
         console.log(`Found ${this.feed.length} potential toots for feed.`);
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
@@ -108,6 +95,7 @@ class TheAlgorithm {
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
             console.debug(`Scoring toot #${toot.id}: `, toot);
+            toot.condensedStatus = () => condensedStatus(toot);  // Inject condensedStatus() instance method // TODO: is this the right place to do this?
 
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
@@ -130,11 +118,10 @@ class TheAlgorithm {
 
             // Multiple rawScore by time decay penalty to get a final value
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            const timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+            toot.timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = (toot.rawScore ?? 0) * timeDiscount;  // TODO: rename to "score" or "weightedScore"
-            toot.timeDiscount = timeDiscount;
+            toot.value = (toot.rawScore ?? 0) * toot.timeDiscount;
         }
 
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
@@ -217,6 +204,7 @@ class TheAlgorithm {
 
     //Adjust post weights based on user's chosen slider values
     async weightAdjust(statusWeights: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
+        console.debug(`weightAdjust() called with 'statusWeights' arg: `, statusWeights);
         if (statusWeights == undefined) return;
 
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
@@ -292,7 +280,8 @@ const isValidForFeed = (toot: Toot): boolean => {
         return false;
     }
 
-    if (Date.now() >= (new Date(toot.createdAt)).getTime()) {
+    // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+    if (Date.now() < (new Date(toot.createdAt)).getTime()) {
         console.warn(`Removed toot with future timestamp: `, toot);
         return false;
     }
@@ -301,8 +290,6 @@ const isValidForFeed = (toot: Toot): boolean => {
 };
 
 
-// exports.condensedStatus = condensedStatus;
-// export function condensedStatus;
 export {
     condensedStatus,
     ScoresType,

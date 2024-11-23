@@ -42,26 +42,16 @@ class TheAlgorithm {
         this.user = user;
         Storage_1.default.setIdentity(user);
         Storage_1.default.logOpening();
+        this.setDefaultWeights();
         if (valueCalculator)
             this._computeFinalScore = valueCalculator;
-        this.setDefaultWeights();
     }
     async getFeed() {
         console.debug(`getFeed() called in fedialgo package...`);
         const { fetchers, featureScorers, feedScorers } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)));
-        // Inject condensedStatus instance method. // TODO: this feels like not the right place to do this.
-        this.feed = response.flat().map((toot) => {
-            toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
-            return toot;
-        });
-        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        const futureToots = this.feed.filter((status) => Date.now() < (new Date(status.createdAt)).getTime());
-        this.feed = this.feed.filter((status) => Date.now() >= (new Date(status.createdAt)).getTime());
-        if (futureToots.length > 0) {
-            console.warn(`Removed ${futureToots.length} toots bc they were in the future:`, futureToots);
-        }
-        // Load and Prepare Features
+        this.feed = response.flat();
+        // Load and Prepare scored Features
         console.log(`Found ${this.feed.length} potential toots for feed.`);
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
@@ -81,6 +71,7 @@ class TheAlgorithm {
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
             console.debug(`Scoring toot #${toot.id}: `, toot);
+            toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right place to do this?
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
             const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
@@ -100,7 +91,7 @@ class TheAlgorithm {
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
             const timeDiscount = Math.pow((1 + 0.05), -Math.pow((seconds / 3600), 2));
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = (toot.rawScore ?? 0) * timeDiscount; // TODO: rename to "score" or "weightedScore"
+            toot.value = (toot.rawScore ?? 0) * timeDiscount;
             toot.timeDiscount = timeDiscount;
         }
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
@@ -238,7 +229,8 @@ const isValidForFeed = (toot) => {
         console.log(`Removed reblogged toot: `, toot);
         return false;
     }
-    if (Date.now() >= (new Date(toot.createdAt)).getTime()) {
+    // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+    if (Date.now() < (new Date(toot.createdAt)).getTime()) {
         console.warn(`Removed toot with future timestamp: `, toot);
         return false;
     }
