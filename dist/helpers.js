@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.condensedStatus = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
+exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const MAX_CONTENT_CHARS = 150;
@@ -43,6 +43,30 @@ const mastodonFetch = async (server, endpoint) => {
     }
 };
 exports.mastodonFetch = mastodonFetch;
+// export type PageParams<subtype extends mastodon.DefaultPaginationParams= mastodon.DefaultPaginationParams> = Datatype<subtype, 'usd'>;
+// Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
+async function mastodonFetchPages(fetchMethod, min_pages, max_records) {
+    console.log(`mastodonFetchPages() called fetcher=${fetchMethod}, min_pages=${min_pages}, max_records=${max_records}`);
+    let results = [];
+    let pageNumber = 0;
+    try {
+        for await (const page of fetchMethod({ limit: max_records })) {
+            results = results.concat(page);
+            pageNumber++;
+            console.log(`Retrieved page ${pageNumber} of current user's records...`);
+            if (pageNumber >= min_pages || results.length >= max_records) {
+                console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
+                break;
+            }
+        }
+    }
+    catch (e) {
+        console.error(e);
+        return results;
+    }
+    return results;
+}
+exports.mastodonFetchPages = mastodonFetchPages;
 // Returns a simplified version of the status for logging
 const condensedStatus = (status) => {
     // Contents of post (the text)

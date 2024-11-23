@@ -1,5 +1,6 @@
 import axios from "axios";
 import { camelCase } from "change-case";
+import { mastodon } from "masto";
 
 import { Toot } from "./types";
 
@@ -46,6 +47,38 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
         return;
     }
 };
+
+// export type PageParams<subtype extends mastodon.DefaultPaginationParams= mastodon.DefaultPaginationParams> = Datatype<subtype, 'usd'>;
+
+// Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
+export async function mastodonFetchPages<T>(
+    fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
+    min_pages: number,
+    max_records: number,
+): Promise<T[]> {
+    console.log(`mastodonFetchPages() called fetcher=${fetchMethod}, min_pages=${min_pages}, max_records=${max_records}`);
+    let results: T[] = [];
+    let pageNumber = 0;
+
+    try {
+        for await (const page of fetchMethod({ limit: max_records })) {
+            results = results.concat(page);
+            pageNumber++;
+            console.log(`Retrieved page ${pageNumber} of current user's records...`);
+
+            if (pageNumber >= min_pages || results.length >= max_records) {
+                console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
+                break;
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        return results;
+    }
+
+    return results;
+}
+
 
 
 // Returns a simplified version of the status for logging
