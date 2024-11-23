@@ -5,8 +5,8 @@ import { mastodon } from "masto";
 
 
 export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[]> {
-    data: mastodon.v1.Status[]
     currentIndex: number
+    data: mastodon.v1.Status[]
     direction: "next" | "prev"
 
     constructor(data: mastodon.v1.Status[]) {

@@ -56,6 +56,7 @@ export default class Storage {
         } else {
             await this.set(Key.OPENINGS, (openings + 1).toString(), true);
         }
+
         await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
     }
 
@@ -79,4 +80,4 @@ export default class Storage {
         const userJson = JSON.stringify(user);
         await AsyncStorage.setItem(Key.USER, userJson);
     }
-}
+};
