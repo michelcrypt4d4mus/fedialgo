@@ -254,7 +254,7 @@ class TheAlgorithm {
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
         if (scores[TRENDING_POSTS] > 0 && trendingTootWeighting < 1.0) {
-            console.log(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
+            console.debug(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
             score *= trendingTootWeighting;
         }
 

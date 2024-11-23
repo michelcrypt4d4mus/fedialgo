@@ -12,25 +12,22 @@ const MIN_RECORDS = 80;
 
 
 export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
-    let results = await mastodonFetchPages<mastodon.v1.Notification>(
+    const results = await mastodonFetchPages<mastodon.v1.Notification>(
         api.v1.notifications.list,
         NUM_PAGES_TO_SCAN,
         MIN_RECORDS
     );
 
-    console.log(`Retrieved notifications with interactFeature() AND mastodonFetchPages(): `, results);
+    console.log(`Retrieved notifications with interactFeature() and mastodonFetchPages(): `, results);
 
-    const interactFrequ = results.reduce((accumulator: Record<string, number>, status: mastodon.v1.Notification) => {
-        if (!status.account) return accumulator;
-
-        if (status.account.acct in accumulator) {
-            accumulator[status.account.acct] += 1;
-        } else {
-            accumulator[status.account.acct] = 1;
-        }
-
-        return accumulator
-    }, {})
+    const interactFrequ = results.reduce(
+        (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {
+            if (!notification.account) return interactionCount;
+            interactionCount[notification.account.acct] = (interactionCount[notification.account.acct] || 0) + 1;
+            return interactionCount;
+        },
+        {}
+    );
 
     return interactFrequ;
 };

@@ -9,12 +9,11 @@ const MAX_PAGES_OF_USER_TOOTS = 3;
 const MAX_TOOTS_TO_SCAN = 100;
 
 
-// mastodon.v1.ListAccountStatusesParams
 export default async function reblogsFeature(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<Record<string, number>> {
-    let recentToots = await mastodonFetchPages<mastodon.v1.Status>(
+    const recentToots = await mastodonFetchPages<mastodon.v1.Status>(
         api.v1.accounts.$select(user.id).statuses.list,
         MAX_PAGES_OF_USER_TOOTS,
         MAX_TOOTS_TO_SCAN
@@ -28,13 +27,7 @@ export default async function reblogsFeature(
     const retootedUserCounts = recentRetoots.reduce(
         (counts: Record<string, number>, toot: mastodon.v1.Status) => {
             if (!toot?.reblog?.account?.acct) return counts;
-
-            if (toot.reblog.account.acct in counts) {
-                counts[toot.reblog.account.acct] += 1;
-            } else {
-                counts[toot.reblog.account.acct] = 1;
-            }
-
+            counts[toot.reblog.account.acct] = (counts[toot.reblog.account.acct] || 0) + 1;
             return counts;
         },
         {}

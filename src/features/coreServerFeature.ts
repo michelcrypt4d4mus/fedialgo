@@ -16,7 +16,7 @@ export default async function coreServerFeature(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<ServerFeature> {
-    let results = await mastodonFetchPages<mastodon.v1.Account>(
+    const results = await mastodonFetchPages<mastodon.v1.Account>(
         api.v1.accounts.$select(user.id).following.list,
         NUM_SERVER_PAGES_TO_PULL,
         SERVER_RECORDS_TO_PULL
@@ -24,17 +24,15 @@ export default async function coreServerFeature(
 
     console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
 
-    const serverFrequ = results.reduce((accumulator: ServerFeature, follower: mastodon.v1.Account) => {
-        const server = follower.url.split("@")[0].split("https://")[1];
-
-        if (server in accumulator) {
-            accumulator[server] += 1;
-        } else {
-            accumulator[server] = 1;
-        }
-
-        return accumulator;
-    }, {})
+    // Count up what Mastodon servers the user followss live on
+    const serverFrequ = results.reduce(
+        (accumulator: ServerFeature, follower: mastodon.v1.Account) => {
+            const server = follower.url.split("@")[0].split("https://")[1];
+            accumulator[server] = (accumulator[server] || 0) + 1;
+            return accumulator;
+        },
+        {}
+    );
 
     console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
     const popularServers = Object.keys(serverFrequ)
@@ -53,7 +51,7 @@ export default async function coreServerFeature(
         if (activeUsers < 10) return acc;
         const ratio = serverFrequ[server] / activeUsers;
         return { ...acc, [server]: ratio }
-    }, {})
+    }, {});
 
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
@@ -62,7 +60,7 @@ export default async function coreServerFeature(
 
 async function getMonthlyUsers(server: string): Promise<number> {
     try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, "api/v2/instance")
+        const instance = await mastodonFetch<mastodon.v2.Instance>(server, "api/v2/instance");
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {

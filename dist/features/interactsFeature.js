@@ -4,18 +4,13 @@ const helpers_1 = require("../helpers");
 const NUM_PAGES_TO_SCAN = 3;
 const MIN_RECORDS = 80;
 async function interactFeature(api) {
-    let results = await (0, helpers_1.mastodonFetchPages)(api.v1.notifications.list, NUM_PAGES_TO_SCAN, MIN_RECORDS);
-    console.log(`Retrieved notifications with interactFeature() AND mastodonFetchPages(): `, results);
-    const interactFrequ = results.reduce((accumulator, status) => {
-        if (!status.account)
-            return accumulator;
-        if (status.account.acct in accumulator) {
-            accumulator[status.account.acct] += 1;
-        }
-        else {
-            accumulator[status.account.acct] = 1;
-        }
-        return accumulator;
+    const results = await (0, helpers_1.mastodonFetchPages)(api.v1.notifications.list, NUM_PAGES_TO_SCAN, MIN_RECORDS);
+    console.log(`Retrieved notifications with interactFeature() and mastodonFetchPages(): `, results);
+    const interactFrequ = results.reduce((interactionCount, notification) => {
+        if (!notification.account)
+            return interactionCount;
+        interactionCount[notification.account.acct] = (interactionCount[notification.account.acct] || 0) + 1;
+        return interactionCount;
     }, {});
     return interactFrequ;
 }

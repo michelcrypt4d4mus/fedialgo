@@ -6,16 +6,12 @@ const NUM_SERVERS_TO_RETURN = 20;
 const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
 async function coreServerFeature(api, user) {
-    let results = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
+    const results = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
     console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
+    // Count up what Mastodon servers the user followss live on
     const serverFrequ = results.reduce((accumulator, follower) => {
         const server = follower.url.split("@")[0].split("https://")[1];
-        if (server in accumulator) {
-            accumulator[server] += 1;
-        }
-        else {
-            accumulator[server] = 1;
-        }
+        accumulator[server] = (accumulator[server] || 0) + 1;
         return accumulator;
     }, {});
     console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
