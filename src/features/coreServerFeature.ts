@@ -46,12 +46,15 @@ export default async function coreServerFeature(
         return serverMonthlyUsers;
     }));
 
-    const overrepresentedServerFrequ = popularServers.reduce((acc, server, index) => {
-        const activeUsers = monthlyUsers[index];
-        if (activeUsers < 10) return acc;
-        const ratio = serverFrequ[server] / activeUsers;
-        return { ...acc, [server]: ratio };
-    }, {});
+    const overrepresentedServerFrequ = popularServers.reduce(
+        (acc, server, index) => {
+            const activeUsers = monthlyUsers[index];
+            if (activeUsers < 10) return acc;
+            const ratio = serverFrequ[server] / activeUsers;
+            return { ...acc, [server]: ratio };
+        },
+        {}
+    );
 
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
