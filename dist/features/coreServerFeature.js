@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
 const NUM_SERVERS_TO_RETURN = 20;
-const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
+const SERVER_RECORDS_TO_PULL = 80;
+const SERVER_MAU_ENDPOINT = "api/v2/instance";
 async function coreServerFeature(api, user) {
     const results = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
     console.log(`coreServerFeature() results from mastodonFetchPages(): `, results);
@@ -38,7 +39,7 @@ exports.default = coreServerFeature;
 ;
 async function getMonthlyUsers(server) {
     try {
-        const instance = await (0, helpers_1.mastodonFetch)(server, "api/v2/instance");
+        const instance = await (0, helpers_1.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     }
