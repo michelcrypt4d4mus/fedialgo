@@ -48,7 +48,7 @@ class TheAlgorithm {
         this.setDefaultWeights();
     }
     async getFeed() {
-        console.debug("getFeed() called in fedialgo package");
+        console.debug(`getFeed() called in fedialgo package...`);
         const { fetchers, featureScorers, feedScorers } = this;
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)));
         // Inject condensedStatus instance method. // TODO: this feels like not the right place to do this.
@@ -56,7 +56,13 @@ class TheAlgorithm {
             toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
             return toot;
         });
+        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+        const futureToots = this.feed.filter((status) => Date.now() < (new Date(status.createdAt)).getTime());
+        this.feed = this.feed.filter((status) => Date.now() >= (new Date(status.createdAt)).getTime());
+        if (futureToots.length > 0)
+            console.warn(`Removed ${futureToots.length} toots bc they were in the future:`, futureToots);
         // Load and Prepare Features
+        console.log(`Found ${this.feed.length} potential toots for feed.`);
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
         // Get Score Names
@@ -64,6 +70,7 @@ class TheAlgorithm {
         const feedScoreNames = feedScorers.map(scorer => scorer.getScoreName());
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
+            console.debug(`Scoring toot #${toot.id}...`);
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
             const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
@@ -146,8 +153,10 @@ class TheAlgorithm {
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         const scoredFeed = [];
         for (const toot of this.feed) {
-            if (!toot.scores)
+            if (!toot.scores) {
+                console.warn(`Toot #${toot.id} has no scores! Skipping rest of scoring...`);
                 return this.getFeed();
+            }
             toot.value = await this._computeFinalScore(toot.scores);
             scoredFeed.push(toot);
         }

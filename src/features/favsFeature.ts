@@ -17,7 +17,7 @@ export default async function favFeature(api: mastodon.rest.Client): Promise<Acc
         MAX_RECORDS
     );
 
-    console.log(`Retrieved faves with favFeaturE() AND mastodonFetchPages(): `, results);
+    console.log(`Retrieved faves with favFeature() AND mastodonFetchPages(): `, results);
 
     const favFrequ = results.reduce(
         (favoriteCounts: AccountFeature, toot: mastodon.v1.Status,) => {
