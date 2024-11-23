@@ -10,7 +10,10 @@ const MAX_TOOTS_TO_SCAN = 100;
 
 
 // mastodon.v1.ListAccountStatusesParams
-export default async function getReblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>> {
+export default async function reblogsFeature(
+    api: mastodon.rest.Client,
+    user: mastodon.v1.Account
+): Promise<Record<string, number>> {
     let recentToots = await mastodonFetchPages<mastodon.v1.Status>(
         api.v1.accounts.$select(user.id).statuses.list,
         MAX_PAGES_OF_USER_TOOTS,
