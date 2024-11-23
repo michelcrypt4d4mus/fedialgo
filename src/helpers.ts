@@ -48,7 +48,6 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
     }
 };
 
-// export type PageParams<subtype extends mastodon.DefaultPaginationParams= mastodon.DefaultPaginationParams> = Datatype<subtype, 'usd'>;
 
 // Fetch N pages of a user's [whatever] (toots, notifications, etc.) from the server and rerun as an arry
 export async function mastodonFetchPages<T>(
