@@ -10,8 +10,8 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
     direction: "next" | "prev";
 
     constructor(data: mastodon.v1.Status[]) {
-        this.data = data;
         this.currentIndex = 0;
+        this.data = data;
         this.direction = "next";
     }
 

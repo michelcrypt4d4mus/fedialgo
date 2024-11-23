@@ -9,10 +9,10 @@ import { AccountFeature, Toot } from "../types";
 
 
 interface RankParams {
-    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
-    scoreName: string,
     description?: string,
     defaultWeight?: number,
+    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
+    scoreName: string,
 };
 
 
@@ -20,10 +20,10 @@ export default class FeatureScorer {
     featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>;
     feature: AccountFeature = {};
 
-    private _scoreName: string;
-    private _isReady: boolean = false;
     private _description: string = "";
     private _defaultWeight: number = 1;
+    private _isReady: boolean = false;
+    private _scoreName: string;
 
     constructor(params: RankParams) {
         this.featureGetter = params.featureGetter;
@@ -32,6 +32,7 @@ export default class FeatureScorer {
         this._defaultWeight = params.defaultWeight || 1;
     }
 
+    // TODO: this seems backwards???
     async getFeature(api: mastodon.rest.Client) {
         this._isReady = true;
         this.feature = await this.featureGetter(api);
