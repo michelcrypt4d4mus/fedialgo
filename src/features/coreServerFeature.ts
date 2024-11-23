@@ -8,9 +8,9 @@ import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
 const NUM_SERVERS_TO_RETURN = 20;
-const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
-
+const SERVER_RECORDS_TO_PULL = 80;
+const SERVER_MAU_ENDPOINT = "api/v2/instance";
 
 export default async function coreServerFeature(
     api: mastodon.rest.Client,
@@ -63,7 +63,7 @@ export default async function coreServerFeature(
 
 async function getMonthlyUsers(server: string): Promise<number> {
     try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, "api/v2/instance");
+        const instance = await mastodonFetch<mastodon.v2.Instance>(server, SERVER_MAU_ENDPOINT);
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {
