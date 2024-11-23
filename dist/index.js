@@ -61,12 +61,12 @@ class TheAlgorithm {
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter(isValidForFeed);
         const numRemoved = this.feed.length - cleanFeed.length;
+        console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) from feed leaving ${cleanFeed.length}`);
+        // Remove dupes by uniquifying on the URI
+        // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         const numValid = cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots out of ${this.feed.length} from feed, leaving ${cleanFeed.length}.`);
-        // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
-        const numDupes = numValid - cleanFeed.length;
-        console.log(`Removed ${numDupes} duplicate toots, leaving ${cleanFeed.length}.`);
+        console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
@@ -89,10 +89,9 @@ class TheAlgorithm {
             }
             // Multiple rawScore by time decay penalty to get a final value
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            const timeDiscount = Math.pow((1 + 0.05), -Math.pow((seconds / 3600), 2));
+            toot.timeDiscount = Math.pow((1 + 0.05), -Math.pow((seconds / 3600), 2));
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = (toot.rawScore ?? 0) * timeDiscount;
-            toot.timeDiscount = timeDiscount;
+            toot.value = (toot.rawScore ?? 0) * toot.timeDiscount;
         }
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
         this.feed = this.feed.sort((a, b) => {
@@ -124,20 +123,24 @@ class TheAlgorithm {
         const scorerNames = this.getScorerNames();
         return await weightsStore_1.default.getScoreWeightsMulti(scorerNames);
     }
+    // I think this is the main function that gets called when the user changes the weights of the sliders?
+    // Otherwise scoring is done in getFeed().
     async weightTootsInFeed(userWeights) {
-        //prevent userWeights from being set to 0
+        console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
+        // prevent userWeights from being set to 0
         for (const key in userWeights) {
             if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
-                console.error("Weights not set because of error");
+                console.warn("Weights not set because of invalid value! Not reweighting feed...");
                 return this.feed;
             }
         }
-        console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         const scoredFeed = [];
         for (const toot of this.feed) {
+            console.debug(`Reweighting toot #${toot.id}: `, toot);
+            // TODO: Reloading the whole feed seems like a bad way to handle missing scores for one toot
             if (!toot.scores) {
-                console.warn(`Toot #${toot.id} has no scores! Skipping rest of scoring...`);
+                console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
                 return this.getFeed();
             }
             toot.value = await this._computeFinalScore(toot.scores);
@@ -160,6 +163,7 @@ class TheAlgorithm {
     }
     //Adjust post weights based on user's chosen slider values
     async weightAdjust(statusWeights, step = 0.001) {
+        console.debug(`weightAdjust() called with 'statusWeights' arg: `, statusWeights);
         if (statusWeights == undefined)
             return;
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
@@ -186,6 +190,7 @@ class TheAlgorithm {
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
+        console.debug(`_computeFinalScore() called with 'scores' arg: `, scores);
         const userWeightings = await weightsStore_1.default.getScoreWeightsMulti(Object.keys(scores));
         const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
         let score = Object.keys(scores).reduce((score, scoreName) => {
