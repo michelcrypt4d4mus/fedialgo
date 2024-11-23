@@ -55,7 +55,7 @@ class TheAlgorithm {
     constructor(
         api: mastodon.rest.Client,
         user: mastodon.v1.Account,
-        valueCalculator: (((scores: ScoresType) => Promise<number>) | null) = null
+        valueCalculator: (((scores: ScoresType) => Promise<number>) | null) = null,
     ) {
         this.api = api;
         this.user = user;

@@ -23,7 +23,10 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
         throw new Error("Method not implemented.");
     }
 
-    then<TResult1 = mastodon.v1.Status[], TResult2 = never>(onfulfilled?: ((value: mastodon.v1.Status[]) => TResult1 | PromiseLike<TResult1>) | null | undefined, onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null | undefined): PromiseLike<TResult1 | TResult2> {
+    then<TResult1 = mastodon.v1.Status[], TResult2 = never>(
+        onfulfilled?: ((value: mastodon.v1.Status[]) => TResult1 | PromiseLike<TResult1>) | null | undefined,
+        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null | undefined
+    ): PromiseLike<TResult1 | TResult2> {
         throw new Error(`Method not implemented. ${onfulfilled} ${onrejected}`);
     }
 

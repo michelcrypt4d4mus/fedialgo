@@ -19,8 +19,8 @@ export interface Toot extends mastodon.v1.Status {
     reblog?: Toot;
     reblogBy?: string;
     recommended?: boolean;
-    similarity?: number;
     scores?: ScoresType;
+    similarity?: number;
     timeDiscount?: number;  // Multiplier that reduces the score of older posts
     topPost?: number;
     value?: number;
