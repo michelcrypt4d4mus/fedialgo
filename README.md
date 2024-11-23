@@ -35,7 +35,7 @@ const feed = await algo.getFeed()
 ```
 
 #### Adjust Weights:
-The algorithm uses features and their weights to determine the order of the posts.
+The algorithm uses properties of a toot and the user configured weights to determine the order that toots will appear in your timeline.
 You could e.g. show the weights to the user, who can then decide to change them.
 
 ```typescript
@@ -53,6 +53,7 @@ const scores = status.scores
 const newWeights = await algoObj.weightAdjust(scores)
 ```
 
+
 # Contributing
 ### Developer Setup
 If necessary install the dev dependencies with `npm install --include=dev`.
@@ -63,13 +64,13 @@ For changes to propagate you must run `npm run build` to generate changes to fil
 ### Developing Against a Local Repo
 Clone this repo and cd into it. Then run:
 
-```console
+```bash
 npm install
 npm link
 ```
 
 Then `cd` to the `node.js` project that is going to host this package and run this:
-```console
+```bash
 npm link fedialgo
 ```
 
@@ -78,7 +79,7 @@ npm link fedialgo
 
 ### Miscellaneous
 Use // @ts-ignore if you run into Typescript warnings (because your project might also use masto)
-```console
+```bash
 npm run build
 ```
 in `fedialgo` directory after changes and they will automatically be detected.
