@@ -32,6 +32,6 @@ export default async function favFeature(api: mastodon.rest.Client): Promise<Acc
         return accumulator;
     }, {})
 
-    console.log(`favFrequ: `, favFrequ);
+    console.log(`favFeature favFrequ: `, favFrequ);
     return favFrequ;
 };

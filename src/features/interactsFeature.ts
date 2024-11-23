@@ -33,4 +33,4 @@ export default async function interactFeature(api: mastodon.rest.Client): Promis
     }, {})
 
     return interactFrequ;
-}
+};

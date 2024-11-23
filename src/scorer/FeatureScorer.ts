@@ -3,7 +3,8 @@
  * a toot based solely on the properties of that toot and does not have to refer to
  * any external information.
  */
-import { mastodon } from "masto"
+import { mastodon } from "masto";
+
 import { AccountFeature, Toot } from "../types";
 
 

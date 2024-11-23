@@ -34,4 +34,4 @@ export default class reblogsFeedScorer extends FeedScorer {
         super.score(toot);  // checks if ready
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
-}
+};

@@ -1,9 +1,10 @@
 /*
  * Score how many times the toot has been replied to by other users.
  */
+import { mastodon } from 'masto';
+
 import FeatureScorer from '../FeatureScorer';
 import FeatureStorage from '../../features/FeatureStore';
-import { mastodon } from 'masto';
 import { Toot } from '../../types';
 
 

@@ -5,19 +5,20 @@ import { mastodon } from "masto";
 
 
 export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[]> {
-    currentIndex: number
-    data: mastodon.v1.Status[]
-    direction: "next" | "prev"
+    currentIndex: number;
+    data: mastodon.v1.Status[];
+    direction: "next" | "prev";
 
     constructor(data: mastodon.v1.Status[]) {
-        this.data = data
-        this.currentIndex = 0
-        this.direction = "next"
+        this.data = data;
+        this.currentIndex = 0;
+        this.direction = "next";
     }
 
     return(value: PromiseLike<undefined> | undefined): Promise<IteratorResult<mastodon.v1.Status[], undefined>> {
         throw new Error(`Method not implemented. ${value}`);
     }
+
     [Symbol.asyncIterator](): AsyncIterator<mastodon.v1.Status[], undefined, string | undefined> {
         throw new Error("Method not implemented.");
     }
@@ -28,11 +29,12 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
 
     async next(): Promise<IteratorResult<mastodon.v1.Status[], undefined>> {
         if (this.currentIndex < this.data.length) {
-            const result = this.data.slice(this.currentIndex, this.currentIndex + 10)
-            this.currentIndex += 10
-            return { value: result, done: false }
+            const result = this.data.slice(this.currentIndex, this.currentIndex + 10);
+            this.currentIndex += 10;
+            return { value: result, done: false };
         }
-        return { value: undefined, done: true }
+
+        return { value: undefined, done: true };
     }
 
     getDirection(): "next" | "prev" {
@@ -52,7 +54,7 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
 
     async throw(e?: unknown): Promise<IteratorResult<mastodon.v1.Status[], undefined>> {
         console.error(e);
-        return { value: undefined, done: true }
+        return { value: undefined, done: true };
     }
 
     async *values(): AsyncIterableIterator<mastodon.v1.Status[]> {
@@ -60,4 +62,4 @@ export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[
             yield [status];
         }
     }
-}
+};
