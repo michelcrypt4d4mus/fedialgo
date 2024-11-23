@@ -24,12 +24,11 @@ async function topPostsFeed(api) {
         return [];
     }
     console.log(`Found top mastodon servers: `, servers);
-    let trendingToots = [];
     // Pull top trending toots from each server
-    trendingToots = await Promise.all(servers.map(async (server) => {
+    const trendingToots = await Promise.all(servers.map(async (server) => {
         let serverTopToots = await (0, helpers_2.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
         if (!serverTopToots || serverTopToots.length == 0) {
-            console.warn(`Failed to get trending toots from '${server}'! serverTopToots: `, serverTopToots);
+            console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
             return [];
         }
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,

@@ -32,14 +32,13 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<T
     }
 
     console.log(`Found top mastodon servers: `, servers);
-    let trendingToots: Toot[][] = [];
 
     // Pull top trending toots from each server
-    trendingToots = await Promise.all(servers.map(async (server: string): Promise<Toot[]> => {
+    const trendingToots = await Promise.all(servers.map(async (server: string): Promise<Toot[]> => {
         let serverTopToots = await mastodonFetch<Toot[]>(server, TRENDING_TOOTS_REST_PATH);
 
         if (!serverTopToots || serverTopToots.length == 0) {
-            console.warn(`Failed to get trending toots from '${server}'! serverTopToots: `, serverTopToots);
+            console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
             return [];
         }
 
@@ -63,7 +62,7 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<T
 
         console.log(`topToots for server '${server}': `, serverTopToots.map(condensedStatus));
         return serverTopToots;
-    }))
+    }));
 
     const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
     return trendingToots.flat().filter((toot: Toot) => new Date(toot.createdAt) > lastOpenedAt);
