@@ -8,7 +8,6 @@ const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
-const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -25,7 +24,7 @@ class TheAlgorithm {
     ];
     // I think these scorers work in a standalone way and don't require the complete list to work?
     featureScorers = [
-        new chaosFeatureScorer_1.default(),
+        new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),
         new scorer_1.interactsFeatureScorer(),
         new scorer_1.numFavoritesScorer(),

@@ -3,7 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.topPostFeatureScorer = exports.reblogsFeedScorer = exports.reblogsFeatureScorer = exports.numRepliesScorer = exports.numFavoritesScorer = exports.interactsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = void 0;
+exports.topPostFeatureScorer = exports.reblogsFeedScorer = exports.reblogsFeatureScorer = exports.numRepliesScorer = exports.numFavoritesScorer = exports.interactsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
+const chaosFeatureScorer_1 = __importDefault(require("./feature/chaosFeatureScorer"));
+exports.chaosFeatureScorer = chaosFeatureScorer_1.default;
 const diversityFeedScorer_1 = __importDefault(require("./feed/diversityFeedScorer"));
 exports.diversityFeedScorer = diversityFeedScorer_1.default;
 const favsFeatureScorer_1 = __importDefault(require("./feature/favsFeatureScorer"));

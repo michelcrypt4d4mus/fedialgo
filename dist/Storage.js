@@ -46,7 +46,6 @@ class Storage {
         return `${user.id}_${key}`;
     }
     static async logOpening() {
-        console.log("Logging Opening");
         const openings = parseInt(await this.get(Key.OPENINGS, true));
         if (openings == null || isNaN(openings)) {
             await this.set(Key.OPENINGS, "1", true);

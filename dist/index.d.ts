@@ -1,8 +1,7 @@
 import { mastodon } from "masto";
-import { diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
+import { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
 import { condensedStatus } from "./helpers";
 import { ScoresType, Toot } from "./types";
-import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 declare class TheAlgorithm {
@@ -10,7 +9,7 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     feed: Toot[];
     fetchers: (typeof getHomeFeed)[];
-    featureScorers: (favsFeatureScorer | interactsFeatureScorer | numFavoritesScorer | numRepliesScorer | reblogsFeatureScorer | topPostFeatureScorer | chaosFeatureScorer)[];
+    featureScorers: (chaosFeatureScorer | favsFeatureScorer | interactsFeatureScorer | numFavoritesScorer | numRepliesScorer | reblogsFeatureScorer | topPostFeatureScorer)[];
     feedScorers: (diversityFeedScorer | reblogsFeedScorer)[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
     getFeed(): Promise<Toot[]>;
