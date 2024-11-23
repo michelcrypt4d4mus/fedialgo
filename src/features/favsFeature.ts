@@ -20,17 +20,14 @@ export default async function favFeature(api: mastodon.rest.Client): Promise<Acc
 
     console.log(`Retrieved faves with favFeaturE() AND mastodonFetchPages(): `, results);
 
-    const favFrequ = results.reduce((accumulator: AccountFeature, toot: mastodon.v1.Status,) => {
-        if (!toot.account) return accumulator;
-
-        if (toot.account.acct in accumulator) {
-            accumulator[toot.account.acct] += 1;
-        } else {
-            accumulator[toot.account.acct] = 1;
-        }
-
-        return accumulator;
-    }, {})
+    const favFrequ = results.reduce(
+        (favoriteCounts: AccountFeature, toot: mastodon.v1.Status,) => {
+            if (!toot.account) return favoriteCounts;
+            favoriteCounts[toot.account.acct] = (favoriteCounts[toot.account.acct] || 0) + 1;
+            return favoriteCounts;
+        },
+        {}
+    );
 
     console.log(`favFeature favFrequ: `, favFrequ);
     return favFrequ;

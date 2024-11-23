@@ -22,7 +22,7 @@ export default async function coreServerFeature(
         SERVER_RECORDS_TO_PULL
     );
 
-    console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
+    console.log(`coreServerFeature() results from mastodonFetchPages(): `, results);
 
     // Count up what Mastodon servers the user followss live on
     const serverFrequ = results.reduce(
