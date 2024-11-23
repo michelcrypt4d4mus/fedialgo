@@ -1,7 +1,10 @@
 /*
- * Base class that other toot scorers extend.
+ * Base class for scorers that require processing external data before they can score anything.
+ * For example DiversityFeedScorer has to count how many toots by each user are in your feed
+ * before it knows how much to penalize prolific tooters.
  */
 import { mastodon } from "masto";
+
 import { Toot } from "../types";
 
 
