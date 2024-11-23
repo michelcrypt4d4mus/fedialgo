@@ -1,11 +1,17 @@
+/*
+ * This feature will return a dictionary with the number of interactions with other accounts in the last
+  N pages of notifications.
+ */
 import { mastodon } from "masto";
 
 import { AccountFeature } from "../types";
 
+const NUM_PAGES_TO_SCAN = 3;
+
 
 export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     let results: mastodon.v1.Notification[] = [];
-    let pages = 3;
+    let pages = NUM_PAGES_TO_SCAN;
 
     try {
         for await (const page of api.v1.notifications.list({ limit: 80 })) {

@@ -7,6 +7,7 @@ import { StatusType } from "../../types";
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
 
+// TODO: rename retootsFeatureScorer
 export default class reblogsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
@@ -19,7 +20,12 @@ export default class reblogsFeatureScorer extends FeatureScorer {
 
     async score(_api: mastodon.rest.Client, toot: StatusType) {
         const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
-        const reblogScore = (toot.reblog && toot.reblog.account.acct in this.feature) ? this.feature[toot.reblog.account.acct] : 0;
+        let reblogScore: number = 0;
+
+        if (toot.reblog && toot.reblog.account.acct in this.feature) {
+            reblogScore = this.feature[toot.reblog.account.acct];
+        }
+
         return authorScore + reblogScore;
     }
 };

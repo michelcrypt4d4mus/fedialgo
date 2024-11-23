@@ -1,3 +1,6 @@
+/*
+ * Handles getting things like monthly active users about the various servers in the Fediverse.
+ */
 import { mastodon } from "masto";
 
 import { mastodonFetch } from "../helpers";
@@ -9,7 +12,10 @@ const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
 
 
-export default async function coreServerFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<ServerFeature> {
+export default async function coreServerFeature(
+    api: mastodon.rest.Client,
+    user: mastodon.v1.Account
+): Promise<ServerFeature> {
     let results: mastodon.v1.Account[] = [];
     let pageNumber = 0;
 
@@ -40,11 +46,11 @@ export default async function coreServerFeature(api: mastodon.rest.Client, user:
         return accumulator;
     }, {})
 
-    console.log(`serverFrequ: `, serverFrequ);
+    console.debug(`serverFrequ: `, serverFrequ);
     const popularServers = Object.keys(serverFrequ)
                                  .sort((a, b) => serverFrequ[b] - serverFrequ[a])
                                  .slice(0, NUM_SERVERS_TO_CHECK)
-    console.log(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers)
+    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers)
 
     const monthlyUsers = await Promise.all(popularServers.map(server => {
         const serverMonthlyUsers = getMonthlyUsers(server);
@@ -67,7 +73,7 @@ export default async function coreServerFeature(api: mastodon.rest.Client, user:
 async function getMonthlyUsers(server: string): Promise<number> {
     try {
         const instance = await mastodonFetch<mastodon.v2.Instance>(server, "api/v2/instance")
-        console.log(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {
         console.warn(`Error fetching data for server ${server}:`, error);

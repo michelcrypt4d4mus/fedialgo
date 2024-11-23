@@ -1,3 +1,6 @@
+/*
+ * Random number generator to mix up the feed.
+ */
 import FeatureScorer from '../FeatureScorer'
 
 

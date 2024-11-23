@@ -32,17 +32,20 @@ export default async function getReblogsFeature(api: mastodon.rest.Client, user:
     console.log(`Recent retoot history: `, recentRetoots);
 
     // Count retoots per user
-    const retootedUserCounts = recentRetoots.reduce((counts: Record<string, number>, toot: mastodon.v1.Status) => {
-        if (!toot?.reblog?.account?.acct) return counts;
+    const retootedUserCounts = recentRetoots.reduce(
+        (counts: Record<string, number>, toot: mastodon.v1.Status) => {
+            if (!toot?.reblog?.account?.acct) return counts;
 
-        if (toot.reblog.account.acct in counts) {
-            counts[toot.reblog.account.acct] += 1;
-        } else {
-            counts[toot.reblog.account.acct] = 1;
-        }
+            if (toot.reblog.account.acct in counts) {
+                counts[toot.reblog.account.acct] += 1;
+            } else {
+                counts[toot.reblog.account.acct] = 1;
+            }
 
-        return counts;
-    }, {});
+            return counts;
+        },
+        {}
+    );
 
     console.log(`Most retooted users retootedUserCounts: `, retootedUserCounts);
     return retootedUserCounts;
