@@ -20,7 +20,7 @@ async function getReblogsFeature(api, user) {
         console.error(e);
         return {};
     }
-    const recentRetoots = recentToots.filter(status => status?.reblog);
+    const recentRetoots = recentToots.filter(toot => toot?.reblog);
     console.log(`Recent toot history: `, recentToots);
     console.log(`Recent retoot history: `, recentRetoots);
     // Count retoots per user

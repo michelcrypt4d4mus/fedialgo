@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-export default class ForYouPaginator implements mastodon.Paginator<mastodon.v1.Status[]> {
+export default class Paginator implements mastodon.Paginator<mastodon.v1.Status[]> {
     data: mastodon.v1.Status[];
     currentIndex: number;
     direction: "next" | "prev";

@@ -14,8 +14,9 @@ class chaosFeatureScorer extends FeatureScorer_1.default {
         });
     }
     async score() {
-        return Math.random() > 0.9 ? 1 : 0;
+        return Math.random();
     }
 }
 exports.default = chaosFeatureScorer;
+;
 //# sourceMappingURL=chaosFeatureScorer.js.map

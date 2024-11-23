@@ -3,10 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * This file is responsible for fetching the array of StatusType objects that make up
- * the home timeline feed of a user (AKA "what most people see first upon opening Mastodon").
- */
 const Storage_1 = __importDefault(require("../Storage"));
 const MAX_PAGES = 16;
 const MAX_TIMELINE_HOURS = 72;

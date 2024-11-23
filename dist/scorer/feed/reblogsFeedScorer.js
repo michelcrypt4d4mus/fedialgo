@@ -12,17 +12,17 @@ class reblogsFeedScorer extends FeedScorer_1.default {
     }
     // for each uri in the feed, count the number of times it appears
     feedExtractor(feed) {
-        return feed.reduce((obj, status) => {
-            obj[status.uri] = (obj[status.uri] || 0) + 1;
-            if (status.reblog) {
-                obj[status.reblog.uri] = (obj[status.reblog.uri] || 0) + 1;
+        return feed.reduce((obj, toot) => {
+            obj[toot.uri] = (obj[toot.uri] || 0) + 1;
+            if (toot.reblog) {
+                obj[toot.reblog.uri] = (obj[toot.reblog.uri] || 0) + 1;
             }
             return obj;
         }, {});
     }
-    async score(status) {
-        super.score(status); // checks if ready
-        return this.features[status.reblog?.uri || status.uri] || 0;
+    async score(toot) {
+        super.score(toot); // checks if ready
+        return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
 }
 exports.default = reblogsFeedScorer;

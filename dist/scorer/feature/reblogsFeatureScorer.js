@@ -15,9 +15,9 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
         });
     }
-    async score(_api, status) {
-        const authorScore = (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0;
-        const reblogScore = (status.reblog && status.reblog.account.acct in this.feature) ? this.feature[status.reblog.account.acct] : 0;
+    async score(_api, toot) {
+        const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
+        const reblogScore = (toot.reblog && toot.reblog.account.acct in this.feature) ? this.feature[toot.reblog.account.acct] : 0;
         return authorScore + reblogScore;
     }
 }

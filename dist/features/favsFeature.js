@@ -16,14 +16,14 @@ async function favFeature(api) {
         console.error(e);
         return {};
     }
-    const favFrequ = results.reduce((accumulator, status) => {
-        if (!status.account)
+    const favFrequ = results.reduce((accumulator, toot) => {
+        if (!toot.account)
             return accumulator;
-        if (status.account.acct in accumulator) {
-            accumulator[status.account.acct] += 1;
+        if (toot.account.acct in accumulator) {
+            accumulator[toot.account.acct] += 1;
         }
         else {
-            accumulator[status.account.acct] = 1;
+            accumulator[toot.account.acct] = 1;
         }
         return accumulator;
     }, {});

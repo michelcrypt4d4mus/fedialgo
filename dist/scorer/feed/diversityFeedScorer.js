@@ -11,17 +11,18 @@ class diversityFeedScorer extends FeedScorer_1.default {
     feedExtractor(feed) {
         // this prevents just always the first post from being shown
         const sortRandom = () => Math.random() - 0.5;
-        return feed.sort(sortRandom).reduce((obj, status) => {
-            obj[status.account.acct] = (obj[status.account.acct] || 0) - 1;
+        return feed.sort(sortRandom).reduce((obj, toot) => {
+            obj[toot.account.acct] = (obj[toot.account.acct] || 0) - 1;
             return obj;
         }, {});
     }
-    async score(status) {
-        super.score(status);
-        const frequ = this.features[status.account.acct];
-        this.features[status.account.acct] = frequ + 1;
+    async score(toot) {
+        super.score(toot);
+        const frequ = this.features[toot.account.acct];
+        this.features[toot.account.acct] = frequ + 1;
         return frequ + 1;
     }
 }
 exports.default = diversityFeedScorer;
+;
 //# sourceMappingURL=diversityFeedScorer.js.map

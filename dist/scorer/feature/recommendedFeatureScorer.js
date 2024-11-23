@@ -13,8 +13,8 @@ class recommendedFeatureScorer extends FeatureScorer_1.default {
             defaultWeight: 1,
         });
     }
-    async score(_api, status) {
-        return status.recommended ? status.similarity ?? 1 : 0;
+    async score(_api, toot) {
+        return toot.recommended ? toot.similarity ?? 1 : 0;
     }
 }
 exports.default = recommendedFeatureScorer;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ForYouPaginator {
+class Paginator {
     data;
     currentIndex;
     direction;
@@ -34,7 +34,7 @@ class ForYouPaginator {
         return this;
     }
     clone() {
-        const clonedPaginator = new ForYouPaginator(this.data);
+        const clonedPaginator = new Paginator(this.data);
         clonedPaginator.currentIndex = this.currentIndex;
         return clonedPaginator;
     }
@@ -48,5 +48,5 @@ class ForYouPaginator {
         }
     }
 }
-exports.default = ForYouPaginator;
+exports.default = Paginator;
 //# sourceMappingURL=Paginator.js.map

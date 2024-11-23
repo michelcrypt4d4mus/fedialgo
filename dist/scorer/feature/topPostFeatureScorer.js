@@ -17,8 +17,8 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
         });
     }
     // TODO: rename topPostRank
-    async score(_api, status) {
-        return status.topPost || 0;
+    async score(_api, toot) {
+        return toot.topPost || 0;
     }
 }
 exports.default = topPostFeatureScorer;

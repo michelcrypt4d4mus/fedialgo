@@ -5,5 +5,5 @@ export declare const TOP_POSTS = "topPosts";
 export declare const TOP_POSTS_DEFAULT_WEIGHT = 0.1;
 export default class topPostFeatureScorer extends FeatureScorer {
     constructor();
-    score(_api: mastodon.rest.Client, status: StatusType): Promise<number>;
+    score(_api: mastodon.rest.Client, toot: StatusType): Promise<number>;
 }

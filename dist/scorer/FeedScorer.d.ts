@@ -9,7 +9,7 @@ export default class FeedScorer {
     constructor(verboseName: string, description?: string, defaultWeight?: number);
     setFeed(feed: StatusType[]): Promise<void>;
     feedExtractor(_feed: StatusType[]): Record<string, number>;
-    score(_status: mastodon.v1.Status): Promise<number>;
+    score(_toot: mastodon.v1.Status): Promise<number>;
     getVerboseName(): string;
     getDescription(): string;
     getDefaultWeight(): number;

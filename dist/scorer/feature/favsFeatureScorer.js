@@ -14,8 +14,8 @@ class favsFeatureScorer extends FeatureScorer_1.default {
             defaultWeight: 1,
         });
     }
-    async score(_api, status) {
-        return (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0;
+    async score(_api, toot) {
+        return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
 exports.default = favsFeatureScorer;

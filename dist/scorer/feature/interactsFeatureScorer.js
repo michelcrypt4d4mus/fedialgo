@@ -15,8 +15,8 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
         });
     }
-    async score(_api, status) {
-        return (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0;
+    async score(_api, toot) {
+        return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
 exports.default = interactsFeatureScorer;

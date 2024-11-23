@@ -10,7 +10,7 @@ declare class TheAlgorithm {
     feed: StatusType[];
     api: mastodon.rest.Client;
     fetchers: (typeof getHomeFeed)[];
-    featureScorers: (topPostFeatureScorer | favsFeatureScorer | interactsFeatureScorer | reblogsFeatureScorer | numFavoritesScorer | numRepliesScorer | chaosFeatureScorer)[];
+    featureScorers: (topPostFeatureScorer | favsFeatureScorer | interactsFeatureScorer | numFavoritesScorer | numRepliesScorer | reblogsFeatureScorer | chaosFeatureScorer)[];
     feedScorers: (diversityFeedScorer | reblogsFeedScorer)[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
     getFeed(): Promise<StatusType[]>;

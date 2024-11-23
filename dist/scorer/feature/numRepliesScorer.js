@@ -17,8 +17,8 @@ class numRepliesScorer extends FeatureScorer_1.default {
             defaultWeight: 1,
         });
     }
-    async score(_api, status) {
-        return status?.repliesCount || 0;
+    async score(_api, toot) {
+        return toot?.repliesCount || 0;
     }
 }
 exports.default = numRepliesScorer;

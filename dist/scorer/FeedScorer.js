@@ -18,7 +18,7 @@ class FeedScorer {
     feedExtractor(_feed) {
         throw new Error("Method not implemented.");
     }
-    async score(_status) {
+    async score(_toot) {
         if (!this._isReady)
             throw new Error("FeedScorer not ready");
         return 0;
