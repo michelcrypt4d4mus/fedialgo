@@ -32,4 +32,5 @@ class FeatureScorer {
     }
 }
 exports.default = FeatureScorer;
+;
 //# sourceMappingURL=FeatureScorer.js.map
