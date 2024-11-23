@@ -4,16 +4,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class FeatureScorer {
     featureGetter;
     feature = {};
-    _scoreName;
-    _isReady = false;
     _description = "";
     _defaultWeight = 1;
+    _isReady = false;
+    _scoreName;
     constructor(params) {
         this.featureGetter = params.featureGetter;
         this._scoreName = params.scoreName;
         this._description = params.description || "";
         this._defaultWeight = params.defaultWeight || 1;
     }
+    // TODO: this seems backwards???
     async getFeature(api) {
         this._isReady = true;
         this.feature = await this.featureGetter(api);

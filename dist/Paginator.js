@@ -5,8 +5,8 @@ class Paginator {
     data;
     direction;
     constructor(data) {
-        this.data = data;
         this.currentIndex = 0;
+        this.data = data;
         this.direction = "next";
     }
     return(value) {
