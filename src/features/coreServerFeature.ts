@@ -67,7 +67,7 @@ async function getMonthlyUsers(server: string): Promise<number> {
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {
-        console.warn(`Error fetching data for server ${server}:`, error);
+        console.warn(`Error fetching getMonthlyUsers() data for server ${server}:`, error);
         return 0; // Return 0 if we can't get the data
     }
 };

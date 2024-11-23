@@ -43,7 +43,7 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
             throw json;
         }
     } catch (error) {
-        console.warn(`Error fetching data for server ${server}: `, error);
+        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, error);
         return;
     }
 };
