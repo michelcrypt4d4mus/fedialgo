@@ -6,7 +6,7 @@ const NUM_SERVERS_TO_RETURN = 20;
 const SERVER_RECORDS_TO_PULL = 80;
 const NUM_SERVER_PAGES_TO_PULL = 10;
 async function coreServerFeature(api, user) {
-    let results = (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
+    let results = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
     console.log(`coreServerFeature() results pulled with mastodonFetchPages(): `, results);
     const serverFrequ = results.reduce((accumulator, follower) => {
         const server = follower.url.split("@")[0].split("https://")[1];
