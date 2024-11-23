@@ -17,7 +17,7 @@ export default class WeightsStore extends Storage {
     }
 
     static async getScoreWeightsMulti(scoreNames: string[]) {
-        const weights: ScoresType = {}
+        const weights: ScoresType = {};
 
         for (const scoreName of scoreNames) {
             const weight = await this.getScoreWeight(scoreName);
@@ -37,7 +37,7 @@ export default class WeightsStore extends Storage {
     static async defaultFallback(scoreName: string, defaultWeight: number): Promise<boolean> {
         // If the weight is not set, set it to the default weight
         const weight = await this.get(Key.WEIGHTS, true, scoreName) as ScoresType;
-        console.log(`Loaded default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+        console.log(`Default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
 
         if (weight == null) {
             await this.setScoreWeights({ [scoreName]: defaultWeight }, scoreName);

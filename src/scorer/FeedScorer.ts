@@ -47,4 +47,4 @@ export default class FeedScorer {
     getDefaultWeight() {
         return this._defaultWeight;
     }
-}
+};

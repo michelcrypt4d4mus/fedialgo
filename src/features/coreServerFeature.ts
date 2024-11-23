@@ -50,7 +50,7 @@ export default async function coreServerFeature(
         const activeUsers = monthlyUsers[index];
         if (activeUsers < 10) return acc;
         const ratio = serverFrequ[server] / activeUsers;
-        return { ...acc, [server]: ratio }
+        return { ...acc, [server]: ratio };
     }, {});
 
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
