@@ -18,7 +18,7 @@ declare class TheAlgorithm {
     getUserWeights(): Promise<ScoresType>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     getDescription(scorerName: string): string;
-    weightAdjust(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
+    learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
     private _computeFinalScore;
     private _getScoreObj;

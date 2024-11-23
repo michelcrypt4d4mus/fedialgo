@@ -161,8 +161,8 @@ class TheAlgorithm {
         }
     }
     // Adjust toot weights based on user's chosen slider values
-    async weightAdjust(tootScores, step = 0.001) {
-        console.debug(`weightAdjust() called with 'tootScores' arg: `, tootScores);
+    async learnWeights(tootScores, step = 0.001) {
+        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
         if (tootScores == undefined)
             return;
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
