@@ -7,7 +7,7 @@ const MAX_PAGES_OF_USER_TOOTS = 3;
 const MAX_TOOTS_TO_SCAN = 100;
 
 
-export default async function getReblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>> {
+export default async function reblogsFeature(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Record<string, number>> {
     let recentToots: mastodon.v1.Status[] = [];
     let pageNumber = 0;
 
