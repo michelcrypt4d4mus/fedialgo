@@ -17,6 +17,7 @@ async function getHomeFeed(api, _user) {
     const cutoffTimelineAt = new Date(Date.now() - TIMELINE_LOOKBACK_MS);
     const timelineCutoff = lastOpened < cutoffTimelineAt ? cutoffTimelineAt : lastOpened;
     console.log("timelineCutoff: ", timelineCutoff);
+    // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list()) {
         results = results.concat(page);
         pagesRetrieved++;
