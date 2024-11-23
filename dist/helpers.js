@@ -38,7 +38,7 @@ const mastodonFetch = async (server, endpoint) => {
         }
     }
     catch (error) {
-        console.warn(`Error fetching data for server ${server}: `, error);
+        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, error);
         return;
     }
 };
