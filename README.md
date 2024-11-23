@@ -81,7 +81,9 @@ Use // @ts-ignore if you run into Typescript warnings (because your project migh
 ```console
 npm run build
 ```
-in `fedialgo` directory after changes and they will automatically be detected
+in `fedialgo` directory after changes and they will automatically be detected.
+
+There's a pre-commit git hook that runs `npm run build`.
 
 
 # TODO
