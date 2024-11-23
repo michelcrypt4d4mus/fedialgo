@@ -1,3 +1,4 @@
+import chaosFeatureScorer from "./feature/chaosFeatureScorer";
 import diversityFeedScorer from "./feed/diversityFeedScorer";
 import favsFeatureScorer from "./feature/favsFeatureScorer";
 import FeatureScorer from "./FeatureScorer";
@@ -11,6 +12,7 @@ import topPostFeatureScorer from "./feature/topPostFeatureScorer";
 
 
 export {
+    chaosFeatureScorer,
     diversityFeedScorer,
     favsFeatureScorer,
     FeedScorer,

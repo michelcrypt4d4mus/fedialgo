@@ -1,6 +1,7 @@
-import { mastodon } from "masto";
-import { Toot } from "../types";
 import { camelCase } from "change-case";
+import { mastodon } from "masto";
+
+import { Toot } from "../types";
 import { _transformKeys } from "../helpers";
 
 
@@ -21,4 +22,4 @@ export default async function getRecommenderFeed(_api: mastodon.rest.Client, _us
         return status;
     })
     return _transformKeys(statuses, camelCase);
-}
+};

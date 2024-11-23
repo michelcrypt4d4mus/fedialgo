@@ -4,6 +4,7 @@
 import { mastodon } from "masto";
 
 import {
+    chaosFeatureScorer,
     diversityFeedScorer,
     favsFeatureScorer,
     interactsFeatureScorer,
@@ -16,7 +17,6 @@ import {
 import { condensedStatus } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_POSTS } from "./scorer/feature/topPostFeatureScorer";
-import chaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";

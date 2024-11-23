@@ -21,6 +21,7 @@ export default class Storage {
         const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
         const jsonValue = await AsyncStorage.getItem(storageKey);
         const value = jsonValue != null ? JSON.parse(jsonValue) : null;
+
         return value != null ? value[storageKey] : null;
     }
 
@@ -48,7 +49,6 @@ export default class Storage {
     }
 
     static async logOpening() {
-        console.log("Logging Opening")
         const openings = parseInt(await this.get(Key.OPENINGS, true) as string);
 
         if (openings == null || isNaN(openings)) {
