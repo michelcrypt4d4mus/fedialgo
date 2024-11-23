@@ -36,7 +36,7 @@ export default class FeedScorer {
         return 0;
     }
 
-    getVerboseName() {
+    getScoreName() {
         return this._scoreName;
     }
 
