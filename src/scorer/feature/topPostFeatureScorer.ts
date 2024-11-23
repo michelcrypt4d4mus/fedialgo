@@ -18,7 +18,7 @@ export default class topPostFeatureScorer extends FeatureScorer {
     }
 
     // TODO: rename topPostRank
-    async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status.topPost || 0;
+    async score(_api: mastodon.rest.Client, toot: StatusType) {
+        return toot.topPost || 0;
     }
 };

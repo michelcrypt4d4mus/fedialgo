@@ -1,9 +1,10 @@
 /*
  * Score how many times the toot has been favorited by other users.
  */
+import { mastodon } from 'masto';
+
 import FeatureScorer from '../FeatureScorer';
 import FeatureStorage from '../../features/FeatureStore';
-import { mastodon } from 'masto';
 import { StatusType } from '../../types';
 
 
@@ -17,7 +18,7 @@ export default class numFavoritesScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status?.favouritesCount || 0;
+    async score(_api: mastodon.rest.Client, toot: StatusType) {
+        return toot?.favouritesCount || 0;
     }
 };

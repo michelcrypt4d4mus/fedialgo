@@ -17,7 +17,7 @@ export default class numRepliesScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status?.repliesCount || 0;
+    async score(_api: mastodon.rest.Client, toot: StatusType) {
+        return toot?.repliesCount || 0;
     }
 };

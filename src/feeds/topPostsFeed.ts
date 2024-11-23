@@ -47,19 +47,19 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a topPost score property that is reverse-ordered, e.g most popular trending
         // toot gets NUM_TOP_POSTS_PER_SERVER points, least trending gets 1).
-        serverTopToots =  serverTopToots.filter(status => status?.favouritesCount > 0 || status?.reblogsCount > 0)
+        serverTopToots =  serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
                                         .slice(0, NUM_TOP_POSTS_PER_SERVER)
-                                        .map((status: StatusType, i: number) => {
+                                        .map((toot: StatusType, i: number) => {
                                             // Inject the @server info to the account string
-                                            const acct = status.account.acct;
+                                            const acct = toot.account.acct;
 
                                             if (acct && !acct.includes("@")) {
-                                                status.account.acct = `${acct}@${status.account.url.split("/")[2]}`;
+                                                toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
                                             }
 
                                             // Inject topPost scoring
-                                            status.topPost = NUM_TOP_POSTS_PER_SERVER - i;
-                                            return status;
+                                            toot.topPost = NUM_TOP_POSTS_PER_SERVER - i;
+                                            return toot;
                                         });
 
         console.log(`topToots for server '${server}': `, serverTopToots.map(condensedStatus));
@@ -67,5 +67,5 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<S
     }))
 
     const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
-    return trendingToots.flat().filter((status: StatusType) => new Date(status.createdAt) > lastOpenedAt);
+    return trendingToots.flat().filter((toot: StatusType) => new Date(toot.createdAt) > lastOpenedAt);
 };

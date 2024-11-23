@@ -17,9 +17,9 @@ export default class reblogsFeatureScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, status: StatusType) {
-        const authorScore = (status.account.acct in this.feature) ? this.feature[status.account.acct] : 0;
-        const reblogScore = (status.reblog && status.reblog.account.acct in this.feature) ? this.feature[status.reblog.account.acct] : 0;
+    async score(_api: mastodon.rest.Client, toot: StatusType) {
+        const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
+        const reblogScore = (toot.reblog && toot.reblog.account.acct in this.feature) ? this.feature[toot.reblog.account.acct] : 0;
         return authorScore + reblogScore;
     }
 };

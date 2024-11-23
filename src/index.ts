@@ -70,9 +70,9 @@ class TheAlgorithm {
         const response = await Promise.all(fetchers.map(fetcher => fetcher(this.api, this.user)))
 
         // Inject condensedStatus instance method. // TODO: this feels like not the right place to do this.
-        this.feed = response.flat().map((status) => {
-            status.condensedStatus = () => condensedStatus(status);
-            return status;
+        this.feed = response.flat().map((toot) => {
+            toot.condensedStatus = () => condensedStatus(toot);
+            return toot;
         });
 
         // Load and Prepare Features
@@ -83,29 +83,29 @@ class TheAlgorithm {
         const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
         const feedScoreNames = feedScorers.map(scorer => scorer.getVerboseName());
 
-        // Score Feed (should be mutating the status AKA toot objects in place
-        for (const status of this.feed) {
+        // Score Feed (should be mutating the toot AKA toot objects in place
+        for (const toot of this.feed) {
             // Load Scores for each toot
-            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, status)));
-            const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(status)));
+            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
+            const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
             const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
             const scoreObj = { ...featureScoreObj, ...feedScoreObj };
             const weights = await WeightsStore.getWeightsMulti(Object.keys(scoreObj));
 
-            // Add the various weighted and unweighted scores in the various categories to the status object
+            // Add the various weighted and unweighted scores in the various categories to the toot object
             // mostly for logging purposes.
-            status.scores = scoreObj;  // TODO maybe rename this to scoreComponents or featureScores?
-            status.weightedScores = Object.assign({}, scoreObj);
+            toot.scores = scoreObj;  // TODO maybe rename this to scoreComponents or featureScores?
+            toot.weightedScores = Object.assign({}, scoreObj);
 
             // Add raw weighted scores for logging purposes
             for (const scoreName in scoreObj) {
-                status["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
+                toot["weightedScores"][scoreName] = (scoreObj[scoreName] ?? 0) * (weights[scoreName] ?? 0);
             }
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            status.value = await this._computeFinalScore(scoreObj);
+            toot.value = await this._computeFinalScore(scoreObj);
         }
 
         // Remove Replies, stuff already retooted, and Nulls
@@ -127,9 +127,9 @@ class TheAlgorithm {
             });
 
         // Remove dupes // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
-        console.log(`Before removing duplicates feed contains ${scoredFeed.length} statuses`);
+        console.log(`Before removing duplicates feed contains ${scoredFeed.length} toots`);
         scoredFeed = [...new Map(scoredFeed.map((toot: StatusType) => [toot["uri"], toot])).values()];
-        console.log(`After removing duplicates feed contains ${scoredFeed.length} statuses`);
+        console.log(`After removing duplicates feed contains ${scoredFeed.length} toots`);
 
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
         this.feed = scoredFeed.sort((a, b) => {
@@ -216,12 +216,12 @@ class TheAlgorithm {
         await WeightsStore.setWeightsMulti(userWeights);
         const scoredFeed: StatusType[] = [];
 
-        for (const status of this.feed) {
-            if (!status["scores"]) {
+        for (const toot of this.feed) {
+            if (!toot["scores"]) {
                 return this.getFeed();
             }
-            status["value"] = await this._computeFinalScore(status["scores"]);
-            scoredFeed.push(status);
+            toot["value"] = await this._computeFinalScore(toot["scores"]);
+            scoredFeed.push(toot);
         }
         // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));

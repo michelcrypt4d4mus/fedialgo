@@ -17,7 +17,7 @@ export default class recommendedFeatureScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, status: StatusType) {
-        return status.recommended ? status.similarity ?? 1 : 0;
+    async score(_api: mastodon.rest.Client, toot: StatusType) {
+        return toot.recommended ? toot.similarity ?? 1 : 0;
     }
 }

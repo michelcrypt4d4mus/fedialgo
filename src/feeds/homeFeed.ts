@@ -2,8 +2,9 @@
  * This file is responsible for fetching the array of StatusType objects that make up
  * the home timeline feed of a user (AKA "what most people see first upon opening Mastodon").
  */
-import Storage from "../Storage";
 import { mastodon } from "masto";
+
+import Storage from "../Storage";
 import { StatusType } from "../types";
 
 const MAX_PAGES = 16;

@@ -27,7 +27,7 @@ export default async function getReblogsFeature(api: mastodon.rest.Client, user:
         return {};
     }
 
-    const recentRetoots = recentToots.filter(status => status?.reblog);
+    const recentRetoots = recentToots.filter(toot => toot?.reblog);
     console.log(`Recent toot history: `, recentToots);
     console.log(`Recent retoot history: `, recentRetoots);
 

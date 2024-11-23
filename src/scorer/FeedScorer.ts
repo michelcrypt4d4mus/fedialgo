@@ -28,7 +28,7 @@ export default class FeedScorer {
         throw new Error("Method not implemented.");
     }
 
-    async score(_status: mastodon.v1.Status): Promise<number> {
+    async score(_toot: mastodon.v1.Status): Promise<number> {
         if (!this._isReady) throw new Error("FeedScorer not ready");
         return 0;
     }

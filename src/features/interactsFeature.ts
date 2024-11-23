@@ -1,9 +1,12 @@
 import { mastodon } from "masto";
+
 import { AccountFeature } from "../types";
+
 
 export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     let results: mastodon.v1.Notification[] = [];
     let pages = 3;
+
     try {
         for await (const page of api.v1.notifications.list({ limit: 80 })) {
             results = results.concat(page)

@@ -1,5 +1,11 @@
+/*
+ * Base class for a "feature scorer" which appears to be something that can score
+ * a toot based solely on the properties of that toot and does not have to refer to
+ * any external information.
+ */
 import { mastodon } from "masto"
 import { AccountFeature, StatusType } from "../types";
+
 
 interface RankParams {
     featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
@@ -30,7 +36,7 @@ export default class FeatureScorer {
         this.feature = await this.featureGetter(api);
     }
 
-    async score(_api: mastodon.rest.Client, _status: StatusType): Promise<number> {
+    async score(_api: mastodon.rest.Client, _toot: StatusType): Promise<number> {
         return 0;
     }
 
