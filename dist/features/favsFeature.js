@@ -18,7 +18,7 @@ async function favFeature(api) {
         }
         return accumulator;
     }, {});
-    console.log(`favFrequ: `, favFrequ);
+    console.log(`favFeature favFrequ: `, favFrequ);
     return favFrequ;
 }
 exports.default = favFeature;

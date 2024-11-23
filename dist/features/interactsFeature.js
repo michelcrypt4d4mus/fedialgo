@@ -20,4 +20,5 @@ async function interactFeature(api) {
     return interactFrequ;
 }
 exports.default = interactFeature;
+;
 //# sourceMappingURL=interactsFeature.js.map
