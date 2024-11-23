@@ -32,11 +32,11 @@ async function coreServerFeature(api, user) {
         }
         return accumulator;
     }, {});
-    console.log(`serverFrequ: `, serverFrequ);
+    console.debug(`serverFrequ: `, serverFrequ);
     const popularServers = Object.keys(serverFrequ)
         .sort((a, b) => serverFrequ[b] - serverFrequ[a])
         .slice(0, NUM_SERVERS_TO_CHECK);
-    console.log(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
+    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(server => {
         const serverMonthlyUsers = getMonthlyUsers(server);
         console.log(`Monthly users for ${server}: `, serverMonthlyUsers);
@@ -57,7 +57,7 @@ exports.default = coreServerFeature;
 async function getMonthlyUsers(server) {
     try {
         const instance = await (0, helpers_1.mastodonFetch)(server, "api/v2/instance");
-        console.log(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     }
     catch (error) {

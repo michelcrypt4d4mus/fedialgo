@@ -134,14 +134,14 @@ class TheAlgorithm {
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
         const userWeightings = await weightsStore_1.default.getWeightsMulti(Object.keys(scores));
-        let trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TOP_POSTS] || 0;
+        let trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
         let score = Object.keys(scores).reduce((score, cur) => {
             return score + (scores[cur] ?? 0) * (userWeightings[cur] ?? 0);
         }, 0);
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        if (scores[topPostFeatureScorer_1.TOP_POSTS] > 0 && trendingTootWeighting < 1.0) {
+        if (scores[topPostFeatureScorer_1.TRENDING_POSTS] > 0 && trendingTootWeighting < 1.0) {
             console.log(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
             score *= trendingTootWeighting;
         }

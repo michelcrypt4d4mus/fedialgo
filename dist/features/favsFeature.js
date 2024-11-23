@@ -27,7 +27,9 @@ async function favFeature(api) {
         }
         return accumulator;
     }, {});
+    console.log(`favFrequ: `, favFrequ);
     return favFrequ;
 }
 exports.default = favFeature;
+;
 //# sourceMappingURL=favsFeature.js.map
