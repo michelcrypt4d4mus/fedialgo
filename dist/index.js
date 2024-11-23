@@ -142,7 +142,7 @@ class TheAlgorithm {
                 return this.feed;
             }
         }
-        console.log("weightTootsInFeed() called in fedialgo pkg. 'userWeights' arg:", userWeights);
+        console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         const scoredFeed = [];
         for (const toot of this.feed) {

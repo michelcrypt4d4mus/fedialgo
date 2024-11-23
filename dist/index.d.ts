@@ -23,4 +23,4 @@ declare class TheAlgorithm {
     private _computeFinalScore;
     private _getScoreObj;
 }
-export { condensedStatus, Toot, ScoresType, TheAlgorithm, };
+export { condensedStatus, ScoresType, TheAlgorithm, Toot, };
