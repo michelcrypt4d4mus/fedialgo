@@ -258,7 +258,12 @@ class TheAlgorithm {
             score *= trendingTootWeighting;
         }
 
-        console.debug(`Computed score with: `, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
+        if (score) {
+            console.debug(`Computed score with:`, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
+        } else {
+            console.warn(`Failed to compute score with:`, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
+        }
+
         return score;
     }
 
