@@ -21,7 +21,7 @@ class FeatureScorer {
     async score(_api, _toot) {
         return 0;
     }
-    getVerboseName() {
+    getScoreName() {
         return this._scoreName;
     }
     getDescription() {

@@ -16,7 +16,7 @@ export default class FeatureScorer {
     constructor(params: RankParams);
     getFeature(api: mastodon.rest.Client): Promise<void>;
     score(_api: mastodon.rest.Client, _toot: Toot): Promise<number>;
-    getVerboseName(): string;
+    getScoreName(): string;
     getDescription(): string;
     getDefaultWeight(): number;
 }

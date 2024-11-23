@@ -23,7 +23,7 @@ class FeedScorer {
             throw new Error("FeedScorer not ready");
         return 0;
     }
-    getVerboseName() {
+    getScoreName() {
         return this._scoreName;
     }
     getDescription() {

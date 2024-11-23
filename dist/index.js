@@ -60,8 +60,8 @@ class TheAlgorithm {
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
         // Get Score Names
-        const scoreNames = featureScorers.map(scorer => scorer.getVerboseName());
-        const feedScoreNames = feedScorers.map(scorer => scorer.getVerboseName());
+        const scoreNames = featureScorers.map(scorer => scorer.getScoreName());
+        const feedScoreNames = feedScorers.map(scorer => scorer.getScoreName());
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
             // Load Scores for each toot
@@ -122,12 +122,12 @@ class TheAlgorithm {
     }
     getScorerNames() {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        return [...scorers.map(scorer => scorer.getVerboseName())];
+        return [...scorers.map(scorer => scorer.getScoreName())];
     }
     // Set Default Weights if they don't exist
     async setDefaultWeights() {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getVerboseName(), scorer.getDefaultWeight())));
+        Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
     }
     // Return the user's current weightings for each toot scorer
     async getScoreWeights() {
@@ -158,7 +158,7 @@ class TheAlgorithm {
     // Get the longform human readable description for a given scorer
     getDescription(scorerName) {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        const scorer = scorers.find(scorer => scorer.getVerboseName() === scorerName);
+        const scorer = scorers.find(scorer => scorer.getScoreName() === scorerName);
         if (scorer) {
             return scorer.getDescription();
         }
@@ -195,9 +195,9 @@ class TheAlgorithm {
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
         const userWeightings = await weightsStore_1.default.getScoreWeightsMulti(Object.keys(scores));
-        let trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
-        let score = Object.keys(scores).reduce((score, cur) => {
-            return score + (scores[cur] ?? 0) * (userWeightings[cur] ?? 0);
+        const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
+        let score = Object.keys(scores).reduce((score, scoreName) => {
+            return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
         }, 0);
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
@@ -210,8 +210,8 @@ class TheAlgorithm {
         return score;
     }
     _getScoreObj(scoreNames, scores) {
-        return scoreNames.reduce((obj, cur, i) => {
-            obj[cur] = scores[i];
+        return scoreNames.reduce((obj, scoreName, i) => {
+            obj[scoreName] = scores[i];
             return obj;
         }, {});
     }

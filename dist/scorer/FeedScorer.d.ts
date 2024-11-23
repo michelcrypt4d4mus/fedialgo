@@ -10,7 +10,7 @@ export default class FeedScorer {
     setFeed(feed: Toot[]): Promise<void>;
     feedExtractor(_feed: Toot[]): Record<string, number>;
     score(_toot: mastodon.v1.Status): Promise<number>;
-    getVerboseName(): string;
+    getScoreName(): string;
     getDescription(): string;
     getDefaultWeight(): number;
 }
