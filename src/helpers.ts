@@ -123,6 +123,6 @@ export const condensedStatus = (status: Toot) => {
 
 
 // Build a string that contains the display name, account name, etc. for a given post.
-const describeAccount = (status: Toot): string => {
+export const describeAccount = (status: Toot): string => {
     return `${status.account.displayName} (${status.account.acct})`;
 };

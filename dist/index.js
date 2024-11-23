@@ -70,7 +70,7 @@ class TheAlgorithm {
         this.feed = cleanFeed;
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
-            console.debug(`Scoring toot #${toot.id}: `, toot);
+            console.debug(`Scoring toot #${toot.id} by ${(0, helpers_1.describeAccount)(toot)}: `, toot);
             toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right place to do this?
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
@@ -137,7 +137,7 @@ class TheAlgorithm {
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         const scoredFeed = [];
         for (const toot of this.feed) {
-            console.debug(`Reweighting toot #${toot.id}: `, toot);
+            console.debug(`Reweighting toot #${toot.id} by ${(0, helpers_1.describeAccount)(toot)}: `, toot);
             // TODO: Reloading the whole feed seems like a bad way to handle missing scores for one toot
             if (!toot.scores) {
                 console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);

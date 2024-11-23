@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
+exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const MAX_CONTENT_CHARS = 150;
@@ -73,9 +73,9 @@ const condensedStatus = (status) => {
     if (content.length > MAX_CONTENT_CHARS)
         content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
     // Account info
-    let accountLabel = describeAccount(status);
+    let accountLabel = (0, exports.describeAccount)(status);
     if (status.reblog)
-        accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(status.reblog)}⬆️⬆️｠`;
+        accountLabel += ` ｟⬆️⬆️RETOOT of ${(0, exports.describeAccount)(status.reblog)}⬆️⬆️｠`;
     // Attachment info
     let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
     if (mediaAttachments.length == 0)
@@ -84,7 +84,7 @@ const condensedStatus = (status) => {
         FROM: `${accountLabel} [${status.createdAt}]`,
         URL: status.url,
         content: content,
-        retootOf: status.reblog ? `${describeAccount(status.reblog)} (${status.reblog.createdAt})` : null,
+        retootOf: status.reblog ? `${(0, exports.describeAccount)(status.reblog)} (${status.reblog.createdAt})` : null,
         inReplyToId: status.inReplyToId,
         mediaAttachments: mediaAttachments,
         raw: status,
@@ -111,4 +111,5 @@ exports.condensedStatus = condensedStatus;
 const describeAccount = (status) => {
     return `${status.account.displayName} (${status.account.acct})`;
 };
+exports.describeAccount = describeAccount;
 //# sourceMappingURL=helpers.js.map

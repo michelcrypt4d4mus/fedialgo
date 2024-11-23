@@ -14,7 +14,7 @@ import {
     reblogsFeedScorer,
     topPostFeatureScorer
 } from "./scorer";
-import { condensedStatus } from "./helpers";
+import { condensedStatus, describeAccount } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_POSTS } from "./scorer/feature/topPostFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
@@ -94,7 +94,7 @@ class TheAlgorithm {
 
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
-            console.debug(`Scoring toot #${toot.id}: `, toot);
+            console.debug(`Scoring toot #${toot.id} by ${describeAccount(toot)}: `, toot);
             toot.condensedStatus = () => condensedStatus(toot);  // Inject condensedStatus() instance method // TODO: is this the right place to do this?
 
             // Load Scores for each toot
@@ -179,7 +179,7 @@ class TheAlgorithm {
         const scoredFeed: Toot[] = [];
 
         for (const toot of this.feed) {
-            console.debug(`Reweighting toot #${toot.id}: `, toot);
+            console.debug(`Reweighting toot #${toot.id} by ${describeAccount(toot)}: `, toot);
 
             // TODO: Reloading the whole feed seems like a bad way to handle missing scores for one toot
             if (!toot.scores) {
