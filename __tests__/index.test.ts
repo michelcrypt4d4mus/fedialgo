@@ -55,7 +55,7 @@ describe('TheAlgorithm', () => {
     it("should change weights", async () => {
         const weights = await algo.getUserWeights();
         const newWeights = { ...weights, Favs: 5 }
-        const adjusted = await algo.weightAdjust(newWeights);
+        const adjusted = await algo.learnWeights(newWeights);
         console.log(adjusted);
         if (adjusted) {
             expect(Object.values(adjusted).reduce((a, b) => a && Boolean(b), true)).toBe(true); //check that all values are defined

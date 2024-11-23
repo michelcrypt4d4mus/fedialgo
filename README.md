@@ -50,7 +50,7 @@ You can also let the algorithm learn the weights from the user's behaviour. This
 
 ```typescript
 const scores = status.scores
-const newWeights = await algoObj.weightAdjust(scores)
+const newWeights = await algoObj.learnWeights(scores)
 ```
 
 

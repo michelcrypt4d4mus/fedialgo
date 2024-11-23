@@ -36,7 +36,7 @@ class WeightsStore extends Storage_1.default {
     static async setScoreWeights(weights, scoreName) {
         await this.set(Storage_1.Key.WEIGHTS, weights, true, scoreName);
     }
-    static async getScoreWeightsMulti(scoreNames) {
+    static async getUserWeightsMulti(scoreNames) {
         const weights = {};
         for (const scoreName of scoreNames) {
             const weight = await this.getScoreWeight(scoreName);

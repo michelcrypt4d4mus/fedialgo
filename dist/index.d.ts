@@ -15,10 +15,10 @@ declare class TheAlgorithm {
     getFeed(): Promise<Toot[]>;
     getScorerNames(): string[];
     setDefaultWeights(): Promise<void>;
-    getScoreWeights(): Promise<ScoresType>;
+    getUserWeights(): Promise<ScoresType>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     getDescription(scorerName: string): string;
-    weightAdjust(statusWeights: ScoresType, step?: number): Promise<ScoresType | undefined>;
+    weightAdjust(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
     private _computeFinalScore;
     private _getScoreObj;
