@@ -34,4 +34,5 @@ class FeedScorer {
     }
 }
 exports.default = FeedScorer;
+;
 //# sourceMappingURL=FeedScorer.js.map

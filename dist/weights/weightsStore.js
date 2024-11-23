@@ -53,7 +53,7 @@ class WeightsStore extends Storage_1.default {
     static async defaultFallback(scoreName, defaultWeight) {
         // If the weight is not set, set it to the default weight
         const weight = await this.get(Storage_1.Key.WEIGHTS, true, scoreName);
-        console.log(`Loaded default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+        console.log(`Default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
         if (weight == null) {
             await this.setScoreWeights({ [scoreName]: defaultWeight }, scoreName);
             return true;
