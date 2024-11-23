@@ -11,7 +11,6 @@ const MAX_RECORDS = 80;
 
 
 export default async function favFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
-    // let results: mastodon.v1.Status[] = [];
     const results = await mastodonFetchPages<mastodon.v1.Status>(
         api.v1.favourites.list,
         NUM_PAGES,

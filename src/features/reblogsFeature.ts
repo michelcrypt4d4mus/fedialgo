@@ -27,7 +27,6 @@ export default async function reblogsFeature(
     const retootedUserCounts = recentRetoots.reduce(
         (counts: Record<string, number>, toot: mastodon.v1.Status) => {
             if (!toot?.reblog?.account?.acct) return counts;
-
             counts[toot.reblog.account.acct] = (counts[toot.reblog.account.acct] || 0) + 1;
             return counts;
         },
