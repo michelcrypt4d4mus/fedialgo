@@ -12,7 +12,7 @@ const SCORE_NAME = "NumFavourites";
 class NumFavoritesScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favor toots that have been favourited by a lot of other users",
+            description: "Favour toots that have been favourited by a lot of other users",
             defaultWeight: 1,
             scoreName: SCORE_NAME,
         });

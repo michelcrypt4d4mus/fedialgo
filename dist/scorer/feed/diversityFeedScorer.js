@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
 class diversityFeedScorer extends FeedScorer_1.default {
     constructor() {
-        super("Diversity", "Disfavor toots from users that you have seen a lot of toots from already");
+        super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
     }
     feedExtractor(feed) {
         const sortRandom = () => Math.random() - 0.5; // this prevents just always the first post from being shown

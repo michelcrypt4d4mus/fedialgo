@@ -9,7 +9,7 @@ const SCORE_NAME = "RetootedInFeed";
 // TODO: rename retootsFeedScorer
 class ReblogsFeedScorer extends FeedScorer_1.default {
     constructor() {
-        super(SCORE_NAME, "Favor toots that have been retooted by accounts in your feed", DEFAULT_REBLOGS_WEIGHT);
+        super(SCORE_NAME, "Favour toots that are retooted by other accounts in your feed", DEFAULT_REBLOGS_WEIGHT);
     }
     // for each uri in the feed, count the number of times it appears
     feedExtractor(feed) {

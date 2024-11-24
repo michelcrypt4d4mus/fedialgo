@@ -10,7 +10,7 @@ const SCORE_NAME = "NumReplies"
 export default class NumRepliesScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favor toots that have been replied to many times",
+            description: "Favour toots that have been replied to many times",
             defaultWeight: 1,
             scoreName: SCORE_NAME,
         })

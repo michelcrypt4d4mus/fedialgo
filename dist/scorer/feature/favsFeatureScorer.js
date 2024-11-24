@@ -8,7 +8,7 @@ const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
 class favsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favor toots from users whose toots you have favorited a lot in the past",
+            description: "Favour toots from users whose toots you have favorited",
             defaultWeight: 1,
             featureGetter: (api) => FeatureStore_1.default.getMostFavoritedAccounts(api),
             scoreName: "Favs",

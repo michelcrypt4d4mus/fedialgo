@@ -10,7 +10,7 @@ export default class ReblogsFeedScorer extends FeedScorer {
     constructor() {
         super(
             SCORE_NAME,
-            "Favor toots that have been retooted by accounts in your feed",
+            "Favour toots that are retooted by other accounts in your feed",
             DEFAULT_REBLOGS_WEIGHT
         );
     }

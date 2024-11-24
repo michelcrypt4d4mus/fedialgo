@@ -10,7 +10,7 @@ const SCORE_NAME = "Interactions";
 class InteractionsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favor toots from users that most frequently interact with your posts",
+            description: "Favour toots from users that interact with your toots",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
             featureGetter: (api) => FeatureStore_1.default.getTopInteracts(api),
             scoreName: SCORE_NAME,

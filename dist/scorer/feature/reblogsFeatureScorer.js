@@ -11,7 +11,7 @@ const SCORE_NAME = "MostRetootedAccounts";
 class reblogsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favor toots from accounts you have retooted a lot",
+            description: "Favour toots from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
             featureGetter: (api) => FeatureStore_1.default.getMostRetootedAccounts(api),
             scoreName: SCORE_NAME,
