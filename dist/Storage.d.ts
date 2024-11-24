@@ -16,9 +16,9 @@ export default class Storage {
     static suffix(key: Key, suffix: string): string;
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static prefix(key: string): Promise<string>;
-    static logOpening(): Promise<void>;
+    static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
-    static getOpenings(): Promise<number>;
+    static getNumAppOpens(): Promise<number>;
     static getIdentity(): Promise<mastodon.v1.Account>;
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
 }

@@ -29,7 +29,7 @@ describe('TheAlgorithm', () => {
         expect(algo).toBeDefined();
         expect(await Storage.getIdentity()).toEqual(user);
         expect(await Storage.getLastOpenedTimestamp()).toBeDefined();
-        expect(await Storage.getOpenings()).toBeGreaterThan(0);
+        expect(await Storage.getNumAppOpens()).toBeGreaterThan(0);
         const weights = await algo.getUserWeights();
         expect(weights).toBeDefined();
         expect(Object.values(weights).reduce((a, b) => a && Boolean(b), true)).toBe(true);

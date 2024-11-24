@@ -45,19 +45,24 @@ class Storage {
         const user = await this.getIdentity();
         return `${user.id}_${key}`;
     }
-    static async logOpening() {
-        const openings = parseInt(await this.get(Key.OPENINGS, true));
-        if (openings == null || isNaN(openings)) {
+    static async logAppOpen() {
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true));
+        if (numAppOpens == null || isNaN(numAppOpens)) {
             await this.set(Key.OPENINGS, "1", true);
         }
         else {
-            await this.set(Key.OPENINGS, (openings + 1).toString(), true);
+            await this.set(Key.OPENINGS, (numAppOpens + 1).toString(), true);
         }
         await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
     }
     static async getLastOpenedTimestamp() {
+        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED, true));
-        console.log("lastOpeneTimestamp milliseconds: ", lastOpenedInt);
+        console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
+        if (numAppOpens <= 1) {
+            console.log(`Only 1 numAppOpens so returning 0 for getLastOpenedTimestamp()`);
+            return 0;
+        }
         if (lastOpenedInt) {
             console.log(`lastOpenedTimestamp: ${new Date(lastOpenedInt)}`);
         }
@@ -66,9 +71,10 @@ class Storage {
         }
         return lastOpenedInt;
     }
-    static async getOpenings() {
-        const openings = parseInt(await this.get(Key.OPENINGS, true));
-        return openings;
+    static async getNumAppOpens() {
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true));
+        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
+        return numAppOpens;
     }
     static async getIdentity() {
         const userJson = await async_storage_1.default.getItem(Key.USER);

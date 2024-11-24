@@ -13,7 +13,7 @@ export default class FeatureStorage extends Storage {
         const topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
         console.log("[Storage] Accounts user has favorited the most in the past", topFavs);
 
-        if (topFavs != null && await this.getOpenings() % 10 < 9) {
+        if (topFavs != null && await this.getNumAppOpens() % 10 < 9) {
             return topFavs;
         } else {
             const favs = await FavsFeature(api);
@@ -26,7 +26,7 @@ export default class FeatureStorage extends Storage {
         const topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
         console.log("[Storage] Accounts user has retooted the most in the past", topReblogs);
 
-        if (topReblogs != null && await this.getOpenings() % 10 < 9) {
+        if (topReblogs != null && await this.getNumAppOpens() % 10 < 9) {
             return topReblogs;
         } else {
             const user = await this.getIdentity()
@@ -40,7 +40,7 @@ export default class FeatureStorage extends Storage {
         const topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
         console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
 
-        if (topInteracts != null && await this.getOpenings() % 10 < 9) {
+        if (topInteracts != null && await this.getNumAppOpens() % 10 < 9) {
             return topInteracts;
         } else {
             const interacts = await interactsFeature(api);
@@ -54,7 +54,7 @@ export default class FeatureStorage extends Storage {
         const coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
         console.log("[Storage] coreServer", coreServer);
 
-        if (coreServer != null && await this.getOpenings() % 10 != 9) {
+        if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
             return coreServer;
         } else {
             const user = await this.getIdentity();

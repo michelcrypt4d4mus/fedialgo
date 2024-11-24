@@ -48,21 +48,27 @@ export default class Storage {
         return `${user.id}_${key}`;
     }
 
-    static async logOpening() {
-        const openings = parseInt(await this.get(Key.OPENINGS, true) as string);
+    static async logAppOpen() {
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true) as string);
 
-        if (openings == null || isNaN(openings)) {
+        if (numAppOpens == null || isNaN(numAppOpens)) {
             await this.set(Key.OPENINGS, "1", true);
         } else {
-            await this.set(Key.OPENINGS, (openings + 1).toString(), true);
+            await this.set(Key.OPENINGS, (numAppOpens + 1).toString(), true);
         }
 
         await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
     }
 
     static async getLastOpenedTimestamp() {
+        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED, true) as string);
-        console.log("lastOpeneTimestamp milliseconds: ", lastOpenedInt);
+        console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
+
+        if (numAppOpens <= 1) {
+            console.log(`Only 1 numAppOpens so returning 0 for getLastOpenedTimestamp()`);
+            return 0;
+        }
 
         if (lastOpenedInt) {
             console.log(`lastOpenedTimestamp: ${new Date(lastOpenedInt)}`);
@@ -73,9 +79,10 @@ export default class Storage {
         return lastOpenedInt;
     }
 
-    static async getOpenings() {
-        const openings = parseInt(await this.get(Key.OPENINGS, true) as string);
-        return openings;
+    static async getNumAppOpens() {
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true) as string);
+        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
+        return numAppOpens;
     }
 
     static async getIdentity(): Promise<mastodon.v1.Account> {

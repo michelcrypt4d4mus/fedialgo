@@ -35,7 +35,7 @@ class FeatureStorage extends Storage_1.default {
     static async getTopFavs(api) {
         const topFavs = await this.get(Storage_1.Key.TOP_FAVS);
         console.log("[Storage] Accounts user has favorited the most in the past", topFavs);
-        if (topFavs != null && await this.getOpenings() % 10 < 9) {
+        if (topFavs != null && await this.getNumAppOpens() % 10 < 9) {
             return topFavs;
         }
         else {
@@ -47,7 +47,7 @@ class FeatureStorage extends Storage_1.default {
     static async getTopReblogs(api) {
         const topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
         console.log("[Storage] Accounts user has retooted the most in the past", topReblogs);
-        if (topReblogs != null && await this.getOpenings() % 10 < 9) {
+        if (topReblogs != null && await this.getNumAppOpens() % 10 < 9) {
             return topReblogs;
         }
         else {
@@ -60,7 +60,7 @@ class FeatureStorage extends Storage_1.default {
     static async getTopInteracts(api) {
         const topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
         console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
-        if (topInteracts != null && await this.getOpenings() % 10 < 9) {
+        if (topInteracts != null && await this.getNumAppOpens() % 10 < 9) {
             return topInteracts;
         }
         else {
@@ -73,7 +73,7 @@ class FeatureStorage extends Storage_1.default {
     static async getCoreServer(api) {
         const coreServer = await this.get(Storage_1.Key.CORE_SERVER);
         console.log("[Storage] coreServer", coreServer);
-        if (coreServer != null && await this.getOpenings() % 10 != 9) {
+        if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
             return coreServer;
         }
         else {

@@ -41,7 +41,7 @@ class TheAlgorithm {
         this.api = api;
         this.user = user;
         Storage_1.default.setIdentity(user);
-        Storage_1.default.logOpening();
+        Storage_1.default.logAppOpen();
         this.setDefaultWeights();
         if (valueCalculator)
             this._computeFinalScore = valueCalculator;
