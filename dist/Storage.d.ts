@@ -17,7 +17,7 @@ export default class Storage {
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static prefix(key: string): Promise<string>;
     static logOpening(): Promise<void>;
-    static getLastOpened(): Promise<number>;
+    static getLastOpenedTimestamp(): Promise<number>;
     static getOpenings(): Promise<number>;
     static getIdentity(): Promise<mastodon.v1.Account>;
     static setIdentity(user: mastodon.v1.Account): Promise<void>;

@@ -60,9 +60,17 @@ export default class Storage {
         await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
     }
 
-    static async getLastOpened() {
-        const lastOpened = parseInt(await this.get(Key.LAST_OPENED, true) as string);
-        return lastOpened;
+    static async getLastOpenedTimestamp() {
+        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED, true) as string);
+        console.log("lastOpeneTimestamp milliseconds: ", lastOpenedInt);
+
+        if (lastOpenedInt) {
+            console.log(`lastOpenedTimestamp: ${new Date(lastOpenedInt)}`);
+        } else {
+            console.log("lastOpenedTimestamp not found");
+        }
+
+        return lastOpenedInt;
     }
 
     static async getOpenings() {

@@ -22,9 +22,9 @@ export default async function getHomeFeed(
 
     // We should already have toots cached up until the last time this app was opened so we
     // don't need to re-retrieve them but in any case never load toots more than MAX_TIMELINE_HOURS old.
-    const lastOpened = new Date((await Storage.getLastOpened() ?? 0) - LAST_OPENED_LOOKBACK_MS);
+    const lastOpenedAt = new Date((await Storage.getLastOpenedTimestamp() ?? 0) - LAST_OPENED_LOOKBACK_MS);
     const cutoffTimelineAt = new Date(Date.now() - TIMELINE_LOOKBACK_MS);
-    const timelineCutoff = lastOpened < cutoffTimelineAt ? cutoffTimelineAt : lastOpened;
+    const timelineCutoff = lastOpenedAt < cutoffTimelineAt ? cutoffTimelineAt : lastOpenedAt;
     console.log("timelineCutoff: ", timelineCutoff);
 
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could

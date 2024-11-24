@@ -49,7 +49,7 @@ async function topPostsFeed(api) {
         console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
         return serverTopToots;
     }));
-    const lastOpenedAt = new Date((await Storage_1.default.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
+    const lastOpenedAt = new Date((await Storage_1.default.getLastOpenedTimestamp() ?? 0) - NUM_MS_BEFORE_REFRESH);
     return trendingToots.flat().filter((toot) => new Date(toot.createdAt) > lastOpenedAt);
 }
 exports.default = topPostsFeed;

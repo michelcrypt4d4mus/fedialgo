@@ -64,6 +64,6 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<T
         return serverTopToots;
     }));
 
-    const lastOpenedAt = new Date((await Storage.getLastOpened() ?? 0) - NUM_MS_BEFORE_REFRESH);
+    const lastOpenedAt = new Date((await Storage.getLastOpenedTimestamp() ?? 0) - NUM_MS_BEFORE_REFRESH);
     return trendingToots.flat().filter((toot: Toot) => new Date(toot.createdAt) > lastOpenedAt);
 };
