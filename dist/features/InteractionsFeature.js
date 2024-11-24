@@ -6,13 +6,13 @@ const MIN_RECORDS = 80;
 async function InteractionsFeature(api) {
     const results = await (0, helpers_1.mastodonFetchPages)(api.v1.notifications.list, NUM_PAGES_TO_SCAN, MIN_RECORDS);
     console.debug(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
-    const interactFrequ = results.reduce((interactionCount, notification) => {
+    return results.reduce((interactionCount, notification) => {
         if (!notification.account)
             return interactionCount;
-        interactionCount[notification.account.acct] = (interactionCount[notification.account.acct] || 0) + 1;
+        const account = notification.account.acct;
+        interactionCount[account] = (interactionCount[account] || 0) + 1;
         return interactionCount;
     }, {});
-    return interactFrequ;
 }
 exports.default = InteractionsFeature;
 ;

@@ -20,14 +20,13 @@ export default async function InteractionsFeature(api: mastodon.rest.Client): Pr
 
     console.debug(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
 
-    const interactFrequ = results.reduce(
+    return results.reduce(
         (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {
             if (!notification.account) return interactionCount;
-            interactionCount[notification.account.acct] = (interactionCount[notification.account.acct] || 0) + 1;
+            const account = notification.account.acct;
+            interactionCount[account] = (interactionCount[account] || 0) + 1;
             return interactionCount;
         },
         {}
     );
-
-    return interactFrequ;
 };

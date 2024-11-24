@@ -10,6 +10,9 @@ import reblogsFeature from "./reblogsFeature";
 import Storage, { Key } from "../Storage";
 import { ServerFeature, AccountFeature } from "../types";
 
+// This doesn't quite work as advertised. It actually forces a reload every 10 app opens
+// starting at the 9th one. Also bc of the way it was implemented it won't work the same
+// way for any number other than 9.
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 
 
@@ -64,13 +67,12 @@ export default class FeatureStorage extends Storage {
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
             console.log("Loaded coreServer from storage");
         } else {
-            console.log("Fetching coreServer info...");
             const user = await this.getIdentity();
             coreServer = await coreServerFeature(api, user);
             await this.set(Key.CORE_SERVER, coreServer);
         }
 
-        console.log("coreServer info: ", coreServer);
+        console.log("getCoreServer() info: ", coreServer);
         return coreServer;
     }
 };
