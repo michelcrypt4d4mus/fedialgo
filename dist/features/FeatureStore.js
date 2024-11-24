@@ -61,13 +61,13 @@ class FeatureStorage extends Storage_1.default {
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[Storage] Accounts that have interacted the most with user's toots");
+            console.log("Loaded accounts that have interacted the most with user's toots from storage");
         }
         else {
             topInteracts = await (0, interactsFeature_1.default)(api);
             await this.set(Storage_1.Key.TOP_INTERACTS, topInteracts);
         }
-        console.log("[Featuer] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log("[Feature] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
     }
     // Returns information about mastodon servers

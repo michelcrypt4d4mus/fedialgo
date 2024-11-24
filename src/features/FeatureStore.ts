@@ -44,13 +44,13 @@ export default class FeatureStorage extends Storage {
         let topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
 
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[Storage] Accounts that have interacted the most with user's toots");
+            console.log("Loaded accounts that have interacted the most with user's toots from storage");
         } else {
             topInteracts = await interactsFeature(api);
             await this.set(Key.TOP_INTERACTS, topInteracts);
         }
 
-        console.log("[Featuer] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log("[Feature] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
     }
 
