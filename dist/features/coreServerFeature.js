@@ -4,6 +4,7 @@ const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
 const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
+// Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(api, user) {
     const followedAccounts = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, MAX_FOLLOWING_ACCOUNT_TO_PULL);
     console.debug(`followed users: `, followedAccounts);
