@@ -31,7 +31,7 @@ class TheAlgorithm {
         new scorer_1.numFavoritesScorer(),
         new scorer_1.numRepliesScorer(),
         new scorer_1.reblogsFeatureScorer(),
-        new scorer_1.topPostFeatureScorer(),
+        new scorer_1.TopPostFeatureScorer(),
     ];
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [
@@ -47,6 +47,8 @@ class TheAlgorithm {
         if (valueCalculator)
             this._computeFinalScore = valueCalculator;
     }
+    // Fetch toots for the timeline from accounts the user follows as well as trending toots in
+    // the fediverse, score them, and sort them.
     async getFeed() {
         console.debug(`getFeed() called in fedialgo package...`);
         const { fetchers, featureScorers, feedScorers } = this;

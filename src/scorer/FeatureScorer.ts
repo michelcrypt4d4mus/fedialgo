@@ -1,7 +1,8 @@
 /*
  * Base class for a "feature scorer" which appears to be something that can score
- * a toot based solely on the properties of that toot and does not have to refer to
- * any external information.
+ * a toot based solely on the properties of that toot, optionally coupled with other
+ * sources that are not other toots in the feed, e.g. things like notifications,
+ * favorites, etc.
  */
 import { mastodon } from "masto";
 
@@ -11,7 +12,7 @@ import { AccountFeature, Toot } from "../types";
 interface RankParams {
     description?: string,
     defaultWeight?: number,
-    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>,
+    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature>,
     scoreName: string,
 };
 
@@ -26,7 +27,7 @@ export default class FeatureScorer {
     private _scoreName: string;
 
     constructor(params: RankParams) {
-        this.featureGetter = params.featureGetter;
+        this.featureGetter = params.featureGetter || (async () => { return {} });
         this._scoreName = params.scoreName;
         this._description = params.description || "";
         this._defaultWeight = params.defaultWeight || 1;

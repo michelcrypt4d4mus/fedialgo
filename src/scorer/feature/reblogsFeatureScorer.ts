@@ -1,3 +1,7 @@
+/*
+ * Score a toot based on how many times the user has reblogged the author (or the original
+ * author if it's a retoot).
+ */
 import { mastodon } from "masto";
 
 import FeatureScorer from "../FeatureScorer";

@@ -8,5 +8,5 @@ import numFavoritesScorer from "./feature/numFavoritesScorer";
 import numRepliesScorer from "./feature/numRepliesScorer";
 import reblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import reblogsFeedScorer from "./feed/reblogsFeedScorer";
-import topPostFeatureScorer from "./feature/topPostFeatureScorer";
-export { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, FeedScorer, FeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer, };
+import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
+export { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, FeedScorer, FeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, TopPostFeatureScorer, };

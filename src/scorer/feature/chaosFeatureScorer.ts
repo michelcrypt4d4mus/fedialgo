@@ -9,7 +9,6 @@ export default class chaosFeatureScorer extends FeatureScorer {
         super({
             description: "Insert Randomness and Chaos into the feed - because its fair",
             defaultWeight: 1,
-            featureGetter: (async () => { return {} }),
             scoreName: "Chaos",
         });
     }

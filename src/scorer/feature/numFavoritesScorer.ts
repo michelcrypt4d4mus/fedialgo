@@ -13,7 +13,6 @@ export default class numFavoritesScorer extends FeatureScorer {
         super({
             description: "Favor posts that have been favorited by a lot of other users",
             defaultWeight: 1,
-            featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getTopFavs(api),
             scoreName: "numFavorites",
         })
     }

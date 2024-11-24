@@ -8,7 +8,7 @@ import numFavoritesScorer from "./feature/numFavoritesScorer";
 import numRepliesScorer from "./feature/numRepliesScorer";
 import reblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import reblogsFeedScorer from "./feed/reblogsFeedScorer";
-import topPostFeatureScorer from "./feature/topPostFeatureScorer";
+import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
 
 
 export {
@@ -22,5 +22,5 @@ export {
     numRepliesScorer,
     reblogsFeatureScorer,
     reblogsFeedScorer,
-    topPostFeatureScorer,
+    TopPostFeatureScorer,
 };

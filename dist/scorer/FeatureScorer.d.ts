@@ -3,7 +3,7 @@ import { AccountFeature, Toot } from "../types";
 interface RankParams {
     description?: string;
     defaultWeight?: number;
-    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>;
+    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature>;
     scoreName: string;
 }
 export default class FeatureScorer {

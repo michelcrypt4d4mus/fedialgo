@@ -9,7 +9,7 @@ class FeatureScorer {
     _isReady = false;
     _scoreName;
     constructor(params) {
-        this.featureGetter = params.featureGetter;
+        this.featureGetter = params.featureGetter || (async () => { return {}; });
         this._scoreName = params.scoreName;
         this._description = params.description || "";
         this._defaultWeight = params.defaultWeight || 1;

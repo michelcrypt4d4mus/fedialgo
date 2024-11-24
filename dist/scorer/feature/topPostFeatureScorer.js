@@ -7,12 +7,11 @@ exports.TRENDING_POSTS_DEFAULT_WEIGHT = exports.TRENDING_POSTS = void 0;
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 exports.TRENDING_POSTS = "topPosts";
 exports.TRENDING_POSTS_DEFAULT_WEIGHT = 0.1;
-class topPostFeatureScorer extends FeatureScorer_1.default {
+class TopPostFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favor posts that are trending in the Fediverse",
             defaultWeight: exports.TRENDING_POSTS_DEFAULT_WEIGHT,
-            featureGetter: (_api) => { return Promise.resolve({}); },
             scoreName: exports.TRENDING_POSTS,
         });
     }
@@ -21,6 +20,6 @@ class topPostFeatureScorer extends FeatureScorer_1.default {
         return toot.topPost || 0;
     }
 }
-exports.default = topPostFeatureScorer;
+exports.default = TopPostFeatureScorer;
 ;
 //# sourceMappingURL=topPostFeatureScorer.js.map
