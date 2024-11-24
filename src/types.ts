@@ -15,13 +15,13 @@ export type ServerFeature = {
 
 export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
-    rawScore?: number;  // Score before applying timeDiscount
+    rawScore?: number;  // Score before applying timeDecayMultiplier
     reblog?: Toot;
     reblogBy?: string;
     recommended?: boolean;
     scores?: ScoresType;
     similarity?: number;
-    timeDiscount?: number;  // Multiplier that reduces the score of older posts
+    timeDecayMultiplier?: number;  // Multiplier that reduces the score of older posts
     topPost?: number;
     value?: number;
     weightedScores?: ScoresType;

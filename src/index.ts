@@ -121,17 +121,17 @@ class TheAlgorithm {
 
             // Multiple rawScore by time decay penalty to get a final value
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            toot.timeDiscount = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+            toot.timeDecayMultiplier = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = (toot.rawScore ?? 0) * toot.timeDiscount;
+            toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
 
             // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
             if (toot.reblog) {
                 toot.reblog.rawScore = toot.rawScore;
                 toot.reblog.scores = toot.scores;
                 toot.reblog.weightedScores = toot.weightedScores;
-                toot.reblog.timeDiscount = toot.timeDiscount;
+                toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
                 toot.reblog.value = toot.value;
             }
         }

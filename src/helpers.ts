@@ -121,7 +121,7 @@ export const extractScoreInfo = (toot: Toot) => {
         rawScore: toot.rawScore,
         scoreComponents: toot.scores,
         scoreComponentsWeighted: toot.weightedScores,
-        timeDiscount: toot.timeDiscount,
+        timeDecayMultiplier: toot.timeDecayMultiplier,
         timeWeightedScore: toot.value,
     };
 };
