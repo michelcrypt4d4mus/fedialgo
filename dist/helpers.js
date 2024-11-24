@@ -101,6 +101,7 @@ const condensedStatus = (toot) => {
         .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
 };
 exports.condensedStatus = condensedStatus;
+// Extract just the various score related variables from a Toot to a new object.
 const extractScoreInfo = (toot) => {
     return {
         rawScore: toot.rawScore,
