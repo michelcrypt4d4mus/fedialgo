@@ -17,7 +17,7 @@ const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 
 
 export default class FeatureStorage extends Storage {
-    static async getTopFavs(api: mastodon.rest.Client): Promise<AccountFeature> {
+    static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
 
         if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
@@ -31,7 +31,7 @@ export default class FeatureStorage extends Storage {
         return topFavs;
     }
 
-    static async getTopReblogs(api: mastodon.rest.Client): Promise<AccountFeature> {
+    static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
 
         if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {

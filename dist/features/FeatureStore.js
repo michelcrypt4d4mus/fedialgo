@@ -36,7 +36,7 @@ const Storage_1 = __importStar(require("../Storage"));
 // way for any number other than 9.
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 class FeatureStorage extends Storage_1.default {
-    static async getTopFavs(api) {
+    static async getMostFavoritedAccounts(api) {
         let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
         if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
             console.log("Loaded accounts user has favorited the most from storage...");
@@ -48,7 +48,7 @@ class FeatureStorage extends Storage_1.default {
         console.log("[Feature] Accounts user has favorited the most", topFavs);
         return topFavs;
     }
-    static async getTopReblogs(api) {
+    static async getMostRetootedAccounts(api) {
         let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
         if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
             console.log("Loaded accounts user has reooted the most from storage...");

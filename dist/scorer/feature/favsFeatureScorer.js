@@ -10,7 +10,7 @@ class favsFeatureScorer extends FeatureScorer_1.default {
         super({
             description: "Favor toots from users whose toots you have favorited a lot in the past",
             defaultWeight: 1,
-            featureGetter: (api) => FeatureStore_1.default.getTopFavs(api),
+            featureGetter: (api) => FeatureStore_1.default.getMostFavoritedAccounts(api),
             scoreName: "Favs",
         });
     }

@@ -13,7 +13,7 @@ export default class favsFeatureScorer extends FeatureScorer {
         super({
             description: "Favor toots from users whose toots you have favorited a lot in the past",
             defaultWeight: 1,
-            featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getTopFavs(api),
+            featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getMostFavoritedAccounts(api),
             scoreName: "Favs",
         })
     }
