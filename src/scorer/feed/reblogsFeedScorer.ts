@@ -9,7 +9,7 @@ export default class reblogsFeedScorer extends FeedScorer {
     constructor() {
         super(
             "reblogsFeed",  // TODO: rename to reblogCount
-            "Favor posts that have been retooted many times",
+            "Favor toots that have been retooted many times",
             DEFAULT_REBLOGS_WEIGHT
         );
     }

@@ -7,7 +7,7 @@ import FeatureScorer from '../FeatureScorer'
 export default class chaosFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Insert Randomness and Chaos into the feed - because its fair",
+            description: "Insert Randomness and Chaos into the feed because Social Media Ist Krieg",
             defaultWeight: 1,
             scoreName: "Chaos",
         });

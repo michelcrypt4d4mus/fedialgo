@@ -10,7 +10,7 @@ export default class diversityFeedScorer extends FeedScorer {
     constructor() {
         super(
             "Diversity",
-            "Disfavor posts from users that you have seen a lot of posts from already"
+            "Disfavor toots from users that you have seen a lot of toots from already"
         );
     }
 

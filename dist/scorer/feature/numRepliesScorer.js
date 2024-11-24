@@ -7,7 +7,7 @@ const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 class numRepliesScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favor posts that have been replied to many times",
+            description: "Favor toots that have been replied to many times",
             defaultWeight: 1,
             scoreName: "numReplies",
         });

@@ -9,7 +9,7 @@ const DEFAULT_REBLOGS_WEIGHT = 2;
 class reblogsFeedScorer extends FeedScorer_1.default {
     constructor() {
         super("reblogsFeed", // TODO: rename to reblogCount
-        "Favor posts that have been retooted many times", DEFAULT_REBLOGS_WEIGHT);
+        "Favor toots that have been retooted many times", DEFAULT_REBLOGS_WEIGHT);
     }
     // for each uri in the feed, count the number of times it appears
     feedExtractor(feed) {

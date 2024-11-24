@@ -11,7 +11,7 @@ import { Toot } from '../../types';
 export default class numFavoritesScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favor posts that have been favorited by a lot of other users",
+            description: "Favor toots that have been favorited by a lot of other users",
             defaultWeight: 1,
             scoreName: "numFavorites",
         })
