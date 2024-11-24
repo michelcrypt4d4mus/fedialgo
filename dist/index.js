@@ -251,7 +251,7 @@ const isValidForFeed = (toot) => {
         return false; // Remove retweets (???)
     // Remove retoots (i guess things user has already retooted???)
     if (toot?.reblog?.reblogged) {
-        console.log(`Removed retoot of id # : `, toot);
+        console.debug(`Removed retoot of id ${(0, helpers_1.describeToot)(toot)}: `, toot);
         return false;
     }
     // Sometimes there are wonky statuses that are like years in the future so we filter them out.

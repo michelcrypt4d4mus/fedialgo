@@ -1,5 +1,6 @@
 /*
- * Handles getting things like monthly active users about the various servers in the Fediverse.
+ * Handles getting accounts followed by the fedialgo user and also things like monthly
+ * active users about the various servers in the Fediverse.
  */
 import { mastodon } from "masto";
 
@@ -7,36 +8,38 @@ import { mastodonFetch, mastodonFetchPages } from "../helpers";
 import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
-const NUM_SERVERS_TO_RETURN = 20;
-const NUM_SERVER_PAGES_TO_PULL = 10;
-const SERVER_RECORDS_TO_PULL = 80;
+const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5_000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 
+
+// Returns something called "overrepresentedServerFrequ"??
 export default async function coreServerFeature(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<ServerFeature> {
-    const results = await mastodonFetchPages<mastodon.v1.Account>(
+    const followedAccounts = await mastodonFetchPages<mastodon.v1.Account>(
         api.v1.accounts.$select(user.id).following.list,
-        NUM_SERVER_PAGES_TO_PULL,
-        SERVER_RECORDS_TO_PULL
+        MAX_FOLLOWING_ACCOUNT_TO_PULL
     );
 
-    console.debug(`coreServerFeature() results from mastodonFetchPages(): `, results);
+    console.debug(`followed users: `, followedAccounts);
 
-    // Count up what Mastodon servers the user followss live on
-    const serverFrequ = results.reduce(
-        (accumulator: ServerFeature, follower: mastodon.v1.Account) => {
+    // Count up what Mastodon servers the user follows live on
+    const userServerCounts = followedAccounts.reduce(
+        (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
+            if (!follower.url) return userCounts;
             const server = follower.url.split("@")[0].split("https://")[1];
-            accumulator[server] = (accumulator[server] || 0) + 1;
-            return accumulator;
+            userCounts[server] = (userCounts[server] || 0) + 1;
+            return userCounts;
         },
         {}
     );
 
-    console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
-    const popularServers = Object.keys(serverFrequ)
-                                 .sort((a, b) => serverFrequ[b] - serverFrequ[a])
+    // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
+    // These are the servers we will check for trending toots.
+    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
+    const popularServers = Object.keys(userServerCounts)
+                                 .sort((a, b) => userServerCounts[b] - userServerCounts[a])
                                  .slice(0, NUM_SERVERS_TO_CHECK)
     console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers)
 
@@ -46,11 +49,13 @@ export default async function coreServerFeature(
         return serverMonthlyUsers;
     }));
 
+    // I guess this is looking to do something that compares active users vs. followed users
+    // to maybe account for a lot of dead accounts or something?
     const overrepresentedServerFrequ = popularServers.reduce(
         (acc, server, index) => {
             const activeUsers = monthlyUsers[index];
             if (activeUsers < 10) return acc;
-            const ratio = serverFrequ[server] / activeUsers;
+            const ratio = userServerCounts[server] / activeUsers;
             return { ...acc, [server]: ratio };
         },
         {}

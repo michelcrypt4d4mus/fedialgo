@@ -2,22 +2,24 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
-const NUM_SERVERS_TO_RETURN = 20;
-const NUM_SERVER_PAGES_TO_PULL = 10;
-const SERVER_RECORDS_TO_PULL = 80;
+const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 async function coreServerFeature(api, user) {
-    const results = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, NUM_SERVER_PAGES_TO_PULL, SERVER_RECORDS_TO_PULL);
-    console.debug(`coreServerFeature() results from mastodonFetchPages(): `, results);
-    // Count up what Mastodon servers the user followss live on
-    const serverFrequ = results.reduce((accumulator, follower) => {
+    const followedAccounts = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, MAX_FOLLOWING_ACCOUNT_TO_PULL);
+    console.debug(`followed users: `, followedAccounts);
+    // Count up what Mastodon servers the user follows live on
+    const userServerCounts = followedAccounts.reduce((userCounts, follower) => {
+        if (!follower.url)
+            return userCounts;
         const server = follower.url.split("@")[0].split("https://")[1];
-        accumulator[server] = (accumulator[server] || 0) + 1;
-        return accumulator;
+        userCounts[server] = (userCounts[server] || 0) + 1;
+        return userCounts;
     }, {});
-    console.debug(`coreServerFeature() serverFrequ: `, serverFrequ);
-    const popularServers = Object.keys(serverFrequ)
-        .sort((a, b) => serverFrequ[b] - serverFrequ[a])
+    // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
+    // These are the servers we will check for trending toots.
+    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
+    const popularServers = Object.keys(userServerCounts)
+        .sort((a, b) => userServerCounts[b] - userServerCounts[a])
         .slice(0, NUM_SERVERS_TO_CHECK);
     console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(server => {
@@ -25,11 +27,13 @@ async function coreServerFeature(api, user) {
         console.log(`Monthly users for ${server}: `, serverMonthlyUsers);
         return serverMonthlyUsers;
     }));
+    // I guess this is looking to do something that compares active users vs. followed users
+    // to maybe account for a lot of dead accounts or something?
     const overrepresentedServerFrequ = popularServers.reduce((acc, server, index) => {
         const activeUsers = monthlyUsers[index];
         if (activeUsers < 10)
             return acc;
-        const ratio = serverFrequ[server] / activeUsers;
+        const ratio = userServerCounts[server] / activeUsers;
         return { ...acc, [server]: ratio };
     }, {});
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);

@@ -305,7 +305,7 @@ const isValidForFeed = (toot: Toot): boolean => {
 
     // Remove retoots (i guess things user has already retooted???)
     if (toot?.reblog?.reblogged) {
-        console.log(`Removed retoot of id # : `, toot);
+        console.debug(`Removed retoot of id ${describeToot(toot)}: `, toot);
         return false;
     }
 

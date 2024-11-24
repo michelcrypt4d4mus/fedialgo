@@ -4,6 +4,8 @@ import { mastodon } from "masto";
 
 import { Toot } from "./types";
 
+const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
+const DEFAULT_RECORDS_PER_PAGE = 40;
 const MAX_CONTENT_CHARS = 150;
 
 
@@ -52,26 +54,24 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
 // Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
 export async function mastodonFetchPages<T>(
     fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
-    min_pages: number,
-    max_records: number,
+    min_records: number = DEFAULT_MIN_RECORDS_FOR_FEATURE,
 ): Promise<T[]> {
-    console.debug(`mastodonFetchPages() called with min_pages=${min_pages}, max_records=${max_records}`);
+    console.debug(`mastodonFetchPages() w/ min_records=${min_records}, fetchMethod:`, fetchMethod);
     let results: T[] = [];
     let pageNumber = 0;
 
     try {
-        for await (const page of fetchMethod({ limit: max_records })) {
+        for await (const page of fetchMethod({ limit: DEFAULT_RECORDS_PER_PAGE })) {
             results = results.concat(page as T[]);
-            pageNumber++;
-            console.log(`Retrieved page ${pageNumber} of current user's records...`);
+            console.log(`Retrieved page ${++pageNumber} of current user's records...`);
 
-            if (pageNumber >= min_pages || results.length >= max_records) {
+            if (results.length >= min_records) {
                 console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
                 break;
             }
         }
     } catch (e) {
-        console.error(e);
+        console.error(`Error in mastodonFetchPages():`, e);
         return results;
     }
 
