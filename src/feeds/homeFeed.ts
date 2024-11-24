@@ -19,8 +19,8 @@ export default async function getHomeFeed(
     api: mastodon.rest.Client,
     _user: mastodon.v1.Account
 ): Promise<Toot[]> {
-    let pageNumber = 0;
     let toots: Toot[] = [];
+    let pageNumber = 0;
 
     // We should already have toots cached up until the last time this app was opened so we
     // don't need to re-retrieve them but in any case never load toots more than MAX_TIMELINE_HOURS old.
