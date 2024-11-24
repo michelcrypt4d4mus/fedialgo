@@ -124,6 +124,7 @@ class TheAlgorithm {
     }
     // I think this is the main function that gets called when the user changes the weights of the sliders?
     // Otherwise scoring is done in getFeed().
+    // *NOTE: has side effect of updating WeightsStore*
     async weightTootsInFeed(userWeights) {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         // prevent userWeights from being set to 0

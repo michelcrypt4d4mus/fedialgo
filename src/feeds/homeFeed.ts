@@ -32,10 +32,15 @@ export default async function getHomeFeed(
         results = results.concat(page as Toot[]);
         pagesRetrieved++;
         console.log(`Retrieved page ${pagesRetrieved} of home feed with ${page.length} toots...`);
+        const oldestTootAt = new Date(page[0].createdAt);  // TODO: are we sure this is the oldest toot in the page?
 
         // break if we've pulled MAX_PAGES pages status is older than MAX_TIMELINE_HOURS old
-        if (pagesRetrieved == MAX_PAGES || new Date(page[0].createdAt) < timelineCutoff) {
-            console.log(`Breaking out of getHomeFeed loop after ${pagesRetrieved} pages`);
+        if (pagesRetrieved == MAX_PAGES || oldestTootAt < timelineCutoff) {
+            if (oldestTootAt < timelineCutoff) {
+                console.log(`Breaking out of getHomeFeed() after ${pagesRetrieved} pages bc oldestTootAt='${oldestTootAt}'`);
+                results.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
+            }
+
             break;
         }
     }
