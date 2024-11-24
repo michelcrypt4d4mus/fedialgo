@@ -68,11 +68,11 @@ async function mastodonFetchPages(fetchMethod, min_pages, max_records) {
 exports.mastodonFetchPages = mastodonFetchPages;
 // Returns a simplified version of the toot for logging
 const condensedStatus = (toot) => {
-    // Contents of post (the text)
+    // Contents of toot (the text)
     let content = toot.reblog?.content || toot.content || "";
     if (content.length > MAX_CONTENT_CHARS)
         content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
-    // Account info
+    // Account info for the person who tooted it
     let accountLabel = (0, exports.describeAccount)(toot);
     if (toot.reblog)
         accountLabel += ` ｟⬆️⬆️RETOOT of ${(0, exports.describeAccount)(toot.reblog)}⬆️⬆️｠`;
