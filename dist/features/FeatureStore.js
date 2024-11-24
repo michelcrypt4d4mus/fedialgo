@@ -31,61 +31,59 @@ const favsFeature_1 = __importDefault(require("./favsFeature"));
 const interactsFeature_1 = __importDefault(require("./interactsFeature"));
 const reblogsFeature_1 = __importDefault(require("./reblogsFeature"));
 const Storage_1 = __importStar(require("../Storage"));
+const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 class FeatureStorage extends Storage_1.default {
     static async getTopFavs(api) {
-        const topFavs = await this.get(Storage_1.Key.TOP_FAVS);
-        console.log("[Storage] Accounts user has favorited the most in the past", topFavs);
-        if (topFavs != null && await this.getNumAppOpens() % 10 < 9) {
-            return topFavs;
+        let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
+        if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("Loaded accounts user has favorited the most from storage...");
         }
         else {
-            const favs = await (0, favsFeature_1.default)(api);
-            console.log("[NEW] Favorite accounts", favs);
-            await this.set(Storage_1.Key.TOP_FAVS, favs);
-            return favs;
+            topFavs = await (0, favsFeature_1.default)(api);
+            await this.set(Storage_1.Key.TOP_FAVS, topFavs);
         }
+        console.log("[Feature] Accounts user has favorited the most", topFavs);
+        return topFavs;
     }
     static async getTopReblogs(api) {
-        const topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
-        if (topReblogs != null && await this.getNumAppOpens() % 10 < 9) {
-            console.log("[Storage] Accounts user has retooted the most", topReblogs);
-            return topReblogs;
+        let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
+        if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("Loaded accounts user has reooted the most from storage...");
         }
         else {
             const user = await this.getIdentity();
-            const reblogs = await (0, reblogsFeature_1.default)(api, user);
-            console.log("[NEW] Accounts user has retooted the most", reblogs);
-            await this.set(Storage_1.Key.TOP_REBLOGS, reblogs);
-            return reblogs;
+            topReblogs = await (0, reblogsFeature_1.default)(api, user);
+            await this.set(Storage_1.Key.TOP_REBLOGS, topReblogs);
         }
+        console.log("[Feature] Accounts user has retooted the most", topReblogs);
+        return topReblogs;
     }
     static async getTopInteracts(api) {
-        const topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
-        if (topInteracts != null && await this.getNumAppOpens() % 10 < 9) {
-            console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
-            return topInteracts;
+        let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
+        if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[Storage] Accounts that have interacted the most with user's toots");
         }
         else {
-            const interacts = await (0, interactsFeature_1.default)(api);
-            console.log("[NEW] Accounts that have interacted the most with user's toots", interacts);
-            await this.set(Storage_1.Key.TOP_INTERACTS, interacts);
-            return interacts;
+            topInteracts = await (0, interactsFeature_1.default)(api);
+            await this.set(Storage_1.Key.TOP_INTERACTS, topInteracts);
         }
+        console.log("[Featuer] Accounts that have interacted the most with user's toots", topInteracts);
+        return topInteracts;
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
-        const coreServer = await this.get(Storage_1.Key.CORE_SERVER);
+        let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("[Storage] coreServer", coreServer);
-            return coreServer;
+            console.log("Loaded coreServer from storage");
         }
         else {
+            console.log("Fetching coreServer info...");
             const user = await this.getIdentity();
-            const server = await (0, coreServerFeature_1.default)(api, user);
-            console.log("[NEW] coreServer", coreServer);
-            await this.set(Storage_1.Key.CORE_SERVER, server);
-            return server;
+            coreServer = await (0, coreServerFeature_1.default)(api, user);
+            await this.set(Storage_1.Key.CORE_SERVER, coreServer);
         }
+        console.log("coreServer info: ", coreServer);
+        return coreServer;
     }
 }
 exports.default = FeatureStorage;
