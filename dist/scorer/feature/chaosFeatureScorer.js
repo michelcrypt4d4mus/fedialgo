@@ -10,7 +10,7 @@ const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 class chaosFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Insert Randomness and Chaos into the feed because Social Media Ist Krieg",
+            description: "Insert Chaos into the scoring because social media ist krieg",
             defaultWeight: 1,
             scoreName: "Chaos",
         });
