@@ -23,7 +23,8 @@ class TheAlgorithm {
         homeFeed_1.default,
         topPostsFeed_1.default
     ];
-    // I think these scorers work in a standalone way and don't require the complete list to work?
+    // Scorers that are atomic in the sense that they can score a tool without knowing
+    // about the rest of the toots in the TL.
     featureScorers = [
         new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),

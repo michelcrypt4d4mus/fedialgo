@@ -7,8 +7,9 @@ import { mastodon } from "masto";
 import Storage from "../Storage";
 import { Toot } from "../types";
 
-const MAX_PAGES = 16;
+const MAX_PAGES = 8;
 const MAX_TIMELINE_HOURS = 72;
+const NUM_TOOTS_PER_PAGE = 40;  // Max is 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 const LAST_OPENED_LOOKBACK_MS = 60 * 1000;  // Lookback an extra minute beyond last opened time just in case
 
@@ -28,7 +29,7 @@ export default async function getHomeFeed(
     console.log("timelineCutoff: ", timelineCutoff);
 
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
-    for await (const page of api.v1.timelines.home.list()) {
+    for await (const page of api.v1.timelines.home.list({ limit: NUM_TOOTS_PER_PAGE })) {
         results = results.concat(page as Toot[]);
         pagesRetrieved++;
         console.log(`Retrieved page ${pagesRetrieved} of home feed with ${page.length} toots...`);
