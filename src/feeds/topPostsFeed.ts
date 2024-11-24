@@ -55,7 +55,7 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<T
                                                 toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
                                             }
 
-                                            // Inject topPost scoring // TODO: maybe should be placed in top.scores.topPost?
+                                            // Inject topPost scoring // TODO: maybe should be placed in top.scores.topPost variable/
                                             toot.topPost = NUM_TRENDING_POSTS_PER_SERVER - i;
                                             return toot;
                                        });
