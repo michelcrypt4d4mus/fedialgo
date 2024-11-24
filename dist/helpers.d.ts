@@ -9,7 +9,7 @@ export declare const extractScoreInfo: (toot: Toot) => {
     rawScore: number | undefined;
     scoreComponents: import("./types").ScoresType | undefined;
     scoreComponentsWeighted: import("./types").ScoresType | undefined;
-    timeDiscount: number | undefined;
+    timeDecayMultiplier: number | undefined;
     timeWeightedScore: number | undefined;
 };
 export declare const describeAccount: (toot: Toot) => string;
