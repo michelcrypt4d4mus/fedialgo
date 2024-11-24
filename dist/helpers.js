@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.describeToot = exports.describeAccount = exports.extractScoreInfo = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = void 0;
+exports.describeToot = exports.describeAccount = exports.extractScoreInfo = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
+// Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+exports.DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
-const DEFAULT_RECORDS_PER_PAGE = 40;
 const MAX_CONTENT_CHARS = 150;
 //Masto does not support top posts from foreign servers, so we have to do it manually
 const isRecord = (x) => {
@@ -51,7 +52,7 @@ async function mastodonFetchPages(fetchMethod, min_records = DEFAULT_MIN_RECORDS
     let results = [];
     let pageNumber = 0;
     try {
-        for await (const page of fetchMethod({ limit: DEFAULT_RECORDS_PER_PAGE })) {
+        for await (const page of fetchMethod({ limit: exports.DEFAULT_RECORDS_PER_PAGE })) {
             results = results.concat(page);
             console.log(`Retrieved page ${++pageNumber} of current user's records...`);
             if (results.length >= min_records) {

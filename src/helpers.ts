@@ -4,8 +4,9 @@ import { mastodon } from "masto";
 
 import { Toot } from "./types";
 
+// Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+export const DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
-const DEFAULT_RECORDS_PER_PAGE = 40;
 const MAX_CONTENT_CHARS = 150;
 
 
