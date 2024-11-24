@@ -1,6 +1,7 @@
 /*
  * This file is responsible for fetching the array of Toot objects that make up
- * the home timeline feed of a user (AKA "what most people see first upon opening Mastodon").
+ * the home timeline feed of a user (AKA "what most people see first upon opening
+ * Mastodon").
  */
 import { mastodon } from "masto";
 

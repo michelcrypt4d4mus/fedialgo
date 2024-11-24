@@ -19,22 +19,23 @@ const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 export default async function topPostsFeed(api: mastodon.rest.Client): Promise<Toot[]> {
     const coreServers = await FeatureStore.getCoreServer(api);
+    console.log(`coreServers: `, coreServers);
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
-    const servers = Object.keys(coreServers)
-                          .sort((a, b) => (coreServers[b] - coreServers[a]))  // TODO: wtf is this comparison?
-                          .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)  // Remove weird records
-                          .slice(0, NUM_SERVERS_TO_POLL);
+    const topServerDomains = Object.keys(coreServers)
+                                   .sort((a, b) => (coreServers[b] - coreServers[a]))  // TODO: wtf is this comparison?
+                                   .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)  // Remove weird records
+                                   .slice(0, NUM_SERVERS_TO_POLL);
 
-    if (servers.length == 0) {
+    if (topServerDomains.length == 0) {
         console.warn("No mastodon servers found to get topPostsFeed data from!");
         return [];
     }
 
-    console.log(`Found top mastodon servers: `, servers);
+    console.log(`Found top mastodon servers: `, topServerDomains);
 
     // Pull top trending toots from each server
-    const trendingToots = await Promise.all(servers.map(async (server: string): Promise<Toot[]> => {
+    const trendingToots = await Promise.all(topServerDomains.map(async (server: string): Promise<Toot[]> => {
         let serverTopToots = await mastodonFetch<Toot[]>(server, TRENDING_TOOTS_REST_PATH);
 
         if (!serverTopToots || serverTopToots.length == 0) {

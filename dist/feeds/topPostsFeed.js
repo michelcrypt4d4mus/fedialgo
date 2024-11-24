@@ -14,18 +14,19 @@ const NUM_TRENDING_POSTS_PER_SERVER = 10;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function topPostsFeed(api) {
     const coreServers = await FeatureStore_1.default.getCoreServer(api);
+    console.log(`coreServers: `, coreServers);
     // Get list of top mastodon servers // TODO: what does "top" mean here?
-    const servers = Object.keys(coreServers)
+    const topServerDomains = Object.keys(coreServers)
         .sort((a, b) => (coreServers[b] - coreServers[a])) // TODO: wtf is this comparison?
         .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0) // Remove weird records
         .slice(0, NUM_SERVERS_TO_POLL);
-    if (servers.length == 0) {
+    if (topServerDomains.length == 0) {
         console.warn("No mastodon servers found to get topPostsFeed data from!");
         return [];
     }
-    console.log(`Found top mastodon servers: `, servers);
+    console.log(`Found top mastodon servers: `, topServerDomains);
     // Pull top trending toots from each server
-    const trendingToots = await Promise.all(servers.map(async (server) => {
+    const trendingToots = await Promise.all(topServerDomains.map(async (server) => {
         let serverTopToots = await (0, helpers_2.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
         if (!serverTopToots || serverTopToots.length == 0) {
             console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
