@@ -17,7 +17,7 @@ export default class FeatureStorage extends Storage {
             return topFavs;
         } else {
             const favs = await FavsFeature(api);
-            console.log("[NEW] Favorite accounts", favs);
+            console.log("[NEW] Most favorited accounts", favs);
             await this.set(Key.TOP_FAVS, favs);
             return favs;
         }
@@ -62,7 +62,7 @@ export default class FeatureStorage extends Storage {
         } else {
             const user = await this.getIdentity();
             const server = await coreServerFeature(api, user);
-            console.log("[NEW] coreServer", coreServer);
+            console.log("[NEW] coreServer", server);
             await this.set(Key.CORE_SERVER, server);
             return server;
         }
