@@ -15,7 +15,7 @@ const Storage_1 = __importDefault(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
-const TIME_DECAY = 'timeDecay';
+const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const DEFAULT_TIME_DECAY = 0.05;
 exports.DEFAULT_TIME_DECAY = DEFAULT_TIME_DECAY;

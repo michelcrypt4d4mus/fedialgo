@@ -24,7 +24,7 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
-const TIME_DECAY = 'timeDecay';
+const TIME_DECAY = 'TimeDecay';
 const DEFAULT_TIME_DECAY = 0.05;
 
 

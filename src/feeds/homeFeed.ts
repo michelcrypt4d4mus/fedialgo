@@ -46,5 +46,6 @@ export default async function getHomeFeed(
         }
     }
 
+    console.debug(`getHomeFeed() returning ${toots.length} toots...`);
     return toots;
 };

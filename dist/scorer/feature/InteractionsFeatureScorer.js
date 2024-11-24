@@ -6,13 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
 const INTERACTIONS_DEFAULT_WEIGHT = 2;
+const SCORE_NAME = "Interactions";
 class InteractionsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favor toots from users that most frequently interact with your posts",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
             featureGetter: (api) => FeatureStore_1.default.getTopInteracts(api),
-            scoreName: "Interacts",
+            scoreName: SCORE_NAME,
         });
     }
     async score(toot) {

@@ -8,6 +8,7 @@ import FeatureStorage from "../../features/FeatureStore";
 import { Toot } from "../../types";
 
 const INTERACTIONS_DEFAULT_WEIGHT = 2;
+const SCORE_NAME = "Interactions";
 
 
 export default class InteractionsFeatureScorer extends FeatureScorer {
@@ -16,7 +17,7 @@ export default class InteractionsFeatureScorer extends FeatureScorer {
             description: "Favor toots from users that most frequently interact with your posts",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
             featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getTopInteracts(api),
-            scoreName: "Interacts",
+            scoreName: SCORE_NAME,
         });
     }
 

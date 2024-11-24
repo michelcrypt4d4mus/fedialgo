@@ -4,7 +4,7 @@ import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
-declare const TIME_DECAY = "timeDecay";
+declare const TIME_DECAY = "TimeDecay";
 declare const DEFAULT_TIME_DECAY = 0.05;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
