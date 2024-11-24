@@ -24,6 +24,9 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
+const TIME_DECAY = 'timeDecay';
+const DEFAULT_TIME_DECAY = 0.05;
+
 
 class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -116,12 +119,14 @@ class TheAlgorithm {
             toot.weightedScores = Object.assign({}, scoreObj);
 
             for (const scoreName in scoreObj) {
+                if (scoreName === TIME_DECAY) continue;
                 toot.weightedScores[scoreName] = (scoreObj[scoreName] || 0) * (weights[scoreName] || 0);
             }
 
             // Multiple rawScore by time decay penalty to get a final value
+            const timeDecay = weights[TIME_DECAY] || DEFAULT_TIME_DECAY;
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            toot.timeDecayMultiplier = Math.pow((1 + 0.05), - Math.pow((seconds / 3600), 2));
+            toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
             toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
@@ -162,10 +167,12 @@ class TheAlgorithm {
     async setDefaultWeights(): Promise<void> {
         const scorers = [...this.featureScorers, ...this.feedScorers];
 
-        Promise.all(scorers.map(scorer => WeightsStore.defaultFallback(
+        await Promise.all(scorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getScoreName(),
             scorer.getDefaultWeight()
         )));
+
+        WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
     }
 
     // Return the user's current weightings for each score category
@@ -313,6 +320,8 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
+    DEFAULT_TIME_DECAY,
+    TIME_DECAY,
     condensedStatus,
     extractScoreInfo,
     ScoresType,

@@ -4,6 +4,8 @@ import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
+declare const TIME_DECAY = "timeDecay";
+declare const DEFAULT_TIME_DECAY = 0.05;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -23,4 +25,4 @@ declare class TheAlgorithm {
     private _computeFinalScore;
     private _getScoreObj;
 }
-export { condensedStatus, extractScoreInfo, ScoresType, TheAlgorithm, Toot, };
+export { DEFAULT_TIME_DECAY, TIME_DECAY, condensedStatus, extractScoreInfo, ScoresType, TheAlgorithm, Toot, };

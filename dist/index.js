@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.extractScoreInfo = exports.condensedStatus = void 0;
+exports.TheAlgorithm = exports.extractScoreInfo = exports.condensedStatus = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
@@ -15,6 +15,10 @@ const Storage_1 = __importDefault(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
+const TIME_DECAY = 'timeDecay';
+exports.TIME_DECAY = TIME_DECAY;
+const DEFAULT_TIME_DECAY = 0.05;
+exports.DEFAULT_TIME_DECAY = DEFAULT_TIME_DECAY;
 class TheAlgorithm {
     api;
     user;
@@ -89,11 +93,14 @@ class TheAlgorithm {
             toot.scores = scoreObj; // TODO maybe rename this to scoreComponents or featureScores?
             toot.weightedScores = Object.assign({}, scoreObj);
             for (const scoreName in scoreObj) {
+                if (scoreName === TIME_DECAY)
+                    continue;
                 toot.weightedScores[scoreName] = (scoreObj[scoreName] || 0) * (weights[scoreName] || 0);
             }
             // Multiple rawScore by time decay penalty to get a final value
+            const timeDecay = weights[TIME_DECAY] || DEFAULT_TIME_DECAY;
             const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            toot.timeDecayMultiplier = Math.pow((1 + 0.05), -Math.pow((seconds / 3600), 2));
+            toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
             toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
             // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
@@ -128,7 +135,8 @@ class TheAlgorithm {
     // Set Default Weights if they don't exist
     async setDefaultWeights() {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        await Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
