@@ -21,13 +21,12 @@ async function getHomeFeed(api, _user) {
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list({ limit: NUM_TOOTS_PER_PAGE })) {
         results = results.concat(page);
-        pagesRetrieved++;
-        console.log(`Retrieved page ${pagesRetrieved} of home feed with ${page.length} toots...`);
+        console.log(`Retrieved page ${++pagesRetrieved} of home feed with ${page.length} toots...`);
         const oldestTootAt = new Date(page[0].createdAt); // TODO: are we sure this is the oldest toot in the page?
         // break if we've pulled MAX_PAGES pages status is older than MAX_TIMELINE_HOURS old
         if (pagesRetrieved == MAX_PAGES || oldestTootAt < timelineCutoff) {
             if (oldestTootAt < timelineCutoff) {
-                console.log(`Breaking out of getHomeFeed() after ${pagesRetrieved} pages bc oldestTootAt='${oldestTootAt}'`);
+                console.log(`Halting getHomeFeed() after ${pagesRetrieved} pages bc oldestTootAt='${oldestTootAt}'`);
                 results.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
             }
             break;

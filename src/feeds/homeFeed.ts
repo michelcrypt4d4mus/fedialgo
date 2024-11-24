@@ -19,7 +19,7 @@ export default async function getHomeFeed(
     _user: mastodon.v1.Account
 ): Promise<Toot[]> {
     let pagesRetrieved = 0;
-    let results: Toot[] = [];
+    let toots: Toot[] = [];
 
     // We should already have toots cached up until the last time this app was opened so we
     // don't need to re-retrieve them but in any case never load toots more than MAX_TIMELINE_HOURS old.
@@ -30,7 +30,7 @@ export default async function getHomeFeed(
 
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list({ limit: NUM_TOOTS_PER_PAGE })) {
-        results = results.concat(page as Toot[]);
+        toots = toots.concat(page as Toot[]);
         console.log(`Retrieved page ${++pagesRetrieved} of home feed with ${page.length} toots...`);
         const oldestTootAt = new Date(page[0].createdAt);  // TODO: are we sure this is the oldest toot in the page?
 
@@ -38,12 +38,12 @@ export default async function getHomeFeed(
         if (pagesRetrieved == MAX_PAGES || oldestTootAt < timelineCutoff) {
             if (oldestTootAt < timelineCutoff) {
                 console.log(`Halting getHomeFeed() after ${pagesRetrieved} pages bc oldestTootAt='${oldestTootAt}'`);
-                results.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
+                toots.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
             }
 
             break;
         }
     }
 
-    return results;
+    return toots;
 };
