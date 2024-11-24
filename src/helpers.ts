@@ -79,46 +79,50 @@ export async function mastodonFetchPages<T>(
 }
 
 
-// Returns a simplified version of the status for logging
-export const condensedStatus = (status: Toot) => {
+// Returns a simplified version of the toot for logging
+export const condensedStatus = (toot: Toot) => {
     // Contents of post (the text)
-    let content = status.reblog?.content || status.content || "";
+    let content = toot.reblog?.content || toot.content || "";
     if (content.length > MAX_CONTENT_CHARS) content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
     // Account info
-    let accountLabel = describeAccount(status);
-    if (status.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(status.reblog)}⬆️⬆️｠`;
+    let accountLabel = describeAccount(toot);
+    if (toot.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(toot.reblog)}⬆️⬆️｠`;
     // Attachment info
-    let mediaAttachments = status.mediaAttachments.map(attachment => attachment.type);
+    let mediaAttachments = toot.mediaAttachments.map(attachment => attachment.type);
     if (mediaAttachments.length == 0) mediaAttachments = [];
 
-    const statusObj = {
-        FROM: `${accountLabel} [${status.createdAt}]`,
-        URL: status.url,
+    const tootObj = {
+        FROM: `${accountLabel} [${toot.createdAt}]`,
+        URL: toot.url,
         content: content,
-        retootOf: status.reblog ? `${describeAccount(status.reblog)} (${status.reblog.createdAt})` : null,
-        inReplyToId: status.inReplyToId,
+        retootOf: toot.reblog ? `${describeAccount(toot.reblog)} (${toot.reblog.createdAt})` : null,
+        inReplyToId: toot.inReplyToId,
         mediaAttachments: mediaAttachments,
-        raw: status,
+        raw: toot,
+        score: extractScoreInfo(toot),
 
         properties: {
-            favouritesCount: status.favouritesCount,
-            reblogsCount: status.reblogsCount,
-            repliesCount: status.repliesCount,
-            tags: (status.tags || status.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
-        },
-
-        score: {
-            rawScore: status.rawScore,
-            scoreComponents: status.scores,
-            scoreComponentsWeighted: status.weightedScores,
-            timeDiscount: status.timeDiscount,
-            timeWeightedScore: status.value,
+            favouritesCount: toot.favouritesCount,
+            reblogsCount: toot.reblogsCount,
+            repliesCount: toot.repliesCount,
+            tags: (toot.tags || toot.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
         },
     };
 
-    return Object.keys(statusObj)
-                 .filter((k) => statusObj[k as keyof typeof statusObj] != null)
-                 .reduce((obj, k) => ({ ...obj, [k]: statusObj[k as keyof typeof statusObj] }), {});
+    return Object.keys(tootObj)
+                 .filter((k) => tootObj[k as keyof typeof tootObj] != null)
+                 .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+};
+
+
+export const extractScoreInfo = (toot: Toot) => {
+    return {
+        rawScore: toot.rawScore,
+        scoreComponents: toot.scores,
+        scoreComponentsWeighted: toot.weightedScores,
+        timeDiscount: toot.timeDiscount,
+        timeWeightedScore: toot.value,
+    };
 };
 
 

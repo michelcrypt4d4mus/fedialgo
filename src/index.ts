@@ -14,7 +14,7 @@ import {
     reblogsFeedScorer,
     topPostFeatureScorer
 } from "./scorer";
-import { condensedStatus, describeToot } from "./helpers";
+import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_POSTS } from "./scorer/feature/topPostFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
@@ -302,6 +302,7 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 export {
     condensedStatus,
+    extractScoreInfo,
     ScoresType,
     TheAlgorithm,
     Toot,

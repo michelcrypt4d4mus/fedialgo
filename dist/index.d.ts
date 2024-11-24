@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, topPostFeatureScorer } from "./scorer";
-import { condensedStatus } from "./helpers";
+import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
@@ -23,4 +23,4 @@ declare class TheAlgorithm {
     private _computeFinalScore;
     private _getScoreObj;
 }
-export { condensedStatus, ScoresType, TheAlgorithm, Toot, };
+export { condensedStatus, extractScoreInfo, ScoresType, TheAlgorithm, Toot, };

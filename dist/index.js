@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.condensedStatus = void 0;
+exports.TheAlgorithm = exports.extractScoreInfo = exports.condensedStatus = void 0;
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
+Object.defineProperty(exports, "extractScoreInfo", { enumerable: true, get: function () { return helpers_1.extractScoreInfo; } });
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
