@@ -77,7 +77,7 @@ class TheAlgorithm {
             console.debug(`Scoring ${(0, helpers_1.describeToot)(toot)}: `, toot);
             toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right place to do this?
             // Load Scores for each toot
-            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(this.api, toot)));
+            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(toot)));
             const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(scoreNames, featureScore);

@@ -18,7 +18,7 @@ export default class favsFeatureScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, toot: Toot) {
+    async score(toot: Toot) {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 };

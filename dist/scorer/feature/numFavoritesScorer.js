@@ -12,7 +12,7 @@ class numFavoritesScorer extends FeatureScorer_1.default {
             scoreName: "numFavorites",
         });
     }
-    async score(_api, toot) {
+    async score(toot) {
         return toot?.favouritesCount || 0;
     }
 }

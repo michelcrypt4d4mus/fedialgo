@@ -16,7 +16,7 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
             scoreName: "Reblogs",
         });
     }
-    async score(_api, toot) {
+    async score(toot) {
         const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
         let reblogScore = 0;
         if (toot.reblog && toot.reblog.account.acct in this.feature) {

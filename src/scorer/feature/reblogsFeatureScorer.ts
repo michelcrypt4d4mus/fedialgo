@@ -22,7 +22,7 @@ export default class reblogsFeatureScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, toot: Toot) {
+    async score(toot: Toot) {
         const authorScore = (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
         let reblogScore: number = 0;
 

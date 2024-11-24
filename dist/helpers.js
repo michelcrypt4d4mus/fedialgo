@@ -117,6 +117,7 @@ const describeAccount = (toot) => {
     return `${toot.account.displayName} (${toot.account.acct})`;
 };
 exports.describeAccount = describeAccount;
+// Build a string that can be used in logs to identify a toot
 const describeToot = (toot) => {
     return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
 };

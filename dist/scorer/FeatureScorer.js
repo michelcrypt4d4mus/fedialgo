@@ -21,7 +21,8 @@ class FeatureScorer {
         this._isReady = true;
         this.feature = await this.featureGetter(api);
     }
-    async score(_api, _toot) {
+    //* score() should be overloaded in subclasses *//
+    async score(_toot) {
         return 0;
     }
     getScoreName() {

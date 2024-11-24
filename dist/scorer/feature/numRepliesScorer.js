@@ -12,7 +12,7 @@ class numRepliesScorer extends FeatureScorer_1.default {
             scoreName: "numReplies",
         });
     }
-    async score(_api, toot) {
+    async score(toot) {
         return toot?.repliesCount || 0;
     }
 }

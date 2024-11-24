@@ -17,7 +17,7 @@ export default class numFavoritesScorer extends FeatureScorer {
         })
     }
 
-    async score(_api: mastodon.rest.Client, toot: Toot) {
+    async score(toot: Toot) {
         return toot?.favouritesCount || 0;
     }
 };

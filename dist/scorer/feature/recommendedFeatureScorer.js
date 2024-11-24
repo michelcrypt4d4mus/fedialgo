@@ -13,7 +13,7 @@ class recommendedFeatureScorer extends FeatureScorer_1.default {
             defaultWeight: 1,
         });
     }
-    async score(_api, toot) {
+    async score(toot) {
         return toot.recommended ? toot.similarity ?? 1 : 0;
     }
 }

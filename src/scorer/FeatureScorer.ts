@@ -41,7 +41,8 @@ export default class FeatureScorer {
         this.feature = await this.featureGetter(api);
     }
 
-    async score(_api: mastodon.rest.Client, _toot: Toot): Promise<number> {
+    //* score() should be overloaded in subclasses *//
+    async score(_toot: Toot): Promise<number> {
         return 0;
     }
 
