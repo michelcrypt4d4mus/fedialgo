@@ -55,7 +55,7 @@ export async function mastodonFetchPages<T>(
     min_pages: number,
     max_records: number,
 ): Promise<T[]> {
-    console.log(`mastodonFetchPages() called with min_pages=${min_pages}, max_records=${max_records}`);
+    console.debug(`mastodonFetchPages() called with min_pages=${min_pages}, max_records=${max_records}`);
     let results: T[] = [];
     let pageNumber = 0;
 

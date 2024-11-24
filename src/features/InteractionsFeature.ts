@@ -18,7 +18,7 @@ export default async function InteractionsFeature(api: mastodon.rest.Client): Pr
         MIN_RECORDS
     );
 
-    console.log(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
+    console.debug(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
 
     const interactFrequ = results.reduce(
         (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {
