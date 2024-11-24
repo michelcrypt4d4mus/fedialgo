@@ -10,14 +10,14 @@ const NUM_PAGES = 3;
 const MAX_RECORDS = 80;
 
 
-export default async function favFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
+export default async function FavsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Status>(
         api.v1.favourites.list,
         NUM_PAGES,
         MAX_RECORDS
     );
 
-    console.log(`Retrieved faves with favFeature() AND mastodonFetchPages(): `, results);
+    console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
 
     const favFrequ = results.reduce(
         (favoriteCounts: AccountFeature, toot: mastodon.v1.Status,) => {
@@ -28,6 +28,6 @@ export default async function favFeature(api: mastodon.rest.Client): Promise<Acc
         {}
     );
 
-    console.log(`favFeature favFrequ: `, favFrequ);
+    console.log(`FavsFeature favFrequ: `, favFrequ);
     return favFrequ;
 };
