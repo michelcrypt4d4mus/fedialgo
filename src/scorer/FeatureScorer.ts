@@ -27,6 +27,8 @@ export default class FeatureScorer {
     private _scoreName: string;
 
     constructor(params: RankParams) {
+        // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
+        // e.g. things like most commonly retooted users etc.
         this.featureGetter = params.featureGetter || (async () => { return {} });
         this._scoreName = params.scoreName;
         this._description = params.description || "";
