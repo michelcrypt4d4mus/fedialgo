@@ -40,45 +40,49 @@ class FeatureStorage extends Storage_1.default {
         }
         else {
             const favs = await (0, favsFeature_1.default)(api);
+            console.log("[NEW] Favorite accounts", favs);
             await this.set(Storage_1.Key.TOP_FAVS, favs);
             return favs;
         }
     }
     static async getTopReblogs(api) {
         const topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
-        console.log("[Storage] Accounts user has retooted the most in the past", topReblogs);
         if (topReblogs != null && await this.getNumAppOpens() % 10 < 9) {
+            console.log("[Storage] Accounts user has retooted the most", topReblogs);
             return topReblogs;
         }
         else {
             const user = await this.getIdentity();
             const reblogs = await (0, reblogsFeature_1.default)(api, user);
+            console.log("[NEW] Accounts user has retooted the most", reblogs);
             await this.set(Storage_1.Key.TOP_REBLOGS, reblogs);
             return reblogs;
         }
     }
     static async getTopInteracts(api) {
         const topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
-        console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
         if (topInteracts != null && await this.getNumAppOpens() % 10 < 9) {
+            console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
             return topInteracts;
         }
         else {
             const interacts = await (0, interactsFeature_1.default)(api);
+            console.log("[NEW] Accounts that have interacted the most with user's toots", interacts);
             await this.set(Storage_1.Key.TOP_INTERACTS, interacts);
             return interacts;
         }
     }
-    // Returns the Mastodon server the user is currently logged in to
+    // Returns information about mastodon servers
     static async getCoreServer(api) {
         const coreServer = await this.get(Storage_1.Key.CORE_SERVER);
-        console.log("[Storage] coreServer", coreServer);
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
+            console.log("[Storage] coreServer", coreServer);
             return coreServer;
         }
         else {
             const user = await this.getIdentity();
             const server = await (0, coreServerFeature_1.default)(api, user);
+            console.log("[NEW] coreServer", coreServer);
             await this.set(Storage_1.Key.CORE_SERVER, server);
             return server;
         }

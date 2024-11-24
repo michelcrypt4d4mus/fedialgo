@@ -17,6 +17,7 @@ export default class FeatureStorage extends Storage {
             return topFavs;
         } else {
             const favs = await FavsFeature(api);
+            console.log("[NEW] Favorite accounts", favs);
             await this.set(Key.TOP_FAVS, favs);
             return favs;
         }
@@ -24,13 +25,14 @@ export default class FeatureStorage extends Storage {
 
     static async getTopReblogs(api: mastodon.rest.Client): Promise<AccountFeature> {
         const topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
-        console.log("[Storage] Accounts user has retooted the most in the past", topReblogs);
 
         if (topReblogs != null && await this.getNumAppOpens() % 10 < 9) {
+            console.log("[Storage] Accounts user has retooted the most", topReblogs);
             return topReblogs;
         } else {
             const user = await this.getIdentity()
             const reblogs = await reblogsFeature(api, user);
+            console.log("[NEW] Accounts user has retooted the most", reblogs);
             await this.set(Key.TOP_REBLOGS, reblogs);
             return reblogs;
         }
@@ -38,27 +40,29 @@ export default class FeatureStorage extends Storage {
 
     static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
         const topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
-        console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
 
         if (topInteracts != null && await this.getNumAppOpens() % 10 < 9) {
+            console.log("[Storage] Accounts that have interacted the most with user's toots", topInteracts);
             return topInteracts;
         } else {
             const interacts = await interactsFeature(api);
+            console.log("[NEW] Accounts that have interacted the most with user's toots", interacts);
             await this.set(Key.TOP_INTERACTS, interacts);
             return interacts;
         }
     }
 
-    // Returns the Mastodon server the user is currently logged in to
+    // Returns information about mastodon servers
     static async getCoreServer(api: mastodon.rest.Client): Promise<ServerFeature> {
         const coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
-        console.log("[Storage] coreServer", coreServer);
 
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
+            console.log("[Storage] coreServer", coreServer);
             return coreServer;
         } else {
             const user = await this.getIdentity();
             const server = await coreServerFeature(api, user);
+            console.log("[NEW] coreServer", coreServer);
             await this.set(Key.CORE_SERVER, server);
             return server;
         }
