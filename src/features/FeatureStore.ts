@@ -1,3 +1,6 @@
+/*
+ * Handles caching of things that are slow to fetch like the top retoots, top favorites, etc.
+ */
 import { mastodon } from "masto";
 
 import coreServerFeature from "./coreServerFeature";
