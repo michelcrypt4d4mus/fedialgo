@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("./coreServerFeature"));
 const favsFeature_1 = __importDefault(require("./favsFeature"));
-const interactsFeature_1 = __importDefault(require("./interactsFeature"));
+const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importDefault(require("./reblogsFeature"));
 const Storage_1 = __importStar(require("../Storage"));
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
@@ -64,7 +64,7 @@ class FeatureStorage extends Storage_1.default {
             console.log("Loaded accounts that have interacted the most with user's toots from storage");
         }
         else {
-            topInteracts = await (0, interactsFeature_1.default)(api);
+            topInteracts = await (0, InteractionsFeature_1.default)(api);
             await this.set(Storage_1.Key.TOP_INTERACTS, topInteracts);
         }
         console.log("[Feature] Accounts that have interacted the most with user's toots", topInteracts);

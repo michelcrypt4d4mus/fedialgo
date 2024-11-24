@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, interactsFeatureScorer, numFavoritesScorer, numRepliesScorer, reblogsFeatureScorer, reblogsFeedScorer, TopPostFeatureScorer } from "./scorer";
+import { diversityFeedScorer, reblogsFeedScorer } from "./scorer";
 import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import getHomeFeed from "./feeds/homeFeed";
@@ -9,7 +9,7 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     feed: Toot[];
     fetchers: (typeof getHomeFeed)[];
-    featureScorers: (chaosFeatureScorer | favsFeatureScorer | interactsFeatureScorer | numFavoritesScorer | numRepliesScorer | reblogsFeatureScorer | TopPostFeatureScorer)[];
+    featureScorers: any[];
     feedScorers: (diversityFeedScorer | reblogsFeedScorer)[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
     getFeed(): Promise<Toot[]>;

@@ -28,7 +28,7 @@ class TheAlgorithm {
     featureScorers = [
         new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),
-        new scorer_1.interactsFeatureScorer(),
+        new scorer_1.InteractionsFeatureScorer(),
         new scorer_1.numFavoritesScorer(),
         new scorer_1.numRepliesScorer(),
         new scorer_1.reblogsFeatureScorer(),

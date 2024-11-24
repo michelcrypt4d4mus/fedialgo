@@ -10,7 +10,7 @@ import { Toot } from "../../types";
 const INTERACTIONS_DEFAULT_WEIGHT = 2;
 
 
-export default class interactsFeatureScorer extends FeatureScorer {
+export default class InteractionsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favor posts from users that most frequently interact with your posts",

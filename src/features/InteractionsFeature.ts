@@ -11,14 +11,14 @@ const NUM_PAGES_TO_SCAN = 3;
 const MIN_RECORDS = 80;
 
 
-export default async function interactFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
+export default async function InteractionsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Notification>(
         api.v1.notifications.list,
         NUM_PAGES_TO_SCAN,
         MIN_RECORDS
     );
 
-    console.log(`Retrieved notifications with interactFeature() and mastodonFetchPages(): `, results);
+    console.log(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
 
     const interactFrequ = results.reduce(
         (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {

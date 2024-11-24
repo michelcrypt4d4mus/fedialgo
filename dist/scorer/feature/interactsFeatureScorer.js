@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
 const INTERACTIONS_DEFAULT_WEIGHT = 2;
-class interactsFeatureScorer extends FeatureScorer_1.default {
+class InteractionsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favor posts from users that most frequently interact with your posts",
@@ -19,6 +19,6 @@ class interactsFeatureScorer extends FeatureScorer_1.default {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
-exports.default = interactsFeatureScorer;
+exports.default = InteractionsFeatureScorer;
 ;
 //# sourceMappingURL=interactsFeatureScorer.js.map

@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 
 import coreServerFeature from "./coreServerFeature";
 import FavsFeature from "./favsFeature";
-import interactsFeature from "./interactsFeature";
+import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature from "./reblogsFeature";
 import Storage, { Key } from "../Storage";
 import { ServerFeature, AccountFeature } from "../types";
@@ -46,7 +46,7 @@ export default class FeatureStorage extends Storage {
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
             console.log("Loaded accounts that have interacted the most with user's toots from storage");
         } else {
-            topInteracts = await interactsFeature(api);
+            topInteracts = await InteractionsFeature(api);
             await this.set(Key.TOP_INTERACTS, topInteracts);
         }
 
