@@ -125,6 +125,15 @@ class TheAlgorithm {
 
             // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
             toot.value = (toot.rawScore ?? 0) * toot.timeDiscount;
+
+            // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
+            if (toot.reblog) {
+                toot.reblog.rawScore = toot.rawScore;
+                toot.reblog.scores = toot.scores;
+                toot.reblog.weightedScores = toot.weightedScores;
+                toot.reblog.timeDiscount = toot.timeDiscount;
+                toot.reblog.value = toot.value;
+            }
         }
 
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
@@ -287,9 +296,9 @@ const isValidForFeed = (toot: Toot): boolean => {
     if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
     if (toot?.content?.includes("RT @")) return false;  // Remove retweets (???)
 
-    // Remove reblogs (???)
+    // Remove retoots (i guess things user has already retooted???)
     if (toot?.reblog?.reblogged) {
-        console.log(`Removed reblogged toot # : `, toot);
+        console.log(`Removed retoot of id # : `, toot);
         return false;
     }
 
