@@ -32,6 +32,7 @@ async function getHomeFeed(api, _user) {
             break;
         }
     }
+    console.debug(`getHomeFeed() returning ${toots.length} toots...`);
     return toots;
 }
 exports.default = getHomeFeed;
