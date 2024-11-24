@@ -15,10 +15,10 @@ class InteractionsFeatureScorer extends FeatureScorer_1.default {
             scoreName: "Interacts",
         });
     }
-    async score(_api, toot) {
+    async score(toot) {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
 exports.default = InteractionsFeatureScorer;
 ;
-//# sourceMappingURL=interactsFeatureScorer.js.map
+//# sourceMappingURL=InteractionsFeatureScorer.js.map

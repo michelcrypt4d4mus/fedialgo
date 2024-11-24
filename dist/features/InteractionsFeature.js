@@ -5,7 +5,7 @@ const NUM_PAGES_TO_SCAN = 3;
 const MIN_RECORDS = 80;
 async function InteractionsFeature(api) {
     const results = await (0, helpers_1.mastodonFetchPages)(api.v1.notifications.list, NUM_PAGES_TO_SCAN, MIN_RECORDS);
-    console.log(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
+    console.debug(`Retrieved notifications with InteractionsFeature() and mastodonFetchPages(): `, results);
     const interactFrequ = results.reduce((interactionCount, notification) => {
         if (!notification.account)
             return interactionCount;
@@ -16,4 +16,4 @@ async function InteractionsFeature(api) {
 }
 exports.default = InteractionsFeature;
 ;
-//# sourceMappingURL=interactsFeature.js.map
+//# sourceMappingURL=InteractionsFeature.js.map
