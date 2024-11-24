@@ -10,7 +10,7 @@ const helpers_2 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_SERVERS_TO_POLL = 10;
-const NUM_TRENDING_POSTS_PER_SERVER = 10;
+const NUM_TRENDING_TOOTS_PER_SERVER = 10;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function topPostsFeed(api) {
     const coreServers = await FeatureStore_1.default.getCoreServer(api);
@@ -33,17 +33,18 @@ async function topPostsFeed(api) {
         }
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a topPost score property that is reverse-ordered, e.g most popular trending
-        // toot gets NUM_TRENDING_POSTS_PER_SERVER points, least trending gets 1).
+        // toot gets NUM_TRENDING_TOOTS_PER_SERVER points, least trending gets 1).
         serverTopToots = serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
-            .slice(0, NUM_TRENDING_POSTS_PER_SERVER)
+            .slice(0, NUM_TRENDING_TOOTS_PER_SERVER)
             .map((toot, i) => {
             // Inject the @server info to the account string
             const acct = toot.account.acct;
             if (acct && !acct.includes("@")) {
                 toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
             }
-            // Inject topPost scoring // TODO: maybe should be placed in top.scores.topPost variable/
-            toot.topPost = NUM_TRENDING_POSTS_PER_SERVER - i;
+            // Inject trendingRank score
+            // TODO: maybe should be placed in top.scores.trendingRank variable/
+            toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i;
             return toot;
         });
         console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TopPostFeatureScorer = exports.reblogsFeedScorer = exports.reblogsFeatureScorer = exports.numRepliesScorer = exports.numFavoritesScorer = exports.InteractionsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
+exports.TopPostFeatureScorer = exports.ReblogsFeedScorer = exports.reblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
 const chaosFeatureScorer_1 = __importDefault(require("./feature/chaosFeatureScorer"));
 exports.chaosFeatureScorer = chaosFeatureScorer_1.default;
 const diversityFeedScorer_1 = __importDefault(require("./feed/diversityFeedScorer"));
@@ -17,13 +17,13 @@ exports.FeedScorer = FeedScorer_1.default;
 const InteractionsFeatureScorer_1 = __importDefault(require("./feature/InteractionsFeatureScorer"));
 exports.InteractionsFeatureScorer = InteractionsFeatureScorer_1.default;
 const numFavoritesScorer_1 = __importDefault(require("./feature/numFavoritesScorer"));
-exports.numFavoritesScorer = numFavoritesScorer_1.default;
+exports.NumFavoritesScorer = numFavoritesScorer_1.default;
 const numRepliesScorer_1 = __importDefault(require("./feature/numRepliesScorer"));
-exports.numRepliesScorer = numRepliesScorer_1.default;
+exports.NumRepliesScorer = numRepliesScorer_1.default;
 const reblogsFeatureScorer_1 = __importDefault(require("./feature/reblogsFeatureScorer"));
 exports.reblogsFeatureScorer = reblogsFeatureScorer_1.default;
 const reblogsFeedScorer_1 = __importDefault(require("./feed/reblogsFeedScorer"));
-exports.reblogsFeedScorer = reblogsFeedScorer_1.default;
+exports.ReblogsFeedScorer = reblogsFeedScorer_1.default;
 const topPostFeatureScorer_1 = __importDefault(require("./feature/topPostFeatureScorer"));
 exports.TopPostFeatureScorer = topPostFeatureScorer_1.default;
 //# sourceMappingURL=index.js.map

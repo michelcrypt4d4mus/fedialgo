@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
 const DEFAULT_REBLOGS_WEIGHT = 2;
+const SCORE_NAME = "RetootedInFeed";
 // TODO: rename retootsFeedScorer
-class reblogsFeedScorer extends FeedScorer_1.default {
+class ReblogsFeedScorer extends FeedScorer_1.default {
     constructor() {
-        super("reblogsFeed", // TODO: rename to reblogCount
-        "Favor toots that have been retooted many times", DEFAULT_REBLOGS_WEIGHT);
+        super(SCORE_NAME, "Favor toots that have been retooted by accounts in your feed", DEFAULT_REBLOGS_WEIGHT);
     }
     // for each uri in the feed, count the number of times it appears
     feedExtractor(feed) {
@@ -26,6 +26,6 @@ class reblogsFeedScorer extends FeedScorer_1.default {
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
 }
-exports.default = reblogsFeedScorer;
+exports.default = ReblogsFeedScorer;
 ;
 //# sourceMappingURL=reblogsFeedScorer.js.map

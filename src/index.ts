@@ -8,15 +8,15 @@ import {
     diversityFeedScorer,
     favsFeatureScorer,
     InteractionsFeatureScorer,
-    numFavoritesScorer,
-    numRepliesScorer,
+    NumFavoritesScorer,
+    NumRepliesScorer,
     reblogsFeatureScorer,
-    reblogsFeedScorer,
+    ReblogsFeedScorer,
     TopPostFeatureScorer
 } from "./scorer";
 import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
-import { TRENDING_POSTS } from "./scorer/feature/topPostFeatureScorer";
+import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";
@@ -44,8 +44,8 @@ class TheAlgorithm {
         new chaosFeatureScorer(),
         new favsFeatureScorer(),
         new InteractionsFeatureScorer(),
-        new numFavoritesScorer(),
-        new numRepliesScorer(),
+        new NumFavoritesScorer(),
+        new NumRepliesScorer(),
         new reblogsFeatureScorer(),
         new TopPostFeatureScorer(),
     ];
@@ -53,7 +53,7 @@ class TheAlgorithm {
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [
         new diversityFeedScorer(),
-        new reblogsFeedScorer(),
+        new ReblogsFeedScorer(),
     ];
 
     constructor(
@@ -265,7 +265,7 @@ class TheAlgorithm {
     private async _computeFinalScore(scores: ScoresType): Promise<number> {
         console.debug(`_computeFinalScore() called with 'scores' arg: `, scores);
         const userWeightings = await WeightsStore.getUserWeightsMulti(Object.keys(scores));
-        const trendingTootWeighting = userWeightings[TRENDING_POSTS] || 0;
+        const trendingTootWeighting = userWeightings[TRENDING_TOOTS] || 0;
 
         let score = Object.keys(scores).reduce((score: number, scoreName: string) => {
             return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
@@ -274,7 +274,7 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        if (scores[TRENDING_POSTS] > 0 && trendingTootWeighting < 1.0) {
+        if (scores[TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
             console.debug(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
             score *= trendingTootWeighting;
         }

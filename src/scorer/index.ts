@@ -4,10 +4,10 @@ import favsFeatureScorer from "./feature/favsFeatureScorer";
 import FeatureScorer from "./FeatureScorer";
 import FeedScorer from "./FeedScorer";
 import InteractionsFeatureScorer from "./feature/InteractionsFeatureScorer";
-import numFavoritesScorer from "./feature/numFavoritesScorer";
-import numRepliesScorer from "./feature/numRepliesScorer";
+import NumFavoritesScorer from "./feature/numFavoritesScorer";
+import NumRepliesScorer from "./feature/numRepliesScorer";
 import reblogsFeatureScorer from "./feature/reblogsFeatureScorer";
-import reblogsFeedScorer from "./feed/reblogsFeedScorer";
+import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
 import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
 
 
@@ -18,9 +18,9 @@ export {
     FeedScorer,
     FeatureScorer,
     InteractionsFeatureScorer,
-    numFavoritesScorer,
-    numRepliesScorer,
+    NumFavoritesScorer,
+    NumRepliesScorer,
     reblogsFeatureScorer,
-    reblogsFeedScorer,
+    ReblogsFeedScorer,
     TopPostFeatureScorer,
 };

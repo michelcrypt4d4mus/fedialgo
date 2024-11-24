@@ -22,7 +22,7 @@ export interface Toot extends mastodon.v1.Status {
     scores?: ScoresType;
     similarity?: number;
     timeDecayMultiplier?: number;  // Multiplier that reduces the score of older posts
-    topPost?: number;
+    trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
     value?: number;
     weightedScores?: ScoresType;
 };

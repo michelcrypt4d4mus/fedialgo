@@ -17,7 +17,7 @@ export interface Toot extends mastodon.v1.Status {
     scores?: ScoresType;
     similarity?: number;
     timeDecayMultiplier?: number;
-    topPost?: number;
+    trendingRank?: number;
     value?: number;
     weightedScores?: ScoresType;
 }

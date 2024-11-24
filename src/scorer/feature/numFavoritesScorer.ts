@@ -1,19 +1,19 @@
 /*
  * Score how many times the toot has been favorited by other users.
  */
-import { mastodon } from 'masto';
-
 import FeatureScorer from '../FeatureScorer';
-import FeatureStorage from '../../features/FeatureStore';
 import { Toot } from '../../types';
 
+const SCORE_NAME = "NumFavourites";
 
-export default class numFavoritesScorer extends FeatureScorer {
+
+// TODO: unclear whether favorites are pulled from servers other than the users' home server
+export default class NumFavoritesScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favor toots that have been favorited by a lot of other users",
+            description: "Favor toots that have been favourited by a lot of other users",
             defaultWeight: 1,
-            scoreName: "numFavorites",
+            scoreName: SCORE_NAME,
         })
     }
 

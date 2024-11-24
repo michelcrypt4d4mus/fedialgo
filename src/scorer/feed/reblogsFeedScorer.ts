@@ -2,14 +2,15 @@ import FeedScorer from "../FeedScorer";
 import { Toot } from "../../types";
 
 const DEFAULT_REBLOGS_WEIGHT = 2;
+const SCORE_NAME = "RetootedInFeed";
 
 
 // TODO: rename retootsFeedScorer
-export default class reblogsFeedScorer extends FeedScorer {
+export default class ReblogsFeedScorer extends FeedScorer {
     constructor() {
         super(
-            "reblogsFeed",  // TODO: rename to reblogCount
-            "Favor toots that have been retooted many times",
+            SCORE_NAME,
+            "Favor toots that have been retooted by accounts in your feed",
             DEFAULT_REBLOGS_WEIGHT
         );
     }

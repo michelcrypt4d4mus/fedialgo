@@ -33,15 +33,15 @@ class TheAlgorithm {
         new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),
         new scorer_1.InteractionsFeatureScorer(),
-        new scorer_1.numFavoritesScorer(),
-        new scorer_1.numRepliesScorer(),
+        new scorer_1.NumFavoritesScorer(),
+        new scorer_1.NumRepliesScorer(),
         new scorer_1.reblogsFeatureScorer(),
         new scorer_1.TopPostFeatureScorer(),
     ];
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [
         new scorer_1.diversityFeedScorer(),
-        new scorer_1.reblogsFeedScorer(),
+        new scorer_1.ReblogsFeedScorer(),
     ];
     constructor(api, user, valueCalculator = null) {
         this.api = api;
@@ -212,14 +212,14 @@ class TheAlgorithm {
     async _computeFinalScore(scores) {
         console.debug(`_computeFinalScore() called with 'scores' arg: `, scores);
         const userWeightings = await weightsStore_1.default.getUserWeightsMulti(Object.keys(scores));
-        const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_POSTS] || 0;
+        const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
         let score = Object.keys(scores).reduce((score, scoreName) => {
             return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
         }, 0);
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        if (scores[topPostFeatureScorer_1.TRENDING_POSTS] > 0 && trendingTootWeighting < 1.0) {
+        if (scores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
             console.debug(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
             score *= trendingTootWeighting;
         }
