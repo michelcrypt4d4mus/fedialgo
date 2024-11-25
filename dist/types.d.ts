@@ -12,7 +12,7 @@ export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     rawScore?: number;
     reblog?: Toot;
-    reblogBy?: string;
+    reblogBy?: mastodon.v1.Account;
     recommended?: boolean;
     scores?: ScoresType;
     similarity?: number;
