@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
-const MAX_PAGES = 8;
-const MAX_TIMELINE_HOURS = 72;
+const MAX_PAGES = 12;
+const MAX_TIMELINE_HOURS = 96;
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 const LAST_OPENED_LOOKBACK_MS = 60 * 1000; // Lookback an extra minute beyond last opened time just in case
 async function getHomeFeed(api, _user) {
