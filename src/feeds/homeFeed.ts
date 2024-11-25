@@ -9,8 +9,8 @@ import Storage from "../Storage";
 import { DEFAULT_RECORDS_PER_PAGE } from "../helpers";
 import { Toot } from "../types";
 
-const MAX_PAGES = 8;
-const MAX_TIMELINE_HOURS = 72;
+const MAX_PAGES = 12;
+const MAX_TIMELINE_HOURS = 96;
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 const LAST_OPENED_LOOKBACK_MS = 60 * 1000;  // Lookback an extra minute beyond last opened time just in case
 
