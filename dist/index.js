@@ -32,11 +32,13 @@ class TheAlgorithm {
     featureScorers = [
         new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),
+        new scorer_1.ImageAttachmentScorer(),
         new scorer_1.InteractionsFeatureScorer(),
         new scorer_1.NumFavoritesScorer(),
         new scorer_1.NumRepliesScorer(),
         new scorer_1.reblogsFeatureScorer(),
         new scorer_1.TopPostFeatureScorer(),
+        new scorer_1.VideoAttachmentScorer(),
     ];
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [

@@ -7,12 +7,14 @@ import {
     chaosFeatureScorer,
     diversityFeedScorer,
     favsFeatureScorer,
+    ImageAttachmentScorer,
     InteractionsFeatureScorer,
     NumFavoritesScorer,
     NumRepliesScorer,
     reblogsFeatureScorer,
     ReblogsFeedScorer,
-    TopPostFeatureScorer
+    TopPostFeatureScorer,
+    VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
@@ -43,11 +45,13 @@ class TheAlgorithm {
     featureScorers = [
         new chaosFeatureScorer(),
         new favsFeatureScorer(),
+        new ImageAttachmentScorer(),
         new InteractionsFeatureScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new reblogsFeatureScorer(),
         new TopPostFeatureScorer(),
+        new VideoAttachmentScorer(),
     ];
 
     // I think these scorers require the complete list and info about past user behavior to work?

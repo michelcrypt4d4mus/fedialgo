@@ -32,7 +32,8 @@ export default class FeatureScorer {
         this.featureGetter = params.featureGetter || (async () => { return {} });
         this._scoreName = params.scoreName;
         this._description = params.description || "";
-        this._defaultWeight = params.defaultWeight || 1;
+        // Take care not to overwrite a 0 default weight with a 1
+        this._defaultWeight = params.defaultWeight == 0 ? 0 : (params.defaultWeight || 1);
     }
 
     // TODO: this seems backwards???

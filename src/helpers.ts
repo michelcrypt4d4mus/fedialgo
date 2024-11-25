@@ -138,3 +138,22 @@ export const describeAccount = (toot: Toot): string => {
 export const describeToot = (toot: Toot): string => {
     return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
 };
+
+
+// Extract attachments from Toots
+export const imageAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
+    return attachmentsOfType(toot, "image");
+};
+
+export const videoAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
+    return attachmentsOfType(toot, "video");
+};
+
+const attachmentsOfType = (
+    toot: Toot,
+    attachmentType: mastodon.v1.MediaAttachmentType
+): Array<mastodon.v1.MediaAttachment> => {
+    if (toot.reblog) toot = toot.reblog;
+    if (!toot.mediaAttachments) return [];
+    return toot.mediaAttachments.filter(att => att.type === attachmentType);
+};

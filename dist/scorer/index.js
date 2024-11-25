@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TopPostFeatureScorer = exports.ReblogsFeedScorer = exports.reblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
+exports.VideoAttachmentScorer = exports.TopPostFeatureScorer = exports.ReblogsFeedScorer = exports.reblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.ImageAttachmentScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
 const chaosFeatureScorer_1 = __importDefault(require("./feature/chaosFeatureScorer"));
 exports.chaosFeatureScorer = chaosFeatureScorer_1.default;
 const diversityFeedScorer_1 = __importDefault(require("./feed/diversityFeedScorer"));
@@ -14,6 +14,8 @@ const FeatureScorer_1 = __importDefault(require("./FeatureScorer"));
 exports.FeatureScorer = FeatureScorer_1.default;
 const FeedScorer_1 = __importDefault(require("./FeedScorer"));
 exports.FeedScorer = FeedScorer_1.default;
+const ImageAttachmentScorer_1 = __importDefault(require("./feature/ImageAttachmentScorer"));
+exports.ImageAttachmentScorer = ImageAttachmentScorer_1.default;
 const InteractionsFeatureScorer_1 = __importDefault(require("./feature/InteractionsFeatureScorer"));
 exports.InteractionsFeatureScorer = InteractionsFeatureScorer_1.default;
 const numFavoritesScorer_1 = __importDefault(require("./feature/numFavoritesScorer"));
@@ -26,4 +28,6 @@ const reblogsFeedScorer_1 = __importDefault(require("./feed/reblogsFeedScorer"))
 exports.ReblogsFeedScorer = reblogsFeedScorer_1.default;
 const topPostFeatureScorer_1 = __importDefault(require("./feature/topPostFeatureScorer"));
 exports.TopPostFeatureScorer = topPostFeatureScorer_1.default;
+const VideoAttachmentScorer_1 = __importDefault(require("./feature/VideoAttachmentScorer"));
+exports.VideoAttachmentScorer = VideoAttachmentScorer_1.default;
 //# sourceMappingURL=index.js.map
