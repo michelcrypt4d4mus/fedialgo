@@ -13,6 +13,10 @@ export type ServerFeature = {
     [key: mastodon.v1.Instance["uri"]]: number;
 };
 
+export type TootURIs = {
+    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
+};
+
 export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     rawScore?: number;  // Score before applying timeDecayMultiplier
@@ -29,4 +33,4 @@ export interface Toot extends mastodon.v1.Status {
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;
-export type StorageValue = ServerFeature | AccountFeature | mastodon.v1.Account | ScoresType | string;
+export type StorageValue = AccountFeature | ScoresType | ServerFeature | TootURIs | mastodon.v1.Account | string;

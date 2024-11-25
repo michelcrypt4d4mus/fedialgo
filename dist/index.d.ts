@@ -2,6 +2,7 @@ import { mastodon } from "masto";
 import { chaosFeatureScorer, diversityFeedScorer, favsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, reblogsFeatureScorer, ReblogsFeedScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
 import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
+import FeatureStore from "./features/FeatureStore";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 declare const TIME_DECAY = "TimeDecay";
@@ -25,4 +26,4 @@ declare class TheAlgorithm {
     private _computeFinalScore;
     private _getScoreObj;
 }
-export { DEFAULT_TIME_DECAY, TIME_DECAY, condensedStatus, extractScoreInfo, ScoresType, TheAlgorithm, Toot, };
+export { DEFAULT_TIME_DECAY, TIME_DECAY, condensedStatus, extractScoreInfo, FeatureStore, ScoresType, TheAlgorithm, Toot, };

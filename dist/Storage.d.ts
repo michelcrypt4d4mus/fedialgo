@@ -4,6 +4,7 @@ export declare enum Key {
     CORE_SERVER = "coreServer",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
+    RECENT_TOOTS = "recentToots",
     TOP_FAVS = "favs",
     TOP_INTERACTS = "interacts",
     TOP_REBLOGS = "reblogs",

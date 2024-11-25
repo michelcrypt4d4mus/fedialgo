@@ -6,9 +6,10 @@ import { mastodon } from "masto";
 import coreServerFeature from "./coreServerFeature";
 import FavsFeature from "./favsFeature";
 import InteractionsFeature from "./InteractionsFeature";
-import reblogsFeature from "./reblogsFeature";
+import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import Storage, { Key } from "../Storage";
-import { ServerFeature, AccountFeature } from "../types";
+import { AccountFeature, ServerFeature, Toot, TootURIs } from "../types";
+import { describeAccount } from "../helpers";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -21,28 +22,52 @@ export default class FeatureStorage extends Storage {
         let topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
 
         if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("Loaded accounts user has favorited the most from storage...");
+            console.log("[FeatureStorage] Loaded accounts user has favorited the most from storage...");
         } else {
             topFavs = await FavsFeature(api);
             await this.set(Key.TOP_FAVS, topFavs);
         }
 
-        console.log("[Feature] Accounts user has favorited the most", topFavs);
+        console.log("[FeatureStorage] Accounts user has favorited the most", topFavs);
         return topFavs;
+    }
+
+    // Get the users recent toots
+    // TODO: probably shouldn't load these from storage usually?
+    static async getRecentToots(api: mastodon.rest.Client): Promise<TootURIs> {
+        let recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs;
+
+        if (recentTootURIs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[FeatureStorage] Loaded user's toots from storage...");
+        } else {
+            const user = await this.getIdentity();
+            const recentToots = await getUserRecentToots(api, user);
+            console.log(`[FeatureStorage] Retrieved recentToots: `, recentToots);
+
+            recentTootURIs = recentToots.reduce((acc, toot) => {
+                acc[toot.reblog?.uri || toot.uri] = toot;
+                return acc;
+            }, {} as TootURIs);
+
+            await this.set(Key.RECENT_TOOTS, recentTootURIs);
+        }
+
+        console.log("[FeatureStorage] User's recent toot URIs", Object.values(recentTootURIs));
+        return recentTootURIs;
     }
 
     static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
 
         if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("Loaded accounts user has reooted the most from storage...");
+            console.log("[FeatureStorage] Loaded accounts user has reooted the most from storage...");
         } else {
             const user = await this.getIdentity();
-            topReblogs = await reblogsFeature(api, user);
+            topReblogs = await reblogsFeature(api, user, Object.values(await this.getRecentToots(api)));
             await this.set(Key.TOP_REBLOGS, topReblogs);
         }
 
-        console.log("[Feature] Accounts user has retooted the most", topReblogs);
+        console.log("[FeatureStorage] Accounts user has retooted the most", topReblogs);
         return topReblogs;
     }
 
@@ -50,13 +75,13 @@ export default class FeatureStorage extends Storage {
         let topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
 
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("Loaded accounts that have interacted the most with user's toots from storage");
+            console.log("[FeatureStorage] Loaded accounts that have interacted the most with user's toots from storage");
         } else {
             topInteracts = await InteractionsFeature(api);
             await this.set(Key.TOP_INTERACTS, topInteracts);
         }
 
-        console.log("[Feature] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log("[FeatureStorage] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
     }
 
@@ -65,14 +90,29 @@ export default class FeatureStorage extends Storage {
         let coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
 
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("Loaded coreServer from storage");
+            console.log("[FeatureStorage] Loaded coreServer from storage");
         } else {
             const user = await this.getIdentity();
             coreServer = await coreServerFeature(api, user);
             await this.set(Key.CORE_SERVER, coreServer);
         }
 
-        console.log("getCoreServer() info: ", coreServer);
+        console.log("[FeatureStorage] getCoreServer() info: ", coreServer);
         return coreServer;
+    }
+
+    // Check if user retooted a given toot
+    static async didUserRetoot(toot: Toot): Promise<boolean> {
+        const recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs || {};
+        const didRetoot = (toot.uri in recentTootURIs);
+        const tootURIs = Object.keys(recentTootURIs);
+        const account = describeAccount(toot);
+
+        if (account.split(' ')[0] === 'Dave') {
+            console.log(`[FeatureStorage] didUserRetoot() checked ${tootURIs.length} records for URI ${toot.uri} by ${account} determined to be ${didRetoot} with toot: `, toot);
+            console.log(`[FeatureStorage] tootURIs: `, tootURIs);
+        }
+
+        return didRetoot;
     }
 };

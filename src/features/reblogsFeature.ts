@@ -8,12 +8,10 @@ import { mastodonFetchPages } from "../helpers";
 
 export default async function reblogsFeature(
     api: mastodon.rest.Client,
-    user: mastodon.v1.Account
+    user: mastodon.v1.Account,
+    recentToots?: mastodon.v1.Status[]
 ): Promise<Record<string, number>> {
-    const recentToots = await mastodonFetchPages<mastodon.v1.Status>(
-        api.v1.accounts.$select(user.id).statuses.list,
-    );
-
+    recentToots ||= await getUserRecentToots(api, user);
     const recentRetoots = recentToots.filter(toot => toot?.reblog);
     console.log(`Recent toot history: `, recentToots);
     console.log(`Recent retoot history: `, recentRetoots);
@@ -28,5 +26,15 @@ export default async function reblogsFeature(
             return counts;
         },
         {}
+    );
+};
+
+
+export function getUserRecentToots(
+    api: mastodon.rest.Client,
+    user: mastodon.v1.Account
+): Promise<mastodon.v1.Status[]> {
+    return mastodonFetchPages<mastodon.v1.Status>(
+        api.v1.accounts.$select(user.id).statuses.list,
     );
 };

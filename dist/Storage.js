@@ -10,6 +10,7 @@ var Key;
     Key["CORE_SERVER"] = "coreServer";
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
+    Key["RECENT_TOOTS"] = "recentToots";
     Key["TOP_FAVS"] = "favs";
     Key["TOP_INTERACTS"] = "interacts";
     Key["TOP_REBLOGS"] = "reblogs";
