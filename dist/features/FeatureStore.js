@@ -31,7 +31,6 @@ const favsFeature_1 = __importDefault(require("./favsFeature"));
 const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
 const Storage_1 = __importStar(require("../Storage"));
-const helpers_1 = require("../helpers");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
@@ -107,18 +106,6 @@ class FeatureStorage extends Storage_1.default {
         }
         console.log("[FeatureStorage] getCoreServer() info: ", coreServer);
         return coreServer;
-    }
-    // Check if user retooted a given toot
-    static async didUserRetoot(toot) {
-        const recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS) || {};
-        const didRetoot = (toot.uri in recentTootURIs);
-        const tootURIs = Object.keys(recentTootURIs);
-        const account = (0, helpers_1.describeAccount)(toot);
-        if (account.split(' ')[0] === 'Dave') {
-            console.log(`[FeatureStorage] didUserRetoot() checked ${tootURIs.length} records for URI ${toot.uri} by ${account} determined to be ${didRetoot} with toot: `, toot);
-            console.log(`[FeatureStorage] tootURIs: `, tootURIs);
-        }
-        return didRetoot;
     }
 }
 exports.default = FeatureStorage;
