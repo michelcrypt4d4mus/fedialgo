@@ -100,19 +100,4 @@ export default class FeatureStorage extends Storage {
         console.log("[FeatureStorage] getCoreServer() info: ", coreServer);
         return coreServer;
     }
-
-    // Check if user retooted a given toot
-    static async didUserRetoot(toot: Toot): Promise<boolean> {
-        const recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs || {};
-        const didRetoot = (toot.uri in recentTootURIs);
-        const tootURIs = Object.keys(recentTootURIs);
-        const account = describeAccount(toot);
-
-        if (account.split(' ')[0] === 'Dave') {
-            console.log(`[FeatureStorage] didUserRetoot() checked ${tootURIs.length} records for URI ${toot.uri} by ${account} determined to be ${didRetoot} with toot: `, toot);
-            console.log(`[FeatureStorage] tootURIs: `, tootURIs);
-        }
-
-        return didRetoot;
-    }
 };
