@@ -301,7 +301,6 @@ class TheAlgorithm {
 
 const isValidForFeed = (toot: Toot): boolean => {
     if (toot == undefined) return false;
-    if (toot?.inReplyToId !== null) return false;  // Remove replies
     if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
     if (toot?.content?.includes("RT @")) return false;  // Remove retweets (???)
 
