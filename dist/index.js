@@ -35,6 +35,7 @@ class TheAlgorithm {
     featureScorers = [
         new scorer_1.chaosFeatureScorer(),
         new scorer_1.favsFeatureScorer(),
+        new scorer_1.FollowedTagsFeatureScorer(),
         new scorer_1.ImageAttachmentScorer(),
         new scorer_1.InteractionsFeatureScorer(),
         new scorer_1.NumFavoritesScorer(),

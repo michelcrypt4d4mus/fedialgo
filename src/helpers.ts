@@ -89,7 +89,7 @@ export async function mastodonFetchPages<T>({
     }
 
     return results;
-}
+};
 
 
 // Returns a simplified version of the toot for logging

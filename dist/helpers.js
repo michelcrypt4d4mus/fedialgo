@@ -74,6 +74,7 @@ async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
     return results;
 }
 exports.mastodonFetchPages = mastodonFetchPages;
+;
 // Returns a simplified version of the toot for logging
 const condensedStatus = (toot) => {
     // Contents of toot (the text)

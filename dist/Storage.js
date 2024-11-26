@@ -8,12 +8,13 @@ const async_storage_1 = __importDefault(require("@react-native-async-storage/asy
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
+    Key["FOLLOWED_TAGS"] = "FollowedTags";
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
     Key["RECENT_TOOTS"] = "recentToots";
-    Key["TOP_FAVS"] = "favs";
-    Key["TOP_INTERACTS"] = "interacts";
-    Key["TOP_REBLOGS"] = "reblogs";
+    Key["TOP_FAVS"] = "Favs";
+    Key["TOP_INTERACTS"] = "Interactions";
+    Key["TOP_REBLOGS"] = "MostRetootedAccounts";
     Key["USER"] = "algouser";
     Key["WEIGHTS"] = "weights";
 })(Key || (exports.Key = Key = {}));

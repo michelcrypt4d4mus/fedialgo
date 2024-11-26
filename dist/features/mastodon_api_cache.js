@@ -28,6 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("./coreServerFeature"));
 const favsFeature_1 = __importDefault(require("./favsFeature"));
+const followed_tags_feature_1 = __importDefault(require("./followed_tags_feature"));
 const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -92,6 +93,18 @@ class MastodonApiCache extends Storage_1.default {
         }
         console.log("[MastodonApiCache] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
+    }
+    static async getFollowedTags(api) {
+        let followedTags = await this.get(Storage_1.Key.FOLLOWED_TAGS);
+        if (followedTags != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[MastodonApiCache] Loaded followed tags from storage");
+        }
+        else {
+            followedTags = await (0, followed_tags_feature_1.default)(api);
+            await this.set(Storage_1.Key.FOLLOWED_TAGS, followedTags);
+        }
+        console.log("[MastodonApiCache] Followed tags", followedTags);
+        return followedTags;
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {

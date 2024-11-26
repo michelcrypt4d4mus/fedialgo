@@ -6,10 +6,11 @@ import { mastodon } from "masto";
 
 import coreServerFeature from "./coreServerFeature";
 import FavsFeature from "./favsFeature";
+import FollowedTagsFeature from "./followed_tags_feature";
 import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, ServerFeature, TootURIs } from "../types";
+import { AccountFeature, ServerFeature, TagFeature, TootURIs } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -83,6 +84,20 @@ export default class MastodonApiCache extends Storage {
 
         console.log("[MastodonApiCache] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
+    }
+
+    static async getFollowedTags(api: mastodon.rest.Client): Promise<TagFeature> {
+        let followedTags: TagFeature = await this.get(Key.FOLLOWED_TAGS) as TagFeature;
+
+        if (followedTags != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[MastodonApiCache] Loaded followed tags from storage");
+        } else {
+            followedTags = await FollowedTagsFeature(api);
+            await this.set(Key.FOLLOWED_TAGS, followedTags);
+        }
+
+        console.log("[MastodonApiCache] Followed tags", followedTags);
+        return followedTags;
     }
 
     // Returns information about mastodon servers

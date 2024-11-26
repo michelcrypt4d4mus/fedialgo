@@ -5,6 +5,7 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../FeatureScorer';
 import MastodonApiCache from '../../features/mastodon_api_cache';
+import { Key } from '../../Storage';
 import { Toot } from '../../types';
 
 
@@ -14,8 +15,8 @@ export default class favsFeatureScorer extends FeatureScorer {
             description: "Favour toots from users whose toots you have favorited",
             defaultWeight: 1,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFavoritedAccounts(api),
-            scoreName: "Favs",
-        })
+            scoreName: Key.TOP_FAVS,
+        });
     }
 
     async score(toot: Toot) {

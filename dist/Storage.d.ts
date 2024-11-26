@@ -2,12 +2,13 @@ import { mastodon } from "masto";
 import { StorageValue } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
+    FOLLOWED_TAGS = "FollowedTags",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
-    TOP_FAVS = "favs",
-    TOP_INTERACTS = "interacts",
-    TOP_REBLOGS = "reblogs",
+    TOP_FAVS = "Favs",
+    TOP_INTERACTS = "Interactions",
+    TOP_REBLOGS = "MostRetootedAccounts",
     USER = "algouser",
     WEIGHTS = "weights"
 }

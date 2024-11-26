@@ -1,14 +1,14 @@
 import { mastodon } from "masto";
-import { AccountFeature, Toot } from "../types";
+import { AccountFeature, TagFeature, Toot } from "../types";
 interface RankParams {
     description?: string;
     defaultWeight?: number;
-    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature>;
+    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature | TagFeature>;
     scoreName: string;
 }
 export default class FeatureScorer {
-    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature>;
-    feature: AccountFeature;
+    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature | TagFeature>;
+    feature: AccountFeature | TagFeature;
     private _description;
     private _defaultWeight;
     private _isReady;

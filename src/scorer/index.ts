@@ -3,6 +3,7 @@ import diversityFeedScorer from "./feed/diversityFeedScorer";
 import favsFeatureScorer from "./feature/favsFeatureScorer";
 import FeatureScorer from "./FeatureScorer";
 import FeedScorer from "./FeedScorer";
+import FollowedTagsFeatureScorer from "./feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./feature/InteractionsFeatureScorer";
 import NumFavoritesScorer from "./feature/numFavoritesScorer";
@@ -19,6 +20,7 @@ export {
     favsFeatureScorer,
     FeedScorer,
     FeatureScorer,
+    FollowedTagsFeatureScorer,
     ImageAttachmentScorer,
     InteractionsFeatureScorer,
     NumFavoritesScorer,

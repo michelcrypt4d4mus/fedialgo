@@ -1,3 +1,6 @@
+`2024-11-26`
+* Add `FollowedTagsScorer`
+
 `2024-11-25`
 * `reblogBy` should be an `Account` not a string
 * Don't filter out replies from feed (filtering replies is now an option on the front end)

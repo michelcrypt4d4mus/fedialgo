@@ -7,6 +7,7 @@ import {
     chaosFeatureScorer,
     diversityFeedScorer,
     favsFeatureScorer,
+    FollowedTagsFeatureScorer,
     ImageAttachmentScorer,
     InteractionsFeatureScorer,
     NumFavoritesScorer,
@@ -46,6 +47,7 @@ class TheAlgorithm {
     featureScorers = [
         new chaosFeatureScorer(),
         new favsFeatureScorer(),
+        new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
         new InteractionsFeatureScorer(),
         new NumFavoritesScorer(),
