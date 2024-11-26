@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const FeatureStore_1 = __importDefault(require("../features/FeatureStore"));
+const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const helpers_2 = require("../helpers");
@@ -13,7 +13,7 @@ const NUM_SERVERS_TO_POLL = 10;
 const NUM_TRENDING_TOOTS_PER_SERVER = 10;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function topPostsFeed(api) {
-    const coreServers = await FeatureStore_1.default.getCoreServer(api);
+    const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);
     // Get list of top mastodon servers // TODO: what does "top" mean here?
     const topServerDomains = Object.keys(coreServers)
         .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)

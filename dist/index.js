@@ -3,14 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.FeatureStore = exports.extractScoreInfo = exports.condensedStatus = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.extractScoreInfo = exports.condensedStatus = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
 Object.defineProperty(exports, "extractScoreInfo", { enumerable: true, get: function () { return helpers_1.extractScoreInfo; } });
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
-const FeatureStore_1 = __importDefault(require("./features/FeatureStore"));
-exports.FeatureStore = FeatureStore_1.default;
+const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));
+exports.MastodonApiCache = mastodon_api_cache_1.default;
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importDefault(require("./Storage"));

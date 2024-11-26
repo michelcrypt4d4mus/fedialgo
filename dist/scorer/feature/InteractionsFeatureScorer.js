@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
-const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
+const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_api_cache"));
 const INTERACTIONS_DEFAULT_WEIGHT = 2;
 const SCORE_NAME = "Interactions";
 class InteractionsFeatureScorer extends FeatureScorer_1.default {
@@ -12,7 +12,7 @@ class InteractionsFeatureScorer extends FeatureScorer_1.default {
         super({
             description: "Favour toots from users that interact with your toots",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
-            featureGetter: (api) => FeatureStore_1.default.getTopInteracts(api),
+            featureGetter: (api) => mastodon_api_cache_1.default.getTopInteracts(api),
             scoreName: SCORE_NAME,
         });
     }

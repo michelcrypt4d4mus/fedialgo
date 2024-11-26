@@ -19,7 +19,7 @@ import {
 import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
-import FeatureStore from "./features/FeatureStore";
+import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";
@@ -326,7 +326,7 @@ export {
     TIME_DECAY,
     condensedStatus,
     extractScoreInfo,
-    FeatureStore,
+    MastodonApiCache,
     ScoresType,
     TheAlgorithm,
     Toot,

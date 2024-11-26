@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
-const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
+const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_api_cache"));
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 const SCORE_NAME = "MostRetootedAccounts";
 // TODO: rename retootedUsersFeatureScorer
@@ -13,7 +13,7 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
         super({
             description: "Favour toots from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
-            featureGetter: (api) => FeatureStore_1.default.getMostRetootedAccounts(api),
+            featureGetter: (api) => mastodon_api_cache_1.default.getMostRetootedAccounts(api),
             scoreName: SCORE_NAME,
         });
     }

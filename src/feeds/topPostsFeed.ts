@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import FeatureStore from "../features/FeatureStore";
+import MastodonApiCache from "../features/mastodon_api_cache";
 import Storage from "../Storage";
 import { condensedStatus } from "../helpers";
 import { mastodonFetch } from "../helpers";
@@ -18,7 +18,7 @@ const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
 export default async function topPostsFeed(api: mastodon.rest.Client): Promise<Toot[]> {
-    const coreServers = await FeatureStore.getCoreServer(api);
+    const coreServers = await MastodonApiCache.getCoreServer(api);
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
     const topServerDomains = Object.keys(coreServers)

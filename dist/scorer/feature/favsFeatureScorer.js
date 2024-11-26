@@ -4,13 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
-const FeatureStore_1 = __importDefault(require("../../features/FeatureStore"));
+const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_api_cache"));
 class favsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favour toots from users whose toots you have favorited",
             defaultWeight: 1,
-            featureGetter: (api) => FeatureStore_1.default.getMostFavoritedAccounts(api),
+            featureGetter: (api) => mastodon_api_cache_1.default.getMostFavoritedAccounts(api),
             scoreName: "Favs",
         });
     }

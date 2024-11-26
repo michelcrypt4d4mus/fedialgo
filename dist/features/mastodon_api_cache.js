@@ -35,17 +35,17 @@ const Storage_1 = __importStar(require("../Storage"));
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
-class FeatureStore extends Storage_1.default {
+class MastodonApiCache extends Storage_1.default {
     static async getMostFavoritedAccounts(api) {
         let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
         if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStore] Loaded accounts user has favorited the most from storage...");
+            console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage...");
         }
         else {
             topFavs = await (0, favsFeature_1.default)(api);
             await this.set(Storage_1.Key.TOP_FAVS, topFavs);
         }
-        console.log("[FeatureStore] Accounts user has favorited the most", topFavs);
+        console.log("[MastodonApiCache] Accounts user has favorited the most", topFavs);
         return topFavs;
     }
     // Get the users recent toots
@@ -53,61 +53,61 @@ class FeatureStore extends Storage_1.default {
     static async getRecentToots(api) {
         let recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS);
         if (recentTootURIs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStore] Loaded user's toots from storage...");
+            console.log("[MastodonApiCache] Loaded user's toots from storage...");
         }
         else {
             const user = await this.getIdentity();
             const recentToots = await (0, reblogsFeature_1.getUserRecentToots)(api, user);
-            console.log(`[FeatureStore] Retrieved recentToots: `, recentToots);
+            console.log(`[MastodonApiCache] Retrieved recentToots: `, recentToots);
             recentTootURIs = recentToots.reduce((acc, toot) => {
                 acc[toot.reblog?.uri || toot.uri] = toot;
                 return acc;
             }, {});
             await this.set(Storage_1.Key.RECENT_TOOTS, recentTootURIs);
         }
-        console.log("[FeatureStore] User's recent toot URIs", Object.values(recentTootURIs));
+        console.log("[MastodonApiCache] User's recent toot URIs", Object.values(recentTootURIs));
         return recentTootURIs;
     }
     static async getMostRetootedAccounts(api) {
         let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
         if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStore] Loaded accounts user has reooted the most from storage...");
+            console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage...");
         }
         else {
             const user = await this.getIdentity();
             topReblogs = await (0, reblogsFeature_1.default)(api, user, Object.values(await this.getRecentToots(api)));
             await this.set(Storage_1.Key.TOP_REBLOGS, topReblogs);
         }
-        console.log("[FeatureStore] Accounts user has retooted the most", topReblogs);
+        console.log("[MastodonApiCache] Accounts user has retooted the most", topReblogs);
         return topReblogs;
     }
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStore] Loaded accounts that have interacted the most with user's toots from storage");
+            console.log("[MastodonApiCache] Loaded accounts that have interacted the most with user's toots from storage");
         }
         else {
             topInteracts = await (0, InteractionsFeature_1.default)(api);
             await this.set(Storage_1.Key.TOP_INTERACTS, topInteracts);
         }
-        console.log("[FeatureStore] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log("[MastodonApiCache] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
         let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("[FeatureStore] Loaded coreServer from storage");
+            console.log("[MastodonApiCache] Loaded coreServer from storage");
         }
         else {
             const user = await this.getIdentity();
             coreServer = await (0, coreServerFeature_1.default)(api, user);
             await this.set(Storage_1.Key.CORE_SERVER, coreServer);
         }
-        console.log("[FeatureStore] getCoreServer() info: ", coreServer);
+        console.log("[MastodonApiCache] getCoreServer() info: ", coreServer);
         return coreServer;
     }
 }
-exports.default = FeatureStore;
+exports.default = MastodonApiCache;
 ;
-//# sourceMappingURL=FeatureStore.js.map
+//# sourceMappingURL=mastodon_api_cache.js.map
