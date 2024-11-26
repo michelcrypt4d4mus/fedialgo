@@ -10,20 +10,20 @@ class FollowedTagsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favor toots that contain hashtags you are following",
-            defaultWeight: 1,
+            defaultWeight: 2,
             featureGetter: (api) => mastodon_api_cache_1.default.getFollowedTags(api),
             scoreName: Storage_1.Key.FOLLOWED_TAGS,
         });
     }
     async score(toot) {
-        let containsFollowedTag = false;
+        let numFollowedTags = 0;
         toot.tags.forEach((tootTag) => {
             if (tootTag.name in this.feature) {
-                console.log(`Found followed tag ${tootTag.name} in toot:`, toot);
-                containsFollowedTag = true;
+                console.debug(`Found followed tag ${tootTag.name} in toot:`, toot);
+                numFollowedTags += 1;
             }
         });
-        return containsFollowedTag ? 1 : 0;
+        return numFollowedTags;
     }
 }
 exports.default = FollowedTagsFeatureScorer;
