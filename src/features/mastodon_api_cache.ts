@@ -1,6 +1,6 @@
 /*
- * Handles caching of things that are slow to fetch like the top retoots, top favorites, etc.
- * // TODO: rename this.
+ * Handles caching of things that are slow to fetch and/or computer like the top
+ * retoots, top favorites, etc.
  */
 import { mastodon } from "masto";
 
