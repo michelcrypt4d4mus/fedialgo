@@ -146,7 +146,9 @@ export const imageAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment>
 };
 
 export const videoAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
-    return attachmentsOfType(toot, "video");
+    const videos = attachmentsOfType(toot, "video");
+    const gifs = attachmentsOfType(toot, "gifv");  // gifv format is just an mp4 video file?
+    return videos.concat(gifs);
 };
 
 const attachmentsOfType = (

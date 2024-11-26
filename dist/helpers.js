@@ -130,7 +130,9 @@ const imageAttachments = (toot) => {
 };
 exports.imageAttachments = imageAttachments;
 const videoAttachments = (toot) => {
-    return attachmentsOfType(toot, "video");
+    const videos = attachmentsOfType(toot, "video");
+    const gifs = attachmentsOfType(toot, "gifv"); // gifv format is just an mp4 video file?
+    return videos.concat(gifs);
 };
 exports.videoAttachments = videoAttachments;
 const attachmentsOfType = (toot, attachmentType) => {
