@@ -16,6 +16,7 @@ export type TagFeature = {
 };
 export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
+    followedTags?: mastodon.v1.Tag[];
     rawScore?: number;
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;

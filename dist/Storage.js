@@ -20,6 +20,7 @@ var Key;
 })(Key || (exports.Key = Key = {}));
 ;
 class Storage {
+    // TODO: currently groupedByUser is always true ?
     static async get(key, groupedByUser = true, suffix = "") {
         const suffixKey = this.suffix(key, suffix);
         const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
@@ -48,7 +49,7 @@ class Storage {
         return `${user.id}_${key}`;
     }
     static async logAppOpen() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true));
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS));
         if (numAppOpens == null || isNaN(numAppOpens)) {
             await this.set(Key.OPENINGS, "1", true);
         }
@@ -59,7 +60,7 @@ class Storage {
     }
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED, true));
+        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED));
         console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
         if (numAppOpens <= 1) {
             console.log(`Only 1 numAppOpens so returning 0 for getLastOpenedTimestamp()`);
@@ -74,7 +75,7 @@ class Storage {
         return lastOpenedInt;
     }
     static async getNumAppOpens() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true));
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS));
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }

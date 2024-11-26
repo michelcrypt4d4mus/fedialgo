@@ -1,5 +1,6 @@
 /*
- * Random number generator to mix up the feed.
+ * Populate the 'followedTags' property on Toot object and return the number of tags
+ * on the Toot that the user is following.
  */
 import { mastodon } from 'masto';
 
@@ -20,15 +21,7 @@ export default class FollowedTagsFeatureScorer extends FeatureScorer {
     }
 
     async score(toot: Toot) {
-        let numFollowedTags = 0;
-
-        toot.tags.forEach((tootTag) => {
-            if (tootTag.name in this.feature) {
-                console.debug(`Found followed tag ${tootTag.name} in toot:`, toot);
-                numFollowedTags += 1;
-            }
-        });
-
-        return numFollowedTags;
+        toot.followedTags = toot.tags.filter((tag) => tag.name in this.feature);
+        return toot.followedTags.length;
     }
 };

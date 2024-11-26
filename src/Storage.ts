@@ -18,7 +18,8 @@ export enum Key {
 
 
 export default class Storage {
-    protected static async get(key: Key, groupedByUser = true, suffix = ""): Promise<StorageValue> {
+    // TODO: currently groupedByUser is always true ?
+    protected static async get(key: Key, groupedByUser: boolean = true, suffix: string = ""): Promise<StorageValue> {
         const suffixKey = this.suffix(key, suffix);
         const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
         const jsonValue = await AsyncStorage.getItem(storageKey);
@@ -51,7 +52,7 @@ export default class Storage {
     }
 
     static async logAppOpen() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true) as string);
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
 
         if (numAppOpens == null || isNaN(numAppOpens)) {
             await this.set(Key.OPENINGS, "1", true);
@@ -64,7 +65,7 @@ export default class Storage {
 
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED, true) as string);
+        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED) as string);
         console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
 
         if (numAppOpens <= 1) {
@@ -82,7 +83,7 @@ export default class Storage {
     }
 
     static async getNumAppOpens() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS, true) as string);
+        const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }
