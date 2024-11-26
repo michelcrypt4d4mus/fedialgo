@@ -1,5 +1,6 @@
 /*
  * Handles caching of things that are slow to fetch like the top retoots, top favorites, etc.
+ * // TODO: rename this.
  */
 import { mastodon } from "masto";
 
@@ -17,18 +18,18 @@ import { describeAccount } from "../helpers";
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 
 
-export default class FeatureStorage extends Storage {
+export default class FeatureStore extends Storage {
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
 
         if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStorage] Loaded accounts user has favorited the most from storage...");
+            console.log("[FeatureStore] Loaded accounts user has favorited the most from storage...");
         } else {
             topFavs = await FavsFeature(api);
             await this.set(Key.TOP_FAVS, topFavs);
         }
 
-        console.log("[FeatureStorage] Accounts user has favorited the most", topFavs);
+        console.log("[FeatureStore] Accounts user has favorited the most", topFavs);
         return topFavs;
     }
 
@@ -38,11 +39,11 @@ export default class FeatureStorage extends Storage {
         let recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs;
 
         if (recentTootURIs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStorage] Loaded user's toots from storage...");
+            console.log("[FeatureStore] Loaded user's toots from storage...");
         } else {
             const user = await this.getIdentity();
             const recentToots = await getUserRecentToots(api, user);
-            console.log(`[FeatureStorage] Retrieved recentToots: `, recentToots);
+            console.log(`[FeatureStore] Retrieved recentToots: `, recentToots);
 
             recentTootURIs = recentToots.reduce((acc, toot) => {
                 acc[toot.reblog?.uri || toot.uri] = toot;
@@ -52,7 +53,7 @@ export default class FeatureStorage extends Storage {
             await this.set(Key.RECENT_TOOTS, recentTootURIs);
         }
 
-        console.log("[FeatureStorage] User's recent toot URIs", Object.values(recentTootURIs));
+        console.log("[FeatureStore] User's recent toot URIs", Object.values(recentTootURIs));
         return recentTootURIs;
     }
 
@@ -60,14 +61,14 @@ export default class FeatureStorage extends Storage {
         let topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
 
         if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStorage] Loaded accounts user has reooted the most from storage...");
+            console.log("[FeatureStore] Loaded accounts user has reooted the most from storage...");
         } else {
             const user = await this.getIdentity();
             topReblogs = await reblogsFeature(api, user, Object.values(await this.getRecentToots(api)));
             await this.set(Key.TOP_REBLOGS, topReblogs);
         }
 
-        console.log("[FeatureStorage] Accounts user has retooted the most", topReblogs);
+        console.log("[FeatureStore] Accounts user has retooted the most", topReblogs);
         return topReblogs;
     }
 
@@ -75,13 +76,13 @@ export default class FeatureStorage extends Storage {
         let topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
 
         if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
-            console.log("[FeatureStorage] Loaded accounts that have interacted the most with user's toots from storage");
+            console.log("[FeatureStore] Loaded accounts that have interacted the most with user's toots from storage");
         } else {
             topInteracts = await InteractionsFeature(api);
             await this.set(Key.TOP_INTERACTS, topInteracts);
         }
 
-        console.log("[FeatureStorage] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log("[FeatureStore] Accounts that have interacted the most with user's toots", topInteracts);
         return topInteracts;
     }
 
@@ -90,14 +91,14 @@ export default class FeatureStorage extends Storage {
         let coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
 
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("[FeatureStorage] Loaded coreServer from storage");
+            console.log("[FeatureStore] Loaded coreServer from storage");
         } else {
             const user = await this.getIdentity();
             coreServer = await coreServerFeature(api, user);
             await this.set(Key.CORE_SERVER, coreServer);
         }
 
-        console.log("[FeatureStorage] getCoreServer() info: ", coreServer);
+        console.log("[FeatureStore] getCoreServer() info: ", coreServer);
         return coreServer;
     }
 };

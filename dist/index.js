@@ -82,7 +82,7 @@ class TheAlgorithm {
         this.feed = cleanFeed;
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
-            console.debug(`Scoring ${(0, helpers_1.describeToot)(toot)}: `, toot);
+            // console.debug(`Scoring ${describeToot(toot)}: `, toot);
             toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right place to do this?
             // Load Scores for each toot
             const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(toot)));

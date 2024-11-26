@@ -4,7 +4,7 @@
 import { mastodon } from 'masto';
 
 import FeatureScorer from '../FeatureScorer';
-import FeatureStorage from '../../features/FeatureStore';
+import FeatureStore from '../../features/FeatureStore';
 import { Toot } from '../../types';
 
 
@@ -13,7 +13,7 @@ export default class favsFeatureScorer extends FeatureScorer {
         super({
             description: "Favour toots from users whose toots you have favorited",
             defaultWeight: 1,
-            featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getMostFavoritedAccounts(api),
+            featureGetter: (api: mastodon.rest.Client) => FeatureStore.getMostFavoritedAccounts(api),
             scoreName: "Favs",
         })
     }

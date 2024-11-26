@@ -105,7 +105,7 @@ class TheAlgorithm {
 
         // Score Feed (should be mutating the toot AKA toot objects in place
         for (const toot of this.feed) {
-            console.debug(`Scoring ${describeToot(toot)}: `, toot);
+            // console.debug(`Scoring ${describeToot(toot)}: `, toot);
             toot.condensedStatus = () => condensedStatus(toot);  // Inject condensedStatus() instance method // TODO: is this the right place to do this?
 
             // Load Scores for each toot

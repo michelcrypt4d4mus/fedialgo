@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import FeatureScorer from "../FeatureScorer";
-import FeatureStorage from "../../features/FeatureStore";
+import FeatureStore from "../../features/FeatureStore";
 import { Toot } from "../../types";
 
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
@@ -18,7 +18,7 @@ export default class reblogsFeatureScorer extends FeatureScorer {
         super({
             description: "Favour toots from accounts you have retooted a lot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
-            featureGetter: (api: mastodon.rest.Client) => FeatureStorage.getMostRetootedAccounts(api),
+            featureGetter: (api: mastodon.rest.Client) => FeatureStore.getMostRetootedAccounts(api),
             scoreName: SCORE_NAME,
         });
     }
