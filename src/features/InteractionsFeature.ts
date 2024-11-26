@@ -9,9 +9,10 @@ import { mastodonFetchPages } from "../helpers";
 
 
 export default async function InteractionsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
-    const results = await mastodonFetchPages<mastodon.v1.Notification>(
-        api.v1.notifications.list,
-    );
+    const results = await mastodonFetchPages<mastodon.v1.Notification>({
+        fetchMethod: api.v1.notifications.list,
+        label: 'notifications'
+    });
 
     console.log(`Retrieved ${results.length} notifications for InteractionsFeature(): `, results);
 

@@ -6,7 +6,11 @@ const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(api, user) {
-    const followedAccounts = await (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).following.list, MAX_FOLLOWING_ACCOUNT_TO_PULL);
+    const followedAccounts = await (0, helpers_1.mastodonFetchPages)({
+        fetchMethod: api.v1.accounts.$select(user.id).following.list,
+        minRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
+        label: 'followedAccounts'
+    });
     console.debug(`followed users: `, followedAccounts);
     // Count up what Mastodon servers the user follows live on
     const userServerCounts = followedAccounts.reduce((userCounts, follower) => {

@@ -19,7 +19,10 @@ async function reblogsFeature(api, user, recentToots) {
 exports.default = reblogsFeature;
 ;
 function getUserRecentToots(api, user) {
-    return (0, helpers_1.mastodonFetchPages)(api.v1.accounts.$select(user.id).statuses.list);
+    return (0, helpers_1.mastodonFetchPages)({
+        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
+        label: 'recentToots'
+    });
 }
 exports.getUserRecentToots = getUserRecentToots;
 ;

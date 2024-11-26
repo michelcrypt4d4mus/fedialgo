@@ -34,7 +34,8 @@ export function getUserRecentToots(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<mastodon.v1.Status[]> {
-    return mastodonFetchPages<mastodon.v1.Status>(
-        api.v1.accounts.$select(user.id).statuses.list,
-    );
+    return mastodonFetchPages<mastodon.v1.Status>({
+        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
+        label: 'recentToots'
+    });
 };

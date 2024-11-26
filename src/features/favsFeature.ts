@@ -8,9 +8,10 @@ import { mastodonFetchPages } from "../helpers";
 
 
 export default async function FavsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
-    const results = await mastodonFetchPages<mastodon.v1.Status>(
-        api.v1.favourites.list
-    );
+    const results = await mastodonFetchPages<mastodon.v1.Status>({
+        fetchMethod: api.v1.favourites.list,
+        label: 'favorites'
+    });
 
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
 

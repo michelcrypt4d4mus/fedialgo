@@ -17,10 +17,11 @@ export default async function coreServerFeature(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
 ): Promise<ServerFeature> {
-    const followedAccounts = await mastodonFetchPages<mastodon.v1.Account>(
-        api.v1.accounts.$select(user.id).following.list,
-        MAX_FOLLOWING_ACCOUNT_TO_PULL
-    );
+    const followedAccounts = await mastodonFetchPages<mastodon.v1.Account>({
+        fetchMethod: api.v1.accounts.$select(user.id).following.list,
+        minRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
+        label: 'followedAccounts'
+    });
 
     console.debug(`followed users: `, followedAccounts);
 

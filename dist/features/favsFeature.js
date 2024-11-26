@@ -2,7 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../helpers");
 async function FavsFeature(api) {
-    const results = await (0, helpers_1.mastodonFetchPages)(api.v1.favourites.list);
+    const results = await (0, helpers_1.mastodonFetchPages)({
+        fetchMethod: api.v1.favourites.list,
+        label: 'favorites'
+    });
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
     return results.reduce((favoriteCounts, toot) => {
         if (!toot.account)

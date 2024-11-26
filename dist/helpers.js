@@ -48,16 +48,19 @@ const mastodonFetch = async (server, endpoint) => {
     }
 };
 exports.mastodonFetch = mastodonFetch;
+;
 // Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
-async function mastodonFetchPages(fetchMethod, min_records = DEFAULT_MIN_RECORDS_FOR_FEATURE) {
-    console.debug(`mastodonFetchPages() w/ min_records=${min_records}, fetchMethod:`, fetchMethod);
+async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
+    minRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
+    label ||= label;
+    console.debug(`mastodonFetchPages() for ${label} w/ minRecords=${minRecords}, fetchMethod:`, fetchMethod);
     let results = [];
     let pageNumber = 0;
     try {
         for await (const page of fetchMethod({ limit: exports.DEFAULT_RECORDS_PER_PAGE })) {
             results = results.concat(page);
-            console.log(`Retrieved page ${++pageNumber} of current user's records...`);
-            if (results.length >= min_records) {
+            console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
+            if (results.length >= minRecords) {
                 console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
                 break;
             }
