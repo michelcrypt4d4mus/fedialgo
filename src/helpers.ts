@@ -10,6 +10,7 @@ export const VIDEO_TYPES = ["video", "gifv"];
 export const MEDIA_TYPES = ["image", ...VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
 const MAX_CONTENT_CHARS = 150;
+const HUGE_ID = 10 ** 100;
 
 
 //Masto does not support top posts from foreign servers, so we have to do it manually
@@ -169,4 +170,21 @@ const attachmentsOfType = (
     if (toot.reblog) toot = toot.reblog;
     if (!toot.mediaAttachments) return [];
     return toot.mediaAttachments.filter(att => att.type === attachmentType);
+};
+
+
+// Find the minimum ID in a list of toots
+export const minimumID = (toots: Toot[]): number | null => {
+    const minId =  toots.reduce((min, toot) => {
+        const numericalID = parseInt(toot.id);  // IDs are not guaranteed to be numerical
+
+        if (isNaN(numericalID)) {
+            console.warn(`toot.id is not a number: ${toot.id}`);
+            return min;
+        }
+
+        return numericalID < min ? numericalID : min;
+    }, HUGE_ID);
+
+    return minId == HUGE_ID ? null : minId;
 };
