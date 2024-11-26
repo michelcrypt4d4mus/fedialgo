@@ -324,6 +324,7 @@ const isValidForFeed = (toot: Toot): boolean => {
 export {
     DEFAULT_TIME_DECAY,
     TIME_DECAY,
+    TRENDING_TOOTS,
     condensedStatus,
     extractScoreInfo,
     MastodonApiCache,
