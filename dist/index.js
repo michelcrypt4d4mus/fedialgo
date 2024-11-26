@@ -214,7 +214,6 @@ class TheAlgorithm {
     // Compute a weighted score a toot based by multiplying the value of each numerical property
     // by the user's chosen weighting for that property (the one configured with the GUI sliders).
     async _computeFinalScore(scores) {
-        console.debug(`_computeFinalScore() called with 'scores' arg: `, scores);
         const userWeightings = await weightsStore_1.default.getUserWeightsMulti(Object.keys(scores));
         const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
         let score = Object.keys(scores).reduce((score, scoreName) => {
@@ -227,11 +226,8 @@ class TheAlgorithm {
             console.debug(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
             score *= trendingTootWeighting;
         }
-        if (score) {
-            console.debug(`Computed score with:`, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
-        }
-        else {
-            console.warn(`Failed to compute score with:`, scores, `\n and userWeightings: `, userWeightings, `\n and got: `, score);
+        if (!score && score !== 0) {
+            console.warn(`Failed to compute score with:`, scores, `\n and userWeightings: `, userWeightings, `\ngot: `, score);
         }
         return score;
     }
