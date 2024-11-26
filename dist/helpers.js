@@ -3,11 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.videoAttachments = exports.imageAttachments = exports.describeToot = exports.describeAccount = exports.extractScoreInfo = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.videoAttachments = exports.imageAttachments = exports.describeToot = exports.describeAccount = exports.extractScoreInfo = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
+exports.VIDEO_TYPES = ["video", "gifv"];
+exports.MEDIA_TYPES = ["image", ...exports.VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
 const MAX_CONTENT_CHARS = 150;
 //Masto does not support top posts from foreign servers, so we have to do it manually

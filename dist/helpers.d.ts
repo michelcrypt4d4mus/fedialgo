@@ -1,6 +1,8 @@
 import { mastodon } from "masto";
 import { Toot } from "./types";
 export declare const DEFAULT_RECORDS_PER_PAGE = 40;
+export declare const VIDEO_TYPES: string[];
+export declare const MEDIA_TYPES: string[];
 export declare const isRecord: (x: unknown) => x is Record<string, unknown>;
 export declare const _transformKeys: <T>(data: T, transform: (key: string) => string) => T;
 export declare const mastodonFetch: <T>(server: string, endpoint: string) => Promise<T | undefined>;
