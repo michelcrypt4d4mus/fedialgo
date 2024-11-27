@@ -134,7 +134,7 @@ class TheAlgorithm {
         });
         return this.feed;
     }
-    // debugging method to log info to console
+    // Debugging method to log info about the timeline toots
     logFeedInfo() {
         if (!this.feed || this.feed.length == 0) {
             console.warn(`No feed to log!`);
