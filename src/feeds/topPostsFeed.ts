@@ -12,7 +12,7 @@ import { Toot } from "../types";
 
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
-const NUM_SERVERS_TO_POLL = 10;
+const NUM_SERVERS_TO_POLL = 20;
 const NUM_TRENDING_TOOTS_PER_SERVER = 20;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
