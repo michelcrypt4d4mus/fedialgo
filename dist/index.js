@@ -33,8 +33,8 @@ class TheAlgorithm {
     // Scorers that are atomic in the sense that they can score a tool without knowing
     // about the rest of the toots in the TL.
     featureScorers = [
-        new scorer_1.chaosFeatureScorer(),
-        new scorer_1.favsFeatureScorer(),
+        new scorer_1.ChaosFeatureScorer(),
+        new scorer_1.FavsFeatureScorer(),
         new scorer_1.FollowedTagsFeatureScorer(),
         new scorer_1.ImageAttachmentScorer(),
         new scorer_1.InteractionsFeatureScorer(),
@@ -47,7 +47,7 @@ class TheAlgorithm {
     ];
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [
-        new scorer_1.diversityFeedScorer(),
+        new scorer_1.DiversityFeedScorer(),
         new scorer_1.ReblogsFeedScorer(),
     ];
     constructor(api, user, valueCalculator = null) {

@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoAttachmentScorer = exports.TopPostFeatureScorer = exports.RepliedFeatureScorer = exports.ReblogsFeedScorer = exports.reblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.ImageAttachmentScorer = exports.FollowedTagsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.favsFeatureScorer = exports.diversityFeedScorer = exports.chaosFeatureScorer = void 0;
+exports.VideoAttachmentScorer = exports.TopPostFeatureScorer = exports.RepliedFeatureScorer = exports.ReblogsFeedScorer = exports.reblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.ImageAttachmentScorer = exports.FollowedTagsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.FavsFeatureScorer = exports.DiversityFeedScorer = exports.ChaosFeatureScorer = void 0;
 const chaosFeatureScorer_1 = __importDefault(require("./feature/chaosFeatureScorer"));
-exports.chaosFeatureScorer = chaosFeatureScorer_1.default;
+exports.ChaosFeatureScorer = chaosFeatureScorer_1.default;
 const diversityFeedScorer_1 = __importDefault(require("./feed/diversityFeedScorer"));
-exports.diversityFeedScorer = diversityFeedScorer_1.default;
+exports.DiversityFeedScorer = diversityFeedScorer_1.default;
 const favsFeatureScorer_1 = __importDefault(require("./feature/favsFeatureScorer"));
-exports.favsFeatureScorer = favsFeatureScorer_1.default;
+exports.FavsFeatureScorer = favsFeatureScorer_1.default;
 const FeatureScorer_1 = __importDefault(require("./FeatureScorer"));
 exports.FeatureScorer = FeatureScorer_1.default;
 const FeedScorer_1 = __importDefault(require("./FeedScorer"));

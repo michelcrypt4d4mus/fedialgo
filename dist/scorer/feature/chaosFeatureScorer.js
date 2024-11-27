@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Random number generator to mix up the feed.
  */
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
-class chaosFeatureScorer extends FeatureScorer_1.default {
+class ChaosFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Insert Chaos into the scoring because social media ist krieg",
@@ -19,6 +19,6 @@ class chaosFeatureScorer extends FeatureScorer_1.default {
         return Math.random();
     }
 }
-exports.default = chaosFeatureScorer;
+exports.default = ChaosFeatureScorer;
 ;
 //# sourceMappingURL=chaosFeatureScorer.js.map

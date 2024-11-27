@@ -9,7 +9,7 @@ import { Key } from '../../Storage';
 import { Toot } from '../../types';
 
 
-export default class favsFeatureScorer extends FeatureScorer {
+export default class FavsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favour toots from users whose toots you have favorited",

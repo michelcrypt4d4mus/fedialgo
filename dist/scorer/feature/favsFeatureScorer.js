@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_api_cache"));
 const Storage_1 = require("../../Storage");
-class favsFeatureScorer extends FeatureScorer_1.default {
+class FavsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favour toots from users whose toots you have favorited",
@@ -19,6 +19,6 @@ class favsFeatureScorer extends FeatureScorer_1.default {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
-exports.default = favsFeatureScorer;
+exports.default = FavsFeatureScorer;
 ;
 //# sourceMappingURL=favsFeatureScorer.js.map

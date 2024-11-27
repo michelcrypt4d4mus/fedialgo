@@ -1,6 +1,6 @@
-import chaosFeatureScorer from "./feature/chaosFeatureScorer";
-import diversityFeedScorer from "./feed/diversityFeedScorer";
-import favsFeatureScorer from "./feature/favsFeatureScorer";
+import ChaosFeatureScorer from "./feature/chaosFeatureScorer";
+import DiversityFeedScorer from "./feed/diversityFeedScorer";
+import FavsFeatureScorer from "./feature/favsFeatureScorer";
 import FeatureScorer from "./FeatureScorer";
 import FeedScorer from "./FeedScorer";
 import FollowedTagsFeatureScorer from "./feature/followed_tags_feature_scorer";
@@ -16,9 +16,9 @@ import VideoAttachmentScorer from "./feature/VideoAttachmentScorer";
 
 
 export {
-    chaosFeatureScorer,
-    diversityFeedScorer,
-    favsFeatureScorer,
+    ChaosFeatureScorer,
+    DiversityFeedScorer,
+    FavsFeatureScorer,
     FeedScorer,
     FeatureScorer,
     FollowedTagsFeatureScorer,

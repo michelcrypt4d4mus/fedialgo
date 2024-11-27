@@ -4,9 +4,9 @@
 import { mastodon } from "masto";
 
 import {
-    chaosFeatureScorer,
-    diversityFeedScorer,
-    favsFeatureScorer,
+    ChaosFeatureScorer,
+    DiversityFeedScorer,
+    FavsFeatureScorer,
     FollowedTagsFeatureScorer,
     ImageAttachmentScorer,
     InteractionsFeatureScorer,
@@ -46,8 +46,8 @@ class TheAlgorithm {
     // Scorers that are atomic in the sense that they can score a tool without knowing
     // about the rest of the toots in the TL.
     featureScorers = [
-        new chaosFeatureScorer(),
-        new favsFeatureScorer(),
+        new ChaosFeatureScorer(),
+        new FavsFeatureScorer(),
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
         new InteractionsFeatureScorer(),
@@ -61,7 +61,7 @@ class TheAlgorithm {
 
     // I think these scorers require the complete list and info about past user behavior to work?
     feedScorers = [
-        new diversityFeedScorer(),
+        new DiversityFeedScorer(),
         new ReblogsFeedScorer(),
     ];
 

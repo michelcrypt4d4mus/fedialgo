@@ -4,7 +4,7 @@
 import FeatureScorer from '../FeatureScorer'
 
 
-export default class chaosFeatureScorer extends FeatureScorer {
+export default class ChaosFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Insert Chaos into the scoring because social media ist krieg",

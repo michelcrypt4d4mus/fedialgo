@@ -6,7 +6,7 @@ import FeedScorer from "../FeedScorer";
 import { Toot } from "../../types";
 
 
-export default class diversityFeedScorer extends FeedScorer {
+export default class DiversityFeedScorer extends FeedScorer {
     constructor() {
         super(
             "Diversity",

@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * prevent prolific tooters from clogging up the feed.
  */
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
-class diversityFeedScorer extends FeedScorer_1.default {
+class DiversityFeedScorer extends FeedScorer_1.default {
     constructor() {
         super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
     }
@@ -26,6 +26,6 @@ class diversityFeedScorer extends FeedScorer_1.default {
         return this.features[toot.account.acct];
     }
 }
-exports.default = diversityFeedScorer;
+exports.default = DiversityFeedScorer;
 ;
 //# sourceMappingURL=diversityFeedScorer.js.map
