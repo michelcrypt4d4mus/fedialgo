@@ -17,6 +17,7 @@ declare class TheAlgorithm {
     feedScorers: (diversityFeedScorer | ReblogsFeedScorer)[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
     getFeed(): Promise<Toot[]>;
+    logFeedInfo(): void;
     getScorerNames(): string[];
     setDefaultWeights(): Promise<void>;
     getUserWeights(): Promise<ScoresType>;
