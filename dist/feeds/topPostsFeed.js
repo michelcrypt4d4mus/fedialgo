@@ -44,7 +44,7 @@ async function topPostsFeed(api) {
             }
             // Inject trendingRank score
             // TODO: maybe should be placed in top.scores.trendingRank variable/
-            toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i;
+            toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
             return toot;
         });
         console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
