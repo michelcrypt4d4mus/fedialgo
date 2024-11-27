@@ -12,6 +12,7 @@ var Key;
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
     Key["RECENT_TOOTS"] = "recentToots";
+    Key["REPLIED_TO"] = "MostRepliedAccounts";
     Key["TOP_FAVS"] = "Favs";
     Key["TOP_INTERACTS"] = "Interactions";
     Key["TOP_REBLOGS"] = "MostRetootedAccounts";

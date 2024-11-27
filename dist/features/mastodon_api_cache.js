@@ -31,6 +31,7 @@ const favsFeature_1 = __importDefault(require("./favsFeature"));
 const followed_tags_feature_1 = __importDefault(require("./followed_tags_feature"));
 const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
+const replied_feature_1 = __importDefault(require("./replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -81,6 +82,19 @@ class MastodonApiCache extends Storage_1.default {
         }
         console.log("[MastodonApiCache] Accounts user has retooted the most", topReblogs);
         return topReblogs;
+    }
+    static async getMostRepliedAccounts(api) {
+        let mostReplied = await this.get(Storage_1.Key.REPLIED_TO);
+        if (mostReplied != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
+        }
+        else {
+            const user = await this.getIdentity();
+            mostReplied = await (0, replied_feature_1.default)(api, user, Object.values(await this.getRecentToots(api)));
+            await this.set(Storage_1.Key.REPLIED_TO, mostReplied);
+        }
+        console.log("[MastodonApiCache] Accounts user has replied to the most", mostReplied);
+        return mostReplied;
     }
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);

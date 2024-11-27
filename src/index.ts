@@ -14,6 +14,7 @@ import {
     NumRepliesScorer,
     reblogsFeatureScorer,
     ReblogsFeedScorer,
+    RepliedFeatureScorer,
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
@@ -53,6 +54,7 @@ class TheAlgorithm {
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new reblogsFeatureScorer(),
+        new RepliedFeatureScorer(),
         new TopPostFeatureScorer(),
         new VideoAttachmentScorer(),
     ];

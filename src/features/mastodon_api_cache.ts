@@ -9,8 +9,9 @@ import FavsFeature from "./favsFeature";
 import FollowedTagsFeature from "./followed_tags_feature";
 import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
+import repliedFeature from "./replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, ServerFeature, TagFeature, TootURIs } from "../types";
+import { AccountFeature, ScoresType, ServerFeature, TagFeature, TootURIs } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -70,6 +71,21 @@ export default class MastodonApiCache extends Storage {
 
         console.log("[MastodonApiCache] Accounts user has retooted the most", topReblogs);
         return topReblogs;
+    }
+
+    static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<ScoresType> {
+        let mostReplied: ScoresType = await this.get(Key.REPLIED_TO) as ScoresType;
+
+        if (mostReplied != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+            console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
+        } else {
+            const user = await this.getIdentity();
+            mostReplied = await repliedFeature(api, user, Object.values(await this.getRecentToots(api)));
+            await this.set(Key.REPLIED_TO, mostReplied);
+        }
+
+        console.log("[MastodonApiCache] Accounts user has replied to the most", mostReplied);
+        return mostReplied;
     }
 
     static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {

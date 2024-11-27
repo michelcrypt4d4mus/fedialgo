@@ -9,6 +9,7 @@ export enum Key {
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
+    REPLIED_TO = "MostRepliedAccounts",
     TOP_FAVS = 'Favs',
     TOP_INTERACTS = 'Interactions',
     TOP_REBLOGS = 'MostRetootedAccounts',
