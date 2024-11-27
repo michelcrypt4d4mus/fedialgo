@@ -27,7 +27,7 @@ async function getHomeFeed(api, _user) {
         if (pageNumber == MAX_PAGES) {
             if (oldestTootAt < timelineCutoff) {
                 console.log(`Halting getHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
-                toots.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
+                // toots.forEach((toot, i) => console.log(`timeline toot #${i} was tooted at ${toot.createdAt}`));
             }
             break;
         }
