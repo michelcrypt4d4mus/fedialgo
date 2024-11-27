@@ -1,4 +1,5 @@
 `2024-11-27`
+* Add a `MostRepliedAccounts` score
 * Add a list of default servers to check for trending toots if user isn't following very many accounts
 
 `2024-11-26`
