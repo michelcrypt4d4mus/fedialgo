@@ -17,8 +17,7 @@ async function topPostsFeed(api) {
     // Get list of top mastodon servers // TODO: what does "top" mean here?
     const topServerDomains = Object.keys(coreServers)
         .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-        .sort((a, b) => (coreServers[b] - coreServers[a])) // TODO: wtf is this comparison?
-        .slice(0, NUM_SERVERS_TO_POLL);
+        .sort((a, b) => (coreServers[b] - coreServers[a])); // TODO: wtf is this comparison?
     if (topServerDomains.length == 0) {
         console.warn("No mastodon servers found to get topPostsFeed data from!");
         return [];

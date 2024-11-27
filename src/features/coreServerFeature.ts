@@ -13,6 +13,38 @@ const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5_000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 10;
 
+// Popular servers are usually culled from the users' following list but if there aren't
+// enough of them to get good trending data fill the list out with these.
+// Culled from https://mastodonservers.net and https://joinmastodon.org/
+const _POPULAR_SERVERS = [
+    "mastodon.social",
+    // "pawoo.net",   // Japanese (and maybe NSFW?)
+    // "baraag.net",  // very NSFW
+    // "mstdn.jp",    // Japanese
+    "mastodon.cloud",
+    // "pravda.me"    // Russian
+    "mstdn.social",
+    "mastodon.online",
+    "mas.to",
+    "mastodon.world",
+    "mastodon.lol",
+    "c.im",
+    "hachyderm.io",
+    "fosstodon.org",
+    "universeodon.com",
+    "mastodonapp.uk",
+    "infosec.exchange",
+    "mastodon.technology",
+    "ioc.exchange",
+    "mastodon.art",
+    "techhub.social",
+    "mastodon.sdf.org",
+    "defcon.social",
+    "mstdn.party",
+];
+
+const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
+
 
 // Returns something called "overrepresentedServerFrequ"??
 export default async function coreServerFeature(
@@ -25,7 +57,7 @@ export default async function coreServerFeature(
         label: 'followedAccounts'
     });
 
-    console.debug(`followed users: `, followedAccounts);
+    console.debug(`followed users:`, followedAccounts);
 
     // Count up what Mastodon servers the user follows live on
     const userServerCounts = followedAccounts.reduce(
@@ -37,6 +69,16 @@ export default async function coreServerFeature(
         },
         {}
     );
+
+    const numServers = Object.keys(userServerCounts).length;
+
+    if (numServers < NUM_SERVERS_TO_CHECK) {
+        console.log(`Adding default servers bc user only follows accounts on ${numServers}:`, userServerCounts);
+
+        POPULAR_SERVERS.filter(s => !userServerCounts[s])
+                       .slice(0, NUM_SERVERS_TO_CHECK - numServers)
+                       .forEach(s => (userServerCounts[s] = 1));
+    }
 
     // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
