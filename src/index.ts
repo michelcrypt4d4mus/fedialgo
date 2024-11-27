@@ -196,7 +196,7 @@ class TheAlgorithm {
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
             if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
-                console.warn("Weights not set because of invalid value! Not reweighting feed...");
+                console.warn(`Weights not set because of invalid value for '${key}'! Not reweighting feed...`);
                 return this.feed;
             }
         }
