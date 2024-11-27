@@ -4,6 +4,7 @@ const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
 const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
+const MINIMUM_MAU = 10;
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(api, user) {
     const followedAccounts = await (0, helpers_1.mastodonFetchPages)({
@@ -27,20 +28,20 @@ async function coreServerFeature(api, user) {
         .sort((a, b) => userServerCounts[b] - userServerCounts[a])
         .slice(0, NUM_SERVERS_TO_CHECK);
     console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
-    const monthlyUsers = await Promise.all(popularServers.map(server => {
-        const serverMonthlyUsers = getMonthlyUsers(server);
-        console.log(`Monthly users for ${server}: `, serverMonthlyUsers);
-        return serverMonthlyUsers;
-    }));
-    // I guess this is looking to do something that compares active users vs. followed users
-    // to maybe account for a lot of dead accounts or something?
-    const overrepresentedServerFrequ = popularServers.reduce((acc, server, index) => {
-        const activeUsers = monthlyUsers[index];
-        if (activeUsers < 10)
-            return acc;
-        const ratio = userServerCounts[server] / activeUsers;
-        return { ...acc, [server]: ratio };
-    }, {});
+    const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
+    const serverMAUs = {};
+    const overrepresentedServerFrequ = {};
+    popularServers.forEach((server, i) => {
+        if (monthlyUsers[i] < MINIMUM_MAU) {
+            console.log(`Ignoring server '${server}' with only ${monthlyUsers[i]} MAU...`);
+            return;
+        }
+        // I guess this is looking to do something that compares active users vs. followed users
+        // to maybe account for a lot of dead accounts or something?
+        overrepresentedServerFrequ[server] = userServerCounts[server] / monthlyUsers[i];
+        serverMAUs[server] = monthlyUsers[i];
+    });
+    console.log(`serverMAUs: `, serverMAUs);
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
 }
