@@ -292,8 +292,9 @@ class TheAlgorithm {
     private async _computeFinalScore(scores: ScoresType): Promise<number> {
         const userWeightings = await WeightsStore.getUserWeightsMulti(Object.keys(scores));
         const trendingTootWeighting = userWeightings[TRENDING_TOOTS] || 0;
+        let score = 1;  // Add 1 so if all weights are 0 the timeline is reverse chronological order
 
-        let score = Object.keys(scores).reduce((score: number, scoreName: string) => {
+        score += Object.keys(scores).reduce((score: number, scoreName: string) => {
             return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
         }, 0);
 

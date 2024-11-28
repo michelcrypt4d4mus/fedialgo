@@ -233,7 +233,8 @@ class TheAlgorithm {
     async _computeFinalScore(scores) {
         const userWeightings = await weightsStore_1.default.getUserWeightsMulti(Object.keys(scores));
         const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
-        let score = Object.keys(scores).reduce((score, scoreName) => {
+        let score = 1; // Add 1 so if all weights are 0 the timeline is reverse chronological order
+        score += Object.keys(scores).reduce((score, scoreName) => {
             return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
         }, 0);
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
