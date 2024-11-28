@@ -2,6 +2,7 @@
 * Add a `MostRepliedAccounts` score
 * Add a list of default servers to check for trending toots if user isn't following very many accounts
 * Add 1 to score so if all weights are 0 the timeline is reverse chronological order
+* [bug] default to 0 instead of erroring out on reweight
 
 `2024-11-26`
 * Add `FollowedTagsScorer`
