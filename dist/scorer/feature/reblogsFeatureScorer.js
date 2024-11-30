@@ -8,7 +8,7 @@ const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_ap
 const Storage_1 = require("../../Storage");
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 // TODO: rename retootedUsersFeatureScorer
-class reblogsFeatureScorer extends FeatureScorer_1.default {
+class ReblogsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favour toots from accounts you have retooted a lot",
@@ -23,6 +23,6 @@ class reblogsFeatureScorer extends FeatureScorer_1.default {
         return authorScore + retootScore;
     }
 }
-exports.default = reblogsFeatureScorer;
+exports.default = ReblogsFeatureScorer;
 ;
 //# sourceMappingURL=reblogsFeatureScorer.js.map

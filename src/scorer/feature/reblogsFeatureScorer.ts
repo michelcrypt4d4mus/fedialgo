@@ -13,7 +13,7 @@ const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
 
 // TODO: rename retootedUsersFeatureScorer
-export default class reblogsFeatureScorer extends FeatureScorer {
+export default class ReblogsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favour toots from accounts you have retooted a lot",

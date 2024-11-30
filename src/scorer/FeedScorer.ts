@@ -23,7 +23,7 @@ export default class FeedScorer {
     }
 
     async setFeed(feed: Toot[]) {
-        this.features = await this.feedExtractor(feed)
+        this.features = await this.feedExtractor(feed);
         this._isReady = true;
     }
 

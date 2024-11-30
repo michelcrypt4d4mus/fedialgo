@@ -8,7 +8,7 @@ import ImageAttachmentScorer from "./feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./feature/InteractionsFeatureScorer";
 import NumFavoritesScorer from "./feature/numFavoritesScorer";
 import NumRepliesScorer from "./feature/numRepliesScorer";
-import reblogsFeatureScorer from "./feature/reblogsFeatureScorer";
+import ReblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./feature/repied_feature_scorer";
 import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
@@ -26,7 +26,7 @@ export {
     InteractionsFeatureScorer,
     NumFavoritesScorer,
     NumRepliesScorer,
-    reblogsFeatureScorer,
+    ReblogsFeatureScorer,
     ReblogsFeedScorer,
     RepliedFeatureScorer,
     TopPostFeatureScorer,

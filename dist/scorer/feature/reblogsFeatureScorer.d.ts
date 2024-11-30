@@ -1,6 +1,6 @@
 import FeatureScorer from "../FeatureScorer";
 import { Toot } from "../../types";
-export default class reblogsFeatureScorer extends FeatureScorer {
+export default class ReblogsFeatureScorer extends FeatureScorer {
     constructor();
     score(toot: Toot): Promise<number>;
 }

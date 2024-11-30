@@ -12,7 +12,7 @@ import {
     InteractionsFeatureScorer,
     NumFavoritesScorer,
     NumRepliesScorer,
-    reblogsFeatureScorer,
+    ReblogsFeatureScorer,
     ReblogsFeedScorer,
     RepliedFeatureScorer,
     TopPostFeatureScorer,
@@ -53,7 +53,7 @@ class TheAlgorithm {
         new InteractionsFeatureScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
-        new reblogsFeatureScorer(),
+        new ReblogsFeatureScorer(),
         new RepliedFeatureScorer(),
         new TopPostFeatureScorer(),
         new VideoAttachmentScorer(),
@@ -187,7 +187,7 @@ class TheAlgorithm {
 
     getScorerNames(): string[] {
         const scorers = [...this.featureScorers, ...this.feedScorers];
-        return [...scorers.map(scorer => scorer.getScoreName())]
+        return [...scorers.map(scorer => scorer.getScoreName())];
     }
 
     // Set Default Weights if they don't exist
@@ -263,8 +263,8 @@ class TheAlgorithm {
         const total = Object.values(tootScores)
                             .filter((value: number) => !isNaN(value))
                             .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-        const mean = total / Object.values(tootScores).length;
 
+        const mean = total / Object.values(tootScores).length;
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
         const newTootScores: ScoresType = await this.getUserWeights()
 

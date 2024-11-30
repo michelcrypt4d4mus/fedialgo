@@ -40,7 +40,7 @@ class TheAlgorithm {
         new scorer_1.InteractionsFeatureScorer(),
         new scorer_1.NumFavoritesScorer(),
         new scorer_1.NumRepliesScorer(),
-        new scorer_1.reblogsFeatureScorer(),
+        new scorer_1.ReblogsFeatureScorer(),
         new scorer_1.RepliedFeatureScorer(),
         new scorer_1.TopPostFeatureScorer(),
         new scorer_1.VideoAttachmentScorer(),
