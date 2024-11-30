@@ -8,7 +8,7 @@ const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
-exports.VIDEO_TYPES = ["video", "gifv"];
+exports.VIDEO_TYPES = ["gifv", "video"];
 exports.MEDIA_TYPES = ["image", ...exports.VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
 const MAX_CONTENT_CHARS = 150;
@@ -53,7 +53,7 @@ exports.mastodonFetch = mastodonFetch;
 // Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
 async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
     minRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
-    label ||= label;
+    label ||= "unknown";
     console.debug(`mastodonFetchPages() for ${label} w/ minRecords=${minRecords}, fetchMethod:`, fetchMethod);
     let results = [];
     let pageNumber = 0;

@@ -6,7 +6,7 @@ import { Toot } from "./types";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
-export const VIDEO_TYPES = ["video", "gifv"];
+export const VIDEO_TYPES = ["gifv", "video"];
 export const MEDIA_TYPES = ["image", ...VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
 const MAX_CONTENT_CHARS = 150;
@@ -68,7 +68,7 @@ export async function mastodonFetchPages<T>({
     label
 }: FetchParams<T>): Promise<T[]> {
     minRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
-    label ||= label;
+    label ||= "unknown";
     console.debug(`mastodonFetchPages() for ${label} w/ minRecords=${minRecords}, fetchMethod:`, fetchMethod);
     let results: T[] = [];
     let pageNumber = 0;
