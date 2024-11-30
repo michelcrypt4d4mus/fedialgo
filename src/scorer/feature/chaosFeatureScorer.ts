@@ -1,7 +1,7 @@
 /*
  * Random number generator to mix up the feed.
  */
-import FeatureScorer from '../FeatureScorer'
+import FeatureScorer from '../FeatureScorer';
 
 
 export default class ChaosFeatureScorer extends FeatureScorer {

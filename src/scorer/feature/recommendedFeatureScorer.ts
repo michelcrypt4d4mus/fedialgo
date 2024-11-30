@@ -14,7 +14,7 @@ export default class recommendedFeatureScorer extends FeatureScorer {
             scoreName: "Recommended",
             description: "Posts that are recommended by AI embeddings",
             defaultWeight: 1,
-        })
+        });
     }
 
     async score(toot: Toot) {

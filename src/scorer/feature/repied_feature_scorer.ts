@@ -16,7 +16,7 @@ export default class RepliedFeatureScorerx extends FeatureScorer {
             defaultWeight: 1,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostRepliedAccounts(api),
             scoreName: Key.REPLIED_TO,
-        })
+        });
     }
 
     async score(toot: Toot) {

@@ -15,7 +15,7 @@ export default class VideoAttachmentScorer extends FeatureScorer {
             description: "Favour toots with video attachments",
             defaultWeight: 0,
             scoreName: SCORE_NAME,
-        })
+        });
     }
 
     async score(toot: Toot) {

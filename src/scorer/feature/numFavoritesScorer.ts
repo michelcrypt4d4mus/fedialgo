@@ -14,7 +14,7 @@ export default class NumFavoritesScorer extends FeatureScorer {
             description: "Favour toots that have been favourited by a lot of other users",
             defaultWeight: 1,
             scoreName: SCORE_NAME,
-        })
+        });
     }
 
     async score(toot: Toot) {
