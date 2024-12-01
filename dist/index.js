@@ -87,19 +87,7 @@ class TheAlgorithm {
             await this._decorateWithScoreInfo(toot);
         }
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
-        this.feed = this.feed.sort((a, b) => {
-            const aWeightedScore = a.score ?? 0;
-            const bWeightedScore = b.score ?? 0;
-            if (aWeightedScore < bWeightedScore) {
-                return 1;
-            }
-            else if (aWeightedScore > bWeightedScore) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        });
+        this.feed = this.feed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
         return this.feed;
     }
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
@@ -124,7 +112,6 @@ class TheAlgorithm {
             }
             scoredFeed.push(await this._decorateWithScoreInfo(toot));
         }
-        // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
         return this.feed;
     }
