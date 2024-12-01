@@ -155,11 +155,6 @@ class TheAlgorithm {
         console.debug(`feed toots posted by application counts: `, appCounts);
     }
 
-    getScorerNames(): string[] {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-        return [...scorers.map(scorer => scorer.getScoreName())];
-    }
-
     // Set Default Weights if they don't exist
     async setDefaultWeights(): Promise<void> {
         const scorers = [...this.featureScorers, ...this.feedScorers];
@@ -174,7 +169,7 @@ class TheAlgorithm {
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<ScoresType> {
-        return await WeightsStore.getUserWeightsMulti(this.getScorerNames());
+        return await WeightsStore.getUserWeightsMulti(this.allScoreNames);
     }
 
     // I think this is the main function that gets called when the user changes the weights of the sliders?
@@ -260,7 +255,7 @@ class TheAlgorithm {
     private async _decorateWithScoreInfo(toot: Toot): Promise<Toot> {
         console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         toot.condensedStatus = () => condensedStatus(toot);  // Inject condensedStatus() instance method // TODO: is this the right way to do this?
-        const userWeights = await WeightsStore.getUserWeightsMulti(this.allScoreNames);
+        const userWeights = await this.getUserWeights();
 
         // Start with 1 so if all weights are 0 timeline is reverse chronological order
         let rawScore = 1;
