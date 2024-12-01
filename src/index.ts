@@ -65,16 +65,13 @@ class TheAlgorithm {
         new ReblogsFeedScorer(),
     ];
 
+    weightedScorers = [...this.featureScorers, ...this.feedScorers];
     featureScoreNames = this.featureScorers.map(scorer => scorer.getScoreName());
     feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
-    weightedScorers = [...this.featureScorers, ...this.feedScorers];
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
 
-    constructor(
-        api: mastodon.rest.Client,
-        user: mastodon.v1.Account,
-    ) {
+    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
         Storage.setIdentity(user);

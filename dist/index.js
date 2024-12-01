@@ -50,9 +50,9 @@ class TheAlgorithm {
         new scorer_1.DiversityFeedScorer(),
         new scorer_1.ReblogsFeedScorer(),
     ];
+    weightedScorers = [...this.featureScorers, ...this.feedScorers];
     featureScoreNames = this.featureScorers.map(scorer => scorer.getScoreName());
     feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
-    weightedScorers = [...this.featureScorers, ...this.feedScorers];
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
     constructor(api, user) {
