@@ -82,7 +82,7 @@ class Storage {
         return await localforage_1.default.getItem(Key.USER);
     }
     static async setIdentity(user) {
-        console.log(`Setting identity to:`, user);
+        console.debug(`Setting identity to:`, user);
         await localforage_1.default.setItem(Key.USER, user);
     }
     static async buildKey(key, groupedByUser = true, suffix = "") {

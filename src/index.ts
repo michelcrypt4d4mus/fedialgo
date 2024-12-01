@@ -73,9 +73,14 @@ class TheAlgorithm {
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
-        Storage.setIdentity(user);
-        Storage.logAppOpen();
-        this.setDefaultWeights();
+    }
+
+    static async create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm> {
+        const algo = new TheAlgorithm(api, user);
+        await Storage.setIdentity(user);
+        await Storage.logAppOpen();
+        await algo.setDefaultWeights();
+        return algo;
     }
 
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in

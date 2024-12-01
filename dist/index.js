@@ -55,9 +55,13 @@ class TheAlgorithm {
     constructor(api, user) {
         this.api = api;
         this.user = user;
-        Storage_1.default.setIdentity(user);
-        Storage_1.default.logAppOpen();
-        this.setDefaultWeights();
+    }
+    static async create(api, user) {
+        const algo = new TheAlgorithm(api, user);
+        await Storage_1.default.setIdentity(user);
+        await Storage_1.default.logAppOpen();
+        await algo.setDefaultWeights();
+        return algo;
     }
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in
     // the fediverse, score them, and sort them.
