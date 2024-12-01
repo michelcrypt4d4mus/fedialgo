@@ -1,5 +1,6 @@
 `2024-11-30`
 * Refactor `_decorateWithScoreInfo()` method
+* Rename `scores` => `rawScores` and `value` => `score`
 
 `2024-11-27`
 * Add a `MostRepliedAccounts` score
