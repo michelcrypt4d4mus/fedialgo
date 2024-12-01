@@ -21,19 +21,23 @@ export type TagFeature = {
     [key: string]: number;
 };
 
+export type TootScore = {
+    rawScore: number;  // Score before applying timeDecayMultiplier
+    rawScores: ScoresType;
+    score: number;
+    timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
+    weightedScores: ScoresType;
+};
+
 export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
-    followedTags?: mastodon.v1.Tag[];
-    rawScore?: number;  // Score before applying timeDecayMultiplier
-    rawScores?: ScoresType;
+    followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     recommended?: boolean;
-    score?: number;
+    scoreInfo?: TootScore;
     similarity?: number;
-    timeDecayMultiplier?: number;  // Multiplier that reduces the score of older posts
     trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
-    weightedScores?: ScoresType;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

@@ -130,13 +130,7 @@ export const condensedStatus = (toot: Toot) => {
 
 // Extract just the various score related variables from a Toot to a new object.
 export const extractScoreInfo = (toot: Toot) => {
-    return {
-        rawScore: toot.rawScore,
-        scoreComponents: toot.rawScores,
-        scoreComponentsWeighted: toot.weightedScores,
-        timeDecayMultiplier: toot.timeDecayMultiplier,
-        timeWeightedScore: toot.score,
-    };
+    return toot.scoreInfo;
 };
 
 

@@ -19,7 +19,7 @@ import {
     VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
-import { ScoresType, Toot } from "./types";
+import { ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
@@ -108,8 +108,12 @@ class TheAlgorithm {
             await this._decorateWithScoreInfo(toot);
         }
 
-        // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
-        this.feed = this.feed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+        return this.sortFeed();
+    }
+
+    // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
+    private sortFeed() {
+        this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         return this.feed;
     }
 
@@ -133,7 +137,7 @@ class TheAlgorithm {
             console.debug(`Reweighting ${describeToot(toot)}: `, toot);
 
             // Reload the feed if any toots are missing scores
-            if (!toot.rawScores) {
+            if (!toot.scoreInfo?.rawScores) {
                 console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
                 return this.getFeed();
             }
@@ -141,8 +145,7 @@ class TheAlgorithm {
             scoredFeed.push(await this._decorateWithScoreInfo(toot));
         }
 
-        this.feed = scoredFeed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-        return this.feed;
+        return this.sortFeed();
     }
 
     // Set Default Weights if they don't exist
@@ -227,50 +230,50 @@ class TheAlgorithm {
         console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
-        toot.rawScore = 1;
+
+        const rawScores = {} as ScoresType;
+        const weightedScores = {} as ScoresType;
+        let rawScore = 1;
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         this.weightedScoreNames.forEach((scoreName, i) => {
             const scoreValue = scores[i] || 0;
-
-            toot.weightedScores ??= {} as ScoresType;
-            toot.rawScores ??= {} as ScoresType;
-            toot.rawScore ??= 1;  // Start at 1 so if all weights are 0 timeline is reverse chronological order
-
-            toot.weightedScores[scoreName] = scoreValue * (userWeights[scoreName] || 0);
-            toot.rawScores[scoreName] = scoreValue;
-            toot.rawScore += toot.weightedScores[scoreName];
+            rawScores[scoreName] = scoreValue;
+            weightedScores[scoreName] = scoreValue * (userWeights[scoreName] ?? 0);
+            rawScore += weightedScores[scoreName];
         });
 
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingTootScore = toot.rawScores?.[TRENDING_TOOTS] || 0;
-        const trendingTootWeighting = userWeights[TRENDING_TOOTS] || 0;
+        const trendingTootScore = rawScores[TRENDING_TOOTS] ?? 0;
+        const trendingTootWeighting = userWeights[TRENDING_TOOTS] ?? 0;
 
         if (trendingTootScore > 0 && trendingTootWeighting < 1.0) {
-            toot.rawScore *= trendingTootWeighting;
+            rawScore *= trendingTootWeighting;
         }
 
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || DEFAULT_TIME_DECAY;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-        toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        toot.score = toot.rawScore * toot.timeDecayMultiplier;
+        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
+        const score = rawScore * timeDecayMultiplier;
 
-        // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
-        if (toot.reblog) {
-            toot.reblog.rawScore = toot.rawScore;
-            toot.reblog.rawScores = toot.rawScores;
-            toot.reblog.weightedScores = toot.weightedScores;
-            toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
-            toot.reblog.score = toot.score;
-        }
+        toot.scoreInfo = {
+            rawScore,
+            rawScores,
+            score,
+            timeDecayMultiplier,
+            weightedScores,
+        } as TootScore;
 
-        // console.debug(`after _decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+        // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
+        if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
+
         // Inject condensedStatus() instance method // TODO: is this the right way to do this?
         toot.condensedStatus = () => condensedStatus(toot);
+        console.debug(`after _decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         return toot;
     }
 };

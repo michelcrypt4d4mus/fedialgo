@@ -14,19 +14,22 @@ export type TootURIs = {
 export type TagFeature = {
     [key: string]: number;
 };
+export type TootScore = {
+    rawScore: number;
+    rawScores: ScoresType;
+    score: number;
+    timeDecayMultiplier: number;
+    weightedScores: ScoresType;
+};
 export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     followedTags?: mastodon.v1.Tag[];
-    rawScore?: number;
-    rawScores?: ScoresType;
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     recommended?: boolean;
-    score?: number;
+    scoreInfo?: TootScore;
     similarity?: number;
-    timeDecayMultiplier?: number;
     trendingRank?: number;
-    weightedScores?: ScoresType;
 }
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;

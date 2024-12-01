@@ -112,13 +112,7 @@ const condensedStatus = (toot) => {
 exports.condensedStatus = condensedStatus;
 // Extract just the various score related variables from a Toot to a new object.
 const extractScoreInfo = (toot) => {
-    return {
-        rawScore: toot.rawScore,
-        scoreComponents: toot.rawScores,
-        scoreComponentsWeighted: toot.weightedScores,
-        timeDecayMultiplier: toot.timeDecayMultiplier,
-        timeWeightedScore: toot.score,
-    };
+    return toot.scoreInfo;
 };
 exports.extractScoreInfo = extractScoreInfo;
 // Build a string that contains the display name, account name, etc. for a given post.

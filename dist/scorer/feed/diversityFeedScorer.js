@@ -23,6 +23,7 @@ class DiversityFeedScorer extends FeedScorer_1.default {
     async score(toot) {
         super.score(toot); // Check if ready
         this.features[toot.account.acct] += 1;
+        console.log(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
         return this.features[toot.account.acct];
     }
 }
