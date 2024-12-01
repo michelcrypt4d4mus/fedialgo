@@ -3,6 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Score how many times a toot has been retooted by other accounts in the feed.
+ */
 const FeedScorer_1 = __importDefault(require("../FeedScorer"));
 const DEFAULT_REBLOGS_WEIGHT = 2;
 const SCORE_NAME = "RetootedInFeed";
@@ -14,7 +17,6 @@ class ReblogsFeedScorer extends FeedScorer_1.default {
     // for each uri in the feed, count the number of times it appears
     feedExtractor(feed) {
         return feed.reduce((tootCounts, toot) => {
-            tootCounts[toot.uri] = (tootCounts[toot.uri] || 0) + 1;
             if (toot.reblog) {
                 tootCounts[toot.reblog.uri] = (tootCounts[toot.reblog.uri] || 0) + 1;
             }

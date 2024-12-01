@@ -13,13 +13,16 @@ class DiversityFeedScorer extends FeedScorer_1.default {
         super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
     }
     feedExtractor(feed) {
-        const sortRandom = () => Math.random() - 0.5; // Shuffle the feed before penalizing multiple tooters
+        // Shuffle the feed before penalizing multiple tooters
+        // TODO: maybe reverse chronological order would be better?
+        const sortRandom = () => Math.random() - 0.5;
         return feed.sort(sortRandom).reduce((userTootCounts, toot) => {
             userTootCounts[toot.account.acct] = (userTootCounts[toot.account.acct] || 0) - 1;
             return userTootCounts;
         }, {});
     }
-    // Note that the penalty for frequent tooters decreases by 1 each time a toot is scored
+    // *NOTE: the penalty for frequent tooters decreases by 1 each time a toot is scored*
+    //        As a result this.features must be reset anew each time the feed is scored
     async score(toot) {
         super.score(toot); // Check if ready
         this.features[toot.account.acct] += 1;

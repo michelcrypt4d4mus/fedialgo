@@ -1,3 +1,6 @@
+/*
+ * Score how many times a toot has been retooted by other accounts in the feed.
+ */
 import FeedScorer from "../FeedScorer";
 import { Toot } from "../../types";
 
@@ -19,8 +22,6 @@ export default class ReblogsFeedScorer extends FeedScorer {
     feedExtractor(feed: Toot[]) {
         return feed.reduce(
             (tootCounts: Record<string, number>, toot: Toot) => {
-                tootCounts[toot.uri] = (tootCounts[toot.uri] || 0) + 1;
-
                 if (toot.reblog) {
                     tootCounts[toot.reblog.uri] = (tootCounts[toot.reblog.uri] || 0) + 1;
                 }
