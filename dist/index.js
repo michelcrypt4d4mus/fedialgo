@@ -109,20 +109,6 @@ class TheAlgorithm {
         });
         return this.feed;
     }
-    // Debugging method to log info about the timeline toots
-    logFeedInfo() {
-        if (!this.feed || this.feed.length == 0) {
-            console.warn(`No feed to log!`);
-            return;
-        }
-        console.log(`timeline toots (condensed): `, this.feed.map(helpers_1.condensedStatus));
-        const appCounts = this.feed.reduce((counts, toot) => {
-            const app = toot.application?.name || "unknown";
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {});
-        console.debug(`feed toots posted by application counts: `, appCounts);
-    }
     // Set Default Weights if they don't exist
     async setDefaultWeights() {
         const scorers = [...this.featureScorers, ...this.feedScorers];
@@ -196,6 +182,20 @@ class TheAlgorithm {
     }
     list() {
         return new Paginator_1.default(this.feed);
+    }
+    // Debugging method to log info about the timeline toots
+    logFeedInfo() {
+        if (!this.feed || this.feed.length == 0) {
+            console.warn(`No feed to log!`);
+            return;
+        }
+        console.log(`timeline toots (condensed): `, this.feed.map(helpers_1.condensedStatus));
+        const appCounts = this.feed.reduce((counts, toot) => {
+            const app = toot.application?.name || "unknown";
+            counts[app] = (counts[app] || 0) + 1;
+            return counts;
+        }, {});
+        console.debug(`feed toots posted by application counts: `, appCounts);
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
