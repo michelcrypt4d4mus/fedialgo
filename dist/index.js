@@ -28,8 +28,7 @@ class TheAlgorithm {
         homeFeed_1.default,
         topPostsFeed_1.default
     ];
-    // Scorers that are atomic in the sense that they can score a tool without knowing
-    // about the rest of the toots in the TL.
+    // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new scorer_1.ChaosFeatureScorer(),
         new scorer_1.FavsFeatureScorer(),
@@ -43,7 +42,7 @@ class TheAlgorithm {
         new scorer_1.TopPostFeatureScorer(),
         new scorer_1.VideoAttachmentScorer(),
     ];
-    // I think these scorers require the complete list and info about past user behavior to work?
+    // These scorers require the complete feed to work properly
     feedScorers = [
         new scorer_1.DiversityFeedScorer(),
         new scorer_1.ReblogsFeedScorer(),
@@ -95,6 +94,8 @@ class TheAlgorithm {
     // Has side effect of updating WeightsStore.
     async weightTootsInFeed(userWeights) {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
+        // TODO: DiversityFeedScorer mutates its feed state so setFeed() must be called each scoring
+        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
             if (userWeights[key] == null || isNaN(userWeights[key])) {
