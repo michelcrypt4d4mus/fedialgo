@@ -1,5 +1,6 @@
 `2024-12-01`
 * Introduce `TootScore` type to hold all score info
+* filter out toots that match user's configured filters
 * [bug] `reblogsFeedScorer` should only count retoots
 * [bug] reset the diversity scorer when rescoring
 
