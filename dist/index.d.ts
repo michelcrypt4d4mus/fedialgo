@@ -17,6 +17,7 @@ declare class TheAlgorithm {
     feedScorers: (DiversityFeedScorer | ReblogsFeedScorer)[];
     featureScoreNames: string[];
     feedScoreNames: string[];
+    weightedScorers: (ChaosFeatureScorer | DiversityFeedScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | ReblogsFeedScorer | RepliedFeatureScorer | TopPostFeatureScorer | VideoAttachmentScorer)[];
     weightedScoreNames: string[];
     allScoreNames: string[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account);
