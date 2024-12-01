@@ -120,7 +120,7 @@ class TheAlgorithm {
 
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
-            if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
+            if (userWeights[key] == null || isNaN(userWeights[key])) {
                 console.warn(`Invalid value for '${key}'! Setting to 0...`);
                 userWeights[key] = 0;
             }
@@ -132,7 +132,7 @@ class TheAlgorithm {
         for (const toot of this.feed) {
             console.debug(`Reweighting ${describeToot(toot)}: `, toot);
 
-            // TODO: Reloading the whole feed seems like a bad way to handle missing scores for one toot
+            // Reload the feed if any toots are missing scores
             if (!toot.rawScores) {
                 console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
                 return this.getFeed();

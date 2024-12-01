@@ -96,7 +96,7 @@ class TheAlgorithm {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
-            if (userWeights[key] == undefined || userWeights[key] == null || isNaN(userWeights[key])) {
+            if (userWeights[key] == null || isNaN(userWeights[key])) {
                 console.warn(`Invalid value for '${key}'! Setting to 0...`);
                 userWeights[key] = 0;
             }
