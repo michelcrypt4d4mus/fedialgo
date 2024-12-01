@@ -50,14 +50,16 @@ class TheAlgorithm {
         new scorer_1.DiversityFeedScorer(),
         new scorer_1.ReblogsFeedScorer(),
     ];
-    constructor(api, user, valueCalculator = null) {
+    featureScoreNames = this.featureScorers.map(scorer => scorer.getScoreName());
+    feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
+    weightedScoreNames = this.featureScoreNames.concat(this.feedScoreNames);
+    allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
+    constructor(api, user) {
         this.api = api;
         this.user = user;
         Storage_1.default.setIdentity(user);
         Storage_1.default.logAppOpen();
         this.setDefaultWeights();
-        if (valueCalculator)
-            this._computeFinalScore = valueCalculator;
     }
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in
     // the fediverse, score them, and sort them.
@@ -70,9 +72,6 @@ class TheAlgorithm {
         console.log(`Found ${this.feed.length} potential toots for feed.`);
         await Promise.all(featureScorers.map(scorer => scorer.getFeature(this.api)));
         await Promise.all(feedScorers.map(scorer => scorer.setFeed(this.feed)));
-        // Get Score Names
-        const scoreNames = featureScorers.map(scorer => scorer.getScoreName());
-        const feedScoreNames = feedScorers.map(scorer => scorer.getScoreName());
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter(isValidForFeed);
         const numRemoved = this.feed.length - cleanFeed.length;
@@ -83,41 +82,16 @@ class TheAlgorithm {
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
-        // Score Feed (should be mutating the toot AKA toot objects in place
+        // Score toots in feed (mutates the Toot objects)
         for (const toot of this.feed) {
-            // console.debug(`Scoring ${describeToot(toot)}: `, toot);
-            toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right place to do this?
-            // Load Scores for each toot
-            const featureScore = await Promise.all(featureScorers.map(scorer => scorer.score(toot)));
-            const feedScore = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
+            // Score each feature of the toot
+            const featureScores = await Promise.all(featureScorers.map(scorer => scorer.score(toot)));
+            const feedScores = await Promise.all(feedScorers.map(scorer => scorer.score(toot)));
             // Turn Scores into Weight Objects
-            const featureScoreObj = this._getScoreObj(scoreNames, featureScore);
-            const feedScoreObj = this._getScoreObj(feedScoreNames, feedScore);
-            const scoreObj = { ...featureScoreObj, ...feedScoreObj };
-            const weights = await weightsStore_1.default.getUserWeightsMulti(Object.keys(scoreObj));
-            // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-            toot.rawScore = (await this._computeFinalScore(scoreObj)) || 0;
-            toot.scores = scoreObj; // TODO maybe rename this to scoreComponents or featureScores?
-            toot.weightedScores = Object.assign({}, scoreObj);
-            for (const scoreName in scoreObj) {
-                if (scoreName === TIME_DECAY)
-                    continue;
-                toot.weightedScores[scoreName] = (scoreObj[scoreName] || 0) * (weights[scoreName] || 0);
-            }
-            // Multiple rawScore by time decay penalty to get a final value
-            const timeDecay = weights[TIME_DECAY] || DEFAULT_TIME_DECAY;
-            const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-            toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-            // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-            toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
-            // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
-            if (toot.reblog) {
-                toot.reblog.rawScore = toot.rawScore;
-                toot.reblog.scores = toot.scores;
-                toot.reblog.weightedScores = toot.weightedScores;
-                toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
-                toot.reblog.value = toot.value;
-            }
+            const featureScoreObj = this._getScoreObj(this.featureScoreNames, featureScores);
+            const feedScoreObj = this._getScoreObj(this.feedScoreNames, feedScores);
+            toot.scores = { ...featureScoreObj, ...feedScoreObj }; // TODO maybe rename this to scoreComponents or featureScores?
+            await this._decorateWithScoreInfo(toot);
         }
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
         this.feed = this.feed.sort((a, b) => {
@@ -184,8 +158,7 @@ class TheAlgorithm {
                 console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
                 return this.getFeed();
             }
-            toot.value = await this._computeFinalScore(toot.scores);
-            scoredFeed.push(toot);
+            scoredFeed.push(await this._decorateWithScoreInfo(toot));
         }
         // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
@@ -228,26 +201,51 @@ class TheAlgorithm {
     list() {
         return new Paginator_1.default(this.feed);
     }
-    // Compute a weighted score a toot based by multiplying the value of each numerical property
-    // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-    async _computeFinalScore(scores) {
-        const userWeightings = await weightsStore_1.default.getUserWeightsMulti(Object.keys(scores));
-        const trendingTootWeighting = userWeightings[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
-        let score = 1; // Add 1 so if all weights are 0 the timeline is reverse chronological order
-        score += Object.keys(scores).reduce((score, scoreName) => {
-            return score + (scores[scoreName] ?? 0) * (userWeightings[scoreName] ?? 0);
-        }, 0);
+    // Add scores including weighted & unweighted components to the Toot for debugging/inspection
+    async _decorateWithScoreInfo(toot) {
+        console.debug(`_decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
+        toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right way to do this?
+        const userWeights = await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
+        // Add 1 to score so if all weights are 0 the timeline is reverse chronological order
+        let rawScore = 1;
+        toot.scores ||= {}; // TODO: rename rawScores
+        const weightedScores = {};
+        // Compute a weighted score a toot based by multiplying the value of each numerical property
+        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
+        this.weightedScoreNames.forEach((scoreName) => {
+            weightedScores[scoreName] = (toot.scores?.[scoreName] || 0) * (userWeights[scoreName] || 0);
+            console.log(`Scored ${scoreName} as ${weightedScores[scoreName]} for toot: `, toot);
+            rawScore += weightedScores[scoreName];
+        });
+        toot.rawScore = rawScore;
+        toot.weightedScores = weightedScores;
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        if (scores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
-            // console.debug(`Scaling down trending toot w/score ${score} by weighting of ${trendingTootWeighting}...`);
-            score *= trendingTootWeighting;
+        const trendingTootWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
+        if (toot.scores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
+            console.debug(`Scaling down trending toot w/score ${toot.rawScore} by weighting of ${trendingTootWeighting}...`);
+            toot.rawScore *= trendingTootWeighting;
         }
-        if (!score && score !== 0) {
-            console.warn(`Failed to compute score with:`, scores, `\n and userWeightings: `, userWeightings, `\ngot: `, score);
+        if (!toot.rawScore && toot.rawScore !== 0) {
+            console.warn(`Failed to compute score with userWeights: `, userWeights, `\ntoot: `, toot);
         }
-        return score;
+        // Multiple rawScore by time decay penalty to get a final value
+        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_TIME_DECAY;
+        const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
+        toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
+        // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
+        toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
+        // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
+        if (toot.reblog) {
+            toot.reblog.rawScore = toot.rawScore;
+            toot.reblog.scores = toot.scores;
+            toot.reblog.weightedScores = toot.weightedScores;
+            toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
+            toot.reblog.value = toot.value;
+        }
+        console.debug(`Decorated toot with score info:`, toot);
+        return toot;
     }
     _getScoreObj(scoreNames, scores) {
         return scoreNames.reduce((obj, scoreName, i) => {

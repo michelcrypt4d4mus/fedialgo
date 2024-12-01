@@ -15,7 +15,11 @@ declare class TheAlgorithm {
     fetchers: (typeof getHomeFeed)[];
     featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TopPostFeatureScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | ReblogsFeedScorer)[];
-    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account, valueCalculator?: (((scores: ScoresType) => Promise<number>) | null));
+    featureScoreNames: string[];
+    feedScoreNames: string[];
+    weightedScoreNames: string[];
+    allScoreNames: string[];
+    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account);
     getFeed(): Promise<Toot[]>;
     logFeedInfo(): void;
     getScorerNames(): string[];
@@ -25,7 +29,7 @@ declare class TheAlgorithm {
     getDescription(scorerName: string): string;
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
-    private _computeFinalScore;
+    private _decorateWithScoreInfo;
     private _getScoreObj;
 }
 export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, condensedStatus, extractScoreInfo, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };
