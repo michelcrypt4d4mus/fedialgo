@@ -30,6 +30,5 @@ declare class TheAlgorithm {
     list(): Paginator;
     logFeedInfo(): void;
     private _decorateWithScoreInfo;
-    private _getScoreObj;
 }
 export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, condensedStatus, extractScoreInfo, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

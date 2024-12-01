@@ -193,27 +193,26 @@ class TheAlgorithm {
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
         console.debug(`_decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
-        // Inject condensedStatus() instance method // TODO: is this the right way to do this?
-        toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
-        toot.rawScore = 1; // Start with 1 so if all weights are 0 timeline is reverse chronological order
-        toot.rawScores = this.weightedScoreNames.reduce((_scores, scoreName, i) => {
-            _scores[scoreName] = scores[i];
-            return _scores;
-        }, {});
+        toot.rawScore = 1;
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        toot.weightedScores = this.weightedScoreNames.reduce((_scores, scoreName) => {
-            _scores[scoreName] = (toot.rawScores?.[scoreName] || 0) * (userWeights[scoreName] || 0);
-            toot.rawScore = (toot.rawScore || 0) + _scores[scoreName];
-            return _scores;
-        }, {});
+        this.weightedScoreNames.forEach((scoreName, i) => {
+            const scoreValue = scores[i] || 0;
+            toot.weightedScores ??= {};
+            toot.rawScores ??= {};
+            toot.rawScore ??= 1; // Start at 1 so if all weights are 0 timeline is reverse chronological order
+            toot.weightedScores[scoreName] = scoreValue * (userWeights[scoreName] || 0);
+            toot.rawScores[scoreName] = scoreValue;
+            toot.rawScore += toot.weightedScores[scoreName];
+        });
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
+        const trendingTootScore = toot.rawScores?.[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
         const trendingTootWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
-        if (toot.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
+        if (trendingTootScore > 0 && trendingTootWeighting < 1.0) {
             toot.rawScore *= trendingTootWeighting;
         }
         // Multiple rawScore by time decay penalty to get a final value
@@ -229,14 +228,10 @@ class TheAlgorithm {
             toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
             toot.reblog.score = toot.score;
         }
-        console.debug(`after _decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
+        // console.debug(`after _decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+        // Inject condensedStatus() instance method // TODO: is this the right way to do this?
+        toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
         return toot;
-    }
-    _getScoreObj(scoreNames, scores) {
-        return scoreNames.reduce((_scores, scoreName, i) => {
-            _scores[scoreName] = scores[i];
-            return _scores;
-        }, {});
     }
 }
 exports.TheAlgorithm = TheAlgorithm;
