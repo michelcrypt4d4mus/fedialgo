@@ -1,3 +1,6 @@
+`2024-12-01`
+* Introduce `TootScore` type to hold all score info
+
 `2024-11-30`
 * Refactor `_decorateWithScoreInfo()` method
 * Rename `scores` => `rawScores` and `value` => `score`
