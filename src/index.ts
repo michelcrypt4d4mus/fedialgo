@@ -314,9 +314,9 @@ class TheAlgorithm {
     }
 
     private _getScoreObj(scoreNames: string[], scores: number[]): ScoresType {
-        return scoreNames.reduce((obj: ScoresType, scoreName: string, i) => {
-            obj[scoreName] = scores[i];
-            return obj;
+        return scoreNames.reduce((_scores: ScoresType, scoreName: string, i) => {
+            _scores[scoreName] = scores[i];
+            return _scores;
         }, {});
     }
 };

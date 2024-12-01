@@ -248,9 +248,9 @@ class TheAlgorithm {
         return toot;
     }
     _getScoreObj(scoreNames, scores) {
-        return scoreNames.reduce((obj, scoreName, i) => {
-            obj[scoreName] = scores[i];
-            return obj;
+        return scoreNames.reduce((_scores, scoreName, i) => {
+            _scores[scoreName] = scores[i];
+            return _scores;
         }, {});
     }
 }
