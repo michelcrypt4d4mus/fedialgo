@@ -70,11 +70,12 @@ class TheAlgorithm {
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
 
-    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
+    private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
     }
 
+    // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm> {
         const algo = new TheAlgorithm(api, user);
         await Storage.setIdentity(user);
@@ -150,12 +151,14 @@ class TheAlgorithm {
 
     // Set Default Weights if they don't exist
     async setDefaultWeights(): Promise<void> {
+        console.debug(`Setting default weights...`);
         await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getScoreName(),
             scorer.getDefaultWeight()
         )));
 
         WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+        console.debug(`Done setting default weights`);
     }
 
     // Return the user's current weightings for each score category
@@ -224,9 +227,9 @@ class TheAlgorithm {
 
         console.debug(`feed toots posted by application counts: `, appCounts);
 
-        this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
-            console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
-        });
+        // this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
+        //     console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
+        // });
     }
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection

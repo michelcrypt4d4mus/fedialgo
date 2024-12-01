@@ -22,34 +22,20 @@ export default class Storage {
     // TODO: currently groupedByUser is always true ?
     protected static async get(key: Key, groupedByUser: boolean = true, suffix: string = ""): Promise<StorageValue | null> {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
-
-        // try {
+        console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
         return await localForage.getItem(storageKey);
-        // } catch (e) {
-        //     console.error(`Error getting ${storageKey} from localForage:`, e);
-        //     return null;
-        // }
     }
 
     protected static async set(key: Key, value: StorageValue, groupedByUser = true, suffix = "") {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        const jsonValue = JSON.stringify({ [storageKey]: value })
-        await localForage.setItem(storageKey, jsonValue);
+        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
+        await localForage.setItem(storageKey, value);
     }
 
     protected static async remove(key: Key, groupedByUser: boolean = true, suffix: string = "") {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
-    }
-
-    protected static async userPrefix(key: string) {
-        const user = await this.getIdentity();
-
-        if (!user) {
-            throw new Error("No user identity found");
-        }
-
-        return `${user.id}_${key}`;
     }
 
     static async logAppOpen() {
@@ -101,5 +87,15 @@ export default class Storage {
     private static async buildKey(key: Key, groupedByUser: boolean = true, suffix: string = "") {
         const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
         return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix
+    }
+
+    private static async userPrefix(key: string) {
+        const user = await this.getIdentity();
+
+        if (user) {
+            return `${user.id}_${key}`;
+        } else {
+            throw new Error("No user identity found");
+        }
     }
 };

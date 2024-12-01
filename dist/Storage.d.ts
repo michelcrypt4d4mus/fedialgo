@@ -17,11 +17,11 @@ export default class Storage {
     protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
     protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
-    protected static userPrefix(key: string): Promise<string>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;
     static getIdentity(): Promise<mastodon.v1.Account | null>;
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
     private static buildKey;
+    private static userPrefix;
 }

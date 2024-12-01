@@ -37,7 +37,7 @@ export default class WeightsStore extends Storage {
     static async defaultFallback(scoreName: string, defaultWeight: number): Promise<boolean> {
         // If the weight is not set, set it to the default weight
         const weight = await this.get(Key.WEIGHTS, true, scoreName) as ScoresType;
-        // console.debug(`Default ${scoreName} user weight: ${weight} (defaultWeight arg: ${defaultWeight})`);
+        console.debug(`Default ${scoreName} weight in storage: ${weight} (defaultWeight arg: ${defaultWeight})`);
 
         if (weight == null) {
             await this.setScoreWeights({ [scoreName]: defaultWeight }, scoreName);

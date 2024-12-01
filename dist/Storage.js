@@ -24,28 +24,18 @@ class Storage {
     // TODO: currently groupedByUser is always true ?
     static async get(key, groupedByUser = true, suffix = "") {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        // try {
+        console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
         return await localforage_1.default.getItem(storageKey);
-        // } catch (e) {
-        //     console.error(`Error getting ${storageKey} from localForage:`, e);
-        //     return null;
-        // }
     }
     static async set(key, value, groupedByUser = true, suffix = "") {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        const jsonValue = JSON.stringify({ [storageKey]: value });
-        await localforage_1.default.setItem(storageKey, jsonValue);
+        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
+        await localforage_1.default.setItem(storageKey, value);
     }
     static async remove(key, groupedByUser = true, suffix = "") {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
-    }
-    static async userPrefix(key) {
-        const user = await this.getIdentity();
-        if (!user) {
-            throw new Error("No user identity found");
-        }
-        return `${user.id}_${key}`;
     }
     static async logAppOpen() {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS));
@@ -88,6 +78,15 @@ class Storage {
     static async buildKey(key, groupedByUser = true, suffix = "") {
         const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
         return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix;
+    }
+    static async userPrefix(key) {
+        const user = await this.getIdentity();
+        if (user) {
+            return `${user.id}_${key}`;
+        }
+        else {
+            throw new Error("No user identity found");
+        }
     }
 }
 exports.default = Storage;
