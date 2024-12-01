@@ -90,13 +90,13 @@ class TheAlgorithm {
             // Turn Scores into Weight Objects
             const featureScoreObj = this._getScoreObj(this.featureScoreNames, featureScores);
             const feedScoreObj = this._getScoreObj(this.feedScoreNames, feedScores);
-            toot.scores = { ...featureScoreObj, ...feedScoreObj }; // TODO maybe rename this to scoreComponents or featureScores?
+            toot.rawScores = { ...featureScoreObj, ...feedScoreObj }; // TODO maybe rename this to scoreComponents or featureScores?
             await this._decorateWithScoreInfo(toot);
         }
         // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
         this.feed = this.feed.sort((a, b) => {
-            const aWeightedScore = a.value ?? 0;
-            const bWeightedScore = b.value ?? 0;
+            const aWeightedScore = a.score ?? 0;
+            const bWeightedScore = b.score ?? 0;
             if (aWeightedScore < bWeightedScore) {
                 return 1;
             }
@@ -154,14 +154,14 @@ class TheAlgorithm {
         for (const toot of this.feed) {
             console.debug(`Reweighting ${(0, helpers_1.describeToot)(toot)}: `, toot);
             // TODO: Reloading the whole feed seems like a bad way to handle missing scores for one toot
-            if (!toot.scores) {
+            if (!toot.rawScores) {
                 console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
                 return this.getFeed();
             }
             scoredFeed.push(await this._decorateWithScoreInfo(toot));
         }
         // TODO: this is still using the old weird sorting mechanics
-        this.feed = scoredFeed.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+        this.feed = scoredFeed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
         return this.feed;
     }
     // Get the longform human readable description for a given scorer
@@ -206,45 +206,38 @@ class TheAlgorithm {
         console.debug(`_decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
         toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot); // Inject condensedStatus() instance method // TODO: is this the right way to do this?
         const userWeights = await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
-        // Add 1 to score so if all weights are 0 the timeline is reverse chronological order
+        // Start with 1 so if all weights are 0 timeline is reverse chronological order
         let rawScore = 1;
-        toot.scores ||= {}; // TODO: rename rawScores
+        toot.rawScores ||= {};
         const weightedScores = {};
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         this.weightedScoreNames.forEach((scoreName) => {
-            weightedScores[scoreName] = (toot.scores?.[scoreName] || 0) * (userWeights[scoreName] || 0);
-            console.log(`Scored ${scoreName} as ${weightedScores[scoreName]} for toot: `, toot);
+            weightedScores[scoreName] = (toot.rawScores?.[scoreName] || 0) * (userWeights[scoreName] || 0);
             rawScore += weightedScores[scoreName];
         });
         toot.rawScore = rawScore;
         toot.weightedScores = weightedScores;
+        const trendingTootWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingTootWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] || 0;
-        if (toot.scores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
-            console.debug(`Scaling down trending toot w/score ${toot.rawScore} by weighting of ${trendingTootWeighting}...`);
+        if (toot.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS] > 0 && trendingTootWeighting < 1.0) {
             toot.rawScore *= trendingTootWeighting;
-        }
-        if (!toot.rawScore && toot.rawScore !== 0) {
-            console.warn(`Failed to compute score with userWeights: `, userWeights, `\ntoot: `, toot);
         }
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || DEFAULT_TIME_DECAY;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         toot.timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        // TODO: "value" is not a good name for this. We should use "score", "weightedScore", "rank", or "computedScore"
-        toot.value = (toot.rawScore ?? 0) * toot.timeDecayMultiplier;
+        toot.score = toot.rawScore * toot.timeDecayMultiplier;
         // If it's a retoot populate all the scores on the retooted toot as well // TODO: this is janky
         if (toot.reblog) {
             toot.reblog.rawScore = toot.rawScore;
-            toot.reblog.scores = toot.scores;
+            toot.reblog.rawScores = toot.rawScores;
             toot.reblog.weightedScores = toot.weightedScores;
             toot.reblog.timeDecayMultiplier = toot.timeDecayMultiplier;
-            toot.reblog.value = toot.value;
+            toot.reblog.score = toot.score;
         }
-        console.debug(`Decorated toot with score info:`, toot);
         return toot;
     }
     _getScoreObj(scoreNames, scores) {

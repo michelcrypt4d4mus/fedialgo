@@ -57,6 +57,7 @@ describe('TheAlgorithm', () => {
         const newWeights = { ...weights, Favs: 5 }
         const adjusted = await algo.learnWeights(newWeights);
         console.log(adjusted);
+
         if (adjusted) {
             expect(Object.values(adjusted).reduce((a, b) => a && Boolean(b), true)).toBe(true); //check that all values are defined
             expect(adjusted["Favs"]).toBeGreaterThan(weights["Favs"]); //check that favs has increased

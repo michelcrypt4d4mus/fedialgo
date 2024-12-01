@@ -18,14 +18,14 @@ export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     followedTags?: mastodon.v1.Tag[];
     rawScore?: number;
+    rawScores?: ScoresType;
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     recommended?: boolean;
-    scores?: ScoresType;
+    score?: number;
     similarity?: number;
     timeDecayMultiplier?: number;
     trendingRank?: number;
-    value?: number;
     weightedScores?: ScoresType;
 }
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

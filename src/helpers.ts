@@ -132,10 +132,10 @@ export const condensedStatus = (toot: Toot) => {
 export const extractScoreInfo = (toot: Toot) => {
     return {
         rawScore: toot.rawScore,
-        scoreComponents: toot.scores,
+        scoreComponents: toot.rawScores,
         scoreComponentsWeighted: toot.weightedScores,
         timeDecayMultiplier: toot.timeDecayMultiplier,
-        timeWeightedScore: toot.value,
+        timeWeightedScore: toot.score,
     };
 };
 

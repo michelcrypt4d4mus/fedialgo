@@ -25,14 +25,14 @@ export interface Toot extends mastodon.v1.Status {
     condensedStatus?: () => object;
     followedTags?: mastodon.v1.Tag[];
     rawScore?: number;  // Score before applying timeDecayMultiplier
+    rawScores?: ScoresType;
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     recommended?: boolean;
-    scores?: ScoresType;
+    score?: number;
     similarity?: number;
     timeDecayMultiplier?: number;  // Multiplier that reduces the score of older posts
     trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
-    value?: number;
     weightedScores?: ScoresType;
 };
 
