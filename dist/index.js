@@ -55,9 +55,14 @@ class TheAlgorithm {
     constructor(api, user) {
         this.api = api;
         this.user = user;
-        Storage_1.default.setIdentity(user);
-        Storage_1.default.logAppOpen();
-        this.setDefaultWeights();
+    }
+    // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
+    static async create(api, user) {
+        const algo = new TheAlgorithm(api, user);
+        await Storage_1.default.setIdentity(user);
+        await Storage_1.default.logAppOpen();
+        await algo.setDefaultWeights();
+        return algo;
     }
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in
     // the fediverse, score them, and sort them.
@@ -113,8 +118,10 @@ class TheAlgorithm {
     }
     // Set Default Weights if they don't exist
     async setDefaultWeights() {
+        console.debug(`Setting default weights...`);
         await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
         weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+        console.debug(`Done setting default weights`);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {

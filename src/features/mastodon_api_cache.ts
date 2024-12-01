@@ -43,6 +43,7 @@ export default class MastodonApiCache extends Storage {
             console.log("[MastodonApiCache] Loaded user's toots from storage...");
         } else {
             const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found");
             const recentToots = await getUserRecentToots(api, user);
             console.log(`[MastodonApiCache] Retrieved recentToots: `, recentToots);
 
@@ -65,6 +66,7 @@ export default class MastodonApiCache extends Storage {
             console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage...");
         } else {
             const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found");
             topReblogs = await reblogsFeature(api, user, Object.values(await this.getRecentToots(api)));
             await this.set(Key.TOP_REBLOGS, topReblogs);
         }
@@ -80,6 +82,7 @@ export default class MastodonApiCache extends Storage {
             console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
         } else {
             const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found");
             mostReplied = await repliedFeature(api, user, Object.values(await this.getRecentToots(api)));
             await this.set(Key.REPLIED_TO, mostReplied);
         }
@@ -124,6 +127,7 @@ export default class MastodonApiCache extends Storage {
             console.log("[MastodonApiCache] Loaded coreServer from storage");
         } else {
             const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found");
             coreServer = await coreServerFeature(api, user);
             await this.set(Key.CORE_SERVER, coreServer);
         }

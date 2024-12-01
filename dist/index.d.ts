@@ -19,7 +19,8 @@ declare class TheAlgorithm {
     feedScoreNames: string[];
     weightedScoreNames: string[];
     allScoreNames: string[];
-    constructor(api: mastodon.rest.Client, user: mastodon.v1.Account);
+    private constructor();
+    static create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     setDefaultWeights(): Promise<void>;
