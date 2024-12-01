@@ -15,7 +15,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     }
 
     feedExtractor(feed: Toot[]): Record<string, number> {
-        const sortRandom = () => Math.random() - 0.5;  // this prevents just always the first post from being shown
+        const sortRandom = () => Math.random() - 0.5;  // Shuffle the feed before penalizing multiple tooters
 
         return feed.sort(sortRandom).reduce(
             (userTootCounts: Record<string, number>, toot) => {
@@ -30,7 +30,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     async score(toot: Toot) {
         super.score(toot);  // Check if ready
         this.features[toot.account.acct] += 1;
-        console.log(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
+        // console.debug(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
         return this.features[toot.account.acct];
     }
 };

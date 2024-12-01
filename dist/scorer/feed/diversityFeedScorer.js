@@ -13,7 +13,7 @@ class DiversityFeedScorer extends FeedScorer_1.default {
         super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
     }
     feedExtractor(feed) {
-        const sortRandom = () => Math.random() - 0.5; // this prevents just always the first post from being shown
+        const sortRandom = () => Math.random() - 0.5; // Shuffle the feed before penalizing multiple tooters
         return feed.sort(sortRandom).reduce((userTootCounts, toot) => {
             userTootCounts[toot.account.acct] = (userTootCounts[toot.account.acct] || 0) - 1;
             return userTootCounts;
@@ -23,7 +23,7 @@ class DiversityFeedScorer extends FeedScorer_1.default {
     async score(toot) {
         super.score(toot); // Check if ready
         this.features[toot.account.acct] += 1;
-        console.log(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
+        // console.debug(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
         return this.features[toot.account.acct];
     }
 }

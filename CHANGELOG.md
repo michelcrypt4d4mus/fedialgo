@@ -1,6 +1,6 @@
 `2024-12-01`
 * Introduce `TootScore` type to hold all score info
-* [bug] reset the diversity weighting when rescoring
+* [bug] reset the diversity scorer when rescoring
 
 `2024-11-30`
 * Refactor `_decorateWithScoreInfo()` method

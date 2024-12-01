@@ -31,7 +31,7 @@ async function topPostsFeed(api) {
             return [];
         }
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
-        // and inject a topPost score property that is reverse-ordered, e.g most popular trending
+        // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
         // toot gets NUM_TRENDING_TOOTS_PER_SERVER points, least trending gets 1).
         serverTopToots = serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
             .slice(0, NUM_TRENDING_TOOTS_PER_SERVER)
