@@ -15,6 +15,7 @@ export declare function mastodonFetchPages<T>({ fetchMethod, minRecords, label }
 export declare const condensedStatus: (toot: Toot) => {};
 export declare const describeAccount: (toot: Toot) => string;
 export declare const describeToot: (toot: Toot) => string;
+export declare const tootSize: (toot: Toot) => number;
 export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const minimumID: (toots: Toot[]) => number | null;

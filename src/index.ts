@@ -18,7 +18,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { condensedStatus, describeToot } from "./helpers";
+import { condensedStatus, describeToot, tootSize } from "./helpers";
 import { ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
@@ -218,6 +218,10 @@ class TheAlgorithm {
         }, {} as ScoresType);
 
         console.debug(`feed toots posted by application counts: `, appCounts);
+
+        this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
+            console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
+        });
     }
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
@@ -265,9 +269,6 @@ class TheAlgorithm {
 
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
-
-        // Inject condensedStatus() instance method // TODO: is this the right way to do this?
-        toot.condensedStatus = () => condensedStatus(toot);
         return toot;
     }
 

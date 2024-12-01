@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -120,6 +120,12 @@ const describeToot = (toot) => {
     return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
 };
 exports.describeToot = describeToot;
+const tootSize = (toot) => {
+    return JSON.stringify(toot).length;
+    // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
+    // return Buffer.byteLength(JSON.stringify(toot));
+};
+exports.tootSize = tootSize;
 // Extract attachments from Toots
 const imageAttachments = (toot) => {
     return attachmentsOfType(toot, "image");

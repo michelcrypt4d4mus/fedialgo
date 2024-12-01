@@ -169,6 +169,9 @@ class TheAlgorithm {
             return counts;
         }, {});
         console.debug(`feed toots posted by application counts: `, appCounts);
+        // this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
+        //     console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
+        // });
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
@@ -209,8 +212,6 @@ class TheAlgorithm {
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog)
             toot.reblog.scoreInfo = toot.scoreInfo;
-        // Inject condensedStatus() instance method // TODO: is this the right way to do this?
-        toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
         return toot;
     }
     // Sort feed based on score from high to low. This must come after the deduplication step.

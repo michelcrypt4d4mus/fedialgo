@@ -22,7 +22,6 @@ export type TootScore = {
     weightedScores: ScoresType;
 };
 export interface Toot extends mastodon.v1.Status {
-    condensedStatus?: () => object;
     followedTags?: mastodon.v1.Tag[];
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;

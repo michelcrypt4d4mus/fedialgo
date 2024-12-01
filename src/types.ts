@@ -30,7 +30,6 @@ export type TootScore = {
 };
 
 export interface Toot extends mastodon.v1.Status {
-    condensedStatus?: () => object;
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;

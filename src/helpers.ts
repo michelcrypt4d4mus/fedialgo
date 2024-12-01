@@ -140,6 +140,13 @@ export const describeToot = (toot: Toot): string => {
 };
 
 
+export const tootSize = (toot: Toot): number => {
+    return JSON.stringify(toot).length;
+    // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
+    // return Buffer.byteLength(JSON.stringify(toot));
+};
+
+
 // Extract attachments from Toots
 export const imageAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
     return attachmentsOfType(toot, "image");
