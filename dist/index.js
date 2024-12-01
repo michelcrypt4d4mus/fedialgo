@@ -169,9 +169,9 @@ class TheAlgorithm {
             return counts;
         }, {});
         console.debug(`feed toots posted by application counts: `, appCounts);
-        // this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
-        //     console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
-        // });
+        this.feed.toSorted((a, b) => (0, helpers_1.tootSize)(b) - (0, helpers_1.tootSize)(a)).forEach((toot, i) => {
+            console.debug(`largest toot #${i + 1} (${(0, helpers_1.tootSize)(toot)} bytes): ${(0, helpers_1.describeToot)(toot)}`, toot);
+        });
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {

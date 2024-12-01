@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import localForage from "localforage";
 import { mastodon } from "masto";
 
 import { StorageValue } from "./types";
@@ -20,35 +20,35 @@ export enum Key {
 
 export default class Storage {
     // TODO: currently groupedByUser is always true ?
-    protected static async get(key: Key, groupedByUser: boolean = true, suffix: string = ""): Promise<StorageValue> {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
-        const jsonValue = await AsyncStorage.getItem(storageKey);
-        const value = jsonValue != null ? JSON.parse(jsonValue) : null;
+    protected static async get(key: Key, groupedByUser: boolean = true, suffix: string = ""): Promise<StorageValue | null> {
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
 
-        return value != null ? value[storageKey] : null;
+        // try {
+        return await localForage.getItem(storageKey);
+        // } catch (e) {
+        //     console.error(`Error getting ${storageKey} from localForage:`, e);
+        //     return null;
+        // }
     }
 
     protected static async set(key: Key, value: StorageValue, groupedByUser = true, suffix = "") {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
         const jsonValue = JSON.stringify({ [storageKey]: value })
-        await AsyncStorage.setItem(storageKey, jsonValue);
+        await localForage.setItem(storageKey, jsonValue);
     }
 
-    static suffix(key: Key, suffix: string) {
-        if (suffix === "") return key;
-        return `${key}_${suffix}`;
+    protected static async remove(key: Key, groupedByUser: boolean = true, suffix: string = "") {
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        await localForage.removeItem(storageKey);
     }
 
-    protected static async remove(key: Key, groupedByUser = true, suffix = "") {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await Storage.prefix(suffixKey) : suffixKey;
-        await AsyncStorage.removeItem(storageKey);
-    }
-
-    protected static async prefix(key: string) {
+    protected static async userPrefix(key: string) {
         const user = await this.getIdentity();
+
+        if (!user) {
+            throw new Error("No user identity found");
+        }
+
         return `${user.id}_${key}`;
     }
 
@@ -89,14 +89,17 @@ export default class Storage {
         return numAppOpens;
     }
 
-    static async getIdentity(): Promise<mastodon.v1.Account> {
-        const userJson = await AsyncStorage.getItem(Key.USER);
-        const user: mastodon.v1.Account = userJson != null ? JSON.parse(userJson) : null;
-        return user;
+    static async getIdentity(): Promise<mastodon.v1.Account | null> {
+        return await localForage.getItem(Key.USER);
     }
 
     static async setIdentity(user: mastodon.v1.Account) {
-        const userJson = JSON.stringify(user);
-        await AsyncStorage.setItem(Key.USER, userJson);
+        console.log(`Setting identity to:`, user);
+        await localForage.setItem(Key.USER, user);
+    }
+
+    private static async buildKey(key: Key, groupedByUser: boolean = true, suffix: string = "") {
+        const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
+        return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix
     }
 };

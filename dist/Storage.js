@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Key = void 0;
-const async_storage_1 = __importDefault(require("@react-native-async-storage/async-storage"));
+const localforage_1 = __importDefault(require("localforage"));
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
@@ -23,30 +23,28 @@ var Key;
 class Storage {
     // TODO: currently groupedByUser is always true ?
     static async get(key, groupedByUser = true, suffix = "") {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
-        const jsonValue = await async_storage_1.default.getItem(storageKey);
-        const value = jsonValue != null ? JSON.parse(jsonValue) : null;
-        return value != null ? value[storageKey] : null;
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        // try {
+        return await localforage_1.default.getItem(storageKey);
+        // } catch (e) {
+        //     console.error(`Error getting ${storageKey} from localForage:`, e);
+        //     return null;
+        // }
     }
     static async set(key, value, groupedByUser = true, suffix = "") {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await this.prefix(suffixKey) : suffixKey;
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
         const jsonValue = JSON.stringify({ [storageKey]: value });
-        await async_storage_1.default.setItem(storageKey, jsonValue);
-    }
-    static suffix(key, suffix) {
-        if (suffix === "")
-            return key;
-        return `${key}_${suffix}`;
+        await localforage_1.default.setItem(storageKey, jsonValue);
     }
     static async remove(key, groupedByUser = true, suffix = "") {
-        const suffixKey = this.suffix(key, suffix);
-        const storageKey = groupedByUser ? await Storage.prefix(suffixKey) : suffixKey;
-        await async_storage_1.default.removeItem(storageKey);
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        await localforage_1.default.removeItem(storageKey);
     }
-    static async prefix(key) {
+    static async userPrefix(key) {
         const user = await this.getIdentity();
+        if (!user) {
+            throw new Error("No user identity found");
+        }
         return `${user.id}_${key}`;
     }
     static async logAppOpen() {
@@ -81,13 +79,15 @@ class Storage {
         return numAppOpens;
     }
     static async getIdentity() {
-        const userJson = await async_storage_1.default.getItem(Key.USER);
-        const user = userJson != null ? JSON.parse(userJson) : null;
-        return user;
+        return await localforage_1.default.getItem(Key.USER);
     }
     static async setIdentity(user) {
-        const userJson = JSON.stringify(user);
-        await async_storage_1.default.setItem(Key.USER, userJson);
+        console.log(`Setting identity to:`, user);
+        await localforage_1.default.setItem(Key.USER, user);
+    }
+    static async buildKey(key, groupedByUser = true, suffix = "") {
+        const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
+        return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix;
     }
 }
 exports.default = Storage;
