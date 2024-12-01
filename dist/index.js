@@ -102,18 +102,8 @@ class TheAlgorithm {
         });
         return this.feed;
     }
-    // Set Default Weights if they don't exist
-    async setDefaultWeights() {
-        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
-        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
-    }
-    // Return the user's current weightings for each score category
-    async getUserWeights() {
-        return await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
-    }
-    // I think this is the main function that gets called when the user changes the weights of the sliders?
-    // Otherwise scoring is done in getFeed().
-    // *NOTE: has side effect of updating WeightsStore*
+    // Rescores the toots in the feed. Gets called when the user changes the weightings.
+    // Has side effect of updating WeightsStore.
     async weightTootsInFeed(userWeights) {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         // prevent userWeights from being set to 0
@@ -137,6 +127,15 @@ class TheAlgorithm {
         // TODO: this is still using the old weird sorting mechanics
         this.feed = scoredFeed.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
         return this.feed;
+    }
+    // Set Default Weights if they don't exist
+    async setDefaultWeights() {
+        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+    }
+    // Return the user's current weightings for each score category
+    async getUserWeights() {
+        return await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
     }
     // Get the longform human readable description for a given scorer
     getDescription(scorerName) {
