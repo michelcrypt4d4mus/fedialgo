@@ -18,7 +18,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { condensedStatus, describeToot, extractScoreInfo } from "./helpers";
+import { condensedStatus, describeToot } from "./helpers";
 import { ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
@@ -304,8 +304,6 @@ export {
     DEFAULT_TIME_DECAY,
     TIME_DECAY,
     TRENDING_TOOTS,
-    condensedStatus,
-    extractScoreInfo,
     MastodonApiCache,
     ScoresType,
     TheAlgorithm,

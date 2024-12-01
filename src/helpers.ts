@@ -112,7 +112,7 @@ export const condensedStatus = (toot: Toot) => {
         inReplyToId: toot.inReplyToId,
         mediaAttachments: mediaAttachments,
         raw: toot,
-        score: extractScoreInfo(toot),
+        scoreInfo: toot.scoreInfo,
 
         properties: {
             favouritesCount: toot.favouritesCount,
@@ -125,12 +125,6 @@ export const condensedStatus = (toot: Toot) => {
     return Object.keys(tootObj)
                  .filter((k) => tootObj[k as keyof typeof tootObj] != null)
                  .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
-};
-
-
-// Extract just the various score related variables from a Toot to a new object.
-export const extractScoreInfo = (toot: Toot) => {
-    return toot.scoreInfo;
 };
 
 

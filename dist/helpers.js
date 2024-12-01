@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeToot = exports.describeAccount = exports.extractScoreInfo = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -97,7 +97,7 @@ const condensedStatus = (toot) => {
         inReplyToId: toot.inReplyToId,
         mediaAttachments: mediaAttachments,
         raw: toot,
-        score: (0, exports.extractScoreInfo)(toot),
+        scoreInfo: toot.scoreInfo,
         properties: {
             favouritesCount: toot.favouritesCount,
             reblogsCount: toot.reblogsCount,
@@ -110,11 +110,6 @@ const condensedStatus = (toot) => {
         .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
 };
 exports.condensedStatus = condensedStatus;
-// Extract just the various score related variables from a Toot to a new object.
-const extractScoreInfo = (toot) => {
-    return toot.scoreInfo;
-};
-exports.extractScoreInfo = extractScoreInfo;
 // Build a string that contains the display name, account name, etc. for a given post.
 const describeAccount = (toot) => {
     return `${toot.account.displayName} (${toot.account.acct})`;

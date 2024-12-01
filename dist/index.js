@@ -3,11 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.MastodonApiCache = exports.extractScoreInfo = exports.condensedStatus = exports.TRENDING_TOOTS = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.TRENDING_TOOTS = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
-Object.defineProperty(exports, "condensedStatus", { enumerable: true, get: function () { return helpers_1.condensedStatus; } });
-Object.defineProperty(exports, "extractScoreInfo", { enumerable: true, get: function () { return helpers_1.extractScoreInfo; } });
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 Object.defineProperty(exports, "TRENDING_TOOTS", { enumerable: true, get: function () { return topPostFeatureScorer_1.TRENDING_TOOTS; } });
 const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));

@@ -1,6 +1,5 @@
 import { mastodon } from "masto";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-import { condensedStatus, extractScoreInfo } from "./helpers";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
@@ -32,4 +31,4 @@ declare class TheAlgorithm {
     logFeedInfo(): void;
     private _decorateWithScoreInfo;
 }
-export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, condensedStatus, extractScoreInfo, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };
+export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

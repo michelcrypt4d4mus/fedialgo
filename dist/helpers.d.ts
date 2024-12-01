@@ -13,7 +13,6 @@ interface FetchParams<T> {
 }
 export declare function mastodonFetchPages<T>({ fetchMethod, minRecords, label }: FetchParams<T>): Promise<T[]>;
 export declare const condensedStatus: (toot: Toot) => {};
-export declare const extractScoreInfo: (toot: Toot) => import("./types").TootScore | undefined;
 export declare const describeAccount: (toot: Toot) => string;
 export declare const describeToot: (toot: Toot) => string;
 export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
