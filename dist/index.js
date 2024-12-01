@@ -104,8 +104,7 @@ class TheAlgorithm {
     }
     // Set Default Weights if they don't exist
     async setDefaultWeights() {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-        await Promise.all(scorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
         weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
     }
     // Return the user's current weightings for each score category
@@ -141,8 +140,7 @@ class TheAlgorithm {
     }
     // Get the longform human readable description for a given scorer
     getDescription(scorerName) {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-        const scorer = scorers.find(scorer => scorer.getScoreName() === scorerName);
+        const scorer = this.weightedScorers.find(scorer => scorer.getScoreName() === scorerName);
         if (scorer) {
             return scorer.getDescription();
         }

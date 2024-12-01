@@ -127,9 +127,7 @@ class TheAlgorithm {
 
     // Set Default Weights if they don't exist
     async setDefaultWeights(): Promise<void> {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-
-        await Promise.all(scorers.map(scorer => WeightsStore.defaultFallback(
+        await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getScoreName(),
             scorer.getDefaultWeight()
         )));
@@ -178,8 +176,7 @@ class TheAlgorithm {
 
     // Get the longform human readable description for a given scorer
     getDescription(scorerName: string): string {
-        const scorers = [...this.featureScorers, ...this.feedScorers];
-        const scorer = scorers.find(scorer => scorer.getScoreName() === scorerName);
+        const scorer = this.weightedScorers.find(scorer => scorer.getScoreName() === scorerName);
 
         if (scorer) {
             return scorer.getDescription();
