@@ -296,6 +296,12 @@ const isValidForFeed = (toot: Toot): boolean => {
         return false;
     }
 
+    if (toot.filtered && toot.filtered.length > 0) {
+        const filterMatch = toot.filtered[0];
+        console.debug(`Removed toot that matched filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
+        return false;
+    }
+
     return true;
 };
 

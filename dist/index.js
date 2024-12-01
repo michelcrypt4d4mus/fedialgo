@@ -238,6 +238,11 @@ const isValidForFeed = (toot) => {
         console.warn(`Removed toot with future timestamp: `, toot);
         return false;
     }
+    if (toot.filtered && toot.filtered.length > 0) {
+        const filterMatch = toot.filtered[0];
+        console.debug(`Removed toot that matched filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
+        return false;
+    }
     return true;
 };
 //# sourceMappingURL=index.js.map
