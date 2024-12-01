@@ -228,7 +228,7 @@ class TheAlgorithm {
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     private async _decorateWithScoreInfo(toot: Toot): Promise<Toot> {
-        console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+        // console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
 
@@ -274,7 +274,6 @@ class TheAlgorithm {
 
         // Inject condensedStatus() instance method // TODO: is this the right way to do this?
         toot.condensedStatus = () => condensedStatus(toot);
-        console.debug(`after _decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         return toot;
     }
 };

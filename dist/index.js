@@ -177,7 +177,7 @@ class TheAlgorithm {
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
-        console.debug(`_decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
+        // console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
         const rawScores = {};
@@ -216,7 +216,6 @@ class TheAlgorithm {
             toot.reblog.scoreInfo = toot.scoreInfo;
         // Inject condensedStatus() instance method // TODO: is this the right way to do this?
         toot.condensedStatus = () => (0, helpers_1.condensedStatus)(toot);
-        console.debug(`after _decorateWithScoreInfo ${(0, helpers_1.describeToot)(toot)}: `, toot);
         return toot;
     }
 }
