@@ -21,7 +21,6 @@ declare class TheAlgorithm {
     allScoreNames: string[];
     constructor(api: mastodon.rest.Client, user: mastodon.v1.Account);
     getFeed(): Promise<Toot[]>;
-    private sortFeed;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     setDefaultWeights(): Promise<void>;
     getUserWeights(): Promise<ScoresType>;
@@ -30,5 +29,6 @@ declare class TheAlgorithm {
     list(): Paginator;
     logFeedInfo(): void;
     private _decorateWithScoreInfo;
+    private sortFeed;
 }
 export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

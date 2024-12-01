@@ -110,12 +110,6 @@ class TheAlgorithm {
         return this.sortFeed();
     }
 
-    // *NOTE: Sort feed based on score from high to low. This must come after the deduplication step.*
-    private sortFeed() {
-        this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-        return this.feed;
-    }
-
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating WeightsStore.
     async weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]> {
@@ -275,6 +269,12 @@ class TheAlgorithm {
         // Inject condensedStatus() instance method // TODO: is this the right way to do this?
         toot.condensedStatus = () => condensedStatus(toot);
         return toot;
+    }
+
+    // Sort feed based on score from high to low. This must come after the deduplication step.
+    private sortFeed() {
+        this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+        return this.feed;
     }
 };
 
