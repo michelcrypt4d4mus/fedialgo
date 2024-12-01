@@ -1,6 +1,7 @@
 `2024-12-01`
 * Introduce `TootScore` type to hold all score info
 * filter out toots that match user's configured filters
+* Use `localForage` package for persistent state instead of browser's Local Storage which is capped at 10MB
 * [bug] `reblogsFeedScorer` should only count retoots
 * [bug] reset the diversity scorer when rescoring
 
