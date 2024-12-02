@@ -22,14 +22,15 @@ npm install github:michelcrypt4d4mus/fedialgo
 
 # Usage
 ### Get A Weight-Ordered Feed
+
 ```typescript
 import { login, mastodon } from "masto";
 import { TheAlgorithm } from "fedialgo"
 
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currUser = await api.v1.accounts.verifyCredentials()
-const algo = await TheAlgorithm.create(api, currUser)
-const feed = await algo.getFeed()
+const algorithm = await TheAlgorithm.create(api, currUser)
+const feed = await algorithm.getFeed()
 ```
 
 ### Adjust Weights
