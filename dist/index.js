@@ -99,11 +99,6 @@ class TheAlgorithm {
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         return await this.scoreFeed();
     }
-    // Set default score weightings
-    async setDefaultWeights() {
-        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
-        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
-    }
     // Return the user's current weightings for each score category
     async getUserWeights() {
         return await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
@@ -169,6 +164,11 @@ class TheAlgorithm {
             await this._decorateWithScoreInfo(toot);
         }
         return this.sortFeed();
+    }
+    // Set default score weightings
+    async setDefaultWeights() {
+        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
