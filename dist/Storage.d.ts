@@ -14,9 +14,6 @@ export declare enum Key {
     WEIGHTS = "weights"
 }
 export default class Storage {
-    protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
-    protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
-    protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
     static getWeightings(): Promise<ScoresType>;
     static setWeightings(userWeightings: ScoresType): Promise<void>;
     static logAppOpen(): Promise<void>;
@@ -24,6 +21,9 @@ export default class Storage {
     static getNumAppOpens(): Promise<number>;
     static getIdentity(): Promise<mastodon.v1.Account | null>;
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
+    protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
+    protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
+    protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
     private static buildKey;
     private static userPrefix;
 }

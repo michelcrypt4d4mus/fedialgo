@@ -43,6 +43,7 @@ class TheAlgorithm {
     feed = [];
     feedLanguages = {};
     scoreMutex = new async_mutex_1.Mutex();
+    setFeedInApp = (feed) => { }; // Optional callback to set the feed in enclosing app
     fetchers = [
         homeFeed_1.default,
         topPostsFeed_1.default
@@ -83,7 +84,7 @@ class TheAlgorithm {
         weightings[scorer.name] = scorer.defaultWeight;
         return weightings;
     }, { [TIME_DECAY]: TIME_DECAY_DEFAULT });
-    constructor(api, user) {
+    constructor(api, user, setFeedInApp = (feed) => { }) {
         this.api = api;
         this.user = user;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
@@ -191,7 +192,7 @@ class TheAlgorithm {
             self.scoreMutex.cancel();
             const releaseMutex = await self.scoreMutex.acquire();
             try {
-                // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
+                // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
                 await Promise.all(self.feedScorers.map(scorer => scorer.setFeed(self.feed)));
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
                 for (const toot of self.feed) {

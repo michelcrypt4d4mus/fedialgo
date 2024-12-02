@@ -17,6 +17,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     feedLanguages: ScoresType;
     scoreMutex: Mutex;
+    setFeedInApp: (feed: Toot[]) => void;
     fetchers: (typeof getHomeFeed)[];
     featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TopPostFeatureScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | ReblogsFeedScorer)[];

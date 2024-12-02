@@ -21,22 +21,6 @@ var Key;
 })(Key || (exports.Key = Key = {}));
 ;
 class Storage {
-    // TODO: currently groupedByUser is always true ?
-    static async get(key, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        // console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
-        return await localforage_1.default.getItem(storageKey);
-    }
-    static async set(key, value, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
-        await localforage_1.default.setItem(storageKey, value);
-    }
-    static async remove(key, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
-        await localforage_1.default.removeItem(storageKey);
-    }
     static async getWeightings() {
         let weightings = await this.get(Key.WEIGHTS);
         weightings ??= {};
@@ -82,6 +66,22 @@ class Storage {
     static async setIdentity(user) {
         console.debug(`Setting identity to:`, user);
         await localforage_1.default.setItem(Key.USER, user);
+    }
+    // TODO: currently groupedByUser is always true ?
+    static async get(key, groupedByUser = true, suffix = "") {
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        // console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
+        return await localforage_1.default.getItem(storageKey);
+    }
+    static async set(key, value, groupedByUser = true, suffix = "") {
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
+        await localforage_1.default.setItem(storageKey, value);
+    }
+    static async remove(key, groupedByUser = true, suffix = "") {
+        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
+        await localforage_1.default.removeItem(storageKey);
     }
     static async buildKey(key, groupedByUser = true, suffix = "") {
         const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
