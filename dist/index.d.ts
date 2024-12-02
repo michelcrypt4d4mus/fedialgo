@@ -6,7 +6,7 @@ import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 declare const NO_LANGUAGE = "[not specified]";
-declare const DEFAULT_TIME_DECAY = 0.05;
+declare const TIME_DECAY_DEFAULT = 0.05;
 declare const TIME_DECAY = "TimeDecay";
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -39,4 +39,4 @@ declare class TheAlgorithm {
     private _decorateWithScoreInfo;
     private sortFeed;
 }
-export { DEFAULT_TIME_DECAY, NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };
+export { TIME_DECAY_DEFAULT, NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

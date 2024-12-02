@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.MastodonApiCache = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.DEFAULT_TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.TIME_DECAY_DEFAULT = void 0;
 const async_mutex_1 = require("async-mutex");
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
@@ -18,8 +18,8 @@ const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 const NO_LANGUAGE = '[not specified]';
 exports.NO_LANGUAGE = NO_LANGUAGE;
-const DEFAULT_TIME_DECAY = 0.05;
-exports.DEFAULT_TIME_DECAY = DEFAULT_TIME_DECAY;
+const TIME_DECAY_DEFAULT = 0.05;
+exports.TIME_DECAY_DEFAULT = TIME_DECAY_DEFAULT;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
@@ -205,7 +205,7 @@ class TheAlgorithm {
     // Set default score weightings
     async setDefaultWeights() {
         await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
-        weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+        weightsStore_1.default.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
     }
     isFiltered(toot) {
         const tootLanguage = toot.language || NO_LANGUAGE;
@@ -260,7 +260,7 @@ class TheAlgorithm {
             rawScore *= trendingTootWeighting;
         }
         // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_TIME_DECAY;
+        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
         const score = rawScore * timeDecayMultiplier;

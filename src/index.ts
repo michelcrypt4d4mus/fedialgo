@@ -31,7 +31,7 @@ import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const NO_LANGUAGE = '[not specified]';
-const DEFAULT_TIME_DECAY = 0.05;
+const TIME_DECAY_DEFAULT = 0.05;
 const TIME_DECAY = 'TimeDecay';
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
 
@@ -259,7 +259,7 @@ class TheAlgorithm {
             scorer.getDefaultWeight()
         )));
 
-        WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+        WeightsStore.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
     }
 
     private isFiltered(toot: Toot): boolean {
@@ -317,7 +317,7 @@ class TheAlgorithm {
         }
 
         // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_TIME_DECAY;
+        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
         const score = rawScore * timeDecayMultiplier;
@@ -371,7 +371,7 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
-    DEFAULT_TIME_DECAY,
+    TIME_DECAY_DEFAULT,
     NO_LANGUAGE,
     TIME_DECAY,
     FeedFilterSettings,
