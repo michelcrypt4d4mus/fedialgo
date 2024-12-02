@@ -19,7 +19,7 @@ export default class RepliedFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return this.feature[toot.account.id] || 0;
     }
 };

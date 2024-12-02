@@ -20,7 +20,7 @@ class TopPostFeatureScorer extends FeatureScorer_1.default {
             scoreName: exports.TRENDING_TOOTS,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         return toot.trendingRank || 0;
     }
 }

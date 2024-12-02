@@ -18,7 +18,7 @@ class ImageAttachmentScorer extends FeatureScorer_1.default {
             scoreName: SCORE_NAME,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         return (0, helpers_1.imageAttachments)(toot).length;
     }
 }

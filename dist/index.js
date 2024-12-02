@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.MastodonApiCache = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.TIME_DECAY_DEFAULT = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.TIME_DECAY = exports.NO_LANGUAGE = void 0;
 const async_mutex_1 = require("async-mutex");
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
@@ -19,7 +19,6 @@ const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 const NO_LANGUAGE = '[not specified]';
 exports.NO_LANGUAGE = NO_LANGUAGE;
 const TIME_DECAY_DEFAULT = 0.05;
-exports.TIME_DECAY_DEFAULT = TIME_DECAY_DEFAULT;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
@@ -63,14 +62,18 @@ class TheAlgorithm {
         new scorer_1.ReblogsFeedScorer(),
     ];
     weightedScorers = [...this.featureScorers, ...this.feedScorers];
-    featureScoreNames = this.featureScorers.map(scorer => scorer.getScoreName());
-    feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
-    weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
+    featureScoreNames = this.featureScorers.map(scorer => scorer.name);
+    feedScoreNames = this.feedScorers.map(scorer => scorer.name);
+    weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
     scorerDescriptions = this.weightedScorers.reduce((descriptions, scorer) => {
-        descriptions[scorer.getScoreName()] = scorer.getDescription();
+        descriptions[scorer.name] = scorer.description;
         return descriptions;
     }, { [TIME_DECAY]: TIME_DECAY_DESCRIPTION });
+    scorersDict = this.weightedScorers.reduce((scorers, scorer) => {
+        scorers[scorer.name] = scorer;
+        return scorers;
+    }, {});
     constructor(api, user) {
         this.api = api;
         this.user = user;
@@ -204,7 +207,7 @@ class TheAlgorithm {
     }
     // Set default score weightings
     async setDefaultWeights() {
-        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
+        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.name, scorer.defaultWeight)));
         weightsStore_1.default.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
     }
     isFiltered(toot) {

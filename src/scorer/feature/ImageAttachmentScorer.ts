@@ -18,7 +18,7 @@ export default class ImageAttachmentScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return imageAttachments(toot).length;
     }
 };

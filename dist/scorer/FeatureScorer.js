@@ -1,38 +1,22 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const Scorer_1 = __importDefault(require("./Scorer"));
 ;
-class FeatureScorer {
+class FeatureScorer extends Scorer_1.default {
+    // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
+    // e.g. things like most commonly retooted users etc.
     featureGetter;
     feature = {};
-    _description = "";
-    _defaultWeight = 1;
-    _isReady = false;
-    _scoreName;
     constructor(params) {
-        // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
-        // e.g. things like most commonly retooted users etc.
+        super(params.scoreName, params.description, params.defaultWeight);
         this.featureGetter = params.featureGetter || (async () => { return {}; });
-        this._scoreName = params.scoreName;
-        this._description = params.description || "";
-        // Take care not to overwrite a 0 default weight with a 1
-        this._defaultWeight = params.defaultWeight == 0 ? 0 : (params.defaultWeight || 1);
     }
     async getFeature(api) {
         this.feature = await this.featureGetter(api);
         this._isReady = true;
-    }
-    //* score() should be overloaded in subclasses *//
-    async score(_toot) {
-        return 0;
-    }
-    getScoreName() {
-        return this._scoreName;
-    }
-    getDescription() {
-        return this._description;
-    }
-    getDefaultWeight() {
-        return this._defaultWeight;
     }
 }
 exports.default = FeatureScorer;

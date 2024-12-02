@@ -24,8 +24,7 @@ class DiversityFeedScorer extends FeedScorer_1.default {
     }
     // *NOTE: the penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
-    async score(toot) {
-        super.score(toot); // Check if ready?
+    async _score(toot) {
         this.features[toot.account.acct] = (this.features[toot.account.acct] || 0) + 1;
         // TODO: this is a hack to avoid wildly overscoring diversity values because of a bug
         // that happens when moving the sliders quickly that causes the values in this.features

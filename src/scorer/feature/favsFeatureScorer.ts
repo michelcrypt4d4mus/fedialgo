@@ -19,7 +19,7 @@ export default class FavsFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 };

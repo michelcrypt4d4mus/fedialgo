@@ -19,7 +19,7 @@ export default class TopPostFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return toot.trendingRank || 0;
     }
 };

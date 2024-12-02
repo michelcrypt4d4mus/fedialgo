@@ -18,6 +18,7 @@ var Key;
     Key["TOP_REBLOGS"] = "MostRetootedAccounts";
     Key["USER"] = "algouser";
     Key["WEIGHTS"] = "weights";
+    Key["WEIGHTZ"] = "WEIGHTZ";
 })(Key || (exports.Key = Key = {}));
 ;
 class Storage {
@@ -36,6 +37,12 @@ class Storage {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
+    }
+    static async getWeightings() {
+        return await this.get(Key.WEIGHTZ);
+    }
+    static async setWeightings(userWeightings) {
+        return await this.set(Key.WEIGHTZ, userWeightings);
     }
     static async logAppOpen() {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS));

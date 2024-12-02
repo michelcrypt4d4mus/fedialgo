@@ -15,7 +15,7 @@ class FollowedTagsFeatureScorer extends FeatureScorer_1.default {
             scoreName: Storage_1.Key.FOLLOWED_TAGS,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         toot.followedTags = toot.tags.filter((tag) => tag.name in this.feature);
         return toot.followedTags.length;
     }

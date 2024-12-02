@@ -23,8 +23,7 @@ class ReblogsFeedScorer extends FeedScorer_1.default {
             return tootCounts;
         }, {});
     }
-    async score(toot) {
-        super.score(toot); // checks if ready
+    async _score(toot) {
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
 }

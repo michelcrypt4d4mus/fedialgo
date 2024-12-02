@@ -20,7 +20,7 @@ export default class FollowedTagsFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         toot.followedTags = toot.tags.filter((tag) => tag.name in this.feature);
         return toot.followedTags.length;
     }

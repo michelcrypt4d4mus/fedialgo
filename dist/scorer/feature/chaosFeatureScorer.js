@@ -15,7 +15,7 @@ class ChaosFeatureScorer extends FeatureScorer_1.default {
             scoreName: "Chaos",
         });
     }
-    async score() {
+    async _score() {
         return Math.random();
     }
 }

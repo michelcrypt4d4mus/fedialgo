@@ -1,7 +1,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { StorageValue } from "./types";
+import { ScoresType, StorageValue } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -15,6 +15,7 @@ export enum Key {
     TOP_REBLOGS = 'MostRetootedAccounts',
     USER = 'algouser',
     WEIGHTS = 'weights',
+    WEIGHTZ = 'WEIGHTZ',
 };
 
 
@@ -36,6 +37,14 @@ export default class Storage {
         const storageKey = await this.buildKey(key, groupedByUser, suffix);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
+    }
+
+    static async getWeightings() {
+        return await this.get(Key.WEIGHTZ);
+    }
+
+    static async setWeightings(userWeightings: ScoresType) {
+        return await this.set(Key.WEIGHTZ, userWeightings);
     }
 
     static async logAppOpen() {

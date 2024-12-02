@@ -15,7 +15,7 @@ class RepliedFeatureScorer extends FeatureScorer_1.default {
             scoreName: Storage_1.Key.REPLIED_TO,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         return this.feature[toot.account.id] || 0;
     }
 }

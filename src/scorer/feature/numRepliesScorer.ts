@@ -16,7 +16,7 @@ export default class NumRepliesScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return toot?.repliesCount || 0;
     }
 };

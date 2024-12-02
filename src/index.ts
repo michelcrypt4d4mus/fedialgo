@@ -8,6 +8,8 @@ import {
     ChaosFeatureScorer,
     DiversityFeedScorer,
     FavsFeatureScorer,
+    FeatureScorer,
+    FeedScorer,
     FollowedTagsFeatureScorer,
     ImageAttachmentScorer,
     InteractionsFeatureScorer,
@@ -46,6 +48,11 @@ const DEFAULT_FILTERS = {
 } as FeedFilterSettings;
 
 
+type ScorerDict = {
+    [key: string]: FeedScorer | FeatureScorer;
+};
+
+
 class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -82,17 +89,25 @@ class TheAlgorithm {
     ];
 
     weightedScorers = [...this.featureScorers, ...this.feedScorers];
-    featureScoreNames = this.featureScorers.map(scorer => scorer.getScoreName());
-    feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
-    weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
+    featureScoreNames = this.featureScorers.map(scorer => scorer.name);
+    feedScoreNames = this.feedScorers.map(scorer => scorer.name);
+    weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
 
     scorerDescriptions = this.weightedScorers.reduce(
         (descriptions, scorer) => {
-            descriptions[scorer.getScoreName()] = scorer.getDescription();
+            descriptions[scorer.name] = scorer.description;
             return descriptions;
         },
         {[TIME_DECAY]: TIME_DECAY_DESCRIPTION} as Description
+    );
+
+    scorersDict = this.weightedScorers.reduce(
+        (scorers, scorer) => {
+            scorers[scorer.name] = scorer;
+            return scorers;
+        },
+        {} as ScorerDict
     );
 
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
@@ -255,8 +270,8 @@ class TheAlgorithm {
     // Set default score weightings
     private async setDefaultWeights(): Promise<void> {
         await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
-            scorer.getScoreName(),
-            scorer.getDefaultWeight()
+            scorer.name,
+            scorer.defaultWeight
         )));
 
         WeightsStore.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
@@ -371,7 +386,6 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
-    TIME_DECAY_DEFAULT,
     NO_LANGUAGE,
     TIME_DECAY,
     FeedFilterSettings,

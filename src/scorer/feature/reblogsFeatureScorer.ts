@@ -23,7 +23,7 @@ export default class ReblogsFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         const authorScore = this.feature[toot.account.acct] || 0;
         const retootScore = toot.reblog?.account?.acct ? (this.feature[toot.reblog.account.acct] || 0) : 0;
         return authorScore + retootScore;

@@ -1,15 +1,18 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-class FeedScorer {
+/*
+ * Base class for scorers that require processing external data before they can score anything.
+ * For example DiversityFeedScorer has to count how many toots by each user are in your feed
+ * before it knows how much to penalize prolific tooters.
+ */
+const Scorer_1 = __importDefault(require("./Scorer"));
+class FeedScorer extends Scorer_1.default {
     features = {};
-    _isReady = false;
-    _scoreName = "BaseScorer";
-    _description = "";
-    _defaultWeight = 1;
     constructor(scoreName, description, defaultWeight) {
-        this._scoreName = scoreName;
-        this._description = description || "";
-        this._defaultWeight = defaultWeight || 1;
+        super(scoreName, description, defaultWeight);
     }
     async setFeed(feed) {
         console.log(`before feedExtractor() this.features=`, this.features);
@@ -17,24 +20,9 @@ class FeedScorer {
         console.log(`after feedExtractor() this.features=`, this.features);
         this._isReady = true;
     }
+    //* Should be overloaded in subclasses. */
     feedExtractor(_feed) {
         throw new Error("Method not implemented.");
-    }
-    async score(_toot) {
-        if (!this._isReady) {
-            console.warn("FeedScorer not ready");
-            throw new Error("FeedScorer not ready");
-        }
-        return 0;
-    }
-    getScoreName() {
-        return this._scoreName;
-    }
-    getDescription() {
-        return this._description;
-    }
-    getDefaultWeight() {
-        return this._defaultWeight;
     }
 }
 exports.default = FeedScorer;

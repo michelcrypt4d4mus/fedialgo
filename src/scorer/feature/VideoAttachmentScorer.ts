@@ -18,7 +18,7 @@ export default class VideoAttachmentScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return videoAttachments(toot).length;
     }
 };

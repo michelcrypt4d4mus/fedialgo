@@ -3,23 +3,15 @@
  * For example DiversityFeedScorer has to count how many toots by each user are in your feed
  * before it knows how much to penalize prolific tooters.
  */
-import { mastodon } from "masto";
-
+import Scorer from "./Scorer";
 import { Toot } from "../types";
 
 
-export default class FeedScorer {
+export default class FeedScorer extends Scorer {
     features: Record<string, number> = {};
-    private _isReady: boolean = false;
 
-    private _scoreName: string = "BaseScorer";
-    private _description: string = "";
-    private _defaultWeight: number = 1;
-
-    constructor(scoreName: string, description?: string, defaultWeight?: number) {
-        this._scoreName = scoreName;
-        this._description = description || "";
-        this._defaultWeight = defaultWeight || 1;
+    constructor(scoreName: string, description: string, defaultWeight?: number) {
+        super(scoreName, description, defaultWeight);
     }
 
     async setFeed(feed: Toot[]) {
@@ -29,28 +21,8 @@ export default class FeedScorer {
         this._isReady = true;
     }
 
+    //* Should be overloaded in subclasses. */
     feedExtractor(_feed: Toot[]): Record<string, number> {
         throw new Error("Method not implemented.");
-    }
-
-    async score(_toot: mastodon.v1.Status): Promise<number> {
-        if (!this._isReady) {
-            console.warn("FeedScorer not ready");
-            throw new Error("FeedScorer not ready");
-        }
-
-        return 0;
-    }
-
-    getScoreName() {
-        return this._scoreName;
-    }
-
-    getDescription() {
-        return this._description;
-    }
-
-    getDefaultWeight() {
-        return this._defaultWeight;
     }
 };

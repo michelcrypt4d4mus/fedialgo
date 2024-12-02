@@ -32,8 +32,7 @@ export default class ReblogsFeedScorer extends FeedScorer {
         );
     }
 
-    async score(toot: Toot) {
-        super.score(toot);  // checks if ready
+    async _score(toot: Toot) {
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
 };

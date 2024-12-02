@@ -13,7 +13,7 @@ export default class ChaosFeatureScorer extends FeatureScorer {
         });
     }
 
-    async score() {
+    async _score() {
         return Math.random();
     }
 };

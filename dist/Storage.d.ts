@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { StorageValue } from "./types";
+import { ScoresType, StorageValue } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FOLLOWED_TAGS = "FollowedTags",
@@ -11,12 +11,15 @@ export declare enum Key {
     TOP_INTERACTS = "Interactions",
     TOP_REBLOGS = "MostRetootedAccounts",
     USER = "algouser",
-    WEIGHTS = "weights"
+    WEIGHTS = "weights",
+    WEIGHTZ = "WEIGHTZ"
 }
 export default class Storage {
     protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
     protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
+    static getWeightings(): Promise<StorageValue | null>;
+    static setWeightings(userWeightings: ScoresType): Promise<void>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;

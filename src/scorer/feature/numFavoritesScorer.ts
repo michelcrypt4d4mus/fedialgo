@@ -17,7 +17,7 @@ export default class NumFavoritesScorer extends FeatureScorer {
         });
     }
 
-    async score(toot: Toot) {
+    async _score(toot: Toot) {
         return toot?.favouritesCount || 0;
     }
 };

@@ -17,7 +17,7 @@ class ReblogsFeatureScorer extends FeatureScorer_1.default {
             scoreName: Storage_1.Key.TOP_REBLOGS,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         const authorScore = this.feature[toot.account.acct] || 0;
         const retootScore = toot.reblog?.account?.acct ? (this.feature[toot.reblog.account.acct] || 0) : 0;
         return authorScore + retootScore;

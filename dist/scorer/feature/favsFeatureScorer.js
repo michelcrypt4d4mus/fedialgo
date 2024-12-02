@@ -15,7 +15,7 @@ class FavsFeatureScorer extends FeatureScorer_1.default {
             scoreName: Storage_1.Key.TOP_FAVS,
         });
     }
-    async score(toot) {
+    async _score(toot) {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 }
