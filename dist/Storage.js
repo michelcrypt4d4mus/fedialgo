@@ -39,10 +39,12 @@ class Storage {
         await localforage_1.default.removeItem(storageKey);
     }
     static async getWeightings() {
-        return await this.get(Key.WEIGHTZ);
+        let weightings = await this.get(Key.WEIGHTZ);
+        weightings ??= {};
+        return weightings;
     }
     static async setWeightings(userWeightings) {
-        return await this.set(Key.WEIGHTZ, userWeightings);
+        await this.set(Key.WEIGHTZ, userWeightings);
     }
     static async logAppOpen() {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS));

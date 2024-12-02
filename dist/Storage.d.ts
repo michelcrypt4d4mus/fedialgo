@@ -18,7 +18,7 @@ export default class Storage {
     protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
     protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;
-    static getWeightings(): Promise<StorageValue | null>;
+    static getWeightings(): Promise<ScoresType>;
     static setWeightings(userWeightings: ScoresType): Promise<void>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;

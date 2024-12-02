@@ -39,12 +39,14 @@ export default class Storage {
         await localForage.removeItem(storageKey);
     }
 
-    static async getWeightings() {
-        return await this.get(Key.WEIGHTZ);
+    static async getWeightings(): Promise<ScoresType> {
+        let weightings = await this.get(Key.WEIGHTZ);
+        weightings ??= {};
+        return weightings as ScoresType;
     }
 
     static async setWeightings(userWeightings: ScoresType) {
-        return await this.set(Key.WEIGHTZ, userWeightings);
+        await this.set(Key.WEIGHTZ, userWeightings);
     }
 
     static async logAppOpen() {

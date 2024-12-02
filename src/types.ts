@@ -53,6 +53,14 @@ export type FeedFilterSettings = {
     onlyLinks: boolean;
 };
 
+export type ScorerDescription = {
+    defaultWeight: number;
+    description: string;
+};
+
+export type ScorerDescriptions = {
+    [key: string]: ScorerDescription;
+};
+
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;
 export type StorageValue = AccountFeature | ScoresType | ServerFeature | TagFeature | TootURIs | mastodon.v1.Account | string;

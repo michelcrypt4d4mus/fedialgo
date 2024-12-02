@@ -27,6 +27,7 @@ declare class TheAlgorithm {
     allScoreNames: string[];
     scorerDescriptions: Description;
     scorersDict: ScorerDict;
+    private defaultWeightings;
     private constructor();
     static create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;

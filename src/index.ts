@@ -22,20 +22,26 @@ import {
     VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, createRandomString, describeToot } from "./helpers";
-import { Description, FeedFilterSettings, ScoresType, Toot, TootScore } from "./types";
+import { Description, FeedFilterSettings, ScorerDescriptions, ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
-import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const NO_LANGUAGE = '[not specified]';
 const TIME_DECAY_DEFAULT = 0.05;
 const TIME_DECAY = 'TimeDecay';
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
+
+const EXPONENTIAL_WEIGHTINGS: ScorerDescriptions = {
+    [TIME_DECAY]: {
+        defaultWeight: 0.05,
+        description: TIME_DECAY_DESCRIPTION,
+    },
+};
 
 const DEFAULT_FILTERS = {
     filteredLanguages: [],
@@ -110,6 +116,14 @@ class TheAlgorithm {
         {} as ScorerDict
     );
 
+    private defaultWeightings = this.weightedScorers.reduce(
+        (weightings, scorer) => {
+            weightings[scorer.name] = scorer.defaultWeight;
+            return weightings;
+        },
+        {[TIME_DECAY]: TIME_DECAY_DEFAULT} as ScoresType
+    );
+
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
@@ -170,13 +184,13 @@ class TheAlgorithm {
             }
         }
 
-        await WeightsStore.setScoreWeightsMulti(userWeights);
+        await Storage.setWeightings(userWeights);
         return await this.scoreFeed(this);
     }
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<ScoresType> {
-        return await WeightsStore.getUserWeightsMulti(this.allScoreNames);
+        return await Storage.getWeightings() || this.defaultWeightings;
     }
 
     // Adjust toot weights based on user's chosen slider values
@@ -269,12 +283,28 @@ class TheAlgorithm {
 
     // Set default score weightings
     private async setDefaultWeights(): Promise<void> {
-        await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
-            scorer.name,
-            scorer.defaultWeight
-        )));
+        let weightings = await Storage.getWeightings();
+        let shouldSetWeights = false;
 
-        WeightsStore.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
+        Object.keys(this.defaultWeightings).forEach(key => {
+            if (!weightings[key] && weightings[key] !== 0) {
+                console.log(`Setting default '${key}' weight to ${this.defaultWeightings[key]}`);
+                weightings[key] = this.defaultWeightings[key];
+                shouldSetWeights = true;
+            }
+        });
+
+        Object.keys(EXPONENTIAL_WEIGHTINGS).forEach(key => {
+            if (!weightings[key] && weightings[key] !== 0) {
+                console.log(`Setting default '${key}' weight to ${EXPONENTIAL_WEIGHTINGS[key].defaultWeight}`);
+                weightings[key] = EXPONENTIAL_WEIGHTINGS[key].defaultWeight;
+                shouldSetWeights = true;
+            }
+        });
+
+        if (shouldSetWeights) {
+            await Storage.setWeightings(weightings);
+        }
     }
 
     private isFiltered(toot: Toot): boolean {

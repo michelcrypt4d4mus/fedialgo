@@ -14,7 +14,6 @@ const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importDefault(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
-const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 const NO_LANGUAGE = '[not specified]';
 exports.NO_LANGUAGE = NO_LANGUAGE;
@@ -22,6 +21,12 @@ const TIME_DECAY_DEFAULT = 0.05;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
+const EXPONENTIAL_WEIGHTINGS = {
+    [TIME_DECAY]: {
+        defaultWeight: 0.05,
+        description: TIME_DECAY_DESCRIPTION,
+    },
+};
 const DEFAULT_FILTERS = {
     filteredLanguages: [],
     includeFollowedHashtags: true,
@@ -74,6 +79,10 @@ class TheAlgorithm {
         scorers[scorer.name] = scorer;
         return scorers;
     }, {});
+    defaultWeightings = this.weightedScorers.reduce((weightings, scorer) => {
+        weightings[scorer.name] = scorer.defaultWeight;
+        return weightings;
+    }, { [TIME_DECAY]: TIME_DECAY_DEFAULT });
     constructor(api, user) {
         this.api = api;
         this.user = user;
@@ -125,12 +134,12 @@ class TheAlgorithm {
                 userWeights[key] = 0;
             }
         }
-        await weightsStore_1.default.setScoreWeightsMulti(userWeights);
+        await Storage_1.default.setWeightings(userWeights);
         return await this.scoreFeed(this);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
-        return await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
+        return await Storage_1.default.getWeightings() || this.defaultWeightings;
     }
     // Adjust toot weights based on user's chosen slider values
     async learnWeights(tootScores, step = 0.001) {
@@ -207,8 +216,25 @@ class TheAlgorithm {
     }
     // Set default score weightings
     async setDefaultWeights() {
-        await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.name, scorer.defaultWeight)));
-        weightsStore_1.default.defaultFallback(TIME_DECAY, TIME_DECAY_DEFAULT);
+        let weightings = await Storage_1.default.getWeightings();
+        let shouldSetWeights = false;
+        Object.keys(this.defaultWeightings).forEach(key => {
+            if (!weightings[key] && weightings[key] !== 0) {
+                console.log(`Setting default '${key}' weight to ${this.defaultWeightings[key]}`);
+                weightings[key] = this.defaultWeightings[key];
+                shouldSetWeights = true;
+            }
+        });
+        Object.keys(EXPONENTIAL_WEIGHTINGS).forEach(key => {
+            if (!weightings[key] && weightings[key] !== 0) {
+                console.log(`Setting default '${key}' weight to ${EXPONENTIAL_WEIGHTINGS[key].defaultWeight}`);
+                weightings[key] = EXPONENTIAL_WEIGHTINGS[key].defaultWeight;
+                shouldSetWeights = true;
+            }
+        });
+        if (shouldSetWeights) {
+            await Storage_1.default.setWeightings(weightings);
+        }
     }
     isFiltered(toot) {
         const tootLanguage = toot.language || NO_LANGUAGE;
