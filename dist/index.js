@@ -124,7 +124,7 @@ class TheAlgorithm {
         return await this.scoreFeed(this);
     }
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
-    // Has side effect of updating WeightsStore.
+    // Has side effect of updating Storage.
     async weightTootsInFeed(userWeights) {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
         // prevent userWeights from being set to 0

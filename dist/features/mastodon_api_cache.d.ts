@@ -9,4 +9,5 @@ export default class MastodonApiCache extends Storage {
     static getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature>;
     static getFollowedTags(api: mastodon.rest.Client): Promise<TagFeature>;
     static getCoreServer(api: mastodon.rest.Client): Promise<ServerFeature>;
+    private static shouldReloadFeatures;
 }

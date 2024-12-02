@@ -40,7 +40,7 @@ const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 class MastodonApiCache extends Storage_1.default {
     static async getMostFavoritedAccounts(api) {
         let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
-        if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topFavs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage...");
         }
         else {
@@ -54,7 +54,7 @@ class MastodonApiCache extends Storage_1.default {
     // TODO: probably shouldn't load these from storage usually?
     static async getRecentToots(api) {
         let recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS);
-        if (recentTootURIs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (recentTootURIs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded user's toots from storage...");
         }
         else {
@@ -74,7 +74,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     static async getMostRetootedAccounts(api) {
         let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
-        if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topReblogs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage...");
         }
         else {
@@ -89,7 +89,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     static async getMostRepliedAccounts(api) {
         let mostReplied = await this.get(Storage_1.Key.REPLIED_TO);
-        if (mostReplied != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (mostReplied != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
         }
         else {
@@ -104,7 +104,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
-        if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topInteracts != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts that have interacted the most with user's toots from storage");
         }
         else {
@@ -116,7 +116,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     static async getFollowedTags(api) {
         let followedTags = await this.get(Storage_1.Key.FOLLOWED_TAGS);
-        if (followedTags != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (followedTags != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded followed tags from storage");
         }
         else {
@@ -141,6 +141,9 @@ class MastodonApiCache extends Storage_1.default {
         }
         console.log("[MastodonApiCache] getCoreServer() info: ", coreServer);
         return coreServer;
+    }
+    static async shouldReloadFeatures() {
+        return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;
     }
 }
 exports.default = MastodonApiCache;

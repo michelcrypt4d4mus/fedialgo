@@ -23,7 +23,7 @@ export default class MastodonApiCache extends Storage {
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
 
-        if (topFavs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topFavs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage...");
         } else {
             topFavs = await FavsFeature(api);
@@ -39,7 +39,7 @@ export default class MastodonApiCache extends Storage {
     static async getRecentToots(api: mastodon.rest.Client): Promise<TootURIs> {
         let recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs;
 
-        if (recentTootURIs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (recentTootURIs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded user's toots from storage...");
         } else {
             const user = await this.getIdentity();
@@ -62,7 +62,7 @@ export default class MastodonApiCache extends Storage {
     static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
 
-        if (topReblogs != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topReblogs != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage...");
         } else {
             const user = await this.getIdentity();
@@ -78,7 +78,7 @@ export default class MastodonApiCache extends Storage {
     static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<ScoresType> {
         let mostReplied: ScoresType = await this.get(Key.REPLIED_TO) as ScoresType;
 
-        if (mostReplied != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (mostReplied != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
         } else {
             const user = await this.getIdentity();
@@ -94,7 +94,7 @@ export default class MastodonApiCache extends Storage {
     static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
         let topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
 
-        if (topInteracts != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (topInteracts != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded accounts that have interacted the most with user's toots from storage");
         } else {
             topInteracts = await InteractionsFeature(api);
@@ -108,7 +108,7 @@ export default class MastodonApiCache extends Storage {
     static async getFollowedTags(api: mastodon.rest.Client): Promise<TagFeature> {
         let followedTags: TagFeature = await this.get(Key.FOLLOWED_TAGS) as TagFeature;
 
-        if (followedTags != null && await this.getNumAppOpens() % 10 < RELOAD_FEATURES_EVERY_NTH_OPEN) {
+        if (followedTags != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded followed tags from storage");
         } else {
             followedTags = await FollowedTagsFeature(api);
@@ -134,5 +134,9 @@ export default class MastodonApiCache extends Storage {
 
         console.log("[MastodonApiCache] getCoreServer() info: ", coreServer);
         return coreServer;
+    }
+
+    private static async shouldReloadFeatures() {
+        return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;
     }
 };

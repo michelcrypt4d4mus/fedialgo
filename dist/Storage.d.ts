@@ -11,8 +11,7 @@ export declare enum Key {
     TOP_INTERACTS = "Interactions",
     TOP_REBLOGS = "MostRetootedAccounts",
     USER = "algouser",
-    WEIGHTS = "weights",
-    WEIGHTZ = "WEIGHTZ"
+    WEIGHTS = "weights"
 }
 export default class Storage {
     protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;

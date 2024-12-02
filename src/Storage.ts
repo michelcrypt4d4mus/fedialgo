@@ -15,7 +15,6 @@ export enum Key {
     TOP_REBLOGS = 'MostRetootedAccounts',
     USER = 'algouser',
     WEIGHTS = 'weights',
-    WEIGHTZ = 'WEIGHTZ',
 };
 
 
@@ -40,13 +39,13 @@ export default class Storage {
     }
 
     static async getWeightings(): Promise<ScoresType> {
-        let weightings = await this.get(Key.WEIGHTZ);
+        let weightings = await this.get(Key.WEIGHTS);
         weightings ??= {};
         return weightings as ScoresType;
     }
 
     static async setWeightings(userWeightings: ScoresType) {
-        await this.set(Key.WEIGHTZ, userWeightings);
+        await this.set(Key.WEIGHTS, userWeightings);
     }
 
     static async logAppOpen() {
