@@ -37,11 +37,13 @@ declare class TheAlgorithm {
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     filteredFeed(): Toot[];
     list(): Paginator;
+    mostRecentTootAt(): Date;
     logFeedInfo(): void;
     private scoreFeed;
     private setDefaultWeights;
     private isFiltered;
     private _decorateWithScoreInfo;
     private sortFeed;
+    private shouldReloadFeed;
 }
 export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

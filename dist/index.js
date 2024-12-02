@@ -21,6 +21,9 @@ const TIME_DECAY_DEFAULT = 0.05;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
+const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
+const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
+const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
 const EXPONENTIAL_WEIGHTINGS = {
     [TIME_DECAY]: {
         defaultWeight: 0.05,
@@ -174,6 +177,14 @@ class TheAlgorithm {
     list() {
         return new Paginator_1.default(this.feed);
     }
+    // Find the most recent toot in the feed
+    mostRecentTootAt() {
+        if (this.feed.length == 0)
+            return EARLIEST_TIMESTAMP;
+        const mostRecentToot = this.feed.reduce((recentToot, toot) => recentToot.createdAt > toot.createdAt ? recentToot : toot, this.feed[0]);
+        return new Date(mostRecentToot.createdAt);
+    }
+    ;
     // Debugging method to log info about the timeline toots
     logFeedInfo() {
         if (!this.feed || this.feed.length == 0) {
@@ -217,6 +228,7 @@ class TheAlgorithm {
         }
         self.sortFeed();
         Storage_1.default.setFeed(self.feed);
+        this.logFeedInfo();
         this.setFeedInApp(self.feed);
         return this.filteredFeed();
     }
@@ -316,6 +328,10 @@ class TheAlgorithm {
     sortFeed() {
         this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         return this.feed;
+    }
+    shouldReloadFeed() {
+        const mostRecentTootAt = this.mostRecentTootAt();
+        return ((Date.now() - mostRecentTootAt.getTime()) > RELOAD_IF_OLDER_THAN_MS);
     }
 }
 exports.TheAlgorithm = TheAlgorithm;
