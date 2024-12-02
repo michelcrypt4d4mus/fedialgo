@@ -46,7 +46,7 @@ class TheAlgorithm {
     feed = [];
     feedLanguages = {};
     scoreMutex = new async_mutex_1.Mutex();
-    setFeedInApp = (feed) => { }; // Optional callback to set the feed in enclosing app
+    setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`); // Optional callback to set the feed in enclosing app
     fetchers = [
         homeFeed_1.default,
         topPostsFeed_1.default
@@ -100,7 +100,7 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen();
         await algo.setDefaultWeights();
         algo.feed = await Storage_1.default.getFeed();
-        console.log(`Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
+        console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
     }

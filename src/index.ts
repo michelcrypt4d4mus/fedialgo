@@ -71,7 +71,7 @@ class TheAlgorithm {
     feed: Toot[] = [];
     feedLanguages: ScoresType = {};
     scoreMutex = new Mutex();
-    setFeedInApp: (feed: Toot[]) => void = (feed) => {};  // Optional callback to set the feed in enclosing app
+    setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);  // Optional callback to set the feed in enclosing app
 
     fetchers = [
         getHomeFeed,
@@ -143,7 +143,7 @@ class TheAlgorithm {
         await Storage.logAppOpen();
         await algo.setDefaultWeights();
         algo.feed = await Storage.getFeed();
-        console.log(`Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
+        console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
     }
