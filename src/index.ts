@@ -111,13 +111,13 @@ class TheAlgorithm {
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter(isValidForFeed);
         const numRemoved = this.feed.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) from feed leaving ${cleanFeed.length}`);
+        console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
         // Remove dupes by uniquifying on the URI
         // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         const numValid = cleanFeed.length;
         cleanFeed = [...new Map(cleanFeed.map((toot: Toot) => [toot.uri, toot])).values()];
-        console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
+        console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);
         this.feed = cleanFeed;
 
         // Get all the unique languages that show up in the feed
