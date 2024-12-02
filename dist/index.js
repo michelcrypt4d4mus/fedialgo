@@ -38,6 +38,7 @@ class TheAlgorithm {
     user;
     filters;
     feed = [];
+    feedLanguages = {};
     scoreMutex = new async_mutex_1.Mutex();
     fetchers = [
         homeFeed_1.default,
@@ -97,6 +98,12 @@ class TheAlgorithm {
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
+        // Get all the unique languages that show up in the feed
+        this.feedLanguages = this.feed.reduce((langCounts, toot) => {
+            const tootLanguage = toot.language || NO_LANGUAGE;
+            langCounts[tootLanguage] = (langCounts[tootLanguage] || 0) + 1;
+            return langCounts;
+        }, {});
         // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         // const self = this;

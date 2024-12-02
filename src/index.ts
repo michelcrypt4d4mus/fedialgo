@@ -50,6 +50,7 @@ class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
     feed: Toot[] = [];
+    feedLanguages: ScoresType = {};
     scoreMutex = new Mutex();
 
     fetchers = [
@@ -118,6 +119,13 @@ class TheAlgorithm {
         cleanFeed = [...new Map(cleanFeed.map((toot: Toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
+
+        // Get all the unique languages that show up in the feed
+        this.feedLanguages = this.feed.reduce((langCounts, toot) => {
+            const tootLanguage = toot.language || NO_LANGUAGE;
+            langCounts[tootLanguage] = (langCounts[tootLanguage] || 0) + 1;
+            return langCounts;
+        }, {} as ScoresType)
 
         // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
