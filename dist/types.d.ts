@@ -14,6 +14,9 @@ export type TootURIs = {
 export type TagFeature = {
     [key: string]: number;
 };
+export type Description = {
+    [key: string]: string;
+};
 export type TootScore = {
     rawScore: number;
     rawScores: ScoresType;

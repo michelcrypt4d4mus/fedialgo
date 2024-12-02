@@ -21,6 +21,10 @@ export type TagFeature = {
     [key: string]: number;
 };
 
+export type Description = {
+    [key: string]: string;
+};
+
 export type TootScore = {
     rawScore: number;  // Score before applying timeDecayMultiplier
     rawScores: ScoresType;

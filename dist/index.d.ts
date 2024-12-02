@@ -1,15 +1,13 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-import { FeedFilterSettings, ScoresType, Toot } from "./types";
-import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
+import { Description, FeedFilterSettings, ScoresType, Toot } from "./types";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 declare const NO_LANGUAGE = "[not specified]";
-declare const TIME_DECAY = "TimeDecay";
 declare const DEFAULT_TIME_DECAY = 0.05;
-declare const DEFAULT_FILTERS: FeedFilterSettings;
+declare const TIME_DECAY = "TimeDecay";
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -25,12 +23,12 @@ declare class TheAlgorithm {
     feedScoreNames: string[];
     weightedScoreNames: string[];
     allScoreNames: string[];
+    scorerDescriptions: Description;
     private constructor();
     static create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     getUserWeights(): Promise<ScoresType>;
-    getDescription(scorerName: string): string;
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     filteredFeed(): Toot[];
     list(): Paginator;
@@ -41,4 +39,4 @@ declare class TheAlgorithm {
     private _decorateWithScoreInfo;
     private sortFeed;
 }
-export { DEFAULT_FILTERS, DEFAULT_TIME_DECAY, NO_LANGUAGE, TIME_DECAY, TRENDING_TOOTS, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };
+export { DEFAULT_TIME_DECAY, NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

@@ -3,12 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.MastodonApiCache = exports.TRENDING_TOOTS = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.DEFAULT_TIME_DECAY = exports.DEFAULT_FILTERS = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.DEFAULT_TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
-Object.defineProperty(exports, "TRENDING_TOOTS", { enumerable: true, get: function () { return topPostFeatureScorer_1.TRENDING_TOOTS; } });
 const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));
 exports.MastodonApiCache = mastodon_api_cache_1.default;
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
@@ -19,10 +18,11 @@ const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 const NO_LANGUAGE = '[not specified]';
 exports.NO_LANGUAGE = NO_LANGUAGE;
-const TIME_DECAY = 'TimeDecay';
-exports.TIME_DECAY = TIME_DECAY;
 const DEFAULT_TIME_DECAY = 0.05;
 exports.DEFAULT_TIME_DECAY = DEFAULT_TIME_DECAY;
+const TIME_DECAY = 'TimeDecay';
+exports.TIME_DECAY = TIME_DECAY;
+const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
 const DEFAULT_FILTERS = {
     filteredLanguages: [],
     includeFollowedHashtags: true,
@@ -32,7 +32,6 @@ const DEFAULT_FILTERS = {
     includeTrendingToots: true,
     onlyLinks: false,
 };
-exports.DEFAULT_FILTERS = DEFAULT_FILTERS;
 class TheAlgorithm {
     api;
     user;
@@ -68,6 +67,10 @@ class TheAlgorithm {
     feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
+    scorerDescriptions = this.weightedScorers.reduce((descriptions, scorer) => {
+        descriptions[scorer.getScoreName()] = scorer.getDescription();
+        return descriptions;
+    }, { [TIME_DECAY]: TIME_DECAY_DESCRIPTION });
     constructor(api, user) {
         this.api = api;
         this.user = user;
@@ -104,12 +107,9 @@ class TheAlgorithm {
             langCounts[tootLanguage] = (langCounts[tootLanguage] || 0) + 1;
             return langCounts;
         }, {});
-        // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
+        // Prepare scorers before scoring Toots (only needs to be done once (???))
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
-        // const self = this;
-        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
-        await this.scoreFeed(this);
-        return this.filteredFeed();
+        return await this.scoreFeed(this);
     }
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating WeightsStore.
@@ -123,24 +123,11 @@ class TheAlgorithm {
             }
         }
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
-        // const self = this;
-        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
-        await this.scoreFeed(this);
-        return this.filteredFeed();
+        return await this.scoreFeed(this);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
         return await weightsStore_1.default.getUserWeightsMulti(this.allScoreNames);
-    }
-    // Get the longform human readable description for a given scorer
-    getDescription(scorerName) {
-        const scorer = this.weightedScorers.find(scorer => scorer.getScoreName() === scorerName);
-        if (scorer) {
-            return scorer.getDescription();
-        }
-        else {
-            return "No description found";
-        }
     }
     // Adjust toot weights based on user's chosen slider values
     async learnWeights(tootScores, step = 0.001) {
@@ -212,7 +199,8 @@ class TheAlgorithm {
                 console.warn(`scoreFeed() [${threadID}] caught error:`, e);
             }
         }
-        return self.sortFeed();
+        self.sortFeed();
+        return this.filteredFeed();
     }
     // Set default score weightings
     async setDefaultWeights() {

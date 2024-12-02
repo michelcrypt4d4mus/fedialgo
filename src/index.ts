@@ -20,7 +20,7 @@ import {
     VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, createRandomString, describeToot } from "./helpers";
-import { FeedFilterSettings, ScoresType, Toot, TootScore } from "./types";
+import { Description, FeedFilterSettings, ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
@@ -31,8 +31,9 @@ import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const NO_LANGUAGE = '[not specified]';
-const TIME_DECAY = 'TimeDecay';
 const DEFAULT_TIME_DECAY = 0.05;
+const TIME_DECAY = 'TimeDecay';
+const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
 
 const DEFAULT_FILTERS = {
     filteredLanguages: [],
@@ -49,6 +50,7 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
+
     feed: Toot[] = [];
     feedLanguages: ScoresType = {};
     scoreMutex = new Mutex();
@@ -84,6 +86,14 @@ class TheAlgorithm {
     feedScoreNames = this.feedScorers.map(scorer => scorer.getScoreName());
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.getScoreName());
     allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
+
+    scorerDescriptions = this.weightedScorers.reduce(
+        (descriptions, scorer) => {
+            descriptions[scorer.getScoreName()] = scorer.getDescription();
+            return descriptions;
+        },
+        {[TIME_DECAY]: TIME_DECAY_DESCRIPTION} as Description
+    );
 
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
@@ -127,12 +137,9 @@ class TheAlgorithm {
             return langCounts;
         }, {} as ScoresType)
 
-        // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
+        // Prepare scorers before scoring Toots (only needs to be done once (???))
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
-        // const self = this;
-        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
-        await this.scoreFeed(this);
-        return this.filteredFeed();
+        return await this.scoreFeed(this);
     }
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
@@ -149,26 +156,12 @@ class TheAlgorithm {
         }
 
         await WeightsStore.setScoreWeightsMulti(userWeights);
-        // const self = this;
-        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
-        await this.scoreFeed(this);
-        return this.filteredFeed();
+        return await this.scoreFeed(this);
     }
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<ScoresType> {
         return await WeightsStore.getUserWeightsMulti(this.allScoreNames);
-    }
-
-    // Get the longform human readable description for a given scorer
-    getDescription(scorerName: string): string {
-        const scorer = this.weightedScorers.find(scorer => scorer.getScoreName() === scorerName);
-
-        if (scorer) {
-            return scorer.getDescription();
-        } else {
-            return "No description found";
-        }
     }
 
     // Adjust toot weights based on user's chosen slider values
@@ -255,7 +248,8 @@ class TheAlgorithm {
             }
         }
 
-        return self.sortFeed();
+        self.sortFeed();
+        return this.filteredFeed();
     }
 
     // Set default score weightings
@@ -377,11 +371,9 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
-    DEFAULT_FILTERS,
     DEFAULT_TIME_DECAY,
     NO_LANGUAGE,
     TIME_DECAY,
-    TRENDING_TOOTS,
     FeedFilterSettings,
     MastodonApiCache,
     ScoresType,
