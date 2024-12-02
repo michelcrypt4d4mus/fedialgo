@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FeatureScorer, FeedScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-import { Description, FeedFilterSettings, ScoresType, Toot } from "./types";
+import { AlgorithmArgs, Description, FeedFilterSettings, ScoresType, Toot } from "./types";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
@@ -30,7 +30,7 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     private defaultWeightings;
     private constructor();
-    static create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm>;
+    static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
     getUserWeights(): Promise<ScoresType>;

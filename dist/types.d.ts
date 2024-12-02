@@ -1,4 +1,9 @@
 import { mastodon } from 'masto';
+export interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;
+}
 export interface ScoresType {
     [key: string]: number;
 }
@@ -50,4 +55,4 @@ export type ScorerDescriptions = {
     [key: string]: ScorerDescription;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | ScoresType | ServerFeature | TagFeature | TootURIs | mastodon.v1.Account | string;
+export type StorageValue = AccountFeature | ScoresType | ServerFeature | TagFeature | TootURIs | Toot[] | mastodon.v1.Account | string;

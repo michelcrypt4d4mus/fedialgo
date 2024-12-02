@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
+// import { time } from "console";
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
@@ -13,6 +14,7 @@ var Key;
     Key["OPENINGS"] = "openings";
     Key["RECENT_TOOTS"] = "recentToots";
     Key["REPLIED_TO"] = "MostRepliedAccounts";
+    Key["TIMELINE"] = "timeline";
     Key["TOP_FAVS"] = "Favs";
     Key["TOP_INTERACTS"] = "Interactions";
     Key["TOP_REBLOGS"] = "MostRetootedAccounts";
@@ -66,6 +68,14 @@ class Storage {
     static async setIdentity(user) {
         console.debug(`Setting identity to:`, user);
         await localforage_1.default.setItem(Key.USER, user);
+    }
+    static async getFeed() {
+        let toots = await this.get(Key.TIMELINE);
+        toots ??= [];
+        return toots;
+    }
+    static async setFeed(timeline) {
+        await this.set(Key.TIMELINE, timeline);
     }
     // TODO: currently groupedByUser is always true ?
     static async get(key, groupedByUser = true, suffix = "") {

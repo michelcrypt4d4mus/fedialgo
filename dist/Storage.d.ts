@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { ScoresType, StorageValue } from "./types";
+import { ScoresType, StorageValue, Toot } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FOLLOWED_TAGS = "FollowedTags",
@@ -7,6 +7,7 @@ export declare enum Key {
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
     REPLIED_TO = "MostRepliedAccounts",
+    TIMELINE = "timeline",
     TOP_FAVS = "Favs",
     TOP_INTERACTS = "Interactions",
     TOP_REBLOGS = "MostRetootedAccounts",
@@ -21,6 +22,8 @@ export default class Storage {
     static getNumAppOpens(): Promise<number>;
     static getIdentity(): Promise<mastodon.v1.Account | null>;
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
+    static getFeed(): Promise<Toot[]>;
+    static setFeed(timeline: Toot[]): Promise<void>;
     protected static get(key: Key, groupedByUser?: boolean, suffix?: string): Promise<StorageValue | null>;
     protected static set(key: Key, value: StorageValue, groupedByUser?: boolean, suffix?: string): Promise<void>;
     protected static remove(key: Key, groupedByUser?: boolean, suffix?: string): Promise<void>;

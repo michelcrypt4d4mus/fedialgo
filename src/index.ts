@@ -22,7 +22,7 @@ import {
     VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, createRandomString, describeToot } from "./helpers";
-import { Description, FeedFilterSettings, ScorerDescriptions, ScoresType, Toot, TootScore } from "./types";
+import { AlgorithmArgs, Description, FeedFilterSettings, ScorerDescriptions, ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
@@ -125,22 +125,21 @@ class TheAlgorithm {
         {[TIME_DECAY]: TIME_DECAY_DEFAULT} as ScoresType
     );
 
-    private constructor(
-        api: mastodon.rest.Client,
-        user: mastodon.v1.Account,
-        setFeedInApp: (feed: Toot[]) => void = (feed) => {}
-    ) {
-        this.api = api;
-        this.user = user;
+    private constructor(params: AlgorithmArgs) {
+        this.api = params.api;
+        this.user = params.user;
+        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
 
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
-    static async create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm> {
-        const algo = new TheAlgorithm(api, user);
-        await Storage.setIdentity(user);
+    static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
+        const algo = new TheAlgorithm(params);
+        await Storage.setIdentity(params.user);
         await Storage.logAppOpen();
         await algo.setDefaultWeights();
+        algo.feed = await Storage.getFeed();
+        algo.setFeedInApp(algo.feed);
         return algo;
     }
 
@@ -283,6 +282,8 @@ class TheAlgorithm {
         }
 
         self.sortFeed();
+        Storage.setFeed(self.feed);
+        this.setFeedInApp(self.feed);
         return this.filteredFeed();
     }
 
@@ -386,6 +387,7 @@ class TheAlgorithm {
     }
 
     // Sort feed based on score from high to low. This must come after the deduplication step.
+    // TODO: unnecessary method
     private sortFeed() {
         this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         return this.feed;

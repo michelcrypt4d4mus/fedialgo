@@ -1,7 +1,8 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { ScoresType, StorageValue } from "./types";
+import { ScoresType, StorageValue, Toot } from "./types";
+// import { time } from "console";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -10,6 +11,7 @@ export enum Key {
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
     REPLIED_TO = "MostRepliedAccounts",
+    TIMELINE = 'timeline',
     TOP_FAVS = 'Favs',
     TOP_INTERACTS = 'Interactions',
     TOP_REBLOGS = 'MostRetootedAccounts',
@@ -73,6 +75,16 @@ export default class Storage {
     static async setIdentity(user: mastodon.v1.Account) {
         console.debug(`Setting identity to:`, user);
         await localForage.setItem(Key.USER, user);
+    }
+
+    static async getFeed(): Promise<Toot[]> {
+        let toots = await this.get(Key.TIMELINE);
+        toots ??= [];
+        return toots as Toot[];
+    }
+
+    static async setFeed(timeline: Toot[]) {
+        await this.set(Key.TIMELINE, timeline);
     }
 
     // TODO: currently groupedByUser is always true ?

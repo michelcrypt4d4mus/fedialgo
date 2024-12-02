@@ -84,17 +84,20 @@ class TheAlgorithm {
         weightings[scorer.name] = scorer.defaultWeight;
         return weightings;
     }, { [TIME_DECAY]: TIME_DECAY_DEFAULT });
-    constructor(api, user, setFeedInApp = (feed) => { }) {
-        this.api = api;
-        this.user = user;
+    constructor(params) {
+        this.api = params.api;
+        this.user = params.user;
+        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
-    static async create(api, user) {
-        const algo = new TheAlgorithm(api, user);
-        await Storage_1.default.setIdentity(user);
+    static async create(params) {
+        const algo = new TheAlgorithm(params);
+        await Storage_1.default.setIdentity(params.user);
         await Storage_1.default.logAppOpen();
         await algo.setDefaultWeights();
+        algo.feed = await Storage_1.default.getFeed();
+        algo.setFeedInApp(algo.feed);
         return algo;
     }
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in
@@ -213,6 +216,8 @@ class TheAlgorithm {
             }
         }
         self.sortFeed();
+        Storage_1.default.setFeed(self.feed);
+        this.setFeedInApp(self.feed);
         return this.filteredFeed();
     }
     // Set default score weightings
@@ -307,6 +312,7 @@ class TheAlgorithm {
         return toot;
     }
     // Sort feed based on score from high to low. This must come after the deduplication step.
+    // TODO: unnecessary method
     sortFeed() {
         this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         return this.feed;
