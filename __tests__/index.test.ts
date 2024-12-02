@@ -12,6 +12,7 @@ jest.mock("@react-native-async-storage/async-storage", () => (require('@react-na
 describe('TheAlgorithm', () => {
     let api: mastodon.rest.Client;
     let algo: TheAlgorithm;
+
     beforeAll(async () => {
         if (!AbortSignal.timeout) {
             AbortSignal.timeout = jest.fn();
@@ -21,7 +22,7 @@ describe('TheAlgorithm', () => {
             url: process.env.MASTODON_URL as string,
         })
         const user = await api.v1.accounts.verifyCredentials();
-        algo = new TheAlgorithm(api, user);
+        algo = await TheAlgorithm.create(api, user);
     })
 
     it('should set Identity, LastOpened, Openings and default Weights', async () => {
