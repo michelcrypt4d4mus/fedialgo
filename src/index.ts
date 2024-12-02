@@ -2,6 +2,7 @@
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
 import { mastodon } from "masto";
+import { E_CANCELED, Mutex } from 'async-mutex';
 
 import {
     ChaosFeatureScorer,
@@ -18,7 +19,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { condensedStatus, describeToot, tootSize } from "./helpers";
+import { condensedStatus, createRandomString, describeToot, tootSize } from "./helpers";
 import { ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
@@ -37,6 +38,7 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     feed: Toot[] = [];
+    scoreMutex = new Mutex();
 
     fetchers = [
         getHomeFeed,
@@ -106,7 +108,10 @@ class TheAlgorithm {
 
         // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
-        return await this.scoreFeed();
+        // const self = this;
+        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
+        await this.scoreFeed(this);
+        return this.feed;
     }
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
@@ -123,7 +128,10 @@ class TheAlgorithm {
         }
 
         await WeightsStore.setScoreWeightsMulti(userWeights);
-        return await this.scoreFeed();
+        // const self = this;
+        // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
+        await this.scoreFeed(this);
+        return this.feed;
     }
 
     // Return the user's current weightings for each score category
@@ -193,20 +201,36 @@ class TheAlgorithm {
         console.debug(`feed toots posted by application counts: `, appCounts);
     }
 
-    private async scoreFeed(): Promise<Toot[]> {
-        console.debug(`scoreFeed() called in fedialgo package...`);
+    async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
+        const threadID = createRandomString(5);
+        console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
 
-        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
-        // TODO: this doesn't work, there's still collisions in the diversity feed scorer 'features' object
-        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
-        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
+        try {
+            self.scoreMutex.cancel()
+            const releaseMutex = await self.scoreMutex.acquire();
 
-        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
-        for (const toot of this.feed) {
-            await this._decorateWithScoreInfo(toot);
+            try {
+                // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
+                await Promise.all(self.feedScorers.map(scorer => scorer.setFeed(self.feed)));
+
+                // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
+                for (const toot of self.feed) {
+                    await self._decorateWithScoreInfo(toot);
+                }
+
+                console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
+            } finally {
+                releaseMutex();
+            }
+        } catch (e) {
+            if (e == E_CANCELED) {
+                console.debug(`scoreFeed() [${threadID}] mutex cancellation`);
+            } else {
+                console.warn(`scoreFeed() [${threadID}] caught error:`, e);
+            }
         }
 
-        return this.sortFeed();
+        return self.sortFeed();
     }
 
     // Set default score weightings

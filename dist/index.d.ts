@@ -1,4 +1,5 @@
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
 import { ScoresType, Toot } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
@@ -11,6 +12,7 @@ declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     feed: Toot[];
+    scoreMutex: Mutex;
     fetchers: (typeof getHomeFeed)[];
     featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TopPostFeatureScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | ReblogsFeedScorer)[];
@@ -28,7 +30,7 @@ declare class TheAlgorithm {
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
     logFeedInfo(): void;
-    private scoreFeed;
+    scoreFeed(self: TheAlgorithm): Promise<Toot[]>;
     setDefaultWeights(): Promise<void>;
     private _decorateWithScoreInfo;
     private sortFeed;

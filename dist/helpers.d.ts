@@ -19,4 +19,5 @@ export declare const tootSize: (toot: Toot) => number;
 export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const minimumID: (toots: Toot[]) => number | null;
+export declare function createRandomString(length: number): string;
 export {};
