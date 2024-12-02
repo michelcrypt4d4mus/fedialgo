@@ -10,7 +10,7 @@ import NumFavoritesScorer from "./feature/numFavoritesScorer";
 import NumRepliesScorer from "./feature/numRepliesScorer";
 import ReblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
-import RepliedFeatureScorer from "./feature/repied_feature_scorer";
+import RepliedFeatureScorer from "./feature/replied_feature_scorer";
 import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
 import VideoAttachmentScorer from "./feature/VideoAttachmentScorer";
 

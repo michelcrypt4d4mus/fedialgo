@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../features/mastodon_api_cache"));
 const Storage_1 = require("../../Storage");
-class RepliedFeatureScorerx extends FeatureScorer_1.default {
+class RepliedFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
             description: "Favour toots from accounts you often reply to",
@@ -19,6 +19,6 @@ class RepliedFeatureScorerx extends FeatureScorer_1.default {
         return this.feature[toot.account.id] || 0;
     }
 }
-exports.default = RepliedFeatureScorerx;
+exports.default = RepliedFeatureScorer;
 ;
 //# sourceMappingURL=repied_feature_scorer.js.map
