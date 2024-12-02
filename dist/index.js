@@ -158,6 +158,9 @@ class TheAlgorithm {
         await this.weightTootsInFeed(newTootScores);
         return newTootScores;
     }
+    filteredFeed() {
+        return this.feed.filter(toot => this.isFiltered(toot));
+    }
     list() {
         return new Paginator_1.default(this.feed);
     }
@@ -208,13 +211,6 @@ class TheAlgorithm {
     async setDefaultWeights() {
         await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
         weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
-    }
-    filteredFeed() {
-        return this.feed.filter(toot => this.isFiltered(toot));
-    }
-    updateFeedFilters(filters) {
-        this.filters = filters;
-        return this.filteredFeed();
     }
     isFiltered(toot) {
         const tootLanguage = toot.language || NO_LANGUAGE;

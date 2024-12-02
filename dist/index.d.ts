@@ -31,12 +31,11 @@ declare class TheAlgorithm {
     getUserWeights(): Promise<ScoresType>;
     getDescription(scorerName: string): string;
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
+    filteredFeed(): Toot[];
     list(): Paginator;
     logFeedInfo(): void;
-    scoreFeed(self: TheAlgorithm): Promise<Toot[]>;
-    setDefaultWeights(): Promise<void>;
-    filteredFeed(): Toot[];
-    updateFeedFilters(filters: FeedFilterSettings): Toot[];
+    private scoreFeed;
+    private setDefaultWeights;
     private isFiltered;
     private _decorateWithScoreInfo;
     private sortFeed;

@@ -192,6 +192,10 @@ class TheAlgorithm {
         return newTootScores;
     }
 
+    filteredFeed(): Toot[] {
+        return this.feed.filter(toot => this.isFiltered(toot));
+    }
+
     list() {
         return new Paginator(this.feed);
     }
@@ -214,7 +218,7 @@ class TheAlgorithm {
         console.debug(`feed toots posted by application counts: `, appCounts);
     }
 
-    async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
+    private async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
         const threadID = createRandomString(5);
         console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
 
@@ -247,22 +251,13 @@ class TheAlgorithm {
     }
 
     // Set default score weightings
-    async setDefaultWeights(): Promise<void> {
+    private async setDefaultWeights(): Promise<void> {
         await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getScoreName(),
             scorer.getDefaultWeight()
         )));
 
         WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
-    }
-
-    filteredFeed(): Toot[] {
-        return this.feed.filter(toot => this.isFiltered(toot));
-    }
-
-    updateFeedFilters(filters: FeedFilterSettings): Toot[] {
-        this.filters = filters;
-        return this.filteredFeed();
     }
 
     private isFiltered(toot: Toot): boolean {
