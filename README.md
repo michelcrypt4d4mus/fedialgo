@@ -29,9 +29,20 @@ import { TheAlgorithm } from "fedialgo"
 
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currUser = await api.v1.accounts.verifyCredentials()
-const algorithm = await TheAlgorithm.create(api, currUser)
+const algorithm = await TheAlgorithm.create({api: api, user: currUser})
 const feed = await algorithm.getFeed()
 ```
+
+You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. This can be handy with things like React states, for example:
+```typescript
+const [feed, setFeed] = useState<Toot[]>([]); // timeline toots
+
+const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
+const currUser = await api.v1.accounts.verifyCredentials()
+const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedInApp: setFeed})
+```
+
+Then whenever you call `algorithm.weightTootsInFeed()` the React component state will be automatically updated when the `setFeed()` callback is invoked.
 
 ### Adjust Weights
 The algorithm uses properties of a toot and the user configured weights to determine the order that toots will appear in your timeline.
