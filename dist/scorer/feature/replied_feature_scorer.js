@@ -21,4 +21,4 @@ class RepliedFeatureScorer extends FeatureScorer_1.default {
 }
 exports.default = RepliedFeatureScorer;
 ;
-//# sourceMappingURL=repied_feature_scorer.js.map
+//# sourceMappingURL=replied_feature_scorer.js.map
