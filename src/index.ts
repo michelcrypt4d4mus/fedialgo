@@ -92,10 +92,6 @@ class TheAlgorithm {
         this.feed = response.flat();
         console.log(`Found ${this.feed.length} potential toots for feed.`);
 
-        // Load and Prepare scored Features
-        await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
-        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
-
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter(isValidForFeed);
         const numRemoved = this.feed.length - cleanFeed.length;
@@ -108,20 +104,15 @@ class TheAlgorithm {
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
 
-        // Score toots in feed (mutates the Toot objects)
-        for (const toot of this.feed) {
-            await this._decorateWithScoreInfo(toot);
-        }
-
-        return this.sortFeed();
+        // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
+        await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
+        return await this.scoreFeed();
     }
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating WeightsStore.
     async weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]> {
         console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
-        // TODO: DiversityFeedScorer mutates its feed state so setFeed() must be called each scoring
-        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
 
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
@@ -132,33 +123,32 @@ class TheAlgorithm {
         }
 
         await WeightsStore.setScoreWeightsMulti(userWeights);
-        const scoredFeed: Toot[] = [];
+        return await this.scoreFeed();
+    }
 
+    async scoreFeed(): Promise<Toot[]> {
+        console.debug(`scoreFeed() called in fedialgo package...`);
+
+        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
+        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
+        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
+
+        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
         for (const toot of this.feed) {
-            console.debug(`Reweighting ${describeToot(toot)}: `, toot);
-
-            // Reload the feed if any toots are missing scores
-            if (!toot.scoreInfo?.rawScores) {
-                console.warn(`Toot #${toot.id} has no scores! Skipping rest of reweighting...`);
-                return this.getFeed();
-            }
-
-            scoredFeed.push(await this._decorateWithScoreInfo(toot));
+            await this._decorateWithScoreInfo(toot);
         }
 
         return this.sortFeed();
     }
 
-    // Set Default Weights if they don't exist
+    // Set default score weightings
     async setDefaultWeights(): Promise<void> {
-        console.debug(`Setting default weights...`);
         await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
             scorer.getScoreName(),
             scorer.getDefaultWeight()
         )));
 
         WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
-        console.debug(`Done setting default weights`);
     }
 
     // Return the user's current weightings for each score category

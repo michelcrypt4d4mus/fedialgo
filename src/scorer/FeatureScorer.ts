@@ -36,10 +36,9 @@ export default class FeatureScorer {
         this._defaultWeight = params.defaultWeight == 0 ? 0 : (params.defaultWeight || 1);
     }
 
-    // TODO: this seems backwards???
     async getFeature(api: mastodon.rest.Client) {
-        this._isReady = true;
         this.feature = await this.featureGetter(api);
+        this._isReady = true;
     }
 
     //* score() should be overloaded in subclasses *//

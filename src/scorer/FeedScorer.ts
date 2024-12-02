@@ -10,9 +10,9 @@ import { Toot } from "../types";
 
 export default class FeedScorer {
     features: Record<string, number> = {};
+    private _isReady: boolean = false;
 
     private _scoreName: string = "BaseScorer";
-    private _isReady: boolean = false;
     private _description: string = "";
     private _defaultWeight: number = 1;
 
@@ -23,7 +23,9 @@ export default class FeedScorer {
     }
 
     async setFeed(feed: Toot[]) {
+        console.log(`before feedExtractor() this.features=`, this.features);
         this.features = await this.feedExtractor(feed);
+        console.log(`after feedExtractor() this.features=`, this.features);
         this._isReady = true;
     }
 

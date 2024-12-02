@@ -17,10 +17,9 @@ class FeatureScorer {
         // Take care not to overwrite a 0 default weight with a 1
         this._defaultWeight = params.defaultWeight == 0 ? 0 : (params.defaultWeight || 1);
     }
-    // TODO: this seems backwards???
     async getFeature(api) {
-        this._isReady = true;
         this.feature = await this.featureGetter(api);
+        this._isReady = true;
     }
     //* score() should be overloaded in subclasses *//
     async score(_toot) {

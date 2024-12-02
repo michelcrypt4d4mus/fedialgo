@@ -17,9 +17,10 @@ export default class DiversityFeedScorer extends FeedScorer {
     feedExtractor(feed: Toot[]): Record<string, number> {
         // Shuffle the feed before penalizing multiple tooters
         // TODO: maybe reverse chronological order would be better?
+        console.log(`DiversityFeedScorer.feedExtractor() called...`);
         const sortRandom = () => Math.random() - 0.5;
 
-        return feed.sort(sortRandom).reduce(
+        return feed.toSorted(sortRandom).reduce(
             (userTootCounts: Record<string, number>, toot) => {
                 userTootCounts[toot.account.acct] = (userTootCounts[toot.account.acct] || 0) - 1;
                 return userTootCounts;
@@ -31,9 +32,9 @@ export default class DiversityFeedScorer extends FeedScorer {
     // *NOTE: the penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
     async score(toot: Toot) {
-        super.score(toot);  // Check if ready
+        super.score(toot);  // Check if ready?
         this.features[toot.account.acct] += 1;
-        // console.debug(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
+        console.debug(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
         return this.features[toot.account.acct];
     }
 };

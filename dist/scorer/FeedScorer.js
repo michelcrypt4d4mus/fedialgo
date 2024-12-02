@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class FeedScorer {
     features = {};
-    _scoreName = "BaseScorer";
     _isReady = false;
+    _scoreName = "BaseScorer";
     _description = "";
     _defaultWeight = 1;
     constructor(scoreName, description, defaultWeight) {
@@ -12,7 +12,9 @@ class FeedScorer {
         this._defaultWeight = defaultWeight || 1;
     }
     async setFeed(feed) {
+        console.log(`before feedExtractor() this.features=`, this.features);
         this.features = await this.feedExtractor(feed);
+        console.log(`after feedExtractor() this.features=`, this.features);
         this._isReady = true;
     }
     feedExtractor(_feed) {

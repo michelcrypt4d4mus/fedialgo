@@ -2,8 +2,8 @@ import { mastodon } from "masto";
 import { Toot } from "../types";
 export default class FeedScorer {
     features: Record<string, number>;
-    private _scoreName;
     private _isReady;
+    private _scoreName;
     private _description;
     private _defaultWeight;
     constructor(scoreName: string, description?: string, defaultWeight?: number);
