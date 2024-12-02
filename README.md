@@ -30,7 +30,7 @@ const api: mastodon.Client = await login({
                     accessToken: user.access_token,
                 });
 const currUser = await api.v1.accounts.verifyCredentials()
-const algo = new TheAlgorithm(api, currUser)
+const algo = await TheAlgorithm.create(api, currUser)
 const feed = await algo.getFeed()
 ```
 
