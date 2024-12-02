@@ -143,6 +143,7 @@ class TheAlgorithm {
         await Storage.logAppOpen();
         await algo.setDefaultWeights();
         algo.feed = await Storage.getFeed();
+        console.log(`Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
     }
