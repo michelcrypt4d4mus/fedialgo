@@ -33,8 +33,16 @@ export default class DiversityFeedScorer extends FeedScorer {
     //        As a result this.features must be reset anew each time the feed is scored
     async score(toot: Toot) {
         super.score(toot);  // Check if ready?
-        this.features[toot.account.acct] += 1;
-        console.debug(`DiversityFeedScorer: ${toot.account.acct} has ${this.features[toot.account.acct]} toots, diversity features:`, this.features);
-        return this.features[toot.account.acct];
+        this.features[toot.account.acct] = (this.features[toot.account.acct] || 0) + 1;
+
+        // TODO: this is a hack to avoid wildly overscoring diversity values because of a bug
+        // that happens when moving the sliders quickly that causes the values in this.features
+        // to grow insanely large.
+        if (this.features[toot.account.acct] > 0) {
+            console.debug(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.features[toot.account.acct]}), diversity features:`, this.features);
+            return 0;
+        } else {
+            return this.features[toot.account.acct];
+        }
     }
 };

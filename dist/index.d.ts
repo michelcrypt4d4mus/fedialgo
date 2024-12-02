@@ -23,13 +23,13 @@ declare class TheAlgorithm {
     static create(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;
     weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
-    scoreFeed(): Promise<Toot[]>;
     setDefaultWeights(): Promise<void>;
     getUserWeights(): Promise<ScoresType>;
     getDescription(scorerName: string): string;
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     list(): Paginator;
     logFeedInfo(): void;
+    private scoreFeed;
     private _decorateWithScoreInfo;
     private sortFeed;
 }

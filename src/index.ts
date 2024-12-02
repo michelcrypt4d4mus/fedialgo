@@ -126,21 +126,6 @@ class TheAlgorithm {
         return await this.scoreFeed();
     }
 
-    async scoreFeed(): Promise<Toot[]> {
-        console.debug(`scoreFeed() called in fedialgo package...`);
-
-        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
-        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
-        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
-
-        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
-        for (const toot of this.feed) {
-            await this._decorateWithScoreInfo(toot);
-        }
-
-        return this.sortFeed();
-    }
-
     // Set default score weightings
     async setDefaultWeights(): Promise<void> {
         await Promise.all(this.weightedScorers.map(scorer => WeightsStore.defaultFallback(
@@ -216,10 +201,22 @@ class TheAlgorithm {
         }, {} as ScoresType);
 
         console.debug(`feed toots posted by application counts: `, appCounts);
+    }
 
-        // this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
-        //     console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
-        // });
+    private async scoreFeed(): Promise<Toot[]> {
+        console.debug(`scoreFeed() called in fedialgo package...`);
+
+        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
+        // TODO: this doesn't work, there's still collisions in the diversity feed scorer 'features' object
+        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
+        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
+
+        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
+        for (const toot of this.feed) {
+            await this._decorateWithScoreInfo(toot);
+        }
+
+        return this.sortFeed();
     }
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection

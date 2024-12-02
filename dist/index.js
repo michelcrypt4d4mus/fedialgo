@@ -82,7 +82,7 @@ class TheAlgorithm {
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots, leaving ${cleanFeed.length}.`);
         this.feed = cleanFeed;
         // Prepare scorers and score toots (mutates Toot objects to add toot.scoreInfo property)
-        // FeedScorer.setFeed() must come after de-duplication.
+        await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         return await this.scoreFeed();
     }
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
@@ -98,18 +98,6 @@ class TheAlgorithm {
         }
         await weightsStore_1.default.setScoreWeightsMulti(userWeights);
         return await this.scoreFeed();
-    }
-    async scoreFeed() {
-        console.debug(`scoreFeed() called in fedialgo package...`);
-        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
-        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
-        await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
-        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
-        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
-        for (const toot of this.feed) {
-            await this._decorateWithScoreInfo(toot);
-        }
-        return this.sortFeed();
     }
     // Set default score weightings
     async setDefaultWeights() {
@@ -169,9 +157,18 @@ class TheAlgorithm {
             return counts;
         }, {});
         console.debug(`feed toots posted by application counts: `, appCounts);
-        // this.feed.toSorted((a, b) => tootSize(b) - tootSize(a)).forEach((toot, i) => {
-        //     console.debug(`largest toot #${i + 1} (${tootSize(toot)} bytes): ${describeToot(toot)}`, toot);
-        // });
+    }
+    async scoreFeed() {
+        console.debug(`scoreFeed() called in fedialgo package...`);
+        // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset each scoring
+        // TODO: this doesn't work, there's still collisions in the diversity feed scorer 'features' object
+        await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
+        // await Promise.all(this.feed.map(toot => this._decorateWithScoreInfo(toot)));
+        // TODO: DiversityFeedScorer also seems to be problematic when used with Promise.all() so we do it in a loop
+        for (const toot of this.feed) {
+            await this._decorateWithScoreInfo(toot);
+        }
+        return this.sortFeed();
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {
