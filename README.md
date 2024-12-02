@@ -25,10 +25,7 @@ npm install github:michelcrypt4d4mus/fedialgo
 import { login, mastodon } from "masto";
 import { TheAlgorithm } from "fedialgo"
 
-const api: mastodon.Client = await login({
-                    url: user.server,
-                    accessToken: user.access_token,
-                });
+const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currUser = await api.v1.accounts.verifyCredentials()
 const algo = await TheAlgorithm.create(api, currUser)
 const feed = await algo.getFeed()
@@ -39,10 +36,18 @@ The algorithm uses properties of a toot and the user configured weights to deter
 You could e.g. show the weights to the user, who can then decide to change them.
 
 ```typescript
-let weights = await algo.getUserWeights()
-weights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
-let newWeights = weights
-const newFeed = await algoObj.setScoreWeights(newWeights)
+const weights = await algo.getUserWeights()
+let newWeights = Object.assign({}, weights)
+newWeights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
+const newFeed = await algoObj.weightTootsInFeed(newWeights)
+```
+
+#### Adjust Filters
+The `FeedFilterSettings` object in the `algorithm.filters` property can be updated in place but to get the filtered feed you must call `algorithm.filteredFeed()`.
+
+```typescript
+algorithm.filters.includeFollowedHashtags = false;
+const filteredFeed = algorithm.filteredFeed();
 ```
 
 #### Learn Weights
