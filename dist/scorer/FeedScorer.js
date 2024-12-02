@@ -15,9 +15,9 @@ class FeedScorer extends Scorer_1.default {
         super(scoreName, description, defaultWeight);
     }
     async setFeed(feed) {
-        console.log(`before feedExtractor() this.features=`, this.features);
+        // console.debug(`before feedExtractor() this.features=`, this.features);
         this.features = await this.feedExtractor(feed);
-        console.log(`after feedExtractor() this.features=`, this.features);
+        console.debug(`after feedExtractor() this.features=`, this.features);
         this._isReady = true;
     }
     //* Should be overloaded in subclasses. */
