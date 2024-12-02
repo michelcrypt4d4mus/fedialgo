@@ -1,16 +1,19 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-import { ScoresType, Toot } from "./types";
+import { FeedFilterSettings, ScoresType, Toot } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
+declare const NO_LANGUAGE = "[not specified]";
 declare const TIME_DECAY = "TimeDecay";
 declare const DEFAULT_TIME_DECAY = 0.05;
+declare const DEFAULT_FILTERS: FeedFilterSettings;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    filters: FeedFilterSettings;
     feed: Toot[];
     scoreMutex: Mutex;
     fetchers: (typeof getHomeFeed)[];
@@ -32,7 +35,10 @@ declare class TheAlgorithm {
     logFeedInfo(): void;
     scoreFeed(self: TheAlgorithm): Promise<Toot[]>;
     setDefaultWeights(): Promise<void>;
+    filteredFeed(): Toot[];
+    updateFeedFilters(filters: FeedFilterSettings): Toot[];
+    private isFiltered;
     private _decorateWithScoreInfo;
     private sortFeed;
 }
-export { DEFAULT_TIME_DECAY, TIME_DECAY, TRENDING_TOOTS, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };
+export { DEFAULT_FILTERS, DEFAULT_TIME_DECAY, NO_LANGUAGE, TIME_DECAY, TRENDING_TOOTS, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

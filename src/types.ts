@@ -39,6 +39,16 @@ export interface Toot extends mastodon.v1.Status {
     trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
 };
 
+export type FeedFilterSettings = {
+    filteredLanguages: string[];
+    includeFollowedHashtags: boolean;
+    includeFollowedAccounts: boolean;
+    includeReposts: boolean;
+    includeReplies: boolean;
+    includeTrendingToots: boolean;
+    onlyLinks: boolean;
+};
+
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type Scorer = (api: mastodon.rest.Client, status: Toot) => number;
 export type StorageValue = AccountFeature | ScoresType | ServerFeature | TagFeature | TootURIs | mastodon.v1.Account | string;

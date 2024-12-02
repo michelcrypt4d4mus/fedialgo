@@ -1,3 +1,6 @@
+## `2024-12-02`
+* Move filtering of the feed to this package
+
 ## `2024-12-01`
 * Introduce `TootScore` type to hold all score info
 * filter out toots that match user's configured filters

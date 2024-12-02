@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.MastodonApiCache = exports.TRENDING_TOOTS = exports.TIME_DECAY = exports.DEFAULT_TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.MastodonApiCache = exports.TRENDING_TOOTS = exports.TIME_DECAY = exports.NO_LANGUAGE = exports.DEFAULT_TIME_DECAY = exports.DEFAULT_FILTERS = void 0;
 const async_mutex_1 = require("async-mutex");
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
@@ -17,13 +17,26 @@ const Storage_1 = __importDefault(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 const weightsStore_1 = __importDefault(require("./weights/weightsStore"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
+const NO_LANGUAGE = '[not specified]';
+exports.NO_LANGUAGE = NO_LANGUAGE;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const DEFAULT_TIME_DECAY = 0.05;
 exports.DEFAULT_TIME_DECAY = DEFAULT_TIME_DECAY;
+const DEFAULT_FILTERS = {
+    filteredLanguages: [],
+    includeFollowedHashtags: true,
+    includeFollowedAccounts: true,
+    includeReposts: true,
+    includeReplies: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+};
+exports.DEFAULT_FILTERS = DEFAULT_FILTERS;
 class TheAlgorithm {
     api;
     user;
+    filters;
     feed = [];
     scoreMutex = new async_mutex_1.Mutex();
     fetchers = [
@@ -57,6 +70,7 @@ class TheAlgorithm {
     constructor(api, user) {
         this.api = api;
         this.user = user;
+        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(api, user) {
@@ -88,7 +102,7 @@ class TheAlgorithm {
         // const self = this;
         // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
         await this.scoreFeed(this);
-        return this.feed;
+        return this.filteredFeed();
     }
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating WeightsStore.
@@ -105,7 +119,7 @@ class TheAlgorithm {
         // const self = this;
         // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
         await this.scoreFeed(this);
-        return this.feed;
+        return this.filteredFeed();
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
@@ -194,6 +208,41 @@ class TheAlgorithm {
     async setDefaultWeights() {
         await Promise.all(this.weightedScorers.map(scorer => weightsStore_1.default.defaultFallback(scorer.getScoreName(), scorer.getDefaultWeight())));
         weightsStore_1.default.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
+    }
+    filteredFeed() {
+        return this.feed.filter(toot => this.isFiltered(toot));
+    }
+    updateFeedFilters(filters) {
+        this.filters = filters;
+        return this.filteredFeed();
+    }
+    isFiltered(toot) {
+        const tootLanguage = toot.language || NO_LANGUAGE;
+        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
+            console.debug(`Removing ${toot.uri} from feed because it's not a link and onlyLinks is enabled...`);
+            return false;
+        }
+        else if (toot.reblog && !this.filters.includeReposts) {
+            console.debug(`Removing reblogged status ${toot.uri} from feed...`);
+            return false;
+        }
+        else if (this.filters.filteredLanguages.length > 0 && !this.filters.filteredLanguages.includes(tootLanguage)) {
+            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, this.filters.filteredLanguages);
+            return false;
+        }
+        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
+            return false;
+        }
+        else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
+            return false;
+        }
+        else if (!this.filters.includeReplies && toot.inReplyToId) {
+            return false;
+        }
+        else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
+            return false;
+        }
+        return true;
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     async _decorateWithScoreInfo(toot) {

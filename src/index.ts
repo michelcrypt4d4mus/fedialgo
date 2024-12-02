@@ -19,8 +19,8 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { condensedStatus, createRandomString, describeToot, tootSize } from "./helpers";
-import { ScoresType, Toot, TootScore } from "./types";
+import { condensedStatus, createRandomString, describeToot } from "./helpers";
+import { FeedFilterSettings, ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
@@ -30,13 +30,25 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import WeightsStore from "./weights/weightsStore";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
+const NO_LANGUAGE = '[not specified]';
 const TIME_DECAY = 'TimeDecay';
 const DEFAULT_TIME_DECAY = 0.05;
+
+const DEFAULT_FILTERS = {
+    filteredLanguages: [],
+    includeFollowedHashtags: true,
+    includeFollowedAccounts: true,
+    includeReposts: true,
+    includeReplies: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+} as FeedFilterSettings;
 
 
 class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    filters: FeedFilterSettings;
     feed: Toot[] = [];
     scoreMutex = new Mutex();
 
@@ -75,6 +87,7 @@ class TheAlgorithm {
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
+        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
 
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
@@ -111,7 +124,7 @@ class TheAlgorithm {
         // const self = this;
         // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
         await this.scoreFeed(this);
-        return this.feed;
+        return this.filteredFeed();
     }
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
@@ -131,7 +144,7 @@ class TheAlgorithm {
         // const self = this;
         // await this.scoreMutex.runExclusive(async () => await this.scoreFeed(self));
         await this.scoreFeed(this);
-        return this.feed;
+        return this.filteredFeed();
     }
 
     // Return the user's current weightings for each score category
@@ -243,6 +256,40 @@ class TheAlgorithm {
         WeightsStore.defaultFallback(TIME_DECAY, DEFAULT_TIME_DECAY);
     }
 
+    filteredFeed(): Toot[] {
+        return this.feed.filter(toot => this.isFiltered(toot));
+    }
+
+    updateFeedFilters(filters: FeedFilterSettings): Toot[] {
+        this.filters = filters;
+        return this.filteredFeed();
+    }
+
+    private isFiltered(toot: Toot): boolean {
+        const tootLanguage = toot.language || NO_LANGUAGE;
+
+        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
+            console.debug(`Removing ${toot.uri} from feed because it's not a link and onlyLinks is enabled...`);
+            return false;
+        } else if (toot.reblog && !this.filters.includeReposts) {
+            console.debug(`Removing reblogged status ${toot.uri} from feed...`);
+            return false;
+        } else if (this.filters.filteredLanguages.length > 0 && !this.filters.filteredLanguages.includes(tootLanguage)) {
+            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, this.filters.filteredLanguages);
+            return false;
+        } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
+            return false;
+        } else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
+            return false;
+        } else if (!this.filters.includeReplies && toot.inReplyToId) {
+            return false;
+        } else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
+            return false;
+        }
+
+        return true;
+    }
+
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     private async _decorateWithScoreInfo(toot: Toot): Promise<Toot> {
         // console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
@@ -327,9 +374,12 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
+    DEFAULT_FILTERS,
     DEFAULT_TIME_DECAY,
+    NO_LANGUAGE,
     TIME_DECAY,
     TRENDING_TOOTS,
+    FeedFilterSettings,
     MastodonApiCache,
     ScoresType,
     TheAlgorithm,
