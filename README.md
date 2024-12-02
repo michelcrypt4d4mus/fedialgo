@@ -20,7 +20,8 @@ You can install from github with `npm`:
 npm install github:michelcrypt4d4mus/fedialgo
 ```
 
-#### Weight An Account's Feed:
+# Usage
+### Get A Weight-Ordered Feed
 ```typescript
 import { login, mastodon } from "masto";
 import { TheAlgorithm } from "fedialgo"
@@ -31,18 +32,17 @@ const algo = await TheAlgorithm.create(api, currUser)
 const feed = await algo.getFeed()
 ```
 
-#### Adjust Weights:
+### Adjust Weights
 The algorithm uses properties of a toot and the user configured weights to determine the order that toots will appear in your timeline.
-You could e.g. show the weights to the user, who can then decide to change them.
+You could e.g. show the weights to the user, who can then decide to change them. You must call `algorithm.weightTootsInFeed()` to update the weights and get a newly ordered timeline.
 
 ```typescript
-const weights = await algo.getUserWeights()
-let newWeights = Object.assign({}, weights)
-newWeights["fav"] = 0.5 // change the weight of the feature "fav" to 0.5
-const newFeed = await algoObj.weightTootsInFeed(newWeights)
+const weights = await algorithm.getUserWeights()
+weights["NumReplies"] = 0.5 // change the weight of the feature "NumReplies" to 0.5
+const timelineFeed = await algorithm.weightTootsInFeed(newWeights)
 ```
 
-#### Adjust Filters
+### Adjust Filters
 The `FeedFilterSettings` object in the `algorithm.filters` property can be updated in place but to get the filtered feed you must call `algorithm.filteredFeed()`.
 
 ```typescript
@@ -50,7 +50,7 @@ algorithm.filters.includeFollowedHashtags = false;
 const filteredFeed = algorithm.filteredFeed();
 ```
 
-#### Learn Weights
+### Learn Weights
 You can also let the algorithm learn the weights from the user's behaviour. This is done by passing the scores of the posts to the algorithm. The algorithm will then adjust the weights accordingly. This is quite simple, but still has impact on the feed. For example you could choose to adjust the weight after each click on a post, after a reblog, or after a link click.
 
 ```typescript
