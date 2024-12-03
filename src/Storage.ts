@@ -61,19 +61,13 @@ export default class Storage {
     static async getLastOpenedTimestamp(): Promise<number> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED) as string);
-        console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
 
-        if (numAppOpens <= 1) {
-            console.log(`Only 1 numAppOpens so returning 0 for getLastOpenedTimestamp()`);
+        if (!lastOpenedInt || numAppOpens <= 1) {
+            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
             return 0;
         }
 
-        if (lastOpenedInt) {
-            console.log(`lastOpenedTimestamp: ${new Date(lastOpenedInt)}`);
-        } else {
-            console.log("lastOpenedTimestamp not found");
-        }
-
+        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
         return lastOpenedInt;
     }
 
