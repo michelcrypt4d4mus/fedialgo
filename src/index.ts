@@ -263,6 +263,10 @@ class TheAlgorithm {
                     await self.decorateWithScoreInfo(toot);
                 }
 
+                // Sort feed based on score from high to low.
+                self.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+                self.logFeedInfo();
+                Storage.setFeed(self.feed);
                 console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
             } finally {
                 releaseMutex();
@@ -275,10 +279,6 @@ class TheAlgorithm {
             }
         }
 
-        // Sort feed based on score from high to low. This must come after the deduplication step.
-        self.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-        self.logFeedInfo();
-        Storage.setFeed(self.feed);
         return self.filteredFeed();
     }
 
