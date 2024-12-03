@@ -27,7 +27,7 @@ import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
-import Storage from "./Storage";
+import Storage, { DEFAULT_FILTERS } from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
@@ -46,16 +46,6 @@ const EXPONENTIAL_WEIGHTINGS: ScorerDescriptions = {
         description: TIME_DECAY_DESCRIPTION,
     },
 };
-
-const DEFAULT_FILTERS = {
-    filteredLanguages: [],
-    includeFollowedHashtags: true,
-    includeFollowedAccounts: true,
-    includeReposts: true,
-    includeReplies: true,
-    includeTrendingToots: true,
-    onlyLinks: false,
-} as FeedFilterSettings;
 
 
 type ScorerDict = {
@@ -142,6 +132,7 @@ class TheAlgorithm {
         await Storage.setIdentity(params.user);
         await Storage.logAppOpen();
         await algo.setDefaultWeights();
+        algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
         console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
@@ -200,6 +191,7 @@ class TheAlgorithm {
     async updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]> {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
+        Storage.setFilters(newFilters);
         return this.filteredFeed();
     };
 
@@ -239,6 +231,7 @@ class TheAlgorithm {
 
     filteredFeed(): Toot[] {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        console.log(`setFeedInApp() called in filteredFeed() with ${filteredFeed.length} toots...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }

@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -12,7 +35,7 @@ const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_ca
 exports.MastodonApiCache = mastodon_api_cache_1.default;
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
-const Storage_1 = __importDefault(require("./Storage"));
+const Storage_1 = __importStar(require("./Storage"));
 const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 const NO_LANGUAGE = '[not specified]';
@@ -29,15 +52,6 @@ const EXPONENTIAL_WEIGHTINGS = {
         defaultWeight: 0.05,
         description: TIME_DECAY_DESCRIPTION,
     },
-};
-const DEFAULT_FILTERS = {
-    filteredLanguages: [],
-    includeFollowedHashtags: true,
-    includeFollowedAccounts: true,
-    includeReposts: true,
-    includeReplies: true,
-    includeTrendingToots: true,
-    onlyLinks: false,
 };
 class TheAlgorithm {
     api;
@@ -91,7 +105,7 @@ class TheAlgorithm {
         this.api = params.api;
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
-        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
+        this.filters = JSON.parse(JSON.stringify(Storage_1.DEFAULT_FILTERS));
     }
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(params) {
@@ -99,6 +113,7 @@ class TheAlgorithm {
         await Storage_1.default.setIdentity(params.user);
         await Storage_1.default.logAppOpen();
         await algo.setDefaultWeights();
+        algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
         console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
@@ -148,6 +163,7 @@ class TheAlgorithm {
     async updateFilters(newFilters) {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
+        Storage_1.default.setFilters(newFilters);
         return this.filteredFeed();
     }
     ;
@@ -180,6 +196,7 @@ class TheAlgorithm {
     }
     filteredFeed() {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        console.log(`setFeedInApp() called in filteredFeed() with ${filteredFeed.length} toots...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }

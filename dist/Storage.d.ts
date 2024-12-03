@@ -1,7 +1,8 @@
 import { mastodon } from "masto";
-import { ScoresType, StorageValue, Toot } from "./types";
+import { FeedFilterSettings, ScoresType, StorageValue, Toot } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
+    FILTERS = "filters",
     FOLLOWED_TAGS = "FollowedTags",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
@@ -14,9 +15,12 @@ export declare enum Key {
     USER = "algouser",
     WEIGHTS = "weights"
 }
+export declare const DEFAULT_FILTERS: FeedFilterSettings;
 export default class Storage {
     static getWeightings(): Promise<ScoresType>;
     static setWeightings(userWeightings: ScoresType): Promise<void>;
+    static getFilters(): Promise<FeedFilterSettings>;
+    static setFilters(filters: FeedFilterSettings): Promise<void>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;

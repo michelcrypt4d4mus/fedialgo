@@ -69,4 +69,5 @@ export type ScorerDescriptions = {
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | ScoresType | ServerFeature | TagFeature | TootURIs | Toot[] | mastodon.v1.Account | string;
+export type StorageValue = AccountFeature | FeedFilterSettings | ScoresType | ServerFeature |
+                           TagFeature | TootURIs | Toot[] | mastodon.v1.Account | string;

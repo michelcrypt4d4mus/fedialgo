@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Key = void 0;
+exports.DEFAULT_FILTERS = exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
-// import { time } from "console";
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
+    Key["FILTERS"] = "filters";
     Key["FOLLOWED_TAGS"] = "FollowedTags";
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
@@ -22,6 +22,15 @@ var Key;
     Key["WEIGHTS"] = "weights";
 })(Key || (exports.Key = Key = {}));
 ;
+exports.DEFAULT_FILTERS = {
+    filteredLanguages: [],
+    includeFollowedHashtags: true,
+    includeFollowedAccounts: true,
+    includeReposts: true,
+    includeReplies: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+};
 class Storage {
     static async getWeightings() {
         let weightings = await this.get(Key.WEIGHTS);
@@ -30,6 +39,14 @@ class Storage {
     }
     static async setWeightings(userWeightings) {
         await this.set(Key.WEIGHTS, userWeightings);
+    }
+    static async getFilters() {
+        let filters = await this.get(Key.FILTERS);
+        filters ??= exports.DEFAULT_FILTERS;
+        return filters;
+    }
+    static async setFilters(filters) {
+        await this.set(Key.FILTERS, filters);
     }
     static async logAppOpen() {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS));

@@ -1,11 +1,11 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { ScoresType, StorageValue, Toot } from "./types";
-// import { time } from "console";
+import { FeedFilterSettings, ScoresType, StorageValue, Toot } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
+    FILTERS = 'filters',
     FOLLOWED_TAGS = 'FollowedTags',
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
@@ -19,6 +19,16 @@ export enum Key {
     WEIGHTS = 'weights',
 };
 
+export const DEFAULT_FILTERS = {
+    filteredLanguages: [],
+    includeFollowedHashtags: true,
+    includeFollowedAccounts: true,
+    includeReposts: true,
+    includeReplies: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+} as FeedFilterSettings;
+
 
 export default class Storage {
     static async getWeightings(): Promise<ScoresType> {
@@ -27,11 +37,21 @@ export default class Storage {
         return weightings as ScoresType;
     }
 
-    static async setWeightings(userWeightings: ScoresType) {
+    static async setWeightings(userWeightings: ScoresType): Promise<void> {
         await this.set(Key.WEIGHTS, userWeightings);
     }
 
-    static async logAppOpen() {
+    static async getFilters(): Promise<FeedFilterSettings> {
+        let filters = await this.get(Key.FILTERS);
+        filters ??= DEFAULT_FILTERS;
+        return filters as FeedFilterSettings;
+    }
+
+    static async setFilters(filters: FeedFilterSettings): Promise<void> {
+        await this.set(Key.FILTERS, filters);
+    }
+
+    static async logAppOpen(): Promise<void> {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
 
         if (numAppOpens == null || isNaN(numAppOpens)) {
@@ -43,7 +63,7 @@ export default class Storage {
         await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
     }
 
-    static async getLastOpenedTimestamp() {
+    static async getLastOpenedTimestamp(): Promise<number> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED) as string);
         console.log(`lastOpenedTimestamp (after ${numAppOpens} app opens) milliseconds: ${lastOpenedInt}`);
@@ -62,7 +82,7 @@ export default class Storage {
         return lastOpenedInt;
     }
 
-    static async getNumAppOpens() {
+    static async getNumAppOpens(): Promise<number> {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
