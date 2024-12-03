@@ -31,6 +31,7 @@ import {
     ReblogsFeedScorer,
     RepliedFeatureScorer,
     TopPostFeatureScorer,
+    TrendingTagsFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
 import { IMAGE, MEDIA_TYPES, condensedStatus, createRandomString, dedupeToots, describeToot, isImage } from "./helpers";
@@ -82,6 +83,7 @@ class TheAlgorithm {
         new ReblogsFeatureScorer(),
         new RepliedFeatureScorer(),
         new TopPostFeatureScorer(),
+        new TrendingTagsFeatureScorer(),
         new VideoAttachmentScorer(),
     ];
 
