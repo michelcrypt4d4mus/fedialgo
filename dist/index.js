@@ -31,7 +31,7 @@ const async_mutex_1 = require("async-mutex");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importStar(require("./Storage"));
-const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
+const trending_tags_1 = __importStar(require("./feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
@@ -113,8 +113,10 @@ class TheAlgorithm {
     async getFeed() {
         console.debug(`getFeed() called in fedialgo package...`);
         let trendingTags = [];
+        let trendingTagToots = [];
         try {
             trendingTags = await (0, trending_tags_1.default)(this.api);
+            trendingTagToots = await (0, trending_tags_1.getRecentTootsForTrendingTags)(this.api, trendingTags);
         }
         catch (e) {
             console.warn(`getTrendingTags() failed: `, e);

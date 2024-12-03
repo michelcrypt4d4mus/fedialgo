@@ -7,7 +7,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
-import getTrendingTags from "./feeds/trending_tags";
+import getTrendingTags, { getRecentTootsForTrendingTags } from "./feeds/trending_tags";
 import getTrendingToots from "./feeds/trending_toots";
 import {
     AlgorithmArgs,
@@ -129,9 +129,11 @@ class TheAlgorithm {
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
         let trendingTags = [];
+        let trendingTagToots = [];
 
         try {
             trendingTags = await getTrendingTags(this.api);
+            trendingTagToots = await getRecentTootsForTrendingTags(this.api, trendingTags);
         } catch (e) {
             console.warn(`getTrendingTags() failed: `, e);
         }

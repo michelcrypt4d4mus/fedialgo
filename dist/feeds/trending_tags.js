@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getRecentTootsForTrendingTags = void 0;
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
@@ -10,6 +11,7 @@ const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
+const NUM_TRENDING_TAGS = 15;
 async function getTrendingTags(api) {
     console.log(`[TrendingTags] getTrendingTags() called`);
     const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);
@@ -30,6 +32,7 @@ async function getTrendingTags(api) {
         console.log(`[TrendingTags] trendingTags for server '${server}':`, tags);
         return tags;
     }));
+    // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const aggregatedTags = trendingTags.flat().reduce((tags, tag) => {
         const existingTag = tags.find(t => t.name === tag.name);
         if (existingTag) {
@@ -43,9 +46,24 @@ async function getTrendingTags(api) {
     }, []);
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`[TrendingTags] Aggregated trending tags:`, aggregatedTags);
-    return aggregatedTags;
+    return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
 }
 exports.default = getTrendingTags;
+;
+async function getRecentTootsForTrendingTags(api, tags) {
+    console.log(`[TrendingTags] getRecentTootsForTrendingTags() called with tags:`, tags);
+    let toots = [];
+    tags.forEach(async (tag) => {
+        console.log(`[TrendingTags] getting toots for tag:`, tag);
+        const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
+        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, searchResult.statuses);
+        toots = toots.concat(searchResult.statuses);
+    });
+    toots = (0, helpers_1.dedupeToots)(toots);
+    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
+    return toots;
+}
+exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;
 // Inject toot and account counts (how many toots and users are using the trending tag)
 function decorateTagData(tag) {
