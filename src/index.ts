@@ -22,8 +22,6 @@ import {
     ChaosFeatureScorer,
     DiversityFeedScorer,
     FavsFeatureScorer,
-    FeatureScorer,
-    FeedScorer,
     FollowedTagsFeatureScorer,
     ImageAttachmentScorer,
     InteractionsFeatureScorer,
