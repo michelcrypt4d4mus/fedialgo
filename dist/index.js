@@ -91,9 +91,9 @@ class TheAlgorithm {
     }, { [TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO) });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
-        const algo = new TheAlgorithm(params);
         await Storage_1.default.setIdentity(params.user);
         await Storage_1.default.logAppOpen();
+        const algo = new TheAlgorithm(params);
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
