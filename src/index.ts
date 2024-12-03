@@ -37,6 +37,7 @@ import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const ENGLISH_CODE = 'en';
+const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
@@ -93,9 +94,9 @@ class TheAlgorithm {
     ];
 
     scorersDict = this.weightedScorers.reduce(
-        (descriptions, scorer) => {
-            descriptions[scorer.name] = scorer.getInfo();
-            return descriptions;
+        (scorerInfos, scorer) => {
+            scorerInfos[scorer.name] = scorer.getInfo();
+            return scorerInfos;
         },
         {[TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO)} as ScorerDict
     );
@@ -198,7 +199,7 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(): void {
         const appCounts = this.feed.reduce((counts, toot) => {
-            const app = toot.application?.name || "unknown";
+            const app = toot.application?.name || UNKNOWN_APP;
             counts[app] = (counts[app] || 0) + 1;
             return counts;
         }, {} as StringNumberDict);
