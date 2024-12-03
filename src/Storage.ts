@@ -21,10 +21,10 @@ export enum Key {
 
 export const DEFAULT_FILTERS = {
     filteredLanguages: [],
-    includeFollowedHashtags: true,
     includeFollowedAccounts: true,
-    includeReposts: true,
+    includeFollowedHashtags: true,
     includeReplies: true,
+    includeReposts: true,
     includeTrendingToots: true,
     onlyLinks: false,
     weightLearningEnabled: false,
