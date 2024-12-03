@@ -41,7 +41,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getMostFavoritedAccounts(api) {
         let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
         if (topFavs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage...");
+            console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage", topFavs);
         }
         else {
             topFavs = await (0, favsFeature_1.default)(api);
@@ -55,7 +55,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getRecentToots(api) {
         let recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS);
         if (recentTootURIs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded user's toots from storage...");
+            console.log("[MastodonApiCache] Loaded user's toots from storage", recentTootURIs);
         }
         else {
             const user = await this.getIdentity();
@@ -75,7 +75,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getMostRetootedAccounts(api) {
         let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
         if (topReblogs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage...");
+            console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage", topReblogs);
         }
         else {
             const user = await this.getIdentity();
@@ -90,7 +90,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getMostRepliedAccounts(api) {
         let mostReplied = await this.get(Storage_1.Key.REPLIED_TO);
         if (mostReplied != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
+            console.log("[MastodonApiCache] Loaded replied to accounts from storage", mostReplied);
         }
         else {
             const user = await this.getIdentity();
@@ -105,7 +105,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
         if (topInteracts != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts that have interacted the most with user's toots from storage");
+            console.log("[MastodonApiCache] Loaded accounts that have interacted with user's toots from storage", topInteracts);
         }
         else {
             topInteracts = await (0, InteractionsFeature_1.default)(api);
@@ -117,7 +117,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getFollowedTags(api) {
         let followedTags = await this.get(Storage_1.Key.FOLLOWED_TAGS);
         if (followedTags != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded followed tags from storage");
+            console.log("[MastodonApiCache] Loaded followed tags from storage", followedTags);
         }
         else {
             followedTags = await (0, followed_tags_feature_1.default)(api);
@@ -130,7 +130,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getCoreServer(api) {
         let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
         if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("[MastodonApiCache] Loaded coreServer from storage");
+            console.log("[MastodonApiCache] Loaded coreServer from storage", coreServer);
         }
         else {
             const user = await this.getIdentity();

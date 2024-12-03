@@ -8,7 +8,7 @@ const helpers_1 = require("../helpers");
 const helpers_2 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
-const NUM_TRENDING_TOOTS_PER_SERVER = 20;
+const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function getTrendingToots(api) {
     const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);

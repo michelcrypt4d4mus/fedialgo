@@ -87,12 +87,12 @@ export default async function coreServerFeature(
 
     // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
-    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
     const popularServers = Object.keys(userServerCounts)
                                  .sort((a, b) => userServerCounts[b] - userServerCounts[a])
-                                 .slice(0, NUM_SERVERS_TO_CHECK)
-    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers)
+                                 .slice(0, NUM_SERVERS_TO_CHECK);
 
+    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
+    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
     const serverMAUs: StringNumberDict = {};
     const overrepresentedServerFrequ: StringNumberDict = {};
