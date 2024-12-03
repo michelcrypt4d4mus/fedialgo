@@ -227,17 +227,17 @@ export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefi
 
     Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
         if (!uriToots || uriToots.length == 0) return;
-        const allTags = uriToots.flatMap(toot => toot.tags || []);
-        const uniqueTags = [...new Map(allTags.map((tag: TrendingTag) => [tag.name, tag])).values()]
+        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()]
 
-        if (allTags.length > 0) {
-            console.debug(`${prefix}allTags for ${uri}:`, allTags);
-            console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTags);
+        if (allTrendingTags.length > 0) {
+            console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+            console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
         }
 
         // Set all toots to have all trending tags.
         uriToots.forEach((toot) => {
-            toot.trendingTags = uniqueTags || [];
+            toot.trendingTags = uniqueTrendingTags || [];
         });
     });
 
