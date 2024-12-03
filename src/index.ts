@@ -340,7 +340,7 @@ class TheAlgorithm {
     }
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-    private async decorateWithScoreInfo(toot: Toot): Promise<Toot> {
+    private async decorateWithScoreInfo(toot: Toot): Promise<void> {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         let rawScore = 1;
         const rawScores = {} as ScoresType;
@@ -384,7 +384,6 @@ class TheAlgorithm {
 
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
-        return toot;
     }
 
     private shouldReloadFeed(): boolean {

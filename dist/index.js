@@ -338,7 +338,6 @@ class TheAlgorithm {
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog)
             toot.reblog.scoreInfo = toot.scoreInfo;
-        return toot;
     }
     shouldReloadFeed() {
         const mostRecentTootAt = this.mostRecentTootAt();
