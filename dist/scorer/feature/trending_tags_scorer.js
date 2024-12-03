@@ -21,22 +21,23 @@ class TrendingTagsFeatureScorer extends FeatureScorer_1.default {
     // TODO: we could also use tag.numStatuses in some way (or instead)
     async _score(toot) {
         const tags = toot.trendingTags || [];
-        return tags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+        const tagScore = tags.reduce((sum, tag) => sum + scoreTag(tag), 0);
+        console.debug(`[TrendingTagsFeatureScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
+        return tagScore;
     }
 }
 exports.default = TrendingTagsFeatureScorer;
 ;
 // TODO: unused
-function logNumAccounts(tag) {
+function scoreTag(tag) {
     const numAccounts = tag.numAccounts || Math.E;
     let score = 0;
     if (numAccounts >= Math.E) {
-        score = 1 + Math.log(numAccounts);
+        score = 1 + Math.log2(numAccounts);
     }
     else if (numAccounts >= 1) {
         score = numAccounts;
     }
-    console.debug(`[TrendingTags] score: ${score} for tag:`, tag);
     return score;
 }
 //# sourceMappingURL=trending_tags_scorer.js.map

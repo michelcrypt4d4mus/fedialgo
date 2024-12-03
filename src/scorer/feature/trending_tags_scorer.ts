@@ -5,7 +5,7 @@ import FeatureScorer from '../FeatureScorer';
 import { Toot, TrendingTag } from "../../types";
 
 export const TRENDING_TAGS = "TrendingTags";
-export const TRENDING_TAGS_DEFAULT_WEIGHT = 0.06;
+export const TRENDING_TAGS_DEFAULT_WEIGHT = 0.5;
 
 
 export default class TrendingTagsFeatureScorer extends FeatureScorer {
