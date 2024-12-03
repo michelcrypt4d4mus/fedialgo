@@ -8,7 +8,7 @@ import { Toot } from "./types";
 export const DEFAULT_RECORDS_PER_PAGE = 40;
 export const VIDEO_TYPES = ["gifv", "video"];
 export const MEDIA_TYPES = ["image", ...VIDEO_TYPES];
-const DEFAULT_MIN_RECORDS_FOR_FEATURE = 160;
+const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 const MAX_CONTENT_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 
