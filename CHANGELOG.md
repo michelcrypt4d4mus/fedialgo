@@ -1,5 +1,6 @@
 ## `2024-12-02`
 * Implement live filtering of the feed (for languages, followed tags, etc.)
+* Add `setFeedInApp` callback parameter to `TheAlgorithm.create()`
 
 ## `2024-12-01`
 * Introduce `TootScore` type to hold all score info
