@@ -145,7 +145,6 @@ class TheAlgorithm {
         // Get all the unique languages that show up in the feed (default to English)
         this.feedLanguages = this.feed.reduce((langCounts, toot) => {
             toot.language ??= ENGLISH_CODE;
-            // const tootLanguage = toot.language || NO_LANGUAGE;
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {} as StringNumberDict)
