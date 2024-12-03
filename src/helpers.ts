@@ -44,8 +44,12 @@ export const _transformKeys = <T>(data: T, transform: (key: string) => string): 
 
 // Retrieve Mastodon server information from a given server and endpoint
 export const mastodonFetch = async <T>(server: string, endpoint: string): Promise<T | undefined> => {
+    const url = `https://${server}${endpoint}`;
+    console.debug(`mastodonFetch() ${url}'...`);
+
     try {
-        const json = await axios.get<T>(`https://${server}${endpoint}`);
+        const json = await axios.get<T>(url);
+        console.debug(`mastodonFetch() response for ${url}:`, json);
 
         if (json.status === 200 && json.data) {
             return _transformKeys(json.data, camelCase);

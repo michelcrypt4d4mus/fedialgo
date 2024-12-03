@@ -67,6 +67,11 @@ export type TootURIs = {
     [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 
+export interface TrendingTag extends mastodon.v1.Tag {
+    trendingRank?: number;
+};
+
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
+
 export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
-                           TootURIs | Toot[] | mastodon.v1.Account | number | string;
+    TootURIs | Toot[] | mastodon.v1.Account | number | string;

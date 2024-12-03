@@ -7,6 +7,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
+import getTrendingTags from "./feeds/trending_tags";
 import getTrendingToots from "./feeds/trending_toots";
 import {
     AlgorithmArgs,
@@ -127,6 +128,14 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
+        let trendingTags = [];
+
+        try {
+            trendingTags = await getTrendingTags(this.api);
+            console.log(`getTrendingTags() returned: `, trendingTags);
+        } catch (e) {
+            console.warn(`getTrendingTags() failed: `, e);
+        }
 
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
