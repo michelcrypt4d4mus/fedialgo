@@ -344,6 +344,7 @@ class TheAlgorithm {
         }, {} as StringNumberDict);
 
         this.appCounts = this.feed.reduce((counts, toot) => {
+            toot.application ??= {name: UNKNOWN_APP};
             const app = toot.application?.name || UNKNOWN_APP;
             counts[app] = (counts[app] || 0) + 1;
             return counts;
@@ -351,6 +352,7 @@ class TheAlgorithm {
     }
 
     private isFiltered(toot: Toot): boolean {
+        const apps = this.filters.filteredApps;
         const languages = this.filters.filteredLanguages;
         const tootLanguage = toot.language || ENGLISH_CODE;
 
@@ -363,7 +365,10 @@ class TheAlgorithm {
             }
         }
 
-        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
+        if (apps.length > 0 && !apps.includes(toot.application?.name)) {
+            console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
+            return false;
+        } else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
         } else if (toot.reblog && !this.filters.includeReposts) {
             console.debug(`Removing reblogged toot from feed`, toot);

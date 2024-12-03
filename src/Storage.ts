@@ -20,6 +20,7 @@ export enum Key {
 };
 
 export const DEFAULT_FILTERS = {
+    filteredApps: [],
     filteredLanguages: [],
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
@@ -44,7 +45,13 @@ export default class Storage {
 
     static async getFilters(): Promise<FeedFilterSettings> {
         let filters = await this.get(Key.FILTERS);
-        filters ??= DEFAULT_FILTERS;
+
+        if (!filters) {
+            console.debug(`getFilters() returning DEFAULT_FILTERS:`, filters);
+            filters = Object.assign({}, DEFAULT_FILTERS);
+            await this.setFilters(filters);
+        }
+
         return filters as FeedFilterSettings;
     }
 

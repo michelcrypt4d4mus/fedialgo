@@ -297,12 +297,14 @@ class TheAlgorithm {
             return langCounts;
         }, {});
         this.appCounts = this.feed.reduce((counts, toot) => {
+            toot.application ??= { name: UNKNOWN_APP };
             const app = toot.application?.name || UNKNOWN_APP;
             counts[app] = (counts[app] || 0) + 1;
             return counts;
         }, {});
     }
     isFiltered(toot) {
+        const apps = this.filters.filteredApps;
         const languages = this.filters.filteredLanguages;
         const tootLanguage = toot.language || ENGLISH_CODE;
         if (languages.length > 0) {
@@ -314,7 +316,11 @@ class TheAlgorithm {
                 console.debug(`Allowing toot with language ${tootLanguage}...`);
             }
         }
-        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
+        if (apps.length > 0 && !apps.includes(toot.application?.name)) {
+            console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
+            return false;
+        }
+        else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
         }
         else if (toot.reblog && !this.filters.includeReposts) {

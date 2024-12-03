@@ -1,4 +1,7 @@
-## `2024-12-02`
+## `2024-12-03` (`0.2.0`)
+* Add ability to filter based on the application used to toot
+
+## `2024-12-02` (`0.1.0`)
 * Implement live filtering of the feed (for languages, followed tags, etc.)
 * Add `setFeedInApp` callback parameter to `TheAlgorithm.create()`
 * Remove user's own toots from timeline

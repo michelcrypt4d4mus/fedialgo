@@ -16,6 +16,7 @@ export interface AlgorithmArgs {
 export type FeedFeature = AccountFeature | StringNumberDict;
 
 export type FeedFilterSettings = {
+    filteredApps: string[];
     filteredLanguages: string[];
     includeFollowedAccounts: boolean;
     includeFollowedHashtags: boolean;

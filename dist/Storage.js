@@ -23,6 +23,7 @@ var Key;
 })(Key || (exports.Key = Key = {}));
 ;
 exports.DEFAULT_FILTERS = {
+    filteredApps: [],
     filteredLanguages: [],
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
@@ -43,7 +44,11 @@ class Storage {
     }
     static async getFilters() {
         let filters = await this.get(Key.FILTERS);
-        filters ??= exports.DEFAULT_FILTERS;
+        if (!filters) {
+            console.debug(`getFilters() returning DEFAULT_FILTERS:`, filters);
+            filters = Object.assign({}, exports.DEFAULT_FILTERS);
+            await this.setFilters(filters);
+        }
         return filters;
     }
     static async setFilters(filters) {
