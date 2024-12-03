@@ -81,10 +81,10 @@ class TheAlgorithm {
         new scorer_1.DiversityFeedScorer(),
         new scorer_1.ReblogsFeedScorer(),
     ];
-    weightedScorers = [...this.featureScorers, ...this.feedScorers];
-    featureScoreNames = this.featureScorers.map(scorer => scorer.name);
-    feedScoreNames = this.feedScorers.map(scorer => scorer.name);
-    weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
+    weightedScorers = [
+        ...this.featureScorers,
+        ...this.feedScorers,
+    ];
     scorersDict = this.weightedScorers.reduce((descriptions, scorer) => {
         descriptions[scorer.name] = scorer.getInfo();
         return descriptions;
@@ -301,11 +301,11 @@ class TheAlgorithm {
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        this.weightedScoreNames.forEach((scoreName, i) => {
+        this.weightedScorers.forEach((scorer, i) => {
             const scoreValue = scores[i] || 0;
-            rawScores[scoreName] = scoreValue;
-            weightedScores[scoreName] = scoreValue * (userWeights[scoreName] ?? 0);
-            rawScore += weightedScores[scoreName];
+            rawScores[scorer.name] = scoreValue;
+            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
+            rawScore += weightedScores[scorer.name];
         });
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the

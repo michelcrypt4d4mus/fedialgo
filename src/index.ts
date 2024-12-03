@@ -88,10 +88,10 @@ class TheAlgorithm {
         new ReblogsFeedScorer(),
     ];
 
-    weightedScorers = [...this.featureScorers, ...this.feedScorers];
-    featureScoreNames = this.featureScorers.map(scorer => scorer.name);
-    feedScoreNames = this.feedScorers.map(scorer => scorer.name);
-    weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
+    weightedScorers = [
+        ...this.featureScorers,
+        ...this.feedScorers,
+    ];
 
     scorersDict = this.weightedScorers.reduce(
         (descriptions, scorer) => {
@@ -344,11 +344,11 @@ class TheAlgorithm {
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        this.weightedScoreNames.forEach((scoreName, i) => {
+        this.weightedScorers.forEach((scorer, i) => {
             const scoreValue = scores[i] || 0;
-            rawScores[scoreName] = scoreValue;
-            weightedScores[scoreName] = scoreValue * (userWeights[scoreName] ?? 0);
-            rawScore += weightedScores[scoreName];
+            rawScores[scorer.name] = scoreValue;
+            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
+            rawScore += weightedScores[scorer.name];
         });
 
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
