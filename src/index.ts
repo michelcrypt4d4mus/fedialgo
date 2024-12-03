@@ -147,15 +147,15 @@ class TheAlgorithm {
             toot.language ??= ENGLISH_CODE;
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
-        }, {} as StringNumberDict)
+        }, {} as StringNumberDict);
 
         // Prepare scorers before scoring Toots (only needs to be done once (???))
+        // TODO: we could run this in parallel to the fetchers via async
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         return await this.scoreFeed(this);
     }
 
-    // Rescores the toots in the feed. Gets called when the user changes the weightings.
-    // Has side effect of updating Storage.
+    // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
@@ -198,7 +198,7 @@ class TheAlgorithm {
     };
 
     // Debugging method to log info about the timeline toots
-    logFeedInfo() {
+    logFeedInfo(): void {
         const appCounts = this.feed.reduce((counts, toot) => {
             const app = toot.application?.name || "unknown";
             counts[app] = (counts[app] || 0) + 1;

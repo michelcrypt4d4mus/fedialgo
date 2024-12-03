@@ -131,11 +131,11 @@ class TheAlgorithm {
             return langCounts;
         }, {});
         // Prepare scorers before scoring Toots (only needs to be done once (???))
+        // TODO: we could run this in parallel to the fetchers via async
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         return await this.scoreFeed(this);
     }
-    // Rescores the toots in the feed. Gets called when the user changes the weightings.
-    // Has side effect of updating Storage.
+    // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage_1.default.setWeightings(userWeights);
