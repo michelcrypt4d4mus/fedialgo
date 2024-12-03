@@ -27,7 +27,7 @@ declare class TheAlgorithm {
     getUserWeights(): Promise<StringNumberDict>;
     filteredFeed(): Toot[];
     mostRecentTootAt(): Date;
-    logFeedInfo(): void;
+    logFeedInfo(prefix?: string): void;
     learnWeights(tootScores: StringNumberDict, step?: number): Promise<StringNumberDict | undefined>;
     list(): Paginator;
     private setDefaultWeights;

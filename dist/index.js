@@ -162,14 +162,10 @@ class TheAlgorithm {
     }
     ;
     // Debugging method to log info about the timeline toots
-    logFeedInfo() {
-        const appCounts = this.feed.reduce((counts, toot) => {
-            const app = toot.application?.name || UNKNOWN_APP;
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {});
-        console.debug(`feed toots posted by application counts: `, appCounts);
-        console.log(`timeline toots (condensed): `, this.feed.map(helpers_1.condensedStatus));
+    logFeedInfo(prefix = "") {
+        prefix = prefix.length == 0 ? prefix : `${prefix} `;
+        console.debug(`${prefix} feed toots posted by application counts:`, this.appCounts);
+        console.log(`${prefix} timeline toots (condensed):`, this.feed.map(helpers_1.condensedStatus));
     }
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
@@ -219,6 +215,7 @@ class TheAlgorithm {
         if (shouldSetWeights)
             await Storage_1.default.setWeightings(weightings);
     }
+    // Injecting the scoreInfo property to each toot. Sort feed based on toot scores.
     async scoreFeed() {
         const logPrefix = `scoreFeed() [${(0, helpers_1.createRandomString)(5)}]`;
         console.debug(`${logPrefix} called in fedialgo package...`);
@@ -235,7 +232,7 @@ class TheAlgorithm {
                 }
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-                this.logFeedInfo();
+                this.logFeedInfo(logPrefix);
                 Storage_1.default.setFeed(this.feed);
                 console.debug(`${logPrefix} call completed successfully...`);
             }
