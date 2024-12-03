@@ -1,10 +1,10 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
-import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FeatureScorer, FeedScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-import { AlgorithmArgs, Description, FeedFilterSettings, ScoresType, Toot } from "./types";
-import MastodonApiCache from "./features/mastodon_api_cache";
 import getHomeFeed from "./feeds/homeFeed";
+import MastodonApiCache from "./features/mastodon_api_cache";
 import Paginator from "./Paginator";
+import { AlgorithmArgs, Description, FeedFilterSettings, ScoresType, Toot } from "./types";
+import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FeatureScorer, FeedScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
 declare const NO_LANGUAGE = "[not specified]";
 declare const TIME_DECAY = "TimeDecay";
 type ScorerDict = {
