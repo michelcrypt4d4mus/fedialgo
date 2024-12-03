@@ -129,7 +129,7 @@ class TheAlgorithm {
         console.log(`Found ${this.feed.length} potential toots for feed.`);
 
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = this.feed.filter(isValidForFeed);
+        let cleanFeed = this.feed.filter((toot) => this.isValidForFeed(toot, this.user));
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
@@ -245,6 +245,8 @@ class TheAlgorithm {
         return newTootScores;
     }
 
+    // TODO: if we remove the private from this method maybe we can to lose the 'self' param?
+    // otherwise figure out how to bind() it.
     private async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
         const threadID = createRandomString(5);
         console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
@@ -331,6 +333,39 @@ class TheAlgorithm {
         return true;
     }
 
+    // TODO: figure out how to bind() so we can use this.user instead of pass user param
+    isValidForFeed(toot: Toot, user: mastodon.v1.Account): boolean {
+        if (toot == undefined) return false;
+        if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
+        if (toot?.content?.includes("RT @")) return false;  // Remove retweets (???)
+
+        // Remove retoots (i guess things user has already retooted???)
+        if (toot?.reblog?.reblogged) {
+            console.debug(`Removed retoot of id ${describeToot(toot)}: `, toot);
+            return false;
+        }
+
+        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+        if (Date.now() < (new Date(toot.createdAt)).getTime()) {
+            console.warn(`Removed toot with future timestamp: `, toot);
+            return false;
+        }
+
+        if (toot.filtered && toot.filtered.length > 0) {
+            const filterMatch = toot.filtered[0];
+            console.debug(`Removed toot that matched filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
+            return false;
+        }
+
+        if (toot.account.username == user.username && toot.account.id == user.id) {
+            console.log(`Removing user's own toot from feed: `, toot);
+            return false;
+        }
+
+        return true;
+    };
+
+
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     private async decorateWithScoreInfo(toot: Toot): Promise<void> {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
@@ -379,33 +414,6 @@ class TheAlgorithm {
         const mostRecentTootAt = this.mostRecentTootAt();
         return ((Date.now() - mostRecentTootAt.getTime()) > RELOAD_IF_OLDER_THAN_MS);
     }
-};
-
-
-const isValidForFeed = (toot: Toot): boolean => {
-    if (toot == undefined) return false;
-    if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
-    if (toot?.content?.includes("RT @")) return false;  // Remove retweets (???)
-
-    // Remove retoots (i guess things user has already retooted???)
-    if (toot?.reblog?.reblogged) {
-        console.debug(`Removed retoot of id ${describeToot(toot)}: `, toot);
-        return false;
-    }
-
-    // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-    if (Date.now() < (new Date(toot.createdAt)).getTime()) {
-        console.warn(`Removed toot with future timestamp: `, toot);
-        return false;
-    }
-
-    if (toot.filtered && toot.filtered.length > 0) {
-        const filterMatch = toot.filtered[0];
-        console.debug(`Removed toot that matched filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
-        return false;
-    }
-
-    return true;
 };
 
 

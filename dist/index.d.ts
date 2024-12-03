@@ -32,6 +32,7 @@ declare class TheAlgorithm {
     private scoreFeed;
     private setDefaultWeights;
     private isFiltered;
+    isValidForFeed(toot: Toot, user: mastodon.v1.Account): boolean;
     private decorateWithScoreInfo;
     private shouldReloadFeed;
 }
