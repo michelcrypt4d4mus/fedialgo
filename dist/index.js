@@ -210,8 +210,8 @@ class TheAlgorithm {
         return new Paginator_1.default(this.feed);
     }
     async scoreFeed() {
-        const threadID = (0, helpers_1.createRandomString)(5);
-        console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
+        const logPrefix = `scoreFeed() [${(0, helpers_1.createRandomString)(5)}]`;
+        console.debug(`${logPrefix} called in fedialgo package...`);
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             this.scoreMutex.cancel();
@@ -227,7 +227,7 @@ class TheAlgorithm {
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo();
                 Storage_1.default.setFeed(this.feed);
-                console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
+                console.debug(`${logPrefix} call completed successfully...`);
             }
             finally {
                 releaseMutex();
@@ -235,10 +235,10 @@ class TheAlgorithm {
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                console.debug(`scoreFeed() [${threadID}] mutex cancellation`);
+                console.debug(`${logPrefix} mutex cancellation`);
             }
             else {
-                console.warn(`scoreFeed() [${threadID}] caught error:`, e);
+                console.warn(`${logPrefix} caught error:`, e);
             }
         }
         return this.filteredFeed();

@@ -250,8 +250,8 @@ class TheAlgorithm {
     }
 
     private async scoreFeed(): Promise<Toot[]> {
-        const threadID = createRandomString(5);
-        console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
+        const logPrefix = `scoreFeed() [${createRandomString(5)}]`;
+        console.debug(`${logPrefix} called in fedialgo package...`);
 
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
@@ -271,15 +271,15 @@ class TheAlgorithm {
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo();
                 Storage.setFeed(this.feed);
-                console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
+                console.debug(`${logPrefix} call completed successfully...`);
             } finally {
                 releaseMutex();
             }
         } catch (e) {
             if (e == E_CANCELED) {
-                console.debug(`scoreFeed() [${threadID}] mutex cancellation`);
+                console.debug(`${logPrefix} mutex cancellation`);
             } else {
-                console.warn(`scoreFeed() [${threadID}] caught error:`, e);
+                console.warn(`${logPrefix} caught error:`, e);
             }
         }
 
