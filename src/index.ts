@@ -219,15 +219,13 @@ class TheAlgorithm {
         const total = Object.values(tootScores)
                             .filter((value: number) => !isNaN(value))
                             .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-
         const mean = total / Object.values(tootScores).length;
+
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
         const newTootScores: StringNumberDict = await this.getUserWeights()
-
         const userWeightTotal = Object.values(newTootScores)
                                    .filter((value: number) => !isNaN(value))
                                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
         const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
 
         for (const key in newTootScores) {
@@ -256,9 +254,8 @@ class TheAlgorithm {
             }
         });
 
-        if (shouldSetWeights) {
-            await Storage.setWeightings(weightings);
-        }
+        // If any changes were made to the Storage weightings, save them back to storage
+        if (shouldSetWeights) await Storage.setWeightings(weightings);
     }
 
     private async scoreFeed(): Promise<Toot[]> {

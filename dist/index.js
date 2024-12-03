@@ -215,9 +215,9 @@ class TheAlgorithm {
                 shouldSetWeights = true;
             }
         });
-        if (shouldSetWeights) {
+        // If any changes were made to the Storage weightings, save them back to storage
+        if (shouldSetWeights)
             await Storage_1.default.setWeightings(weightings);
-        }
     }
     async scoreFeed() {
         const logPrefix = `scoreFeed() [${(0, helpers_1.createRandomString)(5)}]`;
