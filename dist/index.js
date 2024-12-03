@@ -138,13 +138,6 @@ class TheAlgorithm {
     // Has side effect of updating Storage.
     async updateUserWeights(userWeights) {
         console.log("updateUserWeights() called with weights:", userWeights);
-        // prevent userWeights from being set to 0
-        for (const key in userWeights) {
-            if (userWeights[key] == null || isNaN(userWeights[key])) {
-                console.warn(`Invalid value for '${key}'! Setting to 0...`);
-                userWeights[key] = 0;
-            }
-        }
         await Storage_1.default.setWeightings(userWeights);
         return await this.scoreFeed(this);
     }
