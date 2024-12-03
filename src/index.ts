@@ -5,7 +5,6 @@ import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
 
 import getHomeFeed from "./feeds/homeFeed";
-import MastodonApiCache from "./features/mastodon_api_cache";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
@@ -420,7 +419,6 @@ export {
     NO_LANGUAGE,
     TIME_DECAY,
     FeedFilterSettings,
-    MastodonApiCache,
     StringNumberDict,
     TheAlgorithm,
     Toot,

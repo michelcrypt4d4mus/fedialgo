@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
-import MastodonApiCache from "./features/mastodon_api_cache";
 import Paginator from "./Paginator";
 import { AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
@@ -40,4 +39,4 @@ declare class TheAlgorithm {
     private decorateWithScoreInfo;
     private shouldReloadFeed;
 }
-export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, StringNumberDict, TheAlgorithm, Toot, };
+export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, StringNumberDict, TheAlgorithm, Toot, };
