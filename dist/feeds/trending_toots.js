@@ -4,22 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
-const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const helpers_2 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
-const NUM_SERVERS_TO_POLL = 20;
 const NUM_TRENDING_TOOTS_PER_SERVER = 20;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
-async function topPostsFeed(api) {
+async function getTrendingToots(api) {
     const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);
-    // Get list of top mastodon servers // TODO: what does "top" mean here?
+    // Count the number of followed users per server
     const topServerDomains = Object.keys(coreServers)
         .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-        .sort((a, b) => (coreServers[b] - coreServers[a])); // TODO: wtf is this comparison?
+        .sort((a, b) => (coreServers[b] - coreServers[a]));
     if (topServerDomains.length == 0) {
-        console.warn("No mastodon servers found to get topPostsFeed data from!");
+        console.warn("No mastodon servers found to get getTrendingToots data from!");
         return [];
     }
     console.log(`Found top mastodon servers: `, topServerDomains);
@@ -42,16 +40,14 @@ async function topPostsFeed(api) {
                 toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
             }
             // Inject trendingRank score
-            // TODO: maybe should be placed in top.scores.trendingRank variable/
             toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
             return toot;
         });
         console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
         return serverTopToots;
     }));
-    const lastOpenedAt = new Date((await Storage_1.default.getLastOpenedTimestamp() ?? 0) - NUM_MS_BEFORE_REFRESH);
-    return trendingToots.flat().filter((toot) => new Date(toot.createdAt) > lastOpenedAt);
+    return trendingToots.flat();
 }
-exports.default = topPostsFeed;
+exports.default = getTrendingToots;
 ;
-//# sourceMappingURL=topPostsFeed.js.map
+//# sourceMappingURL=trending_toots.js.map

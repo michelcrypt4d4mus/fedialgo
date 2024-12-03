@@ -136,7 +136,7 @@ class TheAlgorithm {
         console.log(`Found ${this.feed.length} potential toots for feed.`);
 
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = this.feed.filter((toot) => this.isValidForFeed(toot, this.user));
+        let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
@@ -154,14 +154,16 @@ class TheAlgorithm {
             return langCounts;
         }, {} as StringNumberDict);
 
-        return await this.scoreFeed(this);
+        // return await this.scoreFeed(this);
+        return this.scoreFeed.bind(this)();
     }
 
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
-        return await this.scoreFeed(this);
+        // return await this.scoreFeed(this);
+        return this.scoreFeed.bind(this)();
     }
 
     async updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]> {
@@ -249,30 +251,28 @@ class TheAlgorithm {
         return newTootScores;
     }
 
-    // TODO: if we remove the private from this method maybe we can to lose the 'self' param?
-    // otherwise figure out how to bind() it.
-    private async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
+    private async scoreFeed(): Promise<Toot[]> {
         const threadID = createRandomString(5);
         console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
 
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
-            self.scoreMutex.cancel()
-            const releaseMutex = await self.scoreMutex.acquire();
+            this.scoreMutex.cancel()
+            const releaseMutex = await this.scoreMutex.acquire();
 
             try {
                 // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
-                await Promise.all(self.feedScorers.map(scorer => scorer.setFeed(self.feed)));
+                await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
 
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
-                for (const toot of self.feed) {
-                    await self.decorateWithScoreInfo(toot);
+                for (const toot of this.feed) {
+                    await this.decorateWithScoreInfo(toot);
                 }
 
                 // Sort feed based on score from high to low.
-                self.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-                self.logFeedInfo();
-                Storage.setFeed(self.feed);
+                this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+                this.logFeedInfo();
+                Storage.setFeed(this.feed);
                 console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
             } finally {
                 releaseMutex();
@@ -285,7 +285,7 @@ class TheAlgorithm {
             }
         }
 
-        return self.filteredFeed();
+        return this.filteredFeed();
     }
 
     // Load weightings from storage. Set defaults for any missing weightings.
@@ -336,8 +336,7 @@ class TheAlgorithm {
         return true;
     }
 
-    // TODO: figure out how to bind() so we can use this.user instead of pass user param
-    private isValidForFeed(toot: Toot, user: mastodon.v1.Account): boolean {
+    private isValidForFeed(toot: Toot): boolean {
         if (toot == undefined) return false;
         if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
 
@@ -359,14 +358,13 @@ class TheAlgorithm {
             return false;
         }
 
-        if (toot.account.username == user.username && toot.account.id == user.id) {
-            // console.debug(`Removing user's own toot from feed: `, toot);
+        if (toot.account.username == this.user.username && toot.account.id == this.user.id) {
+            console.debug(`Removing user's own toot from feed: `, toot);
             return false;
         }
 
         return true;
     };
-
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     private async decorateWithScoreInfo(toot: Toot): Promise<void> {
