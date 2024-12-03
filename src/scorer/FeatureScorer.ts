@@ -7,7 +7,7 @@
 import { mastodon } from "masto";
 
 import Scorer from "./Scorer";
-import { FeedFeature } from "../types";
+import { FeedFeature, Toot } from "../types";
 
 
 interface RankParams {
@@ -29,8 +29,9 @@ export default class FeatureScorer extends Scorer {
         this.featureGetter = params.featureGetter || (async () => { return {} });
     }
 
-    async getFeature(api: mastodon.rest.Client): Promise<void> {
+    async getFeature(api: mastodon.rest.Client): Promise<Toot[]> {
         this.feature = await this.featureGetter(api);
         this._isReady = true;
+        return [];  // TODO: this is a hack so we can use Promise.all() to get 'allResponses'
     }
 };

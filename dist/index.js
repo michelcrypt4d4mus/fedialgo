@@ -108,8 +108,13 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed() {
         console.debug(`getFeed() called in fedialgo package...`);
-        const response = await Promise.all(this.fetchers.map(fetcher => fetcher(this.api, this.user)));
-        this.feed = response.flat();
+        // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
+        const allResponses = await Promise.all([
+            ...this.fetchers.map(fetcher => fetcher(this.api, this.user)),
+            ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
+        ]);
+        console.log(`got allResponses: `, allResponses);
+        this.feed = allResponses.flat();
         console.log(`Found ${this.feed.length} potential toots for feed.`);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed(toot, this.user));
@@ -127,9 +132,6 @@ class TheAlgorithm {
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {});
-        // Prepare scorers before scoring Toots (only needs to be done once (???))
-        // TODO: we could run these getFeature() calls in parallel to the fetchers
-        await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         return await this.scoreFeed(this);
     }
     // Update user weightings and rescore / resort the feed.
@@ -297,8 +299,6 @@ class TheAlgorithm {
             return false;
         if (toot?.reblog?.muted || toot?.muted)
             return false; // Remove muted accounts and toots
-        if (toot?.content?.includes("RT @"))
-            return false; // Remove retweets (???)
         // Remove retoots (i guess things user has already retooted???)
         if (toot?.reblog?.reblogged) {
             console.debug(`Removed retoot of id ${(0, helpers_1.describeToot)(toot)}: `, toot);
@@ -315,7 +315,7 @@ class TheAlgorithm {
             return false;
         }
         if (toot.account.username == user.username && toot.account.id == user.id) {
-            console.log(`Removing user's own toot from feed: `, toot);
+            console.debug(`Removing user's own toot from feed: `, toot);
             return false;
         }
         return true;
