@@ -38,20 +38,18 @@ const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 //import getRecommenderFeed from "./feeds/recommenderFeed";
-const NO_LANGUAGE = '[not specified]';
-exports.NO_LANGUAGE = NO_LANGUAGE;
-const TIME_DECAY_DEFAULT = 0.05;
-const TIME_DECAY = 'TimeDecay';
-exports.TIME_DECAY = TIME_DECAY;
-const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
-const EXPONENTIAL_WEIGHTINGS = {
-    [TIME_DECAY]: {
-        defaultWeight: 0.05,
-        description: TIME_DECAY_DESCRIPTION,
-    },
+const NO_LANGUAGE = '[not specified]';
+exports.NO_LANGUAGE = NO_LANGUAGE;
+const TIME_DECAY = 'TimeDecay';
+exports.TIME_DECAY = TIME_DECAY;
+const TIME_DECAY_DEFAULT = 0.05;
+// Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
+const TIME_DECAY_INFO = {
+    defaultWeight: TIME_DECAY_DEFAULT,
+    description: "Higher values means toots are demoted sooner",
 };
 class TheAlgorithm {
     api;
@@ -88,19 +86,14 @@ class TheAlgorithm {
     featureScoreNames = this.featureScorers.map(scorer => scorer.name);
     feedScoreNames = this.feedScorers.map(scorer => scorer.name);
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
-    allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
-    scorerDescriptions = this.weightedScorers.reduce((descriptions, scorer) => {
-        descriptions[scorer.name] = scorer.description;
+    scorersDict = this.weightedScorers.reduce((descriptions, scorer) => {
+        descriptions[scorer.name] = {
+            defaultWeight: scorer.defaultWeight,
+            description: scorer.description,
+            scorer: scorer
+        };
         return descriptions;
-    }, { [TIME_DECAY]: TIME_DECAY_DESCRIPTION });
-    scorersDict = this.weightedScorers.reduce((scorers, scorer) => {
-        scorers[scorer.name] = scorer;
-        return scorers;
-    }, {});
-    defaultWeightings = this.weightedScorers.reduce((weightings, scorer) => {
-        weightings[scorer.name] = scorer.defaultWeight;
-        return weightings;
-    }, { [TIME_DECAY]: TIME_DECAY_DEFAULT });
+    }, { [TIME_DECAY]: TIME_DECAY_INFO });
     constructor(params) {
         this.api = params.api;
         this.user = params.user;
@@ -169,7 +162,7 @@ class TheAlgorithm {
     ;
     // Return the user's current weightings for each score category
     async getUserWeights() {
-        return await Storage_1.default.getWeightings() || this.defaultWeightings;
+        return await Storage_1.default.getWeightings();
     }
     // Adjust toot weights based on user's chosen slider values
     async learnWeights(tootScores, step = 0.001) {
@@ -265,17 +258,10 @@ class TheAlgorithm {
     async setDefaultWeights() {
         let weightings = await Storage_1.default.getWeightings();
         let shouldSetWeights = false;
-        Object.keys(this.defaultWeightings).forEach(key => {
+        Object.keys(this.scorersDict).forEach(key => {
             if (!weightings[key] && weightings[key] !== 0) {
-                console.log(`Setting default '${key}' weight to ${this.defaultWeightings[key]}`);
-                weightings[key] = this.defaultWeightings[key];
-                shouldSetWeights = true;
-            }
-        });
-        Object.keys(EXPONENTIAL_WEIGHTINGS).forEach(key => {
-            if (!weightings[key] && weightings[key] !== 0) {
-                console.log(`Setting default '${key}' weight to ${EXPONENTIAL_WEIGHTINGS[key].defaultWeight}`);
-                weightings[key] = EXPONENTIAL_WEIGHTINGS[key].defaultWeight;
+                console.log(`Setting default '${key}' weight to ${this.scorersDict[key].defaultWeight}`);
+                weightings[key] = this.scorersDict[key].defaultWeight;
                 shouldSetWeights = true;
             }
         });

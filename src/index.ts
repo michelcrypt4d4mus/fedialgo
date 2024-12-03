@@ -11,9 +11,9 @@ import Storage, { DEFAULT_FILTERS } from "./Storage";
 import topPostsFeed from "./feeds/topPostsFeed";
 import {
     AlgorithmArgs,
-    Description,
     FeedFilterSettings,
     ScorerDescriptions,
+    ScorerInfo,
     ScoresType,
     Toot,
     TootScore
@@ -39,26 +39,19 @@ import { condensedStatus, createRandomString, describeToot } from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
-const NO_LANGUAGE = '[not specified]';
-const TIME_DECAY_DEFAULT = 0.05;
-const TIME_DECAY = 'TimeDecay';
-const TIME_DECAY_DESCRIPTION = "Higher values means toots are demoted sooner";
-
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
 
-const EXPONENTIAL_WEIGHTINGS: ScorerDescriptions = {
-    [TIME_DECAY]: {
-        defaultWeight: 0.05,
-        description: TIME_DECAY_DESCRIPTION,
-    },
-};
+const NO_LANGUAGE = '[not specified]';
+const TIME_DECAY = 'TimeDecay';
+const TIME_DECAY_DEFAULT = 0.05;
 
-
-type ScorerDict = {
-    [key: string]: FeedScorer | FeatureScorer;
-};
+// Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
+const TIME_DECAY_INFO = {
+    defaultWeight: TIME_DECAY_DEFAULT,
+    description: "Higher values means toots are demoted sooner",
+} as ScorerInfo;
 
 
 class TheAlgorithm {
@@ -101,30 +94,17 @@ class TheAlgorithm {
     featureScoreNames = this.featureScorers.map(scorer => scorer.name);
     feedScoreNames = this.feedScorers.map(scorer => scorer.name);
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
-    allScoreNames = this.weightedScoreNames.concat([TIME_DECAY]);
-
-    scorerDescriptions = this.weightedScorers.reduce(
-        (descriptions, scorer) => {
-            descriptions[scorer.name] = scorer.description;
-            return descriptions;
-        },
-        {[TIME_DECAY]: TIME_DECAY_DESCRIPTION} as Description
-    );
 
     scorersDict = this.weightedScorers.reduce(
-        (scorers, scorer) => {
-            scorers[scorer.name] = scorer;
-            return scorers;
+        (descriptions, scorer) => {
+            descriptions[scorer.name] = {
+                defaultWeight: scorer.defaultWeight,
+                description: scorer.description,
+                scorer: scorer
+            };
+            return descriptions;
         },
-        {} as ScorerDict
-    );
-
-    private defaultWeightings = this.weightedScorers.reduce(
-        (weightings, scorer) => {
-            weightings[scorer.name] = scorer.defaultWeight;
-            return weightings;
-        },
-        {[TIME_DECAY]: TIME_DECAY_DEFAULT} as ScoresType
+        {[TIME_DECAY]: TIME_DECAY_INFO} as ScorerDescriptions
     );
 
     private constructor(params: AlgorithmArgs) {
@@ -205,7 +185,7 @@ class TheAlgorithm {
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<ScoresType> {
-        return await Storage.getWeightings() || this.defaultWeightings;
+        return await Storage.getWeightings();
     }
 
     // Adjust toot weights based on user's chosen slider values
@@ -321,18 +301,10 @@ class TheAlgorithm {
         let weightings = await Storage.getWeightings();
         let shouldSetWeights = false;
 
-        Object.keys(this.defaultWeightings).forEach(key => {
+        Object.keys(this.scorersDict).forEach(key => {
             if (!weightings[key] && weightings[key] !== 0) {
-                console.log(`Setting default '${key}' weight to ${this.defaultWeightings[key]}`);
-                weightings[key] = this.defaultWeightings[key];
-                shouldSetWeights = true;
-            }
-        });
-
-        Object.keys(EXPONENTIAL_WEIGHTINGS).forEach(key => {
-            if (!weightings[key] && weightings[key] !== 0) {
-                console.log(`Setting default '${key}' weight to ${EXPONENTIAL_WEIGHTINGS[key].defaultWeight}`);
-                weightings[key] = EXPONENTIAL_WEIGHTINGS[key].defaultWeight;
+                console.log(`Setting default '${key}' weight to ${this.scorersDict[key].defaultWeight}`);
+                weightings[key] = this.scorersDict[key].defaultWeight;
                 shouldSetWeights = true;
             }
         });

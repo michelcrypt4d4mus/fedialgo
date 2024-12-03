@@ -1,4 +1,5 @@
 import { mastodon } from 'masto';
+import Scorer from './scorer/Scorer';
 
 
 export interface AlgorithmArgs {
@@ -25,10 +26,6 @@ export type TootURIs = {
 
 export type TagFeature = {
     [key: string]: number;
-};
-
-export type Description = {
-    [key: string]: string;
 };
 
 export type TootScore = {
@@ -60,13 +57,14 @@ export type FeedFilterSettings = {
     weightLearningEnabled: boolean;
 };
 
-export type ScorerDescription = {
+export type ScorerInfo = {
     defaultWeight: number;
     description: string;
+    scorer?: Scorer,
 };
 
 export type ScorerDescriptions = {
-    [key: string]: ScorerDescription;
+    [key: string]: ScorerInfo;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
