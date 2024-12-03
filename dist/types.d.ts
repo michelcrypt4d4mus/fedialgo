@@ -5,7 +5,7 @@ export interface AlgorithmArgs {
     user: mastodon.v1.Account;
     setFeedInApp?: (feed: Toot[]) => void;
 }
-export interface ScoresType {
+export interface StringNumberDict {
     [key: string]: number;
 }
 export type AccountFeature = {
@@ -19,10 +19,10 @@ export type TootURIs = {
 };
 export type TootScore = {
     rawScore: number;
-    rawScores: ScoresType;
+    rawScores: StringNumberDict;
     score: number;
     timeDecayMultiplier: number;
-    weightedScores: ScoresType;
+    weightedScores: StringNumberDict;
 };
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
@@ -52,4 +52,4 @@ export type ScorerDict = {
     [key: string]: ScorerInfo;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | FeedFilterSettings | ScoresType | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | string;
+export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | string;

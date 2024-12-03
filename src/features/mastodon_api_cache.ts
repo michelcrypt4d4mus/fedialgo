@@ -11,7 +11,7 @@ import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import repliedFeature from "./replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, ScoresType, ServerFeature, TootURIs } from "../types";
+import { AccountFeature, StringNumberDict, ServerFeature, TootURIs } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -75,8 +75,8 @@ export default class MastodonApiCache extends Storage {
         return topReblogs;
     }
 
-    static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<ScoresType> {
-        let mostReplied: ScoresType = await this.get(Key.REPLIED_TO) as ScoresType;
+    static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<StringNumberDict> {
+        let mostReplied: StringNumberDict = await this.get(Key.REPLIED_TO) as StringNumberDict;
 
         if (mostReplied != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded replied to accounts from storage...");
@@ -105,8 +105,8 @@ export default class MastodonApiCache extends Storage {
         return topInteracts;
     }
 
-    static async getFollowedTags(api: mastodon.rest.Client): Promise<ScoresType> {
-        let followedTags: ScoresType = await this.get(Key.FOLLOWED_TAGS) as ScoresType;
+    static async getFollowedTags(api: mastodon.rest.Client): Promise<StringNumberDict> {
+        let followedTags: StringNumberDict = await this.get(Key.FOLLOWED_TAGS) as StringNumberDict;
 
         if (followedTags != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded followed tags from storage");

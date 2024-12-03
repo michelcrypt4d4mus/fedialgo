@@ -14,7 +14,7 @@ import {
     FeedFilterSettings,
     ScorerDict,
     ScorerInfo,
-    ScoresType,
+    StringNumberDict,
     Toot,
     TootScore
 } from "./types";
@@ -58,7 +58,7 @@ class TheAlgorithm {
     filters: FeedFilterSettings;
 
     feed: Toot[] = [];
-    feedLanguages: ScoresType = {};
+    feedLanguages: StringNumberDict = {};
     scoreMutex = new Mutex();
     setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);  // Optional callback to set the feed in enclosing app
 
@@ -151,7 +151,7 @@ class TheAlgorithm {
             const tootLanguage = toot.language || NO_LANGUAGE;
             langCounts[tootLanguage] = (langCounts[tootLanguage] || 0) + 1;
             return langCounts;
-        }, {} as ScoresType)
+        }, {} as StringNumberDict)
 
         // Prepare scorers before scoring Toots (only needs to be done once (???))
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
@@ -160,7 +160,7 @@ class TheAlgorithm {
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating Storage.
-    async updateUserWeights(userWeights: ScoresType): Promise<Toot[]> {
+    async updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
 
         // prevent userWeights from being set to 0
@@ -183,7 +183,7 @@ class TheAlgorithm {
     };
 
     // Return the user's current weightings for each score category
-    async getUserWeights(): Promise<ScoresType> {
+    async getUserWeights(): Promise<StringNumberDict> {
         return await Storage.getWeightings();
     }
 
@@ -216,7 +216,7 @@ class TheAlgorithm {
             const app = toot.application?.name || "unknown";
             counts[app] = (counts[app] || 0) + 1;
             return counts;
-        }, {} as ScoresType);
+        }, {} as StringNumberDict);
 
         console.debug(`feed toots posted by application counts: `, appCounts);
         console.log(`timeline toots (condensed): `, this.feed.map(condensedStatus));
@@ -224,7 +224,7 @@ class TheAlgorithm {
 
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
-    async learnWeights(tootScores: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
+    async learnWeights(tootScores: StringNumberDict, step = 0.001): Promise<StringNumberDict | undefined> {
         if (!this.filters.weightLearningEnabled) {
             console.debug(`learnWeights() called but weight learning is disabled...`);
             return;
@@ -242,7 +242,7 @@ class TheAlgorithm {
 
         const mean = total / Object.values(tootScores).length;
         // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const newTootScores: ScoresType = await this.getUserWeights()
+        const newTootScores: StringNumberDict = await this.getUserWeights()
 
         const userWeightTotal = Object.values(newTootScores)
                                    .filter((value: number) => !isNaN(value))
@@ -343,8 +343,8 @@ class TheAlgorithm {
     private async decorateWithScoreInfo(toot: Toot): Promise<void> {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         let rawScore = 1;
-        const rawScores = {} as ScoresType;
-        const weightedScores = {} as ScoresType;
+        const rawScores = {} as StringNumberDict;
+        const weightedScores = {} as StringNumberDict;
 
         const userWeights = await this.getUserWeights();
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
@@ -425,7 +425,7 @@ export {
     TIME_DECAY,
     FeedFilterSettings,
     MastodonApiCache,
-    ScoresType,
+    StringNumberDict,
     TheAlgorithm,
     Toot,
 };

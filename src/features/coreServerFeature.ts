@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import { mastodonFetch, mastodonFetchPages } from "../helpers";
-import { ScoresType } from "../types";
+import { StringNumberDict } from "../types";
 import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
@@ -89,8 +89,8 @@ export default async function coreServerFeature(
     console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers)
 
     const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
-    const serverMAUs: ScoresType = {};
-    const overrepresentedServerFrequ: ScoresType = {};
+    const serverMAUs: StringNumberDict = {};
+    const overrepresentedServerFrequ: StringNumberDict = {};
 
     popularServers.forEach((server, i) => {
         if (monthlyUsers[i] < MINIMUM_MAU) {

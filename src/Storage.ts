@@ -1,7 +1,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { FeedFilterSettings, ScoresType, StorageValue, Toot } from "./types";
+import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -32,13 +32,13 @@ export const DEFAULT_FILTERS = {
 
 
 export default class Storage {
-    static async getWeightings(): Promise<ScoresType> {
+    static async getWeightings(): Promise<StringNumberDict> {
         let weightings = await this.get(Key.WEIGHTS);
         weightings ??= {};
-        return weightings as ScoresType;
+        return weightings as StringNumberDict;
     }
 
-    static async setWeightings(userWeightings: ScoresType): Promise<void> {
+    static async setWeightings(userWeightings: StringNumberDict): Promise<void> {
         await this.set(Key.WEIGHTS, userWeightings);
     }
 

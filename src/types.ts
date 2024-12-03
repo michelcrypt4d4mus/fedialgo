@@ -8,7 +8,7 @@ export interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;
 }
 
-export interface ScoresType {
+export interface StringNumberDict {
     [key: string]: number;
 };
 
@@ -26,10 +26,10 @@ export type TootURIs = {
 
 export type TootScore = {
     rawScore: number;  // Score before applying timeDecayMultiplier
-    rawScores: ScoresType;
+    rawScores: StringNumberDict;
     score: number;
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
-    weightedScores: ScoresType;
+    weightedScores: StringNumberDict;
 };
 
 export interface Toot extends mastodon.v1.Status {
@@ -64,5 +64,5 @@ export type ScorerDict = {
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | FeedFilterSettings | ScoresType | ServerFeature |
+export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
                            TootURIs | Toot[] | mastodon.v1.Account | string;
