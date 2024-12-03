@@ -32,7 +32,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { condensedStatus, createRandomString, describeToot } from "./helpers";
+import { average, condensedStatus, createRandomString, describeToot } from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
@@ -140,8 +140,22 @@ class TheAlgorithm {
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
+        // A toot can trend on multiple servers, in which case we want to get the avg trendingRank
+        const multiToots = cleanFeed.reduce((acc, toot) => {
+            if (!toot.trendingRank) return acc;
+            acc[toot.uri] ||= [];
+            acc[toot.uri].push(toot);
+            return acc;
+        }, {} as Record<string, Toot[]>);
+
+        Object.values(multiToots).filter(toots => toots.length > 1).forEach((toots) => {
+            const trendingRanks = toots.map(toot => toot.trendingRank).filter(t => typeof t === 'number') as number[];
+            const avgTrendingRank = average(trendingRanks);
+            console.log(`${toots[0].uri} has ${toots.length} copies (ranks: ${trendingRanks}, avg: ${avgTrendingRank}). First toot:`, toots[0]);
+            toots.forEach(toot => toot.trendingRank = avgTrendingRank);
+        });
+
         // Remove dupes by uniquifying on the URI
-        // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         const numValid = cleanFeed.length;
         cleanFeed = [...new Map(cleanFeed.map((toot: Toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);

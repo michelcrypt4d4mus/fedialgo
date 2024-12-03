@@ -120,8 +120,21 @@ class TheAlgorithm {
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
+        // A toot can trend on multiple servers, in which case we want to get the avg trendingRank
+        const multiToots = cleanFeed.reduce((acc, toot) => {
+            if (!toot.trendingRank)
+                return acc;
+            acc[toot.uri] ||= [];
+            acc[toot.uri].push(toot);
+            return acc;
+        }, {});
+        Object.values(multiToots).filter(toots => toots.length > 1).forEach((toots) => {
+            const trendingRanks = toots.map(toot => toot.trendingRank).filter(t => typeof t === 'number');
+            const avgTrendingRank = (0, helpers_1.average)(trendingRanks);
+            console.log(`${toots[0].uri} has ${toots.length} copies (ranks: ${trendingRanks}, avg: ${avgTrendingRank}). First toot:`, toots[0]);
+            toots.forEach(toot => toot.trendingRank = avgTrendingRank);
+        });
         // Remove dupes by uniquifying on the URI
-        // TODO: Can a toot trend on multiple servers? If so should we total its topPost scores?
         const numValid = cleanFeed.length;
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);

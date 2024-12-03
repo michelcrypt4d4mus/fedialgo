@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -166,4 +166,13 @@ function createRandomString(length) {
     return result;
 }
 exports.createRandomString = createRandomString;
+;
+function average(values) {
+    values = values.filter(v => v != undefined);
+    if (values.length == 0)
+        return NaN;
+    return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
+}
+exports.average = average;
+;
 //# sourceMappingURL=helpers.js.map

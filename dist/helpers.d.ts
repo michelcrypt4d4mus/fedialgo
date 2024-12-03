@@ -20,4 +20,5 @@ export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAt
 export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const minimumID: (toots: Toot[]) => number | null;
 export declare function createRandomString(length: number): string;
+export declare function average(values: number[]): number | undefined;
 export {};

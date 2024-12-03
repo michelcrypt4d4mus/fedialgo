@@ -194,4 +194,11 @@ export function createRandomString(length: number): string {
     }
 
     return result;
-}
+};
+
+
+export function average(values: number[]): number | undefined {
+    values = values.filter(v => v != undefined)
+    if (values.length == 0) return NaN;
+    return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
+};
