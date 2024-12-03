@@ -353,12 +353,9 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingTootScore = rawScores[TRENDING_TOOTS] ?? 0;
-        const trendingTootWeighting = userWeights[TRENDING_TOOTS] ?? 0;
-
-        if (trendingTootScore > 0 && trendingTootWeighting < 1.0) {
-            rawScore *= trendingTootWeighting;
-        }
+        const trendingScore = rawScores[TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[TRENDING_TOOTS] ?? 0;
+        if (trendingScore > 0 && trendingWeighting < 1.0) rawScore *= trendingWeighting;
 
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
