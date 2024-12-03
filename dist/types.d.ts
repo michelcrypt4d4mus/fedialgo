@@ -51,7 +51,7 @@ export type ScorerInfo = {
     description: string;
     scorer?: Scorer;
 };
-export type ScorerDescriptions = {
+export type ScorerDict = {
     [key: string]: ScorerInfo;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

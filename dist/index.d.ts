@@ -3,7 +3,7 @@ import { Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import MastodonApiCache from "./features/mastodon_api_cache";
 import Paginator from "./Paginator";
-import { AlgorithmArgs, FeedFilterSettings, ScorerDescriptions, ScoresType, Toot } from "./types";
+import { AlgorithmArgs, FeedFilterSettings, ScorerDict, ScoresType, Toot } from "./types";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
 declare const NO_LANGUAGE = "[not specified]";
 declare const TIME_DECAY = "TimeDecay";
@@ -22,7 +22,7 @@ declare class TheAlgorithm {
     featureScoreNames: string[];
     feedScoreNames: string[];
     weightedScoreNames: string[];
-    scorersDict: ScorerDescriptions;
+    scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
     getFeed(): Promise<Toot[]>;

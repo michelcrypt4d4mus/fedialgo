@@ -63,7 +63,7 @@ export type ScorerInfo = {
     scorer?: Scorer,
 };
 
-export type ScorerDescriptions = {
+export type ScorerDict = {
     [key: string]: ScorerInfo;
 };
 

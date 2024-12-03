@@ -12,7 +12,7 @@ import topPostsFeed from "./feeds/topPostsFeed";
 import {
     AlgorithmArgs,
     FeedFilterSettings,
-    ScorerDescriptions,
+    ScorerDict,
     ScorerInfo,
     ScoresType,
     Toot,
@@ -102,7 +102,7 @@ class TheAlgorithm {
             };
             return descriptions;
         },
-        {[TIME_DECAY]: TIME_DECAY_INFO} as ScorerDescriptions
+        {[TIME_DECAY]: TIME_DECAY_INFO} as ScorerDict
     );
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
