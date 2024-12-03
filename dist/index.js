@@ -251,7 +251,7 @@ class TheAlgorithm {
         let shouldSetWeights = false;
         Object.keys(this.scorersDict).forEach(key => {
             if (!weightings[key] && weightings[key] !== 0) {
-                console.log(`Setting default '${key}' weight to ${this.scorersDict[key].defaultWeight}`);
+                // console.debug(`Setting default '${key}' weight to ${this.scorersDict[key].defaultWeight}`);
                 weightings[key] = this.scorersDict[key].defaultWeight;
                 shouldSetWeights = true;
             }
