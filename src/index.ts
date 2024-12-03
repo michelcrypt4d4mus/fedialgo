@@ -102,7 +102,6 @@ class TheAlgorithm {
     );
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
-    // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         const algo = new TheAlgorithm(params);
         await Storage.setIdentity(params.user);
