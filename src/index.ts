@@ -205,6 +205,8 @@ class TheAlgorithm {
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
     async learnWeights(tootScores: StringNumberDict, step = 0.001): Promise<StringNumberDict | undefined> {
+        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
+
         if (!this.filters.weightLearningEnabled) {
             console.debug(`learnWeights() called but weight learning is disabled...`);
             return;
@@ -212,8 +214,6 @@ class TheAlgorithm {
             console.debug(`learnWeights() called but tootScores arg is empty...`);
             return;
         }
-
-        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
 
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
         const total = Object.values(tootScores)
