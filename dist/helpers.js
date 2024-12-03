@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -192,25 +192,37 @@ exports.isImage = isImage;
 ;
 // Remove dupes by uniquifying on the toot's URI
 function dedupeToots(toots, logLabel = undefined) {
-    const tootsByURI = toots.reduce((uriDict, toot) => {
-        toot.trendingTags = toot.trendingTags || []; // TODO: ugly to mutate Toot like this here
-        if (!(toot.uri in uriDict))
-            uriDict[toot.uri] = toot;
-        const uriTagNames = uriDict[toot.uri].trendingTags?.map(t => t.name) || [];
-        toot.trendingTags?.forEach(tag => {
-            if (!uriTagNames.includes(tag.name)) {
-                uriDict[toot.uri].trendingTags = (uriDict[toot.uri].trendingTags || []).concat(tag);
-            }
-        });
-        uriDict[toot.uri].trendingTags = (uriDict[toot.uri].trendingTags || []);
-        toot.trendingTags = (toot.trendingTags || []);
-        return uriDict;
-    }, {});
-    const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
     const prefix = logLabel ? `[${logLabel}] ` : '';
+    const tootsByURI = groupBy(toots, (toot) => toot.uri);
+    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+        if (!uriToots || uriToots.length == 0)
+            return;
+        const allTags = uriToots.flatMap(toot => toot.tags || []);
+        const uniqueTags = [...new Map(allTags.map((tag) => [tag.name, tag])).values()];
+        if (allTags.length > 0) {
+            console.debug(`${prefix}allTags for ${uri}:`, allTags);
+            console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTags);
+        }
+        // Set all toots to have all trending tags.
+        uriToots.forEach((toot) => {
+            toot.trendingTags = uniqueTags || [];
+        });
+    });
+    const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
     console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
     return deduped;
 }
 exports.dedupeToots = dedupeToots;
+;
+// TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
+function groupBy(arr, key) {
+    return arr.reduce((acc, item) => {
+        const group = key(item);
+        acc[group] ||= [];
+        acc[group].push(item);
+        return acc;
+    }, {});
+}
+exports.groupBy = groupBy;
 ;
 //# sourceMappingURL=helpers.js.map

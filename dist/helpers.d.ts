@@ -26,4 +26,5 @@ export declare function createRandomString(length: number): string;
 export declare function average(values: number[]): number | undefined;
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function dedupeToots(toots: Toot[], logLabel?: string | undefined): Toot[];
+export declare function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]>;
 export {};

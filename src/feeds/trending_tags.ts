@@ -38,7 +38,7 @@ export async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): 
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
     let toots = tootses.flat();
-    toots = dedupeToots(toots);
+    toots = dedupeToots(toots, "trendingTags");
     console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
     return toots;
 };
@@ -51,7 +51,7 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
         const toots = searchResult.statuses as Toot[];
 
         toots.forEach((toot) => {
-            if (!toot.trendingTags) toot.trendingTags = [];
+            toot.trendingTags||= [];
             toot.trendingTags.push(tag);
 
             if ((tag.numAccounts || 0) > Math.E) {

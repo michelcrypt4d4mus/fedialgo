@@ -16,7 +16,7 @@ async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     let toots = tootses.flat();
-    toots = (0, helpers_1.dedupeToots)(toots);
+    toots = (0, helpers_1.dedupeToots)(toots, "trendingTags");
     console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
     return toots;
 }
@@ -28,8 +28,7 @@ async function getTootsForTag(api, tag) {
         const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
         const toots = searchResult.statuses;
         toots.forEach((toot) => {
-            if (!toot.trendingTags)
-                toot.trendingTags = [];
+            toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
             if ((tag.numAccounts || 0) > Math.E) {
                 toot.trendingRank = Math.log((tag.numAccounts || Math.E));
