@@ -182,8 +182,8 @@ class TheAlgorithm {
 
     // Rescores the toots in the feed. Gets called when the user changes the weightings.
     // Has side effect of updating Storage.
-    async weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]> {
-        console.log("weightTootsInFeed() called with 'userWeights' arg:", userWeights);
+    async updateUserWeights(userWeights: ScoresType): Promise<Toot[]> {
+        console.log("updateUserWeights() called with weights:", userWeights);
 
         // prevent userWeights from being set to 0
         for (const key in userWeights) {
@@ -196,6 +196,12 @@ class TheAlgorithm {
         await Storage.setWeightings(userWeights);
         return await this.scoreFeed(this);
     }
+
+    async updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]> {
+        console.log(`updateFilters() called with newFilters: `, newFilters);
+        this.filters = newFilters;
+        return this.filteredFeed();
+    };
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<ScoresType> {
@@ -227,15 +233,17 @@ class TheAlgorithm {
             newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
         }
 
-        await this.weightTootsInFeed(newTootScores);
+        await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
 
     filteredFeed(): Toot[] {
-        return this.feed.filter(toot => this.isFiltered(toot));
+        const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        this.setFeedInApp(filteredFeed);
+        return filteredFeed;
     }
 
-    list() {
+    list(): Paginator {
         return new Paginator(this.feed);
     }
 
@@ -253,13 +261,6 @@ class TheAlgorithm {
 
     // Debugging method to log info about the timeline toots
     logFeedInfo() {
-        if (!this.feed || this.feed.length == 0) {
-            console.warn(`No feed to log!`);
-            return;
-        }
-
-        console.log(`timeline toots (condensed): `, this.feed.map(condensedStatus));
-
         const appCounts = this.feed.reduce((counts, toot) => {
             const app = toot.application?.name || "unknown";
             counts[app] = (counts[app] || 0) + 1;
@@ -267,6 +268,7 @@ class TheAlgorithm {
         }, {} as ScoresType);
 
         console.debug(`feed toots posted by application counts: `, appCounts);
+        console.log(`timeline toots (condensed): `, this.feed.map(condensedStatus));
     }
 
     private async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {
@@ -274,6 +276,7 @@ class TheAlgorithm {
         console.debug(`scoreFeed() [${threadID}] called in fedialgo package...`);
 
         try {
+            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             self.scoreMutex.cancel()
             const releaseMutex = await self.scoreMutex.acquire();
 
@@ -298,11 +301,11 @@ class TheAlgorithm {
             }
         }
 
-        self.sortFeed();
+        // Sort feed based on score from high to low. This must come after the deduplication step.
+        self.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+        self.logFeedInfo();
         Storage.setFeed(self.feed);
-        this.logFeedInfo();
-        this.setFeedInApp(self.feed);
-        return this.filteredFeed();
+        return self.filteredFeed();
     }
 
     // Set default score weightings
@@ -335,7 +338,6 @@ class TheAlgorithm {
         const tootLanguage = toot.language || NO_LANGUAGE;
 
         if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
-            console.debug(`Removing ${toot.uri} from feed because it's not a link and onlyLinks is enabled...`);
             return false;
         } else if (toot.reblog && !this.filters.includeReposts) {
             console.debug(`Removing reblogged status ${toot.uri} from feed...`);
@@ -402,13 +404,6 @@ class TheAlgorithm {
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
         return toot;
-    }
-
-    // Sort feed based on score from high to low. This must come after the deduplication step.
-    // TODO: unnecessary method
-    private sortFeed() {
-        this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-        return this.feed;
     }
 
     private shouldReloadFeed(): boolean {

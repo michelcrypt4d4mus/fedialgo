@@ -32,7 +32,8 @@ declare class TheAlgorithm {
     private constructor();
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     getFeed(): Promise<Toot[]>;
-    weightTootsInFeed(userWeights: ScoresType): Promise<Toot[]>;
+    updateUserWeights(userWeights: ScoresType): Promise<Toot[]>;
+    updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]>;
     getUserWeights(): Promise<ScoresType>;
     learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     filteredFeed(): Toot[];
@@ -43,7 +44,6 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private isFiltered;
     private _decorateWithScoreInfo;
-    private sortFeed;
     private shouldReloadFeed;
 }
 export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

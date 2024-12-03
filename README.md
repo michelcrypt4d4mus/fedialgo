@@ -42,16 +42,16 @@ const currUser = await api.v1.accounts.verifyCredentials()
 const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedInApp: setFeed})
 ```
 
-Then whenever you call `algorithm.weightTootsInFeed()` the React component state will be automatically updated when the `setFeed()` callback is invoked.
+Then whenever you call `algorithm.updateUserWeights()` the React component state will be automatically updated when the `setFeed()` callback is invoked.
 
 ### Adjust Weights
 The algorithm uses properties of a toot and the user configured weights to determine the order that toots will appear in your timeline.
-You could e.g. show the weights to the user, who can then decide to change them. You must call `algorithm.weightTootsInFeed()` to update the weights and get a newly ordered timeline.
+You could e.g. show the weights to the user, who can then decide to change them. You must call `algorithm.updateUserWeights()` to update the weights and get a newly ordered timeline.
 
 ```typescript
 const weights = await algorithm.getUserWeights()
 weights["NumReplies"] = 0.5 // change the weight of the feature "NumReplies" to 0.5
-const timelineFeed = await algorithm.weightTootsInFeed(newWeights)
+const timelineFeed = await algorithm.updateUserWeights(newWeights)
 ```
 
 ### Adjust Filters
