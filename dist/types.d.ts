@@ -52,4 +52,4 @@ export type TootURIs = {
     [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | string;
+export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | number | string;

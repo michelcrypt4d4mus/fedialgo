@@ -66,4 +66,4 @@ export type TootURIs = {
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
-                           TootURIs | Toot[] | mastodon.v1.Account | string;
+                           TootURIs | Toot[] | mastodon.v1.Account | number | string;

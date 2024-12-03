@@ -50,14 +50,9 @@ class Storage {
         await this.set(Key.FILTERS, filters);
     }
     static async logAppOpen() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS));
-        if (numAppOpens == null || isNaN(numAppOpens)) {
-            await this.set(Key.OPENINGS, "1", true);
-        }
-        else {
-            await this.set(Key.OPENINGS, (numAppOpens + 1).toString(), true);
-        }
-        await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
+        let numAppOpens = (parseInt(await this.get(Key.OPENINGS)) || 0) + 1;
+        await this.set(Key.OPENINGS, numAppOpens);
+        await this.set(Key.LAST_OPENED, new Date().getTime().toString());
     }
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
@@ -95,27 +90,22 @@ class Storage {
     static async setFeed(timeline) {
         await this.set(Key.TIMELINE, timeline);
     }
-    // TODO: currently groupedByUser is always true ?
-    static async get(key, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        // console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
-        return await localforage_1.default.getItem(storageKey);
+    // Get the value at the given key (with the user ID as a prefix)
+    static async get(key) {
+        return await localforage_1.default.getItem(await this.buildKey(key));
     }
-    static async set(key, value, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+    // Set the value at the given key (with the user ID as a prefix)
+    static async set(key, value) {
+        const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localforage_1.default.setItem(storageKey, value);
     }
-    static async remove(key, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+    static async remove(key) {
+        const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }
-    static async buildKey(key, groupedByUser = true, suffix = "") {
-        const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
-        return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix;
-    }
-    static async userPrefix(key) {
+    static async buildKey(key) {
         const user = await this.getIdentity();
         if (user) {
             return `${user.id}_${key}`;

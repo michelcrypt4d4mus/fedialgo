@@ -53,15 +53,9 @@ export default class Storage {
     }
 
     static async logAppOpen(): Promise<void> {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
-
-        if (numAppOpens == null || isNaN(numAppOpens)) {
-            await this.set(Key.OPENINGS, "1", true);
-        } else {
-            await this.set(Key.OPENINGS, (numAppOpens + 1).toString(), true);
-        }
-
-        await this.set(Key.LAST_OPENED, new Date().getTime().toString(), true);
+        let numAppOpens = (parseInt(await this.get(Key.OPENINGS) as string) || 0) + 1;
+        await this.set(Key.OPENINGS, numAppOpens);
+        await this.set(Key.LAST_OPENED, new Date().getTime().toString());
     }
 
     static async getLastOpenedTimestamp(): Promise<number> {
@@ -108,31 +102,25 @@ export default class Storage {
         await this.set(Key.TIMELINE, timeline);
     }
 
-    // TODO: currently groupedByUser is always true ?
-    protected static async get(key: Key, groupedByUser: boolean = true, suffix: string = ""): Promise<StorageValue | null> {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
-        // console.debug(`[STORAGE] Retrieving value at key: ${storageKey}`);
-        return await localForage.getItem(storageKey);
+    // Get the value at the given key (with the user ID as a prefix)
+    protected static async get(key: Key): Promise<StorageValue | null> {
+        return await localForage.getItem(await this.buildKey(key));
     }
 
-    protected static async set(key: Key, value: StorageValue, groupedByUser = true, suffix = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+    // Set the value at the given key (with the user ID as a prefix)
+    protected static async set(key: Key, value: StorageValue): Promise<void> {
+        const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localForage.setItem(storageKey, value);
     }
 
-    protected static async remove(key: Key, groupedByUser: boolean = true, suffix: string = "") {
-        const storageKey = await this.buildKey(key, groupedByUser, suffix);
+    protected static async remove(key: Key): Promise<void> {
+        const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 
-    private static async buildKey(key: Key, groupedByUser: boolean = true, suffix: string = "") {
-        const keyWithSuffix = (suffix === "") ? key : `${key}_${suffix}`;
-        return groupedByUser ? await this.userPrefix(keyWithSuffix) : keyWithSuffix
-    }
-
-    private static async userPrefix(key: string) {
+    private static async buildKey(key: Key): Promise<string> {
         const user = await this.getIdentity();
 
         if (user) {

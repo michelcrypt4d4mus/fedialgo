@@ -122,8 +122,7 @@ class TheAlgorithm {
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
 
-    // Fetch toots for the timeline from accounts the user follows as well as trending toots in
-    // the fediverse, score them, and sort them.
+    // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
         const response = await Promise.all(this.fetchers.map(fetcher => fetcher(this.api, this.user)));
