@@ -296,7 +296,7 @@ class TheAlgorithm {
         return self.filteredFeed();
     }
 
-    // Set default score weightings
+    // Load weightings from storage. Set defaults for any missing weightings.
     private async setDefaultWeights(): Promise<void> {
         let weightings = await Storage.getWeightings();
         let shouldSetWeights = false;
