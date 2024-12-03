@@ -187,42 +187,6 @@ class TheAlgorithm {
         return await Storage.getWeightings();
     }
 
-    // Adjust toot weights based on user's chosen slider values
-    async learnWeights(tootScores: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
-        if (!this.filters.weightLearningEnabled) {
-            console.debug(`learnWeights() called but weight learning is disabled...`);
-            return;
-        } else if (!tootScores) {
-            console.debug(`learnWeights() called but tootScores arg is empty...`);
-            return;
-        }
-
-        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
-
-        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
-        const total = Object.values(tootScores)
-                            .filter((value: number) => !isNaN(value))
-                            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-
-        const mean = total / Object.values(tootScores).length;
-        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const newTootScores: ScoresType = await this.getUserWeights()
-
-        const userWeightTotal = Object.values(newTootScores)
-                                   .filter((value: number) => !isNaN(value))
-                                   .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-
-        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
-
-        for (const key in newTootScores) {
-            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
-            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
-        }
-
-        await this.updateUserWeights(newTootScores);
-        return newTootScores;
-    }
-
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed(): Toot[] {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
@@ -256,6 +220,43 @@ class TheAlgorithm {
 
         console.debug(`feed toots posted by application counts: `, appCounts);
         console.log(`timeline toots (condensed): `, this.feed.map(condensedStatus));
+    }
+
+    // Adjust toot weights based on user's chosen slider values
+    // TODO: unclear whether this is working correctly
+    async learnWeights(tootScores: ScoresType, step = 0.001): Promise<ScoresType | undefined> {
+        if (!this.filters.weightLearningEnabled) {
+            console.debug(`learnWeights() called but weight learning is disabled...`);
+            return;
+        } else if (!tootScores) {
+            console.debug(`learnWeights() called but tootScores arg is empty...`);
+            return;
+        }
+
+        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
+
+        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
+        const total = Object.values(tootScores)
+                            .filter((value: number) => !isNaN(value))
+                            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
+
+        const mean = total / Object.values(tootScores).length;
+        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
+        const newTootScores: ScoresType = await this.getUserWeights()
+
+        const userWeightTotal = Object.values(newTootScores)
+                                   .filter((value: number) => !isNaN(value))
+                                   .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
+
+        for (const key in newTootScores) {
+            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
+            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
+        }
+
+        await this.updateUserWeights(newTootScores);
+        return newTootScores;
     }
 
     private async scoreFeed(self: TheAlgorithm): Promise<Toot[]> {

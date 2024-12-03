@@ -29,11 +29,11 @@ declare class TheAlgorithm {
     updateUserWeights(userWeights: ScoresType): Promise<Toot[]>;
     updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]>;
     getUserWeights(): Promise<ScoresType>;
-    learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     filteredFeed(): Toot[];
     list(): Paginator;
     mostRecentTootAt(): Date;
     logFeedInfo(): void;
+    learnWeights(tootScores: ScoresType, step?: number): Promise<ScoresType | undefined>;
     private scoreFeed;
     private setDefaultWeights;
     private isFiltered;

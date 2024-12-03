@@ -165,7 +165,35 @@ class TheAlgorithm {
     async getUserWeights() {
         return await Storage_1.default.getWeightings();
     }
+    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
+    filteredFeed() {
+        const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        this.setFeedInApp(filteredFeed);
+        return filteredFeed;
+    }
+    list() {
+        return new Paginator_1.default(this.feed);
+    }
+    // Find the most recent toot in the feed
+    mostRecentTootAt() {
+        if (this.feed.length == 0)
+            return EARLIEST_TIMESTAMP;
+        const mostRecentToot = this.feed.reduce((recentToot, toot) => recentToot.createdAt > toot.createdAt ? recentToot : toot, this.feed[0]);
+        return new Date(mostRecentToot.createdAt);
+    }
+    ;
+    // Debugging method to log info about the timeline toots
+    logFeedInfo() {
+        const appCounts = this.feed.reduce((counts, toot) => {
+            const app = toot.application?.name || "unknown";
+            counts[app] = (counts[app] || 0) + 1;
+            return counts;
+        }, {});
+        console.debug(`feed toots posted by application counts: `, appCounts);
+        console.log(`timeline toots (condensed): `, this.feed.map(helpers_1.condensedStatus));
+    }
     // Adjust toot weights based on user's chosen slider values
+    // TODO: unclear whether this is working correctly
     async learnWeights(tootScores, step = 0.001) {
         if (!this.filters.weightLearningEnabled) {
             console.debug(`learnWeights() called but weight learning is disabled...`);
@@ -193,33 +221,6 @@ class TheAlgorithm {
         }
         await this.updateUserWeights(newTootScores);
         return newTootScores;
-    }
-    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
-    filteredFeed() {
-        const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
-        this.setFeedInApp(filteredFeed);
-        return filteredFeed;
-    }
-    list() {
-        return new Paginator_1.default(this.feed);
-    }
-    // Find the most recent toot in the feed
-    mostRecentTootAt() {
-        if (this.feed.length == 0)
-            return EARLIEST_TIMESTAMP;
-        const mostRecentToot = this.feed.reduce((recentToot, toot) => recentToot.createdAt > toot.createdAt ? recentToot : toot, this.feed[0]);
-        return new Date(mostRecentToot.createdAt);
-    }
-    ;
-    // Debugging method to log info about the timeline toots
-    logFeedInfo() {
-        const appCounts = this.feed.reduce((counts, toot) => {
-            const app = toot.application?.name || "unknown";
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {});
-        console.debug(`feed toots posted by application counts: `, appCounts);
-        console.log(`timeline toots (condensed): `, this.feed.map(helpers_1.condensedStatus));
     }
     async scoreFeed(self) {
         const threadID = (0, helpers_1.createRandomString)(5);
