@@ -57,6 +57,7 @@ export type FeedFilterSettings = {
     includeReplies: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
+    weightLearningEnabled: boolean;
 };
 
 export type ScorerDescription = {

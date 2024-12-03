@@ -173,9 +173,15 @@ class TheAlgorithm {
     }
     // Adjust toot weights based on user's chosen slider values
     async learnWeights(tootScores, step = 0.001) {
-        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
-        if (tootScores == undefined)
+        if (!this.filters.weightLearningEnabled) {
+            console.debug(`learnWeights() called but weight learning is disabled...`);
             return;
+        }
+        else if (!tootScores) {
+            console.debug(`learnWeights() called but tootScores arg is empty...`);
+            return;
+        }
+        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
         // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
         const total = Object.values(tootScores)
             .filter((value) => !isNaN(value))

@@ -30,6 +30,7 @@ exports.DEFAULT_FILTERS = {
     includeReplies: true,
     includeTrendingToots: true,
     onlyLinks: false,
+    weightLearningEnabled: false,
 };
 class Storage {
     static async getWeightings() {
