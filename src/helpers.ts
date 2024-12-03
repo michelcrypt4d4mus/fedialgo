@@ -222,6 +222,23 @@ export function isImage(uri: string | null | undefined): boolean {
 
 // Remove dupes by uniquifying on the toot's URI
 export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
+    const tootsByURI = toots.reduce((uriDict, toot) => {
+        toot.trendingTags = toot.trendingTags || [];  // TODO: ugly to mutate Toot like this here
+        if (!(toot.uri in uriDict)) uriDict[toot.uri] = toot;
+        const uriTagNames = uriDict[toot.uri].trendingTags?.map(t => t.name) || [];
+
+        toot.trendingTags?.forEach(tag => {
+            if (!uriTagNames.includes(tag.name)) {
+                uriDict[toot.uri].trendingTags = (uriDict[toot.uri].trendingTags || []).concat(tag);
+            }
+        });
+
+
+        uriDict[toot.uri].trendingTags = (uriDict[toot.uri].trendingTags || []);
+        toot.trendingTags = (toot.trendingTags || []);
+        return uriDict;
+    }, {} as Record<string, Toot[]>);
+
     const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
     const prefix = logLabel ? `[${logLabel}] ` : '';
     console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
