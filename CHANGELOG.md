@@ -11,7 +11,7 @@
 * [bug] reset the diversity scorer when rescoring
 
 ## `2024-11-30`
-* Refactor `_decorateWithScoreInfo()` method
+* Refactor `decorateWithScoreInfo()` method
 * Rename `scores` => `rawScores` and `value` => `score`
 
 ## `2024-11-27`
