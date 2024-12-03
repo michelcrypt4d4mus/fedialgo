@@ -315,6 +315,7 @@ class TheAlgorithm {
     }
 
     private isFiltered(toot: Toot): boolean {
+        const languages = this.filters.filteredLanguages;
         const tootLanguage = toot.language || NO_LANGUAGE;
 
         if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
@@ -322,8 +323,8 @@ class TheAlgorithm {
         } else if (toot.reblog && !this.filters.includeReposts) {
             console.debug(`Removing reblogged status ${toot.uri} from feed...`);
             return false;
-        } else if (this.filters.filteredLanguages.length > 0 && !this.filters.filteredLanguages.includes(tootLanguage)) {
-            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, this.filters.filteredLanguages);
+        } else if (languages.length > 0 && !languages.includes(tootLanguage)) {
+            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
             return false;
         } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
             return false;
