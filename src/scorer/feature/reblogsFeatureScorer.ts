@@ -16,7 +16,7 @@ const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 export default class ReblogsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour accounts you have retooted a lot",
+            description: "Favour accounts you often retoot",
             defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostRetootedAccounts(api),
             scoreName: Key.TOP_REBLOGS,
