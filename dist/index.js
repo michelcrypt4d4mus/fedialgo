@@ -129,7 +129,7 @@ class TheAlgorithm {
             return langCounts;
         }, {});
         // Prepare scorers before scoring Toots (only needs to be done once (???))
-        // TODO: we could run this in parallel to the fetchers via async
+        // TODO: we could run these getFeature() calls in parallel to the fetchers
         await Promise.all(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
         return await this.scoreFeed(this);
     }
