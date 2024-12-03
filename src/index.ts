@@ -316,7 +316,7 @@ class TheAlgorithm {
         if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
         } else if (toot.reblog && !this.filters.includeReposts) {
-            console.debug(`Removing reblogged status ${toot.uri} from feed...`);
+            console.debug(`Removing reblogged toot from feed`, toot);
             return false;
         } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
             return false;
