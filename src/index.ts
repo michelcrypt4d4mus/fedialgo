@@ -5,10 +5,10 @@ import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
 
 import getHomeFeed from "./feeds/homeFeed";
+import getRecentTootsForTrendingTags from "./feeds/trending_tags";
+import getTrendingToots from "./feeds/trending_toots";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
-import getTrendingTags, { getRecentTootsForTrendingTags } from "./feeds/trending_tags";
-import getTrendingToots from "./feeds/trending_toots";
 import {
     AlgorithmArgs,
     FeedFilterSettings,
@@ -130,19 +130,13 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
-        // let trendingTagToots = [];
-
-        // try {
-        //     trendingTagToots = await getRecentTootsForTrendingTags(this.api);
-        // } catch (e) {
-        //     console.warn(`getTrendingTags() failed: `, e);
-        // }
 
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
-            getRecentTootsForTrendingTags(this.api),
             ...this.fetchers.map(fetcher => fetcher(this.api)),
+            // featureScorers are here as a hack for parallelization. They return empty arrays.
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
+            getRecentTootsForTrendingTags(this.api),
         ]);
 
         this.feed = allResponses.flat();

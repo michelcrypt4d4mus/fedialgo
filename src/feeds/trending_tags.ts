@@ -34,7 +34,7 @@ const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 const NUM_TRENDING_TAGS = 15;
 
 
-export async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
+export default async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
     let toots = tootses.flat();
@@ -51,16 +51,8 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
         const toots = searchResult.statuses as Toot[];
 
         toots.forEach((toot) => {
-            toot.trendingTags||= [];
+            toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
-
-            if ((tag.numAccounts || 0) > Math.E) {
-                toot.trendingRank = Math.log((tag.numAccounts || Math.E));
-            } else {
-                toot.trendingRank = tag.numAccounts || 0;
-            }
-
-            console.debug(`[TrendingTags] set toot.trendingRank to ${toot.trendingRank.toFixed(4)}:`, toot);
         });
 
         console.debug(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
@@ -72,7 +64,7 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
 };
 
 
-export default async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
+async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`[TrendingTags] getTrendingTags() called`)
     const coreServers = await MastodonApiCache.getCoreServer(api);
 

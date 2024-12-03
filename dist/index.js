@@ -29,10 +29,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
+const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
+const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importStar(require("./Storage"));
-const trending_tags_1 = require("./feeds/trending_tags");
-const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
@@ -76,6 +76,7 @@ class TheAlgorithm {
         new scorer_1.ReblogsFeatureScorer(),
         new scorer_1.RepliedFeatureScorer(),
         new scorer_1.TopPostFeatureScorer(),
+        new scorer_1.TrendingTagsFeatureScorer(),
         new scorer_1.VideoAttachmentScorer(),
     ];
     // These scorers require the complete feed to work properly
@@ -112,17 +113,12 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed() {
         console.debug(`getFeed() called in fedialgo package...`);
-        // let trendingTagToots = [];
-        // try {
-        //     trendingTagToots = await getRecentTootsForTrendingTags(this.api);
-        // } catch (e) {
-        //     console.warn(`getTrendingTags() failed: `, e);
-        // }
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
-            (0, trending_tags_1.getRecentTootsForTrendingTags)(this.api),
             ...this.fetchers.map(fetcher => fetcher(this.api)),
+            // featureScorers are here as a hack for parallelization. They return empty arrays.
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
+            (0, trending_tags_1.default)(this.api),
         ]);
         this.feed = allResponses.flat();
         console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);

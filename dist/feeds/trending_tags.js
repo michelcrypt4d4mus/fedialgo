@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRecentTootsForTrendingTags = void 0;
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
@@ -20,7 +19,7 @@ async function getRecentTootsForTrendingTags(api) {
     console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
     return toots;
 }
-exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
+exports.default = getRecentTootsForTrendingTags;
 ;
 async function getTootsForTag(api, tag) {
     try {
@@ -30,13 +29,6 @@ async function getTootsForTag(api, tag) {
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
-            if ((tag.numAccounts || 0) > Math.E) {
-                toot.trendingRank = Math.log((tag.numAccounts || Math.E));
-            }
-            else {
-                toot.trendingRank = tag.numAccounts || 0;
-            }
-            console.debug(`[TrendingTags] set toot.trendingRank to ${toot.trendingRank.toFixed(4)}:`, toot);
         });
         console.debug(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
         return toots;
@@ -83,7 +75,6 @@ async function getTrendingTags(api) {
     console.log(`[TrendingTags] Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
 }
-exports.default = getTrendingTags;
 ;
 // Inject toot and account counts (how many toots and users are using the trending tag)
 function decorateTagData(tag) {
