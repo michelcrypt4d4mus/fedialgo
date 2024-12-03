@@ -13,7 +13,7 @@ const SCORE_NAME = "VideoAttachments";
 class VideoAttachmentScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favour toots with video attachments",
+            description: "Favour video attachments",
             defaultWeight: 0,
             scoreName: SCORE_NAME,
         });

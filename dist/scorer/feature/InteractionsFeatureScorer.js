@@ -10,7 +10,7 @@ const INTERACTIONS_DEFAULT_WEIGHT = 2;
 class InteractionsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favour toots from users that interact with your toots",
+            description: "Favour accounts that recently interacted with your toots",
             defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
             featureGetter: (api) => mastodon_api_cache_1.default.getTopInteracts(api),
             scoreName: Storage_1.Key.TOP_INTERACTS,

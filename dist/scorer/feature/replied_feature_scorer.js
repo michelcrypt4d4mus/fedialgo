@@ -9,7 +9,7 @@ const Storage_1 = require("../../Storage");
 class RepliedFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favour toots from accounts you often reply to",
+            description: "Favour accounts you often reply to",
             defaultWeight: 1,
             featureGetter: (api) => mastodon_api_cache_1.default.getMostRepliedAccounts(api),
             scoreName: Storage_1.Key.REPLIED_TO,

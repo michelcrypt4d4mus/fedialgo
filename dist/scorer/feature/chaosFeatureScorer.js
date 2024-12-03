@@ -10,7 +10,7 @@ const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 class ChaosFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Insert Chaos into the scoring because social media ist krieg",
+            description: "Insert Chaos into the scoring (social media ist krieg)",
             defaultWeight: 1,
             scoreName: "Chaos",
         });
