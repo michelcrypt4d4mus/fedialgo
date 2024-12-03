@@ -36,6 +36,7 @@ const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 //import getRecommenderFeed from "./feeds/recommenderFeed";
+const ENGLISH_CODE = 'en';
 const NO_LANGUAGE = '[not specified]';
 exports.NO_LANGUAGE = NO_LANGUAGE;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -123,10 +124,11 @@ class TheAlgorithm {
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);
         this.feed = cleanFeed;
-        // Get all the unique languages that show up in the feed
+        // Get all the unique languages that show up in the feed (default to English)
         this.feedLanguages = this.feed.reduce((langCounts, toot) => {
-            const tootLanguage = toot.language || NO_LANGUAGE;
-            langCounts[tootLanguage] = (langCounts[tootLanguage] || 0) + 1;
+            toot.language ??= ENGLISH_CODE;
+            // const tootLanguage = toot.language || NO_LANGUAGE;
+            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {});
         // Prepare scorers before scoring Toots (only needs to be done once (???))
@@ -274,9 +276,14 @@ class TheAlgorithm {
             console.debug(`Removing reblogged status ${toot.uri} from feed...`);
             return false;
         }
-        else if (languages.length > 0 && !languages.includes(tootLanguage)) {
-            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
-            return false;
+        else if (languages.length > 0) {
+            if (!languages.includes(tootLanguage)) {
+                console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
+                return false;
+            }
+            else {
+                console.debug(`Allowing toot with language ${tootLanguage}...`);
+            }
         }
         else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
             return false;
