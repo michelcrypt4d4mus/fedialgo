@@ -29,11 +29,11 @@ declare class TheAlgorithm {
     logFeedInfo(): void;
     learnWeights(tootScores: StringNumberDict, step?: number): Promise<StringNumberDict | undefined>;
     list(): Paginator;
-    private scoreFeed;
     private setDefaultWeights;
+    private scoreFeed;
+    private decorateWithScoreInfo;
     private isFiltered;
     private isValidForFeed;
-    private decorateWithScoreInfo;
     private shouldReloadFeed;
 }
 export { TIME_DECAY, FeedFilterSettings, StringNumberDict, TheAlgorithm, Toot, };

@@ -174,7 +174,7 @@ class TheAlgorithm {
     mostRecentTootAt() {
         if (this.feed.length == 0)
             return EARLIEST_TIMESTAMP;
-        const mostRecentToot = this.feed.reduce((recentToot, toot) => recentToot.createdAt > toot.createdAt ? recentToot : toot, this.feed[0]);
+        const mostRecentToot = this.feed.reduce((recentest, toot) => recentest.createdAt > toot.createdAt ? recentest : toot, this.feed[0]);
         return new Date(mostRecentToot.createdAt);
     }
     ;
@@ -222,6 +222,20 @@ class TheAlgorithm {
     list() {
         return new Paginator_1.default(this.feed);
     }
+    // Load weightings from storage. Set defaults for any missing weightings.
+    async setDefaultWeights() {
+        let weightings = await Storage_1.default.getWeightings();
+        let shouldSetWeights = false;
+        Object.keys(this.scorersDict).forEach(key => {
+            if (!weightings[key] && weightings[key] !== 0) {
+                weightings[key] = this.scorersDict[key].defaultWeight;
+                shouldSetWeights = true;
+            }
+        });
+        if (shouldSetWeights) {
+            await Storage_1.default.setWeightings(weightings);
+        }
+    }
     async scoreFeed() {
         const logPrefix = `scoreFeed() [${(0, helpers_1.createRandomString)(5)}]`;
         console.debug(`${logPrefix} called in fedialgo package...`);
@@ -256,19 +270,44 @@ class TheAlgorithm {
         }
         return this.filteredFeed();
     }
-    // Load weightings from storage. Set defaults for any missing weightings.
-    async setDefaultWeights() {
-        let weightings = await Storage_1.default.getWeightings();
-        let shouldSetWeights = false;
-        Object.keys(this.scorersDict).forEach(key => {
-            if (!weightings[key] && weightings[key] !== 0) {
-                weightings[key] = this.scorersDict[key].defaultWeight;
-                shouldSetWeights = true;
-            }
+    // Add scores including weighted & unweighted components to the Toot for debugging/inspection
+    async decorateWithScoreInfo(toot) {
+        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+        let rawScore = 1;
+        const rawScores = {};
+        const weightedScores = {};
+        const userWeights = await this.getUserWeights();
+        const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
+        // Compute a weighted score a toot based by multiplying the value of each numerical property
+        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
+        this.weightedScorers.forEach((scorer, i) => {
+            const scoreValue = scores[i] || 0;
+            rawScores[scorer.name] = scoreValue;
+            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
+            rawScore += weightedScores[scorer.name];
         });
-        if (shouldSetWeights) {
-            await Storage_1.default.setWeightings(weightings);
-        }
+        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
+        // high scores. To fix this we hack a final adjustment to the score by multiplying by the
+        // trending toot weighting if the weighting is less than 1.0.
+        const trendingScore = rawScores[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
+        if (trendingScore > 0 && trendingWeighting < 1.0)
+            rawScore *= trendingWeighting;
+        // Multiple rawScore by time decay penalty to get a final value
+        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
+        const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
+        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
+        const score = rawScore * timeDecayMultiplier;
+        toot.scoreInfo = {
+            rawScore,
+            rawScores,
+            score,
+            timeDecayMultiplier,
+            weightedScores,
+        };
+        // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
+        if (toot.reblog)
+            toot.reblog.scoreInfo = toot.scoreInfo;
     }
     isFiltered(toot) {
         const languages = this.filters.filteredLanguages;
@@ -330,45 +369,6 @@ class TheAlgorithm {
         return true;
     }
     ;
-    // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-    async decorateWithScoreInfo(toot) {
-        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
-        let rawScore = 1;
-        const rawScores = {};
-        const weightedScores = {};
-        const userWeights = await this.getUserWeights();
-        const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
-        // Compute a weighted score a toot based by multiplying the value of each numerical property
-        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        this.weightedScorers.forEach((scorer, i) => {
-            const scoreValue = scores[i] || 0;
-            rawScores[scorer.name] = scoreValue;
-            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            rawScore += weightedScores[scorer.name];
-        });
-        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-        // high scores. To fix this we hack a final adjustment to the score by multiplying by the
-        // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
-        if (trendingScore > 0 && trendingWeighting < 1.0)
-            rawScore *= trendingWeighting;
-        // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
-        const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        const score = rawScore * timeDecayMultiplier;
-        toot.scoreInfo = {
-            rawScore,
-            rawScores,
-            score,
-            timeDecayMultiplier,
-            weightedScores,
-        };
-        // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
-        if (toot.reblog)
-            toot.reblog.scoreInfo = toot.scoreInfo;
-    }
     shouldReloadFeed() {
         const mostRecentTootAt = this.mostRecentTootAt();
         return ((Date.now() - mostRecentTootAt.getTime()) > RELOAD_IF_OLDER_THAN_MS);
