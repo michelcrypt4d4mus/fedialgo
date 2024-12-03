@@ -63,7 +63,7 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
             console.debug(`[TrendingTags] set toot.trendingRank to ${toot.trendingRank.toFixed(4)}:`, toot);
         });
 
-        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
+        console.debug(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
         return toots;
     } catch (e) {
         console.warn(`[TrendingTags] Failed to get toots for tag '${tag.name}':`, e);
