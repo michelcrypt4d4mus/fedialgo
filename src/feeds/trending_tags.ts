@@ -30,6 +30,7 @@ const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
+const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 
 
 export default async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
@@ -52,27 +53,41 @@ export default async function getTrendingTags(api: mastodon.rest.Client): Promis
             return [];
         }
 
-        // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
-        // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
-        // toot gets NUM_TRENDING_TOOTS_PER_SERVER points, least trending gets 1).
-        // serverTopToots = serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
-        tags = tags.slice(0, NUM_TRENDING_TOOTS_PER_SERVER)
-                                    //    .map((tag: TrendingTag, i: number) => {
-                                    //         // Inject the @server info to the account string
-                                    //         const acct = tag.account.acct;
-
-                                    //         if (acct && !acct.includes("@")) {
-                                    //             toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
-                                    //         }
-
-                                    //         // Inject trendingRank score
-                                    //         toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
-                                    //         return toot;
-                                    //    });
-
+        tags = tags.slice(0, NUM_TRENDING_TOOTS_PER_SERVER);
+        tags.forEach(decorateTagData);
         console.log(`[TrendingTags] trendingTags for server '${server}':`, tags);
         return tags;
     }));
 
-    return trendingTags.flat();
+    const aggregatedTags = trendingTags.flat().reduce((tags: TrendingTag[], tag: TrendingTag) => {
+        const existingTag = tags.find(t => t.name === tag.name);
+
+        if (existingTag) {
+            existingTag.numAccounts = (existingTag.numAccounts || 0) + (tag.numAccounts || 0);
+            existingTag.numToots = (existingTag.numToots || 0) + (tag.numToots || 0);
+        } else {
+            tags.push(tag);
+        }
+
+        return tags;
+    }, [] as TrendingTag[]);
+
+    aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
+    console.log(`[TrendingTags] Aggregated trending tags:`, aggregatedTags);
+    return aggregatedTags;
+};
+
+
+// Inject toot and account counts (how many toots and users are using the trending tag)
+function decorateTagData(tag: TrendingTag): void {
+    if (!tag?.history || tag.history.length == 0) {
+        console.warn(`[TrendingTags] decorateTagData() found no history for tag:`, tag);
+        tag.numAccounts = 0;
+        tag.numToots = 0;
+        return;
+    }
+
+    const recentHistory = tag.history.slice(0, NUM_DAYS_TO_COUNT_TAG_DATA);
+    tag.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
+    tag.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

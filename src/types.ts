@@ -69,6 +69,8 @@ export type TootURIs = {
 
 export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
+    numToots?: number;
+    numAccounts?: number;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

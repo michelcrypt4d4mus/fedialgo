@@ -115,7 +115,6 @@ class TheAlgorithm {
         let trendingTags = [];
         try {
             trendingTags = await (0, trending_tags_1.default)(this.api);
-            console.log(`getTrendingTags() returned: `, trendingTags);
         }
         catch (e) {
             console.warn(`getTrendingTags() failed: `, e);
