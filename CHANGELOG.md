@@ -1,5 +1,6 @@
 ## `2024-12-02`
 * Move live filtering of the feed (for languages, followed tags, etc.) to this package
+* Store feed filter settings in long term storage
 
 ## `2024-12-01`
 * Introduce `TootScore` type to hold all score info
