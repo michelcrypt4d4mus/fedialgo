@@ -1,6 +1,24 @@
 /*
- * Pull top trending toots on mastodon server (servers?) including from accounts user
- * doesn't follow.
+ * Pull top trending tags on mastodon server (servers?).
+ *
+ * example trending tag:
+ * {
+ *   "name": "southkorea",
+ *   "url": "https://journa.host/tags/southkorea",
+ *   "history": [
+ *     {
+ *       "day": "1733184000",
+ *       "accounts": "125",
+ *       "uses": "374"
+ *     },
+ *     {
+ *       "day": "1733097600",
+ *       "accounts": "4",
+ *       "uses": "146"
+ *     },
+ *     <...snip, usually 7 days of info...>
+ *   ]
+ * }
  */
 import { mastodon } from "masto";
 
