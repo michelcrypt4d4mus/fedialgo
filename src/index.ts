@@ -305,18 +305,20 @@ class TheAlgorithm {
         const languages = this.filters.filteredLanguages;
         const tootLanguage = toot.language || NO_LANGUAGE;
 
-        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
-            return false;
-        } else if (toot.reblog && !this.filters.includeReposts) {
-            console.debug(`Removing reblogged status ${toot.uri} from feed...`);
-            return false;
-        } else if (languages.length > 0) {
+        if (languages.length > 0) {
             if (!languages.includes(tootLanguage)) {
                 console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
                 return false;
             } else {
                 console.debug(`Allowing toot with language ${tootLanguage}...`);
             }
+        }
+
+        if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
+            return false;
+        } else if (toot.reblog && !this.filters.includeReposts) {
+            console.debug(`Removing reblogged status ${toot.uri} from feed...`);
+            return false;
         } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
             return false;
         } else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
