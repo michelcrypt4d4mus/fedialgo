@@ -4,7 +4,7 @@ const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
 const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
-const MINIMUM_MAU = 10;
+const MINIMUM_MAU = 100;
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
@@ -33,6 +33,11 @@ const _POPULAR_SERVERS = [
     "mastodon.sdf.org",
     "defcon.social",
     "mstdn.party",
+    "sfba.social",
+    "toot.community",
+    "ravenation.club",
+    "sciences.social",
+    "toot.io",
 ];
 const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 // Returns something called "overrepresentedServerFrequ"??

@@ -15,7 +15,12 @@ class FeatureScorer extends Scorer_1.default {
         this.featureGetter = params.featureGetter || (async () => { return {}; });
     }
     async getFeature(api) {
-        this.feature = await this.featureGetter(api);
+        try {
+            this.feature = await this.featureGetter(api);
+        }
+        catch (e) {
+            console.warn(`Error in getFeature() for ${this.name}:`, e);
+        }
         this._isReady = true;
         return []; // TODO: this is a hack so we can use Promise.all() to get 'allResponses'
     }
