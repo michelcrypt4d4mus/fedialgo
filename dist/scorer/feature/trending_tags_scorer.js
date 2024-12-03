@@ -9,7 +9,7 @@ exports.TRENDING_TAGS_DEFAULT_WEIGHT = exports.TRENDING_TAGS = void 0;
  */
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
 exports.TRENDING_TAGS = "TrendingTags";
-exports.TRENDING_TAGS_DEFAULT_WEIGHT = 0.06;
+exports.TRENDING_TAGS_DEFAULT_WEIGHT = 0.5;
 class TrendingTagsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
