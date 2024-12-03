@@ -1,8 +1,11 @@
 import { mastodon } from "masto";
 import { Toot } from "./types";
 export declare const DEFAULT_RECORDS_PER_PAGE = 40;
+export declare const IMAGE = "image";
+export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: string[];
 export declare const MEDIA_TYPES: string[];
+export declare const IMAGE_EXTENSIONS: string[];
 export declare const isRecord: (x: unknown) => x is Record<string, unknown>;
 export declare const _transformKeys: <T>(data: T, transform: (key: string) => string) => T;
 export declare const mastodonFetch: <T>(server: string, endpoint: string) => Promise<T | undefined>;
@@ -21,4 +24,5 @@ export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAt
 export declare const minimumID: (toots: Toot[]) => number | null;
 export declare function createRandomString(length: number): string;
 export declare function average(values: number[]): number | undefined;
+export declare function isImage(uri: string | null | undefined): boolean;
 export {};

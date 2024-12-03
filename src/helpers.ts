@@ -6,11 +6,15 @@ import { Toot } from "./types";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
-export const VIDEO_TYPES = ["gifv", "video"];
-export const MEDIA_TYPES = ["image", ...VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 const MAX_CONTENT_CHARS = 150;
 const HUGE_ID = 10 ** 100;
+
+export const IMAGE = "image";
+export const VIDEO = "video";
+export const VIDEO_TYPES = ["gifv", VIDEO];
+export const MEDIA_TYPES = [IMAGE, ...VIDEO_TYPES];
+export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 
 
 //Masto does not support top posts from foreign servers, so we have to do it manually
@@ -197,8 +201,16 @@ export function createRandomString(length: number): string {
 };
 
 
+// Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number | undefined {
-    values = values.filter(v => v != undefined)
+    values = values.filter(v => !!v);
     if (values.length == 0) return NaN;
     return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
+};
+
+
+// Return true if uri ends with an image extension like .jpg or .png
+export function isImage(uri: string | null | undefined): boolean {
+    if (!uri) return false;
+    return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 };

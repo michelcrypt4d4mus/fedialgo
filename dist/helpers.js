@@ -3,16 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
-exports.VIDEO_TYPES = ["gifv", "video"];
-exports.MEDIA_TYPES = ["image", ...exports.VIDEO_TYPES];
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 const MAX_CONTENT_CHARS = 150;
 const HUGE_ID = 10 ** 100;
+exports.IMAGE = "image";
+exports.VIDEO = "video";
+exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
+exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
+exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 //Masto does not support top posts from foreign servers, so we have to do it manually
 const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
@@ -167,12 +170,21 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
+// Take the average of an array of numbers, ignoring undefined values
 function average(values) {
-    values = values.filter(v => v != undefined);
+    values = values.filter(v => !!v);
     if (values.length == 0)
         return NaN;
     return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
 }
 exports.average = average;
+;
+// Return true if uri ends with an image extension like .jpg or .png
+function isImage(uri) {
+    if (!uri)
+        return false;
+    return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
+}
+exports.isImage = isImage;
 ;
 //# sourceMappingURL=helpers.js.map

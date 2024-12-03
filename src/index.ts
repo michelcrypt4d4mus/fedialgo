@@ -32,7 +32,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { average, condensedStatus, createRandomString, describeToot } from "./helpers";
+import { IMAGE, MEDIA_TYPES, condensedStatus, createRandomString, describeToot, isImage } from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
@@ -112,6 +112,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
+        algo.extractSummaryInfo()
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -232,6 +233,36 @@ class TheAlgorithm {
         return newTootScores;
     }
 
+    // Compute language and application counts. Repair toots:
+    //   - Set toot.language to English if missing.
+    //   - Set media type to "image" if appropriate
+    extractSummaryInfo(): void {
+        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
+            toot.language ??= ENGLISH_CODE;  // Default to English
+            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
+            return langCounts;
+        }, {} as StringNumberDict);
+
+        this.appCounts = this.feed.reduce((counts, toot) => {
+            toot.application ??= {name: UNKNOWN_APP};
+            const app = toot.application?.name || UNKNOWN_APP;
+            counts[app] = (counts[app] || 0) + 1;
+            return counts;
+        }, {} as StringNumberDict);
+
+        // Check for weird media types
+        this.feed.forEach(toot => {
+            toot.mediaAttachments.forEach((media, i) => {
+                if (media.type === "unknown" && isImage(media.remoteUrl)) {
+                    console.warn(`Repairing broken media attachment in toot:`, toot);
+                    media.type = IMAGE;
+                } else if (!MEDIA_TYPES.includes(media.type)) {
+                    console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
+                }
+            });
+        });
+    }
+
     // TODO: is this ever used?
     list(): Paginator {
         return new Paginator(this.feed);
@@ -333,22 +364,6 @@ class TheAlgorithm {
 
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
-    }
-
-    // Compute language and application counts. Set toot.language to Enlgish if missing.
-    private extractSummaryInfo(): void {
-        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= ENGLISH_CODE;  // Default to English
-            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
-            return langCounts;
-        }, {} as StringNumberDict);
-
-        this.appCounts = this.feed.reduce((counts, toot) => {
-            toot.application ??= {name: UNKNOWN_APP};
-            const app = toot.application?.name || UNKNOWN_APP;
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {} as StringNumberDict);
     }
 
     private isFiltered(toot: Toot): boolean {

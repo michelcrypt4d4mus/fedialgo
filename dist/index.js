@@ -98,6 +98,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
+        algo.extractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -197,6 +198,34 @@ class TheAlgorithm {
         await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
+    // Compute language and application counts. Repair toots:
+    //   - Set toot.language to English if missing.
+    //   - Set media type to "image" if appropriate
+    extractSummaryInfo() {
+        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
+            toot.language ??= ENGLISH_CODE; // Default to English
+            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
+            return langCounts;
+        }, {});
+        this.appCounts = this.feed.reduce((counts, toot) => {
+            toot.application ??= { name: UNKNOWN_APP };
+            const app = toot.application?.name || UNKNOWN_APP;
+            counts[app] = (counts[app] || 0) + 1;
+            return counts;
+        }, {});
+        // Check for weird media types
+        this.feed.forEach(toot => {
+            toot.mediaAttachments.forEach((media, i) => {
+                if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
+                    console.warn(`Repairing broken media attachment in toot:`, toot);
+                    media.type = helpers_1.IMAGE;
+                }
+                else if (!helpers_1.MEDIA_TYPES.includes(media.type)) {
+                    console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
+                }
+            });
+        });
+    }
     // TODO: is this ever used?
     list() {
         return new Paginator_1.default(this.feed);
@@ -288,20 +317,6 @@ class TheAlgorithm {
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog)
             toot.reblog.scoreInfo = toot.scoreInfo;
-    }
-    // Compute language and application counts. Set toot.language to Enlgish if missing.
-    extractSummaryInfo() {
-        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= ENGLISH_CODE; // Default to English
-            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
-            return langCounts;
-        }, {});
-        this.appCounts = this.feed.reduce((counts, toot) => {
-            toot.application ??= { name: UNKNOWN_APP };
-            const app = toot.application?.name || UNKNOWN_APP;
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {});
     }
     isFiltered(toot) {
         const apps = this.filters.filteredApps;
