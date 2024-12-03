@@ -274,7 +274,7 @@ class TheAlgorithm {
 
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
                 for (const toot of self.feed) {
-                    await self._decorateWithScoreInfo(toot);
+                    await self.decorateWithScoreInfo(toot);
                 }
 
                 console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
@@ -340,8 +340,8 @@ class TheAlgorithm {
     }
 
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-    private async _decorateWithScoreInfo(toot: Toot): Promise<Toot> {
-        // console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+    private async decorateWithScoreInfo(toot: Toot): Promise<Toot> {
+        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
 

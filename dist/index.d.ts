@@ -37,7 +37,7 @@ declare class TheAlgorithm {
     private scoreFeed;
     private setDefaultWeights;
     private isFiltered;
-    private _decorateWithScoreInfo;
+    private decorateWithScoreInfo;
     private shouldReloadFeed;
 }
 export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, MastodonApiCache, ScoresType, TheAlgorithm, Toot, };

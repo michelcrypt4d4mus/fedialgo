@@ -234,7 +234,7 @@ class TheAlgorithm {
                 await Promise.all(self.feedScorers.map(scorer => scorer.setFeed(self.feed)));
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
                 for (const toot of self.feed) {
-                    await self._decorateWithScoreInfo(toot);
+                    await self.decorateWithScoreInfo(toot);
                 }
                 console.debug(`scoreFeed() [${threadID}] call completed successfully...`);
             }
@@ -272,6 +272,7 @@ class TheAlgorithm {
         }
     }
     isFiltered(toot) {
+        const languages = this.filters.filteredLanguages;
         const tootLanguage = toot.language || NO_LANGUAGE;
         if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
@@ -280,8 +281,8 @@ class TheAlgorithm {
             console.debug(`Removing reblogged status ${toot.uri} from feed...`);
             return false;
         }
-        else if (this.filters.filteredLanguages.length > 0 && !this.filters.filteredLanguages.includes(tootLanguage)) {
-            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, this.filters.filteredLanguages);
+        else if (languages.length > 0 && !languages.includes(tootLanguage)) {
+            console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
             return false;
         }
         else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
@@ -299,8 +300,8 @@ class TheAlgorithm {
         return true;
     }
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-    async _decorateWithScoreInfo(toot) {
-        // console.debug(`_decorateWithScoreInfo ${describeToot(toot)}: `, toot);
+    async decorateWithScoreInfo(toot) {
+        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
         const userWeights = await this.getUserWeights();
         const rawScores = {};
