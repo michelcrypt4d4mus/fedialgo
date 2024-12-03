@@ -342,12 +342,12 @@ class TheAlgorithm {
     // Add scores including weighted & unweighted components to the Toot for debugging/inspection
     private async decorateWithScoreInfo(toot: Toot): Promise<Toot> {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
-        const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
-        const userWeights = await this.getUserWeights();
-
+        let rawScore = 1;
         const rawScores = {} as ScoresType;
         const weightedScores = {} as ScoresType;
-        let rawScore = 1;
+
+        const userWeights = await this.getUserWeights();
+        const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
