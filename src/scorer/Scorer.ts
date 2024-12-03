@@ -34,7 +34,7 @@ export default class Scorer {
         };
     }
 
-    private checkIsReady() {
+    private checkIsReady(): void {
         if (!this._isReady) {
             const msg = `${this.name} scorer not ready!`;
             console.warn(msg);

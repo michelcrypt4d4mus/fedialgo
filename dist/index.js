@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.TIME_DECAY = exports.NO_LANGUAGE = void 0;
+exports.TheAlgorithm = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
@@ -37,8 +37,6 @@ const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 const ENGLISH_CODE = 'en';
-const NO_LANGUAGE = '[not specified]';
-exports.NO_LANGUAGE = NO_LANGUAGE;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
@@ -156,6 +154,7 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
+    // TODO: is this ever used?
     list() {
         return new Paginator_1.default(this.feed);
     }
@@ -258,7 +257,7 @@ class TheAlgorithm {
     }
     isFiltered(toot) {
         const languages = this.filters.filteredLanguages;
-        const tootLanguage = toot.language || NO_LANGUAGE;
+        const tootLanguage = toot.language || ENGLISH_CODE;
         if (languages.length > 0) {
             if (!languages.includes(tootLanguage)) {
                 console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);

@@ -29,7 +29,7 @@ export default class FeatureScorer extends Scorer {
         this.featureGetter = params.featureGetter || (async () => { return {} });
     }
 
-    async getFeature(api: mastodon.rest.Client) {
+    async getFeature(api: mastodon.rest.Client): Promise<void> {
         this.feature = await this.featureGetter(api);
         this._isReady = true;
     }

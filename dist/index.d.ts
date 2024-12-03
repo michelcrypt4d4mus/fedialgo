@@ -4,7 +4,6 @@ import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import { AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer } from "./scorer";
-declare const NO_LANGUAGE = "[not specified]";
 declare const TIME_DECAY = "TimeDecay";
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -36,4 +35,4 @@ declare class TheAlgorithm {
     private decorateWithScoreInfo;
     private shouldReloadFeed;
 }
-export { NO_LANGUAGE, TIME_DECAY, FeedFilterSettings, StringNumberDict, TheAlgorithm, Toot, };
+export { TIME_DECAY, FeedFilterSettings, StringNumberDict, TheAlgorithm, Toot, };

@@ -37,7 +37,6 @@ import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const ENGLISH_CODE = 'en';
-const NO_LANGUAGE = '[not specified]';
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
@@ -179,6 +178,7 @@ class TheAlgorithm {
         return filteredFeed;
     }
 
+    // TODO: is this ever used?
     list(): Paginator {
         return new Paginator(this.feed);
     }
@@ -301,7 +301,7 @@ class TheAlgorithm {
 
     private isFiltered(toot: Toot): boolean {
         const languages = this.filters.filteredLanguages;
-        const tootLanguage = toot.language || NO_LANGUAGE;
+        const tootLanguage = toot.language || ENGLISH_CODE;
 
         if (languages.length > 0) {
             if (!languages.includes(tootLanguage)) {
@@ -412,7 +412,6 @@ const isValidForFeed = (toot: Toot): boolean => {
 
 
 export {
-    NO_LANGUAGE,
     TIME_DECAY,
     FeedFilterSettings,
     StringNumberDict,
