@@ -25,10 +25,10 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]>;
     getUserWeights(): Promise<StringNumberDict>;
     filteredFeed(): Toot[];
-    list(): Paginator;
     mostRecentTootAt(): Date;
     logFeedInfo(): void;
     learnWeights(tootScores: StringNumberDict, step?: number): Promise<StringNumberDict | undefined>;
+    list(): Paginator;
     private scoreFeed;
     private setDefaultWeights;
     private isFiltered;

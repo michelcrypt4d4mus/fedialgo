@@ -132,14 +132,12 @@ class TheAlgorithm {
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {});
-        // return await this.scoreFeed(this);
         return this.scoreFeed.bind(this)();
     }
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage_1.default.setWeightings(userWeights);
-        // return await this.scoreFeed(this);
         return this.scoreFeed.bind(this)();
     }
     async updateFilters(newFilters) {
@@ -158,10 +156,6 @@ class TheAlgorithm {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
-    }
-    // TODO: is this ever used?
-    list() {
-        return new Paginator_1.default(this.feed);
     }
     // Find the most recent toot in the feed
     mostRecentTootAt() {
@@ -210,6 +204,10 @@ class TheAlgorithm {
         }
         await this.updateUserWeights(newTootScores);
         return newTootScores;
+    }
+    // TODO: is this ever used?
+    list() {
+        return new Paginator_1.default(this.feed);
     }
     async scoreFeed() {
         const threadID = (0, helpers_1.createRandomString)(5);

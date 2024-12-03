@@ -154,7 +154,6 @@ class TheAlgorithm {
             return langCounts;
         }, {} as StringNumberDict);
 
-        // return await this.scoreFeed(this);
         return this.scoreFeed.bind(this)();
     }
 
@@ -162,7 +161,6 @@ class TheAlgorithm {
     async updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
-        // return await this.scoreFeed(this);
         return this.scoreFeed.bind(this)();
     }
 
@@ -183,11 +181,6 @@ class TheAlgorithm {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
-    }
-
-    // TODO: is this ever used?
-    list(): Paginator {
-        return new Paginator(this.feed);
     }
 
     // Find the most recent toot in the feed
@@ -249,6 +242,11 @@ class TheAlgorithm {
 
         await this.updateUserWeights(newTootScores);
         return newTootScores;
+    }
+
+    // TODO: is this ever used?
+    list(): Paginator {
+        return new Paginator(this.feed);
     }
 
     private async scoreFeed(): Promise<Toot[]> {
