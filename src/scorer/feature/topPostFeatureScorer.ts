@@ -6,7 +6,7 @@ import FeatureScorer from '../FeatureScorer';
 import { Toot } from "../../types";
 
 export const TRENDING_TOOTS = "TrendingToots";
-export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.1;
+export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 
 
 // TODO: rename TrendingTootFeatureScorer
