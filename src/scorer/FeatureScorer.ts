@@ -7,13 +7,13 @@
 import { mastodon } from "masto";
 
 import Scorer from "./Scorer";
-import { AccountFeature, TagFeature } from "../types";
+import { AccountFeature, ScoresType } from "../types";
 
 
 interface RankParams {
     description: string,
     defaultWeight?: number,
-    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature | TagFeature>,
+    featureGetter?: (api: mastodon.rest.Client) => Promise<AccountFeature | ScoresType>,
     scoreName: string,
 };
 
@@ -21,8 +21,8 @@ interface RankParams {
 export default class FeatureScorer extends Scorer {
     // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
     // e.g. things like most commonly retooted users etc.
-    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature | TagFeature>;
-    feature: AccountFeature | TagFeature = {};
+    featureGetter: (api: mastodon.rest.Client) => Promise<AccountFeature | ScoresType>;
+    feature: AccountFeature | ScoresType = {};
 
     constructor(params: RankParams) {
         super(params.scoreName, params.description, params.defaultWeight);

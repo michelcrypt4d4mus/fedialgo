@@ -17,9 +17,6 @@ export type ServerFeature = {
 export type TootURIs = {
     [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
-export type TagFeature = {
-    [key: string]: number;
-};
 export type TootScore = {
     rawScore: number;
     rawScores: ScoresType;
@@ -55,4 +52,4 @@ export type ScorerDict = {
     [key: string]: ScorerInfo;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | FeedFilterSettings | ScoresType | ServerFeature | TagFeature | TootURIs | Toot[] | mastodon.v1.Account | string;
+export type StorageValue = AccountFeature | FeedFilterSettings | ScoresType | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | string;

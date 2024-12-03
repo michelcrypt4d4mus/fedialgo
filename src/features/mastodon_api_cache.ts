@@ -11,7 +11,7 @@ import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import repliedFeature from "./replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, ScoresType, ServerFeature, TagFeature, TootURIs } from "../types";
+import { AccountFeature, ScoresType, ServerFeature, TootURIs } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -105,8 +105,8 @@ export default class MastodonApiCache extends Storage {
         return topInteracts;
     }
 
-    static async getFollowedTags(api: mastodon.rest.Client): Promise<TagFeature> {
-        let followedTags: TagFeature = await this.get(Key.FOLLOWED_TAGS) as TagFeature;
+    static async getFollowedTags(api: mastodon.rest.Client): Promise<ScoresType> {
+        let followedTags: ScoresType = await this.get(Key.FOLLOWED_TAGS) as ScoresType;
 
         if (followedTags != null && !this.shouldReloadFeatures()) {
             console.log("[MastodonApiCache] Loaded followed tags from storage");
