@@ -13,6 +13,8 @@ export interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;
 };
 
+export type FeedFeature = AccountFeature | StringNumberDict;
+
 export type FeedFilterSettings = {
     filteredLanguages: string[];
     includeFollowedAccounts: boolean;

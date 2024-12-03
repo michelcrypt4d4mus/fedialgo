@@ -8,6 +8,7 @@ export interface AlgorithmArgs {
     user: mastodon.v1.Account;
     setFeedInApp?: (feed: Toot[]) => void;
 }
+export type FeedFeature = AccountFeature | StringNumberDict;
 export type FeedFilterSettings = {
     filteredLanguages: string[];
     includeFollowedAccounts: boolean;
