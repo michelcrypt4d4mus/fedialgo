@@ -39,11 +39,11 @@ import { condensedStatus, createRandomString, describeToot } from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
+const NO_LANGUAGE = '[not specified]';
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
 
-const NO_LANGUAGE = '[not specified]';
 const TIME_DECAY = 'TimeDecay';
 const TIME_DECAY_DEFAULT = 0.05;
 
@@ -107,13 +107,7 @@ class TheAlgorithm {
         {[TIME_DECAY]: TIME_DECAY_INFO} as ScorerDescriptions
     );
 
-    private constructor(params: AlgorithmArgs) {
-        this.api = params.api;
-        this.user = params.user;
-        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
-        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
-    }
-
+    // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         const algo = new TheAlgorithm(params);
@@ -125,6 +119,13 @@ class TheAlgorithm {
         console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
+    }
+
+    private constructor(params: AlgorithmArgs) {
+        this.api = params.api;
+        this.user = params.user;
+        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
+        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
     }
 
     // Fetch toots for the timeline from accounts the user follows as well as trending toots in
@@ -224,9 +225,9 @@ class TheAlgorithm {
         return newTootScores;
     }
 
+    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed(): Toot[] {
         const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
-        console.log(`setFeedInApp() called in filteredFeed() with ${filteredFeed.length} toots...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }

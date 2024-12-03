@@ -23,8 +23,8 @@ declare class TheAlgorithm {
     feedScoreNames: string[];
     weightedScoreNames: string[];
     scorersDict: ScorerDescriptions;
-    private constructor();
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
+    private constructor();
     getFeed(): Promise<Toot[]>;
     updateUserWeights(userWeights: ScoresType): Promise<Toot[]>;
     updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]>;
