@@ -9,7 +9,7 @@ const MAX_PAGES = 12;
 const MAX_TIMELINE_HOURS = 96;
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;
 const LAST_OPENED_LOOKBACK_MS = 60 * 1000; // Lookback an extra minute beyond last opened time just in case
-async function getHomeFeed(api, _user) {
+async function getHomeFeed(api) {
     let toots = [];
     let pageNumber = 0;
     // We should already have toots cached up until the last time this app was opened so we

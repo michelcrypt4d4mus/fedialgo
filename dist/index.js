@@ -110,7 +110,7 @@ class TheAlgorithm {
         console.debug(`getFeed() called in fedialgo package...`);
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
-            ...this.fetchers.map(fetcher => fetcher(this.api, this.user)),
+            ...this.fetchers.map(fetcher => fetcher(this.api)),
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
         console.log(`got allResponses: `, allResponses);
@@ -314,7 +314,7 @@ class TheAlgorithm {
             return false;
         }
         if (toot.account.username == user.username && toot.account.id == user.id) {
-            console.debug(`Removing user's own toot from feed: `, toot);
+            // console.debug(`Removing user's own toot from feed: `, toot);
             return false;
         }
         return true;
