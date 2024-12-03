@@ -98,7 +98,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        algo.extractSummaryInfo();
+        algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -122,13 +122,8 @@ class TheAlgorithm {
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
-        // Compute average trendingRank and remove dupes by uniquifying on the URI
-        scorer_1.TopPostFeatureScorer.setTrendingRankToAvg(cleanFeed);
-        const numValid = cleanFeed.length;
-        cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
-        console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);
-        this.feed = cleanFeed;
-        this.extractSummaryInfo();
+        this.feed = (0, helpers_1.dedupeToots)(cleanFeed, "getFeed");
+        this.repairFeedAndExtractSummaryInfo();
         return this.scoreFeed.bind(this)();
     }
     // Update user weightings and rescore / resort the feed.
@@ -198,10 +193,10 @@ class TheAlgorithm {
         await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
-    // Compute language and application counts. Repair toots:
+    // Compute language and application counts. Repair broken toots:
     //   - Set toot.language to English if missing.
     //   - Set media type to "image" if appropriate
-    extractSummaryInfo() {
+    repairFeedAndExtractSummaryInfo() {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
             toot.language ??= ENGLISH_CODE; // Default to English
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;

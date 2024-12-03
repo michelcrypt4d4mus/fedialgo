@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -186,5 +186,14 @@ function isImage(uri) {
     return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 }
 exports.isImage = isImage;
+;
+// Remove dupes by uniquifying on the toot's URI
+function dedupeToots(toots, logLabel = undefined) {
+    const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
+    const prefix = logLabel ? `[${logLabel}] ` : '';
+    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+    return deduped;
+}
+exports.dedupeToots = dedupeToots;
 ;
 //# sourceMappingURL=helpers.js.map

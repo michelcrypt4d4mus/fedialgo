@@ -214,3 +214,12 @@ export function isImage(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 };
+
+
+// Remove dupes by uniquifying on the toot's URI
+export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
+    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
+    const prefix = logLabel ? `[${logLabel}] ` : '';
+    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+    return deduped
+};

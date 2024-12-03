@@ -32,7 +32,7 @@ import {
     TopPostFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { IMAGE, MEDIA_TYPES, condensedStatus, createRandomString, describeToot, isImage } from "./helpers";
+import { IMAGE, MEDIA_TYPES, condensedStatus, createRandomString, dedupeToots, describeToot, isImage } from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
@@ -112,7 +112,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
-        algo.extractSummaryInfo()
+        algo.repairFeedAndExtractSummaryInfo()
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -142,14 +142,8 @@ class TheAlgorithm {
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
-        // Compute average trendingRank and remove dupes by uniquifying on the URI
-        TopPostFeatureScorer.setTrendingRankToAvg(cleanFeed);
-        const numValid = cleanFeed.length;
-        cleanFeed = [...new Map(cleanFeed.map((toot: Toot) => [toot.uri, toot])).values()];
-        console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);
-        this.feed = cleanFeed;
-        this.extractSummaryInfo();
-
+        this.feed = dedupeToots(cleanFeed, "getFeed");
+        this.repairFeedAndExtractSummaryInfo();
         return this.scoreFeed.bind(this)();
     }
 
@@ -233,10 +227,10 @@ class TheAlgorithm {
         return newTootScores;
     }
 
-    // Compute language and application counts. Repair toots:
+    // Compute language and application counts. Repair broken toots:
     //   - Set toot.language to English if missing.
     //   - Set media type to "image" if appropriate
-    extractSummaryInfo(): void {
+    repairFeedAndExtractSummaryInfo(): void {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
             toot.language ??= ENGLISH_CODE;  // Default to English
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;

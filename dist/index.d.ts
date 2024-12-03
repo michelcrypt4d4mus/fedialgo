@@ -29,7 +29,7 @@ declare class TheAlgorithm {
     mostRecentTootAt(): Date;
     logFeedInfo(prefix?: string): void;
     learnWeights(tootScores: StringNumberDict, step?: number): Promise<StringNumberDict | undefined>;
-    extractSummaryInfo(): void;
+    repairFeedAndExtractSummaryInfo(): void;
     list(): Paginator;
     private setDefaultWeights;
     private scoreFeed;

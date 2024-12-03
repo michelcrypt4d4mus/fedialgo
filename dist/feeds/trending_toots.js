@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
-const helpers_2 = require("../helpers");
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
@@ -22,8 +21,8 @@ async function getTrendingToots(api) {
     }
     console.log(`Found top mastodon servers: `, topServerDomains);
     // Pull top trending toots from each server
-    const trendingToots = await Promise.all(topServerDomains.map(async (server) => {
-        let serverTopToots = await (0, helpers_2.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
+    let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
+        let serverTopToots = await (0, helpers_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
         if (!serverTopToots || serverTopToots.length == 0) {
             console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
             return [];
@@ -43,11 +42,36 @@ async function getTrendingToots(api) {
             toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
             return toot;
         });
-        console.log(`topToots for server '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
+        console.debug(`trendingToots for '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
         return serverTopToots;
     }));
-    return trendingToots.flat();
+    const trendingToots = (0, helpers_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    console.log(`[getTrendingToots] trendingToots:`, trendingToots);
+    return trendingToots;
 }
 exports.default = getTrendingToots;
+;
+// A toot can trend on multiple servers, in which case we want to compute the
+// average trendingRank and update the toots accordingly.
+// TODO: maybe we should add all the trendingRanks together? Or maybe add the # of servers to the avg?
+function setTrendingRankToAvg(rankedToots) {
+    const tootsTrendingOnMultipleServers = rankedToots.reduce((acc, toot) => {
+        if (!toot.trendingRank)
+            return acc;
+        acc[toot.uri] ||= [];
+        acc[toot.uri].push(toot);
+        return acc;
+    }, {});
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([uri, toots]) => {
+        if (toots.length <= 1)
+            return;
+        const trendingRanks = toots.map(t => t.trendingRank);
+        const avgScore = (0, helpers_1.average)(trendingRanks);
+        const msg = `Found ${toots.length} of ${uri} (trendingRanks: ${trendingRanks}, avg: ${avgScore}).`;
+        console.debug(`${msg} First toot:`, toots[0]);
+        toots.forEach(toot => toot.trendingRank = avgScore);
+    });
+    return rankedToots;
+}
 ;
 //# sourceMappingURL=trending_toots.js.map

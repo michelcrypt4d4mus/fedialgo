@@ -106,9 +106,7 @@ There's a pre-commit git hook that runs `npm run build`.
 
 
 # TODO
-1. Add scorers for:
-   * number (and size?) of `mediaAttachments`
-   * movies vs. images
+1. Pull popular toots from the trending tags instead of just from server's appointed trending toots
 
 
 # Resources
