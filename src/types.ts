@@ -1,35 +1,45 @@
 import { mastodon } from 'masto';
+
 import Scorer from './scorer/Scorer';
 
+
+export type AccountFeature = {
+    [key: mastodon.v1.Account["acct"]]: number;
+};
 
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     setFeedInApp?: (feed: Toot[]) => void;
-}
-
-export interface StringNumberDict {
-    [key: string]: number;
 };
 
-export type AccountFeature = {
-    [key: mastodon.v1.Account["acct"]]: number;
+export type FeedFilterSettings = {
+    filteredLanguages: string[];
+    includeFollowedHashtags: boolean;
+    includeFollowedAccounts: boolean;
+    includeReposts: boolean;
+    includeReplies: boolean;
+    includeTrendingToots: boolean;
+    onlyLinks: boolean;
+    weightLearningEnabled: boolean;  // TODO: this isn't a filter
+};
+
+export type ScorerDict = {
+    [key: string]: ScorerInfo;
+};
+
+export type ScorerInfo = {
+    defaultWeight: number;
+    description: string;
+    scorer?: Scorer;
 };
 
 export type ServerFeature = {
     [key: mastodon.v1.Instance["uri"]]: number;
 };
 
-export type TootURIs = {
-    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
-};
-
-export type TootScore = {
-    rawScore: number;  // Score before applying timeDecayMultiplier
-    rawScores: StringNumberDict;
-    score: number;
-    timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
-    weightedScores: StringNumberDict;
+export interface StringNumberDict {
+    [key: string]: number;
 };
 
 export interface Toot extends mastodon.v1.Status {
@@ -42,25 +52,16 @@ export interface Toot extends mastodon.v1.Status {
     trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
 };
 
-export type FeedFilterSettings = {
-    filteredLanguages: string[];
-    includeFollowedHashtags: boolean;
-    includeFollowedAccounts: boolean;
-    includeReposts: boolean;
-    includeReplies: boolean;
-    includeTrendingToots: boolean;
-    onlyLinks: boolean;
-    weightLearningEnabled: boolean;
+export type TootScore = {
+    rawScore: number;  // Score before applying timeDecayMultiplier
+    rawScores: StringNumberDict;
+    score: number;
+    timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
+    weightedScores: StringNumberDict;
 };
 
-export type ScorerInfo = {
-    defaultWeight: number;
-    description: string;
-    scorer?: Scorer,
-};
-
-export type ScorerDict = {
-    [key: string]: ScorerInfo;
+export type TootURIs = {
+    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

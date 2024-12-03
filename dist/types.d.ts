@@ -1,37 +1,12 @@
 import { mastodon } from 'masto';
 import Scorer from './scorer/Scorer';
+export type AccountFeature = {
+    [key: mastodon.v1.Account["acct"]]: number;
+};
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     setFeedInApp?: (feed: Toot[]) => void;
-}
-export interface StringNumberDict {
-    [key: string]: number;
-}
-export type AccountFeature = {
-    [key: mastodon.v1.Account["acct"]]: number;
-};
-export type ServerFeature = {
-    [key: mastodon.v1.Instance["uri"]]: number;
-};
-export type TootURIs = {
-    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
-};
-export type TootScore = {
-    rawScore: number;
-    rawScores: StringNumberDict;
-    score: number;
-    timeDecayMultiplier: number;
-    weightedScores: StringNumberDict;
-};
-export interface Toot extends mastodon.v1.Status {
-    followedTags?: mastodon.v1.Tag[];
-    reblog?: Toot;
-    reblogBy?: mastodon.v1.Account;
-    recommended?: boolean;
-    scoreInfo?: TootScore;
-    similarity?: number;
-    trendingRank?: number;
 }
 export type FeedFilterSettings = {
     filteredLanguages: string[];
@@ -43,13 +18,38 @@ export type FeedFilterSettings = {
     onlyLinks: boolean;
     weightLearningEnabled: boolean;
 };
+export type ScorerDict = {
+    [key: string]: ScorerInfo;
+};
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;
     scorer?: Scorer;
 };
-export type ScorerDict = {
-    [key: string]: ScorerInfo;
+export type ServerFeature = {
+    [key: mastodon.v1.Instance["uri"]]: number;
+};
+export interface StringNumberDict {
+    [key: string]: number;
+}
+export interface Toot extends mastodon.v1.Status {
+    followedTags?: mastodon.v1.Tag[];
+    reblog?: Toot;
+    reblogBy?: mastodon.v1.Account;
+    recommended?: boolean;
+    scoreInfo?: TootScore;
+    similarity?: number;
+    trendingRank?: number;
+}
+export type TootScore = {
+    rawScore: number;
+    rawScores: StringNumberDict;
+    score: number;
+    timeDecayMultiplier: number;
+    weightedScores: StringNumberDict;
+};
+export type TootURIs = {
+    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | string;
