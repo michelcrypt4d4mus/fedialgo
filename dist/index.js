@@ -31,7 +31,7 @@ const async_mutex_1 = require("async-mutex");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importStar(require("./Storage"));
-const topPostsFeed_1 = __importDefault(require("./feeds/topPostsFeed"));
+const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
@@ -59,7 +59,7 @@ class TheAlgorithm {
     setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`); // Optional callback to set the feed in enclosing app
     fetchers = [
         homeFeed_1.default,
-        topPostsFeed_1.default
+        trending_toots_1.default
     ];
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [

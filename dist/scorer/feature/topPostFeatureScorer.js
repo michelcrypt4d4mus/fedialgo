@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = exports.TRENDING_TOOTS = void 0;
 /*
- * Just pulls the trendingRank, which is set by topPostsFeed(), from the toot and uses
+ * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
 const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));

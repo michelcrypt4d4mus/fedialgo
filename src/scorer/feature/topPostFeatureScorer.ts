@@ -1,5 +1,5 @@
 /*
- * Just pulls the trendingRank, which is set by topPostsFeed(), from the toot and uses
+ * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
 import FeatureScorer from '../FeatureScorer';

@@ -7,7 +7,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
-import topPostsFeed from "./feeds/topPostsFeed";
+import getTrendingToots from "./feeds/trending_toots";
 import {
     AlgorithmArgs,
     FeedFilterSettings,
@@ -64,7 +64,7 @@ class TheAlgorithm {
 
     fetchers = [
         getHomeFeed,
-        topPostsFeed
+        getTrendingToots
     ];
 
     // These can score a toot without knowing about the rest of the toots in the feed

@@ -17,7 +17,7 @@ const NUM_TRENDING_TOOTS_PER_SERVER = 20;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
-export default async function topPostsFeed(api: mastodon.rest.Client): Promise<Toot[]> {
+export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     const coreServers = await MastodonApiCache.getCoreServer(api);
 
     // Get list of top mastodon servers // TODO: what does "top" mean here?
@@ -26,7 +26,7 @@ export default async function topPostsFeed(api: mastodon.rest.Client): Promise<T
                                    .sort((a, b) => (coreServers[b] - coreServers[a]));  // TODO: wtf is this comparison?
 
     if (topServerDomains.length == 0) {
-        console.warn("No mastodon servers found to get topPostsFeed data from!");
+        console.warn("No mastodon servers found to get getTrendingToots data from!");
         return [];
     }
 
