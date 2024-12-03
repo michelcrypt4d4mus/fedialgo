@@ -16,6 +16,7 @@ export type FeedFilterSettings = {
     includeFollowedHashtags: boolean;
     includeReplies: boolean;
     includeReposts: boolean;
+    includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
     weightLearningEnabled: boolean;

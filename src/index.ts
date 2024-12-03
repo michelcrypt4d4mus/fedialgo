@@ -399,6 +399,8 @@ class TheAlgorithm {
             return false;
         } else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
             return false;
+        } else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
+            return false;
         }
 
         return true;
