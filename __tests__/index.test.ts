@@ -22,7 +22,7 @@ describe('TheAlgorithm', () => {
             url: process.env.MASTODON_URL as string,
         })
         const user = await api.v1.accounts.verifyCredentials();
-        algo = await TheAlgorithm.create(api, user);
+        algo = await TheAlgorithm.create({api: api, user: user});
     })
 
     it('should set Identity, LastOpened, Openings and default Weights', async () => {

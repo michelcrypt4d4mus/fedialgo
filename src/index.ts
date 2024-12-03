@@ -4,6 +4,20 @@
 import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
 
+import getHomeFeed from "./feeds/homeFeed";
+import MastodonApiCache from "./features/mastodon_api_cache";
+import Paginator from "./Paginator";
+import Storage, { DEFAULT_FILTERS } from "./Storage";
+import topPostsFeed from "./feeds/topPostsFeed";
+import {
+    AlgorithmArgs,
+    Description,
+    FeedFilterSettings,
+    ScorerDescriptions,
+    ScoresType,
+    Toot,
+    TootScore
+} from "./types";
 import {
     ChaosFeatureScorer,
     DiversityFeedScorer,
@@ -22,13 +36,7 @@ import {
     VideoAttachmentScorer,
 } from "./scorer";
 import { condensedStatus, createRandomString, describeToot } from "./helpers";
-import { AlgorithmArgs, Description, FeedFilterSettings, ScorerDescriptions, ScoresType, Toot, TootScore } from "./types";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
-import MastodonApiCache from "./features/mastodon_api_cache";
-import getHomeFeed from "./feeds/homeFeed";
-import Paginator from "./Paginator";
-import Storage, { DEFAULT_FILTERS } from "./Storage";
-import topPostsFeed from "./feeds/topPostsFeed";
 //import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const NO_LANGUAGE = '[not specified]';
