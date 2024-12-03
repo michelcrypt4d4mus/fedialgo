@@ -10,7 +10,7 @@ export type AccountFeature = {
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;
+    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
 export type FeedFeature = AccountFeature | StringNumberDict;

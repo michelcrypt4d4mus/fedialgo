@@ -60,7 +60,8 @@ class TheAlgorithm {
     feed: Toot[] = [];
     feedLanguages: StringNumberDict = {};
     scoreMutex = new Mutex();
-    setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);  // Optional callback to set the feed in enclosing app
+    // Optional callback to set the feed in the code using this package
+    setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);
 
     fetchers = [
         getHomeFeed,
@@ -131,9 +132,8 @@ class TheAlgorithm {
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
 
-        console.debug(`got allResponses: `, allResponses);
         this.feed = allResponses.flat();
-        console.log(`Found ${this.feed.length} potential toots for feed.`);
+        console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);
 
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
@@ -152,7 +152,7 @@ class TheAlgorithm {
         Object.values(multiToots).filter(toots => toots.length > 1).forEach((toots) => {
             const trendingRanks = toots.map(toot => toot.trendingRank).filter(t => typeof t === 'number') as number[];
             const avgTrendingRank = average(trendingRanks);
-            console.log(`${toots[0].uri} has ${toots.length} copies (ranks: ${trendingRanks}, avg: ${avgTrendingRank}). First toot:`, toots[0]);
+            console.debug(`${toots[0].uri} has ${toots.length} copies (ranks: ${trendingRanks}, avg: ${avgTrendingRank}). First toot:`, toots[0]);
             toots.forEach(toot => toot.trendingRank = avgTrendingRank);
         });
 
