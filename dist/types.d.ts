@@ -42,6 +42,7 @@ export interface Toot extends mastodon.v1.Status {
     scoreInfo?: TootScore;
     similarity?: number;
     trendingRank?: number;
+    trendingTags?: TrendingTag[];
 }
 export type TootScore = {
     rawScore: number;

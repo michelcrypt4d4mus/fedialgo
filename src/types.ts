@@ -53,6 +53,7 @@ export interface Toot extends mastodon.v1.Status {
     scoreInfo?: TootScore;
     similarity?: number;
     trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TrendingTag[];  // Tags that are trending in this toot
 };
 
 export type TootScore = {

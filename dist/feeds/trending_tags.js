@@ -12,6 +12,42 @@ const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 const NUM_TRENDING_TAGS = 15;
+async function getRecentTootsForTrendingTags(api) {
+    const tags = await getTrendingTags(api);
+    const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
+    let toots = tootses.flat();
+    toots = (0, helpers_1.dedupeToots)(toots);
+    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
+    return toots;
+}
+exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
+;
+async function getTootsForTag(api, tag) {
+    try {
+        console.debug(`[TrendingTags] getting toots for tag:`, tag);
+        const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
+        const toots = searchResult.statuses;
+        toots.forEach((toot) => {
+            if (!toot.trendingTags)
+                toot.trendingTags = [];
+            toot.trendingTags.push(tag);
+            if ((tag.numAccounts || 0) > Math.E) {
+                toot.trendingRank = Math.log((tag.numAccounts || Math.E));
+            }
+            else {
+                toot.trendingRank = tag.numAccounts || 0;
+            }
+            console.debug(`[TrendingTags] set toot.trendingRank to ${toot.trendingRank.toFixed(4)}:`, toot);
+        });
+        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    }
+    catch (e) {
+        console.warn(`[TrendingTags] Failed to get toots for tag '${tag.name}':`, e);
+        return [];
+    }
+}
+;
 async function getTrendingTags(api) {
     console.log(`[TrendingTags] getTrendingTags() called`);
     const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);
@@ -49,21 +85,6 @@ async function getTrendingTags(api) {
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
 }
 exports.default = getTrendingTags;
-;
-async function getRecentTootsForTrendingTags(api, tags) {
-    console.log(`[TrendingTags] getRecentTootsForTrendingTags() called with tags:`, tags);
-    let toots = [];
-    tags.forEach(async (tag) => {
-        console.log(`[TrendingTags] getting toots for tag:`, tag);
-        const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
-        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, searchResult.statuses);
-        toots = toots.concat(searchResult.statuses);
-    });
-    toots = (0, helpers_1.dedupeToots)(toots);
-    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
-    return toots;
-}
-exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;
 // Inject toot and account counts (how many toots and users are using the trending tag)
 function decorateTagData(tag) {

@@ -34,6 +34,44 @@ const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 const NUM_TRENDING_TAGS = 15;
 
 
+export async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
+    const tags = await getTrendingTags(api);
+    const tootses = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
+    let toots = tootses.flat();
+    toots = dedupeToots(toots);
+    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
+    return toots;
+};
+
+
+async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
+    try {
+        console.debug(`[TrendingTags] getting toots for tag:`, tag);
+        const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
+        const toots = searchResult.statuses as Toot[];
+
+        toots.forEach((toot) => {
+            if (!toot.trendingTags) toot.trendingTags = [];
+            toot.trendingTags.push(tag);
+
+            if ((tag.numAccounts || 0) > Math.E) {
+                toot.trendingRank = Math.log((tag.numAccounts || Math.E));
+            } else {
+                toot.trendingRank = tag.numAccounts || 0;
+            }
+
+            console.debug(`[TrendingTags] set toot.trendingRank to ${toot.trendingRank.toFixed(4)}:`, toot);
+        });
+
+        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    } catch (e) {
+        console.warn(`[TrendingTags] Failed to get toots for tag '${tag.name}':`, e);
+        return [];
+    }
+};
+
+
 export default async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`[TrendingTags] getTrendingTags() called`)
     const coreServers = await MastodonApiCache.getCoreServer(api);
@@ -80,23 +118,6 @@ export default async function getTrendingTags(api: mastodon.rest.Client): Promis
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`[TrendingTags] Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
-};
-
-
-export async function getRecentTootsForTrendingTags(api: mastodon.rest.Client, tags: TrendingTag[]): Promise<Toot[]> {
-    console.log(`[TrendingTags] getRecentTootsForTrendingTags() called with tags:`, tags);
-    let toots: Toot[] = [];
-
-    tags.forEach(async (tag: TrendingTag) => {
-        console.log(`[TrendingTags] getting toots for tag:`, tag);
-        const searchResult = await api.v2.search.fetch({ q: tag.name, type: "statuses" });
-        console.log(`[TrendingTags] Found toots for tag '${tag.name}':`, searchResult.statuses);
-        toots = toots.concat(searchResult.statuses as Toot[]);
-    });
-
-    toots = dedupeToots(toots);
-    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
-    return toots;
 };
 
 

@@ -128,12 +128,10 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(): Promise<Toot[]> {
         console.debug(`getFeed() called in fedialgo package...`);
-        let trendingTags = [];
         let trendingTagToots = [];
 
         try {
-            trendingTags = await getTrendingTags(this.api);
-            trendingTagToots = await getRecentTootsForTrendingTags(this.api, trendingTags);
+            trendingTagToots = await getRecentTootsForTrendingTags(this.api);
         } catch (e) {
             console.warn(`getTrendingTags() failed: `, e);
         }
