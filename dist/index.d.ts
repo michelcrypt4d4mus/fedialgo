@@ -10,7 +10,8 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
     feed: Toot[];
-    feedLanguages: StringNumberDict;
+    feedLanguageCounts: StringNumberDict;
+    appCounts: StringNumberDict;
     scoreMutex: Mutex;
     setFeedInApp: (f: Toot[]) => void;
     fetchers: (typeof getHomeFeed)[];
@@ -32,6 +33,7 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private decorateWithScoreInfo;
+    private extractSummaryInfo;
     private isFiltered;
     private isValidForFeed;
     private shouldReloadFeed;

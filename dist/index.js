@@ -54,7 +54,8 @@ class TheAlgorithm {
     user;
     filters;
     feed = [];
-    feedLanguages = {};
+    feedLanguageCounts = {};
+    appCounts = {};
     scoreMutex = new async_mutex_1.Mutex();
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`);
@@ -120,32 +121,13 @@ class TheAlgorithm {
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
-        // A toot can trend on multiple servers, in which case we want to get the avg trendingRank
-        // TODO: maybe we should add all the trendingRanks together? Or maybe add the number of servers to the avg?
-        const multiToots = cleanFeed.reduce((acc, toot) => {
-            if (!toot.trendingRank)
-                return acc;
-            acc[toot.uri] ||= [];
-            acc[toot.uri].push(toot);
-            return acc;
-        }, {});
-        Object.values(multiToots).filter(toots => toots.length > 1).forEach((toots) => {
-            const trendingRanks = toots.map(toot => toot.trendingRank).filter(t => typeof t === 'number');
-            const avgTrendingRank = (0, helpers_1.average)(trendingRanks);
-            console.debug(`${toots[0].uri} has ${toots.length} copies (ranks: ${trendingRanks}, avg: ${avgTrendingRank}). First toot:`, toots[0]);
-            toots.forEach(toot => toot.trendingRank = avgTrendingRank);
-        });
-        // Remove dupes by uniquifying on the URI
+        // Compute average trendingRank and remove dupes by uniquifying on the URI
+        scorer_1.TopPostFeatureScorer.setTrendingRankToAvg(cleanFeed);
         const numValid = cleanFeed.length;
         cleanFeed = [...new Map(cleanFeed.map((toot) => [toot.uri, toot])).values()];
         console.log(`Removed ${numValid - cleanFeed.length} duplicate toots leaving ${cleanFeed.length}`);
         this.feed = cleanFeed;
-        // Get all the unique languages that show up in the feed (default to English)
-        this.feedLanguages = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= ENGLISH_CODE;
-            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
-            return langCounts;
-        }, {});
+        this.extractSummaryInfo();
         return this.scoreFeed.bind(this)();
     }
     // Update user weightings and rescore / resort the feed.
@@ -309,6 +291,19 @@ class TheAlgorithm {
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog)
             toot.reblog.scoreInfo = toot.scoreInfo;
+    }
+    // Compute language and application counts. Set toot.language to Enlgish if missing.
+    extractSummaryInfo() {
+        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
+            toot.language ??= ENGLISH_CODE; // Default to English
+            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
+            return langCounts;
+        }, {});
+        this.appCounts = this.feed.reduce((counts, toot) => {
+            const app = toot.application?.name || UNKNOWN_APP;
+            counts[app] = (counts[app] || 0) + 1;
+            return counts;
+        }, {});
     }
     isFiltered(toot) {
         const languages = this.filters.filteredLanguages;

@@ -5,4 +5,5 @@ export declare const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 export default class TopPostFeatureScorer extends FeatureScorer {
     constructor();
     _score(toot: Toot): Promise<number>;
+    static setTrendingRankToAvg(rankedToots: Toot[]): void;
 }
