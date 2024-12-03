@@ -18,6 +18,13 @@ class Scorer {
     async _score(_toot) {
         throw new Error("Method not implemented.");
     }
+    getInfo() {
+        return {
+            description: this.description,
+            defaultWeight: this.defaultWeight,
+            scorer: this,
+        };
+    }
     checkIsReady() {
         if (!this._isReady) {
             const msg = `${this.name} scorer not ready!`;

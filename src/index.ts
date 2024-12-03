@@ -95,14 +95,10 @@ class TheAlgorithm {
 
     scorersDict = this.weightedScorers.reduce(
         (descriptions, scorer) => {
-            descriptions[scorer.name] = {
-                defaultWeight: scorer.defaultWeight,
-                description: scorer.description,
-                scorer: scorer
-            };
+            descriptions[scorer.name] = scorer.getInfo();
             return descriptions;
         },
-        {[TIME_DECAY]: TIME_DECAY_INFO} as ScorerDict
+        {[TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO)} as ScorerDict
     );
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
@@ -112,9 +108,9 @@ class TheAlgorithm {
         await Storage.setIdentity(params.user);
         await Storage.logAppOpen();
         await algo.setDefaultWeights();
+
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
-        console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
     }

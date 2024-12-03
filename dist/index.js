@@ -87,13 +87,9 @@ class TheAlgorithm {
     feedScoreNames = this.feedScorers.map(scorer => scorer.name);
     weightedScoreNames = this.weightedScorers.map(scorer => scorer.name);
     scorersDict = this.weightedScorers.reduce((descriptions, scorer) => {
-        descriptions[scorer.name] = {
-            defaultWeight: scorer.defaultWeight,
-            description: scorer.description,
-            scorer: scorer
-        };
+        descriptions[scorer.name] = scorer.getInfo();
         return descriptions;
-    }, { [TIME_DECAY]: TIME_DECAY_INFO });
+    }, { [TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO) });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     // See: https://www.reddit.com/r/typescript/comments/1fnn38f/asynchronous_constructors_in_typescript/
     static async create(params) {
@@ -103,7 +99,6 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        console.log(`[algorithm.create()] Loaded ${algo.feed.length} toots from storage, calling setFeedInApp()...`);
         algo.setFeedInApp(algo.feed);
         return algo;
     }

@@ -1,7 +1,7 @@
 /*
  * Base class for Toot scorers.
  */
-import { Toot } from "../types";
+import { ScorerInfo, Toot } from "../types";
 
 
 export default class Scorer {
@@ -24,6 +24,14 @@ export default class Scorer {
     //* _score() should be overloaded in subclasses. *//
     async _score(_toot: Toot): Promise<number> {
         throw new Error("Method not implemented.");
+    }
+
+    getInfo(): ScorerInfo {
+        return {
+            description: this.description,
+            defaultWeight: this.defaultWeight,
+            scorer: this,
+        };
     }
 
     private checkIsReady() {

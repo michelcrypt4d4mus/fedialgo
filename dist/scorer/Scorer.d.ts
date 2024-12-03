@@ -1,4 +1,4 @@
-import { Toot } from "../types";
+import { ScorerInfo, Toot } from "../types";
 export default class Scorer {
     name: string;
     description: string;
@@ -7,5 +7,6 @@ export default class Scorer {
     constructor(name: string, description: string, defaultWeight?: number);
     score(toot: Toot): Promise<number>;
     _score(_toot: Toot): Promise<number>;
+    getInfo(): ScorerInfo;
     private checkIsReady;
 }
