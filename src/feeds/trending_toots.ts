@@ -5,14 +5,12 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../features/mastodon_api_cache";
-import Storage from "../Storage";
 import { condensedStatus } from "../helpers";
 import { mastodonFetch } from "../helpers";
 import { Toot } from "../types";
 
 const NUM_HOURS_BEFORE_REFRESH = 8;
 const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
-const NUM_SERVERS_TO_POLL = 20;
 const NUM_TRENDING_TOOTS_PER_SERVER = 20;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
@@ -20,10 +18,10 @@ const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     const coreServers = await MastodonApiCache.getCoreServer(api);
 
-    // Get list of top mastodon servers // TODO: what does "top" mean here?
+    // Count the number of followed users per server
     const topServerDomains = Object.keys(coreServers)
                                    .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-                                   .sort((a, b) => (coreServers[b] - coreServers[a]));  // TODO: wtf is this comparison?
+                                   .sort((a, b) => (coreServers[b] - coreServers[a]));
 
     if (topServerDomains.length == 0) {
         console.warn("No mastodon servers found to get getTrendingToots data from!");
@@ -55,7 +53,6 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
                                             }
 
                                             // Inject trendingRank score
-                                            // TODO: maybe should be placed in top.scores.trendingRank variable/
                                             toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
                                             return toot;
                                        });
@@ -64,6 +61,5 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
         return serverTopToots;
     }));
 
-    const lastOpenedAt = new Date((await Storage.getLastOpenedTimestamp() ?? 0) - NUM_MS_BEFORE_REFRESH);
-    return trendingToots.flat().filter((toot: Toot) => new Date(toot.createdAt) > lastOpenedAt);
+    return trendingToots.flat();
 };
