@@ -15,10 +15,10 @@ export interface AlgorithmArgs {
 
 export type FeedFilterSettings = {
     filteredLanguages: string[];
-    includeFollowedHashtags: boolean;
     includeFollowedAccounts: boolean;
-    includeReposts: boolean;
+    includeFollowedHashtags: boolean;
     includeReplies: boolean;
+    includeReposts: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
     weightLearningEnabled: boolean;  // TODO: this isn't a filter
