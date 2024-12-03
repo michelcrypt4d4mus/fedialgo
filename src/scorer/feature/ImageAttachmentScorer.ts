@@ -12,7 +12,7 @@ const SCORE_NAME = "ImageAttachments";
 export default class ImageAttachmentScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour toots with image attachments",
+            description: "Favour image attachments",
             defaultWeight: 0,
             scoreName: SCORE_NAME,
         });

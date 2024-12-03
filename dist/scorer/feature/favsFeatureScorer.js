@@ -9,7 +9,7 @@ const Storage_1 = require("../../Storage");
 class FavsFeatureScorer extends FeatureScorer_1.default {
     constructor() {
         super({
-            description: "Favour toots from users whose toots you have favorited",
+            description: "Favour accounts whose toots you've recently favourited",
             defaultWeight: 1,
             featureGetter: (api) => mastodon_api_cache_1.default.getMostFavoritedAccounts(api),
             scoreName: Storage_1.Key.TOP_FAVS,

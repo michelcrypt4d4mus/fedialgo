@@ -12,7 +12,7 @@ import { Toot } from '../../types';
 export default class FavsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour toots from users whose toots you have favorited",
+            description: "Favour accounts whose toots you've recently favourited",
             defaultWeight: 1,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFavoritedAccounts(api),
             scoreName: Key.TOP_FAVS,

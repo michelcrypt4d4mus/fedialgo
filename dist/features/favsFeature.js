@@ -4,14 +4,14 @@ const helpers_1 = require("../helpers");
 async function FavsFeature(api) {
     const results = await (0, helpers_1.mastodonFetchPages)({
         fetchMethod: api.v1.favourites.list,
-        label: 'favorites'
+        label: 'favourites'
     });
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
-    return results.reduce((favoriteCounts, toot) => {
+    return results.reduce((favouriteCounts, toot) => {
         if (!toot.account)
-            return favoriteCounts;
-        favoriteCounts[toot.account.acct] = (favoriteCounts[toot.account.acct] || 0) + 1;
-        return favoriteCounts;
+            return favouriteCounts;
+        favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
+        return favouriteCounts;
     }, {});
 }
 exports.default = FavsFeature;

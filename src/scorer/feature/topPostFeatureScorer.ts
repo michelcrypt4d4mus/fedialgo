@@ -13,7 +13,7 @@ export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 export default class TopPostFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour toots that are trending across the Fediverse",
+            description: "Favour toots that trend across the Fediverse",
             defaultWeight: TRENDING_TOOTS_DEFAULT_WEIGHT,
             scoreName: TRENDING_TOOTS,
         });
