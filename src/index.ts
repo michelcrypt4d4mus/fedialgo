@@ -131,7 +131,7 @@ class TheAlgorithm {
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
 
-        console.log(`got allResponses: `, allResponses);
+        console.debug(`got allResponses: `, allResponses);
         this.feed = allResponses.flat();
         console.log(`Found ${this.feed.length} potential toots for feed.`);
 
@@ -141,6 +141,7 @@ class TheAlgorithm {
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
 
         // A toot can trend on multiple servers, in which case we want to get the avg trendingRank
+        // TODO: maybe we should add all the trendingRanks together? Or maybe add the number of servers to the avg?
         const multiToots = cleanFeed.reduce((acc, toot) => {
             if (!toot.trendingRank) return acc;
             acc[toot.uri] ||= [];
