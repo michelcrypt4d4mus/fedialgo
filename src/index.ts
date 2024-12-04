@@ -455,9 +455,12 @@ class TheAlgorithm {
         if (toot == undefined) return false;
         if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots
 
-        // Remove retoots (i guess things user has already retooted???)
+        // Remove things the user has already retooted
         if (toot?.reblog?.reblogged) {
-            console.debug(`Removed retoot of id ${describeToot(toot)}: `, toot);
+            return false;
+        }
+        // Remove the user's own toots
+        if (toot.account.username == this.user.username && toot.account.id == this.user.id) {
             return false;
         }
 
@@ -467,14 +470,10 @@ class TheAlgorithm {
             return false;
         }
 
+        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
         if (toot.filtered && toot.filtered.length > 0) {
             const filterMatch = toot.filtered[0];
-            console.debug(`Removed toot that matched filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
-            return false;
-        }
-
-        if (toot.account.username == this.user.username && toot.account.id == this.user.id) {
-            console.debug(`Removing user's own toot from feed: `, toot);
+            console.debug(`Removed toot matching filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
             return false;
         }
 
