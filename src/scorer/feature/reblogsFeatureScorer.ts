@@ -12,7 +12,6 @@ import { Toot } from "../../types";
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
 
-// TODO: rename retootedUsersFeatureScorer
 export default class RetootedUsersFeatureScorer extends FeatureScorer {
     constructor() {
         super({
