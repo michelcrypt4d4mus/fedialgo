@@ -10,7 +10,6 @@ class RepliedFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour accounts you often reply to",
-            defaultWeight: 1,
             featureGetter: (api) => mastodon_api_cache_1.default.getMostRepliedAccounts(api),
             scoreName: Storage_1.Key.REPLIED_TO,
         });

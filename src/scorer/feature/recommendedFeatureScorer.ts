@@ -13,7 +13,6 @@ export default class recommendedFeatureScorer extends FeatureScorer {
             featureGetter: (_api: mastodon.rest.Client) => { return Promise.resolve({}) },
             scoreName: "Recommended",
             description: "Posts that are recommended by AI embeddings",
-            defaultWeight: 1,
         });
     }
 

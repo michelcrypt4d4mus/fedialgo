@@ -11,7 +11,6 @@ export default class NumRepliesScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favour toots with lots of replies",
-            defaultWeight: 1,
             scoreName: SCORE_NAME,
         });
     }

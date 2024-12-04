@@ -10,7 +10,6 @@ class recommendedFeatureScorer extends feature_scorer_1.default {
             featureGetter: (_api) => { return Promise.resolve({}); },
             scoreName: "Recommended",
             description: "Posts that are recommended by AI embeddings",
-            defaultWeight: 1,
         });
     }
     async _score(toot) {

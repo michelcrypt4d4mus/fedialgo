@@ -13,7 +13,6 @@ class NumFavoritesScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour things favourited by a lot of other users",
-            defaultWeight: 1,
             scoreName: SCORE_NAME,
         });
     }

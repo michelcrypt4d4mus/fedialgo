@@ -11,7 +11,6 @@ class ChaosFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Insert Chaos into the scoring (social media ist krieg)",
-            defaultWeight: 1,
             scoreName: "Chaos",
         });
     }

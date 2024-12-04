@@ -10,7 +10,6 @@ class FavsFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour accounts you often favourite",
-            defaultWeight: 1,
             featureGetter: (api) => mastodon_api_cache_1.default.getMostFavoritedAccounts(api),
             scoreName: Storage_1.Key.TOP_FAVS,
         });
