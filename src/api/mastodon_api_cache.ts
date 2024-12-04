@@ -9,10 +9,10 @@ import FavsFeature from "../features/favsFeature";
 import FollowedTagsFeature from "../features/followed_tags_feature";
 import InteractionsFeature from "../features/InteractionsFeature";
 import reblogsFeature from "../features/reblogsFeature";
-import { getUserRecentToots } from "./api";
 import repliedFeature from "../features/replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, StringNumberDict, ServerFeature, TootURIs, AccountNames } from "../types";
+import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, TootURIs } from "../types";
+import { getUserRecentToots } from "./api";
 import { mastodonFetchPages } from "../api/api";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
