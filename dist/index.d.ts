@@ -9,7 +9,7 @@ import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
 import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
-import Paginator from "./api/paginator";
+import Paginator from "./api/paginatorz";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./scorer/feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
