@@ -127,7 +127,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
-        algo.followedAccounts = buildAccountNames((await Storage.get(Key.FOLLOWED_ACCOUNTS) ?? []) as mastodon.v1.Account[]);
+        algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;

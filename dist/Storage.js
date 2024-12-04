@@ -62,7 +62,7 @@ class Storage {
     static async getFollowedAccts() {
         let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
         if (!followedAccounts) {
-            return null;
+            return [];
         }
         else {
             return followedAccounts;
@@ -104,7 +104,6 @@ class Storage {
         await this.set(Key.TIMELINE, timeline);
     }
     // Get the value at the given key (with the user ID as a prefix)
-    // TODO make protected again
     static async get(key) {
         return await localforage_1.default.getItem(await this.buildKey(key));
     }

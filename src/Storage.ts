@@ -64,13 +64,13 @@ export default class Storage {
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache
-    static async getFollowedAccts(): Promise<AccountNames | null> {
+    static async getFollowedAccts(): Promise<mastodon.v1.Account[]> {
         let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
 
         if (!followedAccounts) {
-            return null;
+            return [];
         } else {
-            return followedAccounts as AccountNames;
+            return followedAccounts as mastodon.v1.Account[];
         }
     }
 
@@ -119,8 +119,7 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    // TODO make protected again
-    static async get(key: Key): Promise<StorageValue | null> {
+    protected static async get(key: Key): Promise<StorageValue | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 

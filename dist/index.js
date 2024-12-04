@@ -120,7 +120,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.get(Storage_1.Key.FOLLOWED_ACCOUNTS) ?? []));
+        algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
