@@ -19,6 +19,7 @@ export default async function FollowedTagsFeature(
 
     console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
 
+    // Return tags a a dict of the form {tagString: 1}
     return tags.reduce((acc, tag) => {
         acc[tag.name.toLowerCase()] = 1;
         return acc;
