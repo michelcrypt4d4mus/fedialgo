@@ -26,4 +26,4 @@ class TrendingTootFeatureScorer extends feature_scorer_1.default {
 }
 exports.default = TrendingTootFeatureScorer;
 ;
-//# sourceMappingURL=topPostFeatureScorer.js.map
+//# sourceMappingURL=trending_toots_feature_scorer.js.map

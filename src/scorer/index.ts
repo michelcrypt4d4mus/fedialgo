@@ -11,7 +11,7 @@ import NumRepliesScorer from "./feature/numRepliesScorer";
 import ReblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./feature/replied_feature_scorer";
-import TrendingTootFeatureScorer from "./feature/topPostFeatureScorer";
+import TrendingTootFeatureScorer from "./feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./feature/VideoAttachmentScorer";
 

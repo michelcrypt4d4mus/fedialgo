@@ -43,7 +43,7 @@ import {
     isImage
 } from "./helpers";
 import { condensedStatus, describeToot } from "./objects/toot";
-import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
+import { TRENDING_TOOTS } from "./scorer/feature/trending_toots_feature_scorer";
 import MastodonApiCache from "./features/mastodon_api_cache";
 
 const ENGLISH_CODE = 'en';

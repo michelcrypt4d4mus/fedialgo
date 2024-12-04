@@ -36,7 +36,7 @@ const Storage_1 = __importStar(require("./Storage"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const toot_1 = require("./objects/toot");
-const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
+const trending_toots_feature_scorer_1 = require("./scorer/feature/trending_toots_feature_scorer");
 const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
@@ -319,8 +319,8 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[topPostFeatureScorer_1.TRENDING_TOOTS] ?? 0;
+        const trendingScore = rawScores[trending_toots_feature_scorer_1.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[trending_toots_feature_scorer_1.TRENDING_TOOTS] ?? 0;
         if (trendingScore > 0 && trendingWeighting < 1.0)
             rawScore *= trendingWeighting;
         // Multiple rawScore by time decay penalty to get a final value
@@ -374,7 +374,7 @@ class TheAlgorithm {
             console.debug(`Removing reblogged toot from feed`, toot);
             return false;
         }
-        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
+        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[trending_toots_feature_scorer_1.TRENDING_TOOTS]) {
             return false;
         }
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
