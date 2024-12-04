@@ -40,7 +40,7 @@ const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/In
 const mastodon_api_cache_1 = __importDefault(require("./api/mastodon_api_cache"));
 const numFavoritesScorer_1 = __importDefault(require("./scorer/feature/numFavoritesScorer"));
 const numRepliesScorer_1 = __importDefault(require("./scorer/feature/numRepliesScorer"));
-const mastodon_paginator_1 = __importDefault(require("./api/mastodon_paginator"));
+const paginator_1 = __importDefault(require("./api/paginator"));
 const reblogsFeatureScorer_1 = __importDefault(require("./scorer/feature/reblogsFeatureScorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const replied_feature_scorer_1 = __importDefault(require("./scorer/feature/replied_feature_scorer"));
@@ -263,7 +263,7 @@ class TheAlgorithm {
     }
     // TODO: is this ever used?
     list() {
-        return new mastodon_paginator_1.default(this.feed);
+        return new paginator_1.default(this.feed);
     }
     // Load weightings from storage. Set defaults for any missing weightings.
     async setDefaultWeights() {

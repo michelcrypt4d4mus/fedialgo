@@ -9,7 +9,7 @@ import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
 import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
-import Paginator from "./api/mastodon_paginator";
+import Paginator from "./api/paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";

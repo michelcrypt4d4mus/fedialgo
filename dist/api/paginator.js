@@ -50,4 +50,4 @@ class Paginator {
 }
 exports.default = Paginator;
 ;
-//# sourceMappingURL=mastodon_paginator.js.map
+//# sourceMappingURL=paginator.js.map
