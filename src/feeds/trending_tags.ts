@@ -100,9 +100,7 @@ function decorateTagData(tag: TrendingTag): void {
 
     if (!tag?.history || tag.history.length == 0) {
         console.warn(`${LOG_PREFIX} decorateTagData() found no history for tag:`, tag);
-        tag.numAccounts = 0;
-        tag.numToots = 0;
-        return;
+        tag.history = [];
     }
 
     const recentHistory = tag.history.slice(0, NUM_DAYS_TO_COUNT_TAG_DATA);
