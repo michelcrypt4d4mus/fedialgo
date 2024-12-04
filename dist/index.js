@@ -28,15 +28,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
+const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
+const diversityFeedScorer_1 = __importDefault(require("./scorer/feed/diversityFeedScorer"));
+const favsFeatureScorer_1 = __importDefault(require("./scorer/feature/favsFeatureScorer"));
+const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
+const ImageAttachmentScorer_1 = __importDefault(require("./scorer/feature/ImageAttachmentScorer"));
+const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/InteractionsFeatureScorer"));
+const numFavoritesScorer_1 = __importDefault(require("./scorer/feature/numFavoritesScorer"));
+const numRepliesScorer_1 = __importDefault(require("./scorer/feature/numRepliesScorer"));
 const paginator_1 = __importDefault(require("./api/paginator"));
+const reblogsFeatureScorer_1 = __importDefault(require("./scorer/feature/reblogsFeatureScorer"));
+const reblogsFeedScorer_1 = __importDefault(require("./scorer/feed/reblogsFeedScorer"));
+const replied_feature_scorer_1 = __importDefault(require("./scorer/feature/replied_feature_scorer"));
 const Storage_1 = __importStar(require("./Storage"));
-const scorer_1 = require("./scorer");
+const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
+const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
+const VideoAttachmentScorer_1 = __importDefault(require("./scorer/feature/VideoAttachmentScorer"));
 const helpers_1 = require("./helpers");
 const toot_1 = require("./objects/toot");
-const trending_toots_feature_scorer_1 = require("./scorer/feature/trending_toots_feature_scorer");
+const trending_toots_feature_scorer_2 = require("./scorer/feature/trending_toots_feature_scorer");
 const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
@@ -72,23 +85,23 @@ class TheAlgorithm {
     ];
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new scorer_1.ChaosFeatureScorer(),
-        new scorer_1.FavsFeatureScorer(),
-        new scorer_1.FollowedTagsFeatureScorer(),
-        new scorer_1.ImageAttachmentScorer(),
-        new scorer_1.InteractionsFeatureScorer(),
-        new scorer_1.NumFavoritesScorer(),
-        new scorer_1.NumRepliesScorer(),
-        new scorer_1.ReblogsFeatureScorer(),
-        new scorer_1.RepliedFeatureScorer(),
-        new scorer_1.TrendingTootFeatureScorer(),
-        new scorer_1.TrendingTagsFeatureScorer(),
-        new scorer_1.VideoAttachmentScorer(),
+        new chaosFeatureScorer_1.default(),
+        new favsFeatureScorer_1.default(),
+        new followed_tags_feature_scorer_1.default(),
+        new ImageAttachmentScorer_1.default(),
+        new InteractionsFeatureScorer_1.default(),
+        new numFavoritesScorer_1.default(),
+        new numRepliesScorer_1.default(),
+        new reblogsFeatureScorer_1.default(),
+        new replied_feature_scorer_1.default(),
+        new trending_toots_feature_scorer_1.default(),
+        new trending_tags_scorer_1.default(),
+        new VideoAttachmentScorer_1.default(),
     ];
     // These scorers require the complete feed to work properly
     feedScorers = [
-        new scorer_1.DiversityFeedScorer(),
-        new scorer_1.ReblogsFeedScorer(),
+        new diversityFeedScorer_1.default(),
+        new reblogsFeedScorer_1.default(),
     ];
     weightedScorers = [
         ...this.featureScorers,
@@ -319,8 +332,8 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[trending_toots_feature_scorer_1.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[trending_toots_feature_scorer_1.TRENDING_TOOTS] ?? 0;
+        const trendingScore = rawScores[trending_toots_feature_scorer_2.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[trending_toots_feature_scorer_2.TRENDING_TOOTS] ?? 0;
         if (trendingScore > 0 && trendingWeighting < 1.0)
             rawScore *= trendingWeighting;
         // Multiple rawScore by time decay penalty to get a final value
@@ -374,7 +387,7 @@ class TheAlgorithm {
             console.debug(`Removing reblogged toot from feed`, toot);
             return false;
         }
-        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[trending_toots_feature_scorer_1.TRENDING_TOOTS]) {
+        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[trending_toots_feature_scorer_2.TRENDING_TOOTS]) {
             return false;
         }
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {

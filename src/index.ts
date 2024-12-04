@@ -4,11 +4,25 @@
 import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
 
+import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
+import DiversityFeedScorer from "./scorer/feed/diversityFeedScorer";
+import FavsFeatureScorer from "./scorer/feature/favsFeatureScorer";
+import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
 import getTrendingToots from "./feeds/trending_toots";
+import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
+import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
+import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
+import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
 import Paginator from "./api/paginator";
+import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
+import ReblogsFeedScorer from "./scorer/feed/reblogsFeedScorer";
+import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
+import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
+import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
+import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
 import {
     AccountNames,
     AlgorithmArgs,
@@ -19,22 +33,6 @@ import {
     Toot,
     TootScore
 } from "./types";
-import {
-    ChaosFeatureScorer,
-    DiversityFeedScorer,
-    FavsFeatureScorer,
-    FollowedTagsFeatureScorer,
-    ImageAttachmentScorer,
-    InteractionsFeatureScorer,
-    NumFavoritesScorer,
-    NumRepliesScorer,
-    ReblogsFeatureScorer,
-    ReblogsFeedScorer,
-    RepliedFeatureScorer,
-    TrendingTootFeatureScorer,
-    TrendingTagsFeatureScorer,
-    VideoAttachmentScorer,
-} from "./scorer";
 import {
     IMAGE,
     MEDIA_TYPES,
