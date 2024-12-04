@@ -124,7 +124,7 @@ export default class MastodonApiCache extends Storage {
     private static async getAggregatedData<T>(
         api: mastodon.rest.Client,
         storageKey: Key,
-        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any | null) => Promise<T>,
+        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any) => Promise<T>,
         extraArg: any | null = null
     ): Promise<T> {
         let data: T = await this.get(storageKey) as T;
