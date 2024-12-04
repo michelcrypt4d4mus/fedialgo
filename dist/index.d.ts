@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
-import DiversityFeedScorer from "./scorer/feed/diversityFeedScorer";
+import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavsFeatureScorer from "./scorer/feature/favsFeatureScorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
@@ -11,7 +11,7 @@ import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
 import Paginator from "./api/mastodon_paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
-import RetootsInFeedScorer from "./scorer/feed/reblogsFeedScorer";
+import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";

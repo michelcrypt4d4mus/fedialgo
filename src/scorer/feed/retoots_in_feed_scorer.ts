@@ -8,7 +8,6 @@ const DEFAULT_REBLOGS_WEIGHT = 2;
 const SCORE_NAME = "RetootedInFeed";
 
 
-// TODO: rename retootsFeedScorer
 export default class RetootsInFeedScorer extends FeedScorer {
     constructor() {
         super(

@@ -29,7 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
-const diversityFeedScorer_1 = __importDefault(require("./scorer/feed/diversityFeedScorer"));
+const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const favsFeatureScorer_1 = __importDefault(require("./scorer/feature/favsFeatureScorer"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
@@ -42,7 +42,7 @@ const numFavoritesScorer_1 = __importDefault(require("./scorer/feature/numFavori
 const numRepliesScorer_1 = __importDefault(require("./scorer/feature/numRepliesScorer"));
 const mastodon_paginator_1 = __importDefault(require("./api/mastodon_paginator"));
 const reblogsFeatureScorer_1 = __importDefault(require("./scorer/feature/reblogsFeatureScorer"));
-const reblogsFeedScorer_1 = __importDefault(require("./scorer/feed/reblogsFeedScorer"));
+const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const replied_feature_scorer_1 = __importDefault(require("./scorer/feature/replied_feature_scorer"));
 const Storage_1 = __importStar(require("./Storage"));
 const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
@@ -101,8 +101,8 @@ class TheAlgorithm {
     ];
     // These scorers require the complete feed to work properly
     feedScorers = [
-        new diversityFeedScorer_1.default(),
-        new reblogsFeedScorer_1.default(),
+        new diversity_feed_scorer_1.default(),
+        new retoots_in_feed_scorer_1.default(),
     ];
     weightedScorers = [
         ...this.featureScorers,

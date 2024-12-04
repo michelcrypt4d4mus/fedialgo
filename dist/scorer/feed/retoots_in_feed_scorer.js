@@ -9,7 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const DEFAULT_REBLOGS_WEIGHT = 2;
 const SCORE_NAME = "RetootedInFeed";
-// TODO: rename retootsFeedScorer
 class RetootsInFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(SCORE_NAME, "Favour toots retooted by multiple accounts you follow", DEFAULT_REBLOGS_WEIGHT);
@@ -29,4 +28,4 @@ class RetootsInFeedScorer extends feed_scorer_1.default {
 }
 exports.default = RetootsInFeedScorer;
 ;
-//# sourceMappingURL=reblogsFeedScorer.js.map
+//# sourceMappingURL=retoots_in_feed_scorer.js.map

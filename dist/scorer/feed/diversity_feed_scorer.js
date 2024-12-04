@@ -38,4 +38,4 @@ class DiversityFeedScorer extends feed_scorer_1.default {
 }
 exports.default = DiversityFeedScorer;
 ;
-//# sourceMappingURL=diversityFeedScorer.js.map
+//# sourceMappingURL=diversity_feed_scorer.js.map
