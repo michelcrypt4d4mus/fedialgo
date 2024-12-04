@@ -7,7 +7,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
 const Storage_1 = require("../../Storage");
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
-class RetootedUsersFeatureScorer extends feature_scorer_1.default {
+class RetootedUsersScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour accounts you often retoot",
@@ -22,6 +22,6 @@ class RetootedUsersFeatureScorer extends feature_scorer_1.default {
         return authorScore + retootScore;
     }
 }
-exports.default = RetootedUsersFeatureScorer;
+exports.default = RetootedUsersScorer;
 ;
 //# sourceMappingURL=retooted_users_scorer.js.map
