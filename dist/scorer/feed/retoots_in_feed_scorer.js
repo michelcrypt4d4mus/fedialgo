@@ -13,7 +13,7 @@ class RetootsInFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(SCORE_NAME, "Favour toots retooted by multiple accounts you follow", DEFAULT_REBLOGS_WEIGHT);
     }
-    // for each uri in the feed, count the number of times it appears
+    // For each uri in the feed, count the number of times it appears as a reblogged toot.
     feedExtractor(feed) {
         return feed.reduce((tootCounts, toot) => {
             if (toot.reblog) {

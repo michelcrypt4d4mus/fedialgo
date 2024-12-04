@@ -17,7 +17,7 @@ export default class RetootsInFeedScorer extends FeedScorer {
         );
     }
 
-    // for each uri in the feed, count the number of times it appears
+    // For each uri in the feed, count the number of times it appears as a reblogged toot.
     feedExtractor(feed: Toot[]) {
         return feed.reduce(
             (tootCounts: Record<string, number>, toot: Toot) => {
