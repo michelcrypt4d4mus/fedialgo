@@ -53,7 +53,9 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(api, Key.TOP_FAVS, FavsFeature);
     }
 
-    // Get the users recent toots // TODO: probably shouldn't load these from storage usually?
+    // Get the users recent toots
+    // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?
+    // TODO: probably shouldn't load toots from storage usually beyond a certain age (that's not long?)
     static async getRecentToots(api: mastodon.rest.Client): Promise<TootURIs> {
         const recentToots = await this.getAggregatedData<Toot[]>(api, Key.RECENT_TOOTS, getUserRecentToots);
 

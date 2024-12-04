@@ -10,7 +10,7 @@ const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const DEFAULT_REBLOGS_WEIGHT = 2;
 const SCORE_NAME = "RetootedInFeed";
 // TODO: rename retootsFeedScorer
-class ReblogsFeedScorer extends feed_scorer_1.default {
+class RetootsInFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(SCORE_NAME, "Favour toots retooted by multiple accounts you follow", DEFAULT_REBLOGS_WEIGHT);
     }
@@ -27,6 +27,6 @@ class ReblogsFeedScorer extends feed_scorer_1.default {
         return this.features[toot.reblog?.uri || toot.uri] || 0;
     }
 }
-exports.default = ReblogsFeedScorer;
+exports.default = RetootsInFeedScorer;
 ;
 //# sourceMappingURL=reblogsFeedScorer.js.map

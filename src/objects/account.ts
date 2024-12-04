@@ -1,6 +1,9 @@
+/*
+ * Helper methods for dealing with mastodon Account objects.
+ */
 import { mastodon } from "masto";
 
-import { AccountNames, FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "../types";
+import { AccountNames } from "../types";
 
 
 export function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames {

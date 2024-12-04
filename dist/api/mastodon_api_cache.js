@@ -62,7 +62,9 @@ class MastodonApiCache extends Storage_1.default {
     static async getMostFavoritedAccounts(api) {
         return await this.getAggregatedData(api, Storage_1.Key.TOP_FAVS, favsFeature_1.default);
     }
-    // Get the users recent toots // TODO: probably shouldn't load these from storage usually?
+    // Get the users recent toots
+    // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?
+    // TODO: probably shouldn't load toots from storage usually beyond a certain age (that's not long?)
     static async getRecentToots(api) {
         const recentToots = await this.getAggregatedData(api, Storage_1.Key.RECENT_TOOTS, api_1.getUserRecentToots);
         // TODO: this rebuild of the {uri: toot} dict is done anew unnecessarily for each call to getRecentToots

@@ -18,7 +18,7 @@ import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
 import Paginator from "./api/mastodon_paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
-import ReblogsFeedScorer from "./scorer/feed/reblogsFeedScorer";
+import RetootsInFeedScorer from "./scorer/feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
 import Storage, { DEFAULT_FILTERS, Key } from "./Storage";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
@@ -102,7 +102,7 @@ class TheAlgorithm {
     // These scorers require the complete feed to work properly
     feedScorers = [
         new DiversityFeedScorer(),
-        new ReblogsFeedScorer(),
+        new RetootsInFeedScorer(),
     ];
 
     weightedScorers = [

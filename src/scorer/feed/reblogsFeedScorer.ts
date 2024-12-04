@@ -9,7 +9,7 @@ const SCORE_NAME = "RetootedInFeed";
 
 
 // TODO: rename retootsFeedScorer
-export default class ReblogsFeedScorer extends FeedScorer {
+export default class RetootsInFeedScorer extends FeedScorer {
     constructor() {
         super(
             SCORE_NAME,
