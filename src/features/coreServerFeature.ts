@@ -1,6 +1,5 @@
 /*
- * Handles getting accounts followed by the fedialgo user and also things like monthly
- * active users about the various servers in the Fediverse.
+ * Handles getting Fediverse server metadata like monthly active users.
  */
 import { mastodon } from "masto";
 
