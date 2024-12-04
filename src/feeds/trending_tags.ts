@@ -59,6 +59,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
                     TRENDING_TOOTS_REST_PATH,
                     numTrendingTagsPerServer
                 ) as TrendingTag[];
+
                 if (!tags || tags.length == 0) throw new Error(`No tags found on '${server}'!`);
             } catch (e) {
                 console.warn(`${LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
