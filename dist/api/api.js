@@ -51,7 +51,6 @@ const mastodonFetch = async (server, endpoint) => {
 };
 exports.mastodonFetch = mastodonFetch;
 ;
-// Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
 async function mastodonFetchPages(fetchParams) {
     let { fetchMethod, maxRecords, label } = fetchParams;
     maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;

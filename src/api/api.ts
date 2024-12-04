@@ -55,13 +55,13 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
 };
 
 
+// Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 interface FetchParams<T> {
     fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
     maxRecords?: number,
     label?: string,
 };
 
-// Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
 export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
     let { fetchMethod, maxRecords, label } = fetchParams;
     maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
