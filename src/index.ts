@@ -34,9 +34,16 @@ import {
     TrendingTagsFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
-import { IMAGE, MEDIA_TYPES, condensedStatus, createRandomString, dedupeToots, describeToot, isImage } from "./helpers";
+import {
+    IMAGE,
+    MEDIA_TYPES,
+    condensedStatus,
+    createRandomString,
+    dedupeToots,
+    describeToot,
+    isImage
+} from "./helpers";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
-//import getRecommenderFeed from "./feeds/recommenderFeed";
 
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
@@ -389,13 +396,13 @@ class TheAlgorithm {
             return false;
         } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
             return false;
-        } else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
+        } else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
+        } else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
+            return false;  // TODO: Followed accounts can have trending toots so this is a bit wrong
         } else if (!this.filters.includeReplies && toot.inReplyToId) {
             return false;
         } else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
-            return false;
-        } else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
         }
 
