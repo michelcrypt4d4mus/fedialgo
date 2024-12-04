@@ -4,11 +4,10 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetch } from "../api/api";
+import { getMonthlyUsers } from "../api/api";
 import { AccountNames, ServerFeature, StringNumberDict } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
-const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 100;
 
 // Popular servers are usually culled from the users' following list but if there aren't
@@ -47,6 +46,7 @@ const _POPULAR_SERVERS = [
 ];
 
 const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
+const POPULAR_SRERVERS_MAU_GUESS = 1000;
 
 
 // Returns something called "overrepresentedServerFrequ"??
@@ -65,11 +65,14 @@ export default async function coreServerFeature(followedAccounts: AccountNames):
     const numServers = Object.keys(userServerCounts).length;
 
     if (numServers < NUM_SERVERS_TO_CHECK) {
-        console.log(`Adding default servers bc user only follows accts on ${numServers} servers:`, userServerCounts);
+        console.log(
+            `Adding default servers because user only follows accounts on ${numServers} servers:`,
+            userServerCounts
+        );
 
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
                        .slice(0, NUM_SERVERS_TO_CHECK - numServers)
-                       .forEach(s => (userServerCounts[s] = 1));
+                       .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
     }
 
     // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
@@ -99,16 +102,4 @@ export default async function coreServerFeature(followedAccounts: AccountNames):
     console.log(`serverMAUs: `, serverMAUs);
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
-};
-
-
-async function getMonthlyUsers(server: string): Promise<number> {
-    try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, SERVER_MAU_ENDPOINT);
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    } catch (error) {
-        console.warn(`Error fetching getMonthlyUsers() data for server ${server}:`, error);
-        return 0; // Return 0 if we can't get the data
-    }
 };

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("../api/api");
 const NUM_SERVERS_TO_CHECK = 30;
-const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 100;
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
@@ -39,6 +38,7 @@ const _POPULAR_SERVERS = [
     "toot.io",
 ];
 const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
+const POPULAR_SRERVERS_MAU_GUESS = 1000;
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(followedAccounts) {
     // Count up what Mastodon servers the user follows live on
@@ -51,10 +51,10 @@ async function coreServerFeature(followedAccounts) {
     }, {});
     const numServers = Object.keys(userServerCounts).length;
     if (numServers < NUM_SERVERS_TO_CHECK) {
-        console.log(`Adding default servers bc user only follows accts on ${numServers} servers:`, userServerCounts);
+        console.log(`Adding default servers because user only follows accounts on ${numServers} servers:`, userServerCounts);
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
             .slice(0, NUM_SERVERS_TO_CHECK - numServers)
-            .forEach(s => (userServerCounts[s] = 1));
+            .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
     }
     // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
@@ -63,7 +63,7 @@ async function coreServerFeature(followedAccounts) {
         .slice(0, NUM_SERVERS_TO_CHECK);
     console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
     console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
-    const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
+    const monthlyUsers = await Promise.all(popularServers.map(s => (0, api_1.getMonthlyUsers)(s)));
     const serverMAUs = {};
     const overrepresentedServerFrequ = {};
     popularServers.forEach((server, i) => {
@@ -81,17 +81,5 @@ async function coreServerFeature(followedAccounts) {
     return overrepresentedServerFrequ;
 }
 exports.default = coreServerFeature;
-;
-async function getMonthlyUsers(server) {
-    try {
-        const instance = await (0, api_1.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    }
-    catch (error) {
-        console.warn(`Error fetching getMonthlyUsers() data for server ${server}:`, error);
-        return 0; // Return 0 if we can't get the data
-    }
-}
 ;
 //# sourceMappingURL=coreServerFeature.js.map

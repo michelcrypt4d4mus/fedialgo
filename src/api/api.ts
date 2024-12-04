@@ -11,6 +11,7 @@ import { transformKeys } from "../helpers";
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
+const SERVER_MAU_ENDPOINT = "api/v2/instance";
 
 
 // Use the API to search for recent toots containing a 'searchQuery' string
@@ -86,4 +87,17 @@ export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promis
     }
 
     return results;
+};
+
+
+// Get publicly available MAU information. Requires no login (??)
+export async function getMonthlyUsers(server: string): Promise<number> {
+    try {
+        const instance = await mastodonFetch<mastodon.v2.Instance>(server, SERVER_MAU_ENDPOINT);
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    } catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}:`, error);
+        return 0;
+    }
 };

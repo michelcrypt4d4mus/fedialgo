@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -13,6 +13,7 @@ const helpers_1 = require("../helpers");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
+const SERVER_MAU_ENDPOINT = "api/v2/instance";
 // Use the API to search for recent toots containing a 'searchQuery' string
 async function searchForToots(api, searchQuery, limit = exports.DEFAULT_RECORDS_PER_PAGE) {
     console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
@@ -75,5 +76,19 @@ async function mastodonFetchPages(fetchParams) {
     return results;
 }
 exports.mastodonFetchPages = mastodonFetchPages;
+;
+// Get publicly available MAU information. Requires no login (??)
+async function getMonthlyUsers(server) {
+    try {
+        const instance = await (0, exports.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    }
+    catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}:`, error);
+        return 0;
+    }
+}
+exports.getMonthlyUsers = getMonthlyUsers;
 ;
 //# sourceMappingURL=api.js.map

@@ -9,4 +9,5 @@ interface FetchParams<T> {
     label?: string;
 }
 export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
+export declare function getMonthlyUsers(server: string): Promise<number>;
 export {};
