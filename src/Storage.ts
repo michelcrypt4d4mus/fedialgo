@@ -31,7 +31,7 @@ export const DEFAULT_FILTERS = {
     includeTrendingHashTags: true,
     includeTrendingToots: true,
     onlyLinks: false,
-    suppressFilteredHashtags: false,
+    suppressSelectedTags: false,
     weightLearningEnabled: false,
 } as FeedFilterSettings;
 

@@ -354,7 +354,7 @@ class TheAlgorithm {
             }
         }
         if (tags.length > 0) {
-            if (this.filters.suppressFilteredHashtags) {
+            if (this.filters.suppressSelectedTags) {
                 if (toot.tags.some(tag => tags.includes(tag.name))) {
                     return false;
                 }

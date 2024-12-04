@@ -23,7 +23,7 @@ export type FeedFilterSettings = {
     includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
-    suppressFilteredHashtags: boolean;
+    suppressSelectedTags: boolean;
     weightLearningEnabled: boolean;
 };
 export type ScorerDict = {

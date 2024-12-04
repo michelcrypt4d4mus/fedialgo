@@ -30,7 +30,7 @@ export type FeedFilterSettings = {
     includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
-    suppressFilteredHashtags: boolean;
+    suppressSelectedTags: boolean;   // flips the tag whiteless to be a blacklist
     weightLearningEnabled: boolean;  // TODO: this isn't a filter
 };
 
