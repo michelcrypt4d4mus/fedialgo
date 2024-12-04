@@ -25,7 +25,7 @@ import { mastodon } from "masto";
 import MastodonApiCache from "../api/mastodon_api_cache";
 import { dedupeToots } from "../helpers";
 import { popularity } from "../objects/toot";
-import { mastodonFetch, searchForToots } from "../api/api";
+import { getTootsForTag, mastodonFetch } from "../api/api";
 import { Toot, TrendingTag } from "../types";
 
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
@@ -34,7 +34,7 @@ const NUM_TRENDING_TAGS_PER_SERVER = 20;
 const NUM_TRENDING_TAG_TOOTS_PER_SERVER = 20;
 const NUM_TRENDING_TAGS = 20;
 const NUM_TRENDING_TAG_TOOTS = 100;
-const LOG_PREFIX = "[TrendingTags]";
+export const LOG_PREFIX = "[TrendingTags]";
 
 
 export default async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
@@ -91,25 +91,6 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
-};
-
-
-async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
-    try {
-        const toots = await searchForToots(api, tag.name);
-
-        // Inject the tag into each toot as a trendingTag element
-        toots.forEach((toot) => {
-            toot.trendingTags ||= [];
-            toot.trendingTags.push(tag);
-        });
-
-        console.debug(`${LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
-        return toots;
-    } catch (e) {
-        console.warn(`${LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
-        return [];
-    }
 };
 
 

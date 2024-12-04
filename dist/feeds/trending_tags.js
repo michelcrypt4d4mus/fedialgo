@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LOG_PREFIX = void 0;
 const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../objects/toot");
@@ -13,19 +14,19 @@ const NUM_TRENDING_TAGS_PER_SERVER = 20;
 const NUM_TRENDING_TAG_TOOTS_PER_SERVER = 20;
 const NUM_TRENDING_TAGS = 20;
 const NUM_TRENDING_TAG_TOOTS = 100;
-const LOG_PREFIX = "[TrendingTags]";
+exports.LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
-    const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
+    const tootses = await Promise.all(tags.map((tag) => (0, api_1.getTootsForTag)(api, tag)));
     const toots = (0, helpers_1.dedupeToots)(tootses.flat(), "trendingTags");
-    console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
+    console.log(`${exports.LOG_PREFIX} deduped toots for trending tags:`, toots);
     return toots.sort(toot_1.popularity).reverse().slice(0, NUM_TRENDING_TAG_TOOTS);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api) {
-    console.log(`${LOG_PREFIX} getTrendingTags() called`);
+    console.log(`${exports.LOG_PREFIX} getTrendingTags() called`);
     const topDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
     // Pull top trending toots from each server
     const trendingTags = await Promise.all(topDomains.map(async (server) => {
@@ -36,12 +37,12 @@ async function getTrendingTags(api) {
                 throw new Error(`No tags found on '${server}'!`);
         }
         catch (e) {
-            console.warn(`${LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
+            console.warn(`${exports.LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
             return [];
         }
         tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
         tags.forEach(decorateTagData);
-        console.debug(`${LOG_PREFIX} trendingTags for server '${server}':`, tags);
+        console.debug(`${exports.LOG_PREFIX} trendingTags for server '${server}':`, tags);
         return tags;
     }));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
@@ -57,32 +58,15 @@ async function getTrendingTags(api) {
         return tags;
     }, []);
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
-    console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
+    console.log(`${exports.LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
-}
-;
-async function getTootsForTag(api, tag) {
-    try {
-        const toots = await (0, api_1.searchForToots)(api, tag.name);
-        // Inject the tag into each toot as a trendingTag element
-        toots.forEach((toot) => {
-            toot.trendingTags ||= [];
-            toot.trendingTags.push(tag);
-        });
-        console.debug(`${LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
-        return toots;
-    }
-    catch (e) {
-        console.warn(`${LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
-        return [];
-    }
 }
 ;
 // Lowercase the tag text; Inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
 function decorateTagData(tag) {
     tag.name = tag.name.toLowerCase();
     if (!tag?.history || tag.history.length == 0) {
-        console.warn(`${LOG_PREFIX} decorateTagData() found no history for tag:`, tag);
+        console.warn(`${exports.LOG_PREFIX} decorateTagData() found no history for tag:`, tag);
         tag.numAccounts = 0;
         tag.numToots = 0;
         return;

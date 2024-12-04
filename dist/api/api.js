@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 /*
  * Helper methods for using mastodon API.
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const helpers_1 = require("../helpers");
+const trending_tags_1 = require("../feeds/trending_tags");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
@@ -101,4 +102,22 @@ async function getUserRecentToots(api, user) {
 }
 exports.getUserRecentToots = getUserRecentToots;
 ;
+// Get latest toots for a given tag
+async function getTootsForTag(api, tag) {
+    try {
+        const toots = await searchForToots(api, tag.name);
+        // Inject the tag into each toot as a trendingTag element
+        toots.forEach((toot) => {
+            toot.trendingTags ||= [];
+            toot.trendingTags.push(tag);
+        });
+        console.debug(`${trending_tags_1.LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    }
+    catch (e) {
+        console.warn(`${trending_tags_1.LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
+        return [];
+    }
+}
+exports.getTootsForTag = getTootsForTag;
 //# sourceMappingURL=api.js.map

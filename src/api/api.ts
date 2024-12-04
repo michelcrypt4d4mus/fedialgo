@@ -5,8 +5,9 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import { Toot } from "../types";
+import { Toot, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
+import { LOG_PREFIX } from "../feeds/trending_tags";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
@@ -115,3 +116,23 @@ export async function getUserRecentToots(
 
     return recentToots as Toot[];
 };
+
+
+// Get latest toots for a given tag
+export async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
+    try {
+        const toots = await searchForToots(api, tag.name);
+
+        // Inject the tag into each toot as a trendingTag element
+        toots.forEach((toot) => {
+            toot.trendingTags ||= [];
+            toot.trendingTags.push(tag);
+        });
+
+        console.debug(`${LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    } catch (e) {
+        console.warn(`${LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
+        return [];
+    }
+}
