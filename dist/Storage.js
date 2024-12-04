@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_FILTERS = exports.Key = void 0;
+exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
 const config_1 = require("./config");
 var Key;
@@ -24,20 +24,6 @@ var Key;
     Key["WEIGHTS"] = "weights";
 })(Key || (exports.Key = Key = {}));
 ;
-exports.DEFAULT_FILTERS = {
-    filteredApps: [],
-    filteredLanguages: [],
-    filteredTags: [],
-    includeFollowedAccounts: true,
-    includeFollowedHashtags: true,
-    includeReplies: true,
-    includeReposts: true,
-    includeTrendingHashTags: true,
-    includeTrendingToots: true,
-    onlyLinks: false,
-    suppressSelectedTags: false,
-    weightLearningEnabled: false,
-};
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
     // TODO: consider actually storing the config in browser storage.
@@ -55,7 +41,7 @@ class Storage {
         let filters = await this.get(Key.FILTERS);
         if (!filters) {
             console.debug(`getFilters() returning DEFAULT_FILTERS:`, filters);
-            filters = Object.assign({}, exports.DEFAULT_FILTERS);
+            filters = Object.assign({}, config_1.DEFAULT_FILTERS);
             await this.setFilters(filters);
         }
         return filters;

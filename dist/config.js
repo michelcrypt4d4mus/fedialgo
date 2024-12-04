@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CONFIG = void 0;
+exports.DEFAULT_FILTERS = exports.DEFAULT_CONFIG = void 0;
 exports.DEFAULT_CONFIG = {
     defaultRecordsPerPage: 40,
     maxTimelineTootsToFetch: 480,
@@ -24,4 +24,19 @@ exports.DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30, // NUM_TRENDING_TOOTS_PER_SERVER
 };
+exports.DEFAULT_FILTERS = {
+    filteredApps: [],
+    filteredLanguages: [],
+    filteredTags: [],
+    includeFollowedAccounts: true,
+    includeFollowedHashtags: true,
+    includeReplies: true,
+    includeReposts: true,
+    includeTrendingHashTags: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+    suppressSelectedTags: false,
+    weightLearningEnabled: false,
+};
+// TODO: maybe put default weights here too?
 //# sourceMappingURL=config.js.map

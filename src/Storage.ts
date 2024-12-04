@@ -2,7 +2,7 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import { Config, FeedFilterSettings, StorageValue, StringNumberDict, Toot } from "./types";
-import { DEFAULT_CONFIG } from "./config";
+import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -20,21 +20,6 @@ export enum Key {
     USER = 'algouser',
     WEIGHTS = 'weights',
 };
-
-export const DEFAULT_FILTERS = {
-    filteredApps: [],
-    filteredLanguages: [],
-    filteredTags: [],
-    includeFollowedAccounts: true,
-    includeFollowedHashtags: true,
-    includeReplies: true,
-    includeReposts: true,
-    includeTrendingHashTags: true,
-    includeTrendingToots: true,
-    onlyLinks: false,
-    suppressSelectedTags: false,
-    weightLearningEnabled: false,
-} as FeedFilterSettings;
 
 
 export default class Storage {

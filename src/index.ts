@@ -21,7 +21,7 @@ import Paginator from "./api/paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
-import Storage, { DEFAULT_FILTERS, Key } from "./Storage";
+import Storage from "./Storage";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
@@ -44,6 +44,7 @@ import {
 } from "./helpers";
 import { buildAccountNames } from "./objects/account";
 import { condensedStatus } from "./objects/toot";
+import { DEFAULT_FILTERS } from "./config";
 import { TRENDING_TOOTS } from "./scorer/feature/trending_toots_feature_scorer";
 
 const UNKNOWN_APP = "unknown";

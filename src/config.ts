@@ -1,7 +1,8 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { Config } from "./types";
+import { Config, FeedFilterSettings } from "./types";
+
 
 export const DEFAULT_CONFIG = {
     defaultRecordsPerPage: 40,   // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -30,3 +31,21 @@ export const DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30,      // NUM_TRENDING_TOOTS_PER_SERVER
 } as Config;
+
+
+export const DEFAULT_FILTERS = {
+    filteredApps: [],
+    filteredLanguages: [],
+    filteredTags: [],
+    includeFollowedAccounts: true,
+    includeFollowedHashtags: true,
+    includeReplies: true,
+    includeReposts: true,
+    includeTrendingHashTags: true,
+    includeTrendingToots: true,
+    onlyLinks: false,
+    suppressSelectedTags: false,
+    weightLearningEnabled: false,
+} as FeedFilterSettings;
+
+// TODO: maybe put default weights here too?
