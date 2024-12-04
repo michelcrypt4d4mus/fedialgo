@@ -147,10 +147,10 @@ class TheAlgorithm {
 
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
+            getRecentTootsForTrendingTags(this.api),
             ...this.fetchers.map(fetcher => fetcher(this.api)),
             // featureScorers are here as a hack for parallelization. They return empty arrays.
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
-            getRecentTootsForTrendingTags(this.api),
         ]);
 
         this.feed = allResponses.flat();
@@ -159,7 +159,7 @@ class TheAlgorithm {
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = this.feed.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
+        console.log(`Removed ${numRemoved} invalid toots of ${this.feed.length} leaving ${cleanFeed.length}`);
 
         this.feed = dedupeToots(cleanFeed, "getFeed");
         this.followedAccounts = await MastodonApiCache.getFollowedAccounts(this.api);
@@ -265,7 +265,7 @@ class TheAlgorithm {
             return counts;
         }, {} as StringNumberDict);
 
-        // Check for weird media types and lowercase all tags
+        // Check for weird media types
         this.feed.forEach(toot => {
             toot.mediaAttachments.forEach((media) => {
                 if (media.type === "unknown" && isImage(media.remoteUrl)) {
@@ -277,6 +277,7 @@ class TheAlgorithm {
             });
         });
 
+        // lowercase and count tags
         this.tagCounts = this.feed.reduce((tagCounts, toot) => {
             toot.tags.forEach(tag => {
                 if (!tag.name || tag.name.length == 0) {
@@ -296,12 +297,6 @@ class TheAlgorithm {
                ([_key, val]) => val >= MINIMUM_TAGS_FOR_FILTER
             )
         );
-
-        Object.keys(this.tagCounts).forEach(tagName => {
-            if (tagName != tagName.toLowerCase()) {
-                console.warn(`Tag name not lowercase: '${tagName}'`);
-            }
-        });
     }
 
     // TODO: is this ever used?
