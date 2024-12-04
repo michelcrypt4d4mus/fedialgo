@@ -3,7 +3,7 @@
  */
 import FeatureScorer from '../FeatureScorer';
 import { Toot } from '../../types';
-import { videoAttachments } from '../../helpers';
+import { videoAttachments } from '../../objects/toot';
 
 const SCORE_NAME = "VideoAttachments";
 

@@ -1,6 +1,7 @@
 import { mastodon } from "masto";
 import { Toot } from "./types";
 export declare const DEFAULT_RECORDS_PER_PAGE = 40;
+export declare const MAX_CONTENT_CHARS = 150;
 export declare const IMAGE = "image";
 export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: string[];
@@ -15,12 +16,6 @@ interface FetchParams<T> {
     label?: string;
 }
 export declare function mastodonFetchPages<T>({ fetchMethod, minRecords, label }: FetchParams<T>): Promise<T[]>;
-export declare const condensedStatus: (toot: Toot) => {};
-export declare const describeAccount: (toot: Toot) => string;
-export declare const describeToot: (toot: Toot) => string;
-export declare const tootSize: (toot: Toot) => number;
-export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
-export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const minimumID: (toots: Toot[]) => number | null;
 export declare function createRandomString(length: number): string;
 export declare function average(values: number[]): number | undefined;

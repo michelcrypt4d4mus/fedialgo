@@ -37,12 +37,11 @@ import {
 import {
     IMAGE,
     MEDIA_TYPES,
-    condensedStatus,
     createRandomString,
     dedupeToots,
-    describeToot,
     isImage
 } from "./helpers";
+import { condensedStatus, describeToot } from "./objects/toot";
 import { TRENDING_TOOTS } from "./scorer/feature/topPostFeatureScorer";
 
 const ENGLISH_CODE = 'en';

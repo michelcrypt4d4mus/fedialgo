@@ -7,7 +7,7 @@ import { Toot, TrendingTag } from "./types";
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
-const MAX_CONTENT_CHARS = 150;
+export const MAX_CONTENT_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 
 export const IMAGE = "image";
@@ -97,82 +97,6 @@ export async function mastodonFetchPages<T>({
     }
 
     return results;
-};
-
-
-// Returns a simplified version of the toot for logging
-export const condensedStatus = (toot: Toot) => {
-    // Contents of toot (the text)
-    let content = toot.reblog?.content || toot.content || "";
-    if (content.length > MAX_CONTENT_CHARS) content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
-    // Account info for the person who tooted it
-    let accountLabel = describeAccount(toot);
-    if (toot.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(toot.reblog)}⬆️⬆️｠`;
-    // Attachment info
-    let mediaAttachments = toot.mediaAttachments.map(attachment => attachment.type);
-    if (mediaAttachments.length == 0) mediaAttachments = [];
-
-    const tootObj = {
-        FROM: `${accountLabel} [${toot.createdAt}]`,
-        URL: toot.url,
-        content: content,
-        retootOf: toot.reblog ? `${describeAccount(toot.reblog)} (${toot.reblog.createdAt})` : null,
-        inReplyToId: toot.inReplyToId,
-        mediaAttachments: mediaAttachments,
-        raw: toot,
-        scoreInfo: toot.scoreInfo,
-
-        properties: {
-            favouritesCount: toot.favouritesCount,
-            reblogsCount: toot.reblogsCount,
-            repliesCount: toot.repliesCount,
-            tags: (toot.tags || toot.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
-        },
-    };
-
-    return Object.keys(tootObj)
-                 .filter((k) => tootObj[k as keyof typeof tootObj] != null)
-                 .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
-};
-
-
-// Build a string that contains the display name, account name, etc. for a given post.
-export const describeAccount = (toot: Toot): string => {
-    return `${toot.account.displayName} (${toot.account.acct})`;
-};
-
-
-// Build a string that can be used in logs to identify a toot
-export const describeToot = (toot: Toot): string => {
-    return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
-};
-
-
-export const tootSize = (toot: Toot): number => {
-    return JSON.stringify(toot).length;
-    // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
-    // return Buffer.byteLength(JSON.stringify(toot));
-};
-
-
-// Extract attachments from Toots
-export const imageAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
-    return attachmentsOfType(toot, "image");
-};
-
-export const videoAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
-    const videos = attachmentsOfType(toot, "video");
-    const gifs = attachmentsOfType(toot, "gifv");  // gifv format is just an mp4 video file?
-    return videos.concat(gifs);
-};
-
-const attachmentsOfType = (
-    toot: Toot,
-    attachmentType: mastodon.v1.MediaAttachmentType
-): Array<mastodon.v1.MediaAttachment> => {
-    if (toot.reblog) toot = toot.reblog;
-    if (!toot.mediaAttachments) return [];
-    return toot.mediaAttachments.filter(att => att.type === attachmentType);
 };
 
 

@@ -5,11 +5,10 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../features/mastodon_api_cache";
-import { average, condensedStatus, dedupeToots, mastodonFetch } from '../helpers';
+import { average, dedupeToots, mastodonFetch } from '../helpers';
+import { condensedStatus } from "../objects/toot";
 import { Toot } from "../types";
 
-const NUM_HOURS_BEFORE_REFRESH = 8;
-const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 

@@ -35,6 +35,7 @@ const Paginator_1 = __importDefault(require("./Paginator"));
 const Storage_1 = __importStar(require("./Storage"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
+const toot_1 = require("./objects/toot");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
@@ -164,7 +165,7 @@ class TheAlgorithm {
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
         console.debug(`${prefix} feed toots posted by application counts:`, this.appCounts);
-        console.log(`${prefix} timeline toots (condensed):`, this.feed.map(helpers_1.condensedStatus));
+        console.log(`${prefix} timeline toots (condensed):`, this.feed.map(toot_1.condensedStatus));
     }
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
@@ -364,7 +365,7 @@ class TheAlgorithm {
             return false; // Remove muted accounts and toots
         // Remove retoots (i guess things user has already retooted???)
         if (toot?.reblog?.reblogged) {
-            console.debug(`Removed retoot of id ${(0, helpers_1.describeToot)(toot)}: `, toot);
+            console.debug(`Removed retoot of id ${(0, toot_1.describeToot)(toot)}: `, toot);
             return false;
         }
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.

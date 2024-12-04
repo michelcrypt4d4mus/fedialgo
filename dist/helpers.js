@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.tootSize = exports.describeToot = exports.describeAccount = exports.condensedStatus = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
-const MAX_CONTENT_CHARS = 150;
+exports.MAX_CONTENT_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 exports.IMAGE = "image";
 exports.VIDEO = "video";
@@ -81,75 +81,6 @@ async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
 }
 exports.mastodonFetchPages = mastodonFetchPages;
 ;
-// Returns a simplified version of the toot for logging
-const condensedStatus = (toot) => {
-    // Contents of toot (the text)
-    let content = toot.reblog?.content || toot.content || "";
-    if (content.length > MAX_CONTENT_CHARS)
-        content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
-    // Account info for the person who tooted it
-    let accountLabel = (0, exports.describeAccount)(toot);
-    if (toot.reblog)
-        accountLabel += ` ｟⬆️⬆️RETOOT of ${(0, exports.describeAccount)(toot.reblog)}⬆️⬆️｠`;
-    // Attachment info
-    let mediaAttachments = toot.mediaAttachments.map(attachment => attachment.type);
-    if (mediaAttachments.length == 0)
-        mediaAttachments = [];
-    const tootObj = {
-        FROM: `${accountLabel} [${toot.createdAt}]`,
-        URL: toot.url,
-        content: content,
-        retootOf: toot.reblog ? `${(0, exports.describeAccount)(toot.reblog)} (${toot.reblog.createdAt})` : null,
-        inReplyToId: toot.inReplyToId,
-        mediaAttachments: mediaAttachments,
-        raw: toot,
-        scoreInfo: toot.scoreInfo,
-        properties: {
-            favouritesCount: toot.favouritesCount,
-            reblogsCount: toot.reblogsCount,
-            repliesCount: toot.repliesCount,
-            tags: (toot.tags || toot.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
-        },
-    };
-    return Object.keys(tootObj)
-        .filter((k) => tootObj[k] != null)
-        .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
-};
-exports.condensedStatus = condensedStatus;
-// Build a string that contains the display name, account name, etc. for a given post.
-const describeAccount = (toot) => {
-    return `${toot.account.displayName} (${toot.account.acct})`;
-};
-exports.describeAccount = describeAccount;
-// Build a string that can be used in logs to identify a toot
-const describeToot = (toot) => {
-    return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
-};
-exports.describeToot = describeToot;
-const tootSize = (toot) => {
-    return JSON.stringify(toot).length;
-    // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
-    // return Buffer.byteLength(JSON.stringify(toot));
-};
-exports.tootSize = tootSize;
-// Extract attachments from Toots
-const imageAttachments = (toot) => {
-    return attachmentsOfType(toot, "image");
-};
-exports.imageAttachments = imageAttachments;
-const videoAttachments = (toot) => {
-    const videos = attachmentsOfType(toot, "video");
-    const gifs = attachmentsOfType(toot, "gifv"); // gifv format is just an mp4 video file?
-    return videos.concat(gifs);
-};
-exports.videoAttachments = videoAttachments;
-const attachmentsOfType = (toot, attachmentType) => {
-    if (toot.reblog)
-        toot = toot.reblog;
-    if (!toot.mediaAttachments)
-        return [];
-    return toot.mediaAttachments.filter(att => att.type === attachmentType);
-};
 // Find the minimum ID in a list of toots
 const minimumID = (toots) => {
     const minId = toots.reduce((min, toot) => {

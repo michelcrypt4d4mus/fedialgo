@@ -5,8 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
-const NUM_HOURS_BEFORE_REFRESH = 8;
-const NUM_MS_BEFORE_REFRESH = NUM_HOURS_BEFORE_REFRESH * 60 * 60 * 1000;
+const toot_1 = require("../objects/toot");
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function getTrendingToots(api) {
@@ -42,7 +41,7 @@ async function getTrendingToots(api) {
             toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
             return toot;
         });
-        console.debug(`trendingToots for '${server}': `, serverTopToots.map(helpers_1.condensedStatus));
+        console.debug(`trendingToots for '${server}': `, serverTopToots.map(toot_1.condensedStatus));
         return serverTopToots;
     }));
     const trendingToots = (0, helpers_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
