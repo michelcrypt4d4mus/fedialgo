@@ -16,7 +16,7 @@ import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScore
 import MastodonApiCache from "./features/mastodon_api_cache";
 import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
-import Paginator from "./api/paginatorz";
+import Paginator from "./api/mastodon_paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./scorer/feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
