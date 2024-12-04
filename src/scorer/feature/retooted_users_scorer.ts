@@ -12,7 +12,7 @@ import { Toot } from "../../types";
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
 
-export default class RetootedUsersFeatureScorer extends FeatureScorer {
+export default class RetootedUsersScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favour accounts you often retoot",
