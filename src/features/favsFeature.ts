@@ -4,6 +4,7 @@
 import { mastodon } from "masto";
 
 import { AccountFeature } from "../types";
+import { Key } from "../Storage";
 import { mastodonFetchPages } from "../api/api";
 
 
@@ -13,7 +14,7 @@ export default async function FavsFeature(
 ): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Status>({
         fetchMethod: api.v1.favourites.list,
-        label: 'favourites'
+        label: Key.TOP_FAVS
     });
 
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
