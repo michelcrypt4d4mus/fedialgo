@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../objects/toot");
+const api_1 = require("../api");
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function getTrendingToots(api) {
@@ -21,7 +22,7 @@ async function getTrendingToots(api) {
     console.log(`Found top mastodon servers: `, topServerDomains);
     // Pull top trending toots from each server
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
-        let serverTopToots = await (0, helpers_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
+        let serverTopToots = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
         if (!serverTopToots || serverTopToots.length == 0) {
             console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
             return [];

@@ -5,8 +5,9 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../features/mastodon_api_cache";
-import { average, dedupeToots, mastodonFetch } from '../helpers';
+import { average, dedupeToots } from '../helpers';
 import { condensedStatus } from "../objects/toot";
+import { mastodonFetch } from "../api";
 import { Toot } from "../types";
 
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;

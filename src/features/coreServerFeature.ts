@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetch, mastodonFetchPages } from "../helpers";
+import { mastodonFetch, mastodonFetchPages } from "../api";
 import { StringNumberDict } from "../types";
 import { ServerFeature } from "../types";
 

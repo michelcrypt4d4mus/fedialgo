@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const helpers_1 = require("../helpers");
+const api_1 = require("../api");
 const NUM_SERVERS_TO_CHECK = 30;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 100;
@@ -84,7 +84,7 @@ exports.default = coreServerFeature;
 ;
 async function getMonthlyUsers(server) {
     try {
-        const instance = await (0, helpers_1.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
+        const instance = await (0, api_1.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     }

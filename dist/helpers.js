@@ -1,86 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
-const axios_1 = __importDefault(require("axios"));
-const change_case_1 = require("change-case");
-// Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-exports.DEFAULT_RECORDS_PER_PAGE = 40;
-const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
+exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = void 0;
 exports.MAX_CONTENT_CHARS = 150;
 exports.IMAGE = "image";
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
 exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
-//Masto does not support top posts from foreign servers, so we have to do it manually
-const isRecord = (x) => {
-    return typeof x === "object" && x !== null && x.constructor.name === "Object";
-};
-exports.isRecord = isRecord;
-// Apply a transform() function to all keys in a nested object.
-const _transformKeys = (data, transform) => {
-    if (Array.isArray(data)) {
-        return data.map((value) => (0, exports._transformKeys)(value, transform));
-    }
-    if ((0, exports.isRecord)(data)) {
-        return Object.fromEntries(Object.entries(data).map(([key, value]) => [
-            transform(key),
-            (0, exports._transformKeys)(value, transform),
-        ]));
-    }
-    return data;
-};
-exports._transformKeys = _transformKeys;
-// Retrieve Mastodon server information from a given server and endpoint
-const mastodonFetch = async (server, endpoint) => {
-    const url = `https://${server}${endpoint}`;
-    console.debug(`mastodonFetch() ${url}'...`);
-    try {
-        const json = await axios_1.default.get(url);
-        console.debug(`mastodonFetch() response for ${url}:`, json);
-        if (json.status === 200 && json.data) {
-            return (0, exports._transformKeys)(json.data, change_case_1.camelCase);
-        }
-        else {
-            throw json;
-        }
-    }
-    catch (error) {
-        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, error);
-        return;
-    }
-};
-exports.mastodonFetch = mastodonFetch;
-;
-// Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
-async function mastodonFetchPages(fetchParams) {
-    let { fetchMethod, maxRecords, label } = fetchParams;
-    maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
-    label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
-    let results = [];
-    let pageNumber = 0;
-    try {
-        for await (const page of fetchMethod({ limit: exports.DEFAULT_RECORDS_PER_PAGE })) {
-            results = results.concat(page);
-            console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
-            if (results.length >= maxRecords) {
-                console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
-                break;
-            }
-        }
-    }
-    catch (e) {
-        console.error(`Error in mastodonFetchPages():`, e);
-        return results;
-    }
-    return results;
-}
-exports.mastodonFetchPages = mastodonFetchPages;
-;
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";

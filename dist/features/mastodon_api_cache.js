@@ -33,7 +33,7 @@ const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
 const replied_feature_1 = __importDefault(require("./replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
-const helpers_1 = require("../helpers");
+const api_1 = require("../api");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
@@ -50,7 +50,7 @@ class MastodonApiCache extends Storage_1.default {
             const user = await this.getIdentity();
             if (user == null)
                 throw new Error("Error getting followed accounts (no user identity found)");
-            followedAccounts = await (0, helpers_1.mastodonFetchPages)({
+            followedAccounts = await (0, api_1.mastodonFetchPages)({
                 fetchMethod: api.v1.accounts.$select(user.id).following.list,
                 maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
                 label: 'followedAccounts'

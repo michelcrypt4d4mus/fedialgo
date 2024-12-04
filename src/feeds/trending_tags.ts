@@ -23,7 +23,9 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../features/mastodon_api_cache";
-import { dedupeToots, mastodonFetch } from "../helpers";
+import { dedupeToots } from "../helpers";
+import { popularity } from "../objects/toot";
+import { mastodonFetch, searchForToots } from "../api";
 import { Toot, TrendingTag } from "../types";
 
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
@@ -39,7 +41,7 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
     const tootses: Toot[][] = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
     const toots: Toot[] = dedupeToots(tootses.flat(), "trendingTags");
     console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
-    return toots;
+    return toots.sort(popularity).reverse().slice(0, NUM_TRENDING_TAG_TOOTS);
 };
 
 
@@ -96,9 +98,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
 async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
     try {
         console.debug(`[TrendingTags] getting toots for tag:`, tag);
-        const mastoQuery: mastodon.rest.v1.SearchParams = { limit: NUM_TRENDING_TAG_TOOTS_PER_SERVER, q: tag.name, type: "statuses" };
-        const searchResult = await api.v2.search.fetch(mastoQuery);
-        const toots = searchResult.statuses as Toot[];
+        const toots = await searchForToots(api, tag.name);
 
         toots.forEach((toot) => {
             toot.trendingTags ||= [];

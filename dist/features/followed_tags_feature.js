@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = require("../Storage");
-const helpers_1 = require("../helpers");
+const api_1 = require("../api");
 async function FollowedTagsFeature(api) {
-    const tags = await (0, helpers_1.mastodonFetchPages)({
+    const tags = await (0, api_1.mastodonFetchPages)({
         fetchMethod: api.v1.followedTags.list,
         label: Storage_1.Key.FOLLOWED_TAGS
     });

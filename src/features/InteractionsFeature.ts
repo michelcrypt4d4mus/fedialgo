@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import { AccountFeature } from "../types";
-import { mastodonFetchPages } from "../helpers";
+import { mastodonFetchPages } from "../api";
 
 
 export default async function InteractionsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {

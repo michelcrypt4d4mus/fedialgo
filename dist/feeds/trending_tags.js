@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
+const toot_1 = require("../objects/toot");
+const api_1 = require("../api");
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 const NUM_TRENDING_TAGS_PER_SERVER = 20;
@@ -16,7 +18,7 @@ async function getRecentTootsForTrendingTags(api) {
     const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots = (0, helpers_1.dedupeToots)(tootses.flat(), "trendingTags");
     console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
-    return toots;
+    return toots.sort(toot_1.popularity).reverse().slice(0, NUM_TRENDING_TAG_TOOTS);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;
@@ -31,7 +33,7 @@ async function getTrendingTags(api) {
     console.log(`[TrendingTags] Found top mastodon servers: `, topServerDomains);
     // Pull top trending toots from each server
     const trendingTags = await Promise.all(topServerDomains.map(async (server) => {
-        let tags = await (0, helpers_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
+        let tags = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
         if (!tags || tags.length == 0) {
             console.warn(`[TrendingTags] Failed to get trending toots from '${server}'! trendingTags:`, tags);
             return [];
@@ -61,9 +63,7 @@ async function getTrendingTags(api) {
 async function getTootsForTag(api, tag) {
     try {
         console.debug(`[TrendingTags] getting toots for tag:`, tag);
-        const mastoQuery = { limit: NUM_TRENDING_TAG_TOOTS_PER_SERVER, q: tag.name, type: "statuses" };
-        const searchResult = await api.v2.search.fetch(mastoQuery);
-        const toots = searchResult.statuses;
+        const toots = await (0, api_1.searchForToots)(api, tag.name);
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
             toot.trendingTags.push(tag);

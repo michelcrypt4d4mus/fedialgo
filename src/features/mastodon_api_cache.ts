@@ -12,7 +12,7 @@ import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import repliedFeature from "./replied_feature";
 import Storage, { Key } from "../Storage";
 import { AccountFeature, StringNumberDict, ServerFeature, TootURIs } from "../types";
-import { mastodonFetchPages } from "../helpers";
+import { mastodonFetchPages } from "../api";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same

@@ -2,7 +2,7 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import { Toot } from "../types";
-import { _transformKeys } from "../helpers";
+import { _transformKeys } from "../api";
 
 
 export default async function getRecommenderFeed(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<Toot[]> {

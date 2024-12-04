@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserRecentToots = void 0;
-const helpers_1 = require("../helpers");
+const api_1 = require("../api");
 async function reblogsFeature(api, user, recentToots) {
     recentToots ||= await getUserRecentToots(api, user);
     const recentRetoots = recentToots.filter(toot => toot?.reblog);
@@ -19,7 +19,7 @@ async function reblogsFeature(api, user, recentToots) {
 exports.default = reblogsFeature;
 ;
 function getUserRecentToots(api, user) {
-    return (0, helpers_1.mastodonFetchPages)({
+    return (0, api_1.mastodonFetchPages)({
         fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });

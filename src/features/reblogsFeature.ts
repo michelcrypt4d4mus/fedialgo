@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetchPages } from "../helpers";
+import { mastodonFetchPages } from "../api";
 
 
 export default async function reblogsFeature(
