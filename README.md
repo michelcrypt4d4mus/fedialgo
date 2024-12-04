@@ -72,6 +72,8 @@ const newWeights = await algoObj.learnWeights(scores)
 
 
 # Contributing
+Package configuration options can be found in [`src/config.ts`](src/config.ts).
+
 ### Developer Setup
 If necessary install the dev dependencies with `npm install --include=dev`.
 

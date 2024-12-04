@@ -16,7 +16,6 @@ export declare enum Key {
     USER = "algouser",
     WEIGHTS = "weights"
 }
-export declare const DEFAULT_CONFIG: Config;
 export declare const DEFAULT_FILTERS: FeedFilterSettings;
 export default class Storage {
     static config: Config;

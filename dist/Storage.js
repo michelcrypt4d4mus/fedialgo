@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_FILTERS = exports.DEFAULT_CONFIG = exports.Key = void 0;
+exports.DEFAULT_FILTERS = exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
+const config_1 = require("./config");
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
@@ -23,29 +24,6 @@ var Key;
     Key["WEIGHTS"] = "weights";
 })(Key || (exports.Key = Key = {}));
 ;
-exports.DEFAULT_CONFIG = {
-    defaultRecordsPerPage: 40,
-    maxTimelineTootsToFetch: 480,
-    maxTimelineHoursToFetch: 96,
-    reloadIfOlderThanMinutes: 10,
-    defaultLanguage: "en",
-    // API stuff
-    minRecordsForFeatureScoring: 400,
-    maxFollowingAccountsToPull: 5000,
-    reloadFeaturesEveryNthOpen: 9,
-    numServersToCheck: 30,
-    minServerMAU: 100,
-    // Trending tags
-    numDaysToCountTrendingTagData: 3,
-    numTrendingTags: 20,
-    numTrendingTagsPerServer: 20,
-    numTrendingTagsToots: 100,
-    numTrendingTagsTootsPerServer: 20,
-    // Tag filters
-    minTootsForTagToAppearInFilter: 5,
-    // Trending toots
-    numTrendingTootsPerServer: 30, // NUM_TRENDING_TOOTS_PER_SERVER
-};
 exports.DEFAULT_FILTERS = {
     filteredApps: [],
     filteredLanguages: [],
@@ -61,7 +39,8 @@ exports.DEFAULT_FILTERS = {
     weightLearningEnabled: false,
 };
 class Storage {
-    static config = Object.assign({}, exports.DEFAULT_CONFIG);
+    static config = Object.assign({}, config_1.DEFAULT_CONFIG);
+    // TODO: consider actually storing the config in browser storage.
     static getConfig() {
         return this.config;
     }
