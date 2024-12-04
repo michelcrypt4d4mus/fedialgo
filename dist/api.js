@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._transformKeys = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.transformKeys = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -36,7 +36,7 @@ const mastodonFetch = async (server, endpoint) => {
         const json = await axios_1.default.get(url);
         console.debug(`mastodonFetch() response for ${url}:`, json);
         if (json.status === 200 && json.data) {
-            return (0, exports._transformKeys)(json.data, change_case_1.camelCase);
+            return (0, exports.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
             throw json;
@@ -76,19 +76,19 @@ async function mastodonFetchPages(fetchParams) {
 exports.mastodonFetchPages = mastodonFetchPages;
 ;
 // Apply a transform() function to all keys in a nested object.
-const _transformKeys = (data, transform) => {
+const transformKeys = (data, transform) => {
     if (Array.isArray(data)) {
-        return data.map((value) => (0, exports._transformKeys)(value, transform));
+        return data.map((value) => (0, exports.transformKeys)(value, transform));
     }
     if (isRecord(data)) {
         return Object.fromEntries(Object.entries(data).map(([key, value]) => [
             transform(key),
-            (0, exports._transformKeys)(value, transform),
+            (0, exports.transformKeys)(value, transform),
         ]));
     }
     return data;
 };
-exports._transformKeys = _transformKeys;
+exports.transformKeys = transformKeys;
 //Masto does not support top posts from foreign servers, so we have to do it manually
 const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";

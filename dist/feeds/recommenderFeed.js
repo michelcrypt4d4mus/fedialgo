@@ -19,7 +19,7 @@ async function getRecommenderFeed(_api, _user) {
         status.recommended = true;
         return status;
     });
-    return (0, api_1._transformKeys)(statuses, change_case_1.camelCase);
+    return (0, api_1.transformKeys)(statuses, change_case_1.camelCase);
 }
 exports.default = getRecommenderFeed;
 ;

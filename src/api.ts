@@ -42,7 +42,7 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
         console.debug(`mastodonFetch() response for ${url}:`, json);
 
         if (json.status === 200 && json.data) {
-            return _transformKeys(json.data, camelCase);
+            return transformKeys(json.data, camelCase);
         } else {
             throw json;
         }
@@ -88,16 +88,16 @@ export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promis
 
 
 // Apply a transform() function to all keys in a nested object.
-export const _transformKeys = <T>(data: T, transform: (key: string) => string): T => {
+export const transformKeys = <T>(data: T, transform: (key: string) => string): T => {
     if (Array.isArray(data)) {
-        return data.map((value) => _transformKeys<T>(value, transform)) as T;
+        return data.map((value) => transformKeys<T>(value, transform)) as T;
     }
 
     if (isRecord(data)) {
         return Object.fromEntries(
             Object.entries(data).map(([key, value]) => [
                 transform(key),
-                _transformKeys(value, transform),
+                transformKeys(value, transform),
             ]),
         ) as T;
     }

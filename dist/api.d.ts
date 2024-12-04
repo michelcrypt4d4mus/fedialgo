@@ -9,5 +9,5 @@ interface FetchParams<T> {
     label?: string;
 }
 export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
-export declare const _transformKeys: <T>(data: T, transform: (key: string) => string) => T;
+export declare const transformKeys: <T>(data: T, transform: (key: string) => string) => T;
 export {};
