@@ -8,7 +8,10 @@ import { AccountFeature } from "../types";
 import { mastodonFetchPages } from "../api/api";
 
 
-export default async function InteractionsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
+export default async function InteractionsFeature(
+    api: mastodon.rest.Client,
+    _user: mastodon.v1.Account
+): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Notification>({
         fetchMethod: api.v1.notifications.list,
         label: 'notifications'
