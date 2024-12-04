@@ -15,6 +15,7 @@ export type FeedFeature = AccountFeature | StringNumberDict;
 export type FeedFilterSettings = {
     filteredApps: string[];
     filteredLanguages: string[];
+    filteredTags: string[];
     includeFollowedAccounts: boolean;
     includeFollowedHashtags: boolean;
     includeReplies: boolean;

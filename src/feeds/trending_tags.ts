@@ -98,6 +98,7 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
         console.debug(`[TrendingTags] getting toots for tag:`, tag);
         const toots = await searchForToots(api, tag.name);
 
+        // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
@@ -112,8 +113,7 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
 };
 
 
-// Inject toot and account counts (how many toots and users are using the trending tag)
-// Also lowercase the tag text.
+// Lowercase the tag text; Inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
 function decorateTagData(tag: TrendingTag): void {
     tag.name = tag.name.toLowerCase();
 

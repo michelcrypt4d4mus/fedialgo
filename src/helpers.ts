@@ -46,7 +46,7 @@ export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefi
         const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
         const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()]
 
-        if (allTrendingTags.length > 0) {
+        if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
             console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
             console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
         }

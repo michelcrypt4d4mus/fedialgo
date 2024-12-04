@@ -13,6 +13,8 @@ declare class TheAlgorithm {
     followedAccounts: AccountNames;
     feedLanguageCounts: StringNumberDict;
     appCounts: StringNumberDict;
+    tagCounts: StringNumberDict;
+    tagFilterCounts: StringNumberDict;
     scoreMutex: Mutex;
     setFeedInApp: (f: Toot[]) => void;
     fetchers: (typeof getHomeFeed)[];

@@ -26,6 +26,7 @@ var Key;
 exports.DEFAULT_FILTERS = {
     filteredApps: [],
     filteredLanguages: [],
+    filteredTags: [],
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
     includeReplies: true,

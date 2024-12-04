@@ -51,6 +51,7 @@ const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
+const MINIMUM_TAGS_FOR_FILTER = 3;
 
 const TIME_DECAY = 'TimeDecay';
 const TIME_DECAY_DEFAULT = 0.05;
@@ -72,6 +73,8 @@ class TheAlgorithm {
     followedAccounts: AccountNames = {};
     feedLanguageCounts: StringNumberDict = {};
     appCounts: StringNumberDict = {};
+    tagCounts: StringNumberDict = {};
+    tagFilterCounts: StringNumberDict = {};  // Just tagCounts filtered for a minimum count
     scoreMutex = new Mutex();
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);
@@ -206,6 +209,7 @@ class TheAlgorithm {
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
         console.debug(`${prefix} feed toots posted by application counts:`, this.appCounts);
+        console.log(`${prefix} tagCounts:`, this.tagCounts);
         console.log(`${prefix} timeline toots (condensed):`, this.feed.map(condensedStatus));
     }
 
@@ -261,7 +265,7 @@ class TheAlgorithm {
             return counts;
         }, {} as StringNumberDict);
 
-        // Check for weird media types
+        // Check for weird media types and lowercase all tags
         this.feed.forEach(toot => {
             toot.mediaAttachments.forEach((media, i) => {
                 if (media.type === "unknown" && isImage(media.remoteUrl)) {
@@ -271,7 +275,36 @@ class TheAlgorithm {
                     console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
                 }
             });
+
+            toot.tags.forEach(tag => {
+                if(!tag.name || tag.name.length == 0) {
+                    console.warn(`Broken tag found in toot:`, toot);
+                    tag.name = "<<BROKEN_TAG>>";
+                    return;
+                }
+
+                tag.name == tag.name.toLowerCase();
+            });
         });
+
+        this.tagCounts = this.feed.reduce((tagCounts, toot) => {
+            toot.tags.forEach(tag => {
+                if(!tag.name || tag.name.length == 0) {
+                    console.warn(`Broken tag found in toot:`, toot);
+                    tag.name = "<<BROKEN_TAG>>";
+                }
+
+                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
+            });
+
+            return tagCounts;
+        }, {} as StringNumberDict);
+
+        this.tagFilterCounts = Object.fromEntries(
+            Object.entries(this.tagCounts).filter(
+               ([key, val]) => val >= MINIMUM_TAGS_FOR_FILTER
+            )
+         );
     }
 
     // TODO: is this ever used?
@@ -380,6 +413,7 @@ class TheAlgorithm {
     private isFiltered(toot: Toot): boolean {
         const apps = this.filters.filteredApps;
         const languages = this.filters.filteredLanguages;
+        const tags = this.filters.filteredTags;
         const tootLanguage = toot.language || ENGLISH_CODE;
 
         if (languages.length > 0) {
@@ -393,6 +427,8 @@ class TheAlgorithm {
 
         if (apps.length > 0 && !apps.includes(toot.application?.name)) {
             console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
+            return false;
+        } else if (tags.length > 0 && !toot.tags.some(tag => tags.includes(tag.name))) {
             return false;
         } else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;

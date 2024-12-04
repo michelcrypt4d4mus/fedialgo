@@ -64,6 +64,7 @@ async function getTootsForTag(api, tag) {
     try {
         console.debug(`[TrendingTags] getting toots for tag:`, tag);
         const toots = await (0, api_1.searchForToots)(api, tag.name);
+        // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
@@ -77,8 +78,7 @@ async function getTootsForTag(api, tag) {
     }
 }
 ;
-// Inject toot and account counts (how many toots and users are using the trending tag)
-// Also lowercase the tag text.
+// Lowercase the tag text; Inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
 function decorateTagData(tag) {
     tag.name = tag.name.toLowerCase();
     if (!tag?.history || tag.history.length == 0) {

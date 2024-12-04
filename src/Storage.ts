@@ -23,6 +23,7 @@ export enum Key {
 export const DEFAULT_FILTERS = {
     filteredApps: [],
     filteredLanguages: [],
+    filteredTags: [],
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
     includeReplies: true,
