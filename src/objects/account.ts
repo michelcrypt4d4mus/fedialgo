@@ -14,4 +14,4 @@ export function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames
         },
         {} as AccountNames
     );
-}
+};

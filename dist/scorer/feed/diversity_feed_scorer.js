@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
-        super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
+        super("Diversity", "Disfavour toots from users that are filling up your feed with a lot of toots");
     }
     feedExtractor(feed) {
         // Shuffle the feed before penalizing multiple tooters

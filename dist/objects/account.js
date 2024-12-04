@@ -8,4 +8,5 @@ function buildAccountNames(accounts) {
     }, {});
 }
 exports.buildAccountNames = buildAccountNames;
+;
 //# sourceMappingURL=account.js.map

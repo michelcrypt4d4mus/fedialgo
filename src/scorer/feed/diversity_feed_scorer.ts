@@ -10,7 +10,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     constructor() {
         super(
             "Diversity",
-            "Disfavour toots from users that are cluttering up your feed with a lot of toots",
+            "Disfavour toots from users that are filling up your feed with a lot of toots",
         );
     }
 
