@@ -38,9 +38,8 @@ export const DEFAULT_FILTERS = {
 
 export default class Storage {
     static async getWeightings(): Promise<StringNumberDict> {
-        let weightings = await this.get(Key.WEIGHTS);
-        weightings ??= {};
-        return weightings as StringNumberDict;
+        const weightings = await this.get(Key.WEIGHTS);
+        return (weightings ?? {}) as StringNumberDict;
     }
 
     static async setWeightings(userWeightings: StringNumberDict): Promise<void> {

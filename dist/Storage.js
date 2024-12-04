@@ -39,9 +39,8 @@ exports.DEFAULT_FILTERS = {
 };
 class Storage {
     static async getWeightings() {
-        let weightings = await this.get(Key.WEIGHTS);
-        weightings ??= {};
-        return weightings;
+        const weightings = await this.get(Key.WEIGHTS);
+        return (weightings ?? {});
     }
     static async setWeightings(userWeightings) {
         await this.set(Key.WEIGHTS, userWeightings);
