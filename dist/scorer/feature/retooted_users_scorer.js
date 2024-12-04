@@ -7,7 +7,6 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
 const Storage_1 = require("../../Storage");
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
-// TODO: rename retootedUsersFeatureScorer
 class RetootedUsersFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
@@ -25,4 +24,4 @@ class RetootedUsersFeatureScorer extends feature_scorer_1.default {
 }
 exports.default = RetootedUsersFeatureScorer;
 ;
-//# sourceMappingURL=reblogsFeatureScorer.js.map
+//# sourceMappingURL=retooted_users_scorer.js.map

@@ -19,7 +19,7 @@ const numFavoritesScorer_1 = __importDefault(require("./scorer/feature/numFavori
 const numRepliesScorer_1 = __importDefault(require("./scorer/feature/numRepliesScorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
 const paginator_1 = __importDefault(require("./api/paginator"));
-const reblogsFeatureScorer_1 = __importDefault(require("./scorer/feature/reblogsFeatureScorer"));
+const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const replied_feature_scorer_1 = __importDefault(require("./scorer/feature/replied_feature_scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -70,7 +70,7 @@ class TheAlgorithm {
         new numFavoritesScorer_1.default(),
         new numRepliesScorer_1.default(),
         new num_retoots_scorer_1.default(),
-        new reblogsFeatureScorer_1.default(),
+        new retooted_users_scorer_1.default(),
         new replied_feature_scorer_1.default(),
         new trending_toots_feature_scorer_1.default(),
         new trending_tags_scorer_1.default(),
