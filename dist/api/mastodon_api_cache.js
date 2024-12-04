@@ -42,10 +42,6 @@ const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
-// type StringOrNumberFunction<
-//     Inputs extends (string | number)[],
-//     Output = void,
-// > = (...args: Inputs) => Output;
 class MastodonApiCache extends Storage_1.default {
     // Get an array of Accounts the user is following
     static async getFollowedAccounts(api) {

@@ -23,11 +23,6 @@ const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
 
-// type StringOrNumberFunction<
-//     Inputs extends (string | number)[],
-//     Output = void,
-// > = (...args: Inputs) => Output;
-
 
 export default class MastodonApiCache extends Storage {
     // Get an array of Accounts the user is following
