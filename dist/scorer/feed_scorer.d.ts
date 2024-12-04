@@ -1,4 +1,4 @@
-import Scorer from "./Scorer";
+import Scorer from "./scorer";
 import { Toot } from "../types";
 export default class FeedScorer extends Scorer {
     features: Record<string, number>;

@@ -2,7 +2,7 @@
  * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
-import FeatureScorer from '../FeatureScorer';
+import FeatureScorer from '../feature_scorer';
 import { Toot } from "../../types";
 
 export const TRENDING_TOOTS = "TrendingToots";

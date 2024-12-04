@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Scorer_1 = __importDefault(require("./Scorer"));
+const scorer_1 = __importDefault(require("./scorer"));
 ;
-class FeatureScorer extends Scorer_1.default {
+class FeatureScorer extends scorer_1.default {
     // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
     // e.g. things like most commonly retooted users etc.
     featureGetter;
@@ -27,4 +27,4 @@ class FeatureScorer extends Scorer_1.default {
 }
 exports.default = FeatureScorer;
 ;
-//# sourceMappingURL=FeatureScorer.js.map
+//# sourceMappingURL=feature_scorer.js.map

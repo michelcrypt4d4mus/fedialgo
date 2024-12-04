@@ -1,7 +1,7 @@
 /*
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
-import FeedScorer from "../FeedScorer";
+import FeedScorer from "../feed_scorer";
 import { Toot } from "../../types";
 
 const DEFAULT_REBLOGS_WEIGHT = 2;

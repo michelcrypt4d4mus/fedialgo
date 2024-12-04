@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import FeatureScorer from "../FeatureScorer";
+import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../features/mastodon_api_cache";
 import { Key } from '../../Storage';
 import { Toot } from "../../types";

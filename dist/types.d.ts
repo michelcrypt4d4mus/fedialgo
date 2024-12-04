@@ -1,5 +1,5 @@
 import { mastodon } from 'masto';
-import Scorer from './scorer/Scorer';
+import Scorer from './scorer/scorer';
 export type AccountFeature = {
     [key: mastodon.v1.Account["acct"]]: number;
 };

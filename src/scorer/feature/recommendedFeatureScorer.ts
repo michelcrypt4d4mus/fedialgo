@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import FeatureScorer from '../FeatureScorer';
+import FeatureScorer from '../feature_scorer';
 import { Toot } from "../../types";
 
 

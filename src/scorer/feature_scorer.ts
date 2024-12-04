@@ -6,7 +6,7 @@
  */
 import { mastodon } from "masto";
 
-import Scorer from "./Scorer";
+import Scorer from "./scorer";
 import { FeedFeature, Toot } from "../types";
 
 

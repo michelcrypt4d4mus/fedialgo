@@ -2,7 +2,7 @@
  * Scores with the log2 of the number of accounts that have interacted with a toot's
  * trending tags across the Fediverse.
  */
-import FeatureScorer from '../FeatureScorer';
+import FeatureScorer from '../feature_scorer';
 import { Toot, TrendingTag } from "../../types";
 
 export const TRENDING_TAGS = "TrendingTags";

@@ -8,10 +8,10 @@ exports.TRENDING_TAGS_DEFAULT_WEIGHT = exports.TRENDING_TAGS = void 0;
  * Scores with the log2 of the number of accounts that have interacted with a toot's
  * trending tags across the Fediverse.
  */
-const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 exports.TRENDING_TAGS = "TrendingTags";
 exports.TRENDING_TAGS_DEFAULT_WEIGHT = 0.4;
-class TrendingTagsFeatureScorer extends FeatureScorer_1.default {
+class TrendingTagsFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour hashtags that are trending in the Fediverse",

@@ -7,8 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Generates a NEGATIVE score based on how many times the tooter has tooted recently to help
  * prevent prolific tooters from clogging up the feed.
  */
-const FeedScorer_1 = __importDefault(require("../FeedScorer"));
-class DiversityFeedScorer extends FeedScorer_1.default {
+const feed_scorer_1 = __importDefault(require("../feed_scorer"));
+class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
         super("Diversity", "Disfavour toots from users that are cluttering up your feed with a lot of toots");
     }

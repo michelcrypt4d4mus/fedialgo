@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Score how many times the toot has been favorited by other users.
  */
-const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const SCORE_NAME = "NumFavourites";
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
-class NumFavoritesScorer extends FeatureScorer_1.default {
+class NumFavoritesScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour things favourited by a lot of other users",

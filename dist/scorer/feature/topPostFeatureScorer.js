@@ -8,11 +8,11 @@ exports.TRENDING_TOOTS_DEFAULT_WEIGHT = exports.TRENDING_TOOTS = void 0;
  * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
-const FeatureScorer_1 = __importDefault(require("../FeatureScorer"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 exports.TRENDING_TOOTS = "TrendingToots";
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 // TODO: rename TrendingTootFeatureScorer
-class TopPostFeatureScorer extends FeatureScorer_1.default {
+class TopPostFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour toots that are trending in the Fediverse",

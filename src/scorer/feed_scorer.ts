@@ -3,7 +3,7 @@
  * For example DiversityFeedScorer has to count how many toots by each user are in your feed
  * before it knows how much to penalize prolific tooters.
  */
-import Scorer from "./Scorer";
+import Scorer from "./scorer";
 import { Toot } from "../types";
 
 

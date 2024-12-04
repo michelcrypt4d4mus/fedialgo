@@ -2,7 +2,7 @@
  * Generates a NEGATIVE score based on how many times the tooter has tooted recently to help
  * prevent prolific tooters from clogging up the feed.
  */
-import FeedScorer from "../FeedScorer";
+import FeedScorer from "../feed_scorer";
 import { Toot } from "../../types";
 
 

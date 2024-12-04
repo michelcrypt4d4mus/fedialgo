@@ -1,4 +1,4 @@
-import FeedScorer from "../FeedScorer";
+import FeedScorer from "../feed_scorer";
 import { Toot } from "../../types";
 export default class ReblogsFeedScorer extends FeedScorer {
     constructor();

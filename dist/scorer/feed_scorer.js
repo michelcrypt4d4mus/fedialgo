@@ -8,8 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * For example DiversityFeedScorer has to count how many toots by each user are in your feed
  * before it knows how much to penalize prolific tooters.
  */
-const Scorer_1 = __importDefault(require("./Scorer"));
-class FeedScorer extends Scorer_1.default {
+const scorer_1 = __importDefault(require("./scorer"));
+class FeedScorer extends scorer_1.default {
     features = {};
     constructor(scoreName, description, defaultWeight) {
         super(scoreName, description, defaultWeight);
@@ -27,4 +27,4 @@ class FeedScorer extends Scorer_1.default {
 }
 exports.default = FeedScorer;
 ;
-//# sourceMappingURL=FeedScorer.js.map
+//# sourceMappingURL=feed_scorer.js.map

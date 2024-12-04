@@ -1,7 +1,7 @@
 /*
  * Score how many times the toot has been favorited by other users.
  */
-import FeatureScorer from '../FeatureScorer';
+import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
 import { videoAttachments } from '../../objects/toot';
 

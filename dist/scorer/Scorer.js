@@ -35,4 +35,4 @@ class Scorer {
 }
 exports.default = Scorer;
 ;
-//# sourceMappingURL=Scorer.js.map
+//# sourceMappingURL=scorer.js.map
