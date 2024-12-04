@@ -16,6 +16,7 @@ export type FeedFilterSettings = {
     includeFollowedHashtags: boolean;
     includeReplies: boolean;
     includeReposts: boolean;
+    includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
     weightLearningEnabled: boolean;
@@ -42,6 +43,7 @@ export interface Toot extends mastodon.v1.Status {
     scoreInfo?: TootScore;
     similarity?: number;
     trendingRank?: number;
+    trendingTags?: TrendingTag[];
 }
 export type TootScore = {
     rawScore: number;
@@ -53,5 +55,10 @@ export type TootScore = {
 export type TootURIs = {
     [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
+export interface TrendingTag extends mastodon.v1.Tag {
+    trendingRank?: number;
+    numToots?: number;
+    numAccounts?: number;
+}
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | number | string;

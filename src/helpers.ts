@@ -2,7 +2,7 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import { Toot } from "./types";
+import { Toot, TrendingTag } from "./types";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
@@ -44,8 +44,12 @@ export const _transformKeys = <T>(data: T, transform: (key: string) => string): 
 
 // Retrieve Mastodon server information from a given server and endpoint
 export const mastodonFetch = async <T>(server: string, endpoint: string): Promise<T | undefined> => {
+    const url = `https://${server}${endpoint}`;
+    console.debug(`mastodonFetch() ${url}'...`);
+
     try {
-        const json = await axios.get<T>(`https://${server}${endpoint}`);
+        const json = await axios.get<T>(url);
+        console.debug(`mastodonFetch() response for ${url}:`, json);
 
         if (json.status === 200 && json.data) {
             return _transformKeys(json.data, camelCase);
@@ -218,8 +222,37 @@ export function isImage(uri: string | null | undefined): boolean {
 
 // Remove dupes by uniquifying on the toot's URI
 export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
-    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
     const prefix = logLabel ? `[${logLabel}] ` : '';
+    const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
+
+    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+        if (!uriToots || uriToots.length == 0) return;
+        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()]
+
+        if (allTrendingTags.length > 0) {
+            console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+            console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
+        }
+
+        // Set all toots to have all trending tags.
+        uriToots.forEach((toot) => {
+            toot.trendingTags = uniqueTrendingTags || [];
+        });
+    });
+
+    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
     console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
-    return deduped
+    return deduped;
+};
+
+
+// TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
+export function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]> {
+    return arr.reduce((acc, item) => {
+        const group = key(item);
+        acc[group] ||= [];
+        acc[group].push(item);
+        return acc;
+    }, {} as Record<string, T[]>);
 };

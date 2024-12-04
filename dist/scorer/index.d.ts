@@ -12,5 +12,6 @@ import ReblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./feature/replied_feature_scorer";
 import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
+import TrendingTagsFeatureScorer from "./feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./feature/VideoAttachmentScorer";
-export { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FeedScorer, FeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, VideoAttachmentScorer, };
+export { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FeedScorer, FeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, TrendingTagsFeatureScorer, VideoAttachmentScorer, };

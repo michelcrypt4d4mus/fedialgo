@@ -26,6 +26,7 @@ export const DEFAULT_FILTERS = {
     includeFollowedHashtags: true,
     includeReplies: true,
     includeReposts: true,
+    includeTrendingHashTags: true,
     includeTrendingToots: true,
     onlyLinks: false,
     weightLearningEnabled: false,
