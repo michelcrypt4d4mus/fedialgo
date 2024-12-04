@@ -10,6 +10,7 @@ import getTrendingToots from "./feeds/trending_toots";
 import Paginator from "./Paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
 import {
+    AccountNames,
     AlgorithmArgs,
     FeedFilterSettings,
     ScorerDict,
@@ -68,8 +69,7 @@ class TheAlgorithm {
 
     // Variables with initial values
     feed: Toot[] = [];
-    followedAccounts: mastodon.v1.Account[] = [];
-    followedAccts: string[] = [];
+    followedAccounts: AccountNames = {};
     feedLanguageCounts: StringNumberDict = {};
     appCounts: StringNumberDict = {};
     scoreMutex = new Mutex();
@@ -125,7 +125,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
-        algo.followedAccounts = await Storage.getFollowedAccts() ?? [];  // TODO prolly don't need to await this
+        algo.followedAccounts = await Storage.getFollowedAccts() ?? {};
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -272,9 +272,6 @@ class TheAlgorithm {
                 }
             });
         });
-
-        // TODO: this sucks; we should store the followed accounts as a dict keyes by account.acct so we can use "in" operator
-        this.followedAccts = this.followedAccounts.map(account => account.acct);
     }
 
     // TODO: is this ever used?
@@ -406,7 +403,7 @@ class TheAlgorithm {
             return false;
         } else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
-        } else if (!this.filters.includeFollowedAccounts && this.followedAccts.includes(toot.account.acct)) {
+        } else if (!this.filters.includeFollowedAccounts && (toot.account.acct in this.followedAccounts)) {
             return false;
         } else if (!this.filters.includeReplies && toot.inReplyToId) {
             return false;

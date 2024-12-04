@@ -42,7 +42,7 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(followedAccounts) {
     // Count up what Mastodon servers the user follows live on
-    const userServerCounts = followedAccounts.reduce((userCounts, follower) => {
+    const userServerCounts = Object.values(followedAccounts).reduce((userCounts, follower) => {
         if (!follower.url)
             return userCounts;
         const server = follower.url.split("@")[0].split("https://")[1];
@@ -51,7 +51,7 @@ async function coreServerFeature(followedAccounts) {
     }, {});
     const numServers = Object.keys(userServerCounts).length;
     if (numServers < NUM_SERVERS_TO_CHECK) {
-        console.log(`Adding default servers bc user only follows accounts on ${numServers}:`, userServerCounts);
+        console.log(`Adding default servers bc user only follows accts on ${numServers} servers:`, userServerCounts);
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
             .slice(0, NUM_SERVERS_TO_CHECK - numServers)
             .forEach(s => (userServerCounts[s] = 1));

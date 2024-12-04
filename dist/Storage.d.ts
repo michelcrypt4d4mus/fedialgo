@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
+import { AccountNames, FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FILTERS = "filters",
@@ -22,7 +22,7 @@ export default class Storage {
     static setWeightings(userWeightings: StringNumberDict): Promise<void>;
     static getFilters(): Promise<FeedFilterSettings>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
-    static getFollowedAccts(): Promise<mastodon.v1.Account[] | null>;
+    static getFollowedAccts(): Promise<AccountNames | null>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;

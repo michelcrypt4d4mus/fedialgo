@@ -7,6 +7,10 @@ export type AccountFeature = {
     [key: mastodon.v1.Account["acct"]]: number;
 };
 
+export type AccountNames = {
+    [key: mastodon.v1.Account["acct"]]: mastodon.v1.Account;
+};
+
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -77,5 +81,5 @@ export interface TrendingTag extends mastodon.v1.Tag {
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
-export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
-    TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number | string;
+export type StorageValue = AccountFeature | AccountNames | FeedFilterSettings | StringNumberDict |
+    ServerFeature |TootURIs | Toot[] | mastodon.v1.Account | number | string;

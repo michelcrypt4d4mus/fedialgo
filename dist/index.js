@@ -57,8 +57,7 @@ class TheAlgorithm {
     filters;
     // Variables with initial values
     feed = [];
-    followedAccounts = [];
-    followedAccts = [];
+    followedAccounts = {};
     feedLanguageCounts = {};
     appCounts = {};
     scoreMutex = new async_mutex_1.Mutex();
@@ -104,7 +103,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? []; // TODO prolly don't need to await this
+        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? {};
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -230,8 +229,6 @@ class TheAlgorithm {
                 }
             });
         });
-        // TODO: this sucks; we should store the followed accounts as a dict keyes by account.acct so we can use "in" operator
-        this.followedAccts = this.followedAccounts.map(account => account.acct);
     }
     // TODO: is this ever used?
     list() {
@@ -355,7 +352,7 @@ class TheAlgorithm {
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
         }
-        else if (!this.filters.includeFollowedAccounts && this.followedAccts.includes(toot.account.acct)) {
+        else if (!this.filters.includeFollowedAccounts && (toot.account.acct in this.followedAccounts)) {
             return false;
         }
         else if (!this.filters.includeReplies && toot.inReplyToId) {

@@ -11,7 +11,7 @@ import InteractionsFeature from "./InteractionsFeature";
 import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
 import repliedFeature from "./replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, StringNumberDict, ServerFeature, TootURIs } from "../types";
+import { AccountFeature, StringNumberDict, ServerFeature, TootURIs, AccountNames } from "../types";
 import { mastodonFetchPages } from "../api";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
@@ -25,7 +25,7 @@ const RETRIEVED = 'Retrieved';
 
 export default class MastodonApiCache extends Storage {
     // Get an array of Accounts the user is following
-    static async getFollowedAccounts(api: mastodon.rest.Client): Promise<mastodon.v1.Account[]> {
+    static async getFollowedAccounts(api: mastodon.rest.Client): Promise<AccountNames> {
         let followedAccounts = await this.getFollowedAccts();
         let logAction = LOADED_FROM_STORAGE;
 
@@ -33,11 +33,19 @@ export default class MastodonApiCache extends Storage {
             const user = await this.getIdentity();
             if (user == null) throw new Error("Error getting followed accounts (no user identity found)");
 
-            followedAccounts = await mastodonFetchPages<mastodon.v1.Account>({
+            const accounts = await mastodonFetchPages<mastodon.v1.Account>({
                 fetchMethod: api.v1.accounts.$select(user.id).following.list,
                 maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
                 label: 'followedAccounts'
             });
+
+            followedAccounts = accounts.reduce(
+                (accountNames, account) => {
+                    accountNames[account.acct] = account;
+                    return accountNames;
+                },
+                {} as AccountNames
+            );
 
             logAction = RETRIEVED;
             await this.set(Key.FOLLOWED_ACCOUNTS, followedAccounts);

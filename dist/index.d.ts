@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./Paginator";
-import { AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, TrendingTagsFeatureScorer, VideoAttachmentScorer } from "./scorer";
 declare const TIME_DECAY = "TimeDecay";
 declare class TheAlgorithm {
@@ -10,8 +10,7 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
     feed: Toot[];
-    followedAccounts: mastodon.v1.Account[];
-    followedAccts: string[];
+    followedAccounts: AccountNames;
     feedLanguageCounts: StringNumberDict;
     appCounts: StringNumberDict;
     scoreMutex: Mutex;

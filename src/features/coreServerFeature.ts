@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import { mastodonFetch, mastodonFetchPages } from "../api";
-import { StringNumberDict } from "../types";
+import { AccountNames, StringNumberDict } from "../types";
 import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
@@ -51,11 +51,9 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function coreServerFeature(
-    followedAccounts: mastodon.v1.Account[]
-): Promise<ServerFeature> {
+export default async function coreServerFeature(followedAccounts: AccountNames): Promise<ServerFeature> {
     // Count up what Mastodon servers the user follows live on
-    const userServerCounts = followedAccounts.reduce(
+    const userServerCounts = Object.values(followedAccounts).reduce(
         (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
             if (!follower.url) return userCounts;
             const server = follower.url.split("@")[0].split("https://")[1];
@@ -68,7 +66,7 @@ export default async function coreServerFeature(
     const numServers = Object.keys(userServerCounts).length;
 
     if (numServers < NUM_SERVERS_TO_CHECK) {
-        console.log(`Adding default servers bc user only follows accounts on ${numServers}:`, userServerCounts);
+        console.log(`Adding default servers bc user only follows accts on ${numServers} servers:`, userServerCounts);
 
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
                        .slice(0, NUM_SERVERS_TO_CHECK - numServers)

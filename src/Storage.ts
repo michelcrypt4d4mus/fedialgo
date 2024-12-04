@@ -1,7 +1,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
+import { AccountNames, FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -62,13 +62,13 @@ export default class Storage {
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache
-    static async getFollowedAccts(): Promise<mastodon.v1.Account[] | null> {
+    static async getFollowedAccts(): Promise<AccountNames | null> {
         let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
 
         if (!followedAccounts) {
             return null;
         } else {
-            return followedAccounts as mastodon.v1.Account[];
+            return followedAccounts as AccountNames;
         }
     }
 
