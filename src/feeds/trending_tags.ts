@@ -73,7 +73,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const aggregatedTags = trendingTags.flat().reduce(
-        (tags: TrendingTag[], tag: TrendingTag) => {
+        (tags, tag) => {
             const existingTag = tags.find(t => t.name === tag.name);
 
             if (existingTag) {
