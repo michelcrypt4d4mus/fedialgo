@@ -51,10 +51,10 @@ async function coreServerFeature(_api, _user, followedAccounts) {
     }, {});
     const numServers = Object.keys(userServerCounts).length;
     if (numServers < NUM_SERVERS_TO_CHECK) {
-        console.log(`Adding default servers because user only follows accounts on ${numServers} servers:`, userServerCounts);
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
             .slice(0, NUM_SERVERS_TO_CHECK - numServers)
             .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
+        console.log(`User only follows accounts on ${numServers} servers so added some default servers:`, userServerCounts);
     }
     // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
