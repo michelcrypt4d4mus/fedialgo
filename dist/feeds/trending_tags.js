@@ -63,7 +63,6 @@ async function getTrendingTags(api) {
 ;
 async function getTootsForTag(api, tag) {
     try {
-        console.debug(`${LOG_PREFIX} getting toots for tag:`, tag);
         const toots = await (0, api_1.searchForToots)(api, tag.name);
         // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {

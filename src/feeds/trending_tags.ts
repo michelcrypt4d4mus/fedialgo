@@ -96,7 +96,6 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
 
 async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
     try {
-        console.debug(`${LOG_PREFIX} getting toots for tag:`, tag);
         const toots = await searchForToots(api, tag.name);
 
         // Inject the tag into each toot as a trendingTag element
