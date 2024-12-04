@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetch } from "../api";
+import { mastodonFetch } from "../api/api";
 import { AccountNames, ServerFeature, StringNumberDict } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;

@@ -5,13 +5,14 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import { Toot } from "./types";
+import { Toot } from "../types";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 
 
+// Use the API to search for recent toots containing a 'searchQuery' string
 export async function searchForToots(
     api: mastodon.rest.Client,
     searchQuery: string,

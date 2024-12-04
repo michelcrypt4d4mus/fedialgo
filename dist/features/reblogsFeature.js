@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserRecentToots = void 0;
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 async function reblogsFeature(api, user, recentToots) {
     recentToots ||= await getUserRecentToots(api, user);
     const recentRetoots = recentToots.filter(toot => toot?.reblog);

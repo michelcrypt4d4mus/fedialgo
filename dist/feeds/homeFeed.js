@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = __importDefault(require("../Storage"));
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 const MAX_PAGES = 12;
 const MAX_TIMELINE_HOURS = 96;
 const TIMELINE_LOOKBACK_MS = MAX_TIMELINE_HOURS * 60 * 60 * 1000;

@@ -7,7 +7,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
 import getTrendingToots from "./feeds/trending_toots";
-import Paginator from "./Paginator";
+import Paginator from "./api/paginator";
 import Storage, { DEFAULT_FILTERS } from "./Storage";
 import {
     AccountNames,

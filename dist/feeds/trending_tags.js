@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../objects/toot");
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
 const NUM_TRENDING_TAGS_PER_SERVER = 20;

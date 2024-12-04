@@ -33,7 +33,7 @@ const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
 const replied_feature_1 = __importDefault(require("./replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.

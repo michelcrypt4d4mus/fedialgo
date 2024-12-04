@@ -6,7 +6,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { DEFAULT_RECORDS_PER_PAGE } from "../api";
+import { DEFAULT_RECORDS_PER_PAGE } from "../api/api";
 import { Toot } from "../types";
 
 const MAX_PAGES = 12;

@@ -31,7 +31,7 @@ const async_mutex_1 = require("async-mutex");
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
-const Paginator_1 = __importDefault(require("./Paginator"));
+const paginator_1 = __importDefault(require("./api/paginator"));
 const Storage_1 = __importStar(require("./Storage"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
@@ -249,7 +249,7 @@ class TheAlgorithm {
     }
     // TODO: is this ever used?
     list() {
-        return new Paginator_1.default(this.feed);
+        return new paginator_1.default(this.feed);
     }
     // Load weightings from storage. Set defaults for any missing weightings.
     async setDefaultWeights() {

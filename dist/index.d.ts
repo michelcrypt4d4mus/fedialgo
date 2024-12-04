@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
-import Paginator from "./Paginator";
+import Paginator from "./api/paginator";
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
 import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, TrendingTagsFeatureScorer, VideoAttachmentScorer } from "./scorer";
 declare const TIME_DECAY = "TimeDecay";

@@ -4,7 +4,7 @@
 import { mastodon } from "masto";
 
 import { Key } from "../Storage";
-import { mastodonFetchPages } from "../api";
+import { mastodonFetchPages } from "../api/api";
 import { StringNumberDict } from "../types";
 
 

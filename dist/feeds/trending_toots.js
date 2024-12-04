@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../objects/toot");
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function getTrendingToots(api) {

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const change_case_1 = require("change-case");
-const api_1 = require("../api");
+const api_1 = require("../api/api");
 async function getRecommenderFeed(_api, _user) {
     let data, res;
     try {

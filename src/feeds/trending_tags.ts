@@ -25,7 +25,7 @@ import { mastodon } from "masto";
 import MastodonApiCache from "../features/mastodon_api_cache";
 import { dedupeToots } from "../helpers";
 import { popularity } from "../objects/toot";
-import { mastodonFetch, searchForToots } from "../api";
+import { mastodonFetch, searchForToots } from "../api/api";
 import { Toot, TrendingTag } from "../types";
 
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";

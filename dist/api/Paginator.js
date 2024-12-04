@@ -50,4 +50,4 @@ class Paginator {
 }
 exports.default = Paginator;
 ;
-//# sourceMappingURL=Paginator.js.map
+//# sourceMappingURL=paginator.js.map
