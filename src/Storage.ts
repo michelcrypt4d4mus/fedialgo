@@ -1,7 +1,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { AccountNames, FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
+import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
