@@ -53,7 +53,7 @@ exports.default = getTrendingToots;
 ;
 // A toot can trend on multiple servers, in which case we want to compute the
 // average trendingRank and update the toots accordingly.
-// TODO: maybe we should add all the trendingRanks together? Or maybe add the # of servers to the avg?
+// TODO: maybe we should add the # of servers to the avg?
 function setTrendingRankToAvg(rankedToots) {
     const tootsTrendingOnMultipleServers = rankedToots.reduce((acc, toot) => {
         if (!toot.trendingRank)

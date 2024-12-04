@@ -1,4 +1,7 @@
-## `2024-12-03` (`0.2.0`)
+## `0.3.0`
+* Implement `TrendingTags` scoring (pull recent toots from tags that are trending into the timeline)
+
+## `0.2.0`
 * Add ability to filter based on the application used to toot
 * Repair broken `mediaAttachments` entries if possible
 
