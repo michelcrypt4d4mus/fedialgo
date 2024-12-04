@@ -69,14 +69,14 @@ export default class Storage {
     }
 
     static async logAppOpen(): Promise<void> {
-        let numAppOpens = (parseInt(await this.get(Key.OPENINGS) as string) || 0) + 1;
+        let numAppOpens = (await this.get(Key.OPENINGS) as number || 0) + 1;
         await this.set(Key.OPENINGS, numAppOpens);
-        await this.set(Key.LAST_OPENED, new Date().getTime().toString());
+        await this.set(Key.LAST_OPENED, new Date().getTime());
     }
 
     static async getLastOpenedTimestamp(): Promise<number> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED) as string);
+        const lastOpenedInt = await this.get(Key.LAST_OPENED) as number;
 
         if (!lastOpenedInt || numAppOpens <= 1) {
             console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
@@ -88,9 +88,9 @@ export default class Storage {
     }
 
     static async getNumAppOpens(): Promise<number> {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
+        let numAppOpens = await this.get(Key.OPENINGS) as number || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens || 0;
+        return numAppOpens;
     }
 
     static async getIdentity(): Promise<mastodon.v1.Account | null> {

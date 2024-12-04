@@ -63,13 +63,13 @@ class Storage {
         return (followedAccounts ?? []);
     }
     static async logAppOpen() {
-        let numAppOpens = (parseInt(await this.get(Key.OPENINGS)) || 0) + 1;
+        let numAppOpens = (await this.get(Key.OPENINGS) || 0) + 1;
         await this.set(Key.OPENINGS, numAppOpens);
-        await this.set(Key.LAST_OPENED, new Date().getTime().toString());
+        await this.set(Key.LAST_OPENED, new Date().getTime());
     }
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = parseInt(await this.get(Key.LAST_OPENED));
+        const lastOpenedInt = await this.get(Key.LAST_OPENED);
         if (!lastOpenedInt || numAppOpens <= 1) {
             console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
             return 0;
@@ -78,9 +78,9 @@ class Storage {
         return lastOpenedInt;
     }
     static async getNumAppOpens() {
-        const numAppOpens = parseInt(await this.get(Key.OPENINGS));
+        let numAppOpens = await this.get(Key.OPENINGS) || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens || 0;
+        return numAppOpens;
     }
     static async getIdentity() {
         return await localforage_1.default.getItem(Key.USER);
