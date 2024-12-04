@@ -126,7 +126,7 @@ export default class MastodonApiCache extends Storage {
             logAction = RETRIEVED;
 
             if (extraArg) {
-                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
+                console.debug(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
                 data = await fetchMethod(api, user, extraArg);
             } else {
                 data = await fetchMethod(api, user);

@@ -105,7 +105,7 @@ class MastodonApiCache extends Storage_1.default {
                 throw new Error("No user identity found"); // TODO: user isn't always needed
             logAction = RETRIEVED;
             if (extraArg) {
-                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
+                console.debug(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
                 data = await fetchMethod(api, user, extraArg);
             }
             else {
