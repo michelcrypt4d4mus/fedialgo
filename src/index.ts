@@ -16,6 +16,7 @@ import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScore
 import MastodonApiCache from "./api/mastodon_api_cache";
 import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
+import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
@@ -92,6 +93,7 @@ class TheAlgorithm {
         new InteractionsFeatureScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
+        new NumRetootsScorer(),
         new ReblogsFeatureScorer(),
         new RepliedFeatureScorer(),
         new TrendingTootFeatureScorer(),

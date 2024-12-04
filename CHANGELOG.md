@@ -1,3 +1,6 @@
+## NEXT
+* Add scoring for raw number of retoots
+
 ## `0.4.0`
 * Implement tag based filtering (blacklist and whitelist)
 
