@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("../api/api");
-async function FavsFeature(api) {
+async function FavsFeature(api, _user) {
     const results = await (0, api_1.mastodonFetchPages)({
         fetchMethod: api.v1.favourites.list,
         label: 'favourites'

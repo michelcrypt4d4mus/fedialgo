@@ -7,7 +7,10 @@ import { AccountFeature } from "../types";
 import { mastodonFetchPages } from "../api/api";
 
 
-export default async function FavsFeature(api: mastodon.rest.Client): Promise<AccountFeature> {
+export default async function FavsFeature(
+    api: mastodon.rest.Client,
+    _user: mastodon.v1.Account
+): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Status>({
         fetchMethod: api.v1.favourites.list,
         label: 'favourites'
