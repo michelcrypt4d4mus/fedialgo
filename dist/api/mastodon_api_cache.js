@@ -85,27 +85,6 @@ class MastodonApiCache extends Storage_1.default {
     static async getTopInteracts(api) {
         return await this.getAggregatedData(api, Storage_1.Key.TOP_INTERACTS, InteractionsFeature_1.default);
     }
-    // Generic method to pull cached data from storage or fetch it from the API
-    static async getAggregatedData(api, storageKey, fetchMethod, extraArg = null) {
-        let data = await this.get(storageKey);
-        let logAction = LOADED_FROM_STORAGE;
-        if (data == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null)
-                throw new Error("No user identity found"); // TODO: user isn't always needed
-            logAction = RETRIEVED;
-            if (extraArg) {
-                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
-                data = await fetchMethod(api, user, extraArg);
-            }
-            else {
-                data = await fetchMethod(api, user);
-            }
-            await this.set(storageKey, data);
-        }
-        console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
-        return data;
-    }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
         let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
@@ -127,6 +106,27 @@ class MastodonApiCache extends Storage_1.default {
             .sort((a, b) => (coreServers[b] - coreServers[a]));
         console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
         return topServerDomains;
+    }
+    // Generic method to pull cached data from storage or fetch it from the API
+    static async getAggregatedData(api, storageKey, fetchMethod, extraArg = null) {
+        let data = await this.get(storageKey);
+        let logAction = LOADED_FROM_STORAGE;
+        if (data == null || (await this.shouldReloadFeatures())) {
+            const user = await this.getIdentity();
+            if (user == null)
+                throw new Error("No user identity found"); // TODO: user isn't always needed
+            logAction = RETRIEVED;
+            if (extraArg) {
+                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
+                data = await fetchMethod(api, user, extraArg);
+            }
+            else {
+                data = await fetchMethod(api, user);
+            }
+            await this.set(storageKey, data);
+        }
+        console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
+        return data;
     }
     static async shouldReloadFeatures() {
         return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;

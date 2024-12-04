@@ -92,35 +92,6 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(api, Key.TOP_INTERACTS, InteractionsFeature);
     }
 
-    // Generic method to pull cached data from storage or fetch it from the API
-    static async getAggregatedData<T>(
-        api: mastodon.rest.Client,
-        storageKey: Key,
-        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any | null) => Promise<T>,
-        extraArg: any | null = null
-    ): Promise<T> {
-        let data: T = await this.get(storageKey) as T;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (data == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null) throw new Error("No user identity found"); // TODO: user isn't always needed
-            logAction = RETRIEVED;
-
-            if (extraArg) {
-                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
-                data = await fetchMethod(api, user, extraArg);
-            } else {
-                data = await fetchMethod(api, user);
-            }
-
-            await this.set(storageKey, data as StorageValue);
-        }
-
-        console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
-        return data;
-    }
-
     // Returns information about mastodon servers
     static async getCoreServer(api: mastodon.rest.Client): Promise<ServerFeature> {
         let coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
@@ -147,6 +118,35 @@ export default class MastodonApiCache extends Storage {
 
         console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
         return topServerDomains;
+    }
+
+    // Generic method to pull cached data from storage or fetch it from the API
+    private static async getAggregatedData<T>(
+        api: mastodon.rest.Client,
+        storageKey: Key,
+        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any | null) => Promise<T>,
+        extraArg: any | null = null
+    ): Promise<T> {
+        let data: T = await this.get(storageKey) as T;
+        let logAction = LOADED_FROM_STORAGE;
+
+        if (data == null || (await this.shouldReloadFeatures())) {
+            const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found"); // TODO: user isn't always needed
+            logAction = RETRIEVED;
+
+            if (extraArg) {
+                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
+                data = await fetchMethod(api, user, extraArg);
+            } else {
+                data = await fetchMethod(api, user);
+            }
+
+            await this.set(storageKey, data as StorageValue);
+        }
+
+        console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
+        return data;
     }
 
     private static async shouldReloadFeatures() {
