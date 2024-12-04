@@ -11,9 +11,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const scorer_1 = __importDefault(require("./scorer"));
 class FeedScorer extends scorer_1.default {
     features = {};
-    constructor(scoreName, description, defaultWeight) {
-        super(scoreName, description, defaultWeight);
-    }
     async setFeed(feed) {
         // console.debug(`before feedExtractor() this.features=`, this.features);
         this.features = await this.feedExtractor(feed);

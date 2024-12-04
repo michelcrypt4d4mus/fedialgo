@@ -26,7 +26,7 @@ export default class FeatureScorer extends Scorer {
 
     constructor(params: RankParams) {
         super(params.scoreName, params.description, params.defaultWeight);
-        this.featureGetter = params.featureGetter || (async () => { return {} });
+        this.featureGetter = params.featureGetter || (async (_api) => { return {} });
     }
 
     async getFeature(api: mastodon.rest.Client): Promise<Toot[]> {
