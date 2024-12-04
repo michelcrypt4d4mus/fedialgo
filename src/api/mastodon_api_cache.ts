@@ -35,7 +35,7 @@ export default class MastodonApiCache extends Storage {
             });
         };
 
-        let followedAccounts = await this.getAggregatedData<mastodon.v1.Account[]>(
+        const followedAccounts = await this.getAggregatedData<mastodon.v1.Account[]>(
             api,
             Key.FOLLOWED_ACCOUNTS,
             fetchFollows
