@@ -77,9 +77,9 @@ export type TootURIs = {
 };
 
 export interface TrendingTag extends mastodon.v1.Tag {
-    trendingRank?: number;
-    numToots?: number;
     numAccounts?: number;
+    numToots?: number;
+    trendingRank?: number;
 };
 
 export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs |

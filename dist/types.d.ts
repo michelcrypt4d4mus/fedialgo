@@ -62,8 +62,8 @@ export type TootURIs = {
     [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 export interface TrendingTag extends mastodon.v1.Tag {
-    trendingRank?: number;
-    numToots?: number;
     numAccounts?: number;
+    numToots?: number;
+    trendingRank?: number;
 }
 export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
