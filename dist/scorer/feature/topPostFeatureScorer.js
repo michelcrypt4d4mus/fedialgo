@@ -12,7 +12,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 exports.TRENDING_TOOTS = "TrendingToots";
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 // TODO: rename TrendingTootFeatureScorer
-class TopPostFeatureScorer extends feature_scorer_1.default {
+class TrendingTootFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             description: "Favour toots that are trending in the Fediverse",
@@ -24,6 +24,6 @@ class TopPostFeatureScorer extends feature_scorer_1.default {
         return toot.trendingRank || 0;
     }
 }
-exports.default = TopPostFeatureScorer;
+exports.default = TrendingTootFeatureScorer;
 ;
 //# sourceMappingURL=topPostFeatureScorer.js.map

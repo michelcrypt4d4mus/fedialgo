@@ -3,7 +3,7 @@ import { Mutex } from 'async-mutex';
 import getHomeFeed from "./feeds/homeFeed";
 import Paginator from "./api/paginator";
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
-import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TopPostFeatureScorer, TrendingTagsFeatureScorer, VideoAttachmentScorer } from "./scorer";
+import { ChaosFeatureScorer, DiversityFeedScorer, FavsFeatureScorer, FollowedTagsFeatureScorer, ImageAttachmentScorer, InteractionsFeatureScorer, NumFavoritesScorer, NumRepliesScorer, ReblogsFeatureScorer, ReblogsFeedScorer, RepliedFeatureScorer, TrendingTootFeatureScorer, TrendingTagsFeatureScorer, VideoAttachmentScorer } from "./scorer";
 declare const TIME_DECAY = "TimeDecay";
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -18,9 +18,9 @@ declare class TheAlgorithm {
     scoreMutex: Mutex;
     setFeedInApp: (f: Toot[]) => void;
     fetchers: (typeof getHomeFeed)[];
-    featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TopPostFeatureScorer | TrendingTagsFeatureScorer | VideoAttachmentScorer)[];
+    featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TrendingTootFeatureScorer | TrendingTagsFeatureScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | ReblogsFeedScorer)[];
-    weightedScorers: (ChaosFeatureScorer | DiversityFeedScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | ReblogsFeedScorer | RepliedFeatureScorer | TopPostFeatureScorer | TrendingTagsFeatureScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosFeatureScorer | DiversityFeedScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | ReblogsFeatureScorer | ReblogsFeedScorer | RepliedFeatureScorer | TrendingTootFeatureScorer | TrendingTagsFeatureScorer | VideoAttachmentScorer)[];
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

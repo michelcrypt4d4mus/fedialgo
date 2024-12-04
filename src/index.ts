@@ -31,7 +31,7 @@ import {
     ReblogsFeatureScorer,
     ReblogsFeedScorer,
     RepliedFeatureScorer,
-    TopPostFeatureScorer,
+    TrendingTootFeatureScorer,
     TrendingTagsFeatureScorer,
     VideoAttachmentScorer,
 } from "./scorer";
@@ -95,7 +95,7 @@ class TheAlgorithm {
         new NumRepliesScorer(),
         new ReblogsFeatureScorer(),
         new RepliedFeatureScorer(),
-        new TopPostFeatureScorer(),
+        new TrendingTootFeatureScorer(),
         new TrendingTagsFeatureScorer(),
         new VideoAttachmentScorer(),
     ];

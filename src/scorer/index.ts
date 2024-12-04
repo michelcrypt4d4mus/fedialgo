@@ -11,7 +11,7 @@ import NumRepliesScorer from "./feature/numRepliesScorer";
 import ReblogsFeatureScorer from "./feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./feature/replied_feature_scorer";
-import TopPostFeatureScorer from "./feature/topPostFeatureScorer";
+import TrendingTootFeatureScorer from "./feature/topPostFeatureScorer";
 import TrendingTagsFeatureScorer from "./feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./feature/VideoAttachmentScorer";
 
@@ -30,7 +30,7 @@ export {
     ReblogsFeatureScorer,
     ReblogsFeedScorer,
     RepliedFeatureScorer,
-    TopPostFeatureScorer,
+    TrendingTootFeatureScorer,
     TrendingTagsFeatureScorer,
     VideoAttachmentScorer,
 };

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoAttachmentScorer = exports.TrendingTagsFeatureScorer = exports.TopPostFeatureScorer = exports.RepliedFeatureScorer = exports.ReblogsFeedScorer = exports.ReblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.ImageAttachmentScorer = exports.FollowedTagsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.FavsFeatureScorer = exports.DiversityFeedScorer = exports.ChaosFeatureScorer = void 0;
+exports.VideoAttachmentScorer = exports.TrendingTagsFeatureScorer = exports.TrendingTootFeatureScorer = exports.RepliedFeatureScorer = exports.ReblogsFeedScorer = exports.ReblogsFeatureScorer = exports.NumRepliesScorer = exports.NumFavoritesScorer = exports.InteractionsFeatureScorer = exports.ImageAttachmentScorer = exports.FollowedTagsFeatureScorer = exports.FeatureScorer = exports.FeedScorer = exports.FavsFeatureScorer = exports.DiversityFeedScorer = exports.ChaosFeatureScorer = void 0;
 const chaosFeatureScorer_1 = __importDefault(require("./feature/chaosFeatureScorer"));
 exports.ChaosFeatureScorer = chaosFeatureScorer_1.default;
 const diversityFeedScorer_1 = __importDefault(require("./feed/diversityFeedScorer"));
@@ -31,7 +31,7 @@ exports.ReblogsFeedScorer = reblogsFeedScorer_1.default;
 const replied_feature_scorer_1 = __importDefault(require("./feature/replied_feature_scorer"));
 exports.RepliedFeatureScorer = replied_feature_scorer_1.default;
 const topPostFeatureScorer_1 = __importDefault(require("./feature/topPostFeatureScorer"));
-exports.TopPostFeatureScorer = topPostFeatureScorer_1.default;
+exports.TrendingTootFeatureScorer = topPostFeatureScorer_1.default;
 const trending_tags_scorer_1 = __importDefault(require("./feature/trending_tags_scorer"));
 exports.TrendingTagsFeatureScorer = trending_tags_scorer_1.default;
 const VideoAttachmentScorer_1 = __importDefault(require("./feature/VideoAttachmentScorer"));

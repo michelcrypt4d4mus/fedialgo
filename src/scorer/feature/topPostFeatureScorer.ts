@@ -10,7 +10,7 @@ export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 
 
 // TODO: rename TrendingTootFeatureScorer
-export default class TopPostFeatureScorer extends FeatureScorer {
+export default class TrendingTootFeatureScorer extends FeatureScorer {
     constructor() {
         super({
             description: "Favour toots that are trending in the Fediverse",

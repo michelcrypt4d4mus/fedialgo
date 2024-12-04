@@ -81,7 +81,7 @@ class TheAlgorithm {
         new scorer_1.NumRepliesScorer(),
         new scorer_1.ReblogsFeatureScorer(),
         new scorer_1.RepliedFeatureScorer(),
-        new scorer_1.TopPostFeatureScorer(),
+        new scorer_1.TrendingTootFeatureScorer(),
         new scorer_1.TrendingTagsFeatureScorer(),
         new scorer_1.VideoAttachmentScorer(),
     ];
