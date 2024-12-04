@@ -239,12 +239,17 @@ class TheAlgorithm {
                     console.warn(`Broken tag found in toot:`, toot);
                     tag.name = "<<BROKEN_TAG>>";
                 }
-                tag.name == tag.name.toLowerCase();
+                tag.name = tag.name.toLowerCase();
                 tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
             });
             return tagCounts;
         }, {});
-        this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([key, val]) => val >= MINIMUM_TAGS_FOR_FILTER));
+        this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= MINIMUM_TAGS_FOR_FILTER));
+        Object.keys(this.tagCounts).forEach(tagName => {
+            if (tagName != tagName.toLowerCase()) {
+                console.warn(`Tag name not lowercase: '${tagName}'`);
+            }
+        });
     }
     // TODO: is this ever used?
     list() {

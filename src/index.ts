@@ -279,12 +279,12 @@ class TheAlgorithm {
 
         this.tagCounts = this.feed.reduce((tagCounts, toot) => {
             toot.tags.forEach(tag => {
-                if(!tag.name || tag.name.length == 0) {
+                if (!tag.name || tag.name.length == 0) {
                     console.warn(`Broken tag found in toot:`, toot);
                     tag.name = "<<BROKEN_TAG>>";
                 }
 
-                tag.name == tag.name.toLowerCase();
+                tag.name = tag.name.toLowerCase();
                 tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
             });
 
@@ -293,9 +293,15 @@ class TheAlgorithm {
 
         this.tagFilterCounts = Object.fromEntries(
             Object.entries(this.tagCounts).filter(
-               ([key, val]) => val >= MINIMUM_TAGS_FOR_FILTER
+               ([_key, val]) => val >= MINIMUM_TAGS_FOR_FILTER
             )
-         );
+        );
+
+        Object.keys(this.tagCounts).forEach(tagName => {
+            if (tagName != tagName.toLowerCase()) {
+                console.warn(`Tag name not lowercase: '${tagName}'`);
+            }
+        });
     }
 
     // TODO: is this ever used?
