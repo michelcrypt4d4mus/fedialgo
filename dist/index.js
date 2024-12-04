@@ -37,6 +37,7 @@ const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const toot_1 = require("./objects/toot");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
+const mastodon_api_cache_1 = __importDefault(require("./features/mastodon_api_cache"));
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -57,6 +58,7 @@ class TheAlgorithm {
     // Variables with initial values
     feed = [];
     followedAccounts = [];
+    followedAccts = [];
     feedLanguageCounts = {};
     appCounts = {};
     scoreMutex = new async_mutex_1.Mutex();
@@ -102,7 +104,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? [];
+        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? []; // TODO prolly don't need to await this
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -130,6 +132,7 @@ class TheAlgorithm {
         const numRemoved = this.feed.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots (of ${this.feed.length}) leaving ${cleanFeed.length}`);
         this.feed = (0, helpers_1.dedupeToots)(cleanFeed, "getFeed");
+        this.followedAccounts = await mastodon_api_cache_1.default.getFollowedAccounts(this.api);
         this.repairFeedAndExtractSummaryInfo();
         return this.scoreFeed.bind(this)();
     }
@@ -227,6 +230,8 @@ class TheAlgorithm {
                 }
             });
         });
+        // TODO: this sucks; we should store the followed accounts as a dict keyes by account.acct so we can use "in" operator
+        this.followedAccts = this.followedAccounts.map(account => account.acct);
     }
     // TODO: is this ever used?
     list() {
@@ -350,8 +355,8 @@ class TheAlgorithm {
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
         }
-        else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
-            return false; // TODO: Followed accounts can have trending toots so this is a bit wrong
+        else if (!this.filters.includeFollowedAccounts && this.followedAccts.includes(toot.account.acct)) {
+            return false;
         }
         else if (!this.filters.includeReplies && toot.inReplyToId) {
             return false;

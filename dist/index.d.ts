@@ -11,6 +11,7 @@ declare class TheAlgorithm {
     filters: FeedFilterSettings;
     feed: Toot[];
     followedAccounts: mastodon.v1.Account[];
+    followedAccts: string[];
     feedLanguageCounts: StringNumberDict;
     appCounts: StringNumberDict;
     scoreMutex: Mutex;
