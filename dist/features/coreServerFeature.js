@@ -41,7 +41,7 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 const POPULAR_SRERVERS_MAU_GUESS = 1000;
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(_api, _user, followedAccounts) {
-    // Count up what Mastodon servers the user follows live on
+    // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce((userCounts, follower) => {
         if (!follower.url)
             return userCounts;

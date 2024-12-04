@@ -55,7 +55,7 @@ export default async function coreServerFeature(
     _user: mastodon.v1.Account,
     followedAccounts: AccountNames
 ): Promise<ServerFeature> {
-    // Count up what Mastodon servers the user follows live on
+    // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce(
         (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
             if (!follower.url) return userCounts;
