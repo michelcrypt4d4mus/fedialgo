@@ -368,12 +368,14 @@ class TheAlgorithm {
             }
         }
         if (tags.length > 0) {
+            // Then tag checkboxes are a blacklist
             if (this.filters.suppressSelectedTags) {
                 if (toot.tags.some(tag => tags.includes(tag.name))) {
                     return false;
                 }
             }
             else if (!toot.tags.some(tag => tags.includes(tag.name))) {
+                // Otherwise tag checkboxes are a whitelist
                 return false;
             }
         }
