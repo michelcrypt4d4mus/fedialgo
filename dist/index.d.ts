@@ -7,8 +7,8 @@ import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_sc
 import getHomeFeed from "./feeds/homeFeed";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
-import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
-import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
+import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
+import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";

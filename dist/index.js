@@ -15,8 +15,8 @@ const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const ImageAttachmentScorer_1 = __importDefault(require("./scorer/feature/ImageAttachmentScorer"));
 const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/InteractionsFeatureScorer"));
 const mastodon_api_cache_1 = __importDefault(require("./api/mastodon_api_cache"));
-const numFavoritesScorer_1 = __importDefault(require("./scorer/feature/numFavoritesScorer"));
-const numRepliesScorer_1 = __importDefault(require("./scorer/feature/numRepliesScorer"));
+const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
+const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
 const paginator_1 = __importDefault(require("./api/paginator"));
 const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
@@ -67,8 +67,8 @@ class TheAlgorithm {
         new followed_tags_feature_scorer_1.default(),
         new ImageAttachmentScorer_1.default(),
         new InteractionsFeatureScorer_1.default(),
-        new numFavoritesScorer_1.default(),
-        new numRepliesScorer_1.default(),
+        new num_favorites_scorer_1.default(),
+        new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
         new replied_feature_scorer_1.default(),
