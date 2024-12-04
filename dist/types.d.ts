@@ -12,6 +12,7 @@ export interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;
 }
 export type FeedFeature = AccountFeature | StringNumberDict;
+export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FeedFilterSettings = {
     filteredApps: string[];
     filteredLanguages: string[];
@@ -65,5 +66,4 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     numAccounts?: number;
 }
-export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;

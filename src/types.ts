@@ -18,6 +18,7 @@ export interface AlgorithmArgs {
 };
 
 export type FeedFeature = AccountFeature | StringNumberDict;
+export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
 export type FeedFilterSettings = {
     filteredApps: string[];
@@ -30,7 +31,7 @@ export type FeedFilterSettings = {
     includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
-    suppressSelectedTags: boolean;   // flips the tag whiteless to be a blacklist
+    suppressSelectedTags: boolean;   // flips the tag whitelist to be a blacklist
     weightLearningEnabled: boolean;  // TODO: this isn't a filter
 };
 
@@ -81,7 +82,5 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numAccounts?: number;
 };
 
-export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-
-export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
-    TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs |
+    Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
