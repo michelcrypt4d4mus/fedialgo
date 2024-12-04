@@ -43,7 +43,7 @@ const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
 const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
-const MINIMUM_TAGS_FOR_FILTER = 3;
+const MINIMUM_TAGS_FOR_FILTER = 5;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DEFAULT = 0.05;
@@ -223,7 +223,7 @@ class TheAlgorithm {
         }, {});
         // Check for weird media types and lowercase all tags
         this.feed.forEach(toot => {
-            toot.mediaAttachments.forEach((media, i) => {
+            toot.mediaAttachments.forEach((media) => {
                 if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
                     console.warn(`Repairing broken media attachment in toot:`, toot);
                     media.type = helpers_1.IMAGE;
@@ -232,14 +232,6 @@ class TheAlgorithm {
                     console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
                 }
             });
-            toot.tags.forEach(tag => {
-                if (!tag.name || tag.name.length == 0) {
-                    console.warn(`Broken tag found in toot:`, toot);
-                    tag.name = "<<BROKEN_TAG>>";
-                    return;
-                }
-                tag.name == tag.name.toLowerCase();
-            });
         });
         this.tagCounts = this.feed.reduce((tagCounts, toot) => {
             toot.tags.forEach(tag => {
@@ -247,6 +239,7 @@ class TheAlgorithm {
                     console.warn(`Broken tag found in toot:`, toot);
                     tag.name = "<<BROKEN_TAG>>";
                 }
+                tag.name == tag.name.toLowerCase();
                 tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
             });
             return tagCounts;
