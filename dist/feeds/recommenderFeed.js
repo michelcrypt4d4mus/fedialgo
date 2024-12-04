@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const change_case_1 = require("change-case");
-const api_1 = require("../api/api");
+const helpers_1 = require("../helpers");
 async function getRecommenderFeed(_api, _user) {
     let data, res;
     try {
@@ -19,7 +19,7 @@ async function getRecommenderFeed(_api, _user) {
         status.recommended = true;
         return status;
     });
-    return (0, api_1.transformKeys)(statuses, change_case_1.camelCase);
+    return (0, helpers_1.transformKeys)(statuses, change_case_1.camelCase);
 }
 exports.default = getRecommenderFeed;
 ;

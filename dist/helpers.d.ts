@@ -10,3 +10,5 @@ export declare function average(values: number[]): number | undefined;
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function dedupeToots(toots: Toot[], logLabel?: string | undefined): Toot[];
 export declare function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]>;
+export declare const transformKeys: <T>(data: T, transform: (key: string) => string) => T;
+export declare const isRecord: (x: unknown) => x is Record<string, unknown>;

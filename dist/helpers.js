@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = void 0;
+exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = void 0;
 exports.MAX_CONTENT_CHARS = 150;
 exports.IMAGE = "image";
 exports.VIDEO = "video";
@@ -68,5 +68,22 @@ function groupBy(arr, key) {
     }, {});
 }
 exports.groupBy = groupBy;
-;
+; // Apply a transform() function to all keys in a nested object.
+const transformKeys = (data, transform) => {
+    if (Array.isArray(data)) {
+        return data.map((value) => (0, exports.transformKeys)(value, transform));
+    }
+    if ((0, exports.isRecord)(data)) {
+        return Object.fromEntries(Object.entries(data).map(([key, value]) => [
+            transform(key),
+            (0, exports.transformKeys)(value, transform),
+        ]));
+    }
+    return data;
+}; //Masto does not support top posts from foreign servers, so we have to do it manually
+exports.transformKeys = transformKeys;
+const isRecord = (x) => {
+    return typeof x === "object" && x !== null && x.constructor.name === "Object";
+};
+exports.isRecord = isRecord;
 //# sourceMappingURL=helpers.js.map
