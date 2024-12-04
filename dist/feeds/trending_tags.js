@@ -13,18 +13,19 @@ const NUM_TRENDING_TAGS_PER_SERVER = 20;
 const NUM_TRENDING_TAG_TOOTS_PER_SERVER = 20;
 const NUM_TRENDING_TAGS = 20;
 const NUM_TRENDING_TAG_TOOTS = 100;
+const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots = (0, helpers_1.dedupeToots)(tootses.flat(), "trendingTags");
-    console.log(`[TrendingTags] deduped toots for trending tags:`, toots);
+    console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
     return toots.sort(toot_1.popularity).reverse().slice(0, NUM_TRENDING_TAG_TOOTS);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api) {
-    console.log(`[TrendingTags] getTrendingTags() called`);
+    console.log(`${LOG_PREFIX} getTrendingTags() called`);
     const topDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
     // Pull top trending toots from each server
     const trendingTags = await Promise.all(topDomains.map(async (server) => {
@@ -35,12 +36,12 @@ async function getTrendingTags(api) {
                 throw new Error(`No tags found on '${server}'!`);
         }
         catch (e) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
+            console.warn(`${LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
             return [];
         }
         tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
         tags.forEach(decorateTagData);
-        console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
+        console.debug(`${LOG_PREFIX} trendingTags for server '${server}':`, tags);
         return tags;
     }));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
@@ -56,24 +57,24 @@ async function getTrendingTags(api) {
         return tags;
     }, []);
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
-    console.log(`[TrendingTags] Aggregated trending tags:`, aggregatedTags);
+    console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
 }
 ;
 async function getTootsForTag(api, tag) {
     try {
-        console.debug(`[TrendingTags] getting toots for tag:`, tag);
+        console.debug(`${LOG_PREFIX} getting toots for tag:`, tag);
         const toots = await (0, api_1.searchForToots)(api, tag.name);
         // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
             toot.trendingTags.push(tag);
         });
-        console.debug(`[TrendingTags] Found toots for tag '${tag.name}':`, toots);
+        console.debug(`${LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
         return toots;
     }
     catch (e) {
-        console.warn(`[TrendingTags] Failed to get toots for tag '${tag.name}':`, e);
+        console.warn(`${LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
         return [];
     }
 }
@@ -82,7 +83,7 @@ async function getTootsForTag(api, tag) {
 function decorateTagData(tag) {
     tag.name = tag.name.toLowerCase();
     if (!tag?.history || tag.history.length == 0) {
-        console.warn(`[TrendingTags] decorateTagData() found no history for tag:`, tag);
+        console.warn(`${LOG_PREFIX} decorateTagData() found no history for tag:`, tag);
         tag.numAccounts = 0;
         tag.numToots = 0;
         return;
