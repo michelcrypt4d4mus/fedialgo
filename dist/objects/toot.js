@@ -42,12 +42,14 @@ const condensedStatus = (toot) => {
     return Object.keys(tootObj)
         .filter((k) => tootObj[k] != null)
         .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
-}; // Build a string that can be used in logs to identify a toot
+};
 exports.condensedStatus = condensedStatus;
+// Build a string that can be used in logs to identify a toot
 const describeToot = (toot) => {
     return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, helpers_1.MAX_CONTENT_CHARS)}`;
 };
 exports.describeToot = describeToot;
+// Build a string that can be used in logs to identify an account
 const describeAccount = (toot) => {
     return `${toot.account.displayName} (${toot.account.acct})`;
 };

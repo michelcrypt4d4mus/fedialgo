@@ -49,14 +49,16 @@ export const condensedStatus = (toot: Toot) => {
     return Object.keys(tootObj)
         .filter((k) => tootObj[k as keyof typeof tootObj] != null)
         .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
-};// Build a string that can be used in logs to identify a toot
+};
 
 
+// Build a string that can be used in logs to identify a toot
 export const describeToot = (toot: Toot): string => {
     return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
 };
 
 
+// Build a string that can be used in logs to identify an account
 export const describeAccount = (toot: Toot): string => {
     return `${toot.account.displayName} (${toot.account.acct})`;
 };
