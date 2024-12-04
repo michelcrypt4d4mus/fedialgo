@@ -3,6 +3,7 @@ import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./type
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FILTERS = "filters",
+    FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
@@ -21,6 +22,7 @@ export default class Storage {
     static setWeightings(userWeightings: StringNumberDict): Promise<void>;
     static getFilters(): Promise<FeedFilterSettings>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
+    static getFollowedAccts(): Promise<mastodon.v1.Account[] | null>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;

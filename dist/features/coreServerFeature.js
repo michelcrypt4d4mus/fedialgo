@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const helpers_1 = require("../helpers");
 const NUM_SERVERS_TO_CHECK = 30;
-const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 100;
 // Popular servers are usually culled from the users' following list but if there aren't
@@ -41,13 +40,7 @@ const _POPULAR_SERVERS = [
 ];
 const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 // Returns something called "overrepresentedServerFrequ"??
-async function coreServerFeature(api, user) {
-    const followedAccounts = await (0, helpers_1.mastodonFetchPages)({
-        fetchMethod: api.v1.accounts.$select(user.id).following.list,
-        minRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
-        label: 'followedAccounts'
-    });
-    console.debug(`followed users:`, followedAccounts);
+async function coreServerFeature(followedAccounts) {
     // Count up what Mastodon servers the user follows live on
     const userServerCounts = followedAccounts.reduce((userCounts, follower) => {
         if (!follower.url)

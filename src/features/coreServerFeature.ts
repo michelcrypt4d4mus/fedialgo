@@ -9,7 +9,6 @@ import { StringNumberDict } from "../types";
 import { ServerFeature } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
-const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5_000;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 const MINIMUM_MAU = 100;
 
@@ -53,17 +52,8 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 
 // Returns something called "overrepresentedServerFrequ"??
 export default async function coreServerFeature(
-    api: mastodon.rest.Client,
-    user: mastodon.v1.Account
+    followedAccounts: mastodon.v1.Account[]
 ): Promise<ServerFeature> {
-    const followedAccounts = await mastodonFetchPages<mastodon.v1.Account>({
-        fetchMethod: api.v1.accounts.$select(user.id).following.list,
-        minRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
-        label: 'followedAccounts'
-    });
-
-    console.debug(`followed users:`, followedAccounts);
-
     // Count up what Mastodon servers the user follows live on
     const userServerCounts = followedAccounts.reduce(
         (userCounts: ServerFeature, follower: mastodon.v1.Account) => {

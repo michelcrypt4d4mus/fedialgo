@@ -9,6 +9,7 @@ var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
     Key["FILTERS"] = "filters";
+    Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     Key["FOLLOWED_TAGS"] = "FollowedTags";
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
@@ -55,6 +56,16 @@ class Storage {
     static async setFilters(filters) {
         await this.set(Key.FILTERS, filters);
     }
+    // TODO: this name is too close to the overridden method in MastodonApiCache
+    static async getFollowedAccts() {
+        let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+        if (!followedAccounts) {
+            return null;
+        }
+        else {
+            return followedAccounts;
+        }
+    }
     static async logAppOpen() {
         let numAppOpens = (parseInt(await this.get(Key.OPENINGS)) || 0) + 1;
         await this.set(Key.OPENINGS, numAppOpens);
@@ -73,7 +84,7 @@ class Storage {
     static async getNumAppOpens() {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS));
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens;
+        return numAppOpens || 0;
     }
     static async getIdentity() {
         return await localforage_1.default.getItem(Key.USER);

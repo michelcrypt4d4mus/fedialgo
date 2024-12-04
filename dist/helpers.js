@@ -3,14 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.minimumID = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.mastodonFetchPages = exports.mastodonFetch = exports._transformKeys = exports.isRecord = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = exports.MAX_CONTENT_CHARS = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 exports.DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 exports.MAX_CONTENT_CHARS = 150;
-const HUGE_ID = 10 ** 100;
 exports.IMAGE = "image";
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
@@ -57,17 +56,18 @@ const mastodonFetch = async (server, endpoint) => {
 exports.mastodonFetch = mastodonFetch;
 ;
 // Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
-async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
-    minRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
+async function mastodonFetchPages(fetchParams) {
+    let { fetchMethod, maxRecords, label } = fetchParams;
+    maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
     label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ minRecords=${minRecords}, fetchMethod:`, fetchMethod);
+    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
     let results = [];
     let pageNumber = 0;
     try {
         for await (const page of fetchMethod({ limit: exports.DEFAULT_RECORDS_PER_PAGE })) {
             results = results.concat(page);
             console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
-            if (results.length >= minRecords) {
+            if (results.length >= maxRecords) {
                 console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
                 break;
             }
@@ -81,19 +81,6 @@ async function mastodonFetchPages({ fetchMethod, minRecords, label }) {
 }
 exports.mastodonFetchPages = mastodonFetchPages;
 ;
-// Find the minimum ID in a list of toots
-const minimumID = (toots) => {
-    const minId = toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id); // IDs are not guaranteed to be numerical
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-    return minId == HUGE_ID ? null : minId;
-};
-exports.minimumID = minimumID;
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";

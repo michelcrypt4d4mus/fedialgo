@@ -54,7 +54,9 @@ class TheAlgorithm {
     api;
     user;
     filters;
+    // Variables with initial values
     feed = [];
+    followedAccounts = [];
     feedLanguageCounts = {};
     appCounts = {};
     scoreMutex = new async_mutex_1.Mutex();
@@ -100,6 +102,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
+        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? [];
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;

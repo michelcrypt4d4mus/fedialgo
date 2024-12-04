@@ -110,4 +110,5 @@ There's a pre-commit git hook that runs `npm run build`.
 
 
 # Resources
+* [`masto.js` documentation](https://neet.github.io/masto.js)
 * [Compiling and bundling TypeScript libraries with Webpack](https://marcobotto.com/blog/compiling-and-bundling-typescript-libraries-with-webpack/)

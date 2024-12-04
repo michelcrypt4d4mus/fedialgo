@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
+exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
 const helpers_1 = require("../helpers");
+const HUGE_ID = 10 ** 100;
 // Return total of favourites and reblogs
 function popularity(toot) {
     return (toot.favouritesCount || 0) + (toot.reblogsCount || 0);
@@ -69,6 +70,19 @@ const attachmentsOfType = (toot, attachmentType) => {
         return [];
     return toot.mediaAttachments.filter(att => att.type === attachmentType);
 };
+// Find the minimum ID in a list of toots
+const minimumID = (toots) => {
+    const minId = toots.reduce((min, toot) => {
+        const numericalID = parseInt(toot.id); // IDs are not guaranteed to be numerical
+        if (isNaN(numericalID)) {
+            console.warn(`toot.id is not a number: ${toot.id}`);
+            return min;
+        }
+        return numericalID < min ? numericalID : min;
+    }, HUGE_ID);
+    return minId == HUGE_ID ? null : minId;
+};
+exports.minimumID = minimumID;
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined

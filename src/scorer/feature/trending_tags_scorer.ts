@@ -22,7 +22,7 @@ export default class TrendingTagsFeatureScorer extends FeatureScorer {
     async _score(toot: Toot) {
         const tags = toot.trendingTags || [];
         const tagScore = tags.reduce((sum, tag) => sum + this.scoreTag(tag), 0);
-        console.debug(`[TrendingTagsFeatureScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
+        // console.debug(`[TrendingTagsFeatureScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
         return tagScore;
     }
 

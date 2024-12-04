@@ -6,6 +6,7 @@ import { FeedFilterSettings, StringNumberDict, StorageValue, Toot } from "./type
 export enum Key {
     CORE_SERVER = 'coreServer',
     FILTERS = 'filters',
+    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = 'FollowedTags',
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
@@ -60,6 +61,17 @@ export default class Storage {
         await this.set(Key.FILTERS, filters);
     }
 
+    // TODO: this name is too close to the overridden method in MastodonApiCache
+    static async getFollowedAccts(): Promise<mastodon.v1.Account[] | null> {
+        let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+
+        if (!followedAccounts) {
+            return null;
+        } else {
+            return followedAccounts as mastodon.v1.Account[];
+        }
+    }
+
     static async logAppOpen(): Promise<void> {
         let numAppOpens = (parseInt(await this.get(Key.OPENINGS) as string) || 0) + 1;
         await this.set(Key.OPENINGS, numAppOpens);
@@ -82,7 +94,7 @@ export default class Storage {
     static async getNumAppOpens(): Promise<number> {
         const numAppOpens = parseInt(await this.get(Key.OPENINGS) as string);
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens;
+        return numAppOpens || 0;
     }
 
     static async getIdentity(): Promise<mastodon.v1.Account | null> {

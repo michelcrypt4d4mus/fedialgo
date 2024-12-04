@@ -33,113 +33,124 @@ const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
 const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
 const replied_feature_1 = __importDefault(require("./replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
+const helpers_1 = require("../helpers");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
+const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
 const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
+const LOADED_FROM_STORAGE = "Loaded from storage";
+const RETRIEVED = 'Retrieved';
 class MastodonApiCache extends Storage_1.default {
-    static async getMostFavoritedAccounts(api) {
-        let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
-        if (topFavs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts user has favorited the most from storage", topFavs);
-        }
-        else {
-            topFavs = await (0, favsFeature_1.default)(api);
-            await this.set(Storage_1.Key.TOP_FAVS, topFavs);
-        }
-        console.log("[MastodonApiCache] Accounts user has favorited the most", topFavs);
-        return topFavs;
-    }
-    // Get the users recent toots
-    // TODO: probably shouldn't load these from storage usually?
-    static async getRecentToots(api) {
-        let recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS);
-        if (recentTootURIs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded user's toots from storage", recentTootURIs);
-        }
-        else {
+    // Get an array of Accounts the user is following
+    static async getFollowedAccounts(api) {
+        let followedAccounts = await this.getFollowedAccts();
+        let logAction = LOADED_FROM_STORAGE;
+        if (followedAccounts == null || (await this.shouldReloadFeatures())) {
             const user = await this.getIdentity();
             if (user == null)
-                throw new Error("No user identity found");
+                throw new Error("Error getting followed accounts (no user identity found)");
+            followedAccounts = await (0, helpers_1.mastodonFetchPages)({
+                fetchMethod: api.v1.accounts.$select(user.id).following.list,
+                maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
+                label: 'followedAccounts'
+            });
+            logAction = RETRIEVED;
+            await this.set(Storage_1.Key.FOLLOWED_ACCOUNTS, followedAccounts);
+        }
+        console.log(`${logPrefix(logAction)} followed accounts:`, followedAccounts);
+        return followedAccounts;
+    }
+    static async getMostFavoritedAccounts(api) {
+        let topFavs = await this.get(Storage_1.Key.TOP_FAVS);
+        let logAction = LOADED_FROM_STORAGE;
+        if (topFavs == null || (await this.shouldReloadFeatures())) {
+            topFavs = await (0, favsFeature_1.default)(api);
+            logAction = RETRIEVED;
+            await this.set(Storage_1.Key.TOP_FAVS, topFavs);
+        }
+        console.log(`${logPrefix(logAction)} Accounts user has favorited the most:`, topFavs);
+        return topFavs;
+    }
+    // Get the users recent toots // TODO: probably shouldn't load these from storage usually?
+    static async getRecentToots(api) {
+        let recentTootURIs = await this.get(Storage_1.Key.RECENT_TOOTS);
+        let logAction = LOADED_FROM_STORAGE;
+        if (recentTootURIs == null || (await this.shouldReloadFeatures())) {
+            const user = await this.getIdentity();
+            if (user == null)
+                throw new Error("Error getting recent toots (no user identity found)");
             const recentToots = await (0, reblogsFeature_1.getUserRecentToots)(api, user);
-            console.log(`[MastodonApiCache] Retrieved recentToots: `, recentToots);
             recentTootURIs = recentToots.reduce((acc, toot) => {
                 acc[toot.reblog?.uri || toot.uri] = toot;
                 return acc;
             }, {});
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.RECENT_TOOTS, recentTootURIs);
         }
-        console.log("[MastodonApiCache] User's recent toot URIs", Object.values(recentTootURIs));
+        console.log(`${logPrefix(logAction)} User's recent toot URIs:`, recentTootURIs);
         return recentTootURIs;
     }
     static async getMostRetootedAccounts(api) {
         let topReblogs = await this.get(Storage_1.Key.TOP_REBLOGS);
-        if (topReblogs != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts user has reooted the most from storage", topReblogs);
-        }
-        else {
+        let logAction = LOADED_FROM_STORAGE;
+        if (topReblogs == null || (await this.shouldReloadFeatures())) {
             const user = await this.getIdentity();
             if (user == null)
                 throw new Error("No user identity found");
             topReblogs = await (0, reblogsFeature_1.default)(api, user, Object.values(await this.getRecentToots(api)));
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.TOP_REBLOGS, topReblogs);
         }
-        console.log("[MastodonApiCache] Accounts user has retooted the most", topReblogs);
+        console.log(`${logPrefix(logAction)} User's most retooted accounts:`, topReblogs);
         return topReblogs;
     }
     static async getMostRepliedAccounts(api) {
         let mostReplied = await this.get(Storage_1.Key.REPLIED_TO);
-        if (mostReplied != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded replied to accounts from storage", mostReplied);
-        }
-        else {
+        let logAction = LOADED_FROM_STORAGE;
+        if (mostReplied == null || (await this.shouldReloadFeatures())) {
             const user = await this.getIdentity();
             if (user == null)
                 throw new Error("No user identity found");
             mostReplied = await (0, replied_feature_1.default)(api, user, Object.values(await this.getRecentToots(api)));
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.REPLIED_TO, mostReplied);
         }
-        console.log("[MastodonApiCache] Accounts user has replied to the most", mostReplied);
+        console.log(`${logPrefix(logAction)} Accounts user has replied to:`, mostReplied);
         return mostReplied;
     }
     static async getTopInteracts(api) {
         let topInteracts = await this.get(Storage_1.Key.TOP_INTERACTS);
-        if (topInteracts != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded accounts that have interacted with user's toots from storage", topInteracts);
-        }
-        else {
+        let logAction = LOADED_FROM_STORAGE;
+        if (topInteracts == null || (await this.shouldReloadFeatures())) {
             topInteracts = await (0, InteractionsFeature_1.default)(api);
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.TOP_INTERACTS, topInteracts);
         }
-        console.log("[MastodonApiCache] Accounts that have interacted the most with user's toots", topInteracts);
+        console.log(`${logPrefix(logAction)} Accounts that have interacted the most with user:`, topInteracts);
         return topInteracts;
     }
     static async getFollowedTags(api) {
         let followedTags = await this.get(Storage_1.Key.FOLLOWED_TAGS);
-        if (followedTags != null && !this.shouldReloadFeatures()) {
-            console.log("[MastodonApiCache] Loaded followed tags from storage", followedTags);
-        }
-        else {
+        let logAction = LOADED_FROM_STORAGE;
+        if (followedTags == null || (await this.shouldReloadFeatures())) {
             followedTags = await (0, followed_tags_feature_1.default)(api);
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.FOLLOWED_TAGS, followedTags);
         }
-        console.log("[MastodonApiCache] Followed tags", followedTags);
+        console.log(`${logPrefix(logAction)} Followed tags`, followedTags);
         return followedTags;
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
         let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
-        if (coreServer != null && await this.getNumAppOpens() % 10 != 9) {
-            console.log("[MastodonApiCache] Loaded coreServer from storage", coreServer);
-        }
-        else {
-            const user = await this.getIdentity();
-            if (user == null)
-                throw new Error("No user identity found");
-            coreServer = await (0, coreServerFeature_1.default)(api, user);
+        let logAction = LOADED_FROM_STORAGE;
+        if (coreServer == null || (await this.shouldReloadFeatures())) {
+            coreServer = await (0, coreServerFeature_1.default)(await this.getFollowedAccounts(api));
+            logAction = RETRIEVED;
             await this.set(Storage_1.Key.CORE_SERVER, coreServer);
         }
-        console.log("[MastodonApiCache] getCoreServer() info: ", coreServer);
+        console.log(`${logPrefix(logAction)} coreServer`, coreServer);
         return coreServer;
     }
     static async shouldReloadFeatures() {
@@ -148,4 +159,5 @@ class MastodonApiCache extends Storage_1.default {
 }
 exports.default = MastodonApiCache;
 ;
+const logPrefix = (action) => `[MastodonApiCache] ${action}`;
 //# sourceMappingURL=mastodon_api_cache.js.map

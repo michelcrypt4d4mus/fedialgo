@@ -12,11 +12,10 @@ export declare const _transformKeys: <T>(data: T, transform: (key: string) => st
 export declare const mastodonFetch: <T>(server: string, endpoint: string) => Promise<T | undefined>;
 interface FetchParams<T> {
     fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
-    minRecords?: number;
+    maxRecords?: number;
     label?: string;
 }
-export declare function mastodonFetchPages<T>({ fetchMethod, minRecords, label }: FetchParams<T>): Promise<T[]>;
-export declare const minimumID: (toots: Toot[]) => number | null;
+export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
 export declare function createRandomString(length: number): string;
 export declare function average(values: number[]): number | undefined;
 export declare function isImage(uri: string | null | undefined): boolean;

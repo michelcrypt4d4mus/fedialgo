@@ -2,13 +2,12 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import { Toot, TrendingTag } from "./types";
+import { Toot } from "./types";
 
 // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 export const DEFAULT_RECORDS_PER_PAGE = 40;
 const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
 export const MAX_CONTENT_CHARS = 150;
-const HUGE_ID = 10 ** 100;
 
 export const IMAGE = "image";
 export const VIDEO = "video";
@@ -65,19 +64,16 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
 
 interface FetchParams<T> {
     fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
-    minRecords?: number,
+    maxRecords?: number,
     label?: string,
 };
 
 // Fetch min_pages pages of a user's [whatever] (toots, notifications, etc.) from the API and return an array
-export async function mastodonFetchPages<T>({
-    fetchMethod,
-    minRecords,
-    label
-}: FetchParams<T>): Promise<T[]> {
-    minRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
+export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
+    let { fetchMethod, maxRecords, label } = fetchParams;
+    maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
     label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ minRecords=${minRecords}, fetchMethod:`, fetchMethod);
+    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
     let results: T[] = [];
     let pageNumber = 0;
 
@@ -86,7 +82,7 @@ export async function mastodonFetchPages<T>({
             results = results.concat(page as T[]);
             console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
 
-            if (results.length >= minRecords) {
+            if (results.length >= maxRecords) {
                 console.log(`Halting old record retrieval at page ${pageNumber} with ${results.length} records)...`);
                 break;
             }
@@ -97,23 +93,6 @@ export async function mastodonFetchPages<T>({
     }
 
     return results;
-};
-
-
-// Find the minimum ID in a list of toots
-export const minimumID = (toots: Toot[]): number | null => {
-    const minId =  toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id);  // IDs are not guaranteed to be numerical
-
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-
-    return minId == HUGE_ID ? null : minId;
 };
 
 

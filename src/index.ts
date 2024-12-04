@@ -65,7 +65,9 @@ class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
 
+    // Variables with initial values
     feed: Toot[] = [];
+    followedAccounts: mastodon.v1.Account[] = [];
     feedLanguageCounts: StringNumberDict = {};
     appCounts: StringNumberDict = {};
     scoreMutex = new Mutex();
@@ -121,6 +123,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
+        algo.followedAccounts = await Storage.getFollowedAccts() ?? [];
         algo.repairFeedAndExtractSummaryInfo()
         algo.setFeedInApp(algo.feed);
         return algo;
