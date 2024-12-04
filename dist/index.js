@@ -36,7 +36,6 @@ const Storage_1 = __importStar(require("./Storage"));
 const scorer_1 = require("./scorer");
 const helpers_1 = require("./helpers");
 const topPostFeatureScorer_1 = require("./scorer/feature/topPostFeatureScorer");
-//import getRecommenderFeed from "./feeds/recommenderFeed";
 const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -344,16 +343,16 @@ class TheAlgorithm {
         else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
             return false;
         }
-        else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
+        else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
+        }
+        else if (!this.filters.includeFollowedAccounts && !toot.scoreInfo?.rawScores[topPostFeatureScorer_1.TRENDING_TOOTS]) {
+            return false; // TODO: Followed accounts can have trending toots so this is a bit wrong
         }
         else if (!this.filters.includeReplies && toot.inReplyToId) {
             return false;
         }
         else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
-            return false;
-        }
-        else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
         }
         return true;
