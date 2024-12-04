@@ -10,27 +10,25 @@ const api_1 = require("../api");
 const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 async function getTrendingToots(api) {
-    const coreServers = await mastodon_api_cache_1.default.getCoreServer(api);
-    // Count the number of followed users per server
-    const topServerDomains = Object.keys(coreServers)
-        .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-        .sort((a, b) => (coreServers[b] - coreServers[a]));
-    if (topServerDomains.length == 0) {
-        console.warn("No mastodon servers found to get getTrendingToots data from!");
-        return [];
-    }
-    console.log(`Found top mastodon servers: `, topServerDomains);
+    console.log(`[TrendingToots] getTrendingToots() called`);
+    const topServerDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
     // Pull top trending toots from each server
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
-        let serverTopToots = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
-        if (!serverTopToots || serverTopToots.length == 0) {
-            console.warn(`Failed to get trending toots from '${server}'! serverTopToots:`, serverTopToots);
+        let topToots = [];
+        try {
+            topToots = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
+            if (!topToots || topToots.length == 0) {
+                throw new Error(`Failed to get top toots on '${server}'! topToots: ${topToots}`);
+            }
+        }
+        catch (e) {
+            console.warn(`Error fetching trending toots from '${server}':`, e);
             return [];
         }
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
         // toot gets NUM_TRENDING_TOOTS_PER_SERVER points, least trending gets 1).
-        serverTopToots = serverTopToots.filter(toot => toot?.favouritesCount > 0 || toot?.reblogsCount > 0)
+        topToots = topToots.filter(toot => (0, toot_1.popularity)(toot) > 0)
             .slice(0, NUM_TRENDING_TOOTS_PER_SERVER)
             .map((toot, i) => {
             // Inject the @server info to the account string
@@ -42,8 +40,8 @@ async function getTrendingToots(api) {
             toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
             return toot;
         });
-        console.debug(`trendingToots for '${server}': `, serverTopToots.map(toot_1.condensedStatus));
-        return serverTopToots;
+        console.debug(`trendingToots for '${server}': `, topToots.map(toot_1.condensedStatus));
+        return topToots;
     }));
     const trendingToots = (0, helpers_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
     console.log(`[getTrendingToots] trendingToots:`, trendingToots);

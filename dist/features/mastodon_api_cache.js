@@ -157,6 +157,16 @@ class MastodonApiCache extends Storage_1.default {
         console.log(`${logPrefix(logAction)} coreServer`, coreServer);
         return coreServer;
     }
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    static async getTopServerDomains(api) {
+        const coreServers = await this.getCoreServer(api);
+        // Count the number of followed users per server
+        const topServerDomains = Object.keys(coreServers)
+            .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
+            .sort((a, b) => (coreServers[b] - coreServers[a]));
+        console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
+        return topServerDomains;
+    }
     static async shouldReloadFeatures() {
         return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;
     }
