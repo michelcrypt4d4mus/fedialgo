@@ -68,7 +68,8 @@ function groupBy(arr, key) {
     }, {});
 }
 exports.groupBy = groupBy;
-; // Apply a transform() function to all keys in a nested object.
+;
+// Apply a transform() function to all keys in a nested object.
 const transformKeys = (data, transform) => {
     if (Array.isArray(data)) {
         return data.map((value) => (0, exports.transformKeys)(value, transform));
@@ -80,8 +81,9 @@ const transformKeys = (data, transform) => {
         ]));
     }
     return data;
-}; //Masto does not support top posts from foreign servers, so we have to do it manually
+};
 exports.transformKeys = transformKeys;
+// Masto does not support top posts from foreign servers, so we have to do it manually
 const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 };
