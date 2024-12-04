@@ -4,12 +4,12 @@
  */
 import { mastodon } from "masto";
 
-import coreServerFeature from "./coreServerFeature";
-import FavsFeature from "./favsFeature";
-import FollowedTagsFeature from "./followed_tags_feature";
-import InteractionsFeature from "./InteractionsFeature";
-import reblogsFeature, { getUserRecentToots } from "./reblogsFeature";
-import repliedFeature from "./replied_feature";
+import coreServerFeature from "../features/coreServerFeature";
+import FavsFeature from "../features/favsFeature";
+import FollowedTagsFeature from "../features/followed_tags_feature";
+import InteractionsFeature from "../features/InteractionsFeature";
+import reblogsFeature, { getUserRecentToots } from "../features/reblogsFeature";
+import repliedFeature from "../features/replied_feature";
 import Storage, { Key } from "../Storage";
 import { AccountFeature, StringNumberDict, ServerFeature, TootURIs, AccountNames } from "../types";
 import { mastodonFetchPages } from "../api/api";

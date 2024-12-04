@@ -13,7 +13,7 @@ import getRecentTootsForTrendingTags from "./feeds/trending_tags";
 import getTrendingToots from "./feeds/trending_toots";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
-import MastodonApiCache from "./features/mastodon_api_cache";
+import MastodonApiCache from "./api/mastodon_api_cache";
 import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
 import Paginator from "./api/mastodon_paginator";

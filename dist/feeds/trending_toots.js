@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mastodon_api_cache_1 = __importDefault(require("../features/mastodon_api_cache"));
+const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../objects/toot");
 const api_1 = require("../api/api");

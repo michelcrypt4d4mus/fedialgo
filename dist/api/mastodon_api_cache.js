@@ -26,12 +26,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const coreServerFeature_1 = __importDefault(require("./coreServerFeature"));
-const favsFeature_1 = __importDefault(require("./favsFeature"));
-const followed_tags_feature_1 = __importDefault(require("./followed_tags_feature"));
-const InteractionsFeature_1 = __importDefault(require("./InteractionsFeature"));
-const reblogsFeature_1 = __importStar(require("./reblogsFeature"));
-const replied_feature_1 = __importDefault(require("./replied_feature"));
+const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
+const favsFeature_1 = __importDefault(require("../features/favsFeature"));
+const followed_tags_feature_1 = __importDefault(require("../features/followed_tags_feature"));
+const InteractionsFeature_1 = __importDefault(require("../features/InteractionsFeature"));
+const reblogsFeature_1 = __importStar(require("../features/reblogsFeature"));
+const replied_feature_1 = __importDefault(require("../features/replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
 const api_1 = require("../api/api");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens

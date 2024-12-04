@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import MastodonApiCache from "../features/mastodon_api_cache";
+import MastodonApiCache from "../api/mastodon_api_cache";
 import { average, dedupeToots } from '../helpers';
 import { condensedStatus, popularity } from "../objects/toot";
 import { mastodonFetch } from "../api/api";
