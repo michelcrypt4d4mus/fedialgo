@@ -1,3 +1,6 @@
+## `0.4.0`
+* Implement tag based filtering (blacklist and whitelist)
+
 ## `0.3.0`
 * Implement `TrendingTags` scoring (pull recent toots from tags that are trending into the timeline)
 * [bug] Fix followed accounts filter
