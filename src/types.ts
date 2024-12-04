@@ -83,5 +83,5 @@ export interface TrendingTag extends mastodon.v1.Tag {
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
-export type StorageValue = AccountFeature | AccountNames | FeedFilterSettings | StringNumberDict |
-    ServerFeature |TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = AccountFeature | FeedFilterSettings | StringNumberDict | ServerFeature |
+    TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
