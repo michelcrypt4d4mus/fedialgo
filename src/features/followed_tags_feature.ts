@@ -10,7 +10,7 @@ import { StringNumberDict } from "../types";
 
 export default async function FollowedTagsFeature(
     api: mastodon.rest.Client,
-    user: mastodon.v1.Account
+    _user: mastodon.v1.Account
 ): Promise<StringNumberDict> {
     const tags = await mastodonFetchPages<mastodon.v1.Tag>({
         fetchMethod: api.v1.followedTags.list,
