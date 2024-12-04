@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
-const helpers_1 = require("../helpers");
+const MAX_CONTENT_PREVIEW_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 // Return total of favourites and reblogs
 function popularity(toot) {
@@ -13,8 +13,8 @@ exports.popularity = popularity;
 const condensedStatus = (toot) => {
     // Contents of toot (the text)
     let content = toot.reblog?.content || toot.content || "";
-    if (content.length > helpers_1.MAX_CONTENT_CHARS)
-        content = `${content.slice(0, helpers_1.MAX_CONTENT_CHARS)}...`;
+    if (content.length > MAX_CONTENT_PREVIEW_CHARS)
+        content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
     // Account info for the person who tooted it
     let accountLabel = (0, exports.describeAccount)(toot);
     if (toot.reblog)
@@ -46,7 +46,7 @@ const condensedStatus = (toot) => {
 exports.condensedStatus = condensedStatus;
 // Build a string that can be used in logs to identify a toot
 const describeToot = (toot) => {
-    return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, helpers_1.MAX_CONTENT_CHARS)}`;
+    return `toot #${toot.id} by ${(0, exports.describeAccount)(toot)}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
 };
 exports.describeToot = describeToot;
 // Build a string that can be used in logs to identify an account

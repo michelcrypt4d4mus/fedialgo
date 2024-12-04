@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const Storage_1 = __importDefault(require("../Storage"));
 const api_1 = require("../api/api");
-const NUM_SERVERS_TO_CHECK = 30;
-const MINIMUM_MAU = 100;
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
@@ -41,6 +43,7 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 const POPULAR_SRERVERS_MAU_GUESS = 1000;
 // Returns something called "overrepresentedServerFrequ"??
 async function coreServerFeature(_api, _user, followedAccounts) {
+    const numServersToCheck = Storage_1.default.getConfig().numServersToCheck;
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce((userCounts, follower) => {
         if (!follower.url)
@@ -50,24 +53,24 @@ async function coreServerFeature(_api, _user, followedAccounts) {
         return userCounts;
     }, {});
     const numServers = Object.keys(userServerCounts).length;
-    if (numServers < NUM_SERVERS_TO_CHECK) {
+    if (numServers < numServersToCheck) {
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
-            .slice(0, NUM_SERVERS_TO_CHECK - numServers)
+            .slice(0, numServersToCheck - numServers)
             .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
         console.log(`User only follows accounts on ${numServers} servers so added some default servers:`, userServerCounts);
     }
-    // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
+    // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
     const popularServers = Object.keys(userServerCounts)
         .sort((a, b) => userServerCounts[b] - userServerCounts[a])
-        .slice(0, NUM_SERVERS_TO_CHECK);
+        .slice(0, numServersToCheck);
     console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
-    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
+    console.debug(`Top ${numServersToCheck} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(s => (0, api_1.getMonthlyUsers)(s)));
     const serverMAUs = {};
     const overrepresentedServerFrequ = {};
     popularServers.forEach((server, i) => {
-        if (monthlyUsers[i] < MINIMUM_MAU) {
+        if (monthlyUsers[i] < Storage_1.default.getConfig().minServerMAU) {
             console.log(`Ignoring server '${server}' with only ${monthlyUsers[i]} MAU...`);
             return;
         }

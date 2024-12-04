@@ -11,6 +11,25 @@ export interface AlgorithmArgs {
     user: mastodon.v1.Account;
     setFeedInApp?: (feed: Toot[]) => void;
 }
+export type Config = {
+    defaultRecordsPerPage: number;
+    maxTimelineTootsToFetch: number;
+    maxTimelineHoursToFetch: number;
+    reloadIfOlderThanMinutes: number;
+    defaultLanguage: string;
+    minTootsForTagToAppearInFilter: number;
+    minRecordsForFeatureScoring: number;
+    maxFollowingAccountsToPull: number;
+    reloadFeaturesEveryNthOpen: number;
+    numServersToCheck: number;
+    minServerMAU: number;
+    numDaysToCountTrendingTagData: number;
+    numTrendingTags: number;
+    numTrendingTagsPerServer: number;
+    numTrendingTagsToots: number;
+    numTrendingTagsTootsPerServer: number;
+    numTrendingTootsPerServer: number;
+};
 export type FeedFeature = AccountFeature | StringNumberDict;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FeedFilterSettings = {
@@ -45,7 +64,6 @@ export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
-    recommended?: boolean;
     scoreInfo?: TootScore;
     similarity?: number;
     trendingRank?: number;

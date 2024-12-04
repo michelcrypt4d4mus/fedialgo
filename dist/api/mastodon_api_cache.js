@@ -38,8 +38,6 @@ const api_1 = require("./api");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
-const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5000;
-const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
 class MastodonApiCache extends Storage_1.default {
@@ -48,7 +46,7 @@ class MastodonApiCache extends Storage_1.default {
         const fetchFollows = async (_api, _user) => {
             return await (0, api_1.mastodonFetchPages)({
                 fetchMethod: _api.v1.accounts.$select(_user.id).following.list,
-                maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
+                maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
                 label: 'followedAccounts'
             });
         };
@@ -117,7 +115,7 @@ class MastodonApiCache extends Storage_1.default {
         return data;
     }
     static async shouldReloadFeatures() {
-        return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;
+        return (await this.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
     }
 }
 exports.default = MastodonApiCache;

@@ -1,5 +1,4 @@
 import { Toot } from "./types";
-export declare const MAX_CONTENT_CHARS = 150;
 export declare const IMAGE = "image";
 export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: string[];

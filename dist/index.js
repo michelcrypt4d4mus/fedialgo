@@ -53,12 +53,8 @@ const helpers_1 = require("./helpers");
 const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const trending_toots_feature_scorer_2 = require("./scorer/feature/trending_toots_feature_scorer");
-const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
-const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
-const MINIMUM_TAGS_FOR_FILTER = 5;
 const TIME_DECAY = 'TimeDecay';
 exports.TIME_DECAY = TIME_DECAY;
 const TIME_DECAY_DEFAULT = 0.05;
@@ -79,6 +75,7 @@ class TheAlgorithm {
     tagCounts = {};
     tagFilterCounts = {}; // Just tagCounts filtered for a minimum count
     scoreMutex = new async_mutex_1.Mutex();
+    reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`);
     fetchers = [
@@ -132,6 +129,7 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(Storage_1.DEFAULT_FILTERS));
+        this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed() {
@@ -188,9 +186,9 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.debug(`${prefix} feed toots posted by application counts:`, this.appCounts);
-        console.log(`${prefix} tagCounts:`, this.tagCounts);
-        console.log(`${prefix} timeline toots (condensed):`, this.feed.map(toot_1.condensedStatus));
+        console.debug(`${prefix}feed toots posted by application counts:`, this.appCounts);
+        console.log(`${prefix}tagCounts:`, this.tagCounts);
+        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(toot_1.condensedStatus));
     }
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
@@ -227,7 +225,7 @@ class TheAlgorithm {
     //   - Set media type to "image" if appropriate
     repairFeedAndExtractSummaryInfo() {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= ENGLISH_CODE; // Default to English
+            toot.language ??= Storage_1.default.getConfig().defaultLanguage; // Default to English
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {});
@@ -261,7 +259,7 @@ class TheAlgorithm {
             });
             return tagCounts;
         }, {});
-        this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= MINIMUM_TAGS_FOR_FILTER));
+        this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
     }
     // TODO: is this ever used?
     list() {
@@ -359,7 +357,7 @@ class TheAlgorithm {
         const apps = this.filters.filteredApps;
         const languages = this.filters.filteredLanguages;
         const tags = this.filters.filteredTags;
-        const tootLanguage = toot.language || ENGLISH_CODE;
+        const tootLanguage = toot.language || Storage_1.default.getConfig().defaultLanguage;
         if (languages.length > 0) {
             if (!languages.includes(tootLanguage)) {
                 console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
@@ -438,7 +436,7 @@ class TheAlgorithm {
     ;
     shouldReloadFeed() {
         const mostRecentTootAt = this.mostRecentTootAt();
-        return ((Date.now() - mostRecentTootAt.getTime()) > RELOAD_IF_OLDER_THAN_MS);
+        return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

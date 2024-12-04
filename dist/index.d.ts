@@ -30,6 +30,7 @@ declare class TheAlgorithm {
     tagCounts: StringNumberDict;
     tagFilterCounts: StringNumberDict;
     scoreMutex: Mutex;
+    reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
     fetchers: (typeof getHomeFeed)[];
     featureScorers: (ChaosFeatureScorer | FavsFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | ReblogsFeatureScorer | RepliedFeatureScorer | TrendingTootFeatureScorer | TrendingTagsFeatureScorer | VideoAttachmentScorer)[];

@@ -5,18 +5,19 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
+import Storage from "../Storage";
 import { average, dedupeToots } from '../helpers';
 import { condensedStatus, popularity } from "../objects/toot";
 import { mastodonFetch } from "../api/api";
 import { Toot } from "../types";
 
-const NUM_TRENDING_TOOTS_PER_SERVER = 30;
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
     const topServerDomains = await MastodonApiCache.getTopServerDomains(api);
+    const numTrendingTootsPerServer = Storage.getConfig().numTrendingTootsPerServer;
 
     // Pull top trending toots from each server
     let trendingTootses: Toot[][] = await Promise.all(
@@ -36,9 +37,9 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
 
             // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
             // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
-            // toot gets NUM_TRENDING_TOOTS_PER_SERVER points, least trending gets 1).
+            // toot gets numTrendingTootsPerServer points, least trending gets 1).
             topToots = topToots.filter(toot => popularity(toot) > 0)
-                               .slice(0, NUM_TRENDING_TOOTS_PER_SERVER)
+                               .slice(0, numTrendingTootsPerServer)
                                .map((toot: Toot, i: number) => {
                                     // Inject the @server info to the account string
                                     const acct = toot.account.acct;
@@ -48,7 +49,7 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
                                     }
 
                                     // Inject trendingRank score
-                                    toot.trendingRank = NUM_TRENDING_TOOTS_PER_SERVER - i + 1;
+                                    toot.trendingRank = 1 + numTrendingTootsPerServer - i;
                                     return toot;
                                 });
 
@@ -82,8 +83,8 @@ function setTrendingRankToAvg(rankedToots: Toot[]): Toot[] {
 
         const trendingRanks = toots.map(t => t.trendingRank) as number[];
         const avgScore = average(trendingRanks);
-        const msg = `Found ${toots.length} of ${uri} (trendingRanks: ${trendingRanks}, avg: ${avgScore}).`;
-        console.debug(`${msg} First toot:`, toots[0]);
+        // const msg = `Found ${toots.length} toots of ${uri} (trendingRanks: ${trendingRanks}, avg: ${avgScore}).`;
+        // console.debug(`${msg} First toot:`, toots[0]);
         toots.forEach(toot => toot.trendingRank = avgScore);
     });
 

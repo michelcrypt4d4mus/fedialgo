@@ -18,8 +18,6 @@ import { getUserRecentToots, mastodonFetchPages } from "./api";
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
-const MAX_FOLLOWING_ACCOUNT_TO_PULL = 5_000;
-const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
 
@@ -30,7 +28,7 @@ export default class MastodonApiCache extends Storage {
         const fetchFollows = async (_api: mastodon.rest.Client, _user: mastodon.v1.Account) => {
             return await mastodonFetchPages<mastodon.v1.Account>({
                 fetchMethod: _api.v1.accounts.$select(_user.id).following.list,
-                maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
+                maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
                 label: 'followedAccounts'
             });
         };
@@ -140,7 +138,7 @@ export default class MastodonApiCache extends Storage {
     }
 
     private static async shouldReloadFeatures() {
-        return (await this.getNumAppOpens()) % 10 == RELOAD_FEATURES_EVERY_NTH_OPEN;
+        return (await this.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
     }
 };
 

@@ -3,11 +3,9 @@
  */
 import { mastodon } from "masto";
 
+import Storage from "../Storage";
 import { getMonthlyUsers } from "../api/api";
 import { AccountNames, ServerFeature, StringNumberDict } from "../types";
-
-const NUM_SERVERS_TO_CHECK = 30;
-const MINIMUM_MAU = 100;
 
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
@@ -54,6 +52,8 @@ export default async function coreServerFeature(
     _user: mastodon.v1.Account,
     followedAccounts: AccountNames
 ): Promise<ServerFeature> {
+    const numServersToCheck = Storage.getConfig().numServersToCheck;
+
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce(
         (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
@@ -67,9 +67,9 @@ export default async function coreServerFeature(
 
     const numServers = Object.keys(userServerCounts).length;
 
-    if (numServers < NUM_SERVERS_TO_CHECK) {
+    if (numServers < numServersToCheck) {
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
-                       .slice(0, NUM_SERVERS_TO_CHECK - numServers)
+                       .slice(0, numServersToCheck - numServers)
                        .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
 
         console.log(
@@ -78,20 +78,20 @@ export default async function coreServerFeature(
         );
     }
 
-    // Find the top NUM_SERVERS_TO_CHECK servers among accounts followed by the user.
+    // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
     const popularServers = Object.keys(userServerCounts)
                                  .sort((a, b) => userServerCounts[b] - userServerCounts[a])
-                                 .slice(0, NUM_SERVERS_TO_CHECK);
+                                 .slice(0, numServersToCheck);
 
     console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
-    console.debug(`Top ${NUM_SERVERS_TO_CHECK} servers: `, popularServers);
+    console.debug(`Top ${numServersToCheck} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
     const serverMAUs: StringNumberDict = {};
     const overrepresentedServerFrequ: StringNumberDict = {};
 
     popularServers.forEach((server, i) => {
-        if (monthlyUsers[i] < MINIMUM_MAU) {
+        if (monthlyUsers[i] < Storage.getConfig().minServerMAU) {
             console.log(`Ignoring server '${server}' with only ${monthlyUsers[i]} MAU...`);
             return;
         }

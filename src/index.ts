@@ -43,15 +43,11 @@ import {
     isImage
 } from "./helpers";
 import { buildAccountNames } from "./objects/account";
-import { condensedStatus, describeToot } from "./objects/toot";
+import { condensedStatus } from "./objects/toot";
 import { TRENDING_TOOTS } from "./scorer/feature/trending_toots_feature_scorer";
 
-const ENGLISH_CODE = 'en';
 const UNKNOWN_APP = "unknown";
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-const RELOAD_IF_OLDER_THAN_MINUTES = 0.5;
-const RELOAD_IF_OLDER_THAN_MS = RELOAD_IF_OLDER_THAN_MINUTES * 60 * 1000;
-const MINIMUM_TAGS_FOR_FILTER = 5;
 
 const TIME_DECAY = 'TimeDecay';
 const TIME_DECAY_DEFAULT = 0.05;
@@ -76,6 +72,7 @@ class TheAlgorithm {
     tagCounts: StringNumberDict = {};
     tagFilterCounts: StringNumberDict = {};  // Just tagCounts filtered for a minimum count
     scoreMutex = new Mutex();
+    reloadIfOlderThanMS: number;
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);
 
@@ -140,6 +137,7 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
+        this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -209,9 +207,9 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.debug(`${prefix} feed toots posted by application counts:`, this.appCounts);
-        console.log(`${prefix} tagCounts:`, this.tagCounts);
-        console.log(`${prefix} timeline toots (condensed):`, this.feed.map(condensedStatus));
+        console.debug(`${prefix}feed toots posted by application counts:`, this.appCounts);
+        console.log(`${prefix}tagCounts:`, this.tagCounts);
+        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(condensedStatus));
     }
 
     // Adjust toot weights based on user's chosen slider values
@@ -254,7 +252,7 @@ class TheAlgorithm {
     //   - Set media type to "image" if appropriate
     repairFeedAndExtractSummaryInfo(): void {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= ENGLISH_CODE;  // Default to English
+            toot.language ??= Storage.getConfig().defaultLanguage;  // Default to English
             langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
             return langCounts;
         }, {} as StringNumberDict);
@@ -295,7 +293,7 @@ class TheAlgorithm {
 
         this.tagFilterCounts = Object.fromEntries(
             Object.entries(this.tagCounts).filter(
-               ([_key, val]) => val >= MINIMUM_TAGS_FOR_FILTER
+               ([_key, val]) => val >= Storage.getConfig().minTootsForTagToAppearInFilter
             )
         );
     }
@@ -407,7 +405,7 @@ class TheAlgorithm {
         const apps = this.filters.filteredApps;
         const languages = this.filters.filteredLanguages;
         const tags = this.filters.filteredTags;
-        const tootLanguage = toot.language || ENGLISH_CODE;
+        const tootLanguage = toot.language || Storage.getConfig().defaultLanguage;
 
         if (languages.length > 0) {
             if (!languages.includes(tootLanguage)) {
@@ -484,7 +482,7 @@ class TheAlgorithm {
 
     private shouldReloadFeed(): boolean {
         const mostRecentTootAt = this.mostRecentTootAt();
-        return ((Date.now() - mostRecentTootAt.getTime()) > RELOAD_IF_OLDER_THAN_MS);
+        return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
     }
 };
 

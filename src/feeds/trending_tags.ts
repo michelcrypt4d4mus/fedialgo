@@ -23,18 +23,14 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
+import Storage from "../Storage";
 import { dedupeToots } from "../helpers";
 import { popularity } from "../objects/toot";
 import { getTootsForTag, mastodonFetch } from "../api/api";
 import { Toot, TrendingTag } from "../types";
 
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
-const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
-const NUM_TRENDING_TAGS_PER_SERVER = 20;
-const NUM_TRENDING_TAG_TOOTS_PER_SERVER = 20;
-const NUM_TRENDING_TAGS = 20;
-const NUM_TRENDING_TAG_TOOTS = 100;
-export const LOG_PREFIX = "[TrendingTags]";
+const LOG_PREFIX = "[TrendingTags]";
 
 
 export default async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
@@ -42,7 +38,7 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
     const tootses: Toot[][] = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
     const toots: Toot[] = dedupeToots(tootses.flat(), "trendingTags");
     console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
-    return toots.sort(popularity).reverse().slice(0, NUM_TRENDING_TAG_TOOTS);
+    return toots.sort(popularity).reverse().slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 
 
@@ -50,6 +46,7 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
 async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
     const topDomains = await MastodonApiCache.getTopServerDomains(api);
+    const numTrendingTagsPerServer = Storage.getConfig().numTrendingTagsPerServer;
 
     // Pull top trending toots from each server
     const trendingTags = await Promise.all(topDomains.map(
@@ -57,14 +54,18 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
             let tags: TrendingTag[] = [];
 
             try {
-                tags = await mastodonFetch<mastodon.v1.Tag[]>(server, TRENDING_TOOTS_REST_PATH) as TrendingTag[];
+                tags = await mastodonFetch<mastodon.v1.Tag[]>(
+                    server,
+                    TRENDING_TOOTS_REST_PATH,
+                    numTrendingTagsPerServer
+                ) as TrendingTag[];
                 if (!tags || tags.length == 0) throw new Error(`No tags found on '${server}'!`);
             } catch (e) {
                 console.warn(`${LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
                 return [];
             }
 
-            tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
+            tags = tags.slice(0, numTrendingTagsPerServer);
             tags.forEach(decorateTagData);
             console.debug(`${LOG_PREFIX} trendingTags for server '${server}':`, tags);
             return tags;
@@ -90,7 +91,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
 
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
-    return aggregatedTags.slice(0, NUM_TRENDING_TAGS);
+    return aggregatedTags.slice(0, Storage.getConfig().numTrendingTags);
 };
 
 
@@ -103,7 +104,7 @@ function decorateTagData(tag: TrendingTag): void {
         tag.history = [];
     }
 
-    const recentHistory = tag.history.slice(0, NUM_DAYS_TO_COUNT_TAG_DATA);
+    const recentHistory = tag.history.slice(0, Storage.getConfig().numDaysToCountTrendingTagData);
     tag.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     tag.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

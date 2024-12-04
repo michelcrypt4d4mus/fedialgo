@@ -4,9 +4,9 @@
  */
 import { mastodon } from "masto";
 
-import { MAX_CONTENT_CHARS } from "../helpers";
 import { Toot } from "../types";
 
+const MAX_CONTENT_PREVIEW_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 
 
@@ -20,7 +20,7 @@ export function popularity(toot: Toot): number {
 export const condensedStatus = (toot: Toot) => {
     // Contents of toot (the text)
     let content = toot.reblog?.content || toot.content || "";
-    if (content.length > MAX_CONTENT_CHARS) content = `${content.slice(0, MAX_CONTENT_CHARS)}...`;
+    if (content.length > MAX_CONTENT_PREVIEW_CHARS) content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
     // Account info for the person who tooted it
     let accountLabel = describeAccount(toot);
     if (toot.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(toot.reblog)}⬆️⬆️｠`;
@@ -54,7 +54,7 @@ export const condensedStatus = (toot: Toot) => {
 
 // Build a string that can be used in logs to identify a toot
 export const describeToot = (toot: Toot): string => {
-    return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_CHARS)}`;
+    return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
 };
 
 

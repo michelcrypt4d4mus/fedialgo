@@ -5,13 +5,11 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
+import Storage from "../Storage";
 import { Toot, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
-import { LOG_PREFIX } from "../feeds/trending_tags";
 
-// Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-export const DEFAULT_RECORDS_PER_PAGE = 40;
-const DEFAULT_MIN_RECORDS_FOR_FEATURE = 400;
+export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
 
 
@@ -19,8 +17,9 @@ const SERVER_MAU_ENDPOINT = "api/v2/instance";
 export async function searchForToots(
     api: mastodon.rest.Client,
     searchQuery: string,
-    limit: number = DEFAULT_RECORDS_PER_PAGE
+    limit: number | null = null
 ): Promise<Toot[]> {
+    limit = limit || Storage.getConfig().defaultRecordsPerPage;
     console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
     const mastoQuery: mastodon.rest.v1.SearchParams = {limit: limit, q: searchQuery, type: "statuses"};
 
@@ -30,15 +29,20 @@ export async function searchForToots(
         console.debug(`[searchForToots] Found toots for query`, mastoQuery);
         return toots;
     } catch (e) {
-        console.warn(`[searchForToots] Failed to get toots for query '${searchQuery}':`, e);
+        throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
         return [];
     }
 };
 
 
 // Retrieve Mastodon server information from a given server and endpoint
-export const mastodonFetch = async <T>(server: string, endpoint: string): Promise<T | undefined> => {
-    const url = `https://${server}${endpoint}`;
+export const mastodonFetch = async <T>(
+    server: string,
+    endpoint: string,
+    limit: number | null = null
+): Promise<T | undefined> => {
+    let url = `https://${server}${endpoint}`;
+    if (limit) url += `?limit=${limit}`;
     console.debug(`mastodonFetch() ${url}'...`);
 
     try {
@@ -50,8 +54,8 @@ export const mastodonFetch = async <T>(server: string, endpoint: string): Promis
         } else {
             throw json;
         }
-    } catch (error) {
-        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, error);
+    } catch (e) {
+        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
         return;
     }
 };
@@ -66,14 +70,14 @@ interface FetchParams<T> {
 
 export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
     let { fetchMethod, maxRecords, label } = fetchParams;
-    maxRecords ||= DEFAULT_MIN_RECORDS_FOR_FEATURE;
+    maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
     label ||= "unknown";
     console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
     let results: T[] = [];
     let pageNumber = 0;
 
     try {
-        for await (const page of fetchMethod({ limit: DEFAULT_RECORDS_PER_PAGE })) {
+        for await (const page of fetchMethod({ limit: Storage.getConfig().defaultRecordsPerPage })) {
             results = results.concat(page as T[]);
             console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
 
@@ -83,7 +87,7 @@ export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promis
             }
         }
     } catch (e) {
-        console.error(`Error in mastodonFetchPages():`, e);
+        throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
         return results;
     }
 
@@ -98,7 +102,7 @@ export async function getMonthlyUsers(server: string): Promise<number> {
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}:`, error);
+        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
         return 0;
     }
 };
@@ -129,10 +133,21 @@ export async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag
             toot.trendingTags.push(tag);
         });
 
-        console.debug(`${LOG_PREFIX} Found toots for tag '${tag.name}':`, toots);
+        console.debug(`Found toots for tag '${tag.name}':`, toots);
         return toots;
     } catch (e) {
-        console.warn(`${LOG_PREFIX} Failed to get toots for tag '${tag.name}':`, e);
+        throwIfAccessTokenRevoked(e, `Failed to get toots for tag '${tag.name}'`);
         return [];
     }
-}
+};
+
+
+// re-raise access revoked errors.
+function throwIfAccessTokenRevoked(e: unknown, msg: string): void {
+    console.error(`${msg}. Error:`, e);
+    if (!(e instanceof Error)) return;
+
+    if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
+        throw e;
+    }
+};

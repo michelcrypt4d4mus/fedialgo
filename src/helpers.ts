@@ -1,7 +1,5 @@
 import { Toot } from "./types";
 
-export const MAX_CONTENT_CHARS = 150;
-
 export const IMAGE = "image";
 export const VIDEO = "video";
 export const VIDEO_TYPES = ["gifv", VIDEO];
