@@ -47,7 +47,7 @@ function dedupeToots(toots, logLabel = undefined) {
             console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
             console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
         }
-        // Set all toots to have all trending tags.
+        // Set all toots to have all trending tags so when we uniquify we catch everything
         uriToots.forEach((toot) => {
             toot.trendingTags = uniqueTrendingTags || [];
         });

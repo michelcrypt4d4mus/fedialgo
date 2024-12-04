@@ -1,3 +1,2 @@
-import { AccountNames } from "../types";
-import { ServerFeature } from "../types";
+import { AccountNames, ServerFeature } from "../types";
 export default function coreServerFeature(followedAccounts: AccountNames): Promise<ServerFeature>;

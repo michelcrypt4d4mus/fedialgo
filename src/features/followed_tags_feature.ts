@@ -17,7 +17,7 @@ export default async function FollowedTagsFeature(api: mastodon.rest.Client): Pr
     console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
 
     return tags.reduce((acc, tag) => {
-        acc[tag.name] = 1;
+        acc[tag.name.toLowerCase()] = 1;
         return acc;
     }, {} as StringNumberDict);
 };

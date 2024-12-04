@@ -48,22 +48,27 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`[TrendingTags] getTrendingTags() called`)
-    const topServerDomains = await MastodonApiCache.getTopServerDomains(api);
+    const topDomains = await MastodonApiCache.getTopServerDomains(api);
 
     // Pull top trending toots from each server
-    const trendingTags = await Promise.all(topServerDomains.map(async (server: string): Promise<TrendingTag[]> => {
-        let tags = await mastodonFetch<mastodon.v1.Tag[]>(server, TRENDING_TOOTS_REST_PATH) as TrendingTag[];
+    const trendingTags = await Promise.all(topDomains.map(
+        async (server: string): Promise<TrendingTag[]> => {
+            let tags: TrendingTag[] = [];
 
-        if (!tags || tags.length == 0) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${server}'! trendingTags:`, tags);
-            return [];
+            try {
+                tags = await mastodonFetch<mastodon.v1.Tag[]>(server, TRENDING_TOOTS_REST_PATH) as TrendingTag[];
+                if (!tags || tags.length == 0) throw new Error(`No tags found on '${server}'!`);
+            } catch (e) {
+                console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
+                return [];
+            }
+
+            tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
+            tags.forEach(decorateTagData);
+            console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
+            return tags;
         }
-
-        tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
-        tags.forEach(decorateTagData);
-        console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
-        return tags;
-    }));
+    ));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const aggregatedTags = trendingTags.flat().reduce(
@@ -108,7 +113,10 @@ async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Prom
 
 
 // Inject toot and account counts (how many toots and users are using the trending tag)
+// Also lowercase the tag text.
 function decorateTagData(tag: TrendingTag): void {
+    tag.name = tag.name.toLowerCase();
+
     if (!tag?.history || tag.history.length == 0) {
         console.warn(`[TrendingTags] decorateTagData() found no history for tag:`, tag);
         tag.numAccounts = 0;

@@ -9,7 +9,7 @@ async function FollowedTagsFeature(api) {
     });
     console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
     return tags.reduce((acc, tag) => {
-        acc[tag.name] = 1;
+        acc[tag.name.toLowerCase()] = 1;
         return acc;
     }, {});
 }

@@ -25,12 +25,17 @@ exports.default = getRecentTootsForTrendingTags;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api) {
     console.log(`[TrendingTags] getTrendingTags() called`);
-    const topServerDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
+    const topDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
     // Pull top trending toots from each server
-    const trendingTags = await Promise.all(topServerDomains.map(async (server) => {
-        let tags = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
-        if (!tags || tags.length == 0) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${server}'! trendingTags:`, tags);
+    const trendingTags = await Promise.all(topDomains.map(async (server) => {
+        let tags = [];
+        try {
+            tags = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH);
+            if (!tags || tags.length == 0)
+                throw new Error(`No tags found on '${server}'!`);
+        }
+        catch (e) {
+            console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
             return [];
         }
         tags = tags.slice(0, NUM_TRENDING_TAGS_PER_SERVER);
@@ -73,7 +78,9 @@ async function getTootsForTag(api, tag) {
 }
 ;
 // Inject toot and account counts (how many toots and users are using the trending tag)
+// Also lowercase the tag text.
 function decorateTagData(tag) {
+    tag.name = tag.name.toLowerCase();
     if (!tag?.history || tag.history.length == 0) {
         console.warn(`[TrendingTags] decorateTagData() found no history for tag:`, tag);
         tag.numAccounts = 0;

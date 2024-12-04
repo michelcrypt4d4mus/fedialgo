@@ -4,9 +4,8 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetch, mastodonFetchPages } from "../api";
-import { AccountNames, StringNumberDict } from "../types";
-import { ServerFeature } from "../types";
+import { mastodonFetch } from "../api";
+import { AccountNames, ServerFeature, StringNumberDict } from "../types";
 
 const NUM_SERVERS_TO_CHECK = 30;
 const SERVER_MAU_ENDPOINT = "api/v2/instance";
