@@ -418,8 +418,10 @@ class TheAlgorithm {
         }
 
         if (tags.length > 0) {
-            if (this.filters.suppressFilteredHashtags && toot.tags.some(tag => tags.includes(tag.name))) {
-                return false;
+            if (this.filters.suppressFilteredHashtags) {
+                if (toot.tags.some(tag => tags.includes(tag.name))) {
+                    return false;
+                }
             } else if (!toot.tags.some(tag => tags.includes(tag.name))) {
                 return false;
             }
