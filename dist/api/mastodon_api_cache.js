@@ -30,10 +30,11 @@ const coreServerFeature_1 = __importDefault(require("../features/coreServerFeatu
 const favsFeature_1 = __importDefault(require("../features/favsFeature"));
 const followed_tags_feature_1 = __importDefault(require("../features/followed_tags_feature"));
 const InteractionsFeature_1 = __importDefault(require("../features/InteractionsFeature"));
-const reblogsFeature_1 = __importStar(require("../features/reblogsFeature"));
+const reblogsFeature_1 = __importDefault(require("../features/reblogsFeature"));
+const api_1 = require("./api");
 const replied_feature_1 = __importDefault(require("../features/replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));
-const api_1 = require("../api/api");
+const api_2 = require("../api/api");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
@@ -50,7 +51,7 @@ class MastodonApiCache extends Storage_1.default {
             const user = await this.getIdentity();
             if (user == null)
                 throw new Error("Error getting followed accounts (no user identity found)");
-            const accounts = await (0, api_1.mastodonFetchPages)({
+            const accounts = await (0, api_2.mastodonFetchPages)({
                 fetchMethod: api.v1.accounts.$select(user.id).following.list,
                 maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
                 label: 'followedAccounts'
@@ -84,7 +85,7 @@ class MastodonApiCache extends Storage_1.default {
             const user = await this.getIdentity();
             if (user == null)
                 throw new Error("Error getting recent toots (no user identity found)");
-            const recentToots = await (0, reblogsFeature_1.getUserRecentToots)(api, user);
+            const recentToots = await (0, api_1.getUserRecentToots)(api, user);
             recentTootURIs = recentToots.reduce((acc, toot) => {
                 acc[toot.reblog?.uri || toot.uri] = toot;
                 return acc;

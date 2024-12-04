@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const reblogsFeature_1 = require("./reblogsFeature");
+const api_1 = require("../api/api");
 async function repliedFeature(api, user, recentToots) {
-    recentToots ||= await (0, reblogsFeature_1.getUserRecentToots)(api, user);
+    recentToots ||= await (0, api_1.getUserRecentToots)(api, user);
     const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
     console.log(`Recent reply history: `, recentReplies);
     // Count replied per user. Note that this does NOT pull the Account object because that

@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import { getUserRecentToots } from "./reblogsFeature";
+import { getUserRecentToots } from "../api/api";
 
 
 export default async function repliedFeature(

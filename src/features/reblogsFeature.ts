@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import { mastodonFetchPages } from "../api/api";
+import { getUserRecentToots } from "../api/api";
 
 
 export default async function reblogsFeature(
@@ -27,15 +27,4 @@ export default async function reblogsFeature(
         },
         {}
     );
-};
-
-
-export function getUserRecentToots(
-    api: mastodon.rest.Client,
-    user: mastodon.v1.Account
-): Promise<mastodon.v1.Status[]> {
-    return mastodonFetchPages<mastodon.v1.Status>({
-        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
-        label: 'recentToots'
-    });
 };

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
+exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.DEFAULT_RECORDS_PER_PAGE = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -90,5 +90,14 @@ async function getMonthlyUsers(server) {
     }
 }
 exports.getMonthlyUsers = getMonthlyUsers;
+;
+// Get the user's recent toots
+function getUserRecentToots(api, user) {
+    return mastodonFetchPages({
+        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
+        label: 'recentToots'
+    });
+}
+exports.getUserRecentToots = getUserRecentToots;
 ;
 //# sourceMappingURL=api.js.map
