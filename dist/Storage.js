@@ -97,8 +97,7 @@ class Storage {
     }
     static async getFeed() {
         let toots = await this.get(Key.TIMELINE);
-        toots ??= [];
-        return toots;
+        return (toots ?? []);
     }
     static async setFeed(timeline) {
         await this.set(Key.TIMELINE, timeline);

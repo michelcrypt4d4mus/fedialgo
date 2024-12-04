@@ -110,8 +110,7 @@ export default class Storage {
 
     static async getFeed(): Promise<Toot[]> {
         let toots = await this.get(Key.TIMELINE);
-        toots ??= [];
-        return toots as Toot[];
+        return (toots ?? []) as Toot[];
     }
 
     static async setFeed(timeline: Toot[]) {
