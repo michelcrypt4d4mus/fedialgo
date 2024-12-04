@@ -11,7 +11,6 @@ exports.TRENDING_TOOTS_DEFAULT_WEIGHT = exports.TRENDING_TOOTS = void 0;
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 exports.TRENDING_TOOTS = "TrendingToots";
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
-// TODO: rename TrendingTootFeatureScorer
 class TrendingTootFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({

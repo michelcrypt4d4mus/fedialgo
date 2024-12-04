@@ -9,7 +9,6 @@ export const TRENDING_TOOTS = "TrendingToots";
 export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 
 
-// TODO: rename TrendingTootFeatureScorer
 export default class TrendingTootFeatureScorer extends FeatureScorer {
     constructor() {
         super({
