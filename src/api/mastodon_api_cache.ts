@@ -89,17 +89,12 @@ export default class MastodonApiCache extends Storage {
 
     // Returns information about mastodon servers
     static async getCoreServer(api: mastodon.rest.Client): Promise<ServerFeature> {
-        let coreServer: ServerFeature = await this.get(Key.CORE_SERVER) as ServerFeature;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (coreServer == null || (await this.shouldReloadFeatures())) {
-            coreServer = await coreServerFeature(await this.getFollowedAccounts(api));
-            logAction = RETRIEVED;
-            await this.set(Key.CORE_SERVER, coreServer);
-        }
-
-        console.log(`${logPrefix(logAction)} coreServer`, coreServer);
-        return coreServer;
+        return await this.getAggregatedData<AccountFeature>(
+            api,
+            Key.CORE_SERVER,
+            coreServerFeature,
+            await this.getFollowedAccounts(api)
+        );
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)

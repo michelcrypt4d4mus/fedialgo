@@ -83,15 +83,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
-        let coreServer = await this.get(Storage_1.Key.CORE_SERVER);
-        let logAction = LOADED_FROM_STORAGE;
-        if (coreServer == null || (await this.shouldReloadFeatures())) {
-            coreServer = await (0, coreServerFeature_1.default)(await this.getFollowedAccounts(api));
-            logAction = RETRIEVED;
-            await this.set(Storage_1.Key.CORE_SERVER, coreServer);
-        }
-        console.log(`${logPrefix(logAction)} coreServer`, coreServer);
-        return coreServer;
+        return await this.getAggregatedData(api, Storage_1.Key.CORE_SERVER, coreServerFeature_1.default, await this.getFollowedAccounts(api));
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains(api) {

@@ -50,7 +50,11 @@ const POPULAR_SRERVERS_MAU_GUESS = 1000;
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function coreServerFeature(followedAccounts: AccountNames): Promise<ServerFeature> {
+export default async function coreServerFeature(
+    _api: mastodon.rest.Client,
+    _user: mastodon.v1.Account,
+    followedAccounts: AccountNames
+): Promise<ServerFeature> {
     // Count up what Mastodon servers the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce(
         (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
