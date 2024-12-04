@@ -34,6 +34,7 @@ exports.DEFAULT_FILTERS = {
     includeTrendingHashTags: true,
     includeTrendingToots: true,
     onlyLinks: false,
+    suppressFilteredHashtags: false,
     weightLearningEnabled: false,
 };
 class Storage {

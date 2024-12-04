@@ -417,10 +417,16 @@ class TheAlgorithm {
             }
         }
 
+        if (tags.length > 0) {
+            if (this.filters.suppressFilteredHashtags && toot.tags.some(tag => tags.includes(tag.name))) {
+                return false;
+            } else if (!toot.tags.some(tag => tags.includes(tag.name))) {
+                return false;
+            }
+        }
+
         if (apps.length > 0 && !apps.includes(toot.application?.name)) {
             console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
-            return false;
-        } else if (tags.length > 0 && !toot.tags.some(tag => tags.includes(tag.name))) {
             return false;
         } else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
