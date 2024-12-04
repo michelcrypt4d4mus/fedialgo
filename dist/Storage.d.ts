@@ -30,7 +30,7 @@ export default class Storage {
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
-    protected static get(key: Key): Promise<StorageValue | null>;
+    static get(key: Key): Promise<StorageValue | null>;
     protected static set(key: Key, value: StorageValue): Promise<void>;
     protected static remove(key: Key): Promise<void>;
     private static buildKey;

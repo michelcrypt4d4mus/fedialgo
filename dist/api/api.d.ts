@@ -10,5 +10,5 @@ interface FetchParams<T> {
 }
 export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
 export declare function getMonthlyUsers(server: string): Promise<number>;
-export declare function getUserRecentToots(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<mastodon.v1.Status[]>;
+export declare function getUserRecentToots(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Toot[]>;
 export {};

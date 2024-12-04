@@ -119,7 +119,8 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    protected static async get(key: Key): Promise<StorageValue | null> {
+    // TODO make protected again
+    static async get(key: Key): Promise<StorageValue | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 

@@ -104,12 +104,14 @@ export async function getMonthlyUsers(server: string): Promise<number> {
 
 
 // Get the user's recent toots
-export function getUserRecentToots(
+export async function getUserRecentToots(
     api: mastodon.rest.Client,
     user: mastodon.v1.Account
-): Promise<mastodon.v1.Status[]> {
-    return mastodonFetchPages<mastodon.v1.Status>({
+): Promise<Toot[]> {
+    const recentToots = await mastodonFetchPages<mastodon.v1.Status>({
         fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });
+
+    return recentToots as Toot[];
 };

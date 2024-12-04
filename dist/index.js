@@ -49,6 +49,7 @@ const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/featur
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const VideoAttachmentScorer_1 = __importDefault(require("./scorer/feature/VideoAttachmentScorer"));
 const helpers_1 = require("./helpers");
+const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const trending_toots_feature_scorer_2 = require("./scorer/feature/trending_toots_feature_scorer");
 const ENGLISH_CODE = 'en';
@@ -119,7 +120,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
-        algo.followedAccounts = await Storage_1.default.getFollowedAccts() ?? {};
+        algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.get(Storage_1.Key.FOLLOWED_ACCOUNTS) ?? []));
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;

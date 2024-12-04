@@ -11,9 +11,9 @@ import InteractionsFeature from "../features/InteractionsFeature";
 import reblogsFeature from "../features/reblogsFeature";
 import repliedFeature from "../features/replied_feature";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, TootURIs } from "../types";
-import { getUserRecentToots } from "./api";
-import { mastodonFetchPages } from "../api/api";
+import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
+import { buildAccountNames } from "../objects/account";
+import { getUserRecentToots, mastodonFetchPages } from "./api";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -23,136 +23,100 @@ const RELOAD_FEATURES_EVERY_NTH_OPEN = 9;
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
 
+// type StringOrNumberFunction<
+//     Inputs extends (string | number)[],
+//     Output = void,
+// > = (...args: Inputs) => Output;
+
 
 export default class MastodonApiCache extends Storage {
     // Get an array of Accounts the user is following
     static async getFollowedAccounts(api: mastodon.rest.Client): Promise<AccountNames> {
-        let followedAccounts = await this.getFollowedAccts();
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (followedAccounts == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null) throw new Error("Error getting followed accounts (no user identity found)");
-
-            const accounts = await mastodonFetchPages<mastodon.v1.Account>({
-                fetchMethod: api.v1.accounts.$select(user.id).following.list,
+        const fetchFollows = async (_api: mastodon.rest.Client, _user: mastodon.v1.Account) => {
+            return await mastodonFetchPages<mastodon.v1.Account>({
+                fetchMethod: _api.v1.accounts.$select(_user.id).following.list,
                 maxRecords: MAX_FOLLOWING_ACCOUNT_TO_PULL,
                 label: 'followedAccounts'
             });
+        };
 
-            followedAccounts = accounts.reduce(
-                (accountNames, account) => {
-                    accountNames[account.acct] = account;
-                    return accountNames;
-                },
-                {} as AccountNames
-            );
+        let followedAccounts = await this.getAggregatedData<mastodon.v1.Account[]>(
+            api,
+            Key.FOLLOWED_ACCOUNTS,
+            fetchFollows
+        );
 
-            logAction = RETRIEVED;
-            await this.set(Key.FOLLOWED_ACCOUNTS, followedAccounts);
-        }
-
-        console.log(`${logPrefix(logAction)} followed accounts:`, followedAccounts);
-        return followedAccounts;
+        return buildAccountNames(followedAccounts);
     }
 
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        let topFavs: AccountFeature = await this.get(Key.TOP_FAVS) as AccountFeature;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (topFavs == null || (await this.shouldReloadFeatures())) {
-            topFavs = await FavsFeature(api);
-            logAction = RETRIEVED;
-            await this.set(Key.TOP_FAVS, topFavs);
-        }
-
-        console.log(`${logPrefix(logAction)} Accounts user has favorited the most:`, topFavs);
-        return topFavs;
+        return await this.getAggregatedData<AccountFeature>(api, Key.TOP_FAVS, FavsFeature);
     }
 
     // Get the users recent toots // TODO: probably shouldn't load these from storage usually?
     static async getRecentToots(api: mastodon.rest.Client): Promise<TootURIs> {
-        let recentTootURIs: TootURIs = await this.get(Key.RECENT_TOOTS) as TootURIs;
-        let logAction = LOADED_FROM_STORAGE;
+        const recentToots = await this.getAggregatedData<Toot[]>(api, Key.RECENT_TOOTS, getUserRecentToots);
 
-        if (recentTootURIs == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null) throw new Error("Error getting recent toots (no user identity found)");
-            const recentToots = await getUserRecentToots(api, user);
-
-            recentTootURIs = recentToots.reduce((acc, toot) => {
-                acc[toot.reblog?.uri || toot.uri] = toot;
-                return acc;
-            }, {} as TootURIs);
-
-            logAction = RETRIEVED;
-            await this.set(Key.RECENT_TOOTS, recentTootURIs);
-        }
-
-        console.log(`${logPrefix(logAction)} User's recent toot URIs:`, recentTootURIs);
-        return recentTootURIs;
-    }
-
-    static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        let topReblogs: AccountFeature = await this.get(Key.TOP_REBLOGS) as AccountFeature;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (topReblogs == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null) throw new Error("No user identity found");
-
-            topReblogs = await reblogsFeature(api, user, Object.values(await this.getRecentToots(api)));
-            logAction = RETRIEVED;
-            await this.set(Key.TOP_REBLOGS, topReblogs);
-        }
-
-        console.log(`${logPrefix(logAction)} User's most retooted accounts:`, topReblogs);
-        return topReblogs;
-    }
-
-    static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<StringNumberDict> {
-        let mostReplied: StringNumberDict = await this.get(Key.REPLIED_TO) as StringNumberDict;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (mostReplied == null || (await this.shouldReloadFeatures())) {
-            const user = await this.getIdentity();
-            if (user == null) throw new Error("No user identity found");
-
-            mostReplied = await repliedFeature(api, user, Object.values(await this.getRecentToots(api)));
-            logAction = RETRIEVED;
-            await this.set(Key.REPLIED_TO, mostReplied);
-        }
-
-        console.log(`${logPrefix(logAction)} Accounts user has replied to:`, mostReplied);
-        return mostReplied;
-    }
-
-    static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        let topInteracts: AccountFeature = await this.get(Key.TOP_INTERACTS) as AccountFeature;
-        let logAction = LOADED_FROM_STORAGE;
-
-        if (topInteracts == null || (await this.shouldReloadFeatures())) {
-            topInteracts = await InteractionsFeature(api);
-            logAction = RETRIEVED;
-            await this.set(Key.TOP_INTERACTS, topInteracts);
-        }
-
-        console.log(`${logPrefix(logAction)} Accounts that have interacted the most with user:`, topInteracts);
-        return topInteracts;
+        // TODO: this rebuild of the {uri: toot} dict is done anew unnecessarily for each call to getRecentToots
+        return recentToots.reduce((acc, toot) => {
+            acc[toot.reblog?.uri || toot.uri] = toot;
+            return acc;
+        }, {} as TootURIs);
     }
 
     static async getFollowedTags(api: mastodon.rest.Client): Promise<StringNumberDict> {
-        let followedTags: StringNumberDict = await this.get(Key.FOLLOWED_TAGS) as StringNumberDict;
+        return await this.getAggregatedData<AccountFeature>(api, Key.FOLLOWED_TAGS, FollowedTagsFeature);
+    }
+
+    static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
+        return await this.getAggregatedData<AccountFeature>(
+            api,
+            Key.TOP_REBLOGS,
+            reblogsFeature,
+            Object.values(await this.getRecentToots(api))
+        );
+    }
+
+    static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<StringNumberDict> {
+        return await this.getAggregatedData<StringNumberDict>(
+            api,
+            Key.REPLIED_TO,
+            repliedFeature,
+            Object.values(await this.getRecentToots(api))
+        );
+    }
+
+    static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
+        return await this.getAggregatedData<AccountFeature>(api, Key.TOP_INTERACTS, InteractionsFeature);
+    }
+
+    // Generic method to pull cached data from storage or fetch it from the API
+    static async getAggregatedData<T>(
+        api: mastodon.rest.Client,
+        storageKey: Key,
+        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any | null) => Promise<T>,
+        extraArg: any | null = null
+    ): Promise<T> {
+        let data: T = await this.get(storageKey) as T;
         let logAction = LOADED_FROM_STORAGE;
 
-        if (followedTags == null || (await this.shouldReloadFeatures())) {
-            followedTags = await FollowedTagsFeature(api);
+        if (data == null || (await this.shouldReloadFeatures())) {
+            const user = await this.getIdentity();
+            if (user == null) throw new Error("No user identity found"); // TODO: user isn't always needed
             logAction = RETRIEVED;
-            await this.set(Key.FOLLOWED_TAGS, followedTags);
+
+            if (extraArg) {
+                console.log(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
+                data = await fetchMethod(api, user, extraArg);
+            } else {
+                data = await fetchMethod(api, user);
+            }
+
+            await this.set(storageKey, data as StorageValue);
         }
 
-        console.log(`${logPrefix(logAction)} Followed tags`, followedTags);
-        return followedTags;
+        console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
+        return data;
     }
 
     // Returns information about mastodon servers

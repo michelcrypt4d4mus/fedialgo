@@ -92,11 +92,12 @@ async function getMonthlyUsers(server) {
 exports.getMonthlyUsers = getMonthlyUsers;
 ;
 // Get the user's recent toots
-function getUserRecentToots(api, user) {
-    return mastodonFetchPages({
+async function getUserRecentToots(api, user) {
+    const recentToots = await mastodonFetchPages({
         fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });
+    return recentToots;
 }
 exports.getUserRecentToots = getUserRecentToots;
 ;

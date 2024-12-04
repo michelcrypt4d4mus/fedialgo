@@ -20,7 +20,7 @@ import Paginator from "./api/mastodon_paginator";
 import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import ReblogsFeedScorer from "./scorer/feed/reblogsFeedScorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
-import Storage, { DEFAULT_FILTERS } from "./Storage";
+import Storage, { DEFAULT_FILTERS, Key } from "./Storage";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
@@ -41,6 +41,7 @@ import {
     dedupeToots,
     isImage
 } from "./helpers";
+import { buildAccountNames } from "./objects/account";
 import { condensedStatus, describeToot } from "./objects/toot";
 import { TRENDING_TOOTS } from "./scorer/feature/trending_toots_feature_scorer";
 
@@ -126,7 +127,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
-        algo.followedAccounts = await Storage.getFollowedAccts() ?? {};
+        algo.followedAccounts = buildAccountNames((await Storage.get(Key.FOLLOWED_ACCOUNTS) ?? []) as mastodon.v1.Account[]);
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
