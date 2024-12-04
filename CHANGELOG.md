@@ -1,5 +1,6 @@
 ## `0.3.0`
 * Implement `TrendingTags` scoring (pull recent toots from tags that are trending into the timeline)
+* Fix followed accounts filter
 
 ## `0.2.0`
 * Add ability to filter based on the application used to toot
