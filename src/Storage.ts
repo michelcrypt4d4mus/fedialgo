@@ -65,13 +65,8 @@ export default class Storage {
 
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts(): Promise<mastodon.v1.Account[]> {
-        let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
-
-        if (!followedAccounts) {
-            return [];
-        } else {
-            return followedAccounts as mastodon.v1.Account[];
-        }
+        const followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+        return (followedAccounts ?? []) as mastodon.v1.Account[];
     }
 
     static async logAppOpen(): Promise<void> {

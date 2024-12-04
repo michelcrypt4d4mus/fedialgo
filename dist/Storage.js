@@ -60,13 +60,8 @@ class Storage {
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {
-        let followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
-        if (!followedAccounts) {
-            return [];
-        }
-        else {
-            return followedAccounts;
-        }
+        const followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+        return (followedAccounts ?? []);
     }
     static async logAppOpen() {
         let numAppOpens = (parseInt(await this.get(Key.OPENINGS)) || 0) + 1;
