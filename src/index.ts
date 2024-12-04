@@ -18,7 +18,7 @@ import NumFavoritesScorer from "./scorer/feature/numFavoritesScorer";
 import NumRepliesScorer from "./scorer/feature/numRepliesScorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
-import ReblogsFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
+import RetootedUsersFeatureScorer from "./scorer/feature/reblogsFeatureScorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
 import Storage from "./Storage";
@@ -92,7 +92,7 @@ class TheAlgorithm {
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),
-        new ReblogsFeatureScorer(),
+        new RetootedUsersFeatureScorer(),
         new RepliedFeatureScorer(),
         new TrendingTootFeatureScorer(),
         new TrendingTagsFeatureScorer(),
