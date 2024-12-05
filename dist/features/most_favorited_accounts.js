@@ -17,4 +17,4 @@ async function FavsFeature(api, _user) {
 }
 exports.default = FavsFeature;
 ;
-//# sourceMappingURL=favsFeature.js.map
+//# sourceMappingURL=most_favorited_accounts.js.map

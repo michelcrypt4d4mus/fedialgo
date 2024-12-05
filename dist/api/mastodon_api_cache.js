@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
-const favsFeature_1 = __importDefault(require("../features/favsFeature"));
+const most_favorited_accounts_1 = __importDefault(require("../features/most_favorited_accounts"));
 const followed_tags_feature_1 = __importDefault(require("../features/followed_tags_feature"));
 const InteractionsFeature_1 = __importDefault(require("../features/InteractionsFeature"));
 const reblogsFeature_1 = __importDefault(require("../features/reblogsFeature"));
@@ -55,7 +55,7 @@ class MastodonApiCache extends Storage_1.default {
         return (0, account_1.buildAccountNames)(followedAccounts);
     }
     static async getMostFavoritedAccounts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.FAVORITED_ACCOUNTS, favsFeature_1.default);
+        return await this.getAggregatedData(api, types_1.WeightName.FAVORITED_ACCOUNTS, most_favorited_accounts_1.default);
     }
     // Get the users recent toots
     // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?

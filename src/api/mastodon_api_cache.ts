@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import coreServerFeature from "../features/coreServerFeature";
-import FavsFeature from "../features/favsFeature";
+import FavsFeature from "../features/most_favorited_accounts";
 import FollowedTagsFeature from "../features/followed_tags_feature";
 import InteractionsFeature from "../features/InteractionsFeature";
 import reblogsFeature from "../features/reblogsFeature";
