@@ -27,10 +27,9 @@ export default async function getHomeFeed(api: mastodon.rest.Client): Promise<To
         toots = toots.concat(pageToots);
         pageNumber++;
 
-        const oldestPageTootAt = earliestTootAt(pageToots) || new Date();
         const oldestTootAt = earliestTootAt(toots) || new Date();
-        let msg = `getHomeFeed() page ${pageNumber} `;
-        msg += `(${pageToots.length} toots, earliest in page: ${oldestPageTootAt}, earliest: ${oldestTootAt})`;
+        let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
+        msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
 
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date

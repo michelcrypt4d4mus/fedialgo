@@ -20,10 +20,9 @@ async function getHomeFeed(api) {
         const pageToots = page;
         toots = toots.concat(pageToots);
         pageNumber++;
-        const oldestPageTootAt = (0, toot_1.earliestTootAt)(pageToots) || new Date();
         const oldestTootAt = (0, toot_1.earliestTootAt)(toots) || new Date();
-        let msg = `getHomeFeed() page ${pageNumber} `;
-        msg += `(${pageToots.length} toots, earliest in page: ${oldestPageTootAt}, earliest: ${oldestTootAt})`;
+        let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
+        msg += `oldest in page: ${(0, toot_1.earliestTootAt)(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
         if ((toots.length >= Storage_1.default.getConfig().maxTimelineTootsToFetch) || (oldestTootAt < cutoffTimelineAt)) {

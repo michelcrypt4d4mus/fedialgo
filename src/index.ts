@@ -225,10 +225,10 @@ class TheAlgorithm {
                                    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
 
-        // for (const key in newTootScores) {
-        //     const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
-        //     newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
-        // }
+        for (let key in newTootScores) {
+            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key as WeightName] / meanUserWeight);
+            newTootScores[key as WeightName] = newTootScores[key as WeightName] - (step * newTootScores[key as WeightName] * reweight);  // TODO: this seems wrong?
+        }
 
         await this.updateUserWeights(newTootScores);
         return newTootScores;
@@ -292,11 +292,10 @@ class TheAlgorithm {
 
     // Load weightings from storage. Set defaults for any missing weightings.
     private async setDefaultWeights(): Promise<void> {
-        let weightings: Weights = await Storage.getWeightings();
+        let weightings = await Storage.getWeightings();
         let shouldSetWeights = false;
 
         Object.keys(this.scorersDict).forEach((key) => {
-            key = key as keyof typeof WeightName;
             const value = weightings[key as WeightName];
 
             if (!value && value !== 0) {

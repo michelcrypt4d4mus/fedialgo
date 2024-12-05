@@ -181,10 +181,10 @@ class TheAlgorithm {
             .filter((value) => !isNaN(value))
             .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
-        // for (const key in newTootScores) {
-        //     const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
-        //     newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
-        // }
+        for (let key in newTootScores) {
+            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
+            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight); // TODO: this seems wrong?
+        }
         await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
@@ -238,7 +238,6 @@ class TheAlgorithm {
         let weightings = await Storage_1.default.getWeightings();
         let shouldSetWeights = false;
         Object.keys(this.scorersDict).forEach((key) => {
-            key = key;
             const value = weightings[key];
             if (!value && value !== 0) {
                 weightings[key] = this.scorersDict[key].defaultWeight;
