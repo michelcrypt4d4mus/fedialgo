@@ -57,7 +57,6 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
         minValue: 0.001,
-        stepSize: 0.001,
     },
     [WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,

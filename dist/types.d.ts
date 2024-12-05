@@ -72,7 +72,6 @@ export type ScorerInfo = {
     description: string;
     minValue?: number;
     scorer?: Scorer;
-    stepSize?: number;
 };
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
