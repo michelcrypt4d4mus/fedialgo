@@ -30,7 +30,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         this.features[toot.account.acct] = (this.features[toot.account.acct] || 0) + 1;
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
         if (this.features[toot.account.acct] > 0) {
-            console.debug(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.features[toot.account.acct]}), diversity features:`, this.features);
+            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.features[toot.account.acct]}), diversity features:`, this.features);
             return 0;
         }
         else {
