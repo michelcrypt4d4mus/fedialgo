@@ -1,4 +1,6 @@
 ## NEXT
+
+## 0.5.1
 * Rudimentary ability to keep loading more toots in the background after delivering the first batch
 
 ## `0.5.0`
