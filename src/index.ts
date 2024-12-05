@@ -20,7 +20,7 @@ import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
-import RepliedFeatureScorer from "./scorer/feature/replied_feature_scorer";
+import MostRepliedAccountsScorer from "./scorer/feature/replied_feature_scorer";
 import Storage from "./Storage";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
@@ -84,7 +84,7 @@ class TheAlgorithm {
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
-        new RepliedFeatureScorer(),
+        new MostRepliedAccountsScorer(),
         new TrendingTootFeatureScorer(),
         new TrendingTagsFeatureScorer(),
         new VideoAttachmentScorer(),

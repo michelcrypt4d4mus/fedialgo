@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
 const config_1 = require("../../config");
-class RepliedFeatureScorer extends feature_scorer_1.default {
+class MostRepliedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => mastodon_api_cache_1.default.getMostRepliedAccounts(api),
@@ -17,6 +17,6 @@ class RepliedFeatureScorer extends feature_scorer_1.default {
         return this.feature[toot.account.id] || 0;
     }
 }
-exports.default = RepliedFeatureScorer;
+exports.default = MostRepliedAccountsScorer;
 ;
 //# sourceMappingURL=replied_feature_scorer.js.map
