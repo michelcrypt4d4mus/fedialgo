@@ -1,10 +1,10 @@
 import { Toot } from "./types";
 
 export const IMAGE = "image";
+export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
 export const VIDEO_TYPES = ["gifv", VIDEO];
 export const MEDIA_TYPES = [IMAGE, ...VIDEO_TYPES];
-export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 
 
 export function createRandomString(length: number): string {

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.IMAGE_EXTENSIONS = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE = void 0;
+exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
+exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
 exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
-exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";

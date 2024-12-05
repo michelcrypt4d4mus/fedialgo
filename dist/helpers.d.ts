@@ -1,9 +1,9 @@
 import { Toot } from "./types";
 export declare const IMAGE = "image";
+export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: string[];
 export declare const MEDIA_TYPES: string[];
-export declare const IMAGE_EXTENSIONS: string[];
 export declare function createRandomString(length: number): string;
 export declare function average(values: number[]): number | undefined;
 export declare function isImage(uri: string | null | undefined): boolean;
