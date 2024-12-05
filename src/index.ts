@@ -152,7 +152,7 @@ class TheAlgorithm {
         console.log(`Removed ${numRemoved} invalid toots of ${this.feed.length} leaving ${cleanFeed.length}`);
 
         this.feed = dedupeToots(cleanFeed, "getFeed");
-        this.followedAccounts = await MastodonApiCache.getFollowedAccounts(this.api);
+        this.followedAccounts = await MastodonApiCache.getFollowedAccounts(this.api); // TODO: can we parallelize this?
         this.repairFeedAndExtractSummaryInfo();
         const maxNumToots = Storage.getConfig().maxTimelineTootsToFetch;
 
