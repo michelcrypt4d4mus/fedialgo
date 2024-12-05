@@ -61,7 +61,11 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getFollowedTags(api: mastodon.rest.Client): Promise<StringNumberDict> {
-        return await this.getAggregatedData<AccountFeature>(api, WeightName.FOLLOWED_TAGS, FollowedTagsFeature);
+        return await this.getAggregatedData<AccountFeature>(
+            api,
+            WeightName.FOLLOWED_TAGS,
+            FollowedTagsFeature
+        );
     }
 
     static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
@@ -83,7 +87,11 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        return await this.getAggregatedData<AccountFeature>(api, WeightName.INTERACTIONS, InteractionsFeature);
+        return await this.getAggregatedData<AccountFeature>(
+            api,
+            WeightName.INTERACTIONS,
+            InteractionsFeature
+        );
     }
 
     // Returns information about mastodon servers
