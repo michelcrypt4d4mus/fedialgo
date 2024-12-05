@@ -106,20 +106,22 @@ class TheAlgorithm {
         console.debug(`getFeed() called in fedialgo package, numTimelineToots:`, numTimelineToots);
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
+            mastodon_api_cache_1.default.getFollowedAccounts(this.api),
             (0, homeFeed_1.default)(this.api, _numTimelineToots),
             (0, trending_toots_1.default)(this.api),
             (0, trending_tags_1.default)(this.api),
             // featureScorers return empty arrays (they're here as a parallelization hack)
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
-        this.feed = [...this.feed, ...allResponses.flat()];
-        console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);
+        this.followedAccounts = allResponses.shift();
+        let toots = allResponses.flat();
+        console.log(`Found ${this.followedAccounts.length} followed accounts and ${toots.length} toots.`);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
-        const numRemoved = this.feed.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${this.feed.length} leaving ${cleanFeed.length}`);
-        this.feed = (0, helpers_1.dedupeToots)(cleanFeed, "getFeed");
-        this.followedAccounts = await mastodon_api_cache_1.default.getFollowedAccounts(this.api);
+        let cleanFeed = toots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        const numRemoved = toots.length - cleanFeed.length;
+        console.log(`Removed ${numRemoved} invalid toots of ${toots.length} leaving ${cleanFeed.length}`);
+        cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanFeed], "getFeed");
+        this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
         this.repairFeedAndExtractSummaryInfo();
         const maxNumToots = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value

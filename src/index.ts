@@ -136,6 +136,7 @@ class TheAlgorithm {
 
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
+            MastodonApiCache.getFollowedAccounts(this.api),  // Parallelized for speed
             getHomeFeed(this.api, _numTimelineToots),
             getTrendingToots(this.api),
             getRecentTootsForTrendingTags(this.api),
@@ -143,16 +144,17 @@ class TheAlgorithm {
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
 
-        this.feed = [...this.feed, ...allResponses.flat()];
-        console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);
+        this.followedAccounts = allResponses.shift() as AccountNames;
+        let toots = allResponses.flat() as Toot[];
+        console.log(`Found ${this.followedAccounts.length} followed accounts and ${toots.length} toots.`);
 
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
-        const numRemoved = this.feed.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${this.feed.length} leaving ${cleanFeed.length}`);
+        let cleanFeed = toots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        const numRemoved = toots.length - cleanFeed.length;
+        console.log(`Removed ${numRemoved} invalid toots of ${toots.length} leaving ${cleanFeed.length}`);
 
-        this.feed = dedupeToots(cleanFeed, "getFeed");
-        this.followedAccounts = await MastodonApiCache.getFollowedAccounts(this.api); // TODO: can we parallelize this?
+        cleanFeed = dedupeToots([...this.feed, ...cleanFeed], "getFeed");
+        this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
         this.repairFeedAndExtractSummaryInfo();
         const maxNumToots = Storage.getConfig().maxTimelineTootsToFetch;
 

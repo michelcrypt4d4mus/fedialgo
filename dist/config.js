@@ -90,6 +90,7 @@ exports.DEFAULT_FILTERS = {
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
+    maxNumCachedToots: 5000,
     // Timeline toots
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,

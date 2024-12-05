@@ -43,6 +43,7 @@ export interface AlgorithmArgs {
 export type Config = {
     defaultLanguage: string;
     defaultRecordsPerPage: number;
+    maxNumCachedToots: number;
     // Timeline
     incrementalLoadDelayMS: number;
     maxTimelineHoursToFetch: number;

@@ -93,10 +93,11 @@ export const DEFAULT_FILTERS = {
 export const DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+    maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
     // Timeline toots
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
-    maxTimelineTootsToFetch: 1600,        // How many standard timeline toots to pull
+    maxTimelineTootsToFetch: 1600,       // How many standard timeline toots to pull
     numTootsInFirstFetch: 400,           // How many toots to pull in the first fetch
     reloadIfOlderThanMinutes: 10,        // currently unused
     // API stuff
