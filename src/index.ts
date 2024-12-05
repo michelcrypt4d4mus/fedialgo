@@ -108,7 +108,8 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        {[TIME_DECAY]: Object.assign({}, DEFAULT_WEIGHTS[TIME_DECAY])} as ScorerDict // TimeDecay requires bespoke handling
+        // TimeDecay requires bespoke handling so it's not included in the loop above
+        {[TIME_DECAY]: Object.assign({}, DEFAULT_WEIGHTS[TIME_DECAY])} as ScorerDict
     );
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
