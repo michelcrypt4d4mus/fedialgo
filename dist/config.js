@@ -90,7 +90,7 @@ exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
     // Timeline toots
-    maxTimelineTootsToFetch: 480,
+    maxTimelineTootsToFetch: 600,
     maxTimelineHoursToFetch: 168,
     reloadIfOlderThanMinutes: 10,
     // API stuff
