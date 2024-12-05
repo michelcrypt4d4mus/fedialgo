@@ -7,7 +7,7 @@ exports.TheAlgorithm = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const favsFeatureScorer_1 = __importDefault(require("./scorer/feature/favsFeatureScorer"));
+const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
@@ -52,7 +52,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaosFeatureScorer_1.default(),
-        new favsFeatureScorer_1.default(),
+        new most_favorited_accounts_scorer_1.default(),
         new followed_tags_feature_scorer_1.default(),
         new ImageAttachmentScorer_1.default(),
         new InteractionsFeatureScorer_1.default(),
