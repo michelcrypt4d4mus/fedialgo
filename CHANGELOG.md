@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.5.0`
 * Add scoring for raw number of retoots
 * Centralize configuration and defaults in `config.ts`
 
