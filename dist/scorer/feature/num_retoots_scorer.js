@@ -7,13 +7,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times the toot has been retooted.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const SCORE_NAME = "NumRetoots";
+const config_1 = require("../../config");
 class NumRetootsScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            description: "Favour oft retooted toots",
-            scoreName: SCORE_NAME,
-        });
+        super({ scoreName: config_1.WeightName.NUM_RETOOTS });
     }
     async _score(toot) {
         return toot?.reblogsCount || 0;

@@ -30,7 +30,6 @@ import {
     AlgorithmArgs,
     FeedFilterSettings,
     ScorerDict,
-    ScorerInfo,
     StringNumberDict,
     Toot,
     TootScore
@@ -43,21 +42,13 @@ import {
     isImage
 } from "./helpers";
 import { buildAccountNames } from "./objects/account";
-import { condensedStatus } from "./objects/toot";
-import { DEFAULT_FILTERS } from "./config";
-import { TRENDING_TOOTS } from "./scorer/feature/trending_toots_feature_scorer";
+import { condensedStatus, earliestTootAt } from "./objects/toot";
+import { DEFAULT_FILTERS, DEFAULT_WEIGHTS, WeightName } from "./config";
 
 const UNKNOWN_APP = "unknown";
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-
-const TIME_DECAY = 'TimeDecay';
-const TIME_DECAY_DEFAULT = 0.05;
 
 // Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
-const TIME_DECAY_INFO = {
-    defaultWeight: TIME_DECAY_DEFAULT,
-    description: "Higher values means toots are demoted sooner",
-} as ScorerInfo;
+const TIME_DECAY = WeightName.TIME_DECAY;
 
 
 class TheAlgorithm {
@@ -115,7 +106,7 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        {[TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO)} as ScorerDict
+        {[TIME_DECAY]: Object.assign({}, DEFAULT_WEIGHTS[TIME_DECAY])} as ScorerDict // TimeDecay requires bespoke handling
     );
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
@@ -149,7 +140,7 @@ class TheAlgorithm {
         const allResponses = await Promise.all([
             getRecentTootsForTrendingTags(this.api),
             ...this.fetchers.map(fetcher => fetcher(this.api)),
-            // featureScorers are here as a hack for parallelization. They return empty arrays.
+            // featureScorers return empty arrays (they're here as a parallelization hack)
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
 
@@ -167,6 +158,11 @@ class TheAlgorithm {
         return this.scoreFeed.bind(this)();
     }
 
+    // Return the user's current weightings for each score category
+    async getUserWeights(): Promise<StringNumberDict> {
+        return await Storage.getWeightings();
+    }
+
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
@@ -174,16 +170,16 @@ class TheAlgorithm {
         return this.scoreFeed.bind(this)();
     }
 
-    async updateFilters(newFilters: FeedFilterSettings): Promise<Toot[]> {
+    // TODO: maybe this should be a copy so edits don't happen in place?
+    getFilters(): FeedFilterSettings {
+        return this.filters;
+    }
+
+    updateFilters(newFilters: FeedFilterSettings): Toot[] {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
         return this.filteredFeed();
-    };
-
-    // Return the user's current weightings for each score category
-    async getUserWeights(): Promise<StringNumberDict> {
-        return await Storage.getWeightings();
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
@@ -192,18 +188,6 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
-
-    // Find the most recent toot in the feed
-    mostRecentTootAt(): Date {
-        if (this.feed.length == 0) return EARLIEST_TIMESTAMP;
-
-        const mostRecentToot = this.feed.reduce(
-            (recentest, toot) => recentest.createdAt > toot.createdAt ? recentest : toot,
-            this.feed[0]
-        );
-
-        return new Date(mostRecentToot.createdAt);
-    };
 
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
@@ -380,12 +364,12 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[TRENDING_TOOTS] ?? 0;
+        const trendingScore = rawScores[WeightName.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[WeightName.TRENDING_TOOTS] ?? 0;
         if (trendingScore > 0 && trendingWeighting < 1.0) rawScore *= trendingWeighting;
 
         // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
+        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
         const score = rawScore * timeDecayMultiplier;
@@ -437,7 +421,7 @@ class TheAlgorithm {
         } else if (toot.reblog && !this.filters.includeReposts) {
             console.debug(`Removing reblogged toot from feed`, toot);
             return false;
-        } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[TRENDING_TOOTS]) {
+        } else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[WeightName.TRENDING_TOOTS]) {
             return false;
         } else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
             return false;
@@ -482,7 +466,8 @@ class TheAlgorithm {
     };
 
     private shouldReloadFeed(): boolean {
-        const mostRecentTootAt = this.mostRecentTootAt();
+        const mostRecentTootAt = earliestTootAt(this.feed);
+        if (!mostRecentTootAt) return true;
         return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
     }
 };

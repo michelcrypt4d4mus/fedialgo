@@ -3,18 +3,12 @@
  */
 import FeedScorer from "../feed_scorer";
 import { Toot } from "../../types";
-
-const DEFAULT_REBLOGS_WEIGHT = 2;
-const SCORE_NAME = "RetootedInFeed";
+import { WeightName } from "../../config";
 
 
 export default class RetootsInFeedScorer extends FeedScorer {
     constructor() {
-        super(
-            SCORE_NAME,
-            "Favour toots retooted by multiple accounts you follow",
-            DEFAULT_REBLOGS_WEIGHT
-        );
+        super(WeightName.RETOOTED_IN_FEED);
     }
 
     // For each uri in the feed, count the number of times it appears as a reblogged toot.

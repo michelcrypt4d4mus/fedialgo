@@ -1,14 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../config");
 class Scorer {
     name;
     description;
-    defaultWeight = 1;
+    defaultWeight;
     _isReady = false;
-    constructor(name, description, defaultWeight) {
+    constructor(name) {
+        console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
-        this.description = description;
-        this.defaultWeight = defaultWeight ?? this.defaultWeight;
+        this.description = config_1.DEFAULT_WEIGHTS[name].description;
+        this.defaultWeight = config_1.DEFAULT_WEIGHTS[name].defaultWeight ?? 1;
     }
     async score(toot) {
         this.checkIsReady();

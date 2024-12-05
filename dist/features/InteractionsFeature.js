@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("../api/api");
 async function InteractionsFeature(api, _user) {
     const results = await (0, api_1.mastodonFetchPages)({
-        fetchMethod: api.v1.notifications.list,
+        fetch: api.v1.notifications.list,
         label: 'notifications'
     });
     console.log(`Retrieved ${results.length} notifications for InteractionsFeature(): `, results);

@@ -6,8 +6,8 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../api/mastodon_api_cache";
-import { Key } from '../../Storage';
 import { Toot } from "../../types";
+import { WeightName } from "../../config";
 
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 
@@ -15,10 +15,8 @@ const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 export default class RetootedUsersScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour accounts you often retoot",
-            defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostRetootedAccounts(api),
-            scoreName: Key.TOP_REBLOGS,
+            scoreName: WeightName.MOST_RETOOTED_ACCOUNTS,
         });
     }
 

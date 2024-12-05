@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
-const toot_1 = require("../objects/toot");
 const api_1 = require("../api/api");
+const toot_1 = require("../objects/toot");
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
@@ -36,7 +36,6 @@ async function getTrendingTags(api) {
             console.warn(`${LOG_PREFIX} Failed to get trending toots from '${server}'!`, e);
             return [];
         }
-        tags = tags.slice(0, numTrendingTagsPerServer);
         tags.forEach(decorateTagData);
         console.debug(`${LOG_PREFIX} trendingTags for server '${server}':`, tags);
         return tags;
@@ -58,7 +57,7 @@ async function getTrendingTags(api) {
     return aggregatedTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
 }
 ;
-// Lowercase the tag text; Inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
+// Lowercase the tag text; inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
 function decorateTagData(tag) {
     tag.name = tag.name.toLowerCase();
     if (!tag?.history || tag.history.length == 0) {

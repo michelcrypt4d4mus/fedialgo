@@ -4,18 +4,13 @@
 import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
 import { videoAttachments } from '../../objects/toot';
-
-const SCORE_NAME = "VideoAttachments";
+import { WeightName } from '../../config';
 
 
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 export default class VideoAttachmentScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour video attachments",
-            defaultWeight: 0,
-            scoreName: SCORE_NAME,
-        });
+        super({scoreName: WeightName.VIDEO_ATTACHMENTS});
     }
 
     async _score(toot: Toot) {

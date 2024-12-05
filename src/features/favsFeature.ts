@@ -6,6 +6,7 @@ import { mastodon } from "masto";
 import { AccountFeature } from "../types";
 import { Key } from "../Storage";
 import { mastodonFetchPages } from "../api/api";
+import { WeightName } from "../config";
 
 
 export default async function FavsFeature(
@@ -13,8 +14,8 @@ export default async function FavsFeature(
     _user: mastodon.v1.Account
 ): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Status>({
-        fetchMethod: api.v1.favourites.list,
-        label: Key.TOP_FAVS
+        fetch: api.v1.favourites.list,
+        label: WeightName.FAVORITED_ACCOUNTS
     });
 
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);

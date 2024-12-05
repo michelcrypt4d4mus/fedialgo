@@ -2,14 +2,12 @@
  * Random number generator to mix up the feed.
  */
 import FeatureScorer from '../feature_scorer';
+import { WeightName } from '../../config';
 
 
 export default class ChaosFeatureScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Insert Chaos into the scoring (social media ist krieg)",
-            scoreName: "Chaos",
-        });
+        super({scoreName: WeightName.CHAOS});
     }
 
     async _score() {

@@ -2,23 +2,18 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import { Config, FeedFilterSettings, StorageValue, StringNumberDict, Toot } from "./types";
-import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
+import { DEFAULT_CONFIG, DEFAULT_FILTERS, WeightName } from "./config";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
     FILTERS = 'filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = 'FollowedTags',
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
-    REPLIED_TO = "MostRepliedAccounts",
     TIMELINE = 'timeline',
-    TOP_FAVS = 'Favs',
-    TOP_INTERACTS = 'Interactions',
-    TOP_REBLOGS = 'MostRetootedAccounts',
     USER = 'algouser',
-    WEIGHTS = 'weights',
+    WEIGHTS = 'weights'
 };
 
 
@@ -105,24 +100,24 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    protected static async get(key: Key): Promise<StorageValue | null> {
+    protected static async get(key: Key | WeightName): Promise<StorageValue | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    protected static async set(key: Key, value: StorageValue): Promise<void> {
+    protected static async set(key: Key | WeightName, value: StorageValue): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localForage.setItem(storageKey, value);
     }
 
-    protected static async remove(key: Key): Promise<void> {
+    protected static async remove(key: Key | WeightName): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 
-    private static async buildKey(key: Key): Promise<string> {
+    private static async buildKey(key: Key | WeightName): Promise<string> {
         const user = await this.getIdentity();
 
         if (user) {

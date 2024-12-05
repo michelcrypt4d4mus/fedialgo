@@ -23,11 +23,11 @@ export type Config = {
     reloadFeaturesEveryNthOpen: number;
     numServersToCheck: number;
     minServerMAU: number;
+    numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingTags: number;
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
-    numTrendingTagsTootsPerServer: number;
     numTrendingTootsPerServer: number;
 };
 export type FeedFeature = AccountFeature | StringNumberDict;

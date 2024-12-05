@@ -3,21 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TRENDING_TAGS_DEFAULT_WEIGHT = exports.TRENDING_TAGS = void 0;
 /*
  * Scores with the log2 of the number of accounts that have interacted with a toot's
  * trending tags across the Fediverse.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-exports.TRENDING_TAGS = "TrendingTags";
-exports.TRENDING_TAGS_DEFAULT_WEIGHT = 0.4;
+const config_1 = require("../../config");
 class TrendingTagsFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            description: "Favour hashtags that are trending in the Fediverse",
-            defaultWeight: exports.TRENDING_TAGS_DEFAULT_WEIGHT,
-            scoreName: exports.TRENDING_TAGS,
-        });
+        super({ scoreName: config_1.WeightName.TRENDING_TAGS });
     }
     // TODO: we could also use tag.numStatuses in some way (or instead)
     async _score(toot) {

@@ -5,17 +5,13 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
-
-const SCORE_NAME = "NumFavourites";
+import { WeightName } from '../../config';
 
 
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 export default class NumFavoritesScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour things favourited by users on your home server",
-            scoreName: SCORE_NAME,
-        });
+        super({scoreName: WeightName.NUM_FAVOURITES});
     }
 
     async _score(toot: Toot) {

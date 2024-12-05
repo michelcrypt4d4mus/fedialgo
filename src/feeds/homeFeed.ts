@@ -6,24 +6,29 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
+import { earliestTootAt } from "../objects/toot";
 import { Toot } from "../types";
 
 
 export default async function getHomeFeed(api: mastodon.rest.Client): Promise<Toot[]> {
-    const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 60 * 60 * 1000;
-    let toots: Toot[] = [];
-    let pageNumber = 0;
+    const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
     console.log("gethomeFeed() cutoffTimelineAt: ", cutoffTimelineAt);
+    let toots: Toot[] = [];
+    let pageNumber = 0;
 
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list({ limit: Storage.getConfig().defaultRecordsPerPage })) {
         toots = toots.concat(page as Toot[]);
-        console.log(`Retrieved page ${++pageNumber} of home feed with ${page.length} toots...`);
-        const oldestTootAt = new Date(page[0].createdAt);  // TODO: are we sure this is the oldest toot in the page?
 
-        // break if we've pulled MAX_PAGES. previously also break if pages status is older than MAX_TIMELINE_HOURS old
-        // if (pageNumber == MAX_PAGES) {
+        // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
+        // Seems like these might be coming from federated apps other than Mastodon?
+        // example: https://flipboard.com/users/AxiosNews/statuses/LxBgpIAhTnO1TEZ-uG2T2Q:a:2150299410
+        // TODO: we should probably detect these outliers and toos them out of the cutoff time calculation
+        const oldestTootAt = earliestTootAt(toots) || new Date();
+        console.log(`getHomeFeed() page ${++pageNumber} (${page.length} toots, earliest: ${oldestTootAt})`);
+
+        // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
         if (toots.length >= Storage.getConfig().maxTimelineTootsToFetch || oldestTootAt < cutoffTimelineAt) {
             if (oldestTootAt < cutoffTimelineAt) {
                 console.log(`Halting getHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
@@ -33,6 +38,6 @@ export default async function getHomeFeed(api: mastodon.rest.Client): Promise<To
         }
     }
 
-    console.debug(`getHomeFeed() returning ${toots.length} toots...`);
+    console.debug(`getHomeFeed() found ${toots.length} toots (oldest: '${earliestTootAt(toots)}'):`, toots);
     return toots;
 };

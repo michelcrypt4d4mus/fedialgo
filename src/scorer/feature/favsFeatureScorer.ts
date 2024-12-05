@@ -5,16 +5,15 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import MastodonApiCache from '../../api/mastodon_api_cache';
-import { Key } from '../../Storage';
 import { Toot } from '../../types';
+import { WeightName } from '../../config';
 
 
 export default class FavsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour accounts you often favourite",
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFavoritedAccounts(api),
-            scoreName: Key.TOP_FAVS,
+            scoreName: WeightName.FAVORITED_ACCOUNTS
         });
     }
 

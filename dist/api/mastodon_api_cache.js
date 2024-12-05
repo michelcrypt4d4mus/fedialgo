@@ -35,6 +35,7 @@ const replied_feature_1 = __importDefault(require("../features/replied_feature")
 const Storage_1 = __importStar(require("../Storage"));
 const account_1 = require("../objects/account");
 const api_1 = require("./api");
+const config_1 = require("../config");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.
@@ -45,7 +46,7 @@ class MastodonApiCache extends Storage_1.default {
     static async getFollowedAccounts(api) {
         const fetchFollows = async (_api, _user) => {
             return await (0, api_1.mastodonFetchPages)({
-                fetchMethod: _api.v1.accounts.$select(_user.id).following.list,
+                fetch: _api.v1.accounts.$select(_user.id).following.list,
                 maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
                 label: 'followedAccounts'
             });
@@ -54,7 +55,7 @@ class MastodonApiCache extends Storage_1.default {
         return (0, account_1.buildAccountNames)(followedAccounts);
     }
     static async getMostFavoritedAccounts(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.TOP_FAVS, favsFeature_1.default);
+        return await this.getAggregatedData(api, config_1.WeightName.FAVORITED_ACCOUNTS, favsFeature_1.default);
     }
     // Get the users recent toots
     // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?
@@ -68,16 +69,16 @@ class MastodonApiCache extends Storage_1.default {
         }, {});
     }
     static async getFollowedTags(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.FOLLOWED_TAGS, followed_tags_feature_1.default);
+        return await this.getAggregatedData(api, config_1.WeightName.FOLLOWED_TAGS, followed_tags_feature_1.default);
     }
     static async getMostRetootedAccounts(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.TOP_REBLOGS, reblogsFeature_1.default, Object.values(await this.getRecentToots(api)));
+        return await this.getAggregatedData(api, config_1.WeightName.MOST_RETOOTED_ACCOUNTS, reblogsFeature_1.default, Object.values(await this.getRecentToots(api)));
     }
     static async getMostRepliedAccounts(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.REPLIED_TO, replied_feature_1.default, Object.values(await this.getRecentToots(api)));
+        return await this.getAggregatedData(api, config_1.WeightName.MOST_REPLIED_ACCOUNTS, replied_feature_1.default, Object.values(await this.getRecentToots(api)));
     }
     static async getTopInteracts(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.TOP_INTERACTS, InteractionsFeature_1.default);
+        return await this.getAggregatedData(api, config_1.WeightName.INTERACTIONS, InteractionsFeature_1.default);
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
@@ -94,7 +95,7 @@ class MastodonApiCache extends Storage_1.default {
         return topServerDomains;
     }
     // Generic method to pull cached data from storage or fetch it from the API
-    static async getAggregatedData(api, storageKey, fetchMethod, extraArg = null) {
+    static async getAggregatedData(api, storageKey, fetch, extraArg = null) {
         let data = await this.get(storageKey);
         let logAction = LOADED_FROM_STORAGE;
         if (data == null || (await this.shouldReloadFeatures())) {
@@ -103,11 +104,11 @@ class MastodonApiCache extends Storage_1.default {
                 throw new Error("No user identity found"); // TODO: user isn't always needed
             logAction = RETRIEVED;
             if (extraArg) {
-                console.debug(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
-                data = await fetchMethod(api, user, extraArg);
+                console.debug(`Calling fetch() with extraArg for ${storageKey}:`, extraArg);
+                data = await fetch(api, user, extraArg);
             }
             else {
-                data = await fetchMethod(api, user);
+                data = await fetch(api, user);
             }
             await this.set(storageKey, data);
         }

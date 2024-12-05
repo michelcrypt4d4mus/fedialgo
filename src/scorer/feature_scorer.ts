@@ -8,13 +8,12 @@ import { mastodon } from "masto";
 
 import Scorer from "./scorer";
 import { FeedFeature, Toot } from "../types";
+import { WeightName } from "../config";
 
 
 interface RankParams {
-    description: string,
-    defaultWeight?: number,
     featureGetter?: (api: mastodon.rest.Client) => Promise<FeedFeature>,
-    scoreName: string,
+    scoreName: WeightName,
 };
 
 
@@ -25,7 +24,7 @@ export default class FeatureScorer extends Scorer {
     feature: FeedFeature = {};  // TODO: rename this to supportData or something
 
     constructor(params: RankParams) {
-        super(params.scoreName, params.description, params.defaultWeight);
+        super(params.scoreName);
         this.featureGetter = params.featureGetter || (async (_api) => { return {} });
     }
 

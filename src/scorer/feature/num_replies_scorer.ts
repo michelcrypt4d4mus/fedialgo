@@ -3,16 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
-
-const SCORE_NAME = "NumReplies";
+import { WeightName } from '../../config';
 
 
 export default class NumRepliesScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour toots with lots of replies",
-            scoreName: SCORE_NAME,
-        });
+        super({scoreName: WeightName.NUM_REPLIES});
     }
 
     async _score(toot: Toot) {

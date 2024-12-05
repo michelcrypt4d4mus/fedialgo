@@ -13,7 +13,7 @@ export default async function InteractionsFeature(
     _user: mastodon.v1.Account
 ): Promise<AccountFeature> {
     const results = await mastodonFetchPages<mastodon.v1.Notification>({
-        fetchMethod: api.v1.notifications.list,
+        fetch: api.v1.notifications.list,
         label: 'notifications'
     });
 

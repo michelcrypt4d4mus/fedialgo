@@ -2,18 +2,20 @@
  * Base class for Toot scorers.
  */
 import { ScorerInfo, Toot } from "../types";
+import { DEFAULT_WEIGHTS, WeightName } from "../config";
 
 
 export default class Scorer {
     name: string;
     description: string;
-    defaultWeight: number = 1;
+    defaultWeight: number;
     protected _isReady: boolean = false;
 
-    constructor(name: string, description: string, defaultWeight?: number) {
+    constructor(name: WeightName) {
+        console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
-        this.description = description;
-        this.defaultWeight = defaultWeight ?? this.defaultWeight;
+        this.description = DEFAULT_WEIGHTS[name].description;
+        this.defaultWeight = DEFAULT_WEIGHTS[name].defaultWeight ?? 1;
     }
 
     async score(toot: Toot): Promise<number> {

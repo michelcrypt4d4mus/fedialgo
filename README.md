@@ -21,48 +21,52 @@ npm install github:michelcrypt4d4mus/fedialgo
 ```
 
 # Usage
-### Get A Weight-Ordered Feed
+A quick overview of how to get up and running:
 
 ```typescript
 import { login, mastodon } from "masto";
 import { TheAlgorithm } from "fedialgo"
 
+// Verify mastodon login and instantiate a TheAlgorithm object
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
-const currUser = await api.v1.accounts.verifyCredentials()
-const algorithm = await TheAlgorithm.create({api: api, user: currUser})
-const feed = await algorithm.getFeed()
+const currentUser = await api.v1.accounts.verifyCredentials()
+const algorithm = await TheAlgorithm.create({api: api, user: currentUser})
 ```
 
-You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. This can be handy with things like React states, for example:
+Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
+
 ```typescript
-const [feed, setFeed] = useState<Toot[]>([]); // timeline toots
+// Get a weighted (and weight-ordered) timeline of Toot objects
+const feed = await algorithm.getFeed();
+
+// Get and set score weightings
+const weights = await algorithm.getUserWeights();
+weights[WeightName.NUM_REPLIES] = 0.5;
+const timeline = await algorithm.updateUserWeights(newWeights);
+
+// Get and set filters to include / exclude different kinds of toots
+const filters = algorithm.getFilters();
+filters.filteredLanguages = ["en", "es"];
+filters.includeFollowedHashtags = false;
+const filteredFeed = algorithm.updateFilters(filters);
+```
+
+### Timeline Feed Callbacks
+You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`, An example involving React component state:
+
+```typescript
+import { Toot } from "fedialgo";
 
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currUser = await api.v1.accounts.verifyCredentials()
+const [feed, setFeed] = useState<Toot[]>([]);
+
+// setFeed() will be invoked when the feed is changed (e.g. via updateUserWeights() or updateFilters())
 const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedInApp: setFeed})
 ```
 
-Then whenever you call `algorithm.updateUserWeights()` the React component state will be automatically updated when the `setFeed()` callback is invoked.
-
-### Adjust Weights
-The algorithm uses properties of a toot and the user configured weights to determine the order that toots will appear in your timeline.
-You could e.g. show the weights to the user, who can then decide to change them. You must call `algorithm.updateUserWeights()` to update the weights and get a newly ordered timeline.
-
-```typescript
-const weights = await algorithm.getUserWeights()
-weights["NumReplies"] = 0.5 // change the weight of the feature "NumReplies" to 0.5
-const timelineFeed = await algorithm.updateUserWeights(newWeights)
-```
-
-### Adjust Filters
-The `FeedFilterSettings` object in the `algorithm.filters` property can be updated in place but to get the filtered feed you must call `algorithm.filteredFeed()`.
-
-```typescript
-algorithm.filters.includeFollowedHashtags = false;
-const filteredFeed = algorithm.filteredFeed();
-```
-
 ### Learn Weights
+**EXPERIMENTAL FEATURE THAT MAY OR MAY NOT WORK**
 You can also let the algorithm learn the weights from the user's behaviour. This is done by passing the scores of the posts to the algorithm. The algorithm will then adjust the weights accordingly. This is quite simple, but still has impact on the feed. For example you could choose to adjust the weight after each click on a post, after a reblog, or after a link click.
 
 ```typescript

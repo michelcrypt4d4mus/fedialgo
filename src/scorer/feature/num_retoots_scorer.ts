@@ -3,16 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
-
-const SCORE_NAME = "NumRetoots";
+import { WeightName } from '../../config';
 
 
 export default class NumRetootsScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour oft retooted toots",
-            scoreName: SCORE_NAME,
-        });
+        super({scoreName: WeightName.NUM_RETOOTS});
     }
 
     async _score(toot: Toot) {

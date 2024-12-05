@@ -4,7 +4,7 @@ export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number | null): Promise<Toot[]>;
 export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number | null) => Promise<T | undefined>;
 interface FetchParams<T> {
-    fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
+    fetch: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
     maxRecords?: number;
     label?: string;
 }

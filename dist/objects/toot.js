@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
+exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
+exports.EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 // Return total of favourites and reblogs
@@ -85,6 +86,30 @@ const minimumID = (toots) => {
     return minId == HUGE_ID ? null : minId;
 };
 exports.minimumID = minimumID;
+const earliestTootAt = (toots) => {
+    const earliest = (0, exports.earliestToot)(toots);
+    return earliest ? (0, exports.tootedAt)(earliest) : null;
+};
+exports.earliestTootAt = earliestTootAt;
+// Find the most recent toot in the feed
+const earliestToot = (toots) => {
+    if (toots.length == 0)
+        return null;
+    return toots.reduce((earliest, toot) => {
+        try {
+            return ((0, exports.tootedAt)(toot) < (0, exports.tootedAt)(earliest)) ? toot : earliest;
+        }
+        catch (e) {
+            console.warn(`Failed to parse toot's createdAt:`, toot);
+            return earliest;
+        }
+    }, toots[0]);
+};
+exports.earliestToot = earliestToot;
+const tootedAt = (toot) => {
+    return new Date(toot.createdAt);
+};
+exports.tootedAt = tootedAt;
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined

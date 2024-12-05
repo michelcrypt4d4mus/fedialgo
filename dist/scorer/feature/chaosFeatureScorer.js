@@ -7,12 +7,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Random number generator to mix up the feed.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const config_1 = require("../../config");
 class ChaosFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            description: "Insert Chaos into the scoring (social media ist krieg)",
-            scoreName: "Chaos",
-        });
+        super({ scoreName: config_1.WeightName.CHAOS });
     }
     async _score() {
         return Math.random();

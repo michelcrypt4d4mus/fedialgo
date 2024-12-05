@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Storage_1 = require("../Storage");
 const api_1 = require("../api/api");
+const config_1 = require("../config");
 async function FavsFeature(api, _user) {
     const results = await (0, api_1.mastodonFetchPages)({
-        fetchMethod: api.v1.favourites.list,
-        label: Storage_1.Key.TOP_FAVS
+        fetch: api.v1.favourites.list,
+        label: config_1.WeightName.FAVORITED_ACCOUNTS
     });
     console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
     return results.reduce((favouriteCounts, toot) => {

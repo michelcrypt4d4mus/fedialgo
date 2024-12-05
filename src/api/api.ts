@@ -63,21 +63,21 @@ export const mastodonFetch = async <T>(
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 interface FetchParams<T> {
-    fetchMethod: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
+    fetch: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
     maxRecords?: number,
     label?: string,
 };
 
 export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-    let { fetchMethod, maxRecords, label } = fetchParams;
-    maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+    let { fetch, maxRecords, label } = fetchParams;
     label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
+    maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetch:`, fetch);
     let results: T[] = [];
     let pageNumber = 0;
 
     try {
-        for await (const page of fetchMethod({ limit: Storage.getConfig().defaultRecordsPerPage })) {
+        for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
             results = results.concat(page as T[]);
             console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
 
@@ -114,7 +114,7 @@ export async function getUserRecentToots(
     user: mastodon.v1.Account
 ): Promise<Toot[]> {
     const recentToots = await mastodonFetchPages<mastodon.v1.Status>({
-        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
+        fetch: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });
 
@@ -125,7 +125,8 @@ export async function getUserRecentToots(
 // Get latest toots for a given tag
 export async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
     try {
-        const toots = await searchForToots(api, tag.name);
+        // TODO: this doesn't append a an octothorpe to the tag name. Should it?
+        const toots = await searchForToots(api, tag.name, Storage.getConfig().numTootsPerTrendingTag);
 
         // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {

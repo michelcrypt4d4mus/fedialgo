@@ -1,18 +1,14 @@
 import { mastodon } from "masto";
 import { Config, FeedFilterSettings, StorageValue, StringNumberDict, Toot } from "./types";
+import { WeightName } from "./config";
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FILTERS = "filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
-    FOLLOWED_TAGS = "FollowedTags",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
-    REPLIED_TO = "MostRepliedAccounts",
     TIMELINE = "timeline",
-    TOP_FAVS = "Favs",
-    TOP_INTERACTS = "Interactions",
-    TOP_REBLOGS = "MostRetootedAccounts",
     USER = "algouser",
     WEIGHTS = "weights"
 }
@@ -31,8 +27,8 @@ export default class Storage {
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
-    protected static get(key: Key): Promise<StorageValue | null>;
-    protected static set(key: Key, value: StorageValue): Promise<void>;
-    protected static remove(key: Key): Promise<void>;
+    protected static get(key: Key | WeightName): Promise<StorageValue | null>;
+    protected static set(key: Key | WeightName, value: StorageValue): Promise<void>;
+    protected static remove(key: Key | WeightName): Promise<void>;
     private static buildKey;
 }

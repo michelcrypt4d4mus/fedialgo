@@ -3,21 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TRENDING_TOOTS_DEFAULT_WEIGHT = exports.TRENDING_TOOTS = void 0;
+exports.TRENDING_TOOTS_DEFAULT_WEIGHT = void 0;
 /*
  * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-exports.TRENDING_TOOTS = "TrendingToots";
+const config_1 = require("../../config");
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 class TrendingTootFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            description: "Favour toots that are trending in the Fediverse",
-            defaultWeight: exports.TRENDING_TOOTS_DEFAULT_WEIGHT,
-            scoreName: exports.TRENDING_TOOTS,
-        });
+        super({ scoreName: config_1.WeightName.TRENDING_TOOTS });
     }
     async _score(toot) {
         return toot.trendingRank || 0;

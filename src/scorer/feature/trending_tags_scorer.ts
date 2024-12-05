@@ -4,18 +4,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot, TrendingTag } from "../../types";
-
-export const TRENDING_TAGS = "TrendingTags";
-export const TRENDING_TAGS_DEFAULT_WEIGHT = 0.4;
+import { WeightName } from '../../config';
 
 
 export default class TrendingTagsFeatureScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour hashtags that are trending in the Fediverse",
-            defaultWeight: TRENDING_TAGS_DEFAULT_WEIGHT,
-            scoreName: TRENDING_TAGS,
-        });
+        super({scoreName: WeightName.TRENDING_TAGS});
     }
 
     // TODO: we could also use tag.numStatuses in some way (or instead)

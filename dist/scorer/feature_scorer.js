@@ -11,7 +11,7 @@ class FeatureScorer extends scorer_1.default {
     featureGetter;
     feature = {}; // TODO: rename this to supportData or something
     constructor(params) {
-        super(params.scoreName, params.description, params.defaultWeight);
+        super(params.scoreName);
         this.featureGetter = params.featureGetter || (async (_api) => { return {}; });
     }
     async getFeature(api) {

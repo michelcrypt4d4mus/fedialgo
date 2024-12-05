@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Storage_1 = require("../Storage");
 const api_1 = require("../api/api");
+const config_1 = require("../config");
 async function FollowedTagsFeature(api, _user) {
     const tags = await (0, api_1.mastodonFetchPages)({
-        fetchMethod: api.v1.followedTags.list,
-        label: Storage_1.Key.FOLLOWED_TAGS
+        fetch: api.v1.followedTags.list,
+        label: config_1.WeightName.FOLLOWED_TAGS
     });
     console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
     // Return tags a a dict of the form {tagString: 1}

@@ -30,17 +30,10 @@ const helpers_1 = require("./helpers");
 const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
-const trending_toots_feature_scorer_2 = require("./scorer/feature/trending_toots_feature_scorer");
 const UNKNOWN_APP = "unknown";
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-const TIME_DECAY = 'TimeDecay';
-exports.TIME_DECAY = TIME_DECAY;
-const TIME_DECAY_DEFAULT = 0.05;
 // Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
-const TIME_DECAY_INFO = {
-    defaultWeight: TIME_DECAY_DEFAULT,
-    description: "Higher values means toots are demoted sooner",
-};
+const TIME_DECAY = config_1.WeightName.TIME_DECAY;
+exports.TIME_DECAY = TIME_DECAY;
 class TheAlgorithm {
     api;
     user;
@@ -88,7 +81,8 @@ class TheAlgorithm {
     scorersDict = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, { [TIME_DECAY]: Object.assign({}, TIME_DECAY_INFO) });
+    }, { [TIME_DECAY]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TIME_DECAY]) } // TimeDecay requires bespoke handling
+    );
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
         await Storage_1.default.setIdentity(params.user);
@@ -116,7 +110,7 @@ class TheAlgorithm {
         const allResponses = await Promise.all([
             (0, trending_tags_1.default)(this.api),
             ...this.fetchers.map(fetcher => fetcher(this.api)),
-            // featureScorers are here as a hack for parallelization. They return empty arrays.
+            // featureScorers return empty arrays (they're here as a parallelization hack)
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
         this.feed = allResponses.flat();
@@ -130,22 +124,25 @@ class TheAlgorithm {
         this.repairFeedAndExtractSummaryInfo();
         return this.scoreFeed.bind(this)();
     }
+    // Return the user's current weightings for each score category
+    async getUserWeights() {
+        return await Storage_1.default.getWeightings();
+    }
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage_1.default.setWeightings(userWeights);
         return this.scoreFeed.bind(this)();
     }
-    async updateFilters(newFilters) {
+    // TODO: maybe this should be a copy so edits don't happen in place?
+    getFilters() {
+        return this.filters;
+    }
+    updateFilters(newFilters) {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
         Storage_1.default.setFilters(newFilters);
         return this.filteredFeed();
-    }
-    ;
-    // Return the user's current weightings for each score category
-    async getUserWeights() {
-        return await Storage_1.default.getWeightings();
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed() {
@@ -153,14 +150,6 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
-    // Find the most recent toot in the feed
-    mostRecentTootAt() {
-        if (this.feed.length == 0)
-            return EARLIEST_TIMESTAMP;
-        const mostRecentToot = this.feed.reduce((recentest, toot) => recentest.createdAt > toot.createdAt ? recentest : toot, this.feed[0]);
-        return new Date(mostRecentToot.createdAt);
-    }
-    ;
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
@@ -311,12 +300,12 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[trending_toots_feature_scorer_2.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[trending_toots_feature_scorer_2.TRENDING_TOOTS] ?? 0;
+        const trendingScore = rawScores[config_1.WeightName.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[config_1.WeightName.TRENDING_TOOTS] ?? 0;
         if (trendingScore > 0 && trendingWeighting < 1.0)
             rawScore *= trendingWeighting;
         // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || TIME_DECAY_DEFAULT;
+        const timeDecay = userWeights[TIME_DECAY] || config_1.DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
         const score = rawScore * timeDecayMultiplier;
@@ -368,7 +357,7 @@ class TheAlgorithm {
             console.debug(`Removing reblogged toot from feed`, toot);
             return false;
         }
-        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[trending_toots_feature_scorer_2.TRENDING_TOOTS]) {
+        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[config_1.WeightName.TRENDING_TOOTS]) {
             return false;
         }
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
@@ -413,7 +402,9 @@ class TheAlgorithm {
     }
     ;
     shouldReloadFeed() {
-        const mostRecentTootAt = this.mostRecentTootAt();
+        const mostRecentTootAt = (0, toot_1.earliestTootAt)(this.feed);
+        if (!mostRecentTootAt)
+            return true;
         return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
     }
 }

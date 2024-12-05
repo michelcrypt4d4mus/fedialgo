@@ -5,13 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
-const Storage_1 = require("../../Storage");
+const config_1 = require("../../config");
 class RepliedFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
-            description: "Favour accounts you often reply to",
             featureGetter: (api) => mastodon_api_cache_1.default.getMostRepliedAccounts(api),
-            scoreName: Storage_1.Key.REPLIED_TO,
+            scoreName: config_1.WeightName.MOST_REPLIED_ACCOUNTS,
         });
     }
     async _score(toot) {

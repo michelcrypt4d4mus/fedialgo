@@ -5,15 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
-const Storage_1 = require("../../Storage");
+const config_1 = require("../../config");
 const DEFAULT_RETOOTED_USER_WEIGHT = 3;
 class RetootedUsersScorer extends feature_scorer_1.default {
     constructor() {
         super({
-            description: "Favour accounts you often retoot",
-            defaultWeight: DEFAULT_RETOOTED_USER_WEIGHT,
             featureGetter: (api) => mastodon_api_cache_1.default.getMostRetootedAccounts(api),
-            scoreName: Storage_1.Key.TOP_REBLOGS,
+            scoreName: config_1.WeightName.MOST_RETOOTED_ACCOUNTS,
         });
     }
     async _score(toot) {

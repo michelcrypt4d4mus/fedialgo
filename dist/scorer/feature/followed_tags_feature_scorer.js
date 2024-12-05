@@ -5,14 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
-const Storage_1 = require("../../Storage");
+const config_1 = require("../../config");
 class FollowedTagsFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
-            description: "Favor toots that contain hashtags you are following",
-            defaultWeight: 2,
             featureGetter: (api) => mastodon_api_cache_1.default.getFollowedTags(api),
-            scoreName: Storage_1.Key.FOLLOWED_TAGS,
+            scoreName: config_1.WeightName.FOLLOWED_TAGS,
         });
     }
     async _score(toot) {

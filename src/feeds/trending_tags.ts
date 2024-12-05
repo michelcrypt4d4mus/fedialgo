@@ -1,32 +1,31 @@
 /*
- * Pull top trending tags on mastodon server (servers?).
+ * Pull top trending tags on mastodon server (servers?). Example trending tag:
  *
- * example trending tag:
- * {
- *   "name": "southkorea",
- *   "url": "https://journa.host/tags/southkorea",
- *   "history": [
- *     {
- *       "day": "1733184000",
- *       "accounts": "125",
- *       "uses": "374"
- *     },
- *     {
- *       "day": "1733097600",
- *       "accounts": "4",
- *       "uses": "146"
- *     },
- *     <...snip, usually 7 days of info...>
- *   ]
- * }
+ *   {
+ *     "name": "southkorea",
+ *     "url": "https://journa.host/tags/southkorea",
+ *     "history": [
+ *       {
+ *         "day": "1733184000",
+ *         "accounts": "125",
+ *         "uses": "374"
+ *       },
+ *       {
+ *         "day": "1733097600",
+ *         "accounts": "4",
+ *         "uses": "146"
+ *       },
+ *       <...snip, usually 7 days of info...>
+ *     ]
+ *   }
  */
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
 import { dedupeToots } from "../helpers";
-import { popularity } from "../objects/toot";
 import { getTootsForTag, mastodonFetch } from "../api/api";
+import { popularity } from "../objects/toot";
 import { Toot, TrendingTag } from "../types";
 
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
@@ -35,7 +34,7 @@ const LOG_PREFIX = "[TrendingTags]";
 
 export default async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
     const tags = await getTrendingTags(api);
-    const tootses: Toot[][] = await Promise.all(tags.map((tag: TrendingTag) => getTootsForTag(api, tag)));
+    const tootses: Toot[][] = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots: Toot[] = dedupeToots(tootses.flat(), "trendingTags");
     console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
     return toots.sort(popularity).reverse().slice(0, Storage.getConfig().numTrendingTagsToots);
@@ -66,7 +65,6 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
                 return [];
             }
 
-            tags = tags.slice(0, numTrendingTagsPerServer);
             tags.forEach(decorateTagData);
             console.debug(`${LOG_PREFIX} trendingTags for server '${server}':`, tags);
             return tags;
@@ -96,7 +94,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
 };
 
 
-// Lowercase the tag text; Inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
+// Lowercase the tag text; inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
 function decorateTagData(tag: TrendingTag): void {
     tag.name = tag.name.toLowerCase();
 

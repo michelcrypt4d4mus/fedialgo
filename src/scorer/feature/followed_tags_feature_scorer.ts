@@ -6,17 +6,15 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import MastodonApiCache from '../../api/mastodon_api_cache';
-import { Key } from '../../Storage';
 import { Toot } from '../../types';
+import { WeightName } from '../../config';
 
 
 export default class FollowedTagsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favor toots that contain hashtags you are following",
-            defaultWeight: 2,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getFollowedTags(api),
-            scoreName: Key.FOLLOWED_TAGS,
+            scoreName: WeightName.FOLLOWED_TAGS,
         });
     }
 

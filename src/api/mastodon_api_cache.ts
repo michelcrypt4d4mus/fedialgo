@@ -14,6 +14,7 @@ import Storage, { Key } from "../Storage";
 import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
 import { buildAccountNames } from "../objects/account";
 import { getUserRecentToots, mastodonFetchPages } from "./api";
+import { WeightName } from "../config";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
@@ -27,7 +28,7 @@ export default class MastodonApiCache extends Storage {
     static async getFollowedAccounts(api: mastodon.rest.Client): Promise<AccountNames> {
         const fetchFollows = async (_api: mastodon.rest.Client, _user: mastodon.v1.Account) => {
             return await mastodonFetchPages<mastodon.v1.Account>({
-                fetchMethod: _api.v1.accounts.$select(_user.id).following.list,
+                fetch: _api.v1.accounts.$select(_user.id).following.list,
                 maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
                 label: 'followedAccounts'
             });
@@ -43,7 +44,7 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        return await this.getAggregatedData<AccountFeature>(api, Key.TOP_FAVS, FavsFeature);
+        return await this.getAggregatedData<AccountFeature>(api, WeightName.FAVORITED_ACCOUNTS, FavsFeature);
     }
 
     // Get the users recent toots
@@ -60,13 +61,13 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getFollowedTags(api: mastodon.rest.Client): Promise<StringNumberDict> {
-        return await this.getAggregatedData<AccountFeature>(api, Key.FOLLOWED_TAGS, FollowedTagsFeature);
+        return await this.getAggregatedData<AccountFeature>(api, WeightName.FOLLOWED_TAGS, FollowedTagsFeature);
     }
 
     static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
         return await this.getAggregatedData<AccountFeature>(
             api,
-            Key.TOP_REBLOGS,
+            WeightName.MOST_RETOOTED_ACCOUNTS,
             reblogsFeature,
             Object.values(await this.getRecentToots(api))
         );
@@ -75,14 +76,14 @@ export default class MastodonApiCache extends Storage {
     static async getMostRepliedAccounts(api: mastodon.rest.Client): Promise<StringNumberDict> {
         return await this.getAggregatedData<StringNumberDict>(
             api,
-            Key.REPLIED_TO,
+            WeightName.MOST_REPLIED_ACCOUNTS,
             repliedFeature,
             Object.values(await this.getRecentToots(api))
         );
     }
 
     static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        return await this.getAggregatedData<AccountFeature>(api, Key.TOP_INTERACTS, InteractionsFeature);
+        return await this.getAggregatedData<AccountFeature>(api, WeightName.INTERACTIONS, InteractionsFeature);
     }
 
     // Returns information about mastodon servers
@@ -111,8 +112,8 @@ export default class MastodonApiCache extends Storage {
     // Generic method to pull cached data from storage or fetch it from the API
     private static async getAggregatedData<T>(
         api: mastodon.rest.Client,
-        storageKey: Key,
-        fetchMethod: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any) => Promise<T>,
+        storageKey: Key | WeightName,
+        fetch: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any) => Promise<T>,
         extraArg: any | null = null
     ): Promise<T> {
         let data: T = await this.get(storageKey) as T;
@@ -124,10 +125,10 @@ export default class MastodonApiCache extends Storage {
             logAction = RETRIEVED;
 
             if (extraArg) {
-                console.debug(`Calling fetchMethod() with extraArg for ${storageKey}:`, extraArg);
-                data = await fetchMethod(api, user, extraArg);
+                console.debug(`Calling fetch() with extraArg for ${storageKey}:`, extraArg);
+                data = await fetch(api, user, extraArg);
             } else {
-                data = await fetchMethod(api, user);
+                data = await fetch(api, user);
             }
 
             await this.set(storageKey, data as StorageValue);

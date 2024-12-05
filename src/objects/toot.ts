@@ -6,6 +6,7 @@ import { mastodon } from "masto";
 
 import { Toot } from "../types";
 
+export const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 150;
 const HUGE_ID = 10 ** 100;
 
@@ -100,6 +101,34 @@ export const minimumID = (toots: Toot[]): number | null => {
 
     return minId == HUGE_ID ? null : minId;
 };
+
+
+export const earliestTootAt = (toots: Toot[]): Date | null => {
+    const earliest = earliestToot(toots);
+    return earliest ? tootedAt(earliest) : null;
+};
+
+// Find the most recent toot in the feed
+export const earliestToot = (toots: Toot[]): Toot | null => {
+    if (toots.length == 0) return null;
+
+    return toots.reduce(
+        (earliest: Toot, toot: Toot) => {
+            try {
+                return (tootedAt(toot) < tootedAt(earliest)) ? toot : earliest;
+            } catch (e) {
+                console.warn(`Failed to parse toot's createdAt:`, toot);
+                return earliest;
+            }
+        },
+        toots[0]
+    );
+};
+
+export const tootedAt = (toot: Toot): Date => {
+    return new Date(toot.createdAt);
+};
+
 
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;

@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
+        "forceConsistentCasingInFileNames": false,
         "esModuleInterop": true,
         "lib": [
             "ESNext",

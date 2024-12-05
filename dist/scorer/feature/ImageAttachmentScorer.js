@@ -8,15 +8,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const toot_1 = require("../../objects/toot");
-const SCORE_NAME = "ImageAttachments";
+const config_1 = require("../../config");
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 class ImageAttachmentScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            description: "Favour image attachments",
-            defaultWeight: 0,
-            scoreName: SCORE_NAME,
-        });
+        super({ scoreName: config_1.WeightName.IMAGE_ATTACHMENTS });
     }
     async _score(toot) {
         return (0, toot_1.imageAttachments)(toot).length;

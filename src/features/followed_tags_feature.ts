@@ -3,9 +3,9 @@
  */
 import { mastodon } from "masto";
 
-import { Key } from "../Storage";
 import { mastodonFetchPages } from "../api/api";
 import { StringNumberDict } from "../types";
+import { WeightName } from "../config";
 
 
 export default async function FollowedTagsFeature(
@@ -13,8 +13,8 @@ export default async function FollowedTagsFeature(
     _user: mastodon.v1.Account
 ): Promise<StringNumberDict> {
     const tags = await mastodonFetchPages<mastodon.v1.Tag>({
-        fetchMethod: api.v1.followedTags.list,
-        label: Key.FOLLOWED_TAGS
+        fetch: api.v1.followedTags.list,
+        label: WeightName.FOLLOWED_TAGS
     });
 
     console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);

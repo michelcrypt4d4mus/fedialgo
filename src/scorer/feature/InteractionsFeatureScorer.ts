@@ -5,19 +5,15 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../api/mastodon_api_cache";
-import { Key } from '../../Storage';
 import { Toot } from "../../types";
-
-const INTERACTIONS_DEFAULT_WEIGHT = 2;
+import { WeightName } from "../../config";
 
 
 export default class InteractionsFeatureScorer extends FeatureScorer {
     constructor() {
         super({
-            description: "Favour accounts that recently interacted with your toots",
-            defaultWeight: INTERACTIONS_DEFAULT_WEIGHT,
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getTopInteracts(api),
-            scoreName: Key.TOP_INTERACTS,
+            scoreName: WeightName.INTERACTIONS,
         });
     }
 

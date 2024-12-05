@@ -17,33 +17,34 @@ export interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
+// See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
     // Timeline
-    defaultRecordsPerPage: number;         // DEFAULT_RECORDS_PER_PAGE
-    maxTimelineTootsToFetch: number;       // MAX_TIMELINE_TOOTS_TO_FETCH
-    maxTimelineHoursToFetch: number;       // MAX_TIMELINE_HOURS_TO_FETCH
-    reloadIfOlderThanMinutes: number;      // currently unused
-    defaultLanguage: string;               // Toots without language set will be set to this language
+    defaultRecordsPerPage: number;
+    maxTimelineTootsToFetch: number;
+    maxTimelineHoursToFetch: number;
+    reloadIfOlderThanMinutes: number;
+    defaultLanguage: string;
 
     // Tag filters
-    minTootsForTagToAppearInFilter: number;  // MINIMUM_TAGS_FOR_FILTER
+    minTootsForTagToAppearInFilter: number;
 
     // API stuff
-    minRecordsForFeatureScoring: number;  // DEFAULT_MIN_RECORDS_FOR_FEATURE
-    maxFollowingAccountsToPull: number;   // MAX_FOLLOWING_ACCOUNT_TO_PULL
-    reloadFeaturesEveryNthOpen: number;   // RELOAD_FEATURES_EVERY_NTH_OPEN
-    numServersToCheck: number;            // NUM_SERVERS_TO_CHECK
-    minServerMAU: number;                 // MINIMUM_MAU
+    minRecordsForFeatureScoring: number;
+    maxFollowingAccountsToPull: number;
+    reloadFeaturesEveryNthOpen: number;
+    numServersToCheck: number;
+    minServerMAU: number;
 
     // Trending tags
-    numDaysToCountTrendingTagData: number; // const NUM_DAYS_TO_COUNT_TAG_DATA = 3;
-    numTrendingTags: number;               // const NUM_TRENDING_TAGS = 20;
-    numTrendingTagsPerServer: number;      // defaults to 10: https://docs.joinmastodon.org/methods/trends/
-    numTrendingTagsToots: number;           // const NUM_TRENDING_TAG_TOOTS = 100;
-    numTrendingTagsTootsPerServer: number;  // const NUM_TRENDING_TAG_TOOTS_PER_SERVER = 20;
+    numTootsPerTrendingTag: number;
+    numDaysToCountTrendingTagData: number;
+    numTrendingTags: number;
+    numTrendingTagsPerServer: number;
+    numTrendingTagsToots: number;
 
     // Trending toots
-    numTrendingTootsPerServer: number;      // NUM_TRENDING_TOOTS_PER_SERVER
+    numTrendingTootsPerServer: number;
 };
 
 export type FeedFeature = AccountFeature | StringNumberDict;

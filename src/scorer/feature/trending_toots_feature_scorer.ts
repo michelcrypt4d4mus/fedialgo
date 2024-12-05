@@ -4,18 +4,14 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot } from "../../types";
+import { WeightName } from '../../config';
 
-export const TRENDING_TOOTS = "TrendingToots";
 export const TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 
 
 export default class TrendingTootFeatureScorer extends FeatureScorer {
     constructor() {
-        super({
-            description: "Favour toots that are trending in the Fediverse",
-            defaultWeight: TRENDING_TOOTS_DEFAULT_WEIGHT,
-            scoreName: TRENDING_TOOTS,
-        });
+        super({scoreName: WeightName.TRENDING_TOOTS});
     }
 
     async _score(toot: Toot) {

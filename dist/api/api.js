@@ -55,14 +55,14 @@ const mastodonFetch = async (server, endpoint, limit = null) => {
 exports.mastodonFetch = mastodonFetch;
 ;
 async function mastodonFetchPages(fetchParams) {
-    let { fetchMethod, maxRecords, label } = fetchParams;
-    maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+    let { fetch, maxRecords, label } = fetchParams;
     label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetchMethod:`, fetchMethod);
+    maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetch:`, fetch);
     let results = [];
     let pageNumber = 0;
     try {
-        for await (const page of fetchMethod({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
+        for await (const page of fetch({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
             results = results.concat(page);
             console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
             if (results.length >= maxRecords) {
@@ -96,7 +96,7 @@ exports.getMonthlyUsers = getMonthlyUsers;
 // Get the user's recent toots
 async function getUserRecentToots(api, user) {
     const recentToots = await mastodonFetchPages({
-        fetchMethod: api.v1.accounts.$select(user.id).statuses.list,
+        fetch: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });
     return recentToots;
@@ -106,7 +106,8 @@ exports.getUserRecentToots = getUserRecentToots;
 // Get latest toots for a given tag
 async function getTootsForTag(api, tag) {
     try {
-        const toots = await searchForToots(api, tag.name);
+        // TODO: this doesn't append a an octothorpe to the tag name. Should it?
+        const toots = await searchForToots(api, tag.name, Storage_1.default.getConfig().numTootsPerTrendingTag);
         // Inject the tag into each toot as a trendingTag element
         toots.forEach((toot) => {
             toot.trendingTags ||= [];
