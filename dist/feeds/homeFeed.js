@@ -11,17 +11,22 @@ async function getHomeFeed(api) {
     console.log("gethomeFeed() cutoffTimelineAt: ", cutoffTimelineAt);
     let toots = [];
     let pageNumber = 0;
+    // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
+    // Seems like these might be coming from federated apps other than Mastodon?
+    // example: https://flipboard.com/users/AxiosNews/statuses/LxBgpIAhTnO1TEZ-uG2T2Q:a:2150299410
+    // TODO: we should probably detect these outliers and toos them out of the cutoff time calculation
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
-        toots = toots.concat(page);
-        // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
-        // Seems like these might be coming from federated apps other than Mastodon?
-        // example: https://flipboard.com/users/AxiosNews/statuses/LxBgpIAhTnO1TEZ-uG2T2Q:a:2150299410
-        // TODO: we should probably detect these outliers and toos them out of the cutoff time calculation
+        const pageToots = page;
+        toots = toots.concat(pageToots);
+        pageNumber++;
+        const oldestPageTootAt = (0, toot_1.earliestTootAt)(pageToots) || new Date();
         const oldestTootAt = (0, toot_1.earliestTootAt)(toots) || new Date();
-        console.log(`getHomeFeed() page ${++pageNumber} (${page.length} toots, earliest: ${oldestTootAt})`);
+        let msg = `getHomeFeed() page ${pageNumber} `;
+        msg += `(${pageToots.length} toots, earliest in page: ${oldestPageTootAt}, earliest: ${oldestTootAt})`;
+        console.log(msg);
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
-        if (toots.length >= Storage_1.default.getConfig().maxTimelineTootsToFetch || oldestTootAt < cutoffTimelineAt) {
+        if ((toots.length >= Storage_1.default.getConfig().maxTimelineTootsToFetch) || (oldestTootAt < cutoffTimelineAt)) {
             if (oldestTootAt < cutoffTimelineAt) {
                 console.log(`Halting getHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
             }

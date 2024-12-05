@@ -18,12 +18,14 @@ export declare enum WeightName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments"
 }
-export type AccountFeature = {
-    [key: mastodon.v1.Account["acct"]]: number;
-};
-export type AccountNames = {
-    [key: mastodon.v1.Account["acct"]]: mastodon.v1.Account;
-};
+export type AccountFeature = Record<mastodon.v1.Account["acct"], number>;
+export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
+export type FeedFeature = AccountFeature | StringNumberDict;
+export type ScorerDict = Record<WeightName, ScorerInfo>;
+export type ServerFeature = Record<mastodon.v1.Instance["uri"], number>;
+export type StringNumberDict = Record<string, number>;
+export type Weights = Record<WeightName, number>;
+export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -48,7 +50,6 @@ export type Config = {
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
 };
-export type FeedFeature = AccountFeature | StringNumberDict;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FeedFilterSettings = {
     filteredApps: string[];
@@ -64,16 +65,10 @@ export type FeedFilterSettings = {
     suppressSelectedTags: boolean;
     weightLearningEnabled: boolean;
 };
-export type ScorerDict = Record<WeightName, ScorerInfo>;
-export type StringNumberDict = Record<string, number>;
-export type Weights = Record<WeightName, number>;
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;
     scorer?: Scorer;
-};
-export type ServerFeature = {
-    [key: mastodon.v1.Instance["uri"]]: number;
 };
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
@@ -89,9 +84,6 @@ export type TootScore = {
     score: number;
     timeDecayMultiplier: number;
     weightedScores: StringNumberDict;
-};
-export type TootURIs = {
-    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 export interface TrendingTag extends mastodon.v1.Tag {
     numAccounts?: number;

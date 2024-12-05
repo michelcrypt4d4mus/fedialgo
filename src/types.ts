@@ -22,13 +22,16 @@ export enum WeightName {
     VIDEO_ATTACHMENTS = 'VideoAttachments'
 };
 
-export type AccountFeature = {
-    [key: mastodon.v1.Account["acct"]]: number;
-};
+// Records
+export type AccountFeature = Record<mastodon.v1.Account["acct"], number>;
+export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
+export type FeedFeature = AccountFeature | StringNumberDict;
+export type ScorerDict = Record<WeightName, ScorerInfo>;
+export type ServerFeature = Record<mastodon.v1.Instance["uri"], number>;
+export type StringNumberDict = Record<string, number>;
+export type Weights = Record<WeightName, number>;
+export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
 
-export type AccountNames = {
-    [key: mastodon.v1.Account["acct"]]: mastodon.v1.Account;
-};
 
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -44,29 +47,24 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     reloadIfOlderThanMinutes: number;
     defaultLanguage: string;
-
     // Tag filters
     minTootsForTagToAppearInFilter: number;
-
     // API stuff
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
     reloadFeaturesEveryNthOpen: number;
     numServersToCheck: number;
     minServerMAU: number;
-
     // Trending tags
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingTags: number;
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
-
     // Trending toots
     numTrendingTootsPerServer: number;
 };
 
-export type FeedFeature = AccountFeature | StringNumberDict;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
 export type FeedFilterSettings = {
@@ -84,18 +82,10 @@ export type FeedFilterSettings = {
     weightLearningEnabled: boolean;  // TODO: this isn't a filter
 };
 
-export type ScorerDict = Record<WeightName, ScorerInfo>;
-export type StringNumberDict = Record<string, number>;
-export type Weights = Record<WeightName, number>;
-
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;
     scorer?: Scorer;
-};
-
-export type ServerFeature = {
-    [key: mastodon.v1.Instance["uri"]]: number;
 };
 
 export interface Toot extends mastodon.v1.Status {
@@ -113,10 +103,6 @@ export type TootScore = {
     score: number;
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
     weightedScores: StringNumberDict;
-};
-
-export type TootURIs = {
-    [key: mastodon.v1.Status["uri"]]: mastodon.v1.Status | Toot;
 };
 
 export interface TrendingTag extends mastodon.v1.Tag {
