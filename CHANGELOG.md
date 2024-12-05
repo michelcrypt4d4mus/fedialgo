@@ -1,5 +1,6 @@
 ## NEXT
 * Add scoring for raw number of retoots
+* Centralize configuration and defaults in `config.ts`
 
 ## `0.4.0`
 * Implement tag based filtering (blacklist and whitelist)
