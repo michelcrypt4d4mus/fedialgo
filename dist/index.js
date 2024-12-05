@@ -49,10 +49,6 @@ class TheAlgorithm {
     reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`);
-    fetchers = [
-        homeFeed_1.default,
-        trending_toots_1.default
-    ];
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaosFeatureScorer_1.default(),
@@ -105,16 +101,18 @@ class TheAlgorithm {
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
-    async getFeed() {
-        console.debug(`getFeed() called in fedialgo package...`);
+    async getFeed(numTimelineToots = null) {
+        const _numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
+        console.debug(`getFeed() called in fedialgo package, numTimelineToots:`, numTimelineToots);
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
+            (0, homeFeed_1.default)(this.api, _numTimelineToots),
+            (0, trending_toots_1.default)(this.api),
             (0, trending_tags_1.default)(this.api),
-            ...this.fetchers.map(fetcher => fetcher(this.api)),
             // featureScorers return empty arrays (they're here as a parallelization hack)
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
-        this.feed = allResponses.flat();
+        this.feed = [...this.feed, ...allResponses.flat()];
         console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = this.feed.filter((toot) => this.isValidForFeed.bind(this)(toot));
@@ -123,6 +121,16 @@ class TheAlgorithm {
         this.feed = (0, helpers_1.dedupeToots)(cleanFeed, "getFeed");
         this.followedAccounts = await mastodon_api_cache_1.default.getFollowedAccounts(this.api);
         this.repairFeedAndExtractSummaryInfo();
+        const maxNumToots = Storage_1.default.getConfig().maxTimelineTootsToFetch;
+        // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
+        if (this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
+            setTimeout(() => {
+                // 2x the number of toots and call recursively w/out 'await' until we have enough
+                // TODO: implement proper incremental loading
+                console.log(`getFeed() called recursively after delay to fetch more toots...`);
+                this.getFeed(_numTimelineToots * 2);
+            }, Storage_1.default.getConfig().incrementalLoadDelayMS);
+        }
         return this.scoreFeed.bind(this)();
     }
     // Return the user's current weightings for each score category

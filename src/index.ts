@@ -69,11 +69,6 @@ class TheAlgorithm {
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);
 
-    fetchers = [
-        getHomeFeed,
-        getTrendingToots
-    ];
-
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosFeatureScorer(),
@@ -135,18 +130,20 @@ class TheAlgorithm {
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
-    async getFeed(): Promise<Toot[]> {
-        console.debug(`getFeed() called in fedialgo package...`);
+    async getFeed(numTimelineToots: number | null = null): Promise<Toot[]> {
+        const _numTimelineToots: number = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
+        console.debug(`getFeed() called in fedialgo package, numTimelineToots:`, numTimelineToots);
 
         // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
         const allResponses = await Promise.all([
+            getHomeFeed(this.api, _numTimelineToots),
+            getTrendingToots(this.api),
             getRecentTootsForTrendingTags(this.api),
-            ...this.fetchers.map(fetcher => fetcher(this.api)),
             // featureScorers return empty arrays (they're here as a parallelization hack)
             ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
         ]);
 
-        this.feed = allResponses.flat();
+        this.feed = [...this.feed, ...allResponses.flat()];
         console.log(`Found ${this.feed.length} potential toots for feed. allResponses:`, allResponses);
 
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
@@ -157,6 +154,18 @@ class TheAlgorithm {
         this.feed = dedupeToots(cleanFeed, "getFeed");
         this.followedAccounts = await MastodonApiCache.getFollowedAccounts(this.api);
         this.repairFeedAndExtractSummaryInfo();
+        const maxNumToots = Storage.getConfig().maxTimelineTootsToFetch;
+
+        // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
+        if (this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
+            setTimeout(() => {
+                // 2x the number of toots and call recursively w/out 'await' until we have enough
+                // TODO: implement proper incremental loading
+                console.log(`getFeed() called recursively after delay to fetch more toots...`);
+                this.getFeed(_numTimelineToots * 2);
+            }, Storage.getConfig().incrementalLoadDelayMS);
+        }
+
         return this.scoreFeed.bind(this)();
     }
 

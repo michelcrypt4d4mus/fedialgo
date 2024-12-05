@@ -41,14 +41,14 @@ export interface AlgorithmArgs {
 
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
-    // Timeline
-    defaultRecordsPerPage: number;
-    maxTimelineTootsToFetch: number;
-    maxTimelineHoursToFetch: number;
-    reloadIfOlderThanMinutes: number;
     defaultLanguage: string;
-    // Tag filters
-    minTootsForTagToAppearInFilter: number;
+    defaultRecordsPerPage: number;
+    // Timeline
+    incrementalLoadDelayMS: number;
+    maxTimelineHoursToFetch: number;
+    maxTimelineTootsToFetch: number;
+    numTootsInFirstFetch: number;
+    reloadIfOlderThanMinutes: number;
     // API stuff
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
@@ -63,6 +63,8 @@ export type Config = {
     numTrendingTagsToots: number;
     // Trending toots
     numTrendingTootsPerServer: number;
+    // Tag filters
+    minTootsForTagToAppearInFilter: number;
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

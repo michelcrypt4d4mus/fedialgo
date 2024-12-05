@@ -32,12 +32,13 @@ export interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;
 }
 export type Config = {
-    defaultRecordsPerPage: number;
-    maxTimelineTootsToFetch: number;
-    maxTimelineHoursToFetch: number;
-    reloadIfOlderThanMinutes: number;
     defaultLanguage: string;
-    minTootsForTagToAppearInFilter: number;
+    defaultRecordsPerPage: number;
+    incrementalLoadDelayMS: number;
+    maxTimelineHoursToFetch: number;
+    maxTimelineTootsToFetch: number;
+    numTootsInFirstFetch: number;
+    reloadIfOlderThanMinutes: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
     reloadFeaturesEveryNthOpen: number;
@@ -49,6 +50,7 @@ export type Config = {
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
+    minTootsForTagToAppearInFilter: number;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FeedFilterSettings = {

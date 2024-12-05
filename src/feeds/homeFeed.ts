@@ -10,10 +10,11 @@ import { earliestTootAt } from "../objects/toot";
 import { Toot } from "../types";
 
 
-export default async function getHomeFeed(api: mastodon.rest.Client): Promise<Toot[]> {
+export default async function getHomeFeed(api: mastodon.rest.Client, numToots: number | null = null): Promise<Toot[]> {
     const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-    console.log("gethomeFeed() cutoffTimelineAt: ", cutoffTimelineAt);
+    numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
+    console.log(`gethomeFeed(${numToots} toots) cutoffTimelineAt: `, cutoffTimelineAt);
     let toots: Toot[] = [];
     let pageNumber = 0;
 
@@ -33,7 +34,7 @@ export default async function getHomeFeed(api: mastodon.rest.Client): Promise<To
         console.log(msg);
 
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
-        if ((toots.length >= Storage.getConfig().maxTimelineTootsToFetch) || (oldestTootAt < cutoffTimelineAt)) {
+        if ((toots.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
             if (oldestTootAt < cutoffTimelineAt) {
                 console.log(`Halting getHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
             }

@@ -5,10 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = require("../objects/toot");
-async function getHomeFeed(api) {
+async function getHomeFeed(api, numToots = null) {
     const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-    console.log("gethomeFeed() cutoffTimelineAt: ", cutoffTimelineAt);
+    numToots ||= Storage_1.default.getConfig().maxTimelineTootsToFetch;
+    console.log(`gethomeFeed(${numToots} toots) cutoffTimelineAt: `, cutoffTimelineAt);
     let toots = [];
     let pageNumber = 0;
     // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
@@ -25,7 +26,7 @@ async function getHomeFeed(api) {
         msg += `oldest in page: ${(0, toot_1.earliestTootAt)(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
-        if ((toots.length >= Storage_1.default.getConfig().maxTimelineTootsToFetch) || (oldestTootAt < cutoffTimelineAt)) {
+        if ((toots.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
             if (oldestTootAt < cutoffTimelineAt) {
                 console.log(`Halting getHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
             }
