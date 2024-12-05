@@ -18,9 +18,10 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // TODO: maybe reverse chronological order would be better?
         console.log(`DiversityFeedScorer.feedExtractor() called...`);
         const sortRandom = () => Math.random() - 0.5;
-        return feed.toSorted(sortRandom).reduce((userTootCounts, toot) => {
-            userTootCounts[toot.account.acct] = (userTootCounts[toot.account.acct] || 0) - 1;
-            return userTootCounts;
+        // Count toots by account (but negative instead of positive count)
+        return feed.toSorted(sortRandom).reduce((tootCounts, toot) => {
+            tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
+            return tootCounts;
         }, {});
     }
     // *NOTE: the penalty for frequent tooters decreases by 1 each time a toot is scored*
