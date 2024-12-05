@@ -3,7 +3,6 @@
  */
 import { Config, FeedFilterSettings, ScorerInfo } from "./types";
 
-
 export enum WeightName {
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
