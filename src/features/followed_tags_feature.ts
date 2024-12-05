@@ -5,7 +5,7 @@ import { mastodon } from "masto";
 
 import { mastodonFetchPages } from "../api/api";
 import { StringNumberDict } from "../types";
-import { WeightName } from "../config";
+import { WeightName } from "../types";
 
 
 export default async function FollowedTagsFeature(

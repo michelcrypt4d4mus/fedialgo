@@ -1,33 +1,10 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { Config, FeedFilterSettings, ScorerInfo } from "./types";
-
-export enum WeightName {
-    CHAOS = 'Chaos',
-    DIVERSITY = 'Diversity',
-    FAVORITED_ACCOUNTS = 'FavoritedAccounts',
-    FOLLOWED_TAGS = 'FollowedTags',
-    IMAGE_ATTACHMENTS = 'ImageAttachments',
-    INTERACTIONS = 'Interactions',
-    MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
-    MOST_RETOOTED_ACCOUNTS = 'MostRetootedAccounts',
-    NUM_FAVOURITES = 'NumFavourites',
-    NUM_REPLIES = 'NumReplies',
-    NUM_RETOOTS = 'NumRetoots',
-    RETOOTED_IN_FEED = 'RetootedInFeed',
-    TIME_DECAY = 'TimeDecay',
-    TRENDING_TAGS = "TrendingTags",
-    TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = 'VideoAttachments',
-};
+import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 
-type ScorerInfoDict = {
-    [key in WeightName]: ScorerInfo;
-};
-
-export const DEFAULT_WEIGHTS: ScorerInfoDict = {
+export const DEFAULT_WEIGHTS: ScorerDict = {
     [WeightName.CHAOS]: {
         defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",

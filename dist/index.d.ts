@@ -17,8 +17,8 @@ import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_sc
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot } from "./types";
-import { WeightName } from "./config";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot, Weights } from "./types";
+import { WeightName } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -41,8 +41,8 @@ declare class TheAlgorithm {
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
     getFeed(): Promise<Toot[]>;
-    getUserWeights(): Promise<StringNumberDict>;
-    updateUserWeights(userWeights: StringNumberDict): Promise<Toot[]>;
+    getUserWeights(): Promise<Weights>;
+    updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     getFilters(): FeedFilterSettings;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filteredFeed(): Toot[];

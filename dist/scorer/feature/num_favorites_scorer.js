@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * user's home server.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 class NumFavoritesScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: config_1.WeightName.NUM_FAVOURITES });
+        super({ scoreName: types_1.WeightName.NUM_FAVOURITES });
     }
     async _score(toot) {
         return toot?.favouritesCount || 0;

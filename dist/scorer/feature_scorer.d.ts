@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Scorer from "./scorer";
 import { FeedFeature, Toot } from "../types";
-import { WeightName } from "../config";
+import { WeightName } from "../types";
 interface RankParams {
     featureGetter?: (api: mastodon.rest.Client) => Promise<FeedFeature>;
     scoreName: WeightName;

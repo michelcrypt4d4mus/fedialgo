@@ -14,7 +14,7 @@ import Storage, { Key } from "../Storage";
 import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
 import { buildAccountNames } from "../objects/account";
 import { getUserRecentToots, mastodonFetchPages } from "./api";
-import { WeightName } from "../config";
+import { WeightName } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same

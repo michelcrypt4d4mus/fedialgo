@@ -1,7 +1,7 @@
 import { ScorerInfo, Toot } from "../types";
-import { WeightName } from "../config";
+import { WeightName } from "../types";
 export default class Scorer {
-    name: string;
+    name: WeightName;
     description: string;
     defaultWeight: number;
     protected _isReady: boolean;

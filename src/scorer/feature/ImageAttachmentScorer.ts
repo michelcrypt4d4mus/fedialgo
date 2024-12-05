@@ -4,7 +4,7 @@
 import FeatureScorer from '../feature_scorer';
 import { imageAttachments } from '../../objects/toot';
 import { Toot } from '../../types';
-import { WeightName } from '../../config';
+import { WeightName } from "../../types";
 
 
 // TODO: unclear whether favorites are pulled from servers other than the users' home server

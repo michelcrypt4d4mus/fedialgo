@@ -2,11 +2,12 @@
  * Base class for Toot scorers.
  */
 import { ScorerInfo, Toot } from "../types";
-import { DEFAULT_WEIGHTS, WeightName } from "../config";
+import { DEFAULT_WEIGHTS } from "../config";
+import { WeightName } from "../types";
 
 
 export default class Scorer {
-    name: string;
+    name: WeightName;
     description: string;
     defaultWeight: number;
     protected _isReady: boolean = false;

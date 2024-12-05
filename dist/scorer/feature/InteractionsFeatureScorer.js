@@ -5,12 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_api_cache_1 = __importDefault(require("../../api/mastodon_api_cache"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 class InteractionsFeatureScorer extends feature_scorer_1.default {
     constructor() {
         super({
             featureGetter: (api) => mastodon_api_cache_1.default.getTopInteracts(api),
-            scoreName: config_1.WeightName.INTERACTIONS,
+            scoreName: types_1.WeightName.INTERACTIONS,
         });
     }
     async _score(toot) {

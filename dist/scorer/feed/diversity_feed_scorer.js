@@ -8,10 +8,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * prevent prolific tooters from clogging up the feed.
  */
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
-        super(config_1.WeightName.DIVERSITY);
+        super(types_1.WeightName.DIVERSITY);
     }
     feedExtractor(feed) {
         // Shuffle the feed before penalizing multiple tooters

@@ -8,10 +8,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * trending tags across the Fediverse.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 class TrendingTagsFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: config_1.WeightName.TRENDING_TAGS });
+        super({ scoreName: types_1.WeightName.TRENDING_TAGS });
     }
     // TODO: we could also use tag.numStatuses in some way (or instead)
     async _score(toot) {

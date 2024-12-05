@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 import { AccountFeature } from "../types";
 import { Key } from "../Storage";
 import { mastodonFetchPages } from "../api/api";
-import { WeightName } from "../config";
+import { WeightName } from "../types";
 
 
 export default async function FavsFeature(

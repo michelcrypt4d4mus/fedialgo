@@ -1,5 +1,23 @@
 import { mastodon } from 'masto';
 import Scorer from './scorer/scorer';
+export declare enum WeightName {
+    CHAOS = "Chaos",
+    DIVERSITY = "Diversity",
+    FAVORITED_ACCOUNTS = "FavoritedAccounts",
+    FOLLOWED_TAGS = "FollowedTags",
+    IMAGE_ATTACHMENTS = "ImageAttachments",
+    INTERACTIONS = "Interactions",
+    MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
+    MOST_RETOOTED_ACCOUNTS = "MostRetootedAccounts",
+    NUM_FAVOURITES = "NumFavourites",
+    NUM_REPLIES = "NumReplies",
+    NUM_RETOOTS = "NumRetoots",
+    RETOOTED_IN_FEED = "RetootedInFeed",
+    TIME_DECAY = "TimeDecay",
+    TRENDING_TAGS = "TrendingTags",
+    TRENDING_TOOTS = "TrendingToots",
+    VIDEO_ATTACHMENTS = "VideoAttachments"
+}
 export type AccountFeature = {
     [key: mastodon.v1.Account["acct"]]: number;
 };
@@ -46,9 +64,9 @@ export type FeedFilterSettings = {
     suppressSelectedTags: boolean;
     weightLearningEnabled: boolean;
 };
-export type ScorerDict = {
-    [key: string]: ScorerInfo;
-};
+export type ScorerDict = Record<WeightName, ScorerInfo>;
+export type StringNumberDict = Record<string, number>;
+export type Weights = Record<WeightName, number>;
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;
@@ -57,15 +75,11 @@ export type ScorerInfo = {
 export type ServerFeature = {
     [key: mastodon.v1.Instance["uri"]]: number;
 };
-export interface StringNumberDict {
-    [key: string]: number;
-}
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;
-    similarity?: number;
     trendingRank?: number;
     trendingTags?: TrendingTag[];
 }
@@ -84,4 +98,4 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs | Toot[] | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs | Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;

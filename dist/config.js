@@ -1,88 +1,72 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = exports.WeightName = void 0;
-var WeightName;
-(function (WeightName) {
-    WeightName["CHAOS"] = "Chaos";
-    WeightName["DIVERSITY"] = "Diversity";
-    WeightName["FAVORITED_ACCOUNTS"] = "FavoritedAccounts";
-    WeightName["FOLLOWED_TAGS"] = "FollowedTags";
-    WeightName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
-    WeightName["INTERACTIONS"] = "Interactions";
-    WeightName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
-    WeightName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
-    WeightName["NUM_FAVOURITES"] = "NumFavourites";
-    WeightName["NUM_REPLIES"] = "NumReplies";
-    WeightName["NUM_RETOOTS"] = "NumRetoots";
-    WeightName["RETOOTED_IN_FEED"] = "RetootedInFeed";
-    WeightName["TIME_DECAY"] = "TimeDecay";
-    WeightName["TRENDING_TAGS"] = "TrendingTags";
-    WeightName["TRENDING_TOOTS"] = "TrendingToots";
-    WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
-})(WeightName || (exports.WeightName = WeightName = {}));
-;
+exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
+/*
+ * Centralized location for non-user configurable settings.
+ */
+const types_1 = require("./types");
 exports.DEFAULT_WEIGHTS = {
-    [WeightName.CHAOS]: {
+    [types_1.WeightName.CHAOS]: {
         defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
     },
-    [WeightName.DIVERSITY]: {
+    [types_1.WeightName.DIVERSITY]: {
         defaultWeight: 1,
         description: "Disfavour toots from users that are filling up your feed with a lot of toots",
     },
-    [WeightName.FAVORITED_ACCOUNTS]: {
+    [types_1.WeightName.FAVORITED_ACCOUNTS]: {
         defaultWeight: 1,
         description: "Favour accounts you often favourite",
     },
-    [WeightName.FOLLOWED_TAGS]: {
+    [types_1.WeightName.FOLLOWED_TAGS]: {
         defaultWeight: 2,
         description: "Favour toots that contain hashtags you are following",
     },
-    [WeightName.IMAGE_ATTACHMENTS]: {
+    [types_1.WeightName.IMAGE_ATTACHMENTS]: {
         defaultWeight: 0,
         description: "Favour image attachments",
     },
-    [WeightName.INTERACTIONS]: {
+    [types_1.WeightName.INTERACTIONS]: {
         defaultWeight: 2,
         description: "Favour accounts that recently interacted with your toots",
     },
-    [WeightName.NUM_FAVOURITES]: {
+    [types_1.WeightName.NUM_FAVOURITES]: {
         defaultWeight: 1,
         description: "Favour things favourited by users on your home server",
     },
-    [WeightName.NUM_REPLIES]: {
+    [types_1.WeightName.NUM_REPLIES]: {
         defaultWeight: 1,
         description: "Favour toots with lots of replies",
     },
-    [WeightName.NUM_RETOOTS]: {
+    [types_1.WeightName.NUM_RETOOTS]: {
         defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
     },
-    [WeightName.MOST_REPLIED_ACCOUNTS]: {
+    [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
         defaultWeight: 1,
         description: "Favour accounts you often reply to",
     },
-    [WeightName.MOST_RETOOTED_ACCOUNTS]: {
+    [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
         defaultWeight: 3,
         description: "Favour accounts you often retoot",
     },
-    [WeightName.RETOOTED_IN_FEED]: {
+    [types_1.WeightName.RETOOTED_IN_FEED]: {
         defaultWeight: 2,
         description: "Favour toots retooted by multiple accounts you follow",
     },
-    [WeightName.TIME_DECAY]: {
+    [types_1.WeightName.TIME_DECAY]: {
         defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
     },
-    [WeightName.TRENDING_TAGS]: {
+    [types_1.WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",
     },
-    [WeightName.TRENDING_TOOTS]: {
+    [types_1.WeightName.TRENDING_TOOTS]: {
         defaultWeight: 0.08,
         description: "Favour toots that are trending in the Fediverse",
     },
-    [WeightName.VIDEO_ATTACHMENTS]: {
+    [types_1.WeightName.VIDEO_ATTACHMENTS]: {
         defaultWeight: 0,
         description: "Favour video attachments",
     },

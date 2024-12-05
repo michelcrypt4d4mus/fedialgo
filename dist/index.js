@@ -30,9 +30,10 @@ const helpers_1 = require("./helpers");
 const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
+const types_1 = require("./types");
 const UNKNOWN_APP = "unknown";
 // Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
-const TIME_DECAY = config_1.WeightName.TIME_DECAY;
+const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 class TheAlgorithm {
     api;
@@ -180,10 +181,10 @@ class TheAlgorithm {
             .filter((value) => !isNaN(value))
             .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
-        for (const key in newTootScores) {
-            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
-            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight); // TODO: this seems wrong?
-        }
+        // for (const key in newTootScores) {
+        //     const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
+        //     newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight);  // TODO: this seems wrong?
+        // }
         await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
@@ -236,8 +237,10 @@ class TheAlgorithm {
     async setDefaultWeights() {
         let weightings = await Storage_1.default.getWeightings();
         let shouldSetWeights = false;
-        Object.keys(this.scorersDict).forEach(key => {
-            if (!weightings[key] && weightings[key] !== 0) {
+        Object.keys(this.scorersDict).forEach((key) => {
+            key = key;
+            const value = weightings[key];
+            if (!value && value !== 0) {
                 weightings[key] = this.scorersDict[key].defaultWeight;
                 shouldSetWeights = true;
             }
@@ -300,8 +303,8 @@ class TheAlgorithm {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To fix this we hack a final adjustment to the score by multiplying by the
         // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[config_1.WeightName.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[config_1.WeightName.TRENDING_TOOTS] ?? 0;
+        const trendingScore = rawScores[types_1.WeightName.TRENDING_TOOTS] ?? 0;
+        const trendingWeighting = userWeights[types_1.WeightName.TRENDING_TOOTS] ?? 0;
         if (trendingScore > 0 && trendingWeighting < 1.0)
             rawScore *= trendingWeighting;
         // Multiple rawScore by time decay penalty to get a final value
@@ -357,7 +360,7 @@ class TheAlgorithm {
             console.debug(`Removing reblogged toot from feed`, toot);
             return false;
         }
-        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[config_1.WeightName.TRENDING_TOOTS]) {
+        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[types_1.WeightName.TRENDING_TOOTS]) {
             return false;
         }
         else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {

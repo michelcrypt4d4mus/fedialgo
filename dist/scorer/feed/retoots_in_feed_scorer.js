@@ -7,10 +7,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 class RetootsInFeedScorer extends feed_scorer_1.default {
     constructor() {
-        super(config_1.WeightName.RETOOTED_IN_FEED);
+        super(types_1.WeightName.RETOOTED_IN_FEED);
     }
     // For each uri in the feed, count the number of times it appears as a reblogged toot.
     feedExtractor(feed) {

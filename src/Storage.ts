@@ -1,8 +1,9 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { Config, FeedFilterSettings, StorageValue, StringNumberDict, Toot } from "./types";
-import { DEFAULT_CONFIG, DEFAULT_FILTERS, WeightName } from "./config";
+import { Config, FeedFilterSettings, StorageValue, Toot, Weights } from "./types";
+import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
+import { WeightName } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -25,12 +26,12 @@ export default class Storage {
         return this.config;
     }
 
-    static async getWeightings(): Promise<StringNumberDict> {
+    static async getWeightings(): Promise<Weights> {
         const weightings = await this.get(Key.WEIGHTS);
-        return (weightings ?? {}) as StringNumberDict;
+        return (weightings ?? {}) as Weights;
     }
 
-    static async setWeightings(userWeightings: StringNumberDict): Promise<void> {
+    static async setWeightings(userWeightings: Weights): Promise<void> {
         await this.set(Key.WEIGHTS, userWeightings);
     }
 

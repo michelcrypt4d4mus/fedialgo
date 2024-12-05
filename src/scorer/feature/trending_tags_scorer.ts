@@ -4,7 +4,7 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot, TrendingTag } from "../../types";
-import { WeightName } from '../../config';
+import { WeightName } from "../../types";
 
 
 export default class TrendingTagsFeatureScorer extends FeatureScorer {

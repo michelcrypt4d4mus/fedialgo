@@ -9,11 +9,11 @@ exports.TRENDING_TOOTS_DEFAULT_WEIGHT = void 0;
  * that as the score.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const config_1 = require("../../config");
+const types_1 = require("../../types");
 exports.TRENDING_TOOTS_DEFAULT_WEIGHT = 0.08;
 class TrendingTootFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: config_1.WeightName.TRENDING_TOOTS });
+        super({ scoreName: types_1.WeightName.TRENDING_TOOTS });
     }
     async _score(toot) {
         return toot.trendingRank || 0;
