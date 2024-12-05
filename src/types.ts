@@ -102,10 +102,10 @@ export interface Toot extends mastodon.v1.Status {
 
 export type TootScore = {
     rawScore: number;  // Score before applying timeDecayMultiplier
-    rawScores: StringNumberDict;
+    rawScores: Weights;
     score: number;
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
-    weightedScores: StringNumberDict;
+    weightedScores: Weights;
 };
 
 export interface TrendingTag extends mastodon.v1.Tag {

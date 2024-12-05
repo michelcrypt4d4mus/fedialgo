@@ -46,7 +46,7 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filteredFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
-    learnWeights(tootScores: StringNumberDict, step?: number): Promise<StringNumberDict | undefined>;
+    learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
     repairFeedAndExtractSummaryInfo(): void;
     list(): Paginator;
     private setDefaultWeights;
