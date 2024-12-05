@@ -1,4 +1,5 @@
 ## NEXT
+* Rudimentary ability to keep loading more toots in the background after delivering the first batch
 
 ## `0.5.0`
 * Add scoring for raw number of retoots
