@@ -11,7 +11,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
     },
     [WeightName.DIVERSITY]: {
         defaultWeight: 1,
-        description: "Disfavour toots from users that are filling up your feed with a lot of toots",
+        description: "Disfavour accounts that are tooting a lot right now",
     },
     [WeightName.FAVORITED_ACCOUNTS]: {
         defaultWeight: 1,

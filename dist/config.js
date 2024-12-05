@@ -12,7 +12,7 @@ exports.DEFAULT_WEIGHTS = {
     },
     [types_1.WeightName.DIVERSITY]: {
         defaultWeight: 1,
-        description: "Disfavour toots from users that are filling up your feed with a lot of toots",
+        description: "Disfavour accounts that are tooting a lot right now",
     },
     [types_1.WeightName.FAVORITED_ACCOUNTS]: {
         defaultWeight: 1,
