@@ -33,6 +33,10 @@ export const DEFAULT_WEIGHTS: ScorerInfoDict = {
         defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
     },
+    [WeightName.DIVERSITY]: {
+        defaultWeight: 1,
+        description: "Disfavour toots from users that are filling up your feed with a lot of toots",
+    },
     [WeightName.FAVORITED_ACCOUNTS]: {
         defaultWeight: 1,
         description: "Favour accounts you often favourite",
@@ -61,37 +65,33 @@ export const DEFAULT_WEIGHTS: ScorerInfoDict = {
         defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
     },
+    [WeightName.MOST_REPLIED_ACCOUNTS]: {
+        defaultWeight: 1,
+        description: "Favour accounts you often reply to",
+    },
     [WeightName.MOST_RETOOTED_ACCOUNTS]: {
         defaultWeight: 3,
         description: "Favour accounts you often retoot",
     },
-    [WeightName.MOST_REPLIED_ACCOUNTS]: {
-        defaultWeight: 1,
-        description: "Favour accounts you often reply to",
+    [WeightName.RETOOTED_IN_FEED]: {
+        defaultWeight: 2,
+        description: "Favour toots retooted by multiple accounts you follow",
     },
     [WeightName.TIME_DECAY]: {
         defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
     },
-    [WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.08,
-        description: "Favour toots that are trending in the Fediverse",
-    },
     [WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",
     },
+    [WeightName.TRENDING_TOOTS]: {
+        defaultWeight: 0.08,
+        description: "Favour toots that are trending in the Fediverse",
+    },
     [WeightName.VIDEO_ATTACHMENTS]: {
         defaultWeight: 0,
         description: "Favour video attachments",
-    },
-    [WeightName.DIVERSITY]: {
-        defaultWeight: 1,
-        description: "Disfavour toots from users that are filling up your feed with a lot of toots",
-    },
-    [WeightName.RETOOTED_IN_FEED]: {
-        defaultWeight: 2,
-        description: "Favour toots retooted by multiple accounts you follow",
     },
 };
 
