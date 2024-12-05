@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import coreServerFeature from "../features/coreServerFeature";
-import FavsFeature from "../features/most_favorited_accounts";
+import MostFavoritedAccounts from "../features/most_favorited_accounts";
 import FollowedTagsFeature from "../features/followed_tags_feature";
 import InteractionsFeature from "../features/InteractionsFeature";
 import reblogsFeature from "../features/reblogsFeature";
@@ -44,7 +44,7 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        return await this.getAggregatedData<AccountFeature>(api, WeightName.FAVORITED_ACCOUNTS, FavsFeature);
+        return await this.getAggregatedData<AccountFeature>(api, WeightName.FAVORITED_ACCOUNTS, MostFavoritedAccounts);
     }
 
     // Get the users recent toots

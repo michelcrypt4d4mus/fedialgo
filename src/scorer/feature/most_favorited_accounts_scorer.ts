@@ -9,7 +9,7 @@ import { Toot } from '../../types';
 import { WeightName } from "../../types";
 
 
-export default class FavsFeatureScorer extends FeatureScorer {
+export default class MostFavoritedAccountsScorer extends FeatureScorer {
     constructor() {
         super({
             featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFavoritedAccounts(api),

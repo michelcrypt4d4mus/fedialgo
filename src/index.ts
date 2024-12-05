@@ -6,7 +6,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FavsFeatureScorer from "./scorer/feature/most_favorited_accounts_scorer";
+import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
@@ -72,7 +72,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosFeatureScorer(),
-        new FavsFeatureScorer(),
+        new MostFavoritedAccountsScorer(),
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
         new InteractionsFeatureScorer(),

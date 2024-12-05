@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("../api/api");
 const types_1 = require("../types");
-async function FavsFeature(api, _user) {
+async function MostFavoritedAccounts(api, _user) {
     const results = await (0, api_1.mastodonFetchPages)({
         fetch: api.v1.favourites.list,
         label: types_1.WeightName.FAVORITED_ACCOUNTS
     });
-    console.log(`Retrieved faves with FavsFeature() AND mastodonFetchPages(): `, results);
+    console.log(`Retrieved faves with MostFavoritedAccounts() AND mastodonFetchPages(): `, results);
     return results.reduce((favouriteCounts, toot) => {
         if (!toot.account)
             return favouriteCounts;
@@ -15,6 +15,6 @@ async function FavsFeature(api, _user) {
         return favouriteCounts;
     }, {});
 }
-exports.default = FavsFeature;
+exports.default = MostFavoritedAccounts;
 ;
 //# sourceMappingURL=most_favorited_accounts.js.map
