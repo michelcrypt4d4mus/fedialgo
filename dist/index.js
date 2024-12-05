@@ -21,7 +21,7 @@ const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoo
 const paginator_1 = __importDefault(require("./api/paginator"));
 const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
-const replied_feature_scorer_1 = __importDefault(require("./scorer/feature/replied_feature_scorer"));
+const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
@@ -64,7 +64,7 @@ class TheAlgorithm {
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
-        new replied_feature_scorer_1.default(),
+        new most_replied_accounts_scorer_1.default(),
         new trending_toots_feature_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new VideoAttachmentScorer_1.default(),

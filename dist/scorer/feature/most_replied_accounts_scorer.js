@@ -19,4 +19,4 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
 }
 exports.default = MostRepliedAccountsScorer;
 ;
-//# sourceMappingURL=replied_feature_scorer.js.map
+//# sourceMappingURL=most_replied_accounts_scorer.js.map
