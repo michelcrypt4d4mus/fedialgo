@@ -32,7 +32,6 @@ const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
 const types_1 = require("./types");
 const UNKNOWN_APP = "unknown";
-// Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 class TheAlgorithm {

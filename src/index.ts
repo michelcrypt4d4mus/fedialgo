@@ -45,11 +45,10 @@ import {
 import { buildAccountNames } from "./objects/account";
 import { condensedStatus, earliestTootAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
+import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
 
 const UNKNOWN_APP = "unknown";
-
-// Time Decay works differently from the rest so this is a ScorerInfo object w/out the Scorer
 const TIME_DECAY = WeightName.TIME_DECAY;
 
 
@@ -481,7 +480,9 @@ class TheAlgorithm {
 export {
     TIME_DECAY,
     FeedFilterSettings,
+    ScorerInfo,
     StringNumberDict,
     TheAlgorithm,
     Toot,
+    Weights,
 };

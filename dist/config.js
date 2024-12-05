@@ -57,6 +57,8 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.TIME_DECAY]: {
         defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
+        minValue: 0.001,
+        stepSize: 0.001,
     },
     [types_1.WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,

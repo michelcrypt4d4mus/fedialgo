@@ -18,6 +18,7 @@ import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_s
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
 import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot, Weights } from "./types";
+import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
@@ -57,4 +58,4 @@ declare class TheAlgorithm {
     private isValidForFeed;
     private shouldReloadFeed;
 }
-export { TIME_DECAY, FeedFilterSettings, StringNumberDict, TheAlgorithm, Toot, };
+export { TIME_DECAY, FeedFilterSettings, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, Weights, };
