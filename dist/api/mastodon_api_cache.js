@@ -27,9 +27,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
-const most_favorited_accounts_1 = __importDefault(require("../features/most_favorited_accounts"));
 const followed_tags_feature_1 = __importDefault(require("../features/followed_tags_feature"));
 const InteractionsFeature_1 = __importDefault(require("../features/InteractionsFeature"));
+const most_favorited_accounts_1 = __importDefault(require("../features/most_favorited_accounts"));
 const reblogsFeature_1 = __importDefault(require("../features/reblogsFeature"));
 const replied_feature_1 = __importDefault(require("../features/replied_feature"));
 const Storage_1 = __importStar(require("../Storage"));

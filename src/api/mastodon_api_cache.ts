@@ -5,9 +5,9 @@
 import { mastodon } from "masto";
 
 import coreServerFeature from "../features/coreServerFeature";
-import MostFavoritedAccounts from "../features/most_favorited_accounts";
 import FollowedTagsFeature from "../features/followed_tags_feature";
 import InteractionsFeature from "../features/InteractionsFeature";
+import MostFavoritedAccounts from "../features/most_favorited_accounts";
 import reblogsFeature from "../features/reblogsFeature";
 import repliedFeature from "../features/replied_feature";
 import Storage, { Key } from "../Storage";
