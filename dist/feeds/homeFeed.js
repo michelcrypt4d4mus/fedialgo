@@ -25,6 +25,7 @@ async function getHomeFeed(api, numToots = null) {
         let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
         msg += `oldest in page: ${(0, toot_1.earliestTootAt)(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
+        console.debug(pageToots.map(toot_1.describeToot).join("\n"));
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
         if ((toots.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
             if (oldestTootAt < cutoffTimelineAt) {

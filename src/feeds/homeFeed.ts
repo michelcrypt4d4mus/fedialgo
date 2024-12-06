@@ -6,7 +6,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { earliestTootAt } from "../objects/toot";
+import { describeToot, earliestTootAt } from "../objects/toot";
 import { Toot } from "../types";
 
 
@@ -32,6 +32,7 @@ export default async function getHomeFeed(api: mastodon.rest.Client, numToots: n
         let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
         msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
+        console.debug(pageToots.map(describeToot).join("\n"));
 
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
         if ((toots.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {

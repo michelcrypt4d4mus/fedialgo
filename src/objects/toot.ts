@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 import { Toot } from "../types";
 
 export const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-const MAX_CONTENT_PREVIEW_CHARS = 150;
+const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 
 
@@ -55,7 +55,7 @@ export const condensedStatus = (toot: Toot) => {
 
 // Build a string that can be used in logs to identify a toot
 export const describeToot = (toot: Toot): string => {
-    return `toot #${toot.id} by ${describeAccount(toot)}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
+    return `${describeAccount(toot)}: toot #${toot.id} at ${toot.createdAt}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
 };
 
 
