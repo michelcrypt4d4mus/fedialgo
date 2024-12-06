@@ -34,13 +34,13 @@ type TootMatchers = Record<FilterOptionName, TootMatcher>;
 
 
 export const SOURCE_FILTERS: SourceFilters = {
-    [SourceFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [SourceFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
-    [SourceFilterName.REPOSTS]: (toot) => !!toot.reblog,
+    [SourceFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),
+    [SourceFilterName.REPLIES]:           (toot) => !!toot.inReplyToId,
+    [SourceFilterName.REPOSTS]:           (toot) => !!toot.reblog,
     [SourceFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
-    [SourceFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
+    [SourceFilterName.TRENDING_TOOTS]:    (toot) => !!toot.trendingRank,
 };
 
 const TOOT_MATCHERS: TootMatchers = {

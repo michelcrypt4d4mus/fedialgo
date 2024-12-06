@@ -31,9 +31,9 @@ var SourceFilterName;
 })(SourceFilterName || (exports.SourceFilterName = SourceFilterName = {}));
 ;
 exports.SOURCE_FILTERS = {
-    [SourceFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
+    [SourceFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
     [SourceFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
     [SourceFilterName.REPOSTS]: (toot) => !!toot.reblog,
     [SourceFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
