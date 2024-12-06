@@ -293,11 +293,11 @@ class TheAlgorithm {
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].setOptionsWithInfo(this.sourceCounts);
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].setOptionsWithInfo(this.languageCounts);
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].setOptionsWithInfo(this.tagFilterCounts);
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].setOptionsWithInfo(this.appCounts);
-        console.log(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].optionInfo = this.sourceCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = this.languageCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = this.tagFilterCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = this.appCounts;
+        console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?
     list() {

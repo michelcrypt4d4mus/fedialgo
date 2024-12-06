@@ -24,8 +24,6 @@ export enum SourceFilterName {
     TRENDING_TOOTS = 'trendingToots',
 };
 
-// TODO: sucks to have FilterOption and FilterOptionInfo be separate when they require same keys
-type FilterOption = Record<string, boolean>;     // e.g. { 'en': false, 'de': true }
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
 type SourceFilters = Record<SourceFilterName, SourceFilter>;
@@ -64,7 +62,6 @@ const TOOT_MATCHERS: TootMatchers = {
 export interface FeedFilterSectionArgs {
     title: FilterOptionName;
     invertSelection?: boolean;
-    options?: FilterOption;
     optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
     validValues?: string[];
 };
@@ -76,22 +73,21 @@ export default class FeedFilterSection {
     title: FilterOptionName;
     description: string;
     invertSelection: boolean;
-    options: FilterOption;
     optionInfo: FilterOptionInfo;
     validValues: string[];
 
-    constructor({ title, invertSelection, options, optionInfo, validValues }: FeedFilterSectionArgs) {
+    constructor({ title, invertSelection, optionInfo, validValues }: FeedFilterSectionArgs) {
         this.title = title;
 
         if (this.title == FilterOptionName.SOURCE) {
-            this.options = Object.values(SourceFilterName).reduce((acc, option) => {
-                acc[option] = false;
+            // Set up the default for source filters so something always shows up in the options
+            this.optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
+                acc[option] = 1;
                 return acc;
-            }, {} as FilterOption);
+            }, {} as FilterOptionInfo);
 
             this.description = SOURCE_FILTER_DESCRIPTION;
         } else {
-            this.options = options ?? {};
             const descriptionWord = title == FilterOptionName.HASHTAG ? "including" : "from";
             this.description = `Show only toots ${descriptionWord} these ${title}s`;
         }
@@ -99,31 +95,6 @@ export default class FeedFilterSection {
         this.invertSelection = invertSelection ?? false;
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
-    }
-
-    // alternate constructor
-    static createForOptions(title: FilterOptionName, options: string[]): FeedFilterSection {
-        const section = new FeedFilterSection({ title });
-        section.setOptions(options);
-        return section;
-    }
-
-    // Add a list of strings as options that are all set to false
-    setOptions(options: string[]) {
-        this.options = options.reduce((acc, option) => {
-            acc[option] = false;
-            return acc;
-        }, {} as FilterOption);
-    }
-
-    // Add a dict of option info (keys will be set as options that are all set to false)
-    setOptionsWithInfo(optionInfo: FilterOptionInfo) {
-        this.optionInfo = optionInfo;
-
-        this.options = Object.keys(optionInfo).reduce((acc, option) => {
-            acc[option] = false;
-            return acc;
-        }, {} as FilterOption);
     }
 
     // Return true if the toot should appear in the timeline feed
@@ -147,11 +118,10 @@ export default class FeedFilterSection {
     // Required for serialization of settings to local storage
     toArgs(): FeedFilterSectionArgs {
         return {
+            invertSelection: this.invertSelection,
+            optionInfo: this.optionInfo,
             title: this.title,
             validValues: this.validValues,
-            invertSelection: this.invertSelection,
-            options: this.options,
-            optionInfo: this.optionInfo,
         };
     }
 };

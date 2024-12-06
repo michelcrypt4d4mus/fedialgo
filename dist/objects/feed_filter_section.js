@@ -61,47 +61,25 @@ class FeedFilterSection {
     title;
     description;
     invertSelection;
-    options;
     optionInfo;
     validValues;
-    constructor({ title, invertSelection, options, optionInfo, validValues }) {
+    constructor({ title, invertSelection, optionInfo, validValues }) {
         this.title = title;
         if (this.title == FilterOptionName.SOURCE) {
-            this.options = Object.values(SourceFilterName).reduce((acc, option) => {
-                acc[option] = false;
+            // Set up the default for source filters so something always shows up in the options
+            this.optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
+                acc[option] = 1;
                 return acc;
             }, {});
             this.description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
-            this.options = options ?? {};
             const descriptionWord = title == FilterOptionName.HASHTAG ? "including" : "from";
             this.description = `Show only toots ${descriptionWord} these ${title}s`;
         }
         this.invertSelection = invertSelection ?? false;
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
-    }
-    // alternate constructor
-    static createForOptions(title, options) {
-        const section = new FeedFilterSection({ title });
-        section.setOptions(options);
-        return section;
-    }
-    // Add a list of strings as options that are all set to false
-    setOptions(options) {
-        this.options = options.reduce((acc, option) => {
-            acc[option] = false;
-            return acc;
-        }, {});
-    }
-    // Add a dict of option info (keys will be set as options that are all set to false)
-    setOptionsWithInfo(optionInfo) {
-        this.optionInfo = optionInfo;
-        this.options = Object.keys(optionInfo).reduce((acc, option) => {
-            acc[option] = false;
-            return acc;
-        }, {});
     }
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot) {
@@ -123,11 +101,10 @@ class FeedFilterSection {
     // Required for serialization of settings to local storage
     toArgs() {
         return {
+            invertSelection: this.invertSelection,
+            optionInfo: this.optionInfo,
             title: this.title,
             validValues: this.validValues,
-            invertSelection: this.invertSelection,
-            options: this.options,
-            optionInfo: this.optionInfo,
         };
     }
 }
