@@ -6,7 +6,7 @@
 FediAlgo in action:
 
 <!-- <div align="center"> -->
-    [![FediAlgo in action](https://img.youtube.com/vi/_0TaYxU1Tpk/0.jpg)](https://www.youtube.com/watch?v=_0TaYxU1Tpk)
+[![FediAlgo in action](https://img.youtube.com/vi/_0TaYxU1Tpk/0.jpg)](https://www.youtube.com/watch?v=_0TaYxU1Tpk)
 <!-- </div> -->
 <!-- https://www.youtube.com/watch?v=_0TaYxU1Tpk -->
 
