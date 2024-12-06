@@ -55,9 +55,10 @@ const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
 const types_1 = require("./types");
-const UNKNOWN_APP = "unknown";
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
+const BROKEN_TAG = "<<BROKEN_TAG>>";
+const UNKNOWN_APP = "unknown";
 class TheAlgorithm {
     api;
     user;
@@ -65,10 +66,12 @@ class TheAlgorithm {
     // Variables with initial values
     feed = [];
     followedAccounts = {};
+    followedTags = {};
     feedLanguageCounts = {};
     appCounts = {};
+    sourceCounts = {};
     tagCounts = {};
-    tagFilterCounts = {}; // Just tagCounts filtered for a minimum count
+    tagFilterCounts = {}; // It's just tagCounts var filtered for a minimum count
     scoreMutex = new async_mutex_1.Mutex();
     reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
@@ -128,24 +131,34 @@ class TheAlgorithm {
     async getFeed(numTimelineToots = null) {
         const _numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         console.debug(`getFeed() called in fedialgo package, numTimelineToots:`, numTimelineToots);
-        // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
-        const allResponses = await Promise.all([
-            mastodon_api_cache_1.default.getFollowedAccounts(this.api),
-            (0, homeFeed_1.default)(this.api, _numTimelineToots),
-            (0, trending_toots_1.default)(this.api),
-            (0, trending_tags_1.default)(this.api),
-            // featureScorers return empty arrays (they're here as a parallelization hack)
-            ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
-        ]);
-        this.followedAccounts = allResponses.shift();
-        let toots = allResponses.flat();
-        console.log(`Found ${this.followedAccounts.length} followed accounts and ${toots.length} toots.`);
+        let allResponses = [];
+        // If this is a recursive call don't repull trending toot info
+        if (_numTimelineToots == Storage_1.default.getConfig().numTootsInFirstFetch) {
+            // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
+            allResponses = await Promise.all([
+                mastodon_api_cache_1.default.getFollowedAccounts(this.api),
+                (0, homeFeed_1.default)(this.api, _numTimelineToots),
+                (0, trending_toots_1.default)(this.api),
+                (0, trending_tags_1.default)(this.api),
+                // featureScorers return empty arrays (they're here as a parallelization hack)
+                ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
+            ]);
+            this.followedAccounts = allResponses.shift();
+        }
+        else {
+            allResponses = await Promise.all([
+                (0, homeFeed_1.default)(this.api, _numTimelineToots),
+            ]);
+        }
+        let newToots = allResponses.flat();
+        console.log(`Found ${this.followedAccounts.length} followed accounts and ${newToots.length} toots.`);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = toots.filter((toot) => this.isValidForFeed.bind(this)(toot));
-        const numRemoved = toots.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${toots.length} leaving ${cleanFeed.length}`);
+        let cleanFeed = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        const numRemoved = newToots.length - cleanFeed.length;
+        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanFeed.length}`);
         cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanFeed], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
+        this.followedTags = await mastodon_api_cache_1.default.getFollowedTags(this.api); // Should be cached already
         this.repairFeedAndExtractSummaryInfo();
         const maxNumToots = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
@@ -225,23 +238,18 @@ class TheAlgorithm {
         await this.updateUserWeights(newTootScores);
         return newTootScores;
     }
-    // Compute language and application counts. Repair broken toots:
-    //   - Set toot.language to defaultLanguage if missing.
+    // Compute language and application counts. Repair broken toots and populate extra data:
+    //   - Set isFollowed flag
+    //   - Set toot.language to defaultLanguage if missing
     //   - Set media type to "image" if unknown and reparable
     repairFeedAndExtractSummaryInfo() {
-        this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
-            toot.language ??= Storage_1.default.getConfig().defaultLanguage; // Default to English
-            langCounts[toot.language] = (langCounts[toot.language] || 0) + 1;
-            return langCounts;
-        }, {});
-        this.appCounts = this.feed.reduce((counts, toot) => {
-            toot.application ??= { name: UNKNOWN_APP };
-            const app = toot.application?.name || UNKNOWN_APP;
-            counts[app] = (counts[app] || 0) + 1;
-            return counts;
-        }, {});
-        // Check for weird media types
         this.feed.forEach(toot => {
+            // Decorate / repair toot
+            toot.application ??= { name: UNKNOWN_APP };
+            toot.application.name ??= UNKNOWN_APP;
+            toot.language ??= Storage_1.default.getConfig().defaultLanguage;
+            toot.isFollowed = toot.account.acct in this.followedAccounts;
+            // Check for weird media types
             toot.mediaAttachments.forEach((media) => {
                 if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
                     console.warn(`Repairing broken media attachment in toot:`, toot);
@@ -251,19 +259,23 @@ class TheAlgorithm {
                     console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
                 }
             });
-        });
-        // lowercase and count tags
-        this.tagCounts = this.feed.reduce((tagCounts, toot) => {
+            // Lowercase and count tags
             toot.tags.forEach(tag => {
-                if (!tag.name || tag.name.length == 0) {
-                    console.warn(`Broken tag found in toot:`, toot);
-                    tag.name = "<<BROKEN_TAG>>";
-                }
-                tag.name = tag.name.toLowerCase();
-                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
+                tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
+                this.tagCounts[tag.name] = (this.tagCounts[tag.name] || 0) + 1;
             });
-            return tagCounts;
-        }, {});
+            // Must happen after tags are lowercased and before source counts are aggregated
+            toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
+            // Set followed Tags and Compute other aggregate counts
+            this.feedLanguageCounts[toot.language] = (this.feedLanguageCounts[toot.language] || 0) + 1;
+            this.appCounts[toot.application.name] = (this.appCounts[toot.application.name] || 0) + 1;
+            // Aggregate source counts
+            Object.entries(feed_filter_section_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
+                this.sourceCounts[sourceName] ??= 0;
+                if (sourceFilter(toot))
+                    this.sourceCounts[sourceName] += 1;
+            });
+        });
         this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
         // Instantiate missing sections
         Object.values(feed_filter_section_1.FilterOptionName).forEach((sectionName) => {
@@ -273,6 +285,7 @@ class TheAlgorithm {
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].setOptionsWithInfo(this.sourceCounts);
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].setOptionsWithInfo(this.feedLanguageCounts);
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].setOptionsWithInfo(this.tagFilterCounts);
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].setOptionsWithInfo(this.appCounts);
@@ -372,32 +385,7 @@ class TheAlgorithm {
             toot.reblog.scoreInfo = toot.scoreInfo;
     }
     isInTimeline(toot) {
-        if (!Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot))) {
-            return false;
-        }
-        else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
-            return false;
-        }
-        else if (toot.reblog && !this.filters.includeReposts) {
-            console.debug(`Removing reblogged toot from feed`, toot);
-            return false;
-        }
-        else if (!this.filters.includeTrendingToots && toot.scoreInfo?.rawScores[types_1.WeightName.TRENDING_TOOTS]) {
-            return false;
-        }
-        else if (!this.filters.includeTrendingHashTags && toot.trendingTags?.length) {
-            return false;
-        }
-        else if (!this.filters.includeFollowedAccounts && (toot.account.acct in this.followedAccounts)) {
-            return false;
-        }
-        else if (!this.filters.includeReplies && toot.inReplyToId) {
-            return false;
-        }
-        else if (!this.filters.includeFollowedHashtags && toot.followedTags?.length) {
-            return false;
-        }
-        return true;
+        return Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(toot) {

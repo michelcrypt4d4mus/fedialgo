@@ -1,7 +1,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import FeedFilterSection from "./objects/feed_filter_section";
+import FeedFilterSection, { FilterOptionName } from "./objects/feed_filter_section";
 import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, Weights } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
 import { WeightName } from "./types";
@@ -50,6 +50,7 @@ export default class Storage {
         } else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
             filters = Object.assign({}, DEFAULT_FILTERS);
+            filters.filterSections[FilterOptionName.SOURCE] = new FeedFilterSection({title: FilterOptionName.SOURCE});
             await this.setFilters(DEFAULT_FILTERS);
         }
 
@@ -57,18 +58,10 @@ export default class Storage {
         return filters;
     }
 
+    // Serialize the FeedFilterSettings object
     static async setFilters(filters: FeedFilterSettings): Promise<void> {
-        // Serialize the FeedFilterSettings object
-        // TODO: this sucks
         const settings = {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
-            includeFollowedAccounts: filters.includeFollowedAccounts,
-            includeFollowedHashtags: filters.includeFollowedHashtags,
-            includeReplies: filters.includeReplies,
-            includeReposts: filters.includeReposts,
-            includeTrendingHashTags: filters.includeTrendingHashTags,
-            includeTrendingToots: filters.includeTrendingToots,
-            onlyLinks: filters.onlyLinks,
         } as FeedFilterSettingsSerialized;
 
         await this.set(Key.FILTERS, settings);

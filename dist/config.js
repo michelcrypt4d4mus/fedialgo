@@ -75,26 +75,20 @@ exports.DEFAULT_WEIGHTS = {
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {},
-    includeFollowedAccounts: true,
-    includeFollowedHashtags: true,
-    includeReplies: true,
-    includeReposts: true,
-    includeTrendingHashTags: true,
-    includeTrendingToots: true,
-    onlyLinks: false,
-    // weightLearningEnabled: false,  // TODO: reimplement this switch another way
 };
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
     maxNumCachedToots: 5000,
-    enableIncrementalLoad: true,
     // Timeline toots
+    enableIncrementalLoad: false,
+    numTootsInFirstFetch: 240,
+    // enableIncrementalLoad: true,        // Continue loading in background after initial load
+    // numTootsInFirstFetch: 600,           // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
     maxTimelineTootsToFetch: 1600,
-    numTootsInFirstFetch: 400,
     reloadIfOlderThanMinutes: 10,
     // API stuff
     minRecordsForFeatureScoring: 400,

@@ -46,8 +46,7 @@ const timeline = await algorithm.updateUserWeights(newWeights);
 
 // Get and set filters to include / exclude different kinds of toots
 const filters = algorithm.getFilters();
-filters.filteredLanguages = ["en", "es"];
-filters.includeFollowedHashtags = false;
+filters.filterSections[FilterOptionName.LANGUAGE].updateValidOptions("de", true);
 const filteredFeed = algorithm.updateFilters(filters);
 ```
 

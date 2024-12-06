@@ -61,13 +61,6 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 }
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: FeedFilterSectionArgs[];
-    includeFollowedAccounts: boolean;
-    includeFollowedHashtags: boolean;
-    includeReplies: boolean;
-    includeReposts: boolean;
-    includeTrendingHashTags: boolean;
-    includeTrendingToots: boolean;
-    onlyLinks: boolean;
 };
 export type ScorerInfo = {
     defaultWeight: number;
@@ -77,6 +70,7 @@ export type ScorerInfo = {
 };
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
+    isFollowed?: boolean;
     reblog?: Toot;
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;

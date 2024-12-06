@@ -77,13 +77,6 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: FeedFilterSectionArgs[];
-    includeFollowedAccounts: boolean;
-    includeFollowedHashtags: boolean;
-    includeReplies: boolean;
-    includeReposts: boolean;
-    includeTrendingHashTags: boolean;
-    includeTrendingToots: boolean;
-    onlyLinks: boolean;
 };
 
 export type ScorerInfo = {
@@ -95,11 +88,12 @@ export type ScorerInfo = {
 
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
-    reblog?: Toot,  // The toot that was retooted by this toot
-    reblogBy?: mastodon.v1.Account;
-    scoreInfo?: TootScore;
-    trendingRank?: number;         // Most trending on a server gets a 10, next is a 9, etc.
-    trendingTags?: TrendingTag[];  // Tags that are trending in this toot
+    isFollowed?: boolean;              // Whether the user follows the account that posted this toot
+    reblog?: Toot,                     // The toot that was retooted (if any)
+    reblogBy?: mastodon.v1.Account;    // The account that retooted this toot (if any)
+    scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
+    trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TrendingTag[];      // Tags that are trending in this toot
 };
 
 export type TootScore = {

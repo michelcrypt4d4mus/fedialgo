@@ -1,11 +1,34 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
-const feed_filter_section_1 = __importDefault(require("./objects/feed_filter_section"));
+const feed_filter_section_1 = __importStar(require("./objects/feed_filter_section"));
 const config_1 = require("./config");
 var Key;
 (function (Key) {
@@ -44,23 +67,16 @@ class Storage {
         else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
             filters = Object.assign({}, config_1.DEFAULT_FILTERS);
+            filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE] = new feed_filter_section_1.default({ title: feed_filter_section_1.FilterOptionName.SOURCE });
             await this.setFilters(config_1.DEFAULT_FILTERS);
         }
         console.log(`[Storage] getFilters() returning:`, filters);
         return filters;
     }
+    // Serialize the FeedFilterSettings object
     static async setFilters(filters) {
-        // Serialize the FeedFilterSettings object
-        // TODO: this sucks
         const settings = {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
-            includeFollowedAccounts: filters.includeFollowedAccounts,
-            includeFollowedHashtags: filters.includeFollowedHashtags,
-            includeReplies: filters.includeReplies,
-            includeReposts: filters.includeReposts,
-            includeTrendingHashTags: filters.includeTrendingHashTags,
-            includeTrendingToots: filters.includeTrendingToots,
-            onlyLinks: filters.onlyLinks,
         };
         await this.set(Key.FILTERS, settings);
     }

@@ -26,8 +26,10 @@ declare class TheAlgorithm {
     filters: FeedFilterSettings;
     feed: Toot[];
     followedAccounts: AccountNames;
+    followedTags: StringNumberDict;
     feedLanguageCounts: StringNumberDict;
     appCounts: StringNumberDict;
+    sourceCounts: StringNumberDict;
     tagCounts: StringNumberDict;
     tagFilterCounts: StringNumberDict;
     scoreMutex: Mutex;
