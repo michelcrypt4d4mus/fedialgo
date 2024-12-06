@@ -144,6 +144,7 @@ export default class FeedFilterSection {
         }
     }
 
+    // Required for serialization of settings to local storage
     toArgs(): FeedFilterSectionArgs {
         return {
             title: this.title,
