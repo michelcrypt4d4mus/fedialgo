@@ -24,6 +24,7 @@ export enum SourceFilterName {
     TRENDING_TOOTS = 'trendingToots',
 };
 
+// TODO: sucks to have FilterOption and FilterOptionInfo be separate when they require same keys
 type FilterOption = Record<string, boolean>;     // e.g. { 'en': false, 'de': true }
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
@@ -63,7 +64,6 @@ const TOOT_MATCHERS: TootMatchers = {
 export interface FeedFilterSectionArgs {
     title: FilterOptionName;
     invertSelection?: boolean;
-    // TODO: sucks to have options and optionInfo be separate when they're so closely related
     options?: FilterOption;
     optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
     validValues?: string[];

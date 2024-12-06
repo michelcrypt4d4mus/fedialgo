@@ -120,6 +120,7 @@ class FeedFilterSection {
             this.validValues.splice(this.validValues.indexOf(element), 1);
         }
     }
+    // Required for serialization of settings to local storage
     toArgs() {
         return {
             title: this.title,
