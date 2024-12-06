@@ -29,6 +29,14 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         defaultWeight: 2,
         description: "Favour accounts that recently interacted with your toots",
     },
+    [WeightName.MOST_REPLIED_ACCOUNTS]: {
+        defaultWeight: 1,
+        description: "Favour accounts you often reply to",
+    },
+    [WeightName.MOST_RETOOTED_ACCOUNTS]: {
+        defaultWeight: 3,
+        description: "Favour accounts you often retoot",
+    },
     [WeightName.NUM_FAVOURITES]: {
         defaultWeight: 1,
         description: "Favour things favourited by users on your home server",
@@ -40,14 +48,6 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
     [WeightName.NUM_RETOOTS]: {
         defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
-    },
-    [WeightName.MOST_REPLIED_ACCOUNTS]: {
-        defaultWeight: 1,
-        description: "Favour accounts you often reply to",
-    },
-    [WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 3,
-        description: "Favour accounts you often retoot",
     },
     [WeightName.RETOOTED_IN_FEED]: {
         defaultWeight: 2,

@@ -30,6 +30,14 @@ exports.DEFAULT_WEIGHTS = {
         defaultWeight: 2,
         description: "Favour accounts that recently interacted with your toots",
     },
+    [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
+        defaultWeight: 1,
+        description: "Favour accounts you often reply to",
+    },
+    [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
+        defaultWeight: 3,
+        description: "Favour accounts you often retoot",
+    },
     [types_1.WeightName.NUM_FAVOURITES]: {
         defaultWeight: 1,
         description: "Favour things favourited by users on your home server",
@@ -41,14 +49,6 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.NUM_RETOOTS]: {
         defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
-    },
-    [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
-        defaultWeight: 1,
-        description: "Favour accounts you often reply to",
-    },
-    [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 3,
-        description: "Favour accounts you often retoot",
     },
     [types_1.WeightName.RETOOTED_IN_FEED]: {
         defaultWeight: 2,

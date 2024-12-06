@@ -1,8 +1,8 @@
 /*
  * Base class for Toot scorers.
  */
-import { ScorerInfo, Toot } from "../types";
 import { DEFAULT_WEIGHTS } from "../config";
+import { ScorerInfo, Toot } from "../types";
 import { WeightName } from "../types";
 
 

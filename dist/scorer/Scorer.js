@@ -1,5 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Base class for Toot scorers.
+ */
 const config_1 = require("../config");
 class Scorer {
     name;
