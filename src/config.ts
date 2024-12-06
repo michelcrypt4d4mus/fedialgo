@@ -92,7 +92,7 @@ export const DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
-    enableIncrementalLoad: false,        // Continue loading in background after initial load
+    enableIncrementalLoad: true,        // Continue loading in background after initial load
     // Timeline toots
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
