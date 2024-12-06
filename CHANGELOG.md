@@ -1,4 +1,6 @@
 ## NEXT
+
+## 0.6.1
 * Convert the filtering of sources to the standard model
 * [bug] Fix doublecounting of toot categories
 
