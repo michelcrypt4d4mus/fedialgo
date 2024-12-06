@@ -1,6 +1,6 @@
 import { mastodon } from 'masto';
 
-import FeedFilterSection, { FeedFilterSectionArgs, FilterOptionName } from './objects/feed_filter_section';
+import FeedFilterSection, { FeedFilterSectionArgs } from './objects/feed_filter_section';
 import Scorer from './scorer/scorer';
 
 

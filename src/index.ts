@@ -6,7 +6,6 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import FeedFilterSection, { SOURCE_FILTERS, FilterOptionName } from "./objects/feed_filter_section";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
@@ -15,16 +14,17 @@ import getTrendingToots from "./feeds/trending_toots";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
 import MastodonApiCache from "./api/mastodon_api_cache";
+import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
+import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
-import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import Storage from "./Storage";
-import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
+import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
 import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
 import {
     AccountNames,
