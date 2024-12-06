@@ -56,7 +56,7 @@ const describeAccount = (toot) => {
 };
 exports.describeAccount = describeAccount;
 const describeTootTime = (toot) => {
-    `[${toot.createdAt}]: ID: ${toot.id}`;
+    return `[${toot.createdAt}]: ID: ${toot.id}`;
 };
 exports.describeTootTime = describeTootTime;
 // Extract attachments from Toots
