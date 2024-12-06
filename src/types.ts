@@ -110,5 +110,5 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootURIs |
-    Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature |
+    TootURIs |Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;
