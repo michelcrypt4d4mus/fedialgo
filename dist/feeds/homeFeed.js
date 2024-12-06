@@ -18,14 +18,13 @@ async function getHomeFeed(api, numToots = null) {
     // TODO: we should probably detect these outliers and toos them out of the cutoff time calculation
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
     for await (const page of api.v1.timelines.home.list({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
-        const pageToots = page;
+        const pageToots = (0, toot_1.sortByCreatedAt)(page);
         toots = toots.concat(pageToots);
         pageNumber++;
         const oldestTootAt = (0, toot_1.earliestTootAt)(toots) || new Date();
         let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
         msg += `oldest in page: ${(0, toot_1.earliestTootAt)(pageToots)}, oldest: ${oldestTootAt})`;
         console.log(msg);
-        console.debug(pageToots.map(toot_1.describeToot).join("\n"));
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
         if ((toots.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
             if (oldestTootAt < cutoffTimelineAt) {
@@ -35,6 +34,7 @@ async function getHomeFeed(api, numToots = null) {
         }
     }
     console.debug(`getHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootAt)(toots)}'):`, toots);
+    console.debug(toots.map(toot_1.describeToot).join("\n"));
     return toots;
 }
 exports.default = getHomeFeed;

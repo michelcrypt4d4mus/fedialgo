@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
+exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
 exports.EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
@@ -90,6 +90,12 @@ const minimumID = (toots) => {
     return minId == HUGE_ID ? null : minId;
 };
 exports.minimumID = minimumID;
+const sortByCreatedAt = (toots) => {
+    return toots.toSorted((a, b) => {
+        return a.createdAt < b.createdAt ? -1 : 1;
+    });
+};
+exports.sortByCreatedAt = sortByCreatedAt;
 const earliestTootAt = (toots) => {
     const earliest = (0, exports.earliestToot)(toots);
     return earliest ? (0, exports.tootedAt)(earliest) : null;

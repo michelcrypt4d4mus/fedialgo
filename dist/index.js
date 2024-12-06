@@ -212,6 +212,7 @@ class TheAlgorithm {
         const appCounts = {};
         const languageCounts = {};
         const sourceCounts = {};
+        const userCounts = {};
         this.feed.forEach(toot => {
             // Decorate / repair toot data
             toot.application ??= { name: UNKNOWN_APP };
@@ -237,6 +238,7 @@ class TheAlgorithm {
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
             languageCounts[toot.language] = (languageCounts[toot.language] || 0) + 1;
             appCounts[toot.application.name] = (appCounts[toot.application.name] || 0) + 1;
+            userCounts[toot.account.acct] = (userCounts[toot.account.acct] || 0) + 1;
             // Aggregate source counts
             Object.entries(feed_filter_section_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
                 if (sourceFilter(toot)) {
@@ -258,6 +260,7 @@ class TheAlgorithm {
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = appCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.USER].optionInfo = userCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?

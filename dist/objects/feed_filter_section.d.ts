@@ -3,6 +3,7 @@ export declare enum FilterOptionName {
     SOURCE = "source",
     LANGUAGE = "language",
     HASHTAG = "hashtag",
+    USER = "user",
     APP = "app"
 }
 export declare enum SourceFilterName {

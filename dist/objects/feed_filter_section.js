@@ -16,6 +16,7 @@ var FilterOptionName;
     FilterOptionName["SOURCE"] = "source";
     FilterOptionName["LANGUAGE"] = "language";
     FilterOptionName["HASHTAG"] = "hashtag";
+    FilterOptionName["USER"] = "user";
     FilterOptionName["APP"] = "app";
 })(FilterOptionName || (exports.FilterOptionName = FilterOptionName = {}));
 ;
@@ -53,6 +54,9 @@ const TOOT_MATCHERS = {
         return Object.entries(exports.SOURCE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
+    },
+    [FilterOptionName.USER]: (toot, validValues) => {
+        return validValues.includes(toot.account.acct);
     },
 };
 ;

@@ -9,6 +9,7 @@ export declare const describeTootTime: (toot: Toot) => string;
 export declare const imageAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAttachment>;
 export declare const minimumID: (toots: Toot[]) => number | null;
+export declare const sortByCreatedAt: (toots: Toot[]) => Toot[];
 export declare const earliestTootAt: (toots: Toot[]) => Date | null;
 export declare const earliestToot: (toots: Toot[]) => Toot | null;
 export declare const tootedAt: (toot: Toot) => Date;
