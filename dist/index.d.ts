@@ -27,11 +27,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
-    languageCounts: StringNumberDict;
-    appCounts: StringNumberDict;
-    sourceCounts: StringNumberDict;
     tagCounts: StringNumberDict;
-    tagFilterCounts: StringNumberDict;
     scoreMutex: Mutex;
     reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
@@ -48,7 +44,6 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filteredFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
-    learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
     repairFeedAndExtractSummaryInfo(): void;
     list(): Paginator;
     private setDefaultWeights;
@@ -57,5 +52,6 @@ declare class TheAlgorithm {
     private isInTimeline;
     private isValidForFeed;
     private shouldReloadFeed;
+    learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
 export { TIME_DECAY, FeedFilterSettings, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, Weights, };

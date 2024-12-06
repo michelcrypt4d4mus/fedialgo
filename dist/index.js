@@ -67,11 +67,7 @@ class TheAlgorithm {
     feed = [];
     followedAccounts = {};
     followedTags = {};
-    languageCounts = {};
-    appCounts = {};
-    sourceCounts = {};
-    tagCounts = {};
-    tagFilterCounts = {}; // It's just tagCounts var filtered for a minimum count
+    tagCounts = {}; // Contains the unfiltered counts of toots by tag
     scoreMutex = new async_mutex_1.Mutex();
     reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
@@ -202,41 +198,8 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.debug(`${prefix}feed toots posted by application counts:`, this.appCounts);
-        console.log(`${prefix}tagCounts:`, this.tagCounts);
         console.log(`${prefix}timeline toots (condensed):`, this.feed.map(toot_1.condensedStatus));
-    }
-    // Adjust toot weights based on user's chosen slider values
-    // TODO: unclear whether this is working correctly
-    async learnWeights(tootScores, step = 0.001) {
-        console.debug(`learnWeights() called with 'tootScores' arg but is not implemented`, tootScores);
-        return;
-        // if (!this.filters.weightLearningEnabled) {
-        if (true) {
-            console.debug(`learnWeights() called but weight learning is disabled...`);
-            return;
-        }
-        else if (!tootScores) {
-            console.debug(`learnWeights() called but tootScores arg is empty...`);
-            return;
-        }
-        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
-        const total = Object.values(tootScores)
-            .filter((value) => !isNaN(value))
-            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-        const mean = total / Object.values(tootScores).length;
-        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const newTootScores = await this.getUserWeights();
-        const userWeightTotal = Object.values(newTootScores)
-            .filter((value) => !isNaN(value))
-            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
-        for (let key in newTootScores) {
-            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
-            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight); // TODO: this seems wrong?
-        }
-        await this.updateUserWeights(newTootScores);
-        return newTootScores;
+        console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
     // Compute language and application counts. Repair broken toots and populate extra data:
     //   - Set isFollowed flag
@@ -246,7 +209,6 @@ class TheAlgorithm {
         const appCounts = {};
         const languageCounts = {};
         const sourceCounts = {};
-        const tagCounts = {};
         this.feed.forEach(toot => {
             // Decorate / repair toot data
             toot.application ??= { name: UNKNOWN_APP };
@@ -266,7 +228,7 @@ class TheAlgorithm {
             // Lowercase and count tags
             toot.tags.forEach(tag => {
                 tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
+                this.tagCounts[tag.name] = (this.tagCounts[tag.name] || 0) + 1;
             });
             // Must happen after tags are lowercased and before source counts are aggregated
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
@@ -280,11 +242,7 @@ class TheAlgorithm {
                 }
             });
         });
-        this.appCounts = appCounts;
-        this.languageCounts = languageCounts;
-        this.sourceCounts = sourceCounts;
-        this.tagCounts = tagCounts;
-        this.tagFilterCounts = Object.fromEntries(Object.entries(tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
+        const tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
         Object.values(feed_filter_section_1.FilterOptionName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections)
@@ -293,10 +251,10 @@ class TheAlgorithm {
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].optionInfo = this.sourceCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = this.languageCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = this.tagFilterCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = this.appCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = appCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?
@@ -428,6 +386,38 @@ class TheAlgorithm {
         if (!mostRecentTootAt)
             return true;
         return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
+    }
+    // Adjust toot weights based on user's chosen slider values
+    // TODO: unclear whether this is working correctly
+    async learnWeights(tootScores, step = 0.001) {
+        console.debug(`learnWeights() called with 'tootScores' arg but is not implemented`, tootScores);
+        return;
+        // if (!this.filters.weightLearningEnabled) {
+        if (true) {
+            console.debug(`learnWeights() called but weight learning is disabled...`);
+            return;
+        }
+        else if (!tootScores) {
+            console.debug(`learnWeights() called but tootScores arg is empty...`);
+            return;
+        }
+        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
+        const total = Object.values(tootScores)
+            .filter((value) => !isNaN(value))
+            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
+        const mean = total / Object.values(tootScores).length;
+        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
+        const newTootScores = await this.getUserWeights();
+        const userWeightTotal = Object.values(newTootScores)
+            .filter((value) => !isNaN(value))
+            .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
+        for (let key in newTootScores) {
+            const reweight = 1 - (Math.abs(tootScores[key]) / mean) / (newTootScores[key] / meanUserWeight);
+            newTootScores[key] = newTootScores[key] - (step * newTootScores[key] * reweight); // TODO: this seems wrong?
+        }
+        await this.updateUserWeights(newTootScores);
+        return newTootScores;
     }
 }
 exports.TheAlgorithm = TheAlgorithm;
