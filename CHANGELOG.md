@@ -1,4 +1,5 @@
 ## NEXT
+* Convert the filtering of sources to the standard model
 
 ## 0.6.0
 * Allow inverting filters for apps and languages (not just hashtags)
