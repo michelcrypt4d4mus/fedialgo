@@ -5,9 +5,9 @@
 # `fedialgo`
 FediAlgo in action:
 
-<p align="center">
+<!-- <p align="center"> -->
     [![FediAlgo in action](doc/youtube_screenshot.png)](https://www.youtube.com/watch?v=_0TaYxU1Tpk)
-</p>
+<!-- </p> -->
 <!-- https://www.youtube.com/watch?v=_0TaYxU1Tpk -->
 
 Fedialgo is an typescript module, that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It uses React Native Async Storage, so it should also work in React Native Projects, but havent tested it yet.
