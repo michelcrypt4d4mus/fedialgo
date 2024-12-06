@@ -6,7 +6,7 @@
 FediAlgo in action:
 
 <p align="center">
-    [![FediAlgo in action](doc/youtube_screenshot.png)](https://www.youtube.com/watch?v=_0TaYxU1Tpk)
+    [![FediAlgo in action](https://img.youtube.com/vi/_0TaYxU1Tpk/0.jpg)](https://www.youtube.com/watch?v=_0TaYxU1Tpk)
 </p>
 <!-- https://www.youtube.com/watch?v=_0TaYxU1Tpk -->
 
