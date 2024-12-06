@@ -27,7 +27,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
-    feedLanguageCounts: StringNumberDict;
+    languageCounts: StringNumberDict;
     appCounts: StringNumberDict;
     sourceCounts: StringNumberDict;
     tagCounts: StringNumberDict;

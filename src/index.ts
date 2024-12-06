@@ -62,7 +62,7 @@ class TheAlgorithm {
     feed: Toot[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
-    feedLanguageCounts: StringNumberDict = {};
+    languageCounts: StringNumberDict = {};
     appCounts: StringNumberDict = {};
     sourceCounts: StringNumberDict = {};
     tagCounts: StringNumberDict = {};
@@ -266,8 +266,13 @@ class TheAlgorithm {
     //   - Set toot.language to defaultLanguage if missing
     //   - Set media type to "image" if unknown and reparable
     repairFeedAndExtractSummaryInfo(): void {
+        const appCounts: StringNumberDict = {};
+        const languageCounts: StringNumberDict = {};
+        const sourceCounts: StringNumberDict = {};
+        const tagCounts: StringNumberDict = {};
+
         this.feed.forEach(toot => {
-            // Decorate / repair toot
+            // Decorate / repair toot data
             toot.application ??= {name: UNKNOWN_APP};
             toot.application.name ??= UNKNOWN_APP;
             toot.language ??= Storage.getConfig().defaultLanguage;
@@ -286,29 +291,35 @@ class TheAlgorithm {
             // Lowercase and count tags
             toot.tags.forEach(tag => {
                 tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-                this.tagCounts[tag.name] = (this.tagCounts[tag.name] || 0) + 1;
+                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
             });
 
             // Must happen after tags are lowercased and before source counts are aggregated
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
-            // Set followed Tags and Compute other aggregate counts
-            this.feedLanguageCounts[toot.language] = (this.feedLanguageCounts[toot.language] || 0) + 1;
-            this.appCounts[toot.application.name] = (this.appCounts[toot.application.name] || 0) + 1;
+            languageCounts[toot.language] = (languageCounts[toot.language] || 0) + 1;
+            appCounts[toot.application.name] = (appCounts[toot.application.name] || 0) + 1;
 
             // Aggregate source counts
             Object.entries(SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
-                this.sourceCounts[sourceName] ??= 0;
-                if (sourceFilter(toot)) this.sourceCounts[sourceName] += 1;
+                if (sourceFilter(toot)) {
+                    sourceCounts[sourceName] ??= 0;
+                    sourceCounts[sourceName] += 1;
+                }
             });
         });
 
+        this.appCounts = appCounts;
+        this.languageCounts = languageCounts;
+        this.sourceCounts = sourceCounts;
+        this.tagCounts = tagCounts;
+
         this.tagFilterCounts = Object.fromEntries(
-            Object.entries(this.tagCounts).filter(
+            Object.entries(tagCounts).filter(
                ([_key, val]) => val >= Storage.getConfig().minTootsForTagToAppearInFilter
             )
         );
 
-        // Instantiate missing sections
+        // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
         Object.values(FilterOptionName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections) return;
             this.filters.filterSections[sectionName] = new FeedFilterSection({title: sectionName});
@@ -317,7 +328,7 @@ class TheAlgorithm {
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
         this.filters.filterSections[FilterOptionName.SOURCE].setOptionsWithInfo(this.sourceCounts);
-        this.filters.filterSections[FilterOptionName.LANGUAGE].setOptionsWithInfo(this.feedLanguageCounts);
+        this.filters.filterSections[FilterOptionName.LANGUAGE].setOptionsWithInfo(this.languageCounts);
         this.filters.filterSections[FilterOptionName.HASHTAG].setOptionsWithInfo(this.tagFilterCounts);
         this.filters.filterSections[FilterOptionName.APP].setOptionsWithInfo(this.appCounts);
         console.log(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
