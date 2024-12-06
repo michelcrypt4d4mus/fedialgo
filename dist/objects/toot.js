@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
+exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
 exports.EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
@@ -47,7 +47,7 @@ const condensedStatus = (toot) => {
 exports.condensedStatus = condensedStatus;
 // Build a string that can be used in logs to identify a toot
 const describeToot = (toot) => {
-    return `${(0, exports.describeAccount)(toot)}: toot #${toot.id} at ${toot.createdAt}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
+    return `${(0, exports.describeTootTime)(toot)} (${(0, exports.describeAccount)(toot)}): "${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
 };
 exports.describeToot = describeToot;
 // Build a string that can be used in logs to identify an account
@@ -55,6 +55,10 @@ const describeAccount = (toot) => {
     return `${toot.account.displayName} (${toot.account.acct})`;
 };
 exports.describeAccount = describeAccount;
+const describeTootTime = (toot) => {
+    `[${toot.createdAt}]: ID: ${toot.id}`;
+};
+exports.describeTootTime = describeTootTime;
 // Extract attachments from Toots
 const imageAttachments = (toot) => {
     return attachmentsOfType(toot, "image");

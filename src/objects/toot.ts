@@ -55,13 +55,18 @@ export const condensedStatus = (toot: Toot) => {
 
 // Build a string that can be used in logs to identify a toot
 export const describeToot = (toot: Toot): string => {
-    return `${describeAccount(toot)}: toot #${toot.id} at ${toot.createdAt}: ${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}`;
+    return `${describeTootTime(toot)} (${describeAccount(toot)}): "${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
 };
 
 
 // Build a string that can be used in logs to identify an account
 export const describeAccount = (toot: Toot): string => {
     return `${toot.account.displayName} (${toot.account.acct})`;
+};
+
+
+export const describeTootTime = (toot: Toot): string => {
+    return `[${toot.createdAt}]: ID: ${toot.id}`;
 };
 
 
