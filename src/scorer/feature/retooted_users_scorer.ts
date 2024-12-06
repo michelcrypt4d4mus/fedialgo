@@ -9,8 +9,6 @@ import MastodonApiCache from "../../api/mastodon_api_cache";
 import { Toot } from "../../types";
 import { WeightName } from "../../types";
 
-const DEFAULT_RETOOTED_USER_WEIGHT = 3;
-
 
 export default class RetootedUsersScorer extends FeatureScorer {
     constructor() {
