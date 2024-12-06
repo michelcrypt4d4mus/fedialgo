@@ -108,6 +108,13 @@ export const minimumID = (toots: Toot[]): number | null => {
 };
 
 
+export const sortByCreatedAt = (toots: Toot[]): Toot[] => {
+    return toots.toSorted((a, b) => {
+        return a.createdAt < b.createdAt ? -1 : 1;
+    });
+};
+
+
 export const earliestTootAt = (toots: Toot[]): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;

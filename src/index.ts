@@ -227,6 +227,7 @@ class TheAlgorithm {
         const appCounts: StringNumberDict = {};
         const languageCounts: StringNumberDict = {};
         const sourceCounts: StringNumberDict = {};
+        const userCounts: StringNumberDict = {};
 
         this.feed.forEach(toot => {
             // Decorate / repair toot data
@@ -255,6 +256,7 @@ class TheAlgorithm {
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
             languageCounts[toot.language] = (languageCounts[toot.language] || 0) + 1;
             appCounts[toot.application.name] = (appCounts[toot.application.name] || 0) + 1;
+            userCounts[toot.account.acct] = (userCounts[toot.account.acct] || 0) + 1;
 
             // Aggregate source counts
             Object.entries(SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
@@ -283,6 +285,7 @@ class TheAlgorithm {
         this.filters.filterSections[FilterOptionName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
         this.filters.filterSections[FilterOptionName.APP].optionInfo = appCounts;
+        this.filters.filterSections[FilterOptionName.USER].optionInfo = userCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 

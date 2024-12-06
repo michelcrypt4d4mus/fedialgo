@@ -11,6 +11,7 @@ export enum FilterOptionName {
     SOURCE = 'source',
     LANGUAGE = 'language',
     HASHTAG = 'hashtag',
+    USER = 'user',
     APP = 'app',
 };
 
@@ -55,6 +56,9 @@ const TOOT_MATCHERS: TootMatchers = {
         return Object.entries(SOURCE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
+    },
+    [FilterOptionName.USER]: (toot: Toot, validValues: string[]) => {
+        return validValues.includes(toot.account.acct);
     },
 };
 
