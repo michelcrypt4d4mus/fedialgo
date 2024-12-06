@@ -1,4 +1,6 @@
 ## NEXT
+
+## 0.6.0
 * Allow inverting filters for apps and languages (not just hashtags)
 * Standardize a `FilterSection` object structure for app, language, hashtag, etc. filtering
 

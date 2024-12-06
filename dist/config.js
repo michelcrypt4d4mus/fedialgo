@@ -89,7 +89,7 @@ exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
     maxNumCachedToots: 5000,
-    enableIncrementalLoad: false,
+    enableIncrementalLoad: true,
     // Timeline toots
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
