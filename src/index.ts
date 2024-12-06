@@ -7,6 +7,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
+import FeedFilterSection, { FilterOptionName } from "./objects/feed_filter_section";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
@@ -43,7 +44,7 @@ import {
     isImage
 } from "./helpers";
 import { buildAccountNames } from "./objects/account";
-import { condensedStatus, earliestTootAt } from "./objects/toot";
+import { condensedStatus, describeToot, earliestTootAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
 import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
@@ -67,7 +68,7 @@ class TheAlgorithm {
     scoreMutex = new Mutex();
     reloadIfOlderThanMS: number;
     // Optional callback to set the feed in the code using this package
-    setFeedInApp: (f: Toot[]) => void = (f) => console.log(`Default setFeedInApp() called...`);
+    setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
@@ -159,7 +160,7 @@ class TheAlgorithm {
         const maxNumToots = Storage.getConfig().maxTimelineTootsToFetch;
 
         // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
-        if (this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
+        if (Storage.getConfig().enableIncrementalLoad && this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
             setTimeout(() => {
                 // 2x the number of toots and call recursively w/out 'await' until we have enough
                 // TODO: implement proper incremental loading
@@ -197,7 +198,8 @@ class TheAlgorithm {
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed(): Toot[] {
-        const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        const filteredFeed = this.feed.filter(toot => this.isInTimeline(toot));
+        console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
@@ -213,9 +215,11 @@ class TheAlgorithm {
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
     async learnWeights(tootScores: Weights, step = 0.001): Promise<Weights | undefined> {
-        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
+        console.debug(`learnWeights() called with 'tootScores' arg but is not implemented`, tootScores);
+        return;
 
-        if (!this.filters.weightLearningEnabled) {
+        // if (!this.filters.weightLearningEnabled) {
+        if (true) {
             console.debug(`learnWeights() called but weight learning is disabled...`);
             return;
         } else if (!tootScores) {
@@ -246,8 +250,8 @@ class TheAlgorithm {
     }
 
     // Compute language and application counts. Repair broken toots:
-    //   - Set toot.language to English if missing.
-    //   - Set media type to "image" if appropriate
+    //   - Set toot.language to defaultLanguage if missing.
+    //   - Set media type to "image" if unknown and reparable
     repairFeedAndExtractSummaryInfo(): void {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
             toot.language ??= Storage.getConfig().defaultLanguage;  // Default to English
@@ -294,6 +298,19 @@ class TheAlgorithm {
                ([_key, val]) => val >= Storage.getConfig().minTootsForTagToAppearInFilter
             )
         );
+
+        // Instantiate missing sections
+        Object.values(FilterOptionName).forEach((sectionName) => {
+            if (sectionName in this.filters.filterSections) return;
+            this.filters.filterSections[sectionName] = new FeedFilterSection({title: sectionName});
+        });
+
+        // TODO: if there's an validValue set for a filter section that is no longer in the feed
+        // the user will not be presented with the option to turn it off. This is a bug.
+        this.filters.filterSections[FilterOptionName.LANGUAGE].setOptionsWithInfo(this.feedLanguageCounts);
+        this.filters.filterSections[FilterOptionName.HASHTAG].setOptionsWithInfo(this.tagFilterCounts);
+        this.filters.filterSections[FilterOptionName.APP].setOptionsWithInfo(this.appCounts);
+        console.log(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
     // TODO: is this ever used?
@@ -401,35 +418,8 @@ class TheAlgorithm {
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
     }
 
-    private isFiltered(toot: Toot): boolean {
-        const apps = this.filters.filteredApps;
-        const languages = this.filters.filteredLanguages;
-        const tags = this.filters.filteredTags;
-        const tootLanguage = toot.language || Storage.getConfig().defaultLanguage;
-
-        if (languages.length > 0) {
-            if (!languages.includes(tootLanguage)) {
-                console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
-                return false;
-            } else {
-                console.debug(`Allowing toot with language ${tootLanguage}...`);
-            }
-        }
-
-        if (tags.length > 0) {
-            // Then tag checkboxes are a blacklist
-            if (this.filters.suppressSelectedTags) {
-                if (toot.tags.some(tag => tags.includes(tag.name))) {
-                    return false;
-                }
-            } else if (!toot.tags.some(tag => tags.includes(tag.name))) {
-                // Otherwise tag checkboxes are a whitelist
-                return false;
-            }
-        }
-
-        if (apps.length > 0 && !apps.includes(toot.application?.name)) {
-            console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
+    private isInTimeline(toot: Toot): boolean {
+        if (!Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot))) {
             return false;
         } else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
             return false;
@@ -451,6 +441,7 @@ class TheAlgorithm {
         return true;
     }
 
+    // Return false if Toot should be discarded from feed altogether and permanently
     private isValidForFeed(toot: Toot): boolean {
         if (toot == undefined) return false;
         if (toot?.reblog?.muted || toot?.muted) return false;  // Remove muted accounts and toots

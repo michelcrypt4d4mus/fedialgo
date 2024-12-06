@@ -1,7 +1,8 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import { Config, FeedFilterSettings, StorageValue, Toot, Weights } from "./types";
+import FeedFilterSection from "./objects/feed_filter_section";
+import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, Weights } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
 import { WeightName } from "./types";
 
@@ -36,19 +37,41 @@ export default class Storage {
     }
 
     static async getFilters(): Promise<FeedFilterSettings> {
-        let filters = await this.get(Key.FILTERS);
+        let filters = await this.get(Key.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
-        if (!filters) {
-            console.debug(`getFilters() returning DEFAULT_FILTERS:`, filters);
+        if (filters) {
+            filters.filterSections = (filters.feedFilterSectionArgs || []).reduce(
+                (acc, args) => {
+                    acc[args.title] = new FeedFilterSection(args);
+                    return acc;
+                },
+                {} as Record<string, FeedFilterSection>
+            );
+        } else {
+            console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
             filters = Object.assign({}, DEFAULT_FILTERS);
-            await this.setFilters(filters);
+            await this.setFilters(DEFAULT_FILTERS);
         }
 
-        return filters as FeedFilterSettings;
+        console.log(`[Storage] getFilters() returning:`, filters);
+        return filters;
     }
 
     static async setFilters(filters: FeedFilterSettings): Promise<void> {
-        await this.set(Key.FILTERS, filters);
+        // Serialize the FeedFilterSettings object
+        // TODO: this sucks
+        const settings = {
+            feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            includeFollowedAccounts: filters.includeFollowedAccounts,
+            includeFollowedHashtags: filters.includeFollowedHashtags,
+            includeReplies: filters.includeReplies,
+            includeReposts: filters.includeReposts,
+            includeTrendingHashTags: filters.includeTrendingHashTags,
+            includeTrendingToots: filters.includeTrendingToots,
+            onlyLinks: filters.onlyLinks,
+        } as FeedFilterSettingsSerialized;
+
+        await this.set(Key.FILTERS, settings);
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache

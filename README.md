@@ -66,7 +66,8 @@ const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedIn
 ```
 
 ### Learn Weights
-**EXPERIMENTAL FEATURE THAT MAY OR MAY NOT WORK**
+**DOES NOT CURRENTLY WORK!** can be enabled only by manually changing the value of `weightLearningEnabled` variable in this codebase.
+
 You can also let the algorithm learn the weights from the user's behaviour. This is done by passing the scores of the posts to the algorithm. The algorithm will then adjust the weights accordingly. This is quite simple, but still has impact on the feed. For example you could choose to adjust the weight after each click on a post, after a reblog, or after a link click.
 
 ```typescript
@@ -112,7 +113,8 @@ There's a pre-commit git hook that runs `npm run build`.
 
 
 # TODO
-1. Pull popular toots from the trending tags instead of just from server's appointed trending toots
+1. Add scoring for links similar to `onlyLinks` filter
+1. Add filter for public/private toots
 
 
 # Resources

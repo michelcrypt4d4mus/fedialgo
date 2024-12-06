@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
+const feed_filter_section_1 = __importDefault(require("./objects/feed_filter_section"));
 const config_1 = require("./config");
 var Key;
 (function (Key) {
@@ -33,16 +34,35 @@ class Storage {
         await this.set(Key.WEIGHTS, userWeightings);
     }
     static async getFilters() {
-        let filters = await this.get(Key.FILTERS);
-        if (!filters) {
-            console.debug(`getFilters() returning DEFAULT_FILTERS:`, filters);
-            filters = Object.assign({}, config_1.DEFAULT_FILTERS);
-            await this.setFilters(filters);
+        let filters = await this.get(Key.FILTERS); // Returns serialized FeedFilterSettings
+        if (filters) {
+            filters.filterSections = (filters.feedFilterSectionArgs || []).reduce((acc, args) => {
+                acc[args.title] = new feed_filter_section_1.default(args);
+                return acc;
+            }, {});
         }
+        else {
+            console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
+            filters = Object.assign({}, config_1.DEFAULT_FILTERS);
+            await this.setFilters(config_1.DEFAULT_FILTERS);
+        }
+        console.log(`[Storage] getFilters() returning:`, filters);
         return filters;
     }
     static async setFilters(filters) {
-        await this.set(Key.FILTERS, filters);
+        // Serialize the FeedFilterSettings object
+        // TODO: this sucks
+        const settings = {
+            feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            includeFollowedAccounts: filters.includeFollowedAccounts,
+            includeFollowedHashtags: filters.includeFollowedHashtags,
+            includeReplies: filters.includeReplies,
+            includeReposts: filters.includeReposts,
+            includeTrendingHashTags: filters.includeTrendingHashTags,
+            includeTrendingToots: filters.includeTrendingToots,
+            onlyLinks: filters.onlyLinks,
+        };
+        await this.set(Key.FILTERS, settings);
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {

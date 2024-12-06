@@ -1,4 +1,5 @@
 import { mastodon } from 'masto';
+import FeedFilterSection, { FeedFilterSectionArgs } from './objects/feed_filter_section';
 import Scorer from './scorer/scorer';
 export declare enum WeightName {
     CHAOS = "Chaos",
@@ -35,6 +36,7 @@ export type Config = {
     defaultLanguage: string;
     defaultRecordsPerPage: number;
     maxNumCachedToots: number;
+    enableIncrementalLoad: boolean;
     incrementalLoadDelayMS: number;
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
@@ -54,10 +56,11 @@ export type Config = {
     minTootsForTagToAppearInFilter: number;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FeedFilterSettings = {
-    filteredApps: string[];
-    filteredLanguages: string[];
-    filteredTags: string[];
+export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
+    filterSections: Record<string, FeedFilterSection>;
+}
+export type FeedFilterSettingsSerialized = {
+    feedFilterSectionArgs: FeedFilterSectionArgs[];
     includeFollowedAccounts: boolean;
     includeFollowedHashtags: boolean;
     includeReplies: boolean;
@@ -65,8 +68,6 @@ export type FeedFilterSettings = {
     includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
-    suppressSelectedTags: boolean;
-    weightLearningEnabled: boolean;
 };
 export type ScorerInfo = {
     defaultWeight: number;
@@ -94,4 +95,4 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs | Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootURIs | Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;

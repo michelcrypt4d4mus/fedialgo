@@ -1,4 +1,6 @@
 ## NEXT
+* Allow inverting filters for apps and languages (not just hashtags)
+* Standardize a `FilterSection` object structure for app, language, hashtag, etc. filtering
 
 ## 0.5.1
 * Rudimentary ability to keep loading more toots in the background after delivering the first batch

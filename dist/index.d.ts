@@ -52,7 +52,7 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private decorateWithScoreInfo;
-    private isFiltered;
+    private isInTimeline;
     private isValidForFeed;
     private shouldReloadFeed;
 }

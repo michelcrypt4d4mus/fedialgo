@@ -74,9 +74,8 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
 
 
 export const DEFAULT_FILTERS = {
-    filteredApps: [],
-    filteredLanguages: [],
-    filteredTags: [],
+    feedFilterSectionArgs: [],
+    filterSections: {},
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
     includeReplies: true,
@@ -84,8 +83,7 @@ export const DEFAULT_FILTERS = {
     includeTrendingHashTags: true,
     includeTrendingToots: true,
     onlyLinks: false,
-    suppressSelectedTags: false,
-    weightLearningEnabled: false,
+    // weightLearningEnabled: false,  // TODO: reimplement this switch another way
 } as FeedFilterSettings;
 
 
@@ -94,6 +92,7 @@ export const DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
+    enableIncrementalLoad: false,        // Continue loading in background after initial load
     // Timeline toots
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for

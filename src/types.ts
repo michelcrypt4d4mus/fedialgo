@@ -1,5 +1,6 @@
 import { mastodon } from 'masto';
 
+import FeedFilterSection, { FeedFilterSectionArgs, FilterOptionName } from './objects/feed_filter_section';
 import Scorer from './scorer/scorer';
 
 
@@ -19,7 +20,7 @@ export enum WeightName {
     TIME_DECAY = 'TimeDecay',
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = 'VideoAttachments'
+    VIDEO_ATTACHMENTS = 'VideoAttachments',
 };
 
 // Records
@@ -31,7 +32,6 @@ export type ServerFeature = Record<mastodon.v1.Instance["uri"], number>;
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
-
 
 export interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -45,6 +45,7 @@ export type Config = {
     defaultRecordsPerPage: number;
     maxNumCachedToots: number;
     // Timeline
+    enableIncrementalLoad: boolean;
     incrementalLoadDelayMS: number;
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
@@ -70,10 +71,12 @@ export type Config = {
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
-export type FeedFilterSettings = {
-    filteredApps: string[];
-    filteredLanguages: string[];
-    filteredTags: string[];
+export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
+    filterSections: Record<string, FeedFilterSection>;
+};
+
+export type FeedFilterSettingsSerialized = {
+    feedFilterSectionArgs: FeedFilterSectionArgs[];
     includeFollowedAccounts: boolean;
     includeFollowedHashtags: boolean;
     includeReplies: boolean;
@@ -81,8 +84,6 @@ export type FeedFilterSettings = {
     includeTrendingHashTags: boolean;
     includeTrendingToots: boolean;
     onlyLinks: boolean;
-    suppressSelectedTags: boolean;   // flips the tag whitelist to be a blacklist
-    weightLearningEnabled: boolean;  // TODO: this isn't a filter
 };
 
 export type ScorerInfo = {
@@ -115,5 +116,5 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-export type StorageValue = FeedFeature | FeedFilterSettings | ServerFeature | TootURIs |
+export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootURIs |
     Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | number;

@@ -73,9 +73,8 @@ exports.DEFAULT_WEIGHTS = {
     },
 };
 exports.DEFAULT_FILTERS = {
-    filteredApps: [],
-    filteredLanguages: [],
-    filteredTags: [],
+    feedFilterSectionArgs: [],
+    filterSections: {},
     includeFollowedAccounts: true,
     includeFollowedHashtags: true,
     includeReplies: true,
@@ -83,14 +82,14 @@ exports.DEFAULT_FILTERS = {
     includeTrendingHashTags: true,
     includeTrendingToots: true,
     onlyLinks: false,
-    suppressSelectedTags: false,
-    weightLearningEnabled: false,
+    // weightLearningEnabled: false,  // TODO: reimplement this switch another way
 };
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
     maxNumCachedToots: 5000,
+    enableIncrementalLoad: false,
     // Timeline toots
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,

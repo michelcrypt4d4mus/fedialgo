@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -8,6 +31,7 @@ const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
+const feed_filter_section_1 = __importStar(require("./objects/feed_filter_section"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
@@ -48,7 +72,7 @@ class TheAlgorithm {
     scoreMutex = new async_mutex_1.Mutex();
     reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
-    setFeedInApp = (f) => console.log(`Default setFeedInApp() called...`);
+    setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaosFeatureScorer_1.default(),
@@ -125,7 +149,7 @@ class TheAlgorithm {
         this.repairFeedAndExtractSummaryInfo();
         const maxNumToots = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
-        if (this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
+        if (Storage_1.default.getConfig().enableIncrementalLoad && this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
             setTimeout(() => {
                 // 2x the number of toots and call recursively w/out 'await' until we have enough
                 // TODO: implement proper incremental loading
@@ -157,7 +181,8 @@ class TheAlgorithm {
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed() {
-        const filteredFeed = this.feed.filter(toot => this.isFiltered(toot));
+        const filteredFeed = this.feed.filter(toot => this.isInTimeline(toot));
+        console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
@@ -171,8 +196,10 @@ class TheAlgorithm {
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly
     async learnWeights(tootScores, step = 0.001) {
-        console.debug(`learnWeights() called with 'tootScores' arg: `, tootScores);
-        if (!this.filters.weightLearningEnabled) {
+        console.debug(`learnWeights() called with 'tootScores' arg but is not implemented`, tootScores);
+        return;
+        // if (!this.filters.weightLearningEnabled) {
+        if (true) {
             console.debug(`learnWeights() called but weight learning is disabled...`);
             return;
         }
@@ -199,8 +226,8 @@ class TheAlgorithm {
         return newTootScores;
     }
     // Compute language and application counts. Repair broken toots:
-    //   - Set toot.language to English if missing.
-    //   - Set media type to "image" if appropriate
+    //   - Set toot.language to defaultLanguage if missing.
+    //   - Set media type to "image" if unknown and reparable
     repairFeedAndExtractSummaryInfo() {
         this.feedLanguageCounts = this.feed.reduce((langCounts, toot) => {
             toot.language ??= Storage_1.default.getConfig().defaultLanguage; // Default to English
@@ -238,6 +265,18 @@ class TheAlgorithm {
             return tagCounts;
         }, {});
         this.tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
+        // Instantiate missing sections
+        Object.values(feed_filter_section_1.FilterOptionName).forEach((sectionName) => {
+            if (sectionName in this.filters.filterSections)
+                return;
+            this.filters.filterSections[sectionName] = new feed_filter_section_1.default({ title: sectionName });
+        });
+        // TODO: if there's an validValue set for a filter section that is no longer in the feed
+        // the user will not be presented with the option to turn it off. This is a bug.
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].setOptionsWithInfo(this.feedLanguageCounts);
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].setOptionsWithInfo(this.tagFilterCounts);
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].setOptionsWithInfo(this.appCounts);
+        console.log(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?
     list() {
@@ -332,34 +371,8 @@ class TheAlgorithm {
         if (toot.reblog)
             toot.reblog.scoreInfo = toot.scoreInfo;
     }
-    isFiltered(toot) {
-        const apps = this.filters.filteredApps;
-        const languages = this.filters.filteredLanguages;
-        const tags = this.filters.filteredTags;
-        const tootLanguage = toot.language || Storage_1.default.getConfig().defaultLanguage;
-        if (languages.length > 0) {
-            if (!languages.includes(tootLanguage)) {
-                console.debug(`Removing toot ${toot.uri} w/invalid language ${tootLanguage}. valid langs:`, languages);
-                return false;
-            }
-            else {
-                console.debug(`Allowing toot with language ${tootLanguage}...`);
-            }
-        }
-        if (tags.length > 0) {
-            // Then tag checkboxes are a blacklist
-            if (this.filters.suppressSelectedTags) {
-                if (toot.tags.some(tag => tags.includes(tag.name))) {
-                    return false;
-                }
-            }
-            else if (!toot.tags.some(tag => tags.includes(tag.name))) {
-                // Otherwise tag checkboxes are a whitelist
-                return false;
-            }
-        }
-        if (apps.length > 0 && !apps.includes(toot.application?.name)) {
-            console.debug(`Removing toot ${toot.uri} with invalid app ${toot.application?.name}...`);
+    isInTimeline(toot) {
+        if (!Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot))) {
             return false;
         }
         else if (this.filters.onlyLinks && !(toot.card || toot.reblog?.card)) {
@@ -386,6 +399,7 @@ class TheAlgorithm {
         }
         return true;
     }
+    // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(toot) {
         if (toot == undefined)
             return false;

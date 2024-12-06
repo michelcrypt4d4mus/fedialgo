@@ -24,4 +24,5 @@ var WeightName;
 ;
 ;
 ;
+;
 //# sourceMappingURL=types.js.map
