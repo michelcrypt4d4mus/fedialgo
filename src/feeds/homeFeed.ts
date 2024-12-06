@@ -10,27 +10,36 @@ import { describeToot, earliestTootAt, sortByCreatedAt } from "../objects/toot";
 import { Toot } from "../types";
 
 
-export default async function getHomeFeed(api: mastodon.rest.Client, numToots: number | null = null): Promise<Toot[]> {
+export default async function getHomeFeed(
+    api: mastodon.rest.Client,
+    numToots: number | null = null,
+    maxId: string | number | null = null
+): Promise<Toot[]> {
     const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
     numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
-    console.log(`gethomeFeed(${numToots} toots) cutoffTimelineAt: `, cutoffTimelineAt);
+    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId || "null"}) cutoffTimelineAt:`, cutoffTimelineAt);
     let toots: Toot[] = [];
     let pageNumber = 0;
+
+    const timelineParams: Record<string, string | number> = {limit: Storage.getConfig().defaultRecordsPerPage};
+    if (maxId) {timelineParams.max_id = maxId};
+    console.log(`getHomeFeed() timelineParams:`, timelineParams);
 
     // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
     // Seems like these might be coming from federated apps other than Mastodon?
     // example: https://flipboard.com/users/AxiosNews/statuses/LxBgpIAhTnO1TEZ-uG2T2Q:a:2150299410
-    // TODO: we should probably detect these outliers and toos them out of the cutoff time calculation
+    // TODO: we should probably detect these outliers and exclude them from the cutoff time calculation
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
-    for await (const page of api.v1.timelines.home.list({ limit: Storage.getConfig().defaultRecordsPerPage })) {
-        const pageToots = sortByCreatedAt(page as Toot[]);
-        toots = toots.concat(pageToots);
+    for await (const page of api.v1.timelines.home.list(timelineParams)) {
+        const pageToots = page as Toot[];
         pageNumber++;
+        toots = sortByCreatedAt(toots.concat(pageToots));
+        let oldestTootAt = earliestTootAt(toots) || new Date();
 
-        const oldestTootAt = earliestTootAt(toots) || new Date();
         let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
         msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;
+        oldestTootAt ||= new Date();
         console.log(msg);
 
         // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date

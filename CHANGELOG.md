@@ -1,14 +1,18 @@
 ## NEXT
 
-## 0.6.1
+## `0.7.0`
+* Add filtering based on username
+* Implement a real incremental load
+
+## `0.6.1`
 * Convert the filtering of sources to the standard model
 * [bug] Fix doublecounting of toot categories
 
-## 0.6.0
+## `0.6.0`
 * Allow inverting filters for apps and languages (not just hashtags)
 * Standardize a `FilterSection` object structure for app, language, hashtag, etc. filtering
 
-## 0.5.1
+## `0.5.1`
 * Rudimentary ability to keep loading more toots in the background after delivering the first batch
 
 ## `0.5.0`

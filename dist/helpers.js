@@ -42,10 +42,10 @@ function dedupeToots(toots, logLabel = undefined) {
             return;
         const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
         const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
-        if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
-            console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
-            console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
-        }
+        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
+        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
+        // }
         // Set all toots to have all trending tags so when we uniquify we catch everything
         uriToots.forEach((toot) => {
             toot.trendingTags = uniqueTrendingTags || [];

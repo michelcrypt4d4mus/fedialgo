@@ -53,7 +53,7 @@ export type Config = {
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
-    minTootsForTagToAppearInFilter: number;
+    minTootsToAppearInFilter: number;
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {

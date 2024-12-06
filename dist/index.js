@@ -71,6 +71,7 @@ class TheAlgorithm {
     followedAccounts = {};
     followedTags = {};
     tagCounts = {}; // Contains the unfiltered counts of toots by tag
+    userCounts = {}; // Contains the unfiltered counts of toots by user
     scoreMutex = new async_mutex_1.Mutex();
     reloadIfOlderThanMS;
     // Optional callback to set the feed in the code using this package
@@ -127,48 +128,38 @@ class TheAlgorithm {
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
-    async getFeed(numTimelineToots = null) {
-        const _numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        console.debug(`getFeed() called in fedialgo package, numTimelineToots:`, numTimelineToots);
+    async getFeed(numTimelineToots = null, maxId = null) {
+        console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         let allResponses = [];
-        // If this is a recursive call don't repull trending toot info
-        if (_numTimelineToots == Storage_1.default.getConfig().numTootsInFirstFetch) {
-            // Fetch toots and prepare scorers before scoring (only needs to be done once (???))
+        if (!maxId) {
+            // Fetch toots and prepare scorer data (only needs to be done once, not on incremental fetches)
             allResponses = await Promise.all([
                 mastodon_api_cache_1.default.getFollowedAccounts(this.api),
-                (0, homeFeed_1.default)(this.api, _numTimelineToots),
+                (0, homeFeed_1.default)(this.api, numTimelineToots),
                 (0, trending_toots_1.default)(this.api),
                 (0, trending_tags_1.default)(this.api),
-                // featureScorers return empty arrays (they're here as a parallelization hack)
+                // featureScorers return [] (they're here as a parallelization hack)
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);
             this.followedAccounts = allResponses.shift();
         }
         else {
-            allResponses = await Promise.all([
-                (0, homeFeed_1.default)(this.api, _numTimelineToots),
-            ]);
+            // incremental fetch (should be done in background after delivering first timeline toots)
+            allResponses = await Promise.all([(0, homeFeed_1.default)(this.api, numTimelineToots, maxId)]);
         }
+        let newHomeToots = allResponses[0];
         let newToots = allResponses.flat();
-        console.log(`Found ${this.followedAccounts.length} followed accounts and ${newToots.length} toots.`);
+        this.logTootCounts(newToots, newHomeToots);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanFeed = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = newToots.length - cleanFeed.length;
         console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanFeed.length}`);
         cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanFeed], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-        this.followedTags = await mastodon_api_cache_1.default.getFollowedTags(this.api); // Should be cached already
+        this.followedTags = await mastodon_api_cache_1.default.getFollowedTags(this.api); // Should be cached already; we're just pulling it into this class
         this.repairFeedAndExtractSummaryInfo();
-        const maxNumToots = Storage_1.default.getConfig().maxTimelineTootsToFetch;
-        // Stop if we have enough toots OR eventually _numTimelineToots will double to a large enough value
-        if (Storage_1.default.getConfig().enableIncrementalLoad && this.feed.length < maxNumToots && _numTimelineToots < maxNumToots) {
-            setTimeout(() => {
-                // 2x the number of toots and call recursively w/out 'await' until we have enough
-                // TODO: implement proper incremental loading
-                console.log(`getFeed() called recursively after delay to fetch more toots...`);
-                this.getFeed(_numTimelineToots * 2);
-            }, Storage_1.default.getConfig().incrementalLoadDelayMS);
-        }
+        this.maybeGetMoreToots(newHomeToots, numTimelineToots);
         return this.scoreFeed.bind(this)();
     }
     // Return the user's current weightings for each score category
@@ -212,6 +203,7 @@ class TheAlgorithm {
         const appCounts = {};
         const languageCounts = {};
         const sourceCounts = {};
+        const tagCounts = {};
         const userCounts = {};
         this.feed.forEach(toot => {
             // Decorate / repair toot data
@@ -232,7 +224,7 @@ class TheAlgorithm {
             // Lowercase and count tags
             toot.tags.forEach(tag => {
                 tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-                this.tagCounts[tag.name] = (this.tagCounts[tag.name] || 0) + 1;
+                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
             });
             // Must happen after tags are lowercased and before source counts are aggregated
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
@@ -247,7 +239,10 @@ class TheAlgorithm {
                 }
             });
         });
-        const tagFilterCounts = Object.fromEntries(Object.entries(this.tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsForTagToAppearInFilter));
+        this.tagCounts = tagCounts; // preserve the unfiltered state
+        this.userCounts = userCounts;
+        const tagFilterCounts = Object.fromEntries(Object.entries(tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
+        const userFilterCounts = Object.fromEntries(Object.entries(userCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
         Object.values(feed_filter_section_1.FilterOptionName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections)
@@ -260,12 +255,40 @@ class TheAlgorithm {
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
         this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = appCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.USER].optionInfo = userCounts;
+        this.filters.filterSections[feed_filter_section_1.FilterOptionName.USER].optionInfo = userFilterCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?
     list() {
         return new paginator_1.default(this.feed);
+    }
+    // Asynchronously fetch more toots if we have not reached the requred # of toots
+    // and the last request returned the full requested count
+    async maybeGetMoreToots(newHomeToots, numTimelineToots) {
+        const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
+        console.log(`Have ${this.feed.length} toots in timeline, want ${maxTimelineTootsToFetch}...`);
+        // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
+        if (Storage_1.default.getConfig().enableIncrementalLoad
+            && this.feed.length < maxTimelineTootsToFetch
+            && newHomeToots.length >= (numTimelineToots - 2)) {
+            setTimeout(() => {
+                // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
+                console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
+                const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[5];
+                this.getFeed(numTimelineToots, tootWithMaxId.id);
+            }, Storage_1.default.getConfig().incrementalLoadDelayMS);
+        }
+        else {
+            if (!Storage_1.default.getConfig().enableIncrementalLoad) {
+                console.log(`halting getFeed(): incremental loading disabled`);
+            }
+            else if (this.feed.length >= maxTimelineTootsToFetch) {
+                console.log(`halting getFeed(): we have ${this.feed.length} toots`);
+            }
+            else {
+                console.log(`halting getFeed(): last fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
+            }
+        }
     }
     // Load weightings from storage. Set defaults for any missing weightings.
     async setDefaultWeights() {
@@ -387,6 +410,12 @@ class TheAlgorithm {
         return true;
     }
     ;
+    // Utility method to log progress of getFeed() calls
+    logTootCounts(newToots, newHomeToots) {
+        let msg = `Got ${Object.keys(this.followedAccounts).length} followed accounts, ${newToots.length} new toots`;
+        msg += `, ${newHomeToots.length} new home toots, ${newToots.length} total new toots, this.feed has ${this.feed.length} toots`;
+        console.log(msg);
+    }
     shouldReloadFeed() {
         const mostRecentTootAt = (0, toot_1.earliestTootAt)(this.feed);
         if (!mostRecentTootAt)

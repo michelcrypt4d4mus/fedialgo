@@ -85,10 +85,10 @@ exports.DEFAULT_CONFIG = {
     // enableIncrementalLoad: false,        // useful dev options for faster load
     // numTootsInFirstFetch: 240,           // useful dev options for faster load
     enableIncrementalLoad: true,
-    numTootsInFirstFetch: 600,
+    numTootsInFirstFetch: 400,
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
-    maxTimelineTootsToFetch: 1600,
+    maxTimelineTootsToFetch: 3000,
     reloadIfOlderThanMinutes: 10,
     // API stuff
     minRecordsForFeatureScoring: 400,
@@ -105,6 +105,6 @@ exports.DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30,
     // Tag filters
-    minTootsForTagToAppearInFilter: 5, // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
+    minTootsToAppearInFilter: 5, // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
 };
 //# sourceMappingURL=config.js.map

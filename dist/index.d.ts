@@ -29,6 +29,7 @@ declare class TheAlgorithm {
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
     tagCounts: StringNumberDict;
+    userCounts: StringNumberDict;
     scoreMutex: Mutex;
     reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
@@ -38,7 +39,7 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
-    getFeed(numTimelineToots?: number | null): Promise<Toot[]>;
+    getFeed(numTimelineToots?: number | null, maxId?: string | null): Promise<Toot[]>;
     getUserWeights(): Promise<Weights>;
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     getFilters(): FeedFilterSettings;
@@ -47,11 +48,13 @@ declare class TheAlgorithm {
     logFeedInfo(prefix?: string): void;
     repairFeedAndExtractSummaryInfo(): void;
     list(): Paginator;
+    private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
     private decorateWithScoreInfo;
     private isInTimeline;
     private isValidForFeed;
+    private logTootCounts;
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }

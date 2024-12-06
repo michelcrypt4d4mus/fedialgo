@@ -88,11 +88,11 @@ export const DEFAULT_CONFIG = {
     // Timeline toots
     // enableIncrementalLoad: false,        // useful dev options for faster load
     // numTootsInFirstFetch: 240,           // useful dev options for faster load
-    enableIncrementalLoad: true,        // Continue loading in background after initial load
-    numTootsInFirstFetch: 600,           // How many toots to pull in the first fetch
+    enableIncrementalLoad: true,         // Continue loading in background after initial load
+    numTootsInFirstFetch: 400,           // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
-    maxTimelineTootsToFetch: 1600,       // How many standard timeline toots to pull
+    maxTimelineTootsToFetch: 3000,       // How many standard timeline toots to pull
     reloadIfOlderThanMinutes: 10,        // currently unused
 
     // API stuff
@@ -111,5 +111,5 @@ export const DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
     // Tag filters
-    minTootsForTagToAppearInFilter: 5,   // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
+    minTootsToAppearInFilter: 5,   // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
 } as Config;
