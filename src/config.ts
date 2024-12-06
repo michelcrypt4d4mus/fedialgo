@@ -86,10 +86,10 @@ export const DEFAULT_CONFIG = {
     maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
 
     // Timeline toots
-    enableIncrementalLoad: false,        // useful dev options for faster load
-    numTootsInFirstFetch: 240,           // useful dev options for faster load
-    // enableIncrementalLoad: true,        // Continue loading in background after initial load
-    // numTootsInFirstFetch: 600,           // How many toots to pull in the first fetch
+    // enableIncrementalLoad: false,        // useful dev options for faster load
+    // numTootsInFirstFetch: 240,           // useful dev options for faster load
+    enableIncrementalLoad: true,        // Continue loading in background after initial load
+    numTootsInFirstFetch: 600,           // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     maxTimelineTootsToFetch: 1600,       // How many standard timeline toots to pull

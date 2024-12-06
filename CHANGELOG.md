@@ -1,5 +1,6 @@
 ## NEXT
 * Convert the filtering of sources to the standard model
+* [bug] Fix doublecounting of toot categories
 
 ## 0.6.0
 * Allow inverting filters for apps and languages (not just hashtags)
