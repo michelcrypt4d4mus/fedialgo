@@ -1,7 +1,13 @@
 import { mastodon } from "masto";
-import { Toot, TrendingTag } from "../types";
+import { TimelineData, Toot, TrendingTag, UserData } from "../types";
 export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 export declare const FILTER_ENDPOINT = "api/v2/filters";
+export declare class MastoApi {
+    api: mastodon.rest.Client;
+    constructor(api: mastodon.rest.Client);
+    getStartupData(): Promise<UserData>;
+    getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
+}
 export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number | null): Promise<Toot[]>;
 export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number | null) => Promise<T | undefined>;
 interface FetchParams<T> {

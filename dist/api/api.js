@@ -3,13 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.FILTER_ENDPOINT = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
+exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.MastoApi = exports.FILTER_ENDPOINT = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
 /*
  * Helper methods for using mastodon API.
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
+const mastodon_api_cache_1 = __importDefault(require("./mastodon_api_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
+const homeFeed_1 = __importDefault(require("../feeds/homeFeed"));
+const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
+const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
 const helpers_1 = require("../helpers");
 exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api";
@@ -17,6 +21,52 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
 exports.FILTER_ENDPOINT = `${API_V2}/filters`;
+class MastoApi {
+    api;
+    constructor(api) {
+        this.api = api;
+    }
+    // Retrieve background data about the user that will be used for scoring etc.
+    async getStartupData() {
+        const responses = await Promise.all([
+            mastodon_api_cache_1.default.getFollowedAccounts(this.api),
+            mastodon_api_cache_1.default.getFollowedTags(this.api),
+            mastodon_api_cache_1.default.getServerSideFilters(this.api),
+        ]);
+        return {
+            followedAccounts: responses[0],
+            followedTags: responses[1],
+            serverSideFilters: responses[2],
+        };
+    }
+    // Get the toots that make up the user's home timeline feed
+    async getFeed(numTimelineToots, maxId) {
+        console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
+        let allResponses = [];
+        // Only retrieve trending toots on the first call to this method
+        if (!maxId) {
+            allResponses = await Promise.all([
+                (0, homeFeed_1.default)(this.api, numTimelineToots),
+                (0, trending_toots_1.default)(this.api),
+                (0, trending_tags_1.default)(this.api),
+            ]);
+        }
+        else {
+            allResponses = await Promise.all([
+                (0, homeFeed_1.default)(this.api, numTimelineToots, maxId),
+            ]);
+        }
+        console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
+        let homeToots = allResponses.shift();
+        return {
+            homeToots: homeToots,
+            otherToots: allResponses.flat(),
+        };
+    }
+}
+exports.MastoApi = MastoApi;
+;
 // Use the API to search for recent toots containing a 'searchQuery' string
 async function searchForToots(api, searchQuery, limit = null) {
     limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;

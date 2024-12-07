@@ -75,6 +75,15 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
+export type TimelineData = {
+    homeToots: Toot[];
+    otherToots: Toot[];
+};
+export type UserData = {
+    followedAccounts: AccountNames;
+    followedTags: StringNumberDict;
+    serverSideFilters: mastodon.v2.Filter[];
+};
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;

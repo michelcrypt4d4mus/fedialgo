@@ -31,12 +31,8 @@ const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
-const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
-const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
-const trending_toots_1 = __importDefault(require("./feeds/trending_toots"));
 const ImageAttachmentScorer_1 = __importDefault(require("./scorer/feature/ImageAttachmentScorer"));
 const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/InteractionsFeatureScorer"));
-const mastodon_api_cache_1 = __importDefault(require("./api/mastodon_api_cache"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./objects/numeric_filter"));
@@ -59,6 +55,7 @@ const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
 const helpers_1 = require("./helpers");
+const api_1 = require("./api/api");
 const types_1 = require("./types");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
@@ -68,6 +65,7 @@ class TheAlgorithm {
     api;
     user;
     filters;
+    mastoApi;
     // Variables with initial values
     feed = [];
     serverSideFilters = [];
@@ -124,48 +122,48 @@ class TheAlgorithm {
     }
     constructor(params) {
         this.api = params.api;
+        this.mastoApi = new api_1.MastoApi(this.api);
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(config_1.DEFAULT_FILTERS));
-        // this.serverSidePropertyFilter = new PropertyFilter({title: "Server-side filters"});
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
-    async getFeed(numTimelineToots = null, maxId = null) {
+    async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         let allResponses = [];
         if (!maxId) {
-            // Fetch toots and prepare scorer data (only needs to be done once, not on incremental fetches)
             allResponses = await Promise.all([
-                mastodon_api_cache_1.default.getFollowedAccounts(this.api),
-                mastodon_api_cache_1.default.getServerSideFilters(this.api),
-                (0, homeFeed_1.default)(this.api, numTimelineToots),
-                (0, trending_toots_1.default)(this.api),
-                (0, trending_tags_1.default)(this.api),
-                // featureScorers return [] (they're here as a parallelization hack)
+                this.mastoApi.getFeed(numTimelineToots, maxId),
+                this.mastoApi.getStartupData(),
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);
-            this.followedAccounts = allResponses.shift();
-            this.serverSideFilters = allResponses.shift();
-            console.log(`getFeed() got ${this.serverSideFilters.length} server-side filters:`, this.serverSideFilters);
         }
         else {
-            // incremental fetch (should be done in background after delivering first timeline toots)
-            allResponses = await Promise.all([(0, homeFeed_1.default)(this.api, numTimelineToots, maxId)]);
+            allResponses = await Promise.all([
+                this.mastoApi.getFeed(numTimelineToots, maxId),
+            ]);
         }
-        let newHomeToots = allResponses[0];
-        let newToots = allResponses.flat();
-        this.logTootCounts(newToots, newHomeToots);
+        console.log(`getFeed() allResponses:`, allResponses);
+        const { homeToots, otherToots } = allResponses.shift();
+        const newToots = [...homeToots, ...otherToots];
+        console.log(`getFeed() got ${homeToots.length} newToots, ${otherToots.length} other toots`);
+        if (allResponses.length > 0) {
+            const userData = allResponses.shift();
+            this.followedAccounts = userData.followedAccounts;
+            this.followedTags = userData.followedTags;
+            this.serverSideFilters = userData.serverSideFilters;
+        }
+        this.logTootCounts(newToots, homeToots);
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
-        const numRemoved = newToots.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanFeed.length}`);
-        cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanFeed], "getFeed");
+        let cleanNewToots = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        const numRemoved = newToots.length - cleanNewToots.length;
+        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanNewToots.length}`);
+        const cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-        this.followedTags = await mastodon_api_cache_1.default.getFollowedTags(this.api); // Should be cached already; we're just pulling it into this class
         this.repairFeedAndExtractSummaryInfo();
-        this.maybeGetMoreToots(newHomeToots, numTimelineToots);
+        this.maybeGetMoreToots(homeToots, numTimelineToots);
         return this.scoreFeed.bind(this)();
     }
     // Return the user's current weightings for each score category
@@ -291,7 +289,8 @@ class TheAlgorithm {
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad
             && this.feed.length < maxTimelineTootsToFetch
-            && newHomeToots.length >= (numTimelineToots - 2)) {
+            && newHomeToots.length >= (numTimelineToots - 3) // Sometimes we get 39 records instead of 40 at a time
+        ) {
             setTimeout(() => {
                 // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
                 console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
@@ -307,7 +306,7 @@ class TheAlgorithm {
                 console.log(`halting getFeed(): we have ${this.feed.length} toots`);
             }
             else {
-                console.log(`halting getFeed(): last fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
+                console.log(`halting getFeed(): fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
             }
         }
     }

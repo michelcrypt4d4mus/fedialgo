@@ -91,12 +91,14 @@ export const DEFAULT_CONFIG = {
 
     // Timeline toots
     enableIncrementalLoad: true,         // Continue loading in background after initial load
-    numTootsInFirstFetch: 400,           // How many toots to pull in the first fetch
-    // enableIncrementalLoad: false,        // useful dev options for faster load
-    // numTootsInFirstFetch: 240,           // useful dev options for faster load
-    incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
+    maxTimelineTootsToFetch: 2_500,       // How many standard timeline toots to pull
+    numTootsInFirstFetch: 80,           // How many toots to pull in the first fetch
+    // enableIncrementalLoad: true,        // useful dev options for faster load
+    // maxTimelineTootsToFetch: 400,      // useful dev options for faster load
+    // numTootsInFirstFetch: 120,           // useful dev options for faster load
+
+    incrementalLoadDelayMS: 1_000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
-    maxTimelineTootsToFetch: 3000,       // How many standard timeline toots to pull
     reloadIfOlderThanMinutes: 10,        // currently unused
 
     // API stuff

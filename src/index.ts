@@ -41,6 +41,7 @@ import { buildAccountNames } from "./objects/account";
 import { condensedStatus, containsString, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
 import { IMAGE, MEDIA_TYPES, createRandomString, dedupeToots, isImage } from "./helpers";
+import { MastoApi } from "./api/api";
 import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
 
@@ -52,6 +53,7 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
+    mastoApi: MastoApi;
 
     // Variables with initial values
     feed: Toot[] = [];
@@ -118,53 +120,54 @@ class TheAlgorithm {
 
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
+        this.mastoApi = new MastoApi(this.api);
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
-        // this.serverSidePropertyFilter = new PropertyFilter({title: "Server-side filters"});
         this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
-    async getFeed(numTimelineToots: number | null = null, maxId: string | null = null): Promise<Toot[]> {
+    async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let allResponses: any[] = [];
 
         if (!maxId) {
-            // Fetch toots and prepare scorer data (only needs to be done once, not on incremental fetches)
             allResponses = await Promise.all([
-                MastodonApiCache.getFollowedAccounts(this.api),    // Parallelized for speed
-                MastodonApiCache.getServerSideFilters(this.api),   // Parallelized for speed
-                getHomeFeed(this.api, numTimelineToots),
-                getTrendingToots(this.api),
-                getRecentTootsForTrendingTags(this.api),
-                // featureScorers return [] (they're here as a parallelization hack)
+                this.mastoApi.getFeed(numTimelineToots, maxId),
+                this.mastoApi.getStartupData(),
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);
-
-            this.followedAccounts = allResponses.shift() as AccountNames;
-            this.serverSideFilters = allResponses.shift();
-            console.log(`getFeed() got ${this.serverSideFilters.length} server-side filters:`, this.serverSideFilters);
         } else {
-            // incremental fetch (should be done in background after delivering first timeline toots)
-            allResponses = await Promise.all([getHomeFeed(this.api, numTimelineToots, maxId)]);
+            allResponses = await Promise.all([
+                this.mastoApi.getFeed(numTimelineToots, maxId),
+            ]);
         }
 
-        let newHomeToots = allResponses[0];
-        let newToots = allResponses.flat() as Toot[];
-        this.logTootCounts(newToots, newHomeToots)
+        console.log(`getFeed() allResponses:`, allResponses);
+        const { homeToots, otherToots } = allResponses.shift();
+        const newToots = [...homeToots,...otherToots];
+        console.log(`getFeed() got ${homeToots.length} newToots, ${otherToots.length} other toots`);
 
+        if (allResponses.length > 0) {
+            const userData = allResponses.shift();
+            this.followedAccounts = userData.followedAccounts;
+            this.followedTags = userData.followedTags;
+            this.serverSideFilters = userData.serverSideFilters;
+        }
+
+        this.logTootCounts(newToots, homeToots)
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanFeed = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
-        const numRemoved = newToots.length - cleanFeed.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanFeed.length}`);
+        let cleanNewToots = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        const numRemoved = newToots.length - cleanNewToots.length;
+        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanNewToots.length}`);
 
-        cleanFeed = dedupeToots([...this.feed, ...cleanFeed], "getFeed");
+        const cleanFeed = dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
-        this.followedTags = await MastodonApiCache.getFollowedTags(this.api);  // Should be cached already; we're just pulling it into this class
+
         this.repairFeedAndExtractSummaryInfo();
-        this.maybeGetMoreToots(newHomeToots, numTimelineToots);
+        this.maybeGetMoreToots(homeToots, numTimelineToots);
         return this.scoreFeed.bind(this)();
     }
 
@@ -306,7 +309,7 @@ class TheAlgorithm {
         if (
                Storage.getConfig().enableIncrementalLoad
             && this.feed.length < maxTimelineTootsToFetch
-            && newHomeToots.length >= (numTimelineToots - 2)
+            && newHomeToots.length >= (numTimelineToots - 3)  // Sometimes we get 39 records instead of 40 at a time
         ) {
             setTimeout(() => {
                 // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
@@ -320,7 +323,7 @@ class TheAlgorithm {
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
                 console.log(`halting getFeed(): we have ${this.feed.length} toots`);
             } else {
-                console.log(`halting getFeed(): last fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
+                console.log(`halting getFeed(): fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
             }
         }
     }

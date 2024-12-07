@@ -94,6 +94,17 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 
+export type TimelineData = {
+    homeToots: Toot[],
+    otherToots: Toot[],
+};
+
+export type UserData = {
+    followedAccounts: AccountNames,
+    followedTags: StringNumberDict,
+    serverSideFilters: mastodon.v2.Filter[],
+};
+
 export interface Toot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot

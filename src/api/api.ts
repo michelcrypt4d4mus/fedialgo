@@ -5,8 +5,13 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
+import MastodonApiCache from "./mastodon_api_cache";
 import Storage from "../Storage";
-import { Toot, TrendingTag } from "../types";
+import FeatureScorer from "../scorer/feature_scorer";
+import getHomeFeed from "../feeds/homeFeed";
+import getRecentTootsForTrendingTags from "../feeds/trending_tags";
+import getTrendingToots from "../feeds/trending_toots";
+import { AccountNames, TimelineData, Toot, TrendingTag, UserData } from "../types";
 import { transformKeys } from "../helpers";
 
 export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -15,6 +20,58 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
 export const FILTER_ENDPOINT = `${API_V2}/filters`;
+
+
+export class MastoApi {
+    api: mastodon.rest.Client;
+
+    constructor(api: mastodon.rest.Client) {
+        this.api = api;
+    }
+
+    // Retrieve background data about the user that will be used for scoring etc.
+    async getStartupData(): Promise<UserData> {
+        const responses = await Promise.all([
+            MastodonApiCache.getFollowedAccounts(this.api),
+            MastodonApiCache.getFollowedTags(this.api),
+            MastodonApiCache.getServerSideFilters(this.api),
+        ]);
+
+        return {
+            followedAccounts: responses[0],
+            followedTags: responses[1],
+            serverSideFilters: responses[2],
+        } as UserData;
+    }
+
+    // Get the toots that make up the user's home timeline feed
+    async getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
+        console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
+        let allResponses: any[] = [];
+
+        // Only retrieve trending toots on the first call to this method
+        if (!maxId) {
+            allResponses = await Promise.all([
+                getHomeFeed(this.api, numTimelineToots),
+                getTrendingToots(this.api),
+                getRecentTootsForTrendingTags(this.api),
+            ]);
+        } else {
+            allResponses = await Promise.all([
+                getHomeFeed(this.api, numTimelineToots, maxId),
+            ]);
+        }
+
+        console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
+        let homeToots = allResponses.shift();
+
+        return {
+            homeToots: homeToots,
+            otherToots: allResponses.flat(),
+        } as TimelineData;
+    }
+};
 
 
 // Use the API to search for recent toots containing a 'searchQuery' string
@@ -73,7 +130,6 @@ interface FetchParams<T> {
     label?: string,
     noParams?: boolean
 };
-
 
 export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
     let { fetch, maxRecords, label } = fetchParams;
