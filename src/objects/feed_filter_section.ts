@@ -4,7 +4,7 @@
  * (e.g. language).
  */
 import Storage from "../Storage";
-import { Toot, WeightName } from "../types";
+import { FilterArgs, Toot } from "../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
@@ -61,11 +61,6 @@ const TOOT_MATCHERS: TootMatchers = {
     [FilterOptionName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.account.acct);
     },
-};
-
-export type FilterArgs = {
-    title: FilterOptionName | WeightName;
-    invertSelection?: boolean;
 };
 
 export interface FeedFilterSectionArgs extends FilterArgs{

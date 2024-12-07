@@ -1,7 +1,7 @@
 /*
  * Put a minimum number on things like reblogs and replies.
  */
-import { FilterArgs } from "./feed_filter_section";
+import { FilterArgs } from "../types";
 import { Toot, WeightName } from "../types";
 
 

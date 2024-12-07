@@ -66,6 +66,10 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     filterSections: Record<FilterOptionName, FeedFilterSection>;
     numericFilters: Record<WeightName, NumericFilter>;
 }
+export type FilterArgs = {
+    title: FilterOptionName | WeightName;
+    invertSelection?: boolean;
+};
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;
