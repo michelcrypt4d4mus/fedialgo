@@ -1,6 +1,5 @@
-import { Toot } from "../types";
 import { FilterArgs } from "./feed_filter_section";
-import { WeightName } from "../types";
+import { Toot, WeightName } from "../types";
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 }

@@ -1,6 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import FeedFilterSection, { FilterOptionName } from "./objects/feed_filter_section";
 import NumericFilter from "./objects/numeric_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
@@ -76,7 +77,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
-    filterSections: {},
+    filterSections: {} as Record<FilterOptionName, FeedFilterSection>,
     numericFilterArgs: [],
     numericFilters: {} as Record<WeightName, NumericFilter>,
 } as FeedFilterSettings;
