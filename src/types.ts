@@ -66,8 +66,6 @@ export type Config = {
     numTrendingTagsToots: number;
     // Trending toots
     numTrendingTootsPerServer: number;
-    // Tag filters
-    minTootsToAppearInFilter: number;
     // MAU and other server properties
     noMauServers: string[];
 };

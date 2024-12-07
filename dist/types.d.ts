@@ -54,7 +54,6 @@ export type Config = {
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
-    minTootsToAppearInFilter: number;
     noMauServers: string[];
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

@@ -114,8 +114,6 @@ export const DEFAULT_CONFIG = {
     numTrendingTagsToots: 100,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
-    // Tag filters
-    minTootsToAppearInFilter: 5,         // Min # of toots for a user or tag filter to be an option
 
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [

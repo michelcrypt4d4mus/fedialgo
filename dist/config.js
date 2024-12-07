@@ -103,8 +103,6 @@ exports.DEFAULT_CONFIG = {
     numTrendingTagsToots: 100,
     // Trending toots
     numTrendingTootsPerServer: 30,
-    // Tag filters
-    minTootsToAppearInFilter: 5,
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "fediverse.one",

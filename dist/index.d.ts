@@ -30,8 +30,6 @@ declare class TheAlgorithm {
     serverSideFilters: mastodon.v2.Filter[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
-    tagCounts: StringNumberDict;
-    userCounts: StringNumberDict;
     scoreMutex: Mutex;
     reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
@@ -57,7 +55,6 @@ declare class TheAlgorithm {
     private isInTimeline;
     private isValidForFeed;
     private logTootCounts;
-    private extractFilterCounts;
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
