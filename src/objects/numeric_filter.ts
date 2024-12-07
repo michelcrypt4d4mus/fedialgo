@@ -8,7 +8,7 @@ export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 };
 
-export const NUMERIC_FILTER_WEIGHTS: WeightName[] = [
+export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_REPLIES,
     WeightName.NUM_RETOOTS,
     WeightName.NUM_FAVOURITES,

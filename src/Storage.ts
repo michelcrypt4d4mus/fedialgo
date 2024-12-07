@@ -5,7 +5,7 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import PropertyFilter, { PropertyName } from "./objects/property_filter";
-import NumericFilter, { NUMERIC_FILTER_WEIGHTS } from "./objects/numeric_filter";
+import NumericFilter, { FILTERABLE_SCORES } from "./objects/numeric_filter";
 import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, WeightName, Weights } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
 
@@ -63,7 +63,7 @@ export default class Storage {
             filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
 
             // Start with the numeric filters and the source filter section
-            NUMERIC_FILTER_WEIGHTS.forEach(weightName => {
+            FILTERABLE_SCORES.forEach(weightName => {
                 filters.numericFilters[weightName] = new NumericFilter({title: weightName});
             });
 

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NUMERIC_FILTER_WEIGHTS = void 0;
+exports.FILTERABLE_SCORES = void 0;
 const types_1 = require("../types");
 ;
-exports.NUMERIC_FILTER_WEIGHTS = [
+exports.FILTERABLE_SCORES = [
     types_1.WeightName.NUM_REPLIES,
     types_1.WeightName.NUM_RETOOTS,
     types_1.WeightName.NUM_FAVOURITES,

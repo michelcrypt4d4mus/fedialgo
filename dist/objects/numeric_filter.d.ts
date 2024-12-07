@@ -3,7 +3,7 @@ import { Toot, WeightName } from "../types";
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 }
-export declare const NUMERIC_FILTER_WEIGHTS: WeightName[];
+export declare const FILTERABLE_SCORES: WeightName[];
 export default class NumericFilter {
     description: string;
     invertSelection: boolean;

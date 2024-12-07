@@ -76,7 +76,7 @@ class Storage {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
             filters = JSON.parse(JSON.stringify(config_1.DEFAULT_FILTERS));
             // Start with the numeric filters and the source filter section
-            numeric_filter_1.NUMERIC_FILTER_WEIGHTS.forEach(weightName => {
+            numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
                 filters.numericFilters[weightName] = new numeric_filter_1.default({ title: weightName });
             });
             filters.filterSections[property_filter_1.PropertyName.SOURCE] = new property_filter_1.default({ title: property_filter_1.PropertyName.SOURCE });
