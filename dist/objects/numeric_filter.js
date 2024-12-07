@@ -25,6 +25,8 @@ class NumericFilter {
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot) {
         const tootValue = toot.scoreInfo?.rawScores?.[this.title];
+        if (this.invertSelection && this.value === 0)
+            return true; // 0 doesn't work as a maximum
         if (!tootValue && tootValue !== 0) {
             console.warn(`No value found for ${this.title} in toot:`, toot);
             return true;
