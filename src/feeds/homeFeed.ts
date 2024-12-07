@@ -18,13 +18,15 @@ export default async function getHomeFeed(
     const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
     numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
-    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoffTimelineAt:`, cutoffTimelineAt);
     let toots: Toot[] = [];
     let pageNumber = 0;
 
-    const timelineParams: Record<string, string | number> = {limit: Storage.getConfig().defaultRecordsPerPage};
-    if (maxId) {timelineParams.max_id = maxId};
-    console.log(`getHomeFeed() timelineParams:`, timelineParams);
+    const timelineParams: mastodon.rest.v1.ListTimelineParams = {
+        limit: Storage.getConfig().defaultRecordsPerPage,
+        maxId: maxId ? `${maxId}` : undefined,
+    };
+
+    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params`, timelineParams);
 
     // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
     // Seems like these might be coming from federated apps other than Mastodon?
