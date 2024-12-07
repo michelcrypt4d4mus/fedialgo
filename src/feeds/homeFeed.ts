@@ -12,13 +12,13 @@ import { Toot } from "../types";
 
 export default async function getHomeFeed(
     api: mastodon.rest.Client,
-    numToots: number | null = null,
-    maxId: string | number | null = null
+    numToots?: number,
+    maxId?: string | number
 ): Promise<Toot[]> {
     const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
     numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
-    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId || "null"}) cutoffTimelineAt:`, cutoffTimelineAt);
+    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoffTimelineAt:`, cutoffTimelineAt);
     let toots: Toot[] = [];
     let pageNumber = 0;
 

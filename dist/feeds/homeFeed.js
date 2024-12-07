@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = require("../objects/toot");
-async function getHomeFeed(api, numToots = null, maxId = null) {
+async function getHomeFeed(api, numToots, maxId) {
     const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
     numToots ||= Storage_1.default.getConfig().maxTimelineTootsToFetch;
-    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId || "null"}) cutoffTimelineAt:`, cutoffTimelineAt);
+    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoffTimelineAt:`, cutoffTimelineAt);
     let toots = [];
     let pageNumber = 0;
     const timelineParams = { limit: Storage_1.default.getConfig().defaultRecordsPerPage };
