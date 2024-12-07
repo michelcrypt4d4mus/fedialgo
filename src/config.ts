@@ -115,9 +115,9 @@ export const DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
     // Tag filters
-    minTootsToAppearInFilter: 5,   // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
+    minTootsToAppearInFilter: 5,         // Min # of toots for a user or tag filter to be an option
 
-    // MAU etc.
+    // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "fediverse.one",
         "threads.net",
