@@ -4,7 +4,6 @@
 import { FilterArgs } from "../types";
 import { Toot, WeightName } from "../types";
 
-
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 };
