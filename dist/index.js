@@ -256,12 +256,9 @@ class TheAlgorithm {
                     return;
                 filter.keywords.forEach((keyword) => {
                     if ((0, toot_1.containsString)(toot, keyword.keyword)) {
-                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched keyword:`, keyword);
+                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server side filter keyword:`, keyword);
                         serverSideFilterCounts[keyword.keyword] ??= 0;
                         serverSideFilterCounts[keyword.keyword] += 1;
-                    }
-                    else {
-                        // console.debug(`toot ${describeToot(toot)} DID NOT match keyword:`, keyword);
                     }
                 });
             });

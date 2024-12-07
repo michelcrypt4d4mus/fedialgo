@@ -24,7 +24,7 @@ export enum PropertyName {
     // Server Side filters work a bit differently. The API doesn't return toots that match the filter
     // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
     // other servers) it does so we have to manually filter them out.
-    SERVER_SIDE_FILTERS = Key.SERVER_SIDE_FILTERS
+    SERVER_SIDE_FILTERS = Key.SERVER_SIDE_FILTERS,
 };
 
 export enum SourceFilterName {

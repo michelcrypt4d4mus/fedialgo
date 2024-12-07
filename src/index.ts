@@ -266,11 +266,9 @@ class TheAlgorithm {
 
                 filter.keywords.forEach((keyword) => {
                     if (containsString(toot, keyword.keyword)) {
-                        console.debug(`toot ${describeToot(toot)} matched keyword:`, keyword);
+                        console.debug(`toot ${describeToot(toot)} matched server side filter keyword:`, keyword);
                         serverSideFilterCounts[keyword.keyword] ??= 0;
                         serverSideFilterCounts[keyword.keyword] += 1;
-                    } else {
-                        // console.debug(`toot ${describeToot(toot)} DID NOT match keyword:`, keyword);
                     }
                 });
             });
@@ -293,7 +291,6 @@ class TheAlgorithm {
         this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
         this.filters.filterSections[PropertyName.USER].optionInfo = this.extractFilterCounts(userCounts);
-
         // Server side filters are inverted by default bc we don't want to show toots including them
         this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].optionInfo = serverSideFilterCounts;
         this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].validValues = Object.keys(serverSideFilterCounts);
