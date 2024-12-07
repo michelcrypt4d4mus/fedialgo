@@ -81,10 +81,10 @@ exports.DEFAULT_CONFIG = {
     defaultRecordsPerPage: 40,
     maxNumCachedToots: 5000,
     // Timeline toots
-    // enableIncrementalLoad: false,        // useful dev options for faster load
-    // numTootsInFirstFetch: 240,           // useful dev options for faster load
     enableIncrementalLoad: true,
     numTootsInFirstFetch: 400,
+    // enableIncrementalLoad: false,        // useful dev options for faster load
+    // numTootsInFirstFetch: 240,           // useful dev options for faster load
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
     maxTimelineTootsToFetch: 3000,

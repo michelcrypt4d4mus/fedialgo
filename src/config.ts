@@ -1,8 +1,8 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import PropertyFilter, { PropertyName } from "./objects/property_filter";
 import NumericFilter from "./objects/numeric_filter";
+import PropertyFilter, { PropertyName } from "./objects/property_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 
@@ -90,10 +90,10 @@ export const DEFAULT_CONFIG = {
     maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
 
     // Timeline toots
-    // enableIncrementalLoad: false,        // useful dev options for faster load
-    // numTootsInFirstFetch: 240,           // useful dev options for faster load
     enableIncrementalLoad: true,         // Continue loading in background after initial load
     numTootsInFirstFetch: 400,           // How many toots to pull in the first fetch
+    // enableIncrementalLoad: false,        // useful dev options for faster load
+    // numTootsInFirstFetch: 240,           // useful dev options for faster load
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     maxTimelineTootsToFetch: 3000,       // How many standard timeline toots to pull
