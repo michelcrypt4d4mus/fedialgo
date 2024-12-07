@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.8.0`
 * Add numeric filtering (minimum replies, minimum reblogs, etc)
 
 ## `0.7.0`
