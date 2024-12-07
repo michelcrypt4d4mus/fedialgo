@@ -1,4 +1,5 @@
 ## NEXT
+* Pull and apply server side filters to trending toots manually (user's server side filters can't be applied to toots pulled from other servers)
 
 ## `0.8.0`
 * Add numeric filtering (minimum replies, minimum reblogs, etc)
