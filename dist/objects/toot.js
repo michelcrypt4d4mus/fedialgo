@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
+exports.containsString = exports.tootedAt = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
 exports.EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
@@ -120,6 +120,18 @@ const tootedAt = (toot) => {
     return new Date(toot.createdAt);
 };
 exports.tootedAt = tootedAt;
+// Tags get turned into links so we can't just use toot.content.includes(tag)
+// example: 'class="mention hashtag" rel="tag">#<span>CatsOfMastodon</span></a>'
+function containsString(toot, str) {
+    if (str.startsWith("#")) {
+        const tagStr = str.slice(1);
+        return toot.tags.some(tag => tag.name.toLowerCase() == tagStr.toLowerCase());
+    }
+    else {
+        return toot.content.toLowerCase().includes(str.toLowerCase());
+    }
+}
+exports.containsString = containsString;
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined

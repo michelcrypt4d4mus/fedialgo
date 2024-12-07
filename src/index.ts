@@ -38,7 +38,7 @@ import {
     Weights,
 } from "./types";
 import { buildAccountNames } from "./objects/account";
-import { condensedStatus, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
+import { condensedStatus, containsString, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
 import { IMAGE, MEDIA_TYPES, createRandomString, dedupeToots, isImage } from "./helpers";
 import { ScorerInfo } from "./types";
@@ -55,6 +55,7 @@ class TheAlgorithm {
 
     // Variables with initial values
     feed: Toot[] = [];
+    serverSideFilters: mastodon.v2.Filter[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     tagCounts: StringNumberDict = {};  // Contains the unfiltered counts of toots by tag
@@ -111,6 +112,7 @@ class TheAlgorithm {
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
         algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
+        // algo.serverSideFilters = await Storage.getServerSideFilters();
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -121,6 +123,7 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
+        // this.serverSidePropertyFilter = new PropertyFilter({title: "Server-side filters"});
         this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
     }
 
@@ -133,7 +136,8 @@ class TheAlgorithm {
         if (!maxId) {
             // Fetch toots and prepare scorer data (only needs to be done once, not on incremental fetches)
             allResponses = await Promise.all([
-                MastodonApiCache.getFollowedAccounts(this.api),  // Parallelized for speed
+                MastodonApiCache.getFollowedAccounts(this.api),    // Parallelized for speed
+                MastodonApiCache.getServerSideFilters(this.api),   // Parallelized for speed
                 getHomeFeed(this.api, numTimelineToots),
                 getTrendingToots(this.api),
                 getRecentTootsForTrendingTags(this.api),
@@ -142,6 +146,8 @@ class TheAlgorithm {
             ]);
 
             this.followedAccounts = allResponses.shift() as AccountNames;
+            this.serverSideFilters = allResponses.shift();
+            console.log(`getFeed() got ${this.serverSideFilters.length} server-side filters:`, this.serverSideFilters);
         } else {
             // incremental fetch (should be done in background after delivering first timeline toots)
             allResponses = await Promise.all([getHomeFeed(this.api, numTimelineToots, maxId)]);
@@ -213,6 +219,7 @@ class TheAlgorithm {
         const sourceCounts: StringNumberDict = {};
         const tagCounts: StringNumberDict = {};
         const userCounts: StringNumberDict = {};
+        const serverSideFilterCounts: StringNumberDict = {};
 
         this.feed.forEach(toot => {
             // Decorate / repair toot data
@@ -250,6 +257,23 @@ class TheAlgorithm {
                     sourceCounts[sourceName] += 1;
                 }
             });
+
+            // Aggregate server-side filter counts
+            this.serverSideFilters.forEach((filter) => {
+                // before 4.0 Filter objects lacked a 'context' property
+                if (filter.context?.length > 0 && !filter.context.includes("home")) return;
+                if (filter.filterAction != "hide") return;
+
+                filter.keywords.forEach((keyword) => {
+                    if (containsString(toot, keyword.keyword)) {
+                        console.debug(`toot ${describeToot(toot)} matched keyword:`, keyword);
+                        serverSideFilterCounts[keyword.keyword] ??= 0;
+                        serverSideFilterCounts[keyword.keyword] += 1;
+                    } else {
+                        // console.debug(`toot ${describeToot(toot)} DID NOT match keyword:`, keyword);
+                    }
+                });
+            });
         });
 
         // preserve the unfiltered state of the tagCounts and userCounts
@@ -265,10 +289,14 @@ class TheAlgorithm {
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
         this.filters.filterSections[PropertyName.APP].optionInfo = appCounts;
+        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
         this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
         this.filters.filterSections[PropertyName.USER].optionInfo = this.extractFilterCounts(userCounts);
+
+        // Server side filters are inverted by default bc we don't want to show toots including them
+        this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].optionInfo = serverSideFilterCounts;
+        this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].validValues = Object.keys(serverSideFilterCounts);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
@@ -368,7 +396,6 @@ class TheAlgorithm {
         let rawScore = 1;
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;
-
         const userWeights = await this.getUserWeights();
         const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
 

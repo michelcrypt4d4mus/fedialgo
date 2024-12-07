@@ -94,6 +94,19 @@ class MastodonApiCache extends Storage_1.default {
         console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
         return topServerDomains;
     }
+    // https://docs.joinmastodon.org/methods/filters/#response
+    // https://neet.github.io/masto.js/interfaces/mastodon.v2.Filter.html
+    static async getServerSideFilters(api) {
+        console.log(`${logPrefix('getServerSideFilters()')} called`);
+        let filters = await this.get(Storage_1.Key.SERVER_SIDE_FILTERS);
+        let logAction = LOADED_FROM_STORAGE;
+        if (filters == null || (await this.shouldReloadFeatures())) {
+            logAction = RETRIEVED;
+            filters = await api.v2.filters.list();
+        }
+        console.log(`${logPrefix(logAction)} ${Storage_1.Key.SERVER_SIDE_FILTERS}:`, filters);
+        return filters;
+    }
     // Generic method to pull cached data from storage or fetch it from the API
     static async getAggregatedData(api, storageKey, fetch, extraArg = null) {
         let data = await this.get(storageKey);

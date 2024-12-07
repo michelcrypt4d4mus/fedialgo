@@ -42,6 +42,7 @@ var Key;
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
     Key["RECENT_TOOTS"] = "recentToots";
+    Key["SERVER_SIDE_FILTERS"] = "serverFilters";
     Key["TIMELINE"] = "timeline";
     Key["USER"] = "algouser";
     Key["WEIGHTS"] = "weights";

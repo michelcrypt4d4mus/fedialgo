@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
+exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.FILTER_ENDPOINT = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -12,7 +12,11 @@ const change_case_1 = require("change-case");
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const SERVER_MAU_ENDPOINT = "api/v2/instance";
+const API_URI = "api";
+const API_V1 = `${API_URI}/v1`;
+const API_V2 = `${API_URI}/v2`;
+const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
+exports.FILTER_ENDPOINT = `${API_V2}/filters`;
 // Use the API to search for recent toots containing a 'searchQuery' string
 async function searchForToots(api, searchQuery, limit = null) {
     limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
@@ -56,8 +60,8 @@ exports.mastodonFetch = mastodonFetch;
 ;
 async function mastodonFetchPages(fetchParams) {
     let { fetch, maxRecords, label } = fetchParams;
-    label ||= "unknown";
     maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+    label ||= "unknown";
     console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetch:`, fetch);
     let results = [];
     let pageNumber = 0;

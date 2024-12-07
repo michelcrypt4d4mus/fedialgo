@@ -11,9 +11,10 @@ import MostFavoritedAccounts from "../features/most_favorited_accounts";
 import reblogsFeature from "../features/reblogsFeature";
 import repliedFeature from "../features/replied_feature";
 import Storage, { Key } from "../Storage";
+import { FILTER_ENDPOINT } from "./api";
 import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
 import { buildAccountNames } from "../objects/account";
-import { getUserRecentToots, mastodonFetchPages } from "./api";
+import { getUserRecentToots, mastodonFetch, mastodonFetchPages } from "./api";
 import { WeightName } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
@@ -115,6 +116,22 @@ export default class MastodonApiCache extends Storage {
 
         console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
         return topServerDomains;
+    }
+
+    // https://docs.joinmastodon.org/methods/filters/#response
+    // https://neet.github.io/masto.js/interfaces/mastodon.v2.Filter.html
+    static async getServerSideFilters(api: mastodon.rest.Client): Promise<mastodon.v2.Filter[]> {
+        console.log(`${logPrefix('getServerSideFilters()')} called`)
+        let filters = await this.get(Key.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
+        let logAction = LOADED_FROM_STORAGE;
+
+        if (filters == null || (await this.shouldReloadFeatures())) {
+            logAction = RETRIEVED;
+            filters = await api.v2.filters.list();
+        }
+
+        console.log(`${logPrefix(logAction)} ${Key.SERVER_SIDE_FILTERS}:`, filters);
+        return filters;
     }
 
     // Generic method to pull cached data from storage or fetch it from the API

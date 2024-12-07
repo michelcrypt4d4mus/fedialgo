@@ -70,6 +70,7 @@ class TheAlgorithm {
     filters;
     // Variables with initial values
     feed = [];
+    serverSideFilters = [];
     followedAccounts = {};
     followedTags = {};
     tagCounts = {}; // Contains the unfiltered counts of toots by tag
@@ -118,6 +119,7 @@ class TheAlgorithm {
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
         algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
+        // algo.serverSideFilters = await Storage.getServerSideFilters();
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -127,6 +129,7 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.filters = JSON.parse(JSON.stringify(config_1.DEFAULT_FILTERS));
+        // this.serverSidePropertyFilter = new PropertyFilter({title: "Server-side filters"});
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -138,6 +141,7 @@ class TheAlgorithm {
             // Fetch toots and prepare scorer data (only needs to be done once, not on incremental fetches)
             allResponses = await Promise.all([
                 mastodon_api_cache_1.default.getFollowedAccounts(this.api),
+                mastodon_api_cache_1.default.getServerSideFilters(this.api),
                 (0, homeFeed_1.default)(this.api, numTimelineToots),
                 (0, trending_toots_1.default)(this.api),
                 (0, trending_tags_1.default)(this.api),
@@ -145,6 +149,8 @@ class TheAlgorithm {
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);
             this.followedAccounts = allResponses.shift();
+            this.serverSideFilters = allResponses.shift();
+            console.log(`getFeed() got ${this.serverSideFilters.length} server-side filters:`, this.serverSideFilters);
         }
         else {
             // incremental fetch (should be done in background after delivering first timeline toots)
@@ -207,6 +213,7 @@ class TheAlgorithm {
         const sourceCounts = {};
         const tagCounts = {};
         const userCounts = {};
+        const serverSideFilterCounts = {};
         this.feed.forEach(toot => {
             // Decorate / repair toot data
             toot.application ??= { name: UNKNOWN_APP };
@@ -240,6 +247,24 @@ class TheAlgorithm {
                     sourceCounts[sourceName] += 1;
                 }
             });
+            // Aggregate server-side filter counts
+            this.serverSideFilters.forEach((filter) => {
+                // before 4.0 Filter objects lacked a 'context' property
+                if (filter.context?.length > 0 && !filter.context.includes("home"))
+                    return;
+                if (filter.filterAction != "hide")
+                    return;
+                filter.keywords.forEach((keyword) => {
+                    if ((0, toot_1.containsString)(toot, keyword.keyword)) {
+                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched keyword:`, keyword);
+                        serverSideFilterCounts[keyword.keyword] ??= 0;
+                        serverSideFilterCounts[keyword.keyword] += 1;
+                    }
+                    else {
+                        // console.debug(`toot ${describeToot(toot)} DID NOT match keyword:`, keyword);
+                    }
+                });
+            });
         });
         // preserve the unfiltered state of the tagCounts and userCounts
         this.tagCounts = tagCounts;
@@ -253,10 +278,13 @@ class TheAlgorithm {
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
         this.filters.filterSections[property_filter_1.PropertyName.APP].optionInfo = appCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
         this.filters.filterSections[property_filter_1.PropertyName.LANGUAGE].optionInfo = languageCounts;
         this.filters.filterSections[property_filter_1.PropertyName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
         this.filters.filterSections[property_filter_1.PropertyName.USER].optionInfo = this.extractFilterCounts(userCounts);
+        // Server side filters are inverted by default bc we don't want to show toots including them
+        this.filters.filterSections[property_filter_1.PropertyName.SERVER_SIDE_FILTERS].optionInfo = serverSideFilterCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.SERVER_SIDE_FILTERS].validValues = Object.keys(serverSideFilterCounts);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?

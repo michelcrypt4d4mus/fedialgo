@@ -142,6 +142,17 @@ export const tootedAt = (toot: Toot): Date => {
 };
 
 
+// Tags get turned into links so we can't just use toot.content.includes(tag)
+// example: 'class="mention hashtag" rel="tag">#<span>CatsOfMastodon</span></a>'
+export function containsString(toot: Toot, str: string): boolean {
+    if (str.startsWith("#")) {
+        const tagStr = str.slice(1);
+        return toot.tags.some(tag => tag.name.toLowerCase() == tagStr.toLowerCase());
+    } else {
+        return toot.content.toLowerCase().includes(str.toLowerCase());
+    }
+}
+
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined

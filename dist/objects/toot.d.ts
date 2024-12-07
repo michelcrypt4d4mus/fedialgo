@@ -13,3 +13,4 @@ export declare const sortByCreatedAt: (toots: Toot[]) => Toot[];
 export declare const earliestTootAt: (toots: Toot[]) => Date | null;
 export declare const earliestToot: (toots: Toot[]) => Toot | null;
 export declare const tootedAt: (toot: Toot) => Date;
+export declare function containsString(toot: Toot, str: string): boolean;

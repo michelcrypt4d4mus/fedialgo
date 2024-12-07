@@ -3,7 +3,8 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language).
  */
-import Storage from "../Storage";
+import Storage, { Key } from "../Storage";
+import { containsString } from "./toot";
 import { FilterArgs, Toot } from "../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
@@ -20,6 +21,10 @@ export enum PropertyName {
     HASHTAG = 'hashtag',
     USER = 'user',
     APP = 'app',
+    // Server Side filters work a bit differently. The API doesn't return toots that match the filter
+    // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
+    // other servers) it does so we have to manually filter them out.
+    SERVER_SIDE_FILTERS = Key.SERVER_SIDE_FILTERS
 };
 
 export enum SourceFilterName {
@@ -66,6 +71,9 @@ const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.account.acct);
     },
+    [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
+        return !!validValues.find((v) => containsString(toot, v));
+    },
 };
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -77,6 +85,7 @@ export default class PropertyFilter {
     invertSelection: boolean;
     optionInfo: FilterOptionInfo;
     validValues: string[];
+    visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
     constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs) {
         this.title = title as PropertyName;
@@ -94,7 +103,14 @@ export default class PropertyFilter {
             this.description = `Show only toots ${descriptionWord} these ${title}s`;
         }
 
-        this.invertSelection = invertSelection ?? false;
+        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+            // Server side filters are inverted by default bc we don't want to show toots including them
+            this.invertSelection = invertSelection ?? true;
+            this.visible = false;
+        } else {
+            this.invertSelection = invertSelection ?? false;
+        }
+
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
     }

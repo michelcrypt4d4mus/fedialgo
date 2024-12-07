@@ -10,7 +10,11 @@ import { Toot, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
 
 export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const SERVER_MAU_ENDPOINT = "api/v2/instance";
+const API_URI = "api"
+const API_V1 = `${API_URI}/v1`;
+const API_V2 = `${API_URI}/v2`;
+const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
+export const FILTER_ENDPOINT = `${API_V2}/filters`;
 
 
 // Use the API to search for recent toots containing a 'searchQuery' string
@@ -63,16 +67,20 @@ export const mastodonFetch = async <T>(
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 interface FetchParams<T> {
-    fetch: (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>,
+    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
+        // ((meta?: undefined) => mastodon.Paginator<T[], undefined>),
     maxRecords?: number,
     label?: string,
+    noParams?: boolean
 };
+
 
 export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
     let { fetch, maxRecords, label } = fetchParams;
-    label ||= "unknown";
     maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+    label ||= "unknown";
     console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetch:`, fetch);
+
     let results: T[] = [];
     let pageNumber = 0;
 

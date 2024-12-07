@@ -27,6 +27,7 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
     feed: Toot[];
+    serverSideFilters: mastodon.v2.Filter[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
     tagCounts: StringNumberDict;

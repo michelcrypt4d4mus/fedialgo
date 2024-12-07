@@ -16,6 +16,7 @@ export enum Key {
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     RECENT_TOOTS = "recentToots",
+    SERVER_SIDE_FILTERS = 'serverFilters',
     TIMELINE = 'timeline',
     USER = 'algouser',
     WEIGHTS = 'weights'

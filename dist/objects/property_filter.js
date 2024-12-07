@@ -10,6 +10,7 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 
  * (e.g. language).
  */
 const Storage_1 = __importDefault(require("../Storage"));
+const toot_1 = require("./toot");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
@@ -18,6 +19,10 @@ var PropertyName;
     PropertyName["HASHTAG"] = "hashtag";
     PropertyName["USER"] = "user";
     PropertyName["APP"] = "app";
+    // Server Side filters work a bit differently. The API doesn't return toots that match the filter
+    // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
+    // other servers) it does so we have to manually filter them out.
+    PropertyName["SERVER_SIDE_FILTERS"] = "serverFilters";
 })(PropertyName || (exports.PropertyName = PropertyName = {}));
 ;
 var SourceFilterName;
@@ -59,6 +64,9 @@ const TOOT_MATCHERS = {
     [PropertyName.USER]: (toot, validValues) => {
         return validValues.includes(toot.account.acct);
     },
+    [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
+        return !!validValues.find((v) => (0, toot_1.containsString)(toot, v));
+    },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 class PropertyFilter {
@@ -67,6 +75,7 @@ class PropertyFilter {
     invertSelection;
     optionInfo;
     validValues;
+    visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     constructor({ title, invertSelection, optionInfo, validValues }) {
         this.title = title;
         if (this.title == PropertyName.SOURCE) {
@@ -81,7 +90,14 @@ class PropertyFilter {
             const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
             this.description = `Show only toots ${descriptionWord} these ${title}s`;
         }
-        this.invertSelection = invertSelection ?? false;
+        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+            // Server side filters are inverted by default bc we don't want to show toots including them
+            this.invertSelection = invertSelection ?? true;
+            this.visible = false;
+        }
+        else {
+            this.invertSelection = invertSelection ?? false;
+        }
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
     }

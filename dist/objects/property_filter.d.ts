@@ -7,7 +7,8 @@ export declare enum PropertyName {
     LANGUAGE = "language",
     HASHTAG = "hashtag",
     USER = "user",
-    APP = "app"
+    APP = "app",
+    SERVER_SIDE_FILTERS = "serverFilters"
 }
 export declare enum SourceFilterName {
     FOLLOWED_ACCOUNTS = "followedAccounts",
@@ -29,6 +30,7 @@ export default class PropertyFilter {
     invertSelection: boolean;
     optionInfo: FilterOptionInfo;
     validValues: string[];
+    visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs);
     isAllowed(toot: Toot): boolean;
     updateValidOptions(element: string, isValidOption: boolean): void;
