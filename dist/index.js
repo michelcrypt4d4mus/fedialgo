@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exports.FeedFilterSection = exports.TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exports.FeedFilterSection = exports.NumericFilter = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
@@ -43,6 +43,8 @@ const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/In
 const mastodon_api_cache_1 = __importDefault(require("./api/mastodon_api_cache"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
+const numeric_filter_1 = __importDefault(require("./objects/numeric_filter"));
+exports.NumericFilter = numeric_filter_1.default;
 const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));

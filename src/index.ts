@@ -16,6 +16,7 @@ import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScore
 import MastodonApiCache from "./api/mastodon_api_cache";
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
+import NumericFilter from "./objects/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
@@ -512,6 +513,7 @@ class TheAlgorithm {
 
 export {
     TIME_DECAY,
+    NumericFilter,
     FeedFilterSection,
     FeedFilterSettings,
     FilterOptionName,
