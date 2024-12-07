@@ -2,7 +2,6 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import PropertyFilter, { FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
@@ -13,6 +12,7 @@ import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
+import PropertyFilter, { PropertyName, SourceFilterName } from "./objects/property_filter";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
@@ -59,4 +59,4 @@ declare class TheAlgorithm {
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
-export { TIME_DECAY, NumericFilter, PropertyFilter, FeedFilterSettings, FilterOptionName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };
+export { TIME_DECAY, FeedFilterSettings, PropertyName, NumericFilter, PropertyFilter, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };

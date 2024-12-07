@@ -2,7 +2,7 @@ import { FilterArgs, Toot } from "../types";
 type FilterOptionInfo = Record<string, number>;
 type SourceFilter = (toot: Toot) => boolean;
 type SourceFilters = Record<SourceFilterName, SourceFilter>;
-export declare enum FilterOptionName {
+export declare enum PropertyName {
     SOURCE = "source",
     LANGUAGE = "language",
     HASHTAG = "hashtag",
@@ -24,7 +24,7 @@ export interface PropertyFilterArgs extends FilterArgs {
     validValues?: string[];
 }
 export default class PropertyFilter {
-    title: FilterOptionName;
+    title: PropertyName;
     description: string;
     invertSelection: boolean;
     optionInfo: FilterOptionInfo;

@@ -1,5 +1,5 @@
 import { mastodon } from 'masto';
-import PropertyFilter, { PropertyFilterArgs, FilterOptionName } from './objects/property_filter';
+import PropertyFilter, { PropertyFilterArgs, PropertyName } from './objects/property_filter';
 import NumericFilter, { NumericFilterArgs } from './objects/numeric_filter';
 import Scorer from './scorer/scorer';
 export declare enum WeightName {
@@ -63,11 +63,11 @@ export type FeedFilterSettingsSerialized = {
     numericFilterArgs: NumericFilterArgs[];
 };
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<FilterOptionName, PropertyFilter>;
+    filterSections: Record<PropertyName, PropertyFilter>;
     numericFilters: Record<WeightName, NumericFilter>;
 }
 export type FilterArgs = {
-    title: FilterOptionName | WeightName;
+    title: PropertyName | WeightName;
     invertSelection?: boolean;
 };
 export type ScorerInfo = {

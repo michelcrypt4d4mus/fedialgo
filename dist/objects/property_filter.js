@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SOURCE_FILTERS = exports.SourceFilterName = exports.FilterOptionName = void 0;
+exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 0;
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -11,14 +11,14 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.FilterOptionName = v
  */
 const Storage_1 = __importDefault(require("../Storage"));
 // This is the order the filters will appear in the UI in the demo app
-var FilterOptionName;
-(function (FilterOptionName) {
-    FilterOptionName["SOURCE"] = "source";
-    FilterOptionName["LANGUAGE"] = "language";
-    FilterOptionName["HASHTAG"] = "hashtag";
-    FilterOptionName["USER"] = "user";
-    FilterOptionName["APP"] = "app";
-})(FilterOptionName || (exports.FilterOptionName = FilterOptionName = {}));
+var PropertyName;
+(function (PropertyName) {
+    PropertyName["SOURCE"] = "source";
+    PropertyName["LANGUAGE"] = "language";
+    PropertyName["HASHTAG"] = "hashtag";
+    PropertyName["USER"] = "user";
+    PropertyName["APP"] = "app";
+})(PropertyName || (exports.PropertyName = PropertyName = {}));
 ;
 var SourceFilterName;
 (function (SourceFilterName) {
@@ -41,21 +41,21 @@ exports.SOURCE_FILTERS = {
     [SourceFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
 };
 const TOOT_MATCHERS = {
-    [FilterOptionName.APP]: (toot, validValues) => {
+    [PropertyName.APP]: (toot, validValues) => {
         return validValues.includes(toot.application?.name);
     },
-    [FilterOptionName.LANGUAGE]: (toot, validValues) => {
+    [PropertyName.LANGUAGE]: (toot, validValues) => {
         return validValues.includes(toot.language || Storage_1.default.getConfig().defaultLanguage);
     },
-    [FilterOptionName.HASHTAG]: (toot, validValues) => {
+    [PropertyName.HASHTAG]: (toot, validValues) => {
         return toot.tags.some(tag => validValues.includes(tag.name));
     },
-    [FilterOptionName.SOURCE]: (toot, validValues) => {
+    [PropertyName.SOURCE]: (toot, validValues) => {
         return Object.entries(exports.SOURCE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
     },
-    [FilterOptionName.USER]: (toot, validValues) => {
+    [PropertyName.USER]: (toot, validValues) => {
         return validValues.includes(toot.account.acct);
     },
 };
@@ -69,7 +69,7 @@ class PropertyFilter {
     validValues;
     constructor({ title, invertSelection, optionInfo, validValues }) {
         this.title = title;
-        if (this.title == FilterOptionName.SOURCE) {
+        if (this.title == PropertyName.SOURCE) {
             // Set up the default for source filters so something always shows up in the options
             this.optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
                 acc[option] = 1;
@@ -78,7 +78,7 @@ class PropertyFilter {
             this.description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
-            const descriptionWord = title == FilterOptionName.HASHTAG ? "including" : "from";
+            const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
             this.description = `Show only toots ${descriptionWord} these ${title}s`;
         }
         this.invertSelection = invertSelection ?? false;

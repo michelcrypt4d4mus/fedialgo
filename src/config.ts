@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import PropertyFilter, { FilterOptionName } from "./objects/property_filter";
+import PropertyFilter, { PropertyName } from "./objects/property_filter";
 import NumericFilter from "./objects/numeric_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
@@ -77,7 +77,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
-    filterSections: {} as Record<FilterOptionName, PropertyFilter>,
+    filterSections: {} as Record<PropertyName, PropertyFilter>,
     numericFilterArgs: [],
     numericFilters: {} as Record<WeightName, NumericFilter>,
 } as FeedFilterSettings;

@@ -6,7 +6,6 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import PropertyFilter, { SOURCE_FILTERS, FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
@@ -21,6 +20,7 @@ import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import Paginator from "./api/paginator";
+import PropertyFilter, { SOURCE_FILTERS, PropertyName, SourceFilterName } from "./objects/property_filter";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Storage from "./Storage";
@@ -274,18 +274,18 @@ class TheAlgorithm {
         );
 
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
-        Object.values(FilterOptionName).forEach((sectionName) => {
+        Object.values(PropertyName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections) return;
             this.filters.filterSections[sectionName] = new PropertyFilter({title: sectionName});
         });
 
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[FilterOptionName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[FilterOptionName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
-        this.filters.filterSections[FilterOptionName.APP].optionInfo = appCounts;
-        this.filters.filterSections[FilterOptionName.USER].optionInfo = userFilterCounts;
+        this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = tagFilterCounts;
+        this.filters.filterSections[PropertyName.APP].optionInfo = appCounts;
+        this.filters.filterSections[PropertyName.USER].optionInfo = userFilterCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
@@ -513,10 +513,10 @@ class TheAlgorithm {
 
 export {
     TIME_DECAY,
+    FeedFilterSettings,
+    PropertyName,
     NumericFilter,
     PropertyFilter,
-    FeedFilterSettings,
-    FilterOptionName,
     ScorerInfo,
     SourceFilterName,
     StringNumberDict,

@@ -26,14 +26,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.SourceFilterName = exports.PropertyFilter = exports.NumericFilter = exports.PropertyName = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const property_filter_1 = __importStar(require("./objects/property_filter"));
-exports.PropertyFilter = property_filter_1.default;
-Object.defineProperty(exports, "FilterOptionName", { enumerable: true, get: function () { return property_filter_1.FilterOptionName; } });
-Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
@@ -49,6 +45,10 @@ const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_fav
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
 const paginator_1 = __importDefault(require("./api/paginator"));
+const property_filter_1 = __importStar(require("./objects/property_filter"));
+exports.PropertyFilter = property_filter_1.default;
+Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
+Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
 const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -246,18 +246,18 @@ class TheAlgorithm {
         const tagFilterCounts = Object.fromEntries(Object.entries(tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
         const userFilterCounts = Object.fromEntries(Object.entries(userCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
-        Object.values(property_filter_1.FilterOptionName).forEach((sectionName) => {
+        Object.values(property_filter_1.PropertyName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections)
                 return;
             this.filters.filterSections[sectionName] = new property_filter_1.default({ title: sectionName });
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[property_filter_1.FilterOptionName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[property_filter_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[property_filter_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
-        this.filters.filterSections[property_filter_1.FilterOptionName.APP].optionInfo = appCounts;
-        this.filters.filterSections[property_filter_1.FilterOptionName.USER].optionInfo = userFilterCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo = tagFilterCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.APP].optionInfo = appCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.USER].optionInfo = userFilterCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?

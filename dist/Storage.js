@@ -79,7 +79,7 @@ class Storage {
             numeric_filter_1.NUMERIC_FILTER_WEIGHTS.forEach(weightName => {
                 filters.numericFilters[weightName] = new numeric_filter_1.default({ title: weightName });
             });
-            filters.filterSections[property_filter_1.FilterOptionName.SOURCE] = new property_filter_1.default({ title: property_filter_1.FilterOptionName.SOURCE });
+            filters.filterSections[property_filter_1.PropertyName.SOURCE] = new property_filter_1.default({ title: property_filter_1.PropertyName.SOURCE });
             await this.setFilters(config_1.DEFAULT_FILTERS);
         }
         console.log(`[Storage] getFilters() returning:`, filters);
