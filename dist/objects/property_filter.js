@@ -114,4 +114,4 @@ class PropertyFilter {
 }
 exports.default = PropertyFilter;
 ;
-//# sourceMappingURL=feed_filter_section.js.map
+//# sourceMappingURL=property_filter.js.map

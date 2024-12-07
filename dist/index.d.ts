@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FeedFilterSection, { FilterOptionName, SourceFilterName } from "./objects/property_filter";
+import PropertyFilter, { FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
@@ -59,4 +59,4 @@ declare class TheAlgorithm {
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
-export { TIME_DECAY, NumericFilter, FeedFilterSection, FeedFilterSettings, FilterOptionName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };
+export { TIME_DECAY, NumericFilter, PropertyFilter, FeedFilterSettings, FilterOptionName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };

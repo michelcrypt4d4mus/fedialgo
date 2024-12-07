@@ -63,7 +63,7 @@ const TOOT_MATCHERS: TootMatchers = {
     },
 };
 
-export interface FeedFilterSectionArgs extends FilterArgs{
+export interface PropertyFilterArgs extends FilterArgs{
     optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
     validValues?: string[];
 };
@@ -71,14 +71,14 @@ export interface FeedFilterSectionArgs extends FilterArgs{
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 
-export default class FeedFilterSection {
+export default class PropertyFilter {
     title: FilterOptionName;
     description: string;
     invertSelection: boolean;
     optionInfo: FilterOptionInfo;
     validValues: string[];
 
-    constructor({ title, invertSelection, optionInfo, validValues }: FeedFilterSectionArgs) {
+    constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs) {
         this.title = title as FilterOptionName;
 
         if (this.title == FilterOptionName.SOURCE) {
@@ -118,7 +118,7 @@ export default class FeedFilterSection {
     }
 
     // Required for serialization of settings to local storage
-    toArgs(): FeedFilterSectionArgs {
+    toArgs(): PropertyFilterArgs {
         return {
             invertSelection: this.invertSelection,
             optionInfo: this.optionInfo,

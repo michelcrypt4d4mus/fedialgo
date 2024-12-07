@@ -26,12 +26,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exports.FeedFilterSection = exports.NumericFilter = exports.TIME_DECAY = void 0;
+exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const property_filter_1 = __importStar(require("./objects/property_filter"));
-exports.FeedFilterSection = property_filter_1.default;
+exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "FilterOptionName", { enumerable: true, get: function () { return property_filter_1.FilterOptionName; } });
 Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));

@@ -6,7 +6,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FeedFilterSection, { SOURCE_FILTERS, FilterOptionName, SourceFilterName } from "./objects/property_filter";
+import PropertyFilter, { SOURCE_FILTERS, FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
@@ -276,7 +276,7 @@ class TheAlgorithm {
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
         Object.values(FilterOptionName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections) return;
-            this.filters.filterSections[sectionName] = new FeedFilterSection({title: sectionName});
+            this.filters.filterSections[sectionName] = new PropertyFilter({title: sectionName});
         });
 
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
@@ -514,7 +514,7 @@ class TheAlgorithm {
 export {
     TIME_DECAY,
     NumericFilter,
-    FeedFilterSection,
+    PropertyFilter,
     FeedFilterSettings,
     FilterOptionName,
     ScorerInfo,
