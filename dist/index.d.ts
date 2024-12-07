@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FeedFilterSection, { FilterOptionName, SourceFilterName } from "./objects/feed_filter_section";
+import FeedFilterSection, { FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
 import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";

@@ -4,7 +4,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import FeedFilterSection, { FilterOptionName } from "./objects/feed_filter_section";
+import FeedFilterSection, { FilterOptionName } from "./objects/property_filter";
 import NumericFilter, { NUMERIC_FILTER_WEIGHTS } from "./objects/numeric_filter";
 import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, WeightName, Weights } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";

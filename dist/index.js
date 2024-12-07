@@ -30,10 +30,10 @@ exports.TheAlgorithm = exports.SourceFilterName = exports.FilterOptionName = exp
 const async_mutex_1 = require("async-mutex");
 const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const feed_filter_section_1 = __importStar(require("./objects/feed_filter_section"));
-exports.FeedFilterSection = feed_filter_section_1.default;
-Object.defineProperty(exports, "FilterOptionName", { enumerable: true, get: function () { return feed_filter_section_1.FilterOptionName; } });
-Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return feed_filter_section_1.SourceFilterName; } });
+const property_filter_1 = __importStar(require("./objects/property_filter"));
+exports.FeedFilterSection = property_filter_1.default;
+Object.defineProperty(exports, "FilterOptionName", { enumerable: true, get: function () { return property_filter_1.FilterOptionName; } });
+Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const homeFeed_1 = __importDefault(require("./feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
@@ -234,7 +234,7 @@ class TheAlgorithm {
             appCounts[toot.application.name] = (appCounts[toot.application.name] || 0) + 1;
             userCounts[toot.account.acct] = (userCounts[toot.account.acct] || 0) + 1;
             // Aggregate source counts
-            Object.entries(feed_filter_section_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
+            Object.entries(property_filter_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
                 if (sourceFilter(toot)) {
                     sourceCounts[sourceName] ??= 0;
                     sourceCounts[sourceName] += 1;
@@ -246,18 +246,18 @@ class TheAlgorithm {
         const tagFilterCounts = Object.fromEntries(Object.entries(tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
         const userFilterCounts = Object.fromEntries(Object.entries(userCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
         // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
-        Object.values(feed_filter_section_1.FilterOptionName).forEach((sectionName) => {
+        Object.values(property_filter_1.FilterOptionName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections)
                 return;
-            this.filters.filterSections[sectionName] = new feed_filter_section_1.default({ title: sectionName });
+            this.filters.filterSections[sectionName] = new property_filter_1.default({ title: sectionName });
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.APP].optionInfo = appCounts;
-        this.filters.filterSections[feed_filter_section_1.FilterOptionName.USER].optionInfo = userFilterCounts;
+        this.filters.filterSections[property_filter_1.FilterOptionName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[property_filter_1.FilterOptionName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[property_filter_1.FilterOptionName.HASHTAG].optionInfo = tagFilterCounts;
+        this.filters.filterSections[property_filter_1.FilterOptionName.APP].optionInfo = appCounts;
+        this.filters.filterSections[property_filter_1.FilterOptionName.USER].optionInfo = userFilterCounts;
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?

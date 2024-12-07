@@ -6,7 +6,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 
 import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FeedFilterSection, { SOURCE_FILTERS, FilterOptionName, SourceFilterName } from "./objects/feed_filter_section";
+import FeedFilterSection, { SOURCE_FILTERS, FilterOptionName, SourceFilterName } from "./objects/property_filter";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import getHomeFeed from "./feeds/homeFeed";
 import getRecentTootsForTrendingTags from "./feeds/trending_tags";
