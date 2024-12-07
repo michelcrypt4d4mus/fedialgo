@@ -37,16 +37,10 @@ import {
     TootScore,
     Weights,
 } from "./types";
-import {
-    IMAGE,
-    MEDIA_TYPES,
-    createRandomString,
-    dedupeToots,
-    isImage
-} from "./helpers";
 import { buildAccountNames } from "./objects/account";
 import { condensedStatus, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
+import { IMAGE, MEDIA_TYPES, createRandomString, dedupeToots, isImage } from "./helpers";
 import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
 
