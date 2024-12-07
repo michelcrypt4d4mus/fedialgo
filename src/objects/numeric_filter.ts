@@ -34,7 +34,15 @@ export default class NumericFilter {
 
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot: Toot): boolean {
-        return (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;
+        const tootValue = toot.scoreInfo?.rawScores?.[this.title];
+
+        if (!tootValue && tootValue !== 0) {
+            console.warn(`No value found for ${this.title} in toot:`, toot);
+            return true;
+        }
+
+        const isOK = (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;
+        return this.invertSelection ? !isOK : isOK;
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

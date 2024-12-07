@@ -1,4 +1,7 @@
 import { Toot, WeightName } from "../types";
+type FilterOptionInfo = Record<string, number>;
+type SourceFilter = (toot: Toot) => boolean;
+type SourceFilters = Record<SourceFilterName, SourceFilter>;
 export declare enum FilterOptionName {
     SOURCE = "source",
     LANGUAGE = "language",
@@ -15,9 +18,6 @@ export declare enum SourceFilterName {
     TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_TOOTS = "trendingToots"
 }
-type FilterOptionInfo = Record<string, number>;
-type SourceFilter = (toot: Toot) => boolean;
-type SourceFilters = Record<SourceFilterName, SourceFilter>;
 export declare const SOURCE_FILTERS: SourceFilters;
 export type FilterArgs = {
     title: FilterOptionName | WeightName;

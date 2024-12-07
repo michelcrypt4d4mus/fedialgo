@@ -383,19 +383,6 @@ class TheAlgorithm {
     isInTimeline(toot) {
         let isOK = Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
         return isOK && Object.values(this.filters.numericFilters).every((filter) => filter.isAllowed(toot));
-        console.log(`List filters say ${isOK} for toot: ${(0, toot_1.describeToot)(toot)}`);
-        let isOK2;
-        try {
-            isOK2 = Object.values(this.filters.numericFilters).every((filter) => filter.isAllowed(toot));
-            console.log(`Numeric filters say ${isOK2} for toot: ${(0, toot_1.describeToot)(toot)}`);
-        }
-        catch (e) {
-            console.warn(`Error in numeric filters:`, e);
-            console.warn(`toot:`, toot);
-            console.warn(`filters:`, this.filters);
-            return false;
-        }
-        return isOK && isOK2;
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(toot) {

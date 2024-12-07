@@ -6,6 +6,13 @@
 import Storage from "../Storage";
 import { Toot, WeightName } from "../types";
 
+type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
+type SourceFilter = (toot: Toot) => boolean;
+type SourceFilters = Record<SourceFilterName, SourceFilter>;
+type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
+type TootMatchers = Record<FilterOptionName, TootMatcher>;
+
+
 // This is the order the filters will appear in the UI in the demo app
 export enum FilterOptionName {
     SOURCE = 'source',
@@ -24,12 +31,6 @@ export enum SourceFilterName {
     TRENDING_HASHTAGS = 'trendingHashtags',
     TRENDING_TOOTS = 'trendingToots',
 };
-
-type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
-type SourceFilter = (toot: Toot) => boolean;
-type SourceFilters = Record<SourceFilterName, SourceFilter>;
-type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
-type TootMatchers = Record<FilterOptionName, TootMatcher>;
 
 
 export const SOURCE_FILTERS: SourceFilters = {
