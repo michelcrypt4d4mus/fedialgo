@@ -23,9 +23,7 @@ export default class NumericFilter {
 
     constructor({ invertSelection, title, value }: NumericFilterArgs) {
         this.title = title as WeightName;
-        this.description = title;
-        if (this.description.startsWith("Num")) this.description = this.description.slice(3);
-        this.description = `Minimum ${this.description}`;
+        this.description = `Minimum ${this.title.startsWith("Num") ? title.slice(3) : title}`;
         this.invertSelection = invertSelection ?? false;
         this.value = value ?? 0;
     }

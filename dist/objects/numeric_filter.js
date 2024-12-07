@@ -15,10 +15,7 @@ class NumericFilter {
     value;
     constructor({ invertSelection, title, value }) {
         this.title = title;
-        this.description = title;
-        if (this.description.startsWith("Num"))
-            this.description = this.description.slice(3);
-        this.description = `Minimum ${this.description}`;
+        this.description = `Minimum ${this.title.startsWith("Num") ? title.slice(3) : title}`;
         this.invertSelection = invertSelection ?? false;
         this.value = value ?? 0;
     }

@@ -31,6 +31,7 @@ var SourceFilterName;
     SourceFilterName["TRENDING_TOOTS"] = "trendingToots";
 })(SourceFilterName || (exports.SourceFilterName = SourceFilterName = {}));
 ;
+;
 exports.SOURCE_FILTERS = {
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
@@ -59,7 +60,6 @@ const TOOT_MATCHERS = {
         return validValues.includes(toot.account.acct);
     },
 };
-;
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 class PropertyFilter {
     title;

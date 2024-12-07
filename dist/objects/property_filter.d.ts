@@ -18,11 +18,11 @@ export declare enum SourceFilterName {
     TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_TOOTS = "trendingToots"
 }
-export declare const SOURCE_FILTERS: SourceFilters;
 export interface PropertyFilterArgs extends FilterArgs {
     optionInfo?: FilterOptionInfo;
     validValues?: string[];
 }
+export declare const SOURCE_FILTERS: SourceFilters;
 export default class PropertyFilter {
     title: PropertyName;
     description: string;
