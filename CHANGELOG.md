@@ -1,3 +1,5 @@
+## NEXT
+
 ## `0.8.1`
 * Pull and apply server side filters to trending toots manually because user's server side filters can't be applied to toots pulled from other servers
 
