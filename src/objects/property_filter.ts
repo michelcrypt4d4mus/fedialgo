@@ -32,6 +32,11 @@ export enum SourceFilterName {
     TRENDING_TOOTS = 'trendingToots',
 };
 
+export interface PropertyFilterArgs extends FilterArgs{
+    optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
+    validValues?: string[];
+};
+
 
 export const SOURCE_FILTERS: SourceFilters = {
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
@@ -61,11 +66,6 @@ const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.account.acct);
     },
-};
-
-export interface PropertyFilterArgs extends FilterArgs{
-    optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
-    validValues?: string[];
 };
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
