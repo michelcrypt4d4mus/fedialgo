@@ -252,22 +252,11 @@ class TheAlgorithm {
             });
         });
 
-        this.tagCounts = tagCounts;  // preserve the unfiltered state
+        // preserve the unfiltered state of the tagCounts and userCounts
+        this.tagCounts = tagCounts;
         this.userCounts = userCounts;
 
-        const tagFilterCounts = Object.fromEntries(
-            Object.entries(tagCounts).filter(
-               ([_key, val]) => val >= Storage.getConfig().minTootsToAppearInFilter
-            )
-        );
-
-        const userFilterCounts = Object.fromEntries(
-            Object.entries(userCounts).filter(
-               ([_key, val]) => val >= Storage.getConfig().minTootsToAppearInFilter
-            )
-        );
-
-        // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
+        // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
         Object.values(PropertyName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections) return;
             this.filters.filterSections[sectionName] = new PropertyFilter({title: sectionName});
@@ -275,11 +264,11 @@ class TheAlgorithm {
 
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = tagFilterCounts;
         this.filters.filterSections[PropertyName.APP].optionInfo = appCounts;
-        this.filters.filterSections[PropertyName.USER].optionInfo = userFilterCounts;
+        this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
+        this.filters.filterSections[PropertyName.USER].optionInfo = this.extractFilterCounts(userCounts);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
@@ -459,6 +448,12 @@ class TheAlgorithm {
         msg += `, ${newHomeToots.length} new home toots, ${newToots.length} total new toots, this.feed has ${this.feed.length} toots`;
         console.log(msg);
     }
+
+    private extractFilterCounts (dict: StringNumberDict): StringNumberDict {
+        return Object.fromEntries(
+            Object.entries(dict).filter(([_k, v]) => v >= Storage.getConfig().minTootsToAppearInFilter)
+        )
+    };
 
     private shouldReloadFeed(): boolean {
         const mostRecentTootAt = earliestTootAt(this.feed);

@@ -56,6 +56,7 @@ declare class TheAlgorithm {
     private isInTimeline;
     private isValidForFeed;
     private logTootCounts;
+    private extractFilterCounts;
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }

@@ -241,11 +241,10 @@ class TheAlgorithm {
                 }
             });
         });
-        this.tagCounts = tagCounts; // preserve the unfiltered state
+        // preserve the unfiltered state of the tagCounts and userCounts
+        this.tagCounts = tagCounts;
         this.userCounts = userCounts;
-        const tagFilterCounts = Object.fromEntries(Object.entries(tagCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
-        const userFilterCounts = Object.fromEntries(Object.entries(userCounts).filter(([_key, val]) => val >= Storage_1.default.getConfig().minTootsToAppearInFilter));
-        // Instantiate missing filter sections  // TODO: maybe this shoud happen in Storage?
+        // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
         Object.values(property_filter_1.PropertyName).forEach((sectionName) => {
             if (sectionName in this.filters.filterSections)
                 return;
@@ -253,11 +252,11 @@ class TheAlgorithm {
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[property_filter_1.PropertyName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[property_filter_1.PropertyName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo = tagFilterCounts;
         this.filters.filterSections[property_filter_1.PropertyName.APP].optionInfo = appCounts;
-        this.filters.filterSections[property_filter_1.PropertyName.USER].optionInfo = userFilterCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.LANGUAGE].optionInfo = languageCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.SOURCE].optionInfo = sourceCounts;
+        this.filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo = this.extractFilterCounts(tagCounts);
+        this.filters.filterSections[property_filter_1.PropertyName.USER].optionInfo = this.extractFilterCounts(userCounts);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     // TODO: is this ever used?
@@ -420,6 +419,10 @@ class TheAlgorithm {
         msg += `, ${newHomeToots.length} new home toots, ${newToots.length} total new toots, this.feed has ${this.feed.length} toots`;
         console.log(msg);
     }
+    extractFilterCounts(dict) {
+        return Object.fromEntries(Object.entries(dict).filter(([_k, v]) => v >= Storage_1.default.getConfig().minTootsToAppearInFilter));
+    }
+    ;
     shouldReloadFeed() {
         const mostRecentTootAt = (0, toot_1.earliestTootAt)(this.feed);
         if (!mostRecentTootAt)
