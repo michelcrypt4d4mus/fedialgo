@@ -27,8 +27,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Key = void 0;
+/*
+ * Use localForage to store and retrieve data from the browser's IndexedDB storage.
+ */
 const localforage_1 = __importDefault(require("localforage"));
 const feed_filter_section_1 = __importStar(require("./objects/feed_filter_section"));
+const numeric_filter_1 = __importStar(require("./objects/numeric_filter"));
 const config_1 = require("./config");
 var Key;
 (function (Key) {
@@ -63,10 +67,18 @@ class Storage {
                 acc[args.title] = new feed_filter_section_1.default(args);
                 return acc;
             }, {});
+            filters.numericFilters = (filters.numericFilterArgs || []).reduce((acc, args) => {
+                acc[args.title] = new numeric_filter_1.default(args);
+                return acc;
+            }, {});
         }
         else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
-            filters = Object.assign({}, config_1.DEFAULT_FILTERS);
+            filters = JSON.parse(JSON.stringify(config_1.DEFAULT_FILTERS));
+            // Start with the numeric filters and the source filter section
+            numeric_filter_1.NUMERIC_FILTER_WEIGHTS.forEach(weightName => {
+                filters.numericFilters[weightName] = new numeric_filter_1.default({ title: weightName });
+            });
             filters.filterSections[feed_filter_section_1.FilterOptionName.SOURCE] = new feed_filter_section_1.default({ title: feed_filter_section_1.FilterOptionName.SOURCE });
             await this.setFilters(config_1.DEFAULT_FILTERS);
         }
@@ -75,10 +87,11 @@ class Storage {
     }
     // Serialize the FeedFilterSettings object
     static async setFilters(filters) {
-        const settings = {
+        const filterSettings = {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
-        await this.set(Key.FILTERS, settings);
+        await this.set(Key.FILTERS, filterSettings);
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {

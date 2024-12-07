@@ -1,4 +1,4 @@
-import { Toot } from "../types";
+import { Toot, WeightName } from "../types";
 export declare enum FilterOptionName {
     SOURCE = "source",
     LANGUAGE = "language",
@@ -19,9 +19,11 @@ type FilterOptionInfo = Record<string, number>;
 type SourceFilter = (toot: Toot) => boolean;
 type SourceFilters = Record<SourceFilterName, SourceFilter>;
 export declare const SOURCE_FILTERS: SourceFilters;
-export interface FeedFilterSectionArgs {
-    title: FilterOptionName;
+export type FilterArgs = {
+    title: FilterOptionName | WeightName;
     invertSelection?: boolean;
+};
+export interface FeedFilterSectionArgs extends FilterArgs {
     optionInfo?: FilterOptionInfo;
     validValues?: string[];
 }

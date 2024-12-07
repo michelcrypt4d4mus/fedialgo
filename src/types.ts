@@ -1,6 +1,7 @@
 import { mastodon } from 'masto';
 
 import FeedFilterSection, { FeedFilterSectionArgs } from './objects/feed_filter_section';
+import NumericFilter, { NumericFilterArgs } from './objects/numeric_filter';
 import Scorer from './scorer/scorer';
 
 
@@ -67,16 +68,20 @@ export type Config = {
     numTrendingTootsPerServer: number;
     // Tag filters
     minTootsToAppearInFilter: number;
+    // MAU and other server properties
+    noMauServers: string[];
 };
 
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 
-export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<string, FeedFilterSection>;
-};
-
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: FeedFilterSectionArgs[];
+    numericFilterArgs: NumericFilterArgs[];
+};
+
+export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
+    filterSections: Record<string, FeedFilterSection>;
+    numericFilters: Record<WeightName, NumericFilter>;
 };
 
 export type ScorerInfo = {
@@ -97,7 +102,7 @@ export interface Toot extends mastodon.v1.Status {
 };
 
 export type TootScore = {
-    rawScore: number;  // Score before applying timeDecayMultiplier
+    rawScore: number;             // Score before applying timeDecayMultiplier
     rawScores: Weights;
     score: number;
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts

@@ -1,4 +1,5 @@
 ## NEXT
+* Add numeric filtering (minimum replies, minimum reblogs, etc)
 
 ## `0.7.0`
 * Add filtering based on username

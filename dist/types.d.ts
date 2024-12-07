@@ -1,5 +1,6 @@
 import { mastodon } from 'masto';
 import FeedFilterSection, { FeedFilterSectionArgs } from './objects/feed_filter_section';
+import NumericFilter, { NumericFilterArgs } from './objects/numeric_filter';
 import Scorer from './scorer/scorer';
 export declare enum WeightName {
     CHAOS = "Chaos",
@@ -54,14 +55,17 @@ export type Config = {
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
     minTootsToAppearInFilter: number;
+    noMauServers: string[];
 };
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<string, FeedFilterSection>;
-}
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: FeedFilterSectionArgs[];
+    numericFilterArgs: NumericFilterArgs[];
 };
+export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
+    filterSections: Record<string, FeedFilterSection>;
+    numericFilters: Record<WeightName, NumericFilter>;
+}
 export type ScorerInfo = {
     defaultWeight: number;
     description: string;

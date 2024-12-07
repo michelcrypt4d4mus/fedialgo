@@ -1,10 +1,13 @@
+/*
+ * Use localForage to store and retrieve data from the browser's IndexedDB storage.
+ */
 import localForage from "localforage";
 import { mastodon } from "masto";
 
 import FeedFilterSection, { FilterOptionName } from "./objects/feed_filter_section";
-import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, Weights } from "./types";
+import NumericFilter, { NUMERIC_FILTER_WEIGHTS } from "./objects/numeric_filter";
+import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, WeightName, Weights } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
-import { WeightName } from "./types";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -47,9 +50,23 @@ export default class Storage {
                 },
                 {} as Record<string, FeedFilterSection>
             );
+
+            filters.numericFilters = (filters.numericFilterArgs || []).reduce(
+                (acc, args) => {
+                    acc[args.title as WeightName] = new NumericFilter(args);
+                    return acc;
+                },
+                {} as Record<WeightName, NumericFilter>
+            );
         } else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
-            filters = Object.assign({}, DEFAULT_FILTERS);
+            filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
+
+            // Start with the numeric filters and the source filter section
+            NUMERIC_FILTER_WEIGHTS.forEach(weightName => {
+                filters.numericFilters[weightName] = new NumericFilter({title: weightName});
+            });
+
             filters.filterSections[FilterOptionName.SOURCE] = new FeedFilterSection({title: FilterOptionName.SOURCE});
             await this.setFilters(DEFAULT_FILTERS);
         }
@@ -60,11 +77,12 @@ export default class Storage {
 
     // Serialize the FeedFilterSettings object
     static async setFilters(filters: FeedFilterSettings): Promise<void> {
-        const settings = {
+        const filterSettings = {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         } as FeedFilterSettingsSerialized;
 
-        await this.set(Key.FILTERS, settings);
+        await this.set(Key.FILTERS, filterSettings);
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache

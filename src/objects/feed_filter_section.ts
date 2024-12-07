@@ -4,7 +4,7 @@
  * (e.g. language).
  */
 import Storage from "../Storage";
-import { Toot } from "../types";
+import { Toot, WeightName } from "../types";
 
 // This is the order the filters will appear in the UI in the demo app
 export enum FilterOptionName {
@@ -62,10 +62,12 @@ const TOOT_MATCHERS: TootMatchers = {
     },
 };
 
-
-export interface FeedFilterSectionArgs {
-    title: FilterOptionName;
+export type FilterArgs = {
+    title: FilterOptionName | WeightName;
     invertSelection?: boolean;
+};
+
+export interface FeedFilterSectionArgs extends FilterArgs{
     optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
     validValues?: string[];
 };
@@ -81,7 +83,7 @@ export default class FeedFilterSection {
     validValues: string[];
 
     constructor({ title, invertSelection, optionInfo, validValues }: FeedFilterSectionArgs) {
-        this.title = title;
+        this.title = title as FilterOptionName;
 
         if (this.title == FilterOptionName.SOURCE) {
             // Set up the default for source filters so something always shows up in the options

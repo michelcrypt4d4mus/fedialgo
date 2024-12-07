@@ -422,8 +422,10 @@ class TheAlgorithm {
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
     }
 
+    // Return true if the toot has not been filtered out of the feed
     private isInTimeline(toot: Toot): boolean {
-        return Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
+        let isOK = Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
+        return isOK && Object.values(this.filters.numericFilters).every((filter) => filter.isAllowed(toot));
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently

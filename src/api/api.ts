@@ -97,6 +97,11 @@ export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promis
 
 // Get publicly available MAU information. Requires no login (??)
 export async function getMonthlyUsers(server: string): Promise<number> {
+    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available`);
+        return 0;
+    }
+
     try {
         const instance = await mastodonFetch<mastodon.v2.Instance>(server, SERVER_MAU_ENDPOINT);
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);

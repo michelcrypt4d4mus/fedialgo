@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
-/*
- * Centralized location for non-user configurable settings.
- */
 const types_1 = require("./types");
 exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.CHAOS]: {
@@ -75,6 +72,8 @@ exports.DEFAULT_WEIGHTS = {
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {},
+    numericFilterArgs: [],
+    numericFilters: {},
 };
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
@@ -105,6 +104,11 @@ exports.DEFAULT_CONFIG = {
     // Trending toots
     numTrendingTootsPerServer: 30,
     // Tag filters
-    minTootsToAppearInFilter: 5, // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
+    minTootsToAppearInFilter: 5,
+    // MAU etc.
+    noMauServers: [
+        "fediverse.one",
+        "threads.net",
+    ],
 };
 //# sourceMappingURL=config.js.map

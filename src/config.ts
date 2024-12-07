@@ -1,6 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import NumericFilter from "./objects/numeric_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 
@@ -76,6 +77,8 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {},
+    numericFilterArgs: [],
+    numericFilters: {} as Record<WeightName, NumericFilter>,
 } as FeedFilterSettings;
 
 
@@ -112,4 +115,10 @@ export const DEFAULT_CONFIG = {
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
     // Tag filters
     minTootsToAppearInFilter: 5,   // Min # of toots w/a tag for a blacklist/whitelist filter option to exist
+
+    // MAU etc.
+    noMauServers: [
+        "fediverse.one",
+        "threads.net",
+    ],
 } as Config;

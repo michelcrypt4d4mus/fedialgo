@@ -1,6 +1,5 @@
 import { mastodon } from "masto";
-import { Config, FeedFilterSettings, StorageValue, Toot, Weights } from "./types";
-import { WeightName } from "./types";
+import { Config, FeedFilterSettings, StorageValue, Toot, WeightName, Weights } from "./types";
 export declare enum Key {
     CORE_SERVER = "coreServer",
     FILTERS = "filters",

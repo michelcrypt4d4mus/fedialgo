@@ -81,6 +81,10 @@ exports.mastodonFetchPages = mastodonFetchPages;
 ;
 // Get publicly available MAU information. Requires no login (??)
 async function getMonthlyUsers(server) {
+    if (Storage_1.default.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available`);
+        return 0;
+    }
     try {
         const instance = await (0, exports.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
