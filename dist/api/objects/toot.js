@@ -167,7 +167,7 @@ function containsString(toot, str) {
 exports.containsString = containsString;
 ;
 // Remove dupes by uniquifying on the toot's URI
-function dedupeToots(toots, logLabel = undefined) {
+function dedupeToots(toots, logLabel) {
     const prefix = logLabel ? `[${logLabel}] ` : '';
     const tootsByURI = (0, helpers_1.groupBy)(toots, (toot) => toot.uri);
     Object.entries(tootsByURI).forEach(([uri, uriToots]) => {

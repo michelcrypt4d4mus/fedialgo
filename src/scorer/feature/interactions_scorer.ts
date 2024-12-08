@@ -30,7 +30,7 @@ export default class InteractionsScorer extends FeatureScorer {
             label: 'notifications'
         });
 
-        console.log(`Retrieved ${results.length} notifications for InteractionsFeature(): `, results);
+        console.log(`Retrieved ${results.length} notifications for InteractionsScorer: `, results);
 
         return results.reduce(
             (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {

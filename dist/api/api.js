@@ -66,7 +66,7 @@ class MastoApi {
         return `${API_V2}/${path}`;
     }
     static trendUrl(path) {
-        return this.v1Url(path);
+        return this.v1Url(`trends/${path}`);
     }
 }
 exports.MastoApi = MastoApi;

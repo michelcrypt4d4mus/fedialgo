@@ -76,7 +76,7 @@ export class MastoApi {
     }
 
     static trendUrl(path: string): string {
-        return this.v1Url(path);
+        return this.v1Url(`trends/${path}`);
     }
 };
 

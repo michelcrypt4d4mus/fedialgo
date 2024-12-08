@@ -188,7 +188,7 @@ export function containsString(toot: Toot, str: string): boolean {
 
 
 // Remove dupes by uniquifying on the toot's URI
-export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
+export function dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
     const prefix = logLabel ? `[${logLabel}] ` : '';
     const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
 

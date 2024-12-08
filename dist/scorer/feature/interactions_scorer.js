@@ -22,7 +22,7 @@ class InteractionsScorer extends feature_scorer_1.default {
             fetch: api.v1.notifications.list,
             label: 'notifications'
         });
-        console.log(`Retrieved ${results.length} notifications for InteractionsFeature(): `, results);
+        console.log(`Retrieved ${results.length} notifications for InteractionsScorer: `, results);
         return results.reduce((interactionCount, notification) => {
             const account = notification?.account?.acct;
             if (!account)
