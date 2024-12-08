@@ -86,7 +86,7 @@ export default async function mastodonServersInfo(
                                  .sort((a, b) => userServerCounts[b] - userServerCounts[a])
                                  .slice(0, numServersToCheck);
 
-    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
+    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
     console.debug(`Top ${numServersToCheck} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
     const serverMAUs: StringNumberDict = {};

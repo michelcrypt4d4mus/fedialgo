@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import mastodonServersInfo from "../features/coreServerFeature";
+import mastodonServersInfo from "./mastodon_servers_info";
 import FollowedTagsFeatureScorer from "../scorer/feature/followed_tags_feature_scorer";
 import InteractionsScorer from "../scorer/feature/interactions_scorer";
 import MostFavoritedAccountsScorer from "../scorer/feature/most_favorited_accounts_scorer";
