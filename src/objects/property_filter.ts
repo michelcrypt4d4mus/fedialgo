@@ -115,9 +115,10 @@ export default class PropertyFilter extends TootFilter {
         }
     }
 
-    // Return true if the toot should appear in the timeline feed
+    // Return true if the toot matches the filter
     isAllowed(toot: Toot): boolean {
-        if (this.validValues.length === 0) return true;  // if there's no validValues allow everything
+        // If there's no validValues allow everything
+        if (this.validValues.length === 0) return true;
         const isMatched = TOOT_MATCHERS[this.title](toot, this.validValues);
         return this.invertSelection ? !isMatched : isMatched;
     }
