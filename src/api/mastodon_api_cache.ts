@@ -160,7 +160,7 @@ export default class MastodonApiCache extends Storage {
         api: mastodon.rest.Client,
         storageKey: Key | WeightName,
         fetch: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any) => Promise<T>,
-        extraArg: any | null = null
+        extraArg?: any
     ): Promise<T> {
         let data: T = await this.get(storageKey) as T;
         let logAction = LOADED_FROM_STORAGE;
@@ -171,7 +171,7 @@ export default class MastodonApiCache extends Storage {
             logAction = RETRIEVED;
 
             if (extraArg) {
-                console.debug(`Calling fetch() with extraArg for ${storageKey}:`, extraArg);
+                console.debug(`[${storageKey}] Calling fetch() with extraArg:`, extraArg);
                 data = await fetch(api, user, extraArg);
             } else {
                 data = await fetch(api, user);

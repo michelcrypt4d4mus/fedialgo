@@ -126,7 +126,7 @@ class MastodonApiCache extends Storage_1.default {
         return filters;
     }
     // Generic method to pull cached data from storage or fetch it from the API
-    static async getAggregatedData(api, storageKey, fetch, extraArg = null) {
+    static async getAggregatedData(api, storageKey, fetch, extraArg) {
         let data = await this.get(storageKey);
         let logAction = LOADED_FROM_STORAGE;
         if (data == null || (await this.shouldReloadFeatures())) {
@@ -135,7 +135,7 @@ class MastodonApiCache extends Storage_1.default {
                 throw new Error("No user identity found"); // TODO: user isn't always needed
             logAction = RETRIEVED;
             if (extraArg) {
-                console.debug(`Calling fetch() with extraArg for ${storageKey}:`, extraArg);
+                console.debug(`[${storageKey}] Calling fetch() with extraArg:`, extraArg);
                 data = await fetch(api, user, extraArg);
             }
             else {
