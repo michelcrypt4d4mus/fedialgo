@@ -1,17 +1,15 @@
 /*
- * Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language).
+ * TootFilter is an abstract class that represents a filter that can be applied
+ * to a Toot to determine if it should be included in the timeline feed.
  */
-
 import { FilterArgs, FilterTitle, Toot } from "../types";
 import { PropertyName } from "./property_filter";
 
 
 export default class TootFilter {
-    title: FilterTitle;
     description: string;
     invertSelection: boolean;
+    title: FilterTitle;
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
     constructor({ description, invertSelection, title, visible }: FilterArgs) {
