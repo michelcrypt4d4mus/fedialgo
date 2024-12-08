@@ -47,6 +47,7 @@ Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function
 Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
 const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
+const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
@@ -338,7 +339,7 @@ class TheAlgorithm {
                 await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
                 for (const toot of this.feed) {
-                    await this.decorateWithScoreInfo(toot);
+                    await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers);
                 }
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
@@ -359,45 +360,6 @@ class TheAlgorithm {
             }
         }
         return this.filteredFeed();
-    }
-    // Add scores including weighted & unweighted components to the Toot for debugging/inspection
-    async decorateWithScoreInfo(toot) {
-        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
-        let rawScore = 1;
-        const rawScores = {};
-        const weightedScores = {};
-        const userWeights = await this.getUserWeights();
-        const scores = await Promise.all(this.weightedScorers.map(scorer => scorer.score(toot)));
-        // Compute a weighted score a toot based by multiplying the value of each numerical property
-        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        this.weightedScorers.forEach((scorer, i) => {
-            const scoreValue = scores[i] || 0;
-            rawScores[scorer.name] = scoreValue;
-            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            rawScore += weightedScores[scorer.name];
-        });
-        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-        // high scores. To fix this we hack a final adjustment to the score by multiplying by the
-        // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[types_1.WeightName.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[types_1.WeightName.TRENDING_TOOTS] ?? 0;
-        if (trendingScore > 0 && trendingWeighting < 1.0)
-            rawScore *= trendingWeighting;
-        // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || config_1.DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
-        const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
-        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        const score = rawScore * timeDecayMultiplier;
-        toot.scoreInfo = {
-            rawScore,
-            rawScores,
-            score,
-            timeDecayMultiplier,
-            weightedScores,
-        };
-        // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
-        if (toot.reblog)
-            toot.reblog.scoreInfo = toot.scoreInfo;
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(toot) {

@@ -53,7 +53,6 @@ declare class TheAlgorithm {
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
-    private decorateWithScoreInfo;
     private isInTimeline;
     private isValidForFeed;
     private logTootCounts;

@@ -1,5 +1,4 @@
-import { ScorerInfo, Toot } from "../types";
-import { WeightName } from "../types";
+import { ScorerInfo, Toot, WeightName } from "../types";
 export default class Scorer {
     name: WeightName;
     description: string;
@@ -10,4 +9,5 @@ export default class Scorer {
     _score(_toot: Toot): Promise<number>;
     getInfo(): ScorerInfo;
     private checkIsReady;
+    static decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void>;
 }
