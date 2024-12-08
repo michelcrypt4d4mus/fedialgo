@@ -124,6 +124,7 @@ export const earliestTootAt = (toots: Toot[]): Date | null => {
     return earliest ? tootedAt(earliest) : null;
 };
 
+
 // Find the most recent toot in the feed
 export const earliestToot = (toots: Toot[]): Toot | null => {
     if (toots.length == 0) return null;
