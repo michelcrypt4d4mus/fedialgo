@@ -1,11 +1,13 @@
 /*
- * Handles getting Fediverse server metadata like monthly active users.
+ * Methods for making calls to the publilcly available Mastodon API methods
+ * that don't require authentication.
  */
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { AccountNames, ServerFeature, StringNumberDict } from "../types";
-import { getMonthlyUsers } from "../api/api";
+import { AccountNames, ServerFeature, StringNumberDict, TrendingTag } from "../types";
+import { decorateTrendingTag } from "./objects/tag";
+import { MastoApi, mastodonFetch } from "./api";
 
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
@@ -107,4 +109,41 @@ export default async function mastodonServersInfo(
     console.log(`serverMAUs: `, serverMAUs);
     console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
+};
+
+
+// Get publicly available MAU information. Requires no login (??)
+export async function getMonthlyUsers(server: string): Promise<number> {
+    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available`);
+        return 0;
+    }
+
+    try {
+        const instance = await mastodonFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    } catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
+        return 0;
+    }
+};
+
+
+export async function fetchTrendingTags(server: string, numTags?: number): Promise<TrendingTag[]> {
+    numTags ||= Storage.getConfig().numTrendingTootsPerServer;
+    const tagsUrl = MastoApi.trendUrl("tags")
+    let _tags: mastodon.v1.Tag[] | undefined;
+
+    try {
+        _tags = await mastodonFetch<mastodon.v1.Tag[]>(server, tagsUrl, numTags);
+        if (!_tags || _tags.length == 0) throw new Error(`No tags found on '${server}'!`);
+    } catch (e) {
+        console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
+        return [];
+    }
+
+    const tags = _tags.map(decorateTrendingTag);
+    console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
+    return tags;
 };

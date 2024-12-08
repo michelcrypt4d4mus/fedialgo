@@ -17,7 +17,6 @@ export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
 export const FILTER_ENDPOINT = `${API_V2}/filters`;
 
 
@@ -67,17 +66,9 @@ export class MastoApi {
         } as TimelineData;
     }
 
-    static v1Url(path: string): string {
-        return `${API_V1}/${path}`;
-    }
-
-    static v2Url(path: string): string {
-        return `${API_V2}/${path}`;
-    }
-
-    static trendUrl(path: string): string {
-        return this.v1Url(`trends/${path}`);
-    }
+    public static v1Url = (path: string) => `${API_V1}/${path}`;
+    public static v2Url = (path: string) => `${API_V2}/${path}`;
+    public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
 };
 
 
@@ -163,24 +154,6 @@ export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promis
     }
 
     return results;
-};
-
-
-// Get publicly available MAU information. Requires no login (??)
-export async function getMonthlyUsers(server: string): Promise<number> {
-    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
-        console.debug(`monthlyUsers() for '${server}' is not available`);
-        return 0;
-    }
-
-    try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, SERVER_MAU_ENDPOINT);
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    } catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
-        return 0;
-    }
 };
 
 

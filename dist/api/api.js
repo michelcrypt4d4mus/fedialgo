@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.MastoApi = exports.FILTER_ENDPOINT = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
+exports.getTootsForTag = exports.getUserRecentToots = exports.mastodonFetchPages = exports.mastodonFetch = exports.searchForToots = exports.MastoApi = exports.FILTER_ENDPOINT = exports.ACCESS_TOKEN_REVOKED_MSG = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -19,7 +19,6 @@ exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-const SERVER_MAU_ENDPOINT = `${API_V2}/instance`;
 exports.FILTER_ENDPOINT = `${API_V2}/filters`;
 class MastoApi {
     api;
@@ -59,15 +58,9 @@ class MastoApi {
             otherToots: allResponses.flat(),
         };
     }
-    static v1Url(path) {
-        return `${API_V1}/${path}`;
-    }
-    static v2Url(path) {
-        return `${API_V2}/${path}`;
-    }
-    static trendUrl(path) {
-        return this.v1Url(`trends/${path}`);
-    }
+    static v1Url = (path) => `${API_V1}/${path}`;
+    static v2Url = (path) => `${API_V2}/${path}`;
+    static trendUrl = (path) => this.v1Url(`trends/${path}`);
 }
 exports.MastoApi = MastoApi;
 ;
@@ -136,24 +129,6 @@ async function mastodonFetchPages(fetchParams) {
     return results;
 }
 exports.mastodonFetchPages = mastodonFetchPages;
-;
-// Get publicly available MAU information. Requires no login (??)
-async function getMonthlyUsers(server) {
-    if (Storage_1.default.getConfig().noMauServers.some(s => server.startsWith(s))) {
-        console.debug(`monthlyUsers() for '${server}' is not available`);
-        return 0;
-    }
-    try {
-        const instance = await (0, exports.mastodonFetch)(server, SERVER_MAU_ENDPOINT);
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    }
-    catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
-        return 0;
-    }
-}
-exports.getMonthlyUsers = getMonthlyUsers;
 ;
 // Get the user's recent toots
 async function getUserRecentToots(api, user) {
