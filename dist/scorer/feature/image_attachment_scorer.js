@@ -20,4 +20,4 @@ class ImageAttachmentScorer extends feature_scorer_1.default {
 }
 exports.default = ImageAttachmentScorer;
 ;
-//# sourceMappingURL=ImageAttachmentScorer.js.map
+//# sourceMappingURL=image_attachment_scorer.js.map

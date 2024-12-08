@@ -4,10 +4,10 @@
 import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
 
-import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
+import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
-import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
+import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
@@ -22,7 +22,7 @@ import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Storage from "./Storage";
 import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
-import VideoAttachmentScorer from "./scorer/feature/VideoAttachmentScorer";
+import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import {
     AccountNames,
     AlgorithmArgs,
@@ -63,7 +63,7 @@ class TheAlgorithm {
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new ChaosFeatureScorer(),
+        new ChaosScorer(),
         new MostFavoritedAccountsScorer(),
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),

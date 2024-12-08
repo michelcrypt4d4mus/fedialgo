@@ -5,7 +5,7 @@ import FeatureScorer from '../feature_scorer';
 import { WeightName } from "../../types";
 
 
-export default class ChaosFeatureScorer extends FeatureScorer {
+export default class ChaosScorer extends FeatureScorer {
     constructor() {
         super({scoreName: WeightName.CHAOS});
     }

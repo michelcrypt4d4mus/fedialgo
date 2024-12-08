@@ -20,4 +20,4 @@ class VideoAttachmentScorer extends feature_scorer_1.default {
 }
 exports.default = VideoAttachmentScorer;
 ;
-//# sourceMappingURL=VideoAttachmentScorer.js.map
+//# sourceMappingURL=video_attachment_scorer.js.map

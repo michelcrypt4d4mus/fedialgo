@@ -28,10 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.SourceFilterName = exports.PropertyFilter = exports.NumericFilter = exports.PropertyName = exports.TIME_DECAY = void 0;
 const async_mutex_1 = require("async-mutex");
-const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeatureScorer"));
+const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
-const ImageAttachmentScorer_1 = __importDefault(require("./scorer/feature/ImageAttachmentScorer"));
+const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
@@ -50,7 +50,7 @@ const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_
 const Storage_1 = __importDefault(require("./Storage"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
-const VideoAttachmentScorer_1 = __importDefault(require("./scorer/feature/VideoAttachmentScorer"));
+const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
 const config_1 = require("./config");
@@ -77,10 +77,10 @@ class TheAlgorithm {
     setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new chaosFeatureScorer_1.default(),
+        new chaos_scorer_1.default(),
         new most_favorited_accounts_scorer_1.default(),
         new followed_tags_feature_scorer_1.default(),
-        new ImageAttachmentScorer_1.default(),
+        new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
@@ -89,7 +89,7 @@ class TheAlgorithm {
         new most_replied_accounts_scorer_1.default(),
         new trending_toots_feature_scorer_1.default(),
         new trending_tags_scorer_1.default(),
-        new VideoAttachmentScorer_1.default(),
+        new video_attachment_scorer_1.default(),
     ];
     // These scorers require the complete feed to work properly
     feedScorers = [

@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
-class ChaosFeatureScorer extends feature_scorer_1.default {
+class ChaosScorer extends feature_scorer_1.default {
     constructor() {
         super({ scoreName: types_1.WeightName.CHAOS });
     }
@@ -16,6 +16,6 @@ class ChaosFeatureScorer extends feature_scorer_1.default {
         return Math.random();
     }
 }
-exports.default = ChaosFeatureScorer;
+exports.default = ChaosScorer;
 ;
-//# sourceMappingURL=chaosFeatureScorer.js.map
+//# sourceMappingURL=chaos_scorer.js.map
