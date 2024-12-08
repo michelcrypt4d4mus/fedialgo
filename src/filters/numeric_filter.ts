@@ -2,7 +2,7 @@
  * Put a minimum number on things like reblogs and replies.
  */
 import TootFilter from "./toot_filter";
-import { FilterArgs, Toot, WeightName } from "../../types";
+import { FilterArgs, Toot, WeightName } from "../types";
 
 
 export interface NumericFilterArgs extends FilterArgs {

@@ -5,11 +5,11 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import MastodonApiCache from "./mastodon_api_cache";
-import Storage from "../Storage";
 import getHomeFeed from "../feeds/homeFeed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
+import MastodonApiCache from "./mastodon_api_cache";
+import Storage from "../Storage";
 import { TimelineData, Toot, TrendingTag, UserData } from "../types";
 import { transformKeys } from "../helpers";
 

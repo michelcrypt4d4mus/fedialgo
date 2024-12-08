@@ -1,8 +1,8 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import NumericFilter, { FILTERABLE_SCORES} from "./objects/filters/numeric_filter";
-import PropertyFilter, { PropertyName } from "./objects/filters/property_filter";
+import NumericFilter, { FILTERABLE_SCORES} from "./filters/numeric_filter";
+import PropertyFilter, { PropertyName } from "./filters/property_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 

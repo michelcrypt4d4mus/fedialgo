@@ -9,11 +9,11 @@ exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = 
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
-const mastodon_api_cache_1 = __importDefault(require("./mastodon_api_cache"));
-const Storage_1 = __importDefault(require("../Storage"));
 const homeFeed_1 = __importDefault(require("../feeds/homeFeed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
+const mastodon_api_cache_1 = __importDefault(require("./mastodon_api_cache"));
+const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api";

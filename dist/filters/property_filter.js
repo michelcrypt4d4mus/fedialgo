@@ -9,9 +9,9 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language).
  */
-const Storage_1 = __importDefault(require("../../Storage"));
+const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const toot_1 = require("../../api/objects/toot");
+const toot_1 = require("../api/objects/toot");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {

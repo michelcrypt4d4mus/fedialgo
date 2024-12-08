@@ -8,7 +8,7 @@ exports.FILTERABLE_SCORES = void 0;
  * Put a minimum number on things like reblogs and replies.
  */
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const types_1 = require("../../types");
+const types_1 = require("../types");
 ;
 exports.FILTERABLE_SCORES = [
     types_1.WeightName.NUM_REPLIES,

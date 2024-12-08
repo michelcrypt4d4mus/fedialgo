@@ -3,10 +3,10 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language).
  */
-import Storage, { Key } from "../../Storage";
+import Storage, { Key } from "../Storage";
 import TootFilter from "./toot_filter";
-import { containsString } from "../../api/objects/toot";
-import { FilterArgs, Toot } from "../../types";
+import { containsString } from "../api/objects/toot";
+import { FilterArgs, Toot } from "../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;

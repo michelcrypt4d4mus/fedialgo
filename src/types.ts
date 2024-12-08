@@ -1,7 +1,7 @@
 import { mastodon } from 'masto';
 
-import PropertyFilter, { PropertyFilterArgs, PropertyName } from './objects/filters/property_filter';
-import NumericFilter, { NumericFilterArgs } from './objects/filters/numeric_filter';
+import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
+import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 
 

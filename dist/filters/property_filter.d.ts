@@ -1,5 +1,5 @@
 import TootFilter from "./toot_filter";
-import { FilterArgs, Toot } from "../../types";
+import { FilterArgs, Toot } from "../types";
 type FilterOptionInfo = Record<string, number>;
 type SourceFilter = (toot: Toot) => boolean;
 type SourceFilters = Record<SourceFilterName, SourceFilter>;

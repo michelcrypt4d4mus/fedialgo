@@ -38,13 +38,13 @@ const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/imag
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
-const numeric_filter_1 = __importDefault(require("./objects/filters/numeric_filter"));
+const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 exports.NumericFilter = numeric_filter_1.default;
 const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
 const paginator_1 = __importDefault(require("./api/paginator"));
-const property_filter_1 = __importStar(require("./objects/filters/property_filter"));
+const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
 Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
