@@ -4,9 +4,17 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import PropertyFilter, { PropertyName } from "./objects/property_filter";
 import NumericFilter, { FILTERABLE_SCORES } from "./objects/numeric_filter";
-import { Config, FeedFilterSettings, FeedFilterSettingsSerialized, StorageValue, Toot, WeightName, Weights } from "./types";
+import PropertyFilter, { PropertyName } from "./objects/property_filter";
+import {
+    Config,
+    FeedFilterSettings,
+    FeedFilterSettingsSerialized,
+    StorageValue,
+    Toot,
+    WeightName,
+    Weights
+} from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
 
 export enum Key {

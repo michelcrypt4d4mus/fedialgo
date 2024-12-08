@@ -1,6 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FILTERABLE_SCORES = void 0;
+/*
+ * Put a minimum number on things like reblogs and replies.
+ */
+const toot_filter_1 = __importDefault(require("./toot_filter"));
 const types_1 = require("../types");
 ;
 exports.FILTERABLE_SCORES = [
@@ -8,15 +15,16 @@ exports.FILTERABLE_SCORES = [
     types_1.WeightName.NUM_RETOOTS,
     types_1.WeightName.NUM_FAVOURITES,
 ];
-class NumericFilter {
-    description;
-    invertSelection;
+class NumericFilter extends toot_filter_1.default {
     title;
     value;
     constructor({ invertSelection, title, value }) {
+        super({
+            description: `Minimum ${title.startsWith("Num") ? title.slice(3) : title}`,
+            invertSelection,
+            title,
+        });
         this.title = title;
-        this.description = `Minimum ${this.title.startsWith("Num") ? title.slice(3) : title}`;
-        this.invertSelection = invertSelection ?? false;
         this.value = value ?? 0;
     }
     // Return true if the toot should appear in the timeline feed

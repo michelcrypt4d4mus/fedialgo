@@ -31,8 +31,8 @@ exports.Key = void 0;
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 const localforage_1 = __importDefault(require("localforage"));
-const property_filter_1 = __importStar(require("./objects/property_filter"));
 const numeric_filter_1 = __importStar(require("./objects/numeric_filter"));
+const property_filter_1 = __importStar(require("./objects/property_filter"));
 const config_1 = require("./config");
 var Key;
 (function (Key) {

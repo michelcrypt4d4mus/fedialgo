@@ -70,8 +70,9 @@ export type Config = {
     noMauServers: string[];
 };
 
-export type CountKey = PropertyName | WeightName | string;
+export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
+export type FilterTitle = PropertyName | WeightName;
 
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
@@ -85,7 +86,9 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 
 export type FilterArgs = {
     title: PropertyName | WeightName;
+    description?: string;
     invertSelection?: boolean;
+    visible?: boolean;
 };
 
 export type ScorerInfo = {

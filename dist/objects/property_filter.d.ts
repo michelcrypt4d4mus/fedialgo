@@ -1,3 +1,4 @@
+import TootFilter from "./toot_filter";
 import { FilterArgs, Toot } from "../types";
 type FilterOptionInfo = Record<string, number>;
 type SourceFilter = (toot: Toot) => boolean;
@@ -24,10 +25,8 @@ export interface PropertyFilterArgs extends FilterArgs {
     validValues?: string[];
 }
 export declare const SOURCE_FILTERS: SourceFilters;
-export default class PropertyFilter {
+export default class PropertyFilter extends TootFilter {
     title: PropertyName;
-    description: string;
-    invertSelection: boolean;
     optionInfo: FilterOptionInfo;
     validValues: string[];
     visible: boolean;

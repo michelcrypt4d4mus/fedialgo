@@ -10,6 +10,7 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 
  * (e.g. language).
  */
 const Storage_1 = __importDefault(require("../Storage"));
+const toot_filter_1 = __importDefault(require("./toot_filter"));
 const toot_1 = require("./toot");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
@@ -69,37 +70,35 @@ const TOOT_MATCHERS = {
     },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-class PropertyFilter {
+class PropertyFilter extends toot_filter_1.default {
     title;
-    description;
-    invertSelection;
     optionInfo;
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     constructor({ title, invertSelection, optionInfo, validValues }) {
-        this.title = title;
-        if (this.title == PropertyName.SOURCE) {
+        optionInfo ??= {};
+        let description;
+        if (title == PropertyName.SOURCE) {
             // Set up the default for source filters so something always shows up in the options
-            this.optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
+            optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
                 acc[option] = 1;
                 return acc;
             }, {});
-            this.description = SOURCE_FILTER_DESCRIPTION;
+            description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
             const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
-            this.description = `Show only toots ${descriptionWord} these ${title}s`;
+            description = `Show only toots ${descriptionWord} these ${title}s`;
         }
-        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+        super({ description, invertSelection, title });
+        this.title = title;
+        this.optionInfo = optionInfo ?? {};
+        this.validValues = validValues ?? [];
+        if (title == PropertyName.SERVER_SIDE_FILTERS) {
             // Server side filters are inverted by default bc we don't want to show toots including them
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
         }
-        else {
-            this.invertSelection = invertSelection ?? false;
-        }
-        this.optionInfo = optionInfo ?? {};
-        this.validValues = validValues ?? [];
     }
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot) {

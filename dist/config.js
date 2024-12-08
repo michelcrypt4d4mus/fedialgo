@@ -83,12 +83,11 @@ exports.DEFAULT_CONFIG = {
     // Timeline toots
     enableIncrementalLoad: true,
     maxTimelineTootsToFetch: 2500,
-    numTootsInFirstFetch: 80,
     // enableIncrementalLoad: true,        // useful dev options for faster load
     // maxTimelineTootsToFetch: 400,      // useful dev options for faster load
-    // numTootsInFirstFetch: 120,           // useful dev options for faster load
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
+    numTootsInFirstFetch: 80,
     reloadIfOlderThanMinutes: 10,
     // API stuff
     minRecordsForFeatureScoring: 400,

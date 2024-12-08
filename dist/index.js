@@ -231,7 +231,7 @@ class TheAlgorithm {
             this.serverSideFilters.forEach((filter) => {
                 filter.keywords.forEach((keyword) => {
                     if ((0, toot_1.containsString)(toot, keyword.keyword)) {
-                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server filter keyword:`, keyword);
+                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server filter:`, filter);
                         (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });

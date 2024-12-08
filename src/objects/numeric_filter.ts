@@ -1,6 +1,7 @@
 /*
  * Put a minimum number on things like reblogs and replies.
  */
+import TootFilter from "./toot_filter";
 import { FilterArgs } from "../types";
 import { Toot, WeightName } from "../types";
 
@@ -15,16 +16,18 @@ export const FILTERABLE_SCORES: WeightName[] = [
 ];
 
 
-export default class NumericFilter {
-    description: string;
-    invertSelection: boolean;
+export default class NumericFilter extends TootFilter {
     title: WeightName;
     value: number;
 
     constructor({ invertSelection, title, value }: NumericFilterArgs) {
+        super({
+            description: `Minimum ${title.startsWith("Num") ? title.slice(3) : title}`,
+            invertSelection,
+            title,
+        })
+
         this.title = title as WeightName;
-        this.description = `Minimum ${this.title.startsWith("Num") ? title.slice(3) : title}`;
-        this.invertSelection = invertSelection ?? false;
         this.value = value ?? 0;
     }
 
