@@ -124,11 +124,10 @@ class TheAlgorithm {
 
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
+        this.filters = buildNewFilterSettings();
         this.mastoApi = new MastoApi(this.api);
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.user = params.user;
-
-        this.filters = buildNewFilterSettings();
         this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
     }
 
