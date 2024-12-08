@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Storage_1 = __importDefault(require("../Storage"));
-const toot_1 = require("../objects/toot");
+const toot_1 = require("../api/objects/toot");
 async function getHomeFeed(api, numToots, maxId) {
     const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);

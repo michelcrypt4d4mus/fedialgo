@@ -36,6 +36,6 @@ export default class FeatureScorer extends Scorer {
         }
 
         this._isReady = true;
-        return [];  // this is a hack so we can safely use Promise.all().flat() to get 'allResponses'
+        return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
 };

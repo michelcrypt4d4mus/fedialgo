@@ -3,7 +3,7 @@
  */
 import FeatureScorer from '../feature_scorer';
 import { Toot } from '../../types';
-import { videoAttachments } from '../../objects/toot';
+import { videoAttachments } from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 

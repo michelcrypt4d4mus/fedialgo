@@ -5,7 +5,7 @@
  */
 import Storage, { Key } from "../../Storage";
 import TootFilter from "./toot_filter";
-import { containsString } from "./../toot";
+import { containsString } from "../../api/objects/toot";
 import { FilterArgs, Toot } from "../../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }

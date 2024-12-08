@@ -55,14 +55,12 @@ const Storage_1 = __importDefault(require("./Storage"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
-const account_1 = require("./objects/account");
-const toot_1 = require("./objects/toot");
-const config_1 = require("./config");
+const account_1 = require("./api/objects/account");
 const helpers_1 = require("./helpers");
-const helpers_2 = require("./helpers");
+const config_1 = require("./config");
 const api_1 = require("./api/api");
-const toot_2 = require("./objects/toot");
 const types_1 = require("./types");
+const toot_1 = require("./api/objects/toot");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 class TheAlgorithm {
@@ -209,22 +207,22 @@ class TheAlgorithm {
             return counts;
         }, {});
         this.feed.forEach(toot => {
-            (0, toot_2.repairToot)(toot);
+            (0, toot_1.repairToot)(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);
+            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
+            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
+            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);
             // Lowercase and count tags
             toot.tags.forEach((tag) => {
                 toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
                 if (tag.name in this.followedTags)
                     toot.followedTags.push(tag);
-                (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
+                (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
             });
             // Aggregate source counts
             Object.entries(property_filter_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
                 if (sourceFilter(toot)) {
-                    (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.SOURCE], sourceName);
+                    (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SOURCE], sourceName);
                 }
             });
             // Aggregate server-side filter counts
@@ -232,7 +230,7 @@ class TheAlgorithm {
                 filter.keywords.forEach((keyword) => {
                     if ((0, toot_1.containsString)(toot, keyword.keyword)) {
                         console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server filter:`, filter);
-                        (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
+                        (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
             });

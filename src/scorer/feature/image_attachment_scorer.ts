@@ -2,7 +2,7 @@
  * Score how many times the toot has been favorited by other users.
  */
 import FeatureScorer from '../feature_scorer';
-import { imageAttachments } from '../../objects/toot';
+import { imageAttachments } from '../../api/objects/toot';
 import { Toot } from '../../types';
 import { WeightName } from "../../types";
 

@@ -34,7 +34,7 @@ const most_favorited_accounts_scorer_1 = __importDefault(require("../scorer/feat
 const most_replied_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_replied_accounts_scorer"));
 const retooted_users_scorer_1 = __importDefault(require("../scorer/feature/retooted_users_scorer"));
 const Storage_1 = __importStar(require("../Storage"));
-const account_1 = require("../objects/account");
+const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const types_1 = require("../types");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens

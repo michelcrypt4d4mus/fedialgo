@@ -24,24 +24,29 @@ import Storage from "./Storage";
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
+import { buildAccountNames } from "./api/objects/account";
+import { createRandomString, dedupeToots, incrementCount } from "./helpers";
+import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
+import { MastoApi } from "./api/api";
 import {
     AccountNames,
     AlgorithmArgs,
     FeedFilterSettings,
     ScorerDict,
+    ScorerInfo,
     StringNumberDict,
     Toot,
+    WeightName,
     Weights,
 } from "./types";
-import { buildAccountNames } from "./objects/account";
-import { condensedStatus, containsString, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
-import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
-import { createRandomString, dedupeToots } from "./helpers";
-import { incrementCount } from "./helpers";
-import { MastoApi } from "./api/api";
-import { repairToot } from "./objects/toot";
-import { ScorerInfo } from "./types";
-import { WeightName } from "./types";
+import {
+    condensedStatus,
+    containsString,
+    describeToot,
+    earliestTootAt,
+    repairToot,
+    sortByCreatedAt
+} from "./api/objects/toot";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
 

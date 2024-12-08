@@ -13,7 +13,7 @@ import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_s
 import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
 import Storage, { Key } from "../Storage";
 import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
-import { buildAccountNames } from "../objects/account";
+import { buildAccountNames } from "./objects/account";
 import { getUserRecentToots, mastodonFetchPages } from "./api";
 import { WeightName } from "../types";
 

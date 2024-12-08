@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { Toot } from "../types";
+import { Toot } from "../../types";
 export declare const EARLIEST_TIMESTAMP: Date;
 export declare function popularity(toot: Toot): number;
 export declare const condensedStatus: (toot: Toot) => {};

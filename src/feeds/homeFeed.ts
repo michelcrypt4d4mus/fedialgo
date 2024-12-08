@@ -6,7 +6,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { describeToot, earliestTootAt, sortByCreatedAt } from "../objects/toot";
+import { describeToot, earliestTootAt, sortByCreatedAt } from "../api/objects/toot";
 import { Toot } from "../types";
 
 

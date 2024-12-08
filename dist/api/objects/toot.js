@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.containsString = exports.tootedAt = exports.repairToot = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = exports.EARLIEST_TIMESTAMP = void 0;
-const Storage_1 = __importDefault(require("../Storage"));
-const helpers_1 = require("../helpers");
+const Storage_1 = __importDefault(require("../../Storage"));
+const helpers_1 = require("../../helpers");
 exports.EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;

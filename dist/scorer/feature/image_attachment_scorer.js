@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times the toot has been favorited by other users.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const toot_1 = require("../../objects/toot");
+const toot_1 = require("../../api/objects/toot");
 const types_1 = require("../../types");
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 class ImageAttachmentScorer extends feature_scorer_1.default {

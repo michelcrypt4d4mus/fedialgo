@@ -18,10 +18,8 @@ import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, StringNumberDict, Toot, Weights } from "./types";
 import { MastoApi } from "./api/api";
-import { ScorerInfo } from "./types";
-import { WeightName } from "./types";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, Toot, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;

@@ -7,7 +7,7 @@ const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const api_1 = require("../api/api");
-const toot_1 = require("../objects/toot");
+const toot_1 = require("../api/objects/toot");
 const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
