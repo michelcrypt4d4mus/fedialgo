@@ -136,7 +136,9 @@ const earliestToot = (toots) => {
 };
 exports.earliestToot = earliestToot;
 // Repair toot properties:
+//   - Set toot.application.name to UNKNOWN_APP if missing
 //   - Set toot.language to defaultLanguage if missing
+//   - Add server info to the account string if missing
 //   - Set media type to "image" if unknown and reparable
 //   - Lowercase all tags
 function repairToot(toot) {
@@ -144,6 +146,11 @@ function repairToot(toot) {
     toot.application.name ??= UNKNOWN_APP;
     toot.language ??= Storage_1.default.getConfig().defaultLanguage;
     toot.followedTags ??= [];
+    // Inject the @server info to the account string if it's missing
+    if (toot.account.acct && !toot.account.acct.includes("@")) {
+        console.debug(`Injecting @server info to account string '${toot.account.acct}' for:`, toot);
+        toot.account.acct = `${toot.account.acct}@${toot.account.url.split("/")[2]}`;
+    }
     // Check for weird media types
     toot.mediaAttachments.forEach((media) => {
         if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {

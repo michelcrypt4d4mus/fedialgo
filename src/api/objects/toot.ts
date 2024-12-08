@@ -157,7 +157,9 @@ export const earliestToot = (toots: Toot[]): Toot | null => {
 
 
 // Repair toot properties:
+//   - Set toot.application.name to UNKNOWN_APP if missing
 //   - Set toot.language to defaultLanguage if missing
+//   - Add server info to the account string if missing
 //   - Set media type to "image" if unknown and reparable
 //   - Lowercase all tags
 export function repairToot(toot: Toot): void {
@@ -165,6 +167,12 @@ export function repairToot(toot: Toot): void {
     toot.application.name ??= UNKNOWN_APP;
     toot.language ??= Storage.getConfig().defaultLanguage;
     toot.followedTags ??= [];
+
+    // Inject the @server info to the account string if it's missing
+    if (toot.account.acct && !toot.account.acct.includes("@")) {
+        console.debug(`Injecting @server info to account string '${toot.account.acct}' for:`, toot);
+        toot.account.acct = `${toot.account.acct}@${toot.account.url.split("/")[2]}`;
+    }
 
     // Check for weird media types
     toot.mediaAttachments.forEach((media) => {

@@ -28,13 +28,6 @@ async function getTrendingToots(api) {
         // toot gets numTrendingTootsPerServer points, least trending gets 1).
         topToots = topToots.filter(toot => (0, toot_1.popularity)(toot) > 0)
             .map((toot, i) => {
-            // Inject the @server info to the account string
-            const acct = toot.account.acct;
-            if (acct && !acct.includes("@")) {
-                console.debug(`Injecting @server info to account string '${acct}' for toot:`, toot);
-                toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
-            }
-            // Inject trendingRank score
             toot.trendingRank = 1 + (topToots?.length || 0) - i;
             return toot;
         });

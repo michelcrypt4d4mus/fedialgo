@@ -11,7 +11,7 @@ export default class DiversityFeedScorer extends FeedScorer {
         super(WeightName.DIVERSITY);
     }
 
-    feedExtractor(feed: Toot[]): Record<string, number> {
+    feedExtractor(feed: Toot[]): StringNumberDict {
         // Shuffle the feed before penalizing multiple tooters
         // TODO: maybe reverse chronological order would be better?
         console.log(`DiversityFeedScorer.feedExtractor() called...`);
