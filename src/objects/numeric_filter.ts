@@ -47,7 +47,6 @@ export default class NumericFilter extends TootFilter {
 
     // Add the element to the filters array if it's not already there or remove it if it is
     updateValue(newValue: number): void {
-        console.debug(`Updating value for ${this.title} with ${newValue}`);
         this.value = newValue;
     }
 

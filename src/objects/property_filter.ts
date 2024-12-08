@@ -146,6 +146,6 @@ export default class PropertyFilter extends TootFilter {
     toArgs(): PropertyFilterArgs {
         const filterArgs = super.toArgs() as PropertyFilterArgs;
         filterArgs.validValues = this.validValues;
-        return filterArgs
+        return filterArgs;
     }
 };
