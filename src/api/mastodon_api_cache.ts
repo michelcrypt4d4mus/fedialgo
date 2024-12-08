@@ -4,7 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import coreServerFeature from "../features/coreServerFeature";
+import mastodonServersInfo from "../features/coreServerFeature";
 import FollowedTagsFeatureScorer from "../scorer/feature/followed_tags_feature_scorer";
 import InteractionsScorer from "../scorer/feature/interactions_scorer";
 import MostFavoritedAccountsScorer from "../scorer/feature/most_favorited_accounts_scorer";
@@ -103,7 +103,7 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(
             api,
             Key.CORE_SERVER,
-            coreServerFeature,
+            mastodonServersInfo,
             await this.getFollowedAccounts(api)
         );
     }

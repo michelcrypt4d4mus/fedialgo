@@ -49,7 +49,7 @@ const POPULAR_SRERVERS_MAU_GUESS = 1000;
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function coreServerFeature(
+export default async function mastodonServersInfo(
     _api: mastodon.rest.Client,
     _user: mastodon.v1.Account,
     followedAccounts: AccountNames
