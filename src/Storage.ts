@@ -4,7 +4,6 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import TootFilter from "./objects/toot_filter";
 import {
     Config,
     FeedFilterSettings,
