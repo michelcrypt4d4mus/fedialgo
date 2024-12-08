@@ -23,10 +23,9 @@ import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
-import { decorateTrendingTag } from "../api/objects/tag";
 import { dedupeToots } from "../api/objects/toot";
 import { fetchTrendingTags } from "../api/mastodon_servers_info";
-import { getTootsForTag, MastoApi, mastodonFetch } from "../api/api";
+import { getTootsForTag } from "../api/api";
 import { popularity } from "../api/objects/toot";
 import { Toot, TrendingTag } from "../types";
 
@@ -37,7 +36,6 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
     const tags = await getTrendingTags(api);
     const tootses: Toot[][] = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots: Toot[] = dedupeToots(tootses.flat(), "trendingTags");
-    console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
     return toots.sort(popularity).reverse().slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 

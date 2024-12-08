@@ -3,8 +3,7 @@
  * prevent prolific tooters from clogging up the feed.
  */
 import FeedScorer from "../feed_scorer";
-import { Toot } from "../../types";
-import { WeightName } from "../../types";
+import { StringNumberDict, Toot, WeightName } from "../../types";
 
 
 export default class DiversityFeedScorer extends FeedScorer {
@@ -20,11 +19,11 @@ export default class DiversityFeedScorer extends FeedScorer {
 
         // Count toots by account (but negative instead of positive count)
         return feed.toSorted(sortRandom).reduce(
-            (tootCounts: Record<string, number>, toot) => {
+            (tootCounts, toot) => {
                 tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
                 return tootCounts;
             },
-            {}
+            {} as StringNumberDict
         );
     }
 

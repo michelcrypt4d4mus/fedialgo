@@ -5,19 +5,16 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
-import Storage from "../Storage";
 import { average } from '../helpers';
-import { dedupeToots } from "../api/objects/toot";
 import { condensedStatus, popularity } from "../api/objects/toot";
+import { dedupeToots } from "../api/objects/toot";
 import { MastoApi, mastodonFetch } from "../api/api";
 import { Toot } from "../types";
-
 
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
     const topServerDomains = await MastodonApiCache.getTopServerDomains(api);
-    const numTrendingTootsPerServer = Storage.getConfig().numTrendingTootsPerServer;
 
     // Pull top trending toots from each server
     let trendingTootses: Toot[][] = await Promise.all(
@@ -26,10 +23,7 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
 
             try {
                 topToots = await mastodonFetch<Toot[]>(server, MastoApi.trendUrl("statuses"));
-
-                if (!topToots || topToots.length == 0) {
-                    throw new Error(`Failed to get top toots on '${server}'! topToots: ${topToots}`);
-                }
+                if (!topToots?.length) throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
             } catch (e) {
                 console.warn(`Error fetching trending toots from '${server}':`, e);
                 return [];
@@ -39,17 +33,17 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
             // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
             // toot gets numTrendingTootsPerServer points, least trending gets 1).
             topToots = topToots.filter(toot => popularity(toot) > 0)
-                               .slice(0, numTrendingTootsPerServer)
                                .map((toot: Toot, i: number) => {
                                     // Inject the @server info to the account string
                                     const acct = toot.account.acct;
 
                                     if (acct && !acct.includes("@")) {
+                                        console.debug(`Injecting @server info to account string '${acct}' for toot:`, toot);
                                         toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
                                     }
 
                                     // Inject trendingRank score
-                                    toot.trendingRank = 1 + numTrendingTootsPerServer - i;
+                                    toot.trendingRank = 1 + (topToots?.length || 0) - i;
                                     return toot;
                                 });
 
@@ -58,9 +52,7 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
         })
     );
 
-    const trendingToots = dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
-    console.log(`[getTrendingToots] trendingToots:`, trendingToots);
-    return trendingToots;
+    return dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
 };
 
 

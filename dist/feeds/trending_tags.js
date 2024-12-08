@@ -14,7 +14,6 @@ async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag) => (0, api_1.getTootsForTag)(api, tag)));
     const toots = (0, toot_1.dedupeToots)(tootses.flat(), "trendingTags");
-    console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
     return toots.sort(toot_2.popularity).reverse().slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
 exports.default = getRecentTootsForTrendingTags;

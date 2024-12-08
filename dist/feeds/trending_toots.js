@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
-const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../api/objects/toot");
 const toot_2 = require("../api/objects/toot");
@@ -12,15 +11,13 @@ const api_1 = require("../api/api");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
     const topServerDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
-    const numTrendingTootsPerServer = Storage_1.default.getConfig().numTrendingTootsPerServer;
     // Pull top trending toots from each server
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
         let topToots = [];
         try {
             topToots = await (0, api_1.mastodonFetch)(server, api_1.MastoApi.trendUrl("statuses"));
-            if (!topToots || topToots.length == 0) {
-                throw new Error(`Failed to get top toots on '${server}'! topToots: ${topToots}`);
-            }
+            if (!topToots?.length)
+                throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
         }
         catch (e) {
             console.warn(`Error fetching trending toots from '${server}':`, e);
@@ -29,24 +26,22 @@ async function getTrendingToots(api) {
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
         // toot gets numTrendingTootsPerServer points, least trending gets 1).
-        topToots = topToots.filter(toot => (0, toot_2.popularity)(toot) > 0)
-            .slice(0, numTrendingTootsPerServer)
+        topToots = topToots.filter(toot => (0, toot_1.popularity)(toot) > 0)
             .map((toot, i) => {
             // Inject the @server info to the account string
             const acct = toot.account.acct;
             if (acct && !acct.includes("@")) {
+                console.debug(`Injecting @server info to account string '${acct}' for toot:`, toot);
                 toot.account.acct = `${acct}@${toot.account.url.split("/")[2]}`;
             }
             // Inject trendingRank score
-            toot.trendingRank = 1 + numTrendingTootsPerServer - i;
+            toot.trendingRank = 1 + (topToots?.length || 0) - i;
             return toot;
         });
-        console.debug(`trendingToots for '${server}': `, topToots.map(toot_2.condensedStatus));
+        console.debug(`trendingToots for '${server}': `, topToots.map(toot_1.condensedStatus));
         return topToots;
     }));
-    const trendingToots = (0, toot_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
-    console.log(`[getTrendingToots] trendingToots:`, trendingToots);
-    return trendingToots;
+    return (0, toot_2.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
 }
 exports.default = getTrendingToots;
 ;
