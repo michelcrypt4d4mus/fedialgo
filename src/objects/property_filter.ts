@@ -63,6 +63,9 @@ const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return toot.tags.some(tag => validValues.includes(tag.name));
     },
+    [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
+        return !!validValues.find((v) => containsString(toot, v));
+    },
     [PropertyName.SOURCE]: (toot: Toot, validValues: string[]) => {
         return Object.entries(SOURCE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
@@ -70,9 +73,6 @@ const TOOT_MATCHERS: TootMatchers = {
     },
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.account.acct);
-    },
-    [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
-        return !!validValues.find((v) => containsString(toot, v));
     },
 };
 
