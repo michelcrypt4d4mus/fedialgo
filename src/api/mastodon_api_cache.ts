@@ -5,16 +5,15 @@
 import { mastodon } from "masto";
 
 import coreServerFeature from "../features/coreServerFeature";
-import FollowedTagsFeature from "../features/followed_tags_feature";
-import InteractionsFeature from "../features/InteractionsFeature";
-import MostFavoritedAccounts from "../features/most_favorited_accounts";
-import reblogsFeature from "../features/reblogsFeature";
-import repliedFeature from "../features/replied_feature";
+import FollowedTagsFeatureScorer from "../scorer/feature/followed_tags_feature_scorer";
+import InteractionsFeatureScorer from "../scorer/feature/InteractionsFeatureScorer";
+import MostFavoritedAccountsScorer from "../scorer/feature/most_favorited_accounts_scorer";
+import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_scorer";
+import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
 import Storage, { Key } from "../Storage";
-import { FILTER_ENDPOINT } from "./api";
 import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
 import { buildAccountNames } from "../objects/account";
-import { getUserRecentToots, mastodonFetch, mastodonFetchPages } from "./api";
+import { getUserRecentToots, mastodonFetchPages } from "./api";
 import { WeightName } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
@@ -45,7 +44,11 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getMostFavoritedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
-        return await this.getAggregatedData<AccountFeature>(api, WeightName.FAVORITED_ACCOUNTS, MostFavoritedAccounts);
+        return await this.getAggregatedData<AccountFeature>(
+            api,
+            WeightName.FAVORITED_ACCOUNTS,
+            MostFavoritedAccountsScorer.fetchRequiredData
+        );
     }
 
     // Get the users recent toots
@@ -65,7 +68,7 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(
             api,
             WeightName.FOLLOWED_TAGS,
-            FollowedTagsFeature
+            FollowedTagsFeatureScorer.fetchRequiredData
         );
     }
 
@@ -73,7 +76,7 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(
             api,
             WeightName.MOST_RETOOTED_ACCOUNTS,
-            reblogsFeature,
+            RetootedUsersScorer.fetchRequiredData,
             Object.values(await this.getRecentToots(api))
         );
     }
@@ -82,7 +85,7 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<StringNumberDict>(
             api,
             WeightName.MOST_REPLIED_ACCOUNTS,
-            repliedFeature,
+            MostRepliedAccountsScorer.fetchRequiredData,
             Object.values(await this.getRecentToots(api))
         );
     }
@@ -91,7 +94,7 @@ export default class MastodonApiCache extends Storage {
         return await this.getAggregatedData<AccountFeature>(
             api,
             WeightName.INTERACTIONS,
-            InteractionsFeature
+            InteractionsFeatureScorer.fetchRequiredData
         );
     }
 

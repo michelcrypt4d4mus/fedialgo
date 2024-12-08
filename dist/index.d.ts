@@ -35,9 +35,9 @@ declare class TheAlgorithm {
     scoreMutex: Mutex;
     reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
-    featureScorers: (ChaosFeatureScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingTagsFeatureScorer | TrendingTootFeatureScorer | VideoAttachmentScorer)[];
+    featureScorers: (ChaosFeatureScorer | InteractionsFeatureScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | RetootedUsersScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingTagsFeatureScorer | TrendingTootFeatureScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
-    weightedScorers: (ChaosFeatureScorer | DiversityFeedScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsFeatureScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | RetootsInFeedScorer | TrendingTagsFeatureScorer | TrendingTootFeatureScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosFeatureScorer | DiversityFeedScorer | InteractionsFeatureScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | RetootedUsersScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingTagsFeatureScorer | TrendingTootFeatureScorer | VideoAttachmentScorer)[];
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

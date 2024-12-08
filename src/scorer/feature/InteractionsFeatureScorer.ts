@@ -5,8 +5,8 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../api/mastodon_api_cache";
-import { Toot } from "../../types";
-import { WeightName } from "../../types";
+import { AccountFeature, Toot, WeightName } from "../../types";
+import { mastodonFetchPages } from "../../api/api";
 
 
 export default class InteractionsFeatureScorer extends FeatureScorer {
@@ -20,4 +20,27 @@ export default class InteractionsFeatureScorer extends FeatureScorer {
     async _score(toot: Toot) {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
+
+    static async fetchRequiredData(
+        api: mastodon.rest.Client,
+        _user: mastodon.v1.Account
+    ): Promise<AccountFeature> {
+        const results = await mastodonFetchPages<mastodon.v1.Notification>({
+            fetch: api.v1.notifications.list,
+            label: 'notifications'
+        });
+
+        console.log(`Retrieved ${results.length} notifications for InteractionsFeature(): `, results);
+
+        return results.reduce(
+            (interactionCount: Record<string, number>, notification: mastodon.v1.Notification) => {
+                const account = notification?.account?.acct;
+                if (!account) return interactionCount;
+
+                interactionCount[account] = (interactionCount[account] || 0) + 1;
+                return interactionCount;
+            },
+            {}
+        );
+    };
 };

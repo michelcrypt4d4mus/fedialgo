@@ -27,11 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
-const followed_tags_feature_1 = __importDefault(require("../features/followed_tags_feature"));
-const InteractionsFeature_1 = __importDefault(require("../features/InteractionsFeature"));
-const most_favorited_accounts_1 = __importDefault(require("../features/most_favorited_accounts"));
-const reblogsFeature_1 = __importDefault(require("../features/reblogsFeature"));
-const replied_feature_1 = __importDefault(require("../features/replied_feature"));
+const followed_tags_feature_scorer_1 = __importDefault(require("../scorer/feature/followed_tags_feature_scorer"));
+const InteractionsFeatureScorer_1 = __importDefault(require("../scorer/feature/InteractionsFeatureScorer"));
+const most_favorited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favorited_accounts_scorer"));
+const most_replied_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_replied_accounts_scorer"));
+const retooted_users_scorer_1 = __importDefault(require("../scorer/feature/retooted_users_scorer"));
 const Storage_1 = __importStar(require("../Storage"));
 const account_1 = require("../objects/account");
 const api_1 = require("./api");
@@ -55,7 +55,7 @@ class MastodonApiCache extends Storage_1.default {
         return (0, account_1.buildAccountNames)(followedAccounts);
     }
     static async getMostFavoritedAccounts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.FAVORITED_ACCOUNTS, most_favorited_accounts_1.default);
+        return await this.getAggregatedData(api, types_1.WeightName.FAVORITED_ACCOUNTS, most_favorited_accounts_scorer_1.default.fetchRequiredData);
     }
     // Get the users recent toots
     // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?
@@ -69,16 +69,16 @@ class MastodonApiCache extends Storage_1.default {
         }, {});
     }
     static async getFollowedTags(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.FOLLOWED_TAGS, followed_tags_feature_1.default);
+        return await this.getAggregatedData(api, types_1.WeightName.FOLLOWED_TAGS, followed_tags_feature_scorer_1.default.fetchRequiredData);
     }
     static async getMostRetootedAccounts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.MOST_RETOOTED_ACCOUNTS, reblogsFeature_1.default, Object.values(await this.getRecentToots(api)));
+        return await this.getAggregatedData(api, types_1.WeightName.MOST_RETOOTED_ACCOUNTS, retooted_users_scorer_1.default.fetchRequiredData, Object.values(await this.getRecentToots(api)));
     }
     static async getMostRepliedAccounts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.MOST_REPLIED_ACCOUNTS, replied_feature_1.default, Object.values(await this.getRecentToots(api)));
+        return await this.getAggregatedData(api, types_1.WeightName.MOST_REPLIED_ACCOUNTS, most_replied_accounts_scorer_1.default.fetchRequiredData, Object.values(await this.getRecentToots(api)));
     }
     static async getTopInteracts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.INTERACTIONS, InteractionsFeature_1.default);
+        return await this.getAggregatedData(api, types_1.WeightName.INTERACTIONS, InteractionsFeatureScorer_1.default.fetchRequiredData);
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {

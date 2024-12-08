@@ -6,8 +6,8 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../api/mastodon_api_cache";
-import { Toot } from "../../types";
-import { WeightName } from "../../types";
+import { getUserRecentToots } from "../../api/api";
+import { Toot, WeightName } from "../../types";
 
 
 export default class RetootedUsersScorer extends FeatureScorer {
@@ -23,4 +23,27 @@ export default class RetootedUsersScorer extends FeatureScorer {
         const retootScore = toot.reblog?.account?.acct ? (this.feature[toot.reblog.account.acct] || 0) : 0;
         return authorScore + retootScore;
     }
+
+    static async fetchRequiredData(
+        api: mastodon.rest.Client,
+        user: mastodon.v1.Account,
+        recentToots?: mastodon.v1.Status[]
+    ): Promise<Record<string, number>> {
+        recentToots ||= await getUserRecentToots(api, user);
+        const recentRetoots = recentToots.filter(toot => toot?.reblog);
+        console.log(`Recent toot history: `, recentToots);
+        console.log(`Recent retoot history: `, recentRetoots);
+
+        // Count retoots per user
+        return recentRetoots.reduce(
+            (counts: Record<string, number>, toot: mastodon.v1.Status) => {
+                const retootOfAccount = toot?.reblog?.account?.acct;
+                if (!retootOfAccount) return counts;
+
+                counts[retootOfAccount] = (counts[retootOfAccount] || 0) + 1;
+                return counts;
+            },
+            {}
+        );
+    };
 };
