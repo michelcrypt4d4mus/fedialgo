@@ -144,11 +144,8 @@ export default class PropertyFilter extends TootFilter {
 
     // Required for serialization of settings to local storage
     toArgs(): PropertyFilterArgs {
-        return {
-            invertSelection: this.invertSelection,
-            optionInfo: this.optionInfo,
-            title: this.title,
-            validValues: this.validValues,
-        };
+        const filterArgs = super.toArgs() as PropertyFilterArgs;
+        filterArgs.validValues = this.validValues;
+        return filterArgs
     }
 };

@@ -26,8 +26,12 @@ export default class TootFilter {
         throw new Error("Method not implemented.");
     }
 
-    // Override in subclasses. Required for serialization to local storage
+    // Extend in subclasses. Required for serialization to local storage
     toArgs(): FilterArgs {
-        throw new Error("Method not implemented.");
+        return {
+            invertSelection: this.invertSelection,
+            title: this.title,
+            visible: this.visible
+        };
     }
 };

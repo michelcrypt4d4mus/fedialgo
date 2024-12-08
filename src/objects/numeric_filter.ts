@@ -53,10 +53,8 @@ export default class NumericFilter extends TootFilter {
 
     // Required for serialization of settings to local storage
     toArgs(): NumericFilterArgs {
-        return {
-            invertSelection: this.invertSelection,
-            title: this.title,
-            value: this.value
-        };
+        const filterArgs = super.toArgs() as NumericFilterArgs;
+        filterArgs.value = this.value;
+        return filterArgs;
     }
 };
