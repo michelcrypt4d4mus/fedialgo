@@ -1,5 +1,5 @@
-import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
+import { mastodon } from "masto";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";

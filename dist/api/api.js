@@ -43,20 +43,15 @@ class MastoApi {
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let allResponses = [];
+        let promises = [(0, homeFeed_1.default)(this.api, numTimelineToots, maxId)];
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
-            allResponses = await Promise.all([
-                (0, homeFeed_1.default)(this.api, numTimelineToots),
+            promises = promises.concat([
                 (0, trending_toots_1.default)(this.api),
                 (0, trending_tags_1.default)(this.api),
             ]);
         }
-        else {
-            allResponses = await Promise.all([
-                (0, homeFeed_1.default)(this.api, numTimelineToots, maxId),
-            ]);
-        }
+        const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
         let homeToots = allResponses.shift();
         return {

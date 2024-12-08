@@ -127,20 +127,18 @@ class TheAlgorithm {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let allResponses: any[] = [];
+        let promises: Promise<any>[] = [this.mastoApi.getFeed(numTimelineToots, maxId)];
 
+        // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
-            allResponses = await Promise.all([
-                this.mastoApi.getFeed(numTimelineToots, maxId),
+            promises = promises.concat([
                 this.mastoApi.getStartupData(),
+                // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
-            ]);
-        } else {
-            allResponses = await Promise.all([
-                this.mastoApi.getFeed(numTimelineToots, maxId),
             ]);
         }
 
+        const allResponses = await Promise.all(promises);
         console.log(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots } = allResponses.shift();
         const newToots = [...homeToots,...otherToots];

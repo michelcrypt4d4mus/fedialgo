@@ -27,6 +27,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TheAlgorithm = exports.SourceFilterName = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
+/*
+ * Main class that handles scoring and sorting a feed made of Toot objects.
+ */
 const async_mutex_1 = require("async-mutex");
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
@@ -116,7 +119,6 @@ class TheAlgorithm {
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
         algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
-        // algo.serverSideFilters = await Storage.getServerSideFilters();
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -133,19 +135,16 @@ class TheAlgorithm {
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let allResponses = [];
+        let promises = [this.mastoApi.getFeed(numTimelineToots, maxId)];
+        // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
-            allResponses = await Promise.all([
-                this.mastoApi.getFeed(numTimelineToots, maxId),
+            promises = promises.concat([
                 this.mastoApi.getStartupData(),
+                // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);
         }
-        else {
-            allResponses = await Promise.all([
-                this.mastoApi.getFeed(numTimelineToots, maxId),
-            ]);
-        }
+        const allResponses = await Promise.all(promises);
         console.log(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots } = allResponses.shift();
         const newToots = [...homeToots, ...otherToots];

@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const async_mutex_1 = require("async-mutex");
 const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
 const followed_tags_feature_scorer_1 = __importDefault(require("../scorer/feature/followed_tags_feature_scorer"));
 const interactions_scorer_1 = __importDefault(require("../scorer/feature/interactions_scorer"));
@@ -42,6 +43,7 @@ const types_1 = require("../types");
 const LOADED_FROM_STORAGE = "Loaded from storage";
 const RETRIEVED = 'Retrieved';
 class MastodonApiCache extends Storage_1.default {
+    static tagPullMutex = new async_mutex_1.Mutex(); // at startup multiple calls
     // Get an array of Accounts the user is following
     static async getFollowedAccounts(api) {
         const fetchFollows = async (_api, _user) => {
@@ -69,7 +71,13 @@ class MastodonApiCache extends Storage_1.default {
         }, {});
     }
     static async getFollowedTags(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.FOLLOWED_TAGS, followed_tags_feature_scorer_1.default.fetchRequiredData);
+        const releaseMutex = await this.tagPullMutex.acquire();
+        try {
+            return await this.getAggregatedData(api, types_1.WeightName.FOLLOWED_TAGS, followed_tags_feature_scorer_1.default.fetchRequiredData);
+        }
+        finally {
+            releaseMutex();
+        }
     }
     static async getMostRetootedAccounts(api) {
         return await this.getAggregatedData(api, types_1.WeightName.MOST_RETOOTED_ACCOUNTS, retooted_users_scorer_1.default.fetchRequiredData, Object.values(await this.getRecentToots(api)));

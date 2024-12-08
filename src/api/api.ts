@@ -7,11 +7,10 @@ import { mastodon } from "masto";
 
 import MastodonApiCache from "./mastodon_api_cache";
 import Storage from "../Storage";
-import FeatureScorer from "../scorer/feature_scorer";
 import getHomeFeed from "../feeds/homeFeed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
-import { AccountNames, TimelineData, Toot, TrendingTag, UserData } from "../types";
+import { TimelineData, Toot, TrendingTag, UserData } from "../types";
 import { transformKeys } from "../helpers";
 
 export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -48,21 +47,17 @@ export class MastoApi {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let allResponses: any[] = [];
+        let promises: Promise<any>[] = [getHomeFeed(this.api, numTimelineToots, maxId)]
 
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
-            allResponses = await Promise.all([
-                getHomeFeed(this.api, numTimelineToots),
+            promises = promises.concat([
                 getTrendingToots(this.api),
                 getRecentTootsForTrendingTags(this.api),
             ]);
-        } else {
-            allResponses = await Promise.all([
-                getHomeFeed(this.api, numTimelineToots, maxId),
-            ]);
         }
 
+        const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
         let homeToots = allResponses.shift();
 
