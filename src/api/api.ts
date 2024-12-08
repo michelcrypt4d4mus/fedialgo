@@ -5,7 +5,7 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
-import getHomeFeed from "../feeds/homeFeed";
+import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
 import MastodonApiCache from "./mastodon_api_cache";

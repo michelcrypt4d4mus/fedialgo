@@ -9,7 +9,7 @@ exports.getTootsForTag = exports.getUserRecentToots = exports.getMonthlyUsers = 
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
-const homeFeed_1 = __importDefault(require("../feeds/homeFeed"));
+const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
 const mastodon_api_cache_1 = __importDefault(require("./mastodon_api_cache"));
@@ -43,7 +43,7 @@ class MastoApi {
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [(0, homeFeed_1.default)(this.api, numTimelineToots, maxId)];
+        let promises = [(0, home_feed_1.default)(this.api, numTimelineToots, maxId)];
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
