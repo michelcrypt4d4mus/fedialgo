@@ -8,10 +8,8 @@ import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
 import { average, dedupeToots } from '../helpers';
 import { condensedStatus, popularity } from "../api/objects/toot";
-import { mastodonFetch } from "../api/api";
+import { MastoApi, mastodonFetch } from "../api/api";
 import { Toot } from "../types";
-
-const TRENDING_TOOTS_REST_PATH = "api/v1/trends/statuses";
 
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
@@ -25,7 +23,7 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
             let topToots: Toot[] | undefined = [];
 
             try {
-                topToots = await mastodonFetch<Toot[]>(server, TRENDING_TOOTS_REST_PATH);
+                topToots = await mastodonFetch<Toot[]>(server, MastoApi.trendUrl("statuses"));
 
                 if (!topToots || topToots.length == 0) {
                     throw new Error(`Failed to get top toots on '${server}'! topToots: ${topToots}`);

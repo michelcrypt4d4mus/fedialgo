@@ -7,6 +7,9 @@ export declare class MastoApi {
     constructor(api: mastodon.rest.Client);
     getStartupData(): Promise<UserData>;
     getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
+    static v1Url(path: string): string;
+    static v2Url(path: string): string;
+    static trendUrl(path: string): string;
 }
 export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number | null): Promise<Toot[]>;
 export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number | null) => Promise<T | undefined>;

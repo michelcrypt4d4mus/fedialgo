@@ -24,11 +24,10 @@ import { mastodon } from "masto";
 import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
 import { dedupeToots } from "../helpers";
-import { getTootsForTag, mastodonFetch } from "../api/api";
+import { getTootsForTag, MastoApi, mastodonFetch } from "../api/api";
 import { popularity } from "../api/objects/toot";
 import { Toot, TrendingTag } from "../types";
 
-const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const LOG_PREFIX = "[TrendingTags]";
 
 
@@ -55,7 +54,7 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
             try {
                 tags = await mastodonFetch<mastodon.v1.Tag[]>(
                     server,
-                    TRENDING_TOOTS_REST_PATH,
+                    MastoApi.trendUrl("tags"),
                     numTrendingTagsPerServer
                 ) as TrendingTag[];
 

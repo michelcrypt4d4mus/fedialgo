@@ -8,7 +8,6 @@ const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const api_1 = require("../api/api");
 const toot_1 = require("../api/objects/toot");
-const TRENDING_TOOTS_REST_PATH = "api/v1/trends/tags";
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
@@ -28,7 +27,7 @@ async function getTrendingTags(api) {
     const trendingTags = await Promise.all(topDomains.map(async (server) => {
         let tags = [];
         try {
-            tags = await (0, api_1.mastodonFetch)(server, TRENDING_TOOTS_REST_PATH, numTrendingTagsPerServer);
+            tags = await (0, api_1.mastodonFetch)(server, api_1.MastoApi.trendUrl("tags"), numTrendingTagsPerServer);
             if (!tags || tags.length == 0)
                 throw new Error(`No tags found on '${server}'!`);
         }

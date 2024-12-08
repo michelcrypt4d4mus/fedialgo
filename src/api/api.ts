@@ -66,6 +66,18 @@ export class MastoApi {
             otherToots: allResponses.flat(),
         } as TimelineData;
     }
+
+    static v1Url(path: string): string {
+        return `${API_V1}/${path}`;
+    }
+
+    static v2Url(path: string): string {
+        return `${API_V2}/${path}`;
+    }
+
+    static trendUrl(path: string): string {
+        return this.v1Url(path);
+    }
 };
 
 

@@ -59,6 +59,15 @@ class MastoApi {
             otherToots: allResponses.flat(),
         };
     }
+    static v1Url(path) {
+        return `${API_V1}/${path}`;
+    }
+    static v2Url(path) {
+        return `${API_V2}/${path}`;
+    }
+    static trendUrl(path) {
+        return this.v1Url(path);
+    }
 }
 exports.MastoApi = MastoApi;
 ;
