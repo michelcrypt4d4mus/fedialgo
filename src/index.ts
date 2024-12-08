@@ -214,7 +214,7 @@ class TheAlgorithm {
     // Compute language and application counts. Repair broken toots and populate extra data:
     //   - Set isFollowed flag
     repairFeedAndExtractSummaryInfo(): void {
-        const tootCounts: Record<PropertyName, StringNumberDict> = Object.values(PropertyName).reduce((counts, propertyName) => {
+        const tootCounts = Object.values(PropertyName).reduce((counts, propertyName) => {
             // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
             this.filters.filterSections[propertyName] ??= new PropertyFilter({title: propertyName});
             counts[propertyName as PropertyName] = {} as StringNumberDict;
@@ -253,7 +253,7 @@ class TheAlgorithm {
             });
         });
 
-        // TODO: if there's an validValue set for a filter section that is no longer in the feed
+        // TODO: if there's a validValues element for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
         Object.entries(tootCounts).forEach(([propertyName, counts]) => {
             this.filters.filterSections[propertyName as PropertyName].setOptions(counts);

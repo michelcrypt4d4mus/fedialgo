@@ -238,7 +238,7 @@ class TheAlgorithm {
                 });
             });
         });
-        // TODO: if there's an validValue set for a filter section that is no longer in the feed
+        // TODO: if there's a validValues element for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
         Object.entries(tootCounts).forEach(([propertyName, counts]) => {
             this.filters.filterSections[propertyName].setOptions(counts);
