@@ -53,7 +53,7 @@ const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
-const trending_toots_feature_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_feature_scorer"));
+const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const account_1 = require("./objects/account");
 const toot_1 = require("./objects/toot");
@@ -91,7 +91,7 @@ class TheAlgorithm {
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
-        new trending_toots_feature_scorer_1.default(),
+        new trending_toots_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new video_attachment_scorer_1.default(),
     ];

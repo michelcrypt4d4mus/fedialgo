@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
-class TrendingTagsFeatureScorer extends feature_scorer_1.default {
+class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
         super({ scoreName: types_1.WeightName.TRENDING_TAGS });
     }
@@ -17,7 +17,7 @@ class TrendingTagsFeatureScorer extends feature_scorer_1.default {
     async _score(toot) {
         const tags = toot.trendingTags || [];
         const tagScore = tags.reduce((sum, tag) => sum + this.scoreTag(tag), 0);
-        // console.debug(`[TrendingTagsFeatureScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
+        // console.debug(`[TrendingTagsScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
         return tagScore;
     }
     scoreTag(tag) {
@@ -32,6 +32,6 @@ class TrendingTagsFeatureScorer extends feature_scorer_1.default {
         return score;
     }
 }
-exports.default = TrendingTagsFeatureScorer;
+exports.default = TrendingTagsScorer;
 ;
 //# sourceMappingURL=trending_tags_scorer.js.map

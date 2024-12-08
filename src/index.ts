@@ -21,8 +21,8 @@ import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
-import TrendingTagsFeatureScorer from "./scorer/feature/trending_tags_scorer";
-import TrendingTootFeatureScorer from "./scorer/feature/trending_toots_feature_scorer";
+import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
+import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import {
     AccountNames,
@@ -74,8 +74,8 @@ class TheAlgorithm {
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
         new MostRepliedAccountsScorer(),
-        new TrendingTootFeatureScorer(),
-        new TrendingTagsFeatureScorer(),
+        new TrendingTootScorer(),
+        new TrendingTagsScorer(),
         new VideoAttachmentScorer(),
     ];
 

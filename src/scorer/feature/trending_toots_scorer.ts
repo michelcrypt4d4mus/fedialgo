@@ -7,7 +7,7 @@ import { Toot } from "../../types";
 import { WeightName } from "../../types";
 
 
-export default class TrendingTootFeatureScorer extends FeatureScorer {
+export default class TrendingTootScorer extends FeatureScorer {
     constructor() {
         super({scoreName: WeightName.TRENDING_TOOTS});
     }

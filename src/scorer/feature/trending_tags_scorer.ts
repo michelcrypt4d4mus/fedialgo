@@ -7,7 +7,7 @@ import { Toot, TrendingTag } from "../../types";
 import { WeightName } from "../../types";
 
 
-export default class TrendingTagsFeatureScorer extends FeatureScorer {
+export default class TrendingTagsScorer extends FeatureScorer {
     constructor() {
         super({scoreName: WeightName.TRENDING_TAGS});
     }
@@ -16,7 +16,7 @@ export default class TrendingTagsFeatureScorer extends FeatureScorer {
     async _score(toot: Toot) {
         const tags = toot.trendingTags || [];
         const tagScore = tags.reduce((sum, tag) => sum + this.scoreTag(tag), 0);
-        // console.debug(`[TrendingTagsFeatureScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
+        // console.debug(`[TrendingTagsScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
         return tagScore;
     }
 
