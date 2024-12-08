@@ -116,7 +116,7 @@ exports.DEFAULT_CONFIG = {
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
-    reloadIfOlderThanMinutes: 5,
+    reloadIfOlderThanMinutes: 10,
     // API stuff
     minRecordsForFeatureScoring: 400,
     maxFollowingAccountsToPull: 5000,

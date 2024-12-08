@@ -97,7 +97,7 @@ export const DEFAULT_CONFIG = {
     incrementalLoadDelayMS: 1_000,        // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,           // How many toots to pull in the first fetch
-    reloadIfOlderThanMinutes: 5,        // currently unused
+    reloadIfOlderThanMinutes: 10,        // currently unused
 
     // API stuff
     minRecordsForFeatureScoring: 400,    // number of notifications, replies, etc. to pull
