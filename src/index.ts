@@ -159,7 +159,7 @@ class TheAlgorithm {
         }
 
         this.logTootCounts(newToots, homeToots)
-        // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
+        // Remove stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanNewToots = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
