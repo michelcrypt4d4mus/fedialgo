@@ -1,4 +1,5 @@
 ## NEXT
+* Enable `reloadFeed()` after 5 minutes (on focus in demo app)
 
 ## `0.8.2`
 * Refactoring
