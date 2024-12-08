@@ -1,9 +1,9 @@
 import TootFilter from "./toot_filter";
 import { FilterArgs, Toot, WeightName } from "../types";
+export declare const FILTERABLE_SCORES: WeightName[];
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 }
-export declare const FILTERABLE_SCORES: WeightName[];
 export default class NumericFilter extends TootFilter {
     title: WeightName;
     value: number;

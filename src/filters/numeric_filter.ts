@@ -5,16 +5,16 @@ import TootFilter from "./toot_filter";
 import { FilterArgs, Toot, WeightName } from "../types";
 
 
-export interface NumericFilterArgs extends FilterArgs {
-    value?: number;
-};
-
 export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_REPLIES,
     WeightName.NUM_RETOOTS,
     WeightName.NUM_FAVOURITES,
 ];
 
+
+export interface NumericFilterArgs extends FilterArgs {
+    value?: number;
+};
 
 export default class NumericFilter extends TootFilter {
     title: WeightName;
