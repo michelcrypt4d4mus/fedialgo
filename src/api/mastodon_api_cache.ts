@@ -3,6 +3,7 @@
  * retoots, top favorites, etc.
  */
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 
 import mastodonServersInfo from "./mastodon_servers_info";
 import FollowedTagsFeatureScorer from "../scorer/feature/followed_tags_feature_scorer";
@@ -24,6 +25,8 @@ const RETRIEVED = 'Retrieved';
 
 
 export default class MastodonApiCache extends Storage {
+    static tagPullMutex = new Mutex();  // at startup multiple calls
+
     // Get an array of Accounts the user is following
     static async getFollowedAccounts(api: mastodon.rest.Client): Promise<AccountNames> {
         const fetchFollows = async (_api: mastodon.rest.Client, _user: mastodon.v1.Account) => {
@@ -65,11 +68,17 @@ export default class MastodonApiCache extends Storage {
     }
 
     static async getFollowedTags(api: mastodon.rest.Client): Promise<StringNumberDict> {
-        return await this.getAggregatedData<AccountFeature>(
-            api,
-            WeightName.FOLLOWED_TAGS,
-            FollowedTagsFeatureScorer.fetchRequiredData
-        );
+        const releaseMutex = await this.tagPullMutex.acquire();
+
+        try {
+            return await this.getAggregatedData<StringNumberDict>(
+                api,
+                WeightName.FOLLOWED_TAGS,
+                FollowedTagsFeatureScorer.fetchRequiredData
+            );
+        } finally {
+            releaseMutex();
+        }
     }
 
     static async getMostRetootedAccounts(api: mastodon.rest.Client): Promise<AccountFeature> {
