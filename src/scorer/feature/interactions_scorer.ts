@@ -9,10 +9,10 @@ import { AccountFeature, Toot, WeightName } from "../../types";
 import { mastodonFetchPages } from "../../api/api";
 
 
-export default class InteractionsFeatureScorer extends FeatureScorer {
+export default class InteractionsScorer extends FeatureScorer {
     constructor() {
         super({
-            featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getTopInteracts(api),
+            featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFrequentlyInteractingUsers(api),
             scoreName: WeightName.INTERACTIONS,
         });
     }

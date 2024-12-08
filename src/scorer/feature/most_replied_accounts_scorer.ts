@@ -9,7 +9,6 @@ import { getUserRecentToots } from '../../api/api';
 import { Toot, WeightName } from '../../types';
 
 
-
 export default class MostRepliedAccountsScorer extends FeatureScorer {
     constructor() {
         super({

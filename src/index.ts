@@ -8,7 +8,7 @@ import ChaosFeatureScorer from "./scorer/feature/chaosFeatureScorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./scorer/feature/ImageAttachmentScorer";
-import InteractionsFeatureScorer from "./scorer/feature/InteractionsFeatureScorer";
+import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import NumericFilter from "./objects/numeric_filter";
@@ -67,7 +67,7 @@ class TheAlgorithm {
         new MostFavoritedAccountsScorer(),
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
-        new InteractionsFeatureScorer(),
+        new InteractionsScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),

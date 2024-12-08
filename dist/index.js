@@ -32,7 +32,7 @@ const chaosFeatureScorer_1 = __importDefault(require("./scorer/feature/chaosFeat
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const ImageAttachmentScorer_1 = __importDefault(require("./scorer/feature/ImageAttachmentScorer"));
-const InteractionsFeatureScorer_1 = __importDefault(require("./scorer/feature/InteractionsFeatureScorer"));
+const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./objects/numeric_filter"));
@@ -81,7 +81,7 @@ class TheAlgorithm {
         new most_favorited_accounts_scorer_1.default(),
         new followed_tags_feature_scorer_1.default(),
         new ImageAttachmentScorer_1.default(),
-        new InteractionsFeatureScorer_1.default(),
+        new interactions_scorer_1.default(),
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),

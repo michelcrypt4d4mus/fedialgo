@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import coreServerFeature from "../features/coreServerFeature";
 import FollowedTagsFeatureScorer from "../scorer/feature/followed_tags_feature_scorer";
-import InteractionsFeatureScorer from "../scorer/feature/InteractionsFeatureScorer";
+import InteractionsScorer from "../scorer/feature/interactions_scorer";
 import MostFavoritedAccountsScorer from "../scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_scorer";
 import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
@@ -90,11 +90,11 @@ export default class MastodonApiCache extends Storage {
         );
     }
 
-    static async getTopInteracts(api: mastodon.rest.Client): Promise<AccountFeature> {
+    static async getMostFrequentlyInteractingUsers(api: mastodon.rest.Client): Promise<AccountFeature> {
         return await this.getAggregatedData<AccountFeature>(
             api,
             WeightName.INTERACTIONS,
-            InteractionsFeatureScorer.fetchRequiredData
+            InteractionsScorer.fetchRequiredData
         );
     }
 

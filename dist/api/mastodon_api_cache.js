@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
 const followed_tags_feature_scorer_1 = __importDefault(require("../scorer/feature/followed_tags_feature_scorer"));
-const InteractionsFeatureScorer_1 = __importDefault(require("../scorer/feature/InteractionsFeatureScorer"));
+const interactions_scorer_1 = __importDefault(require("../scorer/feature/interactions_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_replied_accounts_scorer"));
 const retooted_users_scorer_1 = __importDefault(require("../scorer/feature/retooted_users_scorer"));
@@ -77,8 +77,8 @@ class MastodonApiCache extends Storage_1.default {
     static async getMostRepliedAccounts(api) {
         return await this.getAggregatedData(api, types_1.WeightName.MOST_REPLIED_ACCOUNTS, most_replied_accounts_scorer_1.default.fetchRequiredData, Object.values(await this.getRecentToots(api)));
     }
-    static async getTopInteracts(api) {
-        return await this.getAggregatedData(api, types_1.WeightName.INTERACTIONS, InteractionsFeatureScorer_1.default.fetchRequiredData);
+    static async getMostFrequentlyInteractingUsers(api) {
+        return await this.getAggregatedData(api, types_1.WeightName.INTERACTIONS, interactions_scorer_1.default.fetchRequiredData);
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
