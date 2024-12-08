@@ -85,7 +85,7 @@ export class MastoApi {
 export async function searchForToots(
     api: mastodon.rest.Client,
     searchQuery: string,
-    limit: number | null = null
+    limit?: number
 ): Promise<Toot[]> {
     limit = limit || Storage.getConfig().defaultRecordsPerPage;
     console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
@@ -107,7 +107,7 @@ export async function searchForToots(
 export const mastodonFetch = async <T>(
     server: string,
     endpoint: string,
-    limit: number | null = null
+    limit?: number
 ): Promise<T | undefined> => {
     let url = `https://${server}${endpoint}`;
     if (limit) url += `?limit=${limit}`;

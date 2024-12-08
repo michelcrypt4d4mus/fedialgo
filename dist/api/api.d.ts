@@ -11,8 +11,8 @@ export declare class MastoApi {
     static v2Url(path: string): string;
     static trendUrl(path: string): string;
 }
-export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number | null): Promise<Toot[]>;
-export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number | null) => Promise<T | undefined>;
+export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number): Promise<Toot[]>;
+export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number) => Promise<T | undefined>;
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>);
     maxRecords?: number;

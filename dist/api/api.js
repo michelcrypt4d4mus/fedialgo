@@ -72,7 +72,7 @@ class MastoApi {
 exports.MastoApi = MastoApi;
 ;
 // Use the API to search for recent toots containing a 'searchQuery' string
-async function searchForToots(api, searchQuery, limit = null) {
+async function searchForToots(api, searchQuery, limit) {
     limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
     console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
     const mastoQuery = { limit: limit, q: searchQuery, type: "statuses" };
@@ -90,7 +90,7 @@ async function searchForToots(api, searchQuery, limit = null) {
 exports.searchForToots = searchForToots;
 ;
 // Retrieve Mastodon server information from a given server and endpoint
-const mastodonFetch = async (server, endpoint, limit = null) => {
+const mastodonFetch = async (server, endpoint, limit) => {
     let url = `https://${server}${endpoint}`;
     if (limit)
         url += `?limit=${limit}`;
