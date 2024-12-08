@@ -1,8 +1,8 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
-import { mastodon } from "masto";
 import { E_CANCELED, Mutex } from 'async-mutex';
+import { mastodon } from "masto";
 
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
@@ -31,19 +31,17 @@ import {
     ScorerDict,
     StringNumberDict,
     Toot,
-    TootScore,
     Weights,
 } from "./types";
 import { buildAccountNames } from "./objects/account";
 import { condensedStatus, containsString, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
-import { IMAGE, MEDIA_TYPES, createRandomString, dedupeToots, isImage } from "./helpers";
+import { createRandomString, dedupeToots } from "./helpers";
 import { incrementCount } from "./helpers";
 import { MastoApi } from "./api/api";
 import { repairToot } from "./objects/toot";
 import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
-import { inc } from "semver";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
 
