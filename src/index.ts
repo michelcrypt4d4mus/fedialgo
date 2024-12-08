@@ -109,7 +109,6 @@ class TheAlgorithm {
         algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
         algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
-        // algo.serverSideFilters = await Storage.getServerSideFilters();
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
