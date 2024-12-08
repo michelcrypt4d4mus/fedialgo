@@ -1,5 +1,4 @@
 import { CountKey, StringNumberDict } from "./types";
-import { Toot } from "./types";
 
 export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
@@ -32,33 +31,6 @@ export function average(values: number[]): number | undefined {
 export function isImage(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
-};
-
-
-// Remove dupes by uniquifying on the toot's URI
-export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
-    const prefix = logLabel ? `[${logLabel}] ` : '';
-    const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
-
-    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
-        if (!uriToots || uriToots.length == 0) return;
-        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
-        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()]
-
-        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
-        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
-        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
-        // }
-
-        // Set all toots to have all trending tags so when we uniquify we catch everything
-        uriToots.forEach((toot) => {
-            toot.trendingTags = uniqueTrendingTags || [];
-        });
-    });
-
-    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
-    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
-    return deduped;
 };
 
 

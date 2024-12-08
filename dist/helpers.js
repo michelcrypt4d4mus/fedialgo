@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
@@ -32,30 +32,6 @@ function isImage(uri) {
     return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 }
 exports.isImage = isImage;
-;
-// Remove dupes by uniquifying on the toot's URI
-function dedupeToots(toots, logLabel = undefined) {
-    const prefix = logLabel ? `[${logLabel}] ` : '';
-    const tootsByURI = groupBy(toots, (toot) => toot.uri);
-    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
-        if (!uriToots || uriToots.length == 0)
-            return;
-        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
-        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
-        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
-        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
-        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
-        // }
-        // Set all toots to have all trending tags so when we uniquify we catch everything
-        uriToots.forEach((toot) => {
-            toot.trendingTags = uniqueTrendingTags || [];
-        });
-    });
-    const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
-    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
-    return deduped;
-}
-exports.dedupeToots = dedupeToots;
 ;
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
 function groupBy(arr, key) {

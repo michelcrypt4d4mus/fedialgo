@@ -25,7 +25,8 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildAccountNames } from "./api/objects/account";
-import { createRandomString, dedupeToots, incrementCount } from "./helpers";
+import { createRandomString, incrementCount } from "./helpers";
+import { dedupeToots } from "./api/objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS, buildNewFilterSettings } from "./config";
 import { MastoApi } from "./api/api";
 import {

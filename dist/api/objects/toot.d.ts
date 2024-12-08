@@ -14,3 +14,4 @@ export declare const earliestToot: (toots: Toot[]) => Toot | null;
 export declare function repairToot(toot: Toot): void;
 export declare const tootedAt: (toot: Toot) => Date;
 export declare function containsString(toot: Toot, str: string): boolean;
+export declare function dedupeToots(toots: Toot[], logLabel?: string | undefined): Toot[];

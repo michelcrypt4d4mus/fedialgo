@@ -7,6 +7,7 @@ const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"
 const Storage_1 = __importDefault(require("../Storage"));
 const helpers_1 = require("../helpers");
 const toot_1 = require("../api/objects/toot");
+const toot_2 = require("../api/objects/toot");
 const api_1 = require("../api/api");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
@@ -28,7 +29,7 @@ async function getTrendingToots(api) {
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
         // toot gets numTrendingTootsPerServer points, least trending gets 1).
-        topToots = topToots.filter(toot => (0, toot_1.popularity)(toot) > 0)
+        topToots = topToots.filter(toot => (0, toot_2.popularity)(toot) > 0)
             .slice(0, numTrendingTootsPerServer)
             .map((toot, i) => {
             // Inject the @server info to the account string
@@ -40,10 +41,10 @@ async function getTrendingToots(api) {
             toot.trendingRank = 1 + numTrendingTootsPerServer - i;
             return toot;
         });
-        console.debug(`trendingToots for '${server}': `, topToots.map(toot_1.condensedStatus));
+        console.debug(`trendingToots for '${server}': `, topToots.map(toot_2.condensedStatus));
         return topToots;
     }));
-    const trendingToots = (0, helpers_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    const trendingToots = (0, toot_1.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
     console.log(`[getTrendingToots] trendingToots:`, trendingToots);
     return trendingToots;
 }

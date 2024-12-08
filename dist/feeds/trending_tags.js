@@ -5,16 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
-const helpers_1 = require("../helpers");
-const api_1 = require("../api/api");
 const toot_1 = require("../api/objects/toot");
+const api_1 = require("../api/api");
+const toot_2 = require("../api/objects/toot");
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
     const tootses = await Promise.all(tags.map((tag) => (0, api_1.getTootsForTag)(api, tag)));
-    const toots = (0, helpers_1.dedupeToots)(tootses.flat(), "trendingTags");
+    const toots = (0, toot_1.dedupeToots)(tootses.flat(), "trendingTags");
     console.log(`${LOG_PREFIX} deduped toots for trending tags:`, toots);
-    return toots.sort(toot_1.popularity).reverse().slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+    return toots.sort(toot_2.popularity).reverse().slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;

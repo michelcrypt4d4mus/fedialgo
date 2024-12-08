@@ -23,7 +23,7 @@ import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
-import { dedupeToots } from "../helpers";
+import { dedupeToots } from "../api/objects/toot";
 import { getTootsForTag, MastoApi, mastodonFetch } from "../api/api";
 import { popularity } from "../api/objects/toot";
 import { Toot, TrendingTag } from "../types";

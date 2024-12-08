@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { IMAGE, MEDIA_TYPES, isImage } from "../../helpers";
+import { IMAGE, MEDIA_TYPES, groupBy, isImage } from "../../helpers";
 import { Toot } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -185,6 +185,33 @@ export function containsString(toot: Toot, str: string): boolean {
         return toot.content.toLowerCase().includes(str.toLowerCase());
     }
 };
+
+
+// Remove dupes by uniquifying on the toot's URI
+export function dedupeToots(toots: Toot[], logLabel: string | undefined = undefined): Toot[] {
+    const prefix = logLabel ? `[${logLabel}] ` : '';
+    const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
+
+    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+        if (!uriToots || uriToots.length == 0) return;
+        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+
+        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
+        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
+        // }
+        // Set all toots to have all trending tags so when we uniquify we catch everything
+        uriToots.forEach((toot) => {
+            toot.trendingTags = uniqueTrendingTags || [];
+        });
+    });
+
+    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
+    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+    return deduped;
+}
+
 
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;

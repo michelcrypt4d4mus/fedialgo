@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.containsString = exports.tootedAt = exports.repairToot = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
+exports.dedupeToots = exports.containsString = exports.tootedAt = exports.repairToot = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -166,6 +166,29 @@ function containsString(toot, str) {
 }
 exports.containsString = containsString;
 ;
+// Remove dupes by uniquifying on the toot's URI
+function dedupeToots(toots, logLabel = undefined) {
+    const prefix = logLabel ? `[${logLabel}] ` : '';
+    const tootsByURI = (0, helpers_1.groupBy)(toots, (toot) => toot.uri);
+    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+        if (!uriToots || uriToots.length == 0)
+            return;
+        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
+        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
+        // }
+        // Set all toots to have all trending tags so when we uniquify we catch everything
+        uriToots.forEach((toot) => {
+            toot.trendingTags = uniqueTrendingTags || [];
+        });
+    });
+    const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
+    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+    return deduped;
+}
+exports.dedupeToots = dedupeToots;
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
