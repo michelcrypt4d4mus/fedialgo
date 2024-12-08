@@ -126,10 +126,12 @@ exports.earliestToot = earliestToot;
 // Repair toot properties:
 //   - Set toot.language to defaultLanguage if missing
 //   - Set media type to "image" if unknown and reparable
+//   - Lowercase all tags
 function repairToot(toot) {
     toot.application ??= { name: UNKNOWN_APP };
     toot.application.name ??= UNKNOWN_APP;
     toot.language ??= Storage_1.default.getConfig().defaultLanguage;
+    toot.followedTags ??= [];
     // Check for weird media types
     toot.mediaAttachments.forEach((media) => {
         if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {

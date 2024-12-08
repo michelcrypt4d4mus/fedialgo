@@ -137,10 +137,18 @@ export default class MastodonApiCache extends Storage {
         let filters = await this.get(Key.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
         let logAction = LOADED_FROM_STORAGE;
 
-        if (filters == null || (await this.shouldReloadFeatures())) {
+        if (!filters || (await this.shouldReloadFeatures())) {
             logAction = RETRIEVED;
             filters = await api.v2.filters.list();
+            await this.set(Key.SERVER_SIDE_FILTERS, filters);
         }
+
+        // Filter out filters that either are just warnings or don't apply to the home context
+        filters = filters.filter(filter => {
+            // before 4.0 Filter objects lacked a 'context' property altogether
+            if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
+            if (filter.filterAction != "hide") return false;
+        });
 
         console.log(`${logPrefix(logAction)} ${Key.SERVER_SIDE_FILTERS}:`, filters);
         return filters;

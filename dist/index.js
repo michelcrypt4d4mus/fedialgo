@@ -209,19 +209,16 @@ class TheAlgorithm {
         this.feed.forEach(toot => {
             (0, toot_2.repairToot)(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
-            toot.followedTags ??= [];
+            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
+            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
+            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);
             // Lowercase and count tags
-            toot.tags.forEach(tag => {
-                (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
+            toot.tags.forEach((tag) => {
                 toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
                 if (tag.name in this.followedTags)
                     toot.followedTags.push(tag);
+                (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
             });
-            // Must happen after tags are lowercased and before source counts are aggregated
-            toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
-            (0, helpers_2.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);
             // Aggregate source counts
             Object.entries(property_filter_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
                 if (sourceFilter(toot)) {
@@ -230,11 +227,6 @@ class TheAlgorithm {
             });
             // Aggregate server-side filter counts
             this.serverSideFilters.forEach((filter) => {
-                // before 4.0 Filter objects lacked a 'context' property
-                if (filter.context?.length > 0 && !filter.context.includes("home"))
-                    return;
-                if (filter.filterAction != "hide")
-                    return;
                 filter.keywords.forEach((keyword) => {
                     if ((0, toot_1.containsString)(toot, keyword.keyword)) {
                         console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server filter keyword:`, keyword);
@@ -272,8 +264,8 @@ class TheAlgorithm {
         ) {
             setTimeout(() => {
                 // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
-                console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[5];
+                console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
@@ -323,7 +315,6 @@ class TheAlgorithm {
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo(logPrefix);
                 Storage_1.default.setFeed(this.feed);
-                console.debug(`${logPrefix} call completed successfully...`);
             }
             finally {
                 releaseMutex();
@@ -359,12 +350,12 @@ class TheAlgorithm {
             return false;
         }
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < (new Date(toot.createdAt)).getTime()) {
+        if (Date.now() < new Date(toot.createdAt).getTime()) {
             console.warn(`Removed toot with future timestamp: `, toot);
             return false;
         }
         // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-        if (toot.filtered && toot.filtered.length > 0) {
+        if (toot.filtered?.length) {
             const filterMatch = toot.filtered[0];
             console.debug(`Removed toot matching filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
             return false;

@@ -214,20 +214,16 @@ class TheAlgorithm {
         this.feed.forEach(toot => {
             repairToot(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
-            toot.followedTags ??= [];
+            incrementCount(tootCounts[PropertyName.APP], toot.application.name);
+            incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
+            incrementCount(tootCounts[PropertyName.USER], toot.account.acct);
 
             // Lowercase and count tags
-            toot.tags.forEach(tag => {
-                incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
+            toot.tags.forEach((tag) => {
                 toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
                 if (tag.name in this.followedTags) toot.followedTags.push(tag);
+                incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
             });
-
-            // Must happen after tags are lowercased and before source counts are aggregated
-            toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
-            incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
-            incrementCount(tootCounts[PropertyName.APP], toot.application.name);
-            incrementCount(tootCounts[PropertyName.USER], toot.account.acct);
 
             // Aggregate source counts
             Object.entries(SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
@@ -238,10 +234,6 @@ class TheAlgorithm {
 
             // Aggregate server-side filter counts
             this.serverSideFilters.forEach((filter) => {
-                // before 4.0 Filter objects lacked a 'context' property
-                if (filter.context?.length > 0 && !filter.context.includes("home")) return;
-                if (filter.filterAction != "hide") return;
-
                 filter.keywords.forEach((keyword) => {
                     if (containsString(toot, keyword.keyword)) {
                         console.debug(`toot ${describeToot(toot)} matched server filter keyword:`, keyword);
@@ -283,12 +275,15 @@ class TheAlgorithm {
             && this.feed.length < maxTimelineTootsToFetch
             && newHomeToots.length >= (numTimelineToots - 3)  // Sometimes we get 39 records instead of 40 at a time
         ) {
-            setTimeout(() => {
-                // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
-                console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
-                const tootWithMaxId = sortByCreatedAt(newHomeToots)[5];
-                this.getFeed(numTimelineToots, tootWithMaxId.id);
-            }, Storage.getConfig().incrementalLoadDelayMS);
+            setTimeout(
+                () => {
+                    // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
+                    const tootWithMaxId = sortByCreatedAt(newHomeToots)[5];
+                    console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
+                    this.getFeed(numTimelineToots, tootWithMaxId.id);
+                },
+                Storage.getConfig().incrementalLoadDelayMS
+            );
         } else {
             if (!Storage.getConfig().enableIncrementalLoad) {
                 console.log(`halting getFeed(): incremental loading disabled`);
@@ -341,7 +336,6 @@ class TheAlgorithm {
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo(logPrefix);
                 Storage.setFeed(this.feed);
-                console.debug(`${logPrefix} call completed successfully...`);
             } finally {
                 releaseMutex();
             }
@@ -377,15 +371,15 @@ class TheAlgorithm {
         }
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < (new Date(toot.createdAt)).getTime()) {
+        if (Date.now() < new Date(toot.createdAt).getTime()) {
             console.warn(`Removed toot with future timestamp: `, toot);
             return false;
         }
 
         // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-        if (toot.filtered && toot.filtered.length > 0) {
+        if (toot.filtered?.length) {
             const filterMatch = toot.filtered[0];
-            console.debug(`Removed toot matching filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
+            console.debug(`Removed toot matching server filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
             return false;
         }
 

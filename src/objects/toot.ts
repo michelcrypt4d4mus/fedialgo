@@ -145,10 +145,12 @@ export const earliestToot = (toots: Toot[]): Toot | null => {
 // Repair toot properties:
 //   - Set toot.language to defaultLanguage if missing
 //   - Set media type to "image" if unknown and reparable
+//   - Lowercase all tags
 export function repairToot(toot: Toot): void {
     toot.application ??= {name: UNKNOWN_APP};
     toot.application.name ??= UNKNOWN_APP;
     toot.language ??= Storage.getConfig().defaultLanguage;
+    toot.followedTags ??= [];
 
     // Check for weird media types
     toot.mediaAttachments.forEach((media) => {
