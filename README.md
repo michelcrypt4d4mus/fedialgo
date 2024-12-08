@@ -20,7 +20,12 @@ If you're not developing your own app there's a simple demo app that can spin up
 You can install from github with `npm`:
 
 ```bash
-npm install github:michelcrypt4d4mus/fedialgo
+npm install --save github:michelcrypt4d4mus/fedialgo#stable
+```
+
+Or with `yarn`:
+```bash
+yarn add https://github.com/michelcrypt4d4mus/fedialgo#stable
 ```
 
 # Usage
