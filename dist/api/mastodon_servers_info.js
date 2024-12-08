@@ -66,7 +66,7 @@ async function mastodonServersInfo(_api, _user, followedAccounts) {
     const popularServers = Object.keys(userServerCounts)
         .sort((a, b) => userServerCounts[b] - userServerCounts[a])
         .slice(0, numServersToCheck);
-    console.debug(`coreServerFeature() userServerCounts: `, userServerCounts);
+    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
     console.debug(`Top ${numServersToCheck} servers: `, popularServers);
     const monthlyUsers = await Promise.all(popularServers.map(s => (0, api_1.getMonthlyUsers)(s)));
     const serverMAUs = {};
@@ -87,4 +87,4 @@ async function mastodonServersInfo(_api, _user, followedAccounts) {
 }
 exports.default = mastodonServersInfo;
 ;
-//# sourceMappingURL=coreServerFeature.js.map
+//# sourceMappingURL=mastodon_servers_info.js.map

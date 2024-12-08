@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const coreServerFeature_1 = __importDefault(require("../features/coreServerFeature"));
+const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
 const followed_tags_feature_scorer_1 = __importDefault(require("../scorer/feature/followed_tags_feature_scorer"));
 const interactions_scorer_1 = __importDefault(require("../scorer/feature/interactions_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favorited_accounts_scorer"));
@@ -82,7 +82,7 @@ class MastodonApiCache extends Storage_1.default {
     }
     // Returns information about mastodon servers
     static async getCoreServer(api) {
-        return await this.getAggregatedData(api, Storage_1.Key.CORE_SERVER, coreServerFeature_1.default, await this.getFollowedAccounts(api));
+        return await this.getAggregatedData(api, Storage_1.Key.CORE_SERVER, mastodon_servers_info_1.default, await this.getFollowedAccounts(api));
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains(api) {
