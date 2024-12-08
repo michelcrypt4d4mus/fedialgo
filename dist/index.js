@@ -203,6 +203,8 @@ class TheAlgorithm {
     //   - Set isFollowed flag
     repairFeedAndExtractSummaryInfo() {
         const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
+            // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
+            this.filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
             counts[propertyName] = {};
             return counts;
         }, {});
@@ -234,12 +236,6 @@ class TheAlgorithm {
                     }
                 });
             });
-        });
-        // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-        Object.values(property_filter_1.PropertyName).forEach((sectionName) => {
-            if (sectionName in this.filters.filterSections)
-                return;
-            this.filters.filterSections[sectionName] = new property_filter_1.default({ title: sectionName });
         });
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
@@ -357,7 +353,7 @@ class TheAlgorithm {
         // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
         if (toot.filtered?.length) {
             const filterMatch = toot.filtered[0];
-            console.debug(`Removed toot matching filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
+            console.debug(`Removed toot matching server filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
             return false;
         }
         return true;

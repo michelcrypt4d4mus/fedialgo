@@ -120,6 +120,7 @@ class MastodonApiCache extends Storage_1.default {
                 return false;
             if (filter.filterAction != "hide")
                 return false;
+            return true;
         });
         console.log(`${logPrefix(logAction)} ${Storage_1.Key.SERVER_SIDE_FILTERS}:`, filters);
         return filters;

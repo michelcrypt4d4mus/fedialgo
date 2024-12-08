@@ -206,7 +206,9 @@ class TheAlgorithm {
     // Compute language and application counts. Repair broken toots and populate extra data:
     //   - Set isFollowed flag
     repairFeedAndExtractSummaryInfo(): void {
-        const tootCounts = Object.values(PropertyName).reduce((counts, propertyName) => {
+        const tootCounts: Record<PropertyName, StringNumberDict> = Object.values(PropertyName).reduce((counts, propertyName) => {
+            // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
+            this.filters.filterSections[propertyName] ??= new PropertyFilter({title: propertyName});
             counts[propertyName as PropertyName] = {} as StringNumberDict;
             return counts;
         }, {} as Record<PropertyName, StringNumberDict>);
@@ -236,17 +238,11 @@ class TheAlgorithm {
             this.serverSideFilters.forEach((filter) => {
                 filter.keywords.forEach((keyword) => {
                     if (containsString(toot, keyword.keyword)) {
-                        console.debug(`toot ${describeToot(toot)} matched server filter keyword:`, keyword);
+                        console.debug(`toot ${describeToot(toot)} matched server filter:`, filter);
                         incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
             });
-        });
-
-        // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-        Object.values(PropertyName).forEach((sectionName) => {
-            if (sectionName in this.filters.filterSections) return;
-            this.filters.filterSections[sectionName] = new PropertyFilter({title: sectionName});
         });
 
         // TODO: if there's an validValue set for a filter section that is no longer in the feed

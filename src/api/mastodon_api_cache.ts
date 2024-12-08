@@ -148,6 +148,7 @@ export default class MastodonApiCache extends Storage {
             // before 4.0 Filter objects lacked a 'context' property altogether
             if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
             if (filter.filterAction != "hide") return false;
+            return true;
         });
 
         console.log(`${logPrefix(logAction)} ${Key.SERVER_SIDE_FILTERS}:`, filters);

@@ -56,6 +56,9 @@ const TOOT_MATCHERS = {
     [PropertyName.HASHTAG]: (toot, validValues) => {
         return toot.tags.some(tag => validValues.includes(tag.name));
     },
+    [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
+        return !!validValues.find((v) => (0, toot_1.containsString)(toot, v));
+    },
     [PropertyName.SOURCE]: (toot, validValues) => {
         return Object.entries(exports.SOURCE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
@@ -63,9 +66,6 @@ const TOOT_MATCHERS = {
     },
     [PropertyName.USER]: (toot, validValues) => {
         return validValues.includes(toot.account.acct);
-    },
-    [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
-        return !!validValues.find((v) => (0, toot_1.containsString)(toot, v));
     },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
