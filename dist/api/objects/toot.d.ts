@@ -10,6 +10,8 @@ export declare const videoAttachments: (toot: Toot) => Array<mastodon.v1.MediaAt
 export declare const minimumID: (toots: Toot[]) => number | null;
 export declare const sortByCreatedAt: (toots: Toot[]) => Toot[];
 export declare const earliestTootAt: (toots: Toot[]) => Date | null;
+export declare const mostRecentToot: (toots: Toot[]) => Toot | null;
+export declare const mostRecentTootAt: (toots: Toot[]) => Date | null;
 export declare const earliestToot: (toots: Toot[]) => Toot | null;
 export declare function repairToot(toot: Toot): void;
 export declare const tootedAt: (toot: Toot) => Date;

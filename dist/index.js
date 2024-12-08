@@ -57,14 +57,13 @@ const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const account_1 = require("./api/objects/account");
 const helpers_1 = require("./helpers");
-const toot_1 = require("./api/objects/toot");
 const config_1 = require("./config");
 const api_1 = require("./api/api");
 const types_1 = require("./types");
-const toot_2 = require("./api/objects/toot");
-Object.defineProperty(exports, "describeAccount", { enumerable: true, get: function () { return toot_2.describeAccount; } });
-Object.defineProperty(exports, "imageAttachments", { enumerable: true, get: function () { return toot_2.imageAttachments; } });
-Object.defineProperty(exports, "videoAttachments", { enumerable: true, get: function () { return toot_2.videoAttachments; } });
+const toot_1 = require("./api/objects/toot");
+Object.defineProperty(exports, "describeAccount", { enumerable: true, get: function () { return toot_1.describeAccount; } });
+Object.defineProperty(exports, "imageAttachments", { enumerable: true, get: function () { return toot_1.imageAttachments; } });
+Object.defineProperty(exports, "videoAttachments", { enumerable: true, get: function () { return toot_1.videoAttachments; } });
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 class TheAlgorithm {
@@ -131,11 +130,13 @@ class TheAlgorithm {
         this.mastoApi = new api_1.MastoApi(this.api);
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.user = params.user;
-        this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
+        this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000;
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        if (!this.shouldReloadFeed() && !maxId)
+            return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         let promises = [this.mastoApi.getFeed(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
@@ -197,7 +198,7 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(toot_2.condensedStatus));
+        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(toot_1.condensedStatus));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
     // Compute language and application counts. Repair broken toots and populate extra data:
@@ -210,7 +211,7 @@ class TheAlgorithm {
             return counts;
         }, {});
         this.feed.forEach(toot => {
-            (0, toot_2.repairToot)(toot);
+            (0, toot_1.repairToot)(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
@@ -231,8 +232,8 @@ class TheAlgorithm {
             // Aggregate server-side filter counts
             this.serverSideFilters.forEach((filter) => {
                 filter.keywords.forEach((keyword) => {
-                    if ((0, toot_2.containsString)(toot, keyword.keyword)) {
-                        console.debug(`toot ${(0, toot_2.describeToot)(toot)} matched server filter:`, filter);
+                    if ((0, toot_1.containsString)(toot, keyword.keyword)) {
+                        console.debug(`toot ${(0, toot_1.describeToot)(toot)} matched server filter:`, filter);
                         (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
@@ -261,7 +262,7 @@ class TheAlgorithm {
         ) {
             setTimeout(() => {
                 // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
-                const tootWithMaxId = (0, toot_2.sortByCreatedAt)(newHomeToots)[5];
+                const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[5];
                 console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
@@ -367,10 +368,12 @@ class TheAlgorithm {
         console.log(msg);
     }
     shouldReloadFeed() {
-        const mostRecentTootAt = (0, toot_2.earliestTootAt)(this.feed);
-        if (!mostRecentTootAt)
+        const mostRecentAt = (0, toot_1.mostRecentTootAt)(this.feed);
+        if (this.feed.length == 0 || !mostRecentAt)
             return true;
-        return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
+        const should = ((Date.now() - mostRecentAt.getTime()) > this.reloadIfOlderThanMS);
+        console.log(`shouldReloadFeed() mostRecentAt: ${mostRecentAt}, should: ${should}`);
+        return should;
     }
     // Adjust toot weights based on user's chosen slider values
     // TODO: unclear whether this is working correctly

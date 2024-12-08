@@ -126,6 +126,19 @@ export const earliestTootAt = (toots: Toot[]): Date | null => {
 
 
 // Find the most recent toot in the feed
+export const mostRecentToot = (toots: Toot[]): Toot | null => {
+    if (toots.length == 0) return null;
+    return sortByCreatedAt(toots).slice(-1)[0];
+};
+
+
+export const mostRecentTootAt = (toots: Toot[]): Date | null => {
+    const mostRecent = mostRecentToot(toots);
+    return mostRecent ? tootedAt(mostRecent) : null;
+};
+
+
+// Find the most recent toot in the feed
 export const earliestToot = (toots: Toot[]): Toot | null => {
     if (toots.length == 0) return null;
 

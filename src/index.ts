@@ -26,8 +26,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildAccountNames } from "./api/objects/account";
 import { createRandomString, incrementCount } from "./helpers";
-import { dedupeToots } from "./api/objects/toot";
-import { DEFAULT_FILTERS, DEFAULT_WEIGHTS, buildNewFilterSettings } from "./config";
+import { DEFAULT_WEIGHTS, buildNewFilterSettings } from "./config";
 import { MastoApi } from "./api/api";
 import {
     AccountNames,
@@ -43,10 +42,11 @@ import {
 import {
     condensedStatus,
     containsString,
+    dedupeToots,
     describeAccount,
     describeToot,
-    earliestTootAt,
     imageAttachments,
+    mostRecentTootAt,
     repairToot,
     sortByCreatedAt,
     videoAttachments,
@@ -129,12 +129,13 @@ class TheAlgorithm {
         this.mastoApi = new MastoApi(this.api);
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.user = params.user;
-        this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
+        this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        if (!this.shouldReloadFeed() && !maxId) return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let promises: Promise<any>[] = [this.mastoApi.getFeed(numTimelineToots, maxId)];
 
@@ -398,9 +399,11 @@ class TheAlgorithm {
     }
 
     private shouldReloadFeed(): boolean {
-        const mostRecentTootAt = earliestTootAt(this.feed);
-        if (!mostRecentTootAt) return true;
-        return ((Date.now() - mostRecentTootAt.getTime()) > this.reloadIfOlderThanMS);
+        const mostRecentAt = mostRecentTootAt(this.feed);
+        if (this.feed.length == 0 || !mostRecentAt) return true;
+        const should = ((Date.now() - mostRecentAt.getTime()) > this.reloadIfOlderThanMS);
+        console.log(`shouldReloadFeed() mostRecentAt: ${mostRecentAt}, should: ${should}`);
+        return should;
     }
 
     // Adjust toot weights based on user's chosen slider values

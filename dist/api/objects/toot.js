@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dedupeToots = exports.containsString = exports.tootedAt = exports.repairToot = exports.earliestToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
+exports.dedupeToots = exports.containsString = exports.tootedAt = exports.repairToot = exports.earliestToot = exports.mostRecentTootAt = exports.mostRecentToot = exports.earliestTootAt = exports.sortByCreatedAt = exports.minimumID = exports.videoAttachments = exports.imageAttachments = exports.describeTootTime = exports.describeAccount = exports.describeToot = exports.condensedStatus = exports.popularity = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -108,6 +108,18 @@ const earliestTootAt = (toots) => {
     return earliest ? (0, exports.tootedAt)(earliest) : null;
 };
 exports.earliestTootAt = earliestTootAt;
+// Find the most recent toot in the feed
+const mostRecentToot = (toots) => {
+    if (toots.length == 0)
+        return null;
+    return (0, exports.sortByCreatedAt)(toots).slice(-1)[0];
+};
+exports.mostRecentToot = mostRecentToot;
+const mostRecentTootAt = (toots) => {
+    const mostRecent = (0, exports.mostRecentToot)(toots);
+    return mostRecent ? (0, exports.tootedAt)(mostRecent) : null;
+};
+exports.mostRecentTootAt = mostRecentTootAt;
 // Find the most recent toot in the feed
 const earliestToot = (toots) => {
     if (toots.length == 0)
