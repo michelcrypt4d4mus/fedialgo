@@ -41,16 +41,13 @@ class NumericFilter extends toot_filter_1.default {
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     updateValue(newValue) {
-        console.debug(`Updating value for ${this.title} with ${newValue}`);
         this.value = newValue;
     }
     // Required for serialization of settings to local storage
     toArgs() {
-        return {
-            invertSelection: this.invertSelection,
-            title: this.title,
-            value: this.value
-        };
+        const filterArgs = super.toArgs();
+        filterArgs.value = this.value;
+        return filterArgs;
     }
 }
 exports.default = NumericFilter;

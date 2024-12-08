@@ -100,10 +100,11 @@ class PropertyFilter extends toot_filter_1.default {
             this.visible = false;
         }
     }
-    // Return true if the toot should appear in the timeline feed
+    // Return true if the toot matches the filter
     isAllowed(toot) {
+        // If there's no validValues allow everything
         if (this.validValues.length === 0)
-            return true; // if there's no validValues allow everything
+            return true;
         const isMatched = TOOT_MATCHERS[this.title](toot, this.validValues);
         return this.invertSelection ? !isMatched : isMatched;
     }
@@ -126,12 +127,9 @@ class PropertyFilter extends toot_filter_1.default {
     }
     // Required for serialization of settings to local storage
     toArgs() {
-        return {
-            invertSelection: this.invertSelection,
-            optionInfo: this.optionInfo,
-            title: this.title,
-            validValues: this.validValues,
-        };
+        const filterArgs = super.toArgs();
+        filterArgs.validValues = this.validValues;
+        return filterArgs;
     }
 }
 exports.default = PropertyFilter;

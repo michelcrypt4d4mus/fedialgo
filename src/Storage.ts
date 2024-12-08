@@ -4,8 +4,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
-import NumericFilter, { FILTERABLE_SCORES } from "./objects/numeric_filter";
-import PropertyFilter, { PropertyName } from "./objects/property_filter";
+import TootFilter from "./objects/toot_filter";
 import {
     Config,
     FeedFilterSettings,
@@ -16,6 +15,7 @@ import {
     Weights
 } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
+import { buildNewFilterSettings, populateFiltersFromArgs } from "./config";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -52,37 +52,10 @@ export default class Storage {
         let filters = await this.get(Key.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
         if (filters) {
-            filters.numericFilterArgs ??= [];
-            filters.filterSections = (filters.feedFilterSectionArgs || []).reduce(
-                (acc, args) => {
-                    acc[args.title] = new PropertyFilter(args);
-                    return acc;
-                },
-                {} as Record<string, PropertyFilter>
-            );
-
-            filters.numericFilters = (filters.numericFilterArgs || []).reduce(
-                (acc, args) => {
-                    acc[args.title as WeightName] = new NumericFilter(args);
-                    return acc;
-                },
-                {} as Record<WeightName, NumericFilter>
-            );
-
-            FILTERABLE_SCORES.forEach(weightName => {
-                filters.numericFilters[weightName] ??= new NumericFilter({title: weightName});
-            });
+            populateFiltersFromArgs(filters);
         } else {
-            console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
-            filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
-
-            // Start with the numeric filters and the source filter section
-            FILTERABLE_SCORES.forEach(weightName => {
-                filters.numericFilters[weightName] = new NumericFilter({title: weightName});
-            });
-
-            filters.filterSections[PropertyName.SOURCE] = new PropertyFilter({title: PropertyName.SOURCE});
-            await this.setFilters(DEFAULT_FILTERS);
+            filters = buildNewFilterSettings();
+            await this.setFilters(DEFAULT_FILTERS);  // DEFAULT_FILTERS not the filters we just built
         }
 
         console.log(`[Storage] getFilters() returning:`, filters);

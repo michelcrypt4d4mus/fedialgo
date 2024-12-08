@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import NumericFilter from "./objects/numeric_filter";
+import NumericFilter, { FILTERABLE_SCORES} from "./objects/numeric_filter";
 import PropertyFilter, { PropertyName } from "./objects/property_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
@@ -122,3 +122,34 @@ export const DEFAULT_CONFIG = {
         "threads.net",
     ],
 } as Config;
+
+
+// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
+export function buildNewFilterSettings(): FeedFilterSettings {
+    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
+    // Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.
+    filters.filterSections[PropertyName.SOURCE] = new PropertyFilter({title: PropertyName.SOURCE});
+    FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
+    console.debug(`Built new FeedFilterSettings:`, filters);
+    return filters;
+};
+
+
+// For building a FeedFilterSettings object from the serialized version. Mutates object.
+export function populateFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
+    serializedFilterSettings.filterSections ??= {} as Record<PropertyName, PropertyFilter>;
+    serializedFilterSettings.numericFilters ??= {} as Record<WeightName, NumericFilter>;
+
+    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+        serializedFilterSettings.filterSections[args.title as PropertyName] = new PropertyFilter(args);
+    });
+
+    serializedFilterSettings.numericFilterArgs.forEach((args) => {
+        serializedFilterSettings.numericFilters[args.title as WeightName] = new NumericFilter(args);
+    });
+
+    // Fill in any missing values
+    FILTERABLE_SCORES.forEach(weightName => {
+        serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
+    });
+};

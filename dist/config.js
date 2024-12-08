@@ -1,6 +1,34 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
+exports.populateFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
+/*
+ * Centralized location for non-user configurable settings.
+ */
+const numeric_filter_1 = __importStar(require("./objects/numeric_filter"));
+const property_filter_1 = __importStar(require("./objects/property_filter"));
 const types_1 = require("./types");
 exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.CHAOS]: {
@@ -110,4 +138,31 @@ exports.DEFAULT_CONFIG = {
         "threads.net",
     ],
 };
+function buildNewFilterSettings() {
+    const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
+    // Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.
+    filters.filterSections[property_filter_1.PropertyName.SOURCE] = new property_filter_1.default({ title: property_filter_1.PropertyName.SOURCE });
+    numeric_filter_1.FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new numeric_filter_1.default({ title: f }));
+    console.debug(`Built new FeedFilterSettings:`, filters);
+    return filters;
+}
+exports.buildNewFilterSettings = buildNewFilterSettings;
+;
+// For building a FeedFilterSettings object from the serialized version. Mutates object.
+function populateFiltersFromArgs(serializedFilterSettings) {
+    serializedFilterSettings.filterSections ??= {};
+    serializedFilterSettings.numericFilters ??= {};
+    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+        serializedFilterSettings.filterSections[args.title] = new property_filter_1.default(args);
+    });
+    serializedFilterSettings.numericFilterArgs.forEach((args) => {
+        serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
+    });
+    // Fill in any missing values
+    numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
+        serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
+    });
+}
+exports.populateFiltersFromArgs = populateFiltersFromArgs;
+;
 //# sourceMappingURL=config.js.map
