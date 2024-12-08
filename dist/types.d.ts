@@ -56,6 +56,7 @@ export type Config = {
     numTrendingTootsPerServer: number;
     noMauServers: string[];
 };
+export type CountKey = PropertyName | WeightName | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];

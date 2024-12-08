@@ -108,6 +108,13 @@ class PropertyFilter {
         const isMatched = TOOT_MATCHERS[this.title](toot, this.validValues);
         return this.invertSelection ? !isMatched : isMatched;
     }
+    setOptions(optionInfo) {
+        this.optionInfo = optionInfo;
+        // Server side filters get all the options immediately set to filter out toots
+        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+            this.validValues = Object.keys(optionInfo);
+        }
+    }
     // Add the element to the filters array if it's not already there or remove it if it is
     updateValidOptions(element, isValidOption) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);

@@ -55,6 +55,7 @@ export default class Scorer {
         const weightedScores = {} as StringNumberDict;
         const userWeights = await Storage.getWeightings();
         const scores = await Promise.all(scorers.map(s => s.score(toot)));
+        toot.followedTags ??= [];
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).

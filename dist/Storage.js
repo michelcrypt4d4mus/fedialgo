@@ -64,6 +64,7 @@ class Storage {
     static async getFilters() {
         let filters = await this.get(Key.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
+            filters.numericFilterArgs ??= [];
             filters.filterSections = (filters.feedFilterSectionArgs || []).reduce((acc, args) => {
                 acc[args.title] = new property_filter_1.default(args);
                 return acc;
@@ -72,6 +73,9 @@ class Storage {
                 acc[args.title] = new numeric_filter_1.default(args);
                 return acc;
             }, {});
+            numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
+                filters.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
+            });
         }
         else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);

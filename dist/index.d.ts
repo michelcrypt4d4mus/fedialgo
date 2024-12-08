@@ -59,4 +59,4 @@ declare class TheAlgorithm {
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
-export { TIME_DECAY, FeedFilterSettings, PropertyName, NumericFilter, PropertyFilter, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };
+export { TIME_DECAY, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };

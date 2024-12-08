@@ -33,6 +33,7 @@ export default class PropertyFilter {
     visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs);
     isAllowed(toot: Toot): boolean;
+    setOptions(optionInfo: FilterOptionInfo): void;
     updateValidOptions(element: string, isValidOption: boolean): void;
     toArgs(): PropertyFilterArgs;
 }

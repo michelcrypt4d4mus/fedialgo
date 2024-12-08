@@ -1,3 +1,4 @@
+import { CountKey, StringNumberDict } from "./types";
 import { Toot } from "./types";
 
 export const IMAGE = "image";
@@ -94,4 +95,13 @@ export const transformKeys = <T>(data: T, transform: (key: string) => string): T
 // Masto does not support top posts from foreign servers, so we have to do it manually
 export const isRecord = (x: unknown): x is Record<string, unknown> => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
+};
+
+
+export const incrementCount = (
+    counts: StringNumberDict,
+    key: CountKey | undefined | null
+): void => {
+    key = key ?? "unknown";
+    counts[key] = (counts[key] || 0) + 1;
 };

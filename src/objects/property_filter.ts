@@ -122,6 +122,15 @@ export default class PropertyFilter {
         return this.invertSelection ? !isMatched : isMatched;
     }
 
+    setOptions(optionInfo: FilterOptionInfo) {
+        this.optionInfo = optionInfo;
+
+        // Server side filters get all the options immediately set to filter out toots
+        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+            this.validValues = Object.keys(optionInfo);
+        }
+    }
+
     // Add the element to the filters array if it's not already there or remove it if it is
     updateValidOptions(element: string, isValidOption: boolean) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);

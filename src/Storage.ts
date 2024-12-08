@@ -44,6 +44,7 @@ export default class Storage {
         let filters = await this.get(Key.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
         if (filters) {
+            filters.numericFilterArgs ??= [];
             filters.filterSections = (filters.feedFilterSectionArgs || []).reduce(
                 (acc, args) => {
                     acc[args.title] = new PropertyFilter(args);
@@ -59,6 +60,10 @@ export default class Storage {
                 },
                 {} as Record<WeightName, NumericFilter>
             );
+
+            FILTERABLE_SCORES.forEach(weightName => {
+                filters.numericFilters[weightName] ??= new NumericFilter({title: weightName});
+            });
         } else {
             console.debug(`getFilters() building DEFAULT_FILTERS:`, filters);
             filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;

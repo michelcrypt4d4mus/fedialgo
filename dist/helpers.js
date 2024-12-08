@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.dedupeToots = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
@@ -87,4 +87,9 @@ const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 };
 exports.isRecord = isRecord;
+const incrementCount = (counts, key) => {
+    key = key ?? "unknown";
+    counts[key] = (counts[key] || 0) + 1;
+};
+exports.incrementCount = incrementCount;
 //# sourceMappingURL=helpers.js.map

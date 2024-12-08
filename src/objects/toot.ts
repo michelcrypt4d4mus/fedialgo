@@ -4,11 +4,15 @@
  */
 import { mastodon } from "masto";
 
+import Storage from "../Storage";
+import { IMAGE, MEDIA_TYPES, isImage } from "../helpers";
 import { Toot } from "../types";
 
 export const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
+const BROKEN_TAG = "<<BROKEN_TAG>>"
+const UNKNOWN_APP = "unknown";
 
 
 // Return total of favourites and reblogs
@@ -137,6 +141,32 @@ export const earliestToot = (toots: Toot[]): Toot | null => {
     );
 };
 
+
+// Repair toot properties:
+//   - Set toot.language to defaultLanguage if missing
+//   - Set media type to "image" if unknown and reparable
+export function repairToot(toot: Toot): void {
+    toot.application ??= {name: UNKNOWN_APP};
+    toot.application.name ??= UNKNOWN_APP;
+    toot.language ??= Storage.getConfig().defaultLanguage;
+
+    // Check for weird media types
+    toot.mediaAttachments.forEach((media) => {
+        if (media.type === "unknown" && isImage(media.remoteUrl)) {
+            console.log(`Repairing broken media attachment in toot:`, toot);
+            media.type = IMAGE;
+        } else if (!MEDIA_TYPES.includes(media.type)) {
+            console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
+        }
+    });
+
+    // Lowercase and count tags
+    toot.tags.forEach(tag => {
+        tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
+    });
+};
+
+
 export const tootedAt = (toot: Toot): Date => {
     return new Date(toot.createdAt);
 };
@@ -151,7 +181,7 @@ export function containsString(toot: Toot, str: string): boolean {
     } else {
         return toot.content.toLowerCase().includes(str.toLowerCase());
     }
-}
+};
 
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;

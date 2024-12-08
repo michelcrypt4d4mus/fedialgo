@@ -38,13 +38,14 @@ import { buildAccountNames } from "./objects/account";
 import { condensedStatus, containsString, describeToot, earliestTootAt, sortByCreatedAt } from "./objects/toot";
 import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
 import { IMAGE, MEDIA_TYPES, createRandomString, dedupeToots, isImage } from "./helpers";
+import { incrementCount } from "./helpers";
 import { MastoApi } from "./api/api";
+import { repairToot } from "./objects/toot";
 import { ScorerInfo } from "./types";
 import { WeightName } from "./types";
+import { inc } from "semver";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
-const BROKEN_TAG = "<<BROKEN_TAG>>"
-const UNKNOWN_APP = "unknown";
 
 
 class TheAlgorithm {
@@ -163,7 +164,6 @@ class TheAlgorithm {
 
         const cleanFeed = dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
-
         this.repairFeedAndExtractSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots);
         return this.scoreFeed.bind(this)();
@@ -210,50 +210,34 @@ class TheAlgorithm {
 
     // Compute language and application counts. Repair broken toots and populate extra data:
     //   - Set isFollowed flag
-    //   - Set toot.language to defaultLanguage if missing
-    //   - Set media type to "image" if unknown and reparable
     repairFeedAndExtractSummaryInfo(): void {
-        const appCounts: StringNumberDict = {};
-        const languageCounts: StringNumberDict = {};
-        const sourceCounts: StringNumberDict = {};
-        const tagCounts: StringNumberDict = {};
-        const userCounts: StringNumberDict = {};
-        const serverSideFilterCounts: StringNumberDict = {};
+        const tootCounts = Object.values(PropertyName).reduce((counts, propertyName) => {
+            counts[propertyName as PropertyName] = {} as StringNumberDict;
+            return counts;
+        }, {} as Record<PropertyName, StringNumberDict>);
 
         this.feed.forEach(toot => {
-            // Decorate / repair toot data
-            toot.application ??= {name: UNKNOWN_APP};
-            toot.application.name ??= UNKNOWN_APP;
-            toot.language ??= Storage.getConfig().defaultLanguage;
+            repairToot(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
-
-            // Check for weird media types
-            toot.mediaAttachments.forEach((media) => {
-                if (media.type === "unknown" && isImage(media.remoteUrl)) {
-                    console.warn(`Repairing broken media attachment in toot:`, toot);
-                    media.type = IMAGE;
-                } else if (!MEDIA_TYPES.includes(media.type)) {
-                    console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
-                }
-            });
+            toot.followedTags ??= [];
 
             // Lowercase and count tags
             toot.tags.forEach(tag => {
-                tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-                tagCounts[tag.name] = (tagCounts[tag.name] || 0) + 1;
+                incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
+                toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
+                if (tag.name in this.followedTags) toot.followedTags.push(tag);
             });
 
             // Must happen after tags are lowercased and before source counts are aggregated
             toot.followedTags = toot.tags.filter((tag) => tag.name in this.followedTags);
-            languageCounts[toot.language] = (languageCounts[toot.language] || 0) + 1;
-            appCounts[toot.application.name] = (appCounts[toot.application.name] || 0) + 1;
-            userCounts[toot.account.acct] = (userCounts[toot.account.acct] || 0) + 1;
+            incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
+            incrementCount(tootCounts[PropertyName.APP], toot.application.name);
+            incrementCount(tootCounts[PropertyName.USER], toot.account.acct);
 
             // Aggregate source counts
             Object.entries(SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
                 if (sourceFilter(toot)) {
-                    sourceCounts[sourceName] ??= 0;
-                    sourceCounts[sourceName] += 1;
+                    incrementCount(tootCounts[PropertyName.SOURCE], sourceName);
                 }
             });
 
@@ -265,9 +249,8 @@ class TheAlgorithm {
 
                 filter.keywords.forEach((keyword) => {
                     if (containsString(toot, keyword.keyword)) {
-                        console.debug(`toot ${describeToot(toot)} matched server side filter keyword:`, keyword);
-                        serverSideFilterCounts[keyword.keyword] ??= 0;
-                        serverSideFilterCounts[keyword.keyword] += 1;
+                        console.debug(`toot ${describeToot(toot)} matched server filter keyword:`, keyword);
+                        incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
             });
@@ -281,14 +264,10 @@ class TheAlgorithm {
 
         // TODO: if there's an validValue set for a filter section that is no longer in the feed
         // the user will not be presented with the option to turn it off. This is a bug.
-        this.filters.filterSections[PropertyName.APP].optionInfo = appCounts;
-        this.filters.filterSections[PropertyName.HASHTAG].optionInfo = tagCounts;
-        this.filters.filterSections[PropertyName.LANGUAGE].optionInfo = languageCounts;
-        this.filters.filterSections[PropertyName.SOURCE].optionInfo = sourceCounts;
-        this.filters.filterSections[PropertyName.USER].optionInfo = userCounts;
-        // Server side filters are inverted by default bc we don't want to show toots including them
-        this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].optionInfo = serverSideFilterCounts;
-        this.filters.filterSections[PropertyName.SERVER_SIDE_FILTERS].validValues = Object.keys(serverSideFilterCounts);
+        Object.entries(tootCounts).forEach(([propertyName, counts]) => {
+            this.filters.filterSections[propertyName as PropertyName].setOptions(counts);
+        });
+
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
@@ -473,9 +452,9 @@ class TheAlgorithm {
 export {
     TIME_DECAY,
     FeedFilterSettings,
-    PropertyName,
     NumericFilter,
     PropertyFilter,
+    PropertyName,
     ScorerInfo,
     SourceFilterName,
     StringNumberDict,

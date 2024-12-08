@@ -1,3 +1,4 @@
+import { CountKey, StringNumberDict } from "./types";
 import { Toot } from "./types";
 export declare const IMAGE = "image";
 export declare const IMAGE_EXTENSIONS: string[];
@@ -11,3 +12,4 @@ export declare function dedupeToots(toots: Toot[], logLabel?: string | undefined
 export declare function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]>;
 export declare const transformKeys: <T>(data: T, transform: (key: string) => string) => T;
 export declare const isRecord: (x: unknown) => x is Record<string, unknown>;
+export declare const incrementCount: (counts: StringNumberDict, key: CountKey | undefined | null) => void;
