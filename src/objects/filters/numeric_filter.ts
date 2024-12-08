@@ -2,8 +2,8 @@
  * Put a minimum number on things like reblogs and replies.
  */
 import TootFilter from "./toot_filter";
-import { FilterArgs } from "../types";
-import { Toot, WeightName } from "../types";
+import { FilterArgs, Toot, WeightName } from "../../types";
+
 
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
@@ -21,8 +21,10 @@ export default class NumericFilter extends TootFilter {
     value: number;
 
     constructor({ invertSelection, title, value }: NumericFilterArgs) {
+        const titleStr = title as string;
+
         super({
-            description: `Minimum ${title.startsWith("Num") ? title.slice(3) : title}`,
+            description: `Minimum ${titleStr.startsWith("Num") ? titleStr.slice(3) : title}`,
             invertSelection,
             title,
         })

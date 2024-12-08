@@ -27,8 +27,8 @@ exports.populateFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAU
 /*
  * Centralized location for non-user configurable settings.
  */
-const numeric_filter_1 = __importStar(require("./objects/numeric_filter"));
-const property_filter_1 = __importStar(require("./objects/property_filter"));
+const numeric_filter_1 = __importStar(require("./objects/filters/numeric_filter"));
+const property_filter_1 = __importStar(require("./objects/filters/property_filter"));
 const types_1 = require("./types");
 exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.CHAOS]: {
@@ -138,6 +138,7 @@ exports.DEFAULT_CONFIG = {
         "threads.net",
     ],
 };
+// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 function buildNewFilterSettings() {
     const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
     // Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.

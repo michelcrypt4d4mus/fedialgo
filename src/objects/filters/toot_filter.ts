@@ -2,7 +2,7 @@
  * TootFilter is an abstract class that represents a filter that can be applied
  * to a Toot to determine if it should be included in the timeline feed.
  */
-import { FilterArgs, FilterTitle, Toot} from "../types";
+import { FilterArgs, FilterTitle, Toot} from "../../types";
 import { PropertyName } from "./property_filter";
 
 

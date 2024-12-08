@@ -3,10 +3,10 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language).
  */
-import Storage, { Key } from "../Storage";
+import Storage, { Key } from "../../Storage";
 import TootFilter from "./toot_filter";
-import { containsString } from "./toot";
-import { FilterArgs, Toot } from "../types";
+import { containsString } from "./../toot";
+import { FilterArgs, Toot } from "../../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
@@ -38,7 +38,7 @@ export enum SourceFilterName {
     TRENDING_TOOTS = 'trendingToots',
 };
 
-export interface PropertyFilterArgs extends FilterArgs{
+export interface PropertyFilterArgs extends FilterArgs {
     optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
     validValues?: string[];
 };
