@@ -127,9 +127,9 @@ class TheAlgorithm {
     constructor(params) {
         this.api = params.api;
         this.mastoApi = new api_1.MastoApi(this.api);
-        this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
-        this.filters = JSON.parse(JSON.stringify(config_1.DEFAULT_FILTERS));
+        this.user = params.user;
+        this.filters = (0, config_1.buildNewFilterSettings)();
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000; // Currently unused
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them

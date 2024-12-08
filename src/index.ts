@@ -26,7 +26,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildAccountNames } from "./api/objects/account";
 import { createRandomString, dedupeToots, incrementCount } from "./helpers";
-import { DEFAULT_FILTERS, DEFAULT_WEIGHTS } from "./config";
+import { DEFAULT_FILTERS, DEFAULT_WEIGHTS, buildNewFilterSettings } from "./config";
 import { MastoApi } from "./api/api";
 import {
     AccountNames,
@@ -125,9 +125,10 @@ class TheAlgorithm {
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
         this.mastoApi = new MastoApi(this.api);
-        this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
-        this.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
+        this.user = params.user;
+
+        this.filters = buildNewFilterSettings();
         this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;  // Currently unused
     }
 
