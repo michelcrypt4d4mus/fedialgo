@@ -12,7 +12,7 @@ export default class FeedScorer extends Scorer {
 
     async setFeed(feed: Toot[]) {
         // console.debug(`before feedExtractor() this.features=`, this.features);
-        this.features = await this.feedExtractor(feed);
+        this.features = this.feedExtractor(feed);
         console.debug(`after feedExtractor() this.features=`, this.features);
         this._isReady = true;
     }

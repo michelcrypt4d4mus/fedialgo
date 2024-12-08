@@ -12,6 +12,7 @@ import { MastoApi, mastodonFetch } from "../api/api";
 import { Toot } from "../types";
 
 
+
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
     const topServerDomains = await MastodonApiCache.getTopServerDomains(api);
