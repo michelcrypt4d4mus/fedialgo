@@ -20,6 +20,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { MastoApi } from "./api/api";
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, Toot, WeightName, Weights } from "./types";
+import { describeAccount, imageAttachments, videoAttachments } from "./api/objects/toot";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -57,4 +58,4 @@ declare class TheAlgorithm {
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
-export { TIME_DECAY, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };
+export { TIME_DECAY, describeAccount, FeedFilterSettings, imageAttachments, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, videoAttachments, Weights, };

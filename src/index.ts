@@ -42,10 +42,13 @@ import {
 import {
     condensedStatus,
     containsString,
+    describeAccount,
     describeToot,
     earliestTootAt,
+    imageAttachments,
     repairToot,
-    sortByCreatedAt
+    sortByCreatedAt,
+    videoAttachments,
 } from "./api/objects/toot";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
@@ -441,7 +444,9 @@ class TheAlgorithm {
 
 export {
     TIME_DECAY,
+    describeAccount,
     FeedFilterSettings,
+    imageAttachments,
     NumericFilter,
     PropertyFilter,
     PropertyName,
@@ -450,5 +455,6 @@ export {
     StringNumberDict,
     TheAlgorithm,
     Toot,
+    videoAttachments,
     Weights,
 };
