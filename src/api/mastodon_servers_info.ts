@@ -4,8 +4,8 @@
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { getMonthlyUsers } from "../api/api";
 import { AccountNames, ServerFeature, StringNumberDict } from "../types";
+import { getMonthlyUsers } from "../api/api";
 
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
