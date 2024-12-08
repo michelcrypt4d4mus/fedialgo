@@ -146,10 +146,9 @@ class TheAlgorithm {
             ]);
         }
         const allResponses = await Promise.all(promises);
-        console.log(`getFeed() allResponses:`, allResponses);
+        console.debug(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots } = allResponses.shift();
         const newToots = [...homeToots, ...otherToots];
-        console.log(`getFeed() got ${homeToots.length} newToots, ${otherToots.length} other toots`);
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
             this.followedAccounts = userData.followedAccounts;
@@ -160,7 +159,7 @@ class TheAlgorithm {
         // Remove replies, stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanNewToots = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
         const numRemoved = newToots.length - cleanNewToots.length;
-        console.log(`Removed ${numRemoved} invalid toots of ${newToots.length} leaving ${cleanNewToots.length}`);
+        console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         const cleanFeed = (0, helpers_1.dedupeToots)([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
         this.repairFeedAndExtractSummaryInfo();
