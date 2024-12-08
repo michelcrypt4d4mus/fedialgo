@@ -149,7 +149,7 @@ class TheAlgorithm {
         const allResponses = await Promise.all(promises);
         console.debug(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots } = allResponses.shift();
-        const newToots = [...homeToots,...otherToots];
+        const newToots = [...homeToots, ...otherToots];
 
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
