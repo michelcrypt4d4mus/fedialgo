@@ -9,9 +9,9 @@ export declare class MastoApi {
     static get instance(): MastoApi;
     private constructor();
     getStartupData(): Promise<UserData>;
-    getUserRecentToots(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<Toot[]>;
-    fetchFollowedAccounts(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<mastodon.v1.Account[]>;
-    getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
+    getUserRecentToots(): Promise<Toot[]>;
+    fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
+    getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
     searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     static v1Url: (path: string) => string;

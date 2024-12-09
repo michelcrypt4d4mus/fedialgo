@@ -20,7 +20,7 @@ class RetootedUsersScorer extends feature_scorer_1.default {
         return authorScore + retootScore;
     }
     static async fetchRequiredData(api, user, recentToots) {
-        recentToots ||= await api_1.MastoApi.instance.getUserRecentToots(api, user);
+        recentToots ||= await api_1.MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);

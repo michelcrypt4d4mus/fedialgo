@@ -136,7 +136,7 @@ class TheAlgorithm {
         if (!this.shouldReloadFeed() && !maxId)
             return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [api_1.MastoApi.instance.getFeed(numTimelineToots, maxId)];
+        let promises = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
             promises = promises.concat([

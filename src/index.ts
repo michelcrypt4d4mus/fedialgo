@@ -125,7 +125,7 @@ class TheAlgorithm {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         if (!this.shouldReloadFeed() && !maxId) return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let promises: Promise<any>[] = [MastoApi.instance.getFeed(numTimelineToots, maxId)];
+        let promises: Promise<any>[] = [MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
 
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {

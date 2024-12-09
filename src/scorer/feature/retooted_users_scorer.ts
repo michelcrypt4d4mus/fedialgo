@@ -30,7 +30,7 @@ export default class RetootedUsersScorer extends FeatureScorer {
         user: mastodon.v1.Account,
         recentToots?: mastodon.v1.Status[]
     ): Promise<Record<string, number>> {
-        recentToots ||= await MastoApi.instance.getUserRecentToots(api, user);
+        recentToots ||= await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);

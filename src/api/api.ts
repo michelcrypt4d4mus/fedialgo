@@ -59,7 +59,7 @@ export class MastoApi {
 
     // Get the user's recent toots
     // TODO: the args are unused hangover from pre-singleton era
-    async getUserRecentToots(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<Toot[]> {
+    async getUserRecentToots(): Promise<Toot[]> {
         const recentToots = await mastodonFetchPages<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: 'recentToots'
@@ -69,7 +69,7 @@ export class MastoApi {
     };
 
     // TODO: the args are unused hangover from pre-singleton era
-    async fetchFollowedAccounts(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<mastodon.v1.Account[]> {
+    async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
         return await mastodonFetchPages<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
@@ -78,7 +78,7 @@ export class MastoApi {
     };
 
     // Get the toots that make up the user's home timeline feed
-    async getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
+    async getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let promises: Promise<any>[] = [getHomeFeed(this.api, numTimelineToots, maxId)]

@@ -27,7 +27,7 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
         user: mastodon.v1.Account,
         recentToots?: mastodon.v1.Status[]
     ): Promise<Record<string, number>> {
-        recentToots ||= await MastoApi.instance.getUserRecentToots(api, user);
+        recentToots ||= await MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         console.log(`Recent reply history: `, recentReplies);
 
