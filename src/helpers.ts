@@ -97,6 +97,11 @@ export async function zipPromises<T>(
 };
 
 
+export function sortKeysByValue(dict: StringNumberDict): string[] {
+    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
+};
+
+
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));

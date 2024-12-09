@@ -12,5 +12,6 @@ export declare function incrementCount(counts: StringNumberDict, key?: CountKey 
 export declare function countValues<T>(items: T[], getKey: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
+export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function createRandomString(length: number): string;

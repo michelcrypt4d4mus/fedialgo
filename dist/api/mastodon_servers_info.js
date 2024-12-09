@@ -19,25 +19,21 @@ const api_1 = require("./api");
 const helpers_2 = require("../helpers");
 // Returns something called "overrepresentedServerFrequ"??
 async function mastodonServersInfo(follows) {
-    // Tally what Mastodon servers the accounts that the user follows live on
-    const followedServerUserCounts = (0, helpers_1.countValues)(follows, follow => (0, account_1.extractServer)(follow));
+    // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
     const config = Storage_1.default.getConfig();
+    const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => (0, account_1.extractServer)(account));
+    const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
     console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
-    // Find the top numServersToCheck servers among accounts followed by the user.
-    // These are the servers we will check for trending toots.
-    const mostFollowedServers = Object.keys(followedServerUserCounts)
-        .sort((a, b) => followedServerUserCounts[b] - followedServerUserCounts[a])
-        .slice(0, config.numServersToCheck);
     let serverMAUs = await (0, helpers_1.zipPromises)(mostFollowedServers, getMonthlyUsers);
     const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
     const numValidServers = Object.keys(validServers).length;
     const numDefaultServers = config.numServersToCheck - numValidServers;
     console.debug(`Most followed servers:`, mostFollowedServers, `\nserverMAUs:`, serverMAUs, `\nvalidServers:`, validServers);
     if (numDefaultServers > 0) {
-        console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} threshold`);
-        const extraServers = config.defaultServers.filter(s => !validServers[s]).slice(0, numDefaultServers);
+        console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
+        const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
         const extraServerMAUs = await (0, helpers_1.zipPromises)(extraServers, getMonthlyUsers);
-        console.log(`Got popular server MAUs:`, extraServerMAUs);
+        console.log(`Extra default server MAUs:`, extraServerMAUs);
         serverMAUs = { ...validServers, ...extraServerMAUs };
     }
     const overrepresentedServerFreq = Object.keys(serverMAUs).reduce((overRepped, server) => {

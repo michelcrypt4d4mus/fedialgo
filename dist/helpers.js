@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.createRandomString = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
@@ -78,6 +78,11 @@ async function zipPromises(args, promiser) {
     return zipArrays(args, await Promise.all(args.map(promiser)));
 }
 exports.zipPromises = zipPromises;
+;
+function sortKeysByValue(dict) {
+    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
+}
+exports.sortKeysByValue = sortKeysByValue;
 ;
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
