@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.8.4`
 * Fix de/serialization of score data on `Toot` objects
 
 ## `0.8.3`
