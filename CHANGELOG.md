@@ -1,4 +1,5 @@
 ## NEXT
+* Remove followed servers that don't meet MAU requirements from trending data
 * Standardize caching of data fetched from Mastodon
 
 ## `0.8.5`
