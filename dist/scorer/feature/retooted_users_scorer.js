@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 // TODO: rename MostRetootedUsersScorer
@@ -24,14 +25,9 @@ class RetootedUsersScorer extends feature_scorer_1.default {
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);
-        // Count retoots per user
-        return recentRetoots.reduce((counts, toot) => {
-            const retootOfAccount = toot?.reblog?.account?.acct;
-            if (!retootOfAccount)
-                return counts;
-            counts[retootOfAccount] = (counts[retootOfAccount] || 0) + 1;
-            return counts;
-        }, {});
+        const retootCounts = (0, helpers_1.countValues)(recentRetoots, (toot) => toot?.reblog?.account?.acct);
+        console.log(`Retoot counts:`, retootCounts);
+        return retootCounts;
     }
     ;
 }

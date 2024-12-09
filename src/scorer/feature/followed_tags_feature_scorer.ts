@@ -4,8 +4,10 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import { countValues } from '../../helpers';
 import { MastoApi } from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
+import { mastodon } from 'masto';
 
 
 export default class FollowedTagsFeatureScorer extends FeatureScorer {
@@ -24,11 +26,6 @@ export default class FollowedTagsFeatureScorer extends FeatureScorer {
     static async fetchRequiredData(): Promise<StringNumberDict> {
         const tags = await MastoApi.instance.getFollowedTags();
         console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
-
-        // Return tags a a dict of the form {tagString: 1}
-        return tags.reduce((acc, tag) => {
-            acc[tag.name.toLowerCase()] = 1;
-            return acc;
-        }, {} as StringNumberDict);
+        return countValues<mastodon.v1.Tag>(tags, (tag) => tag.name?.toLowerCase());
     }
 };

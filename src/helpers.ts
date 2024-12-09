@@ -78,9 +78,17 @@ export const incrementCount = (counts: StringNumberDict, key?: CountKey | null):
 };
 
 
-export function countValues<T>(items: T[], getKey: (item: T) => string): StringNumberDict {
+export function countValues<T>(
+    items: T[],
+    getKey: (item: T) => string | null | undefined,
+    countNulls?: boolean
+): StringNumberDict {
     return items.reduce(
-        (counts, item) => incrementCount(counts, getKey(item)),
+        (counts, item) => {
+            const key = getKey(item);
+            if (key == null && !countNulls) return counts;
+            return incrementCount(counts, key);
+        },
         {} as StringNumberDict
     );
-}
+};

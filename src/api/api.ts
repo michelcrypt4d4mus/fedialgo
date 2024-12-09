@@ -148,15 +148,7 @@ export class MastoApi {
     // Get a count of number of favorites for each account in the user's recent favorites
     async getMostFavouritedAccounts(): Promise<AccountFeature> {
         const recentFavoriteToots = await this.fetchRecentFavourites();
-
-        return recentFavoriteToots.reduce(
-            (favouriteCounts, toot: mastodon.v1.Status,) => {
-                if (!toot.account) return favouriteCounts;
-                favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
-                return favouriteCounts;
-            },
-            {} as AccountFeature
-        );
+        return countValues(recentFavoriteToots, (toot) => toot.account?.acct);
     }
 
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
@@ -201,7 +193,7 @@ export class MastoApi {
 
     // Returns information about mastodon servers
     async getCoreServer(): Promise<ServerFeature> {
-        return await mastodonServersInfo(buildAccountNames(await this.fetchFollowedAccounts()));
+        return await mastodonServersInfo(await this.fetchFollowedAccounts());
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)

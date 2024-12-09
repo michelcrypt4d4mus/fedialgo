@@ -36,6 +36,7 @@ export default class FeatureScorer extends Scorer {
             console.warn(`Error in getFeature() for ${this.name}:`, e);
         }
 
+        console.log(`${this.constructor.name} featureGetter() returned:`, this.feature);
         this.isReady = true;
         return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }

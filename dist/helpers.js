@@ -70,8 +70,14 @@ const incrementCount = (counts, key) => {
     return counts;
 };
 exports.incrementCount = incrementCount;
-function countValues(items, getKey) {
-    return items.reduce((counts, item) => (0, exports.incrementCount)(counts, getKey(item)), {});
+function countValues(items, getKey, countNulls) {
+    return items.reduce((counts, item) => {
+        const key = getKey(item);
+        if (key == null && !countNulls)
+            return counts;
+        return (0, exports.incrementCount)(counts, key);
+    }, {});
 }
 exports.countValues = countValues;
+;
 //# sourceMappingURL=helpers.js.map

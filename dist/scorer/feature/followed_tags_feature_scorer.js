@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * on the Toot that the user is following.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class FollowedTagsFeatureScorer extends feature_scorer_1.default {
@@ -24,11 +25,7 @@ class FollowedTagsFeatureScorer extends feature_scorer_1.default {
     static async fetchRequiredData() {
         const tags = await api_1.MastoApi.instance.getFollowedTags();
         console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
-        // Return tags a a dict of the form {tagString: 1}
-        return tags.reduce((acc, tag) => {
-            acc[tag.name.toLowerCase()] = 1;
-            return acc;
-        }, {});
+        return (0, helpers_1.countValues)(tags, (tag) => tag.name?.toLowerCase());
     }
 }
 exports.default = FollowedTagsFeatureScorer;

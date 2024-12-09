@@ -6,6 +6,7 @@ import { mastodon } from 'masto';
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { AccountFeature, WeightName } from '../../types';
+import { countValues } from '../../helpers';
 import { MastoApi } from '../../api/api';
 
 
@@ -23,16 +24,9 @@ export default class MostFavoritedAccountsScorer extends FeatureScorer {
 
     static async fetchRequiredData(): Promise<AccountFeature> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
-        console.log(`Retrieved faves with MostFavoritedAccounts() : `, recentFavourites);
-
-        return recentFavourites.reduce(
-            (favouriteCounts: AccountFeature, toot: mastodon.v1.Status,) => {
-                if (!toot.account) return favouriteCounts;
-                favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
-                return favouriteCounts;
-            },
-            {}
-        );
+        const faves = countValues<mastodon.v1.Status>(recentFavourites, (toot) => toot.account?.acct);
+        console.log(`Retrieved MostFavoritedAccountsScorer: `, faves);
+        return faves;
     };
 
 };

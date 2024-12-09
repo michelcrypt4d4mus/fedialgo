@@ -8,6 +8,7 @@ import { mastodon } from "masto";
 
 import Storage from "../Storage";
 import { AccountNames, ServerFeature, StringNumberDict, TrendingTag } from "../types";
+import { countValues } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { MastoApi } from "./api";
 import { transformKeys } from "../helpers";
@@ -54,20 +55,14 @@ const POPULAR_SRERVERS_MAU_GUESS = 1000;
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function mastodonServersInfo(followedAccounts: AccountNames): Promise<ServerFeature> {
-    const numServersToCheck = Storage.getConfig().numServersToCheck;
-
+export default async function mastodonServersInfo(followedAccounts: mastodon.v1.Account[]): Promise<ServerFeature> {
     // Tally what Mastodon servers the accounts that the user follows live on
-    const userServerCounts = Object.values(followedAccounts).reduce(
-        (userCounts: ServerFeature, follower: mastodon.v1.Account) => {
-            if (!follower.url) return userCounts;
-            const server = follower.url.split("@")[0].split("https://")[1];
-            userCounts[server] = (userCounts[server] || 0) + 1;
-            return userCounts;
-        },
-        {}
+    const userServerCounts = countValues<mastodon.v1.Account>(
+        followedAccounts,
+        (follower) => follower.url?.split("@")[0]?.split("https://")[1]
     );
 
+    const numServersToCheck = Storage.getConfig().numServersToCheck;
     const numServers = Object.keys(userServerCounts).length;
 
     if (numServers < numServersToCheck) {

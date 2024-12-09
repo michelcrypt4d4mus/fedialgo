@@ -152,12 +152,7 @@ class MastoApi {
     // Get a count of number of favorites for each account in the user's recent favorites
     async getMostFavouritedAccounts() {
         const recentFavoriteToots = await this.fetchRecentFavourites();
-        return recentFavoriteToots.reduce((favouriteCounts, toot) => {
-            if (!toot.account)
-                return favouriteCounts;
-            favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
-            return favouriteCounts;
-        }, {});
+        return (0, helpers_1.countValues)(recentFavoriteToots, (toot) => toot.account?.acct);
     }
     async getFollowedTags() {
         return await this.mastodonFetchPages({
@@ -198,7 +193,7 @@ class MastoApi {
     }
     // Returns information about mastodon servers
     async getCoreServer() {
-        return await (0, mastodon_servers_info_1.default)((0, account_1.buildAccountNames)(await this.fetchFollowedAccounts()));
+        return await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(api) {

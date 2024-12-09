@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
+const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     constructor() {
@@ -18,13 +19,9 @@ class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     }
     static async fetchRequiredData() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
-        console.log(`Retrieved faves with MostFavoritedAccounts() : `, recentFavourites);
-        return recentFavourites.reduce((favouriteCounts, toot) => {
-            if (!toot.account)
-                return favouriteCounts;
-            favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
-            return favouriteCounts;
-        }, {});
+        const faves = (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.acct);
+        console.log(`Retrieved MostFavoritedAccountsScorer: `, faves);
+        return faves;
     }
     ;
 }

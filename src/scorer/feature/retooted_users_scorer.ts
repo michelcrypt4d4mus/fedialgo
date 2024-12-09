@@ -6,8 +6,9 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import Toot from '../../api/objects/toot';
+import { countValues } from "../../helpers";
 import { MastoApi } from "../../api/api";
-import { WeightName } from "../../types";
+import { StringNumberDict, WeightName } from "../../types";
 
 
 // TODO: rename MostRetootedUsersScorer
@@ -25,22 +26,13 @@ export default class RetootedUsersScorer extends FeatureScorer {
         return authorScore + retootScore;
     }
 
-    static async fetchRequiredData(): Promise<Record<string, number>> {
+    static async fetchRequiredData(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);
-
-        // Count retoots per user
-        return recentRetoots.reduce(
-            (counts: Record<string, number>, toot: mastodon.v1.Status) => {
-                const retootOfAccount = toot?.reblog?.account?.acct;
-                if (!retootOfAccount) return counts;
-
-                counts[retootOfAccount] = (counts[retootOfAccount] || 0) + 1;
-                return counts;
-            },
-            {}
-        );
+        const retootCounts = countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
+        console.log(`Retoot counts:`, retootCounts);
+        return retootCounts;
     };
 };

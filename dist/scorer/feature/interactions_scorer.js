@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
+const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 class InteractionsScorer extends feature_scorer_1.default {
     constructor() {
@@ -17,15 +18,8 @@ class InteractionsScorer extends feature_scorer_1.default {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
     static async fetchRequiredData() {
-        const results = await api_1.MastoApi.instance.getRecentNotifications();
-        console.log(`Retrieved ${results.length} notifications for InteractionsScorer: `, results);
-        return results.reduce((interactionCount, notification) => {
-            const account = notification?.account?.acct;
-            if (!account)
-                return interactionCount;
-            interactionCount[account] = (interactionCount[account] || 0) + 1;
-            return interactionCount;
-        }, {});
+        const notifications = await api_1.MastoApi.instance.getRecentNotifications();
+        return (0, helpers_1.countValues)(notifications, n => n?.account?.acct);
     }
     ;
 }

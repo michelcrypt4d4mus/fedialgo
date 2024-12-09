@@ -5,6 +5,7 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import { countValues } from '../../helpers';
 import { MastoApi } from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
 
@@ -21,21 +22,12 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
         return this.feature[toot.account.id] || 0;
     }
 
+    // Count replied per user. Note that this does NOT pull the Account object because that
+    // would require a lot of API calls, so it's just working with the account ID which is NOT
+    // unique across all servers.
     static async fetchRequiredData(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
-        console.log(`Recent reply history: `, recentReplies);
-
-        // Count replied per user. Note that this does NOT pull the Account object because that
-        // would require a lot of API calls, so it's just working with the account ID which is NOT
-        // unique across all servers.
-        return recentReplies.reduce(
-            (counts: Record<string, number>, toot: mastodon.v1.Status) => {
-                if (!toot?.inReplyToAccountId) return counts;
-                counts[toot.inReplyToAccountId] = (counts[toot.inReplyToAccountId] || 0) + 1;
-                return counts;
-            },
-            {}
-        );
+        return countValues<mastodon.v1.Status>(recentReplies, (toot) => toot?.inReplyToAccountId);
     };
 };

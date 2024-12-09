@@ -11,9 +11,10 @@ exports.mastodonFetch = exports.fetchTrendingTags = exports.getMonthlyUsers = vo
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const Storage_1 = __importDefault(require("../Storage"));
+const helpers_1 = require("../helpers");
 const tag_1 = require("./objects/tag");
 const api_1 = require("./api");
-const helpers_1 = require("../helpers");
+const helpers_2 = require("../helpers");
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
@@ -54,15 +55,9 @@ const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 const POPULAR_SRERVERS_MAU_GUESS = 1000;
 // Returns something called "overrepresentedServerFrequ"??
 async function mastodonServersInfo(followedAccounts) {
-    const numServersToCheck = Storage_1.default.getConfig().numServersToCheck;
     // Tally what Mastodon servers the accounts that the user follows live on
-    const userServerCounts = Object.values(followedAccounts).reduce((userCounts, follower) => {
-        if (!follower.url)
-            return userCounts;
-        const server = follower.url.split("@")[0].split("https://")[1];
-        userCounts[server] = (userCounts[server] || 0) + 1;
-        return userCounts;
-    }, {});
+    const userServerCounts = (0, helpers_1.countValues)(followedAccounts, (follower) => follower.url?.split("@")[0]?.split("https://")[1]);
+    const numServersToCheck = Storage_1.default.getConfig().numServersToCheck;
     const numServers = Object.keys(userServerCounts).length;
     if (numServers < numServersToCheck) {
         POPULAR_SERVERS.filter(s => !userServerCounts[s])
@@ -143,7 +138,7 @@ const mastodonFetch = async (server, endpoint, limit) => {
         const json = await axios_1.default.get(url);
         console.debug(`mastodonFetch() response for ${url}:`, json);
         if (json.status === 200 && json.data) {
-            return (0, helpers_1.transformKeys)(json.data, change_case_1.camelCase);
+            return (0, helpers_2.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
             throw json;
