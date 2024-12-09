@@ -82,6 +82,7 @@ export type Config = {
     // Trending toots
     numTrendingTootsPerServer: number;
     // MAU and other server properties
+    defaultServers: string[];
     noMauServers: string[];
 };
 

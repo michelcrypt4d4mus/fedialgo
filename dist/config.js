@@ -130,6 +130,42 @@ exports.DEFAULT_CONFIG = {
     numTrendingTagsToots: 100,
     // Trending toots
     numTrendingTootsPerServer: 30,
+    // Popular servers that are used as fallbacks if the user isn't following accounts on enough
+    // servers to make for a good set of trending toots and hashtags.
+    // Culled from https://mastodonservers.net and https://joinmastodon.org/
+    defaultServers: [
+        "mastodon.social",
+        // "pawoo.net",   // Japanese (and maybe NSFW?)
+        // "baraag.net",  // very NSFW
+        // "mstdn.jp",    // Japanese
+        "mastodon.cloud",
+        // "pravda.me"    // Russian
+        "mstdn.social",
+        "mastodon.online",
+        "mas.to",
+        "mastodon.world",
+        // "mastodon.lol",               // Doesn't return MAU data
+        "c.im",
+        "hachyderm.io",
+        "fosstodon.org",
+        "universeodon.com",
+        "infosec.exchange",
+        "mastodon.gamedev.place",
+        "mastodonapp.uk",
+        // "mastodon.technology",        // Doesn't return MAU data
+        "ioc.exchange",
+        "mastodon.art",
+        "techhub.social",
+        // "mathstodon.xyz",             // Doesn't return MAU data
+        "mastodon.sdf.org",
+        "defcon.social",
+        "mstdn.party",
+        "sfba.social",
+        "toot.community",
+        "ravenation.club",
+        "sciences.social",
+        "toot.io",
+    ],
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "agora.echelon.pl",

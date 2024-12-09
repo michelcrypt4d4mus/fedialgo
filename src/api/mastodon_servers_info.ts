@@ -12,44 +12,7 @@ import { decorateTrendingTag } from "./objects/tag";
 import { extractServer } from "./objects/account";
 import { MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
-import { transformKeys } from "../helpers";
-
-// Popular servers are usually culled from the users' following list but if there aren't
-// enough of them to get good trending data fill the list out with these.
-// Culled from https://mastodonservers.net and https://joinmastodon.org/
-const POPULAR_SERVERS = [
-    "mastodon.social",
-    // "pawoo.net",   // Japanese (and maybe NSFW?)
-    // "baraag.net",  // very NSFW
-    // "mstdn.jp",    // Japanese
-    "mastodon.cloud",
-    // "pravda.me"    // Russian
-    "mstdn.social",
-    "mastodon.online",
-    "mas.to",
-    "mastodon.world",
-    // "mastodon.lol",               // Doesn't return MAU data
-    "c.im",
-    "hachyderm.io",
-    "fosstodon.org",
-    "universeodon.com",
-    "infosec.exchange",
-    "mastodon.gamedev.place",
-    "mastodonapp.uk",
-    // "mastodon.technology",        // Doesn't return MAU data
-    "ioc.exchange",
-    "mastodon.art",
-    "techhub.social",
-    // "mathstodon.xyz",             // Doesn't return MAU data
-    "mastodon.sdf.org",
-    "defcon.social",
-    "mstdn.party",
-    "sfba.social",
-    "toot.community",
-    "ravenation.club",
-    "sciences.social",
-    "toot.io",
-];
+import { transformKeys } from "../helpers";;
 
 
 // Returns something called "overrepresentedServerFrequ"??
@@ -72,11 +35,11 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
     console.debug(`Most followed servers:`, mostFollowedServers, `\nserverMAUs:`, serverMAUs, `\nvalidServers:`, validServers);
 
     if (numDefaultServers > 0) {
-        console.warn(`Only found ${numValidServers} servers with MAUs above the ${config.minServerMAU} threshold!`);
-        const defaultServers = POPULAR_SERVERS.filter(s => !validServers[s]).slice(0, numDefaultServers);
-        const defaultServerMAUs = await zipPromises<number>(defaultServers, getMonthlyUsers);
-        console.log(`Got popular server MAUs:`, defaultServerMAUs);
-        serverMAUs = { ...validServers, ...defaultServerMAUs };
+        console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} threshold`);
+        const extraServers = config.defaultServers.filter(s => !validServers[s]).slice(0, numDefaultServers);
+        const extraServerMAUs = await zipPromises<number>(extraServers, getMonthlyUsers);
+        console.log(`Got popular server MAUs:`, extraServerMAUs);
+        serverMAUs = { ...validServers, ...extraServerMAUs };
     }
 
     const overrepresentedServerFrequ = Object.keys(serverMAUs).reduce((overRepped, server) => {

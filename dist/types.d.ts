@@ -67,6 +67,7 @@ export type Config = {
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
+    defaultServers: string[];
     noMauServers: string[];
 };
 export type CountKey = FilterTitle | string;
