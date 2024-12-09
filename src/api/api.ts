@@ -121,7 +121,7 @@ export class MastoApi {
             console.debug(`[searchForToots] Found toots for query`, mastoQuery);
             return toots;
         } catch (e) {
-            throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
+            this.throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
             return [];
         }
     };
@@ -136,10 +136,7 @@ export class MastoApi {
         return recentToots.map(t => new Toot(t));
     };
 
-    async getFollowedAccounts(): Promise<AccountNames> {
-        return buildAccountNames(await this.fetchFollowedAccounts());
-    };
-
+    // Get accounts the user is following
     async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
         return await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
@@ -148,12 +145,7 @@ export class MastoApi {
         });
     };
 
-    // Get a count of number of favorites for each account in the user's recent favorites
-    async getMostFavouritedAccounts(): Promise<StringNumberDict> {
-        const recentFavoriteToots = await this.fetchRecentFavourites();
-        return countValues<mastodon.v1.Status>(recentFavoriteToots, (toot) => toot.account?.acct);
-    }
-
+    // Get hashtags the user is following
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
         return await this.fetchData<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
@@ -161,6 +153,7 @@ export class MastoApi {
         });
     }
 
+    // Get the user's recent notifications
     async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
         return await this.fetchData<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
@@ -194,14 +187,9 @@ export class MastoApi {
         return filters;
     }
 
-    // Returns information about mastodon servers
-    async getCoreServer(): Promise<StringNumberDict> {
-        return await mastodonServersInfo(await this.fetchFollowedAccounts());
-    }
-
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(api: mastodon.rest.Client): Promise<string[]> {
-        const coreServers = await this.getCoreServer();
+        const coreServers = await mastodonServersInfo(await this.fetchFollowedAccounts());
 
         // Count the number of followed users per server
         const topServerDomains = Object.keys(coreServers)
@@ -212,6 +200,7 @@ export class MastoApi {
         return topServerDomains;
     };
 
+    // Generic data fetcher
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
@@ -242,7 +231,7 @@ export class MastoApi {
             console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
             await Storage.set(label, results as StorageValue);
         } catch (e) {
-            throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
+            this.throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
             return results;
         } finally {
             releaseMutex();
@@ -258,18 +247,17 @@ export class MastoApi {
         return (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
     }
 
+// re-raise access revoked errors.
+    private throwIfAccessTokenRevoked(e: unknown, msg: string): void {
+        console.error(`${msg}. Error:`, e);
+        if (!(e instanceof Error)) return;
+
+        if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
+            throw e;
+        }
+    }
+
     public static v1Url = (path: string) => `${API_V1}/${path}`;
     public static v2Url = (path: string) => `${API_V2}/${path}`;
     public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
-};
-
-
-// re-raise access revoked errors.
-export function throwIfAccessTokenRevoked(e: unknown, msg: string): void {
-    console.error(`${msg}. Error:`, e);
-    if (!(e instanceof Error)) return;
-
-    if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
-        throw e;
-    }
 };

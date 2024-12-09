@@ -1,7 +1,7 @@
 import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
 import Toot from './objects/toot';
-import { AccountNames, StorageKey, StringNumberDict, TimelineData, UserData } from "../types";
+import { StorageKey, TimelineData, UserData } from "../types";
 type ApiMutex = Record<StorageKey, Mutex>;
 export declare class MastoApi {
     #private;
@@ -15,20 +15,17 @@ export declare class MastoApi {
     getStartupData(): Promise<UserData>;
     searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
-    getFollowedAccounts(): Promise<AccountNames>;
     fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
-    getMostFavouritedAccounts(): Promise<StringNumberDict>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getCoreServer(): Promise<StringNumberDict>;
     getTopServerDomains(api: mastodon.rest.Client): Promise<string[]>;
-    private mastodonFetchPages;
+    private fetchData;
     private shouldReloadFeatures;
+    private throwIfAccessTokenRevoked;
     static v1Url: (path: string) => string;
     static v2Url: (path: string) => string;
     static trendUrl: (path: string) => string;
 }
-export declare function throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 export {};

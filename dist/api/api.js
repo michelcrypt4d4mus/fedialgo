@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.throwIfAccessTokenRevoked = exports.MastoApi = void 0;
+exports.MastoApi = void 0;
 /*
  * Helper methods for using mastodon API.
  */
@@ -101,52 +101,46 @@ class MastoApi {
             return toots;
         }
         catch (e) {
-            throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
+            this.throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
             return [];
         }
     }
     ;
     // Get the user's recent toots
     async getUserRecentToots() {
-        const recentToots = await this.mastodonFetchPages({
+        const recentToots = await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: types_1.Key.RECENT_USER_TOOTS
         });
         return recentToots.map(t => new toot_1.default(t));
     }
     ;
-    async getFollowedAccounts() {
-        return (0, account_1.buildAccountNames)(await this.fetchFollowedAccounts());
-    }
-    ;
+    // Get accounts the user is following
     async fetchFollowedAccounts() {
-        return await this.mastodonFetchPages({
+        return await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.Key.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
         });
     }
     ;
-    // Get a count of number of favorites for each account in the user's recent favorites
-    async getMostFavouritedAccounts() {
-        const recentFavoriteToots = await this.fetchRecentFavourites();
-        return (0, helpers_1.countValues)(recentFavoriteToots, (toot) => toot.account?.acct);
-    }
+    // Get hashtags the user is following
     async getFollowedTags() {
-        return await this.mastodonFetchPages({
+        return await this.fetchData({
             fetch: this.api.v1.followedTags.list,
             label: types_1.WeightName.FOLLOWED_TAGS
         });
     }
+    // Get the user's recent notifications
     async getRecentNotifications() {
-        return await this.mastodonFetchPages({
+        return await this.fetchData({
             fetch: this.api.v1.notifications.list,
             label: types_1.Key.RECENT_NOTIFICATIONS
         });
     }
     // Get an array of Toots the user has recently favourited
     async fetchRecentFavourites() {
-        return await this.mastodonFetchPages({
+        return await this.fetchData({
             fetch: this.api.v1.favourites.list,
             label: types_1.WeightName.FAVORITED_ACCOUNTS
         });
@@ -169,13 +163,9 @@ class MastoApi {
         console.log(`Retrieved server side filters:`, filters);
         return filters;
     }
-    // Returns information about mastodon servers
-    async getCoreServer() {
-        return await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
-    }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(api) {
-        const coreServers = await this.getCoreServer();
+        const coreServers = await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
         // Count the number of followed users per server
         const topServerDomains = Object.keys(coreServers)
             .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
@@ -184,7 +174,8 @@ class MastoApi {
         return topServerDomains;
     }
     ;
-    async mastodonFetchPages(fetchParams) {
+    // Generic data fetcher
+    async fetchData(fetchParams) {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
@@ -211,7 +202,7 @@ class MastoApi {
             await Storage_1.default.set(label, results);
         }
         catch (e) {
-            throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`);
+            this.throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`);
             return results;
         }
         finally {
@@ -226,21 +217,19 @@ class MastoApi {
     async shouldReloadFeatures() {
         return (await Storage_1.default.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
     }
+    // re-raise access revoked errors.
+    throwIfAccessTokenRevoked(e, msg) {
+        console.error(`${msg}. Error:`, e);
+        if (!(e instanceof Error))
+            return;
+        if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
+            throw e;
+        }
+    }
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
 }
 exports.MastoApi = MastoApi;
-;
-// re-raise access revoked errors.
-function throwIfAccessTokenRevoked(e, msg) {
-    console.error(`${msg}. Error:`, e);
-    if (!(e instanceof Error))
-        return;
-    if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
-        throw e;
-    }
-}
-exports.throwIfAccessTokenRevoked = throwIfAccessTokenRevoked;
 ;
 //# sourceMappingURL=api.js.map
