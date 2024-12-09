@@ -128,6 +128,7 @@ export default class PropertyFilter extends TootFilter {
 
         // Server side filters get all the options immediately set to filter out toots
         if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+            console.log(`Setting options for ${this.title} to:`, optionInfo);
             this.validValues = Object.keys(optionInfo);
         }
     }

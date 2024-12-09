@@ -46,7 +46,7 @@ class Storage {
             filters = (0, config_1.buildNewFilterSettings)();
             await this.setFilters(config_1.DEFAULT_FILTERS); // DEFAULT_FILTERS not the filters we just built
         }
-        console.log(`[Storage] getFilters() returning:`, filters);
+        console.debug(`[Storage] getFilters() returning:`, filters);
         return filters;
     }
     // Serialize the FeedFilterSettings object
