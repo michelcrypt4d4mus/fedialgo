@@ -187,7 +187,7 @@ class TheAlgorithm {
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filteredFeed(): Toot[] {
-        const filteredFeed = this.feed.filter(toot => this.isInTimeline(toot));
+        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
@@ -348,12 +348,6 @@ class TheAlgorithm {
         }
 
         return this.filteredFeed();
-    }
-
-    // Return true if the toot has not been filtered out of the feed
-    private isInTimeline(toot: Toot): boolean {
-        let isOK = Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
-        return isOK && Object.values(this.filters.numericFilters).every((filter) => filter.isAllowed(toot));
     }
 
     // Utility method to log progress of getFeed() calls

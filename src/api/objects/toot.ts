@@ -5,6 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
+import { FeedFilterSettings } from "../../types";
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { TootExtension, TootScore, TrendingTag } from "../../types";
 
@@ -148,6 +149,12 @@ export default class Toot implements TootObj {
     attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type === attachmentType);
+    }
+
+    // Return true if the toot has not been filtered out of the feed
+    isInTimeline(filters: FeedFilterSettings): boolean {
+        let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
+        return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently

@@ -209,7 +209,7 @@ class MastoApi {
     async mastodonFetchPages(fetchParams) {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}`);
+        console.debug(`[${label}] mastodonFetchPages() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
@@ -223,9 +223,9 @@ class MastoApi {
             ;
             for await (const page of fetch({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
                 results = results.concat(page);
-                console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
+                console.log(`[${label}] Retrieved page ${++pageNumber} of current user's ${label}...`);
                 if (results.length >= maxRecords) {
-                    console.log(`Halting record retrieval at page ${pageNumber} w/ ${results.length} records...`);
+                    console.log(`[${label}] Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }

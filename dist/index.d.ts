@@ -50,7 +50,6 @@ declare class TheAlgorithm {
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
-    private isInTimeline;
     private logTootCounts;
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;

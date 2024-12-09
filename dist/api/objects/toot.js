@@ -126,6 +126,11 @@ class Toot {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type === attachmentType);
     }
+    // Return true if the toot has not been filtered out of the feed
+    isInTimeline(filters) {
+        let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
+        return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
+    }
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(user) {
         if (this?.reblog?.muted || this?.muted)
