@@ -14,11 +14,11 @@ import Toot from './objects/toot';
 import { TimelineData, TrendingTag, UserData } from "../types";
 import { transformKeys } from "../helpers";
 
-export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-export const FILTER_ENDPOINT = `${API_V2}/filters`;
+const STATUSES = "statuses"
+const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 
 
 export class MastoApi {
@@ -81,7 +81,7 @@ export async function searchForToots(
 ): Promise<Toot[]> {
     limit = limit || Storage.getConfig().defaultRecordsPerPage;
     console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
-    const mastoQuery: mastodon.rest.v1.SearchParams = {limit: limit, q: searchQuery, type: "statuses"};
+    const mastoQuery: mastodon.rest.v1.SearchParams = {limit: limit, q: searchQuery, type: STATUSES};
 
     try {
         const searchResult = await api.v2.search.fetch(mastoQuery);
