@@ -321,7 +321,7 @@ class TheAlgorithm {
                 let promises: any[] = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
 
                 if (!this.featureScorers.every(scorer => scorer._isReady)) {
-                    console.warn(`For some reasons featuresScorers are not ready yet. Making it so...`);
+                    console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
                     promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
                 }
 
