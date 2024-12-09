@@ -35,9 +35,9 @@ const most_replied_accounts_scorer_1 = __importDefault(require("../scorer/featur
 const retooted_users_scorer_1 = __importDefault(require("../scorer/feature/retooted_users_scorer"));
 const Storage_1 = __importStar(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
+const types_1 = require("../types");
 const account_1 = require("./objects/account");
 const api_1 = require("./api");
-const types_1 = require("../types");
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
 // way for any number other than 9.

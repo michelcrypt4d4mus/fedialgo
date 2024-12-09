@@ -13,11 +13,9 @@ import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_s
 import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
 import Storage, { Key } from "../Storage";
 import Toot from './objects/toot';
-import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, TootExtension, TootURIs } from "../types";
+import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, TootExtension, TootURIs, WeightName } from "../types";
 import { buildAccountNames } from "./objects/account";
-import { mastodonFetchPages } from "./api";
 import { MastoApi } from "./api";
-import { WeightName } from "../types";
 
 // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
 // starting at the 9th one. Also bc of the way it was implemented it won't work the same
