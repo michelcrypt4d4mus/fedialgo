@@ -20,13 +20,13 @@ const helpers_2 = require("../helpers");
 // Returns something called "overrepresentedServerFrequ"??
 async function mastodonServersInfo(follows) {
     // Tally what Mastodon servers the accounts that the user follows live on
-    const userServerCounts = (0, helpers_1.countValues)(follows, follow => (0, account_1.extractServer)(follow));
+    const followedServerUserCounts = (0, helpers_1.countValues)(follows, follow => (0, account_1.extractServer)(follow));
     const config = Storage_1.default.getConfig();
-    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
+    console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
     // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
-    const mostFollowedServers = Object.keys(userServerCounts)
-        .sort((a, b) => userServerCounts[b] - userServerCounts[a])
+    const mostFollowedServers = Object.keys(followedServerUserCounts)
+        .sort((a, b) => followedServerUserCounts[b] - followedServerUserCounts[a])
         .slice(0, config.numServersToCheck);
     let serverMAUs = await (0, helpers_1.zipPromises)(mostFollowedServers, getMonthlyUsers);
     const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
@@ -41,7 +41,7 @@ async function mastodonServersInfo(follows) {
         serverMAUs = { ...validServers, ...extraServerMAUs };
     }
     const overrepresentedServerFrequ = Object.keys(serverMAUs).reduce((overRepped, server) => {
-        overRepped[server] = (userServerCounts[server] || 0) / serverMAUs[server];
+        overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
         return overRepped;
     }, {});
     console.log(`Final serverMAUs: `, serverMAUs);

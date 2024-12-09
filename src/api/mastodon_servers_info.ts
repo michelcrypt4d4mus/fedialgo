@@ -18,14 +18,14 @@ import { transformKeys } from "../helpers";;
 // Returns something called "overrepresentedServerFrequ"??
 export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
     // Tally what Mastodon servers the accounts that the user follows live on
-    const userServerCounts = countValues<mastodon.v1.Account>(follows, follow => extractServer(follow));
+    const followedServerUserCounts = countValues<mastodon.v1.Account>(follows, follow => extractServer(follow));
     const config = Storage.getConfig();
-    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
+    console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
 
     // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
-    const mostFollowedServers = Object.keys(userServerCounts)
-                                      .sort((a, b) => userServerCounts[b] - userServerCounts[a])
+    const mostFollowedServers = Object.keys(followedServerUserCounts)
+                                      .sort((a, b) => followedServerUserCounts[b] - followedServerUserCounts[a])
                                       .slice(0, config.numServersToCheck);
 
     let serverMAUs = await zipPromises<number>(mostFollowedServers, getMonthlyUsers);
@@ -43,7 +43,7 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
     }
 
     const overrepresentedServerFrequ = Object.keys(serverMAUs).reduce((overRepped, server) => {
-        overRepped[server] = (userServerCounts[server] || 0) / serverMAUs[server];
+        overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
         return overRepped;
     }, {} as StringNumberDict);
 
