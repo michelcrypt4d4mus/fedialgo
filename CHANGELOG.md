@@ -1,7 +1,10 @@
 ## NEXT
 
-## `0.8.5`
+## `0.8.6`
 * Handle `FeatureScorer` not being ready if page is reloaded
+
+## `0.8.5`
+* ??? (bad tags)
 
 ## `0.8.4`
 * Fix de/serialization of score data on `Toot` objects introduced by `Toot` refactor
