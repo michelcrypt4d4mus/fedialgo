@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WeightName = exports.MAX_CONTENT_PREVIEW_CHARS = void 0;
-exports.MAX_CONTENT_PREVIEW_CHARS = 110;
+exports.WeightName = void 0;
 var WeightName;
 (function (WeightName) {
     WeightName["CHAOS"] = "Chaos";

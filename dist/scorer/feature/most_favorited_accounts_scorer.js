@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const api_1 = require("../../api/api");
 const types_1 = require("../../types");
+const api_1 = require("../../api/api");
 class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super({

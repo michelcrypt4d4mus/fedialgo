@@ -3,7 +3,6 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
 import Toot from './api/objects/toot';
-export declare const MAX_CONTENT_PREVIEW_CHARS = 110;
 export declare enum WeightName {
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",

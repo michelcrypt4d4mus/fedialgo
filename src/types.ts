@@ -5,7 +5,6 @@ import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/prop
 import Scorer from './scorer/scorer';
 import Toot from './api/objects/toot';
 
-export const MAX_CONTENT_PREVIEW_CHARS = 110;
 
 export enum WeightName {
     CHAOS = 'Chaos',

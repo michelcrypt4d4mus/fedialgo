@@ -16,6 +16,7 @@ import {
 } from "./types";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings, populateFiltersFromArgs } from "./config";
 
+
 export enum Key {
     CORE_SERVER = 'coreServer',
     FILTERS = 'filters',

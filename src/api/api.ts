@@ -17,7 +17,6 @@ import {
     AccountNames,
     ServerFeature,
     StorageValue,
-    StringNumberDict,
     TimelineData,
     UserData,
     WeightName
