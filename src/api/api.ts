@@ -148,7 +148,7 @@ export class MastoApi {
     // Get a count of number of favorites for each account in the user's recent favorites
     async getMostFavouritedAccounts(): Promise<AccountFeature> {
         const recentFavoriteToots = await this.fetchRecentFavourites();
-        return countValues(recentFavoriteToots, (toot) => toot.account?.acct);
+        return countValues<mastodon.v1.Status>(recentFavoriteToots, (toot) => toot.account?.acct);
     }
 
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
