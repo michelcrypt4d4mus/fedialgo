@@ -1,27 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.createRandomString = exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
 exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
-function createRandomString(length) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-exports.createRandomString = createRandomString;
-;
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);
     if (values.length == 0)
         return NaN;
-    return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
+    return values.reduce((a, b) => a + b, 0) / values.length;
 }
 exports.average = average;
 ;
@@ -97,5 +87,15 @@ function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
 }
 exports.atLeastValues = atLeastValues;
+;
+function createRandomString(length) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+exports.createRandomString = createRandomString;
 ;
 //# sourceMappingURL=helpers.js.map

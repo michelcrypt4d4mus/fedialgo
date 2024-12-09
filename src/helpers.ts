@@ -7,23 +7,11 @@ export const VIDEO_TYPES = ["gifv", VIDEO];
 export const MEDIA_TYPES = [IMAGE, ...VIDEO_TYPES];
 
 
-export function createRandomString(length: number): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return result;
-};
-
-
 // Take the average of an array of numbers, ignoring undefined values
-export function average(values: number[]): number | undefined {
+export function average(values: number[]): number {
     values = values.filter(v => !!v);
     if (values.length == 0) return NaN;
-    return values.filter(v => v != undefined).reduce((a, b) => a + b, 0) / values.length;
+    return values.reduce((a, b) => a + b, 0) / values.length;
 };
 
 
@@ -115,4 +103,16 @@ export async function zipPromises<T>(
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
+};
+
+
+export function createRandomString(length: number): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return result;
 };
