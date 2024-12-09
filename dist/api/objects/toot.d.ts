@@ -22,7 +22,7 @@ export default class Toot implements TootObj {
     url?: string | null;
     inReplyToId?: string | null;
     inReplyToAccountId?: string | null;
-    reblog?: Toot;
+    reblog?: Toot | null;
     poll?: mastodon.v1.Poll | null;
     card?: mastodon.v1.PreviewCard | null;
     language?: string | null;

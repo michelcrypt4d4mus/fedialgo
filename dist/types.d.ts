@@ -93,7 +93,7 @@ export type UserData = {
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
-    reblog?: TootExtension;
+    reblog?: TootExtension | null;
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;
     trendingRank?: number;
