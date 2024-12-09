@@ -128,7 +128,7 @@ export class MastoApi {
 
     // Get the user's recent toots
     async getUserRecentToots(): Promise<Toot[]> {
-        const recentToots = await this.mastodonFetchPages<mastodon.v1.Status>({
+        const recentToots = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: Key.RECENT_USER_TOOTS
         });
@@ -141,7 +141,7 @@ export class MastoApi {
     };
 
     async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
-        return await this.mastodonFetchPages<mastodon.v1.Account>({
+        return await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: Key.FOLLOWED_ACCOUNTS,
             maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
@@ -155,14 +155,14 @@ export class MastoApi {
     }
 
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
-        return await this.mastodonFetchPages<mastodon.v1.Tag>({
+        return await this.fetchData<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             label: WeightName.FOLLOWED_TAGS
         });
     }
 
     async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
-        return await this.mastodonFetchPages<mastodon.v1.Notification>({
+        return await this.fetchData<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             label: Key.RECENT_NOTIFICATIONS
         });
@@ -170,7 +170,7 @@ export class MastoApi {
 
     // Get an array of Toots the user has recently favourited
     async fetchRecentFavourites(): Promise<mastodon.v1.Status[]> {
-        return await this.mastodonFetchPages<mastodon.v1.Status>({
+        return await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: WeightName.FAVORITED_ACCOUNTS
         });
@@ -212,7 +212,7 @@ export class MastoApi {
         return topServerDomains;
     };
 
-    private async mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
+    private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
         console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
