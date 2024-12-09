@@ -1,5 +1,7 @@
 ## NEXT
-* Enable `reloadFeed()` after 10 minutes (on focus in demo app)
+
+## `0.8.3`
+* Enable `reloadFeed()` method to return true after 10 minutes has passed since latest toot in timline
 * Refactor out a proper `Toot` class
 
 ## `0.8.2`
