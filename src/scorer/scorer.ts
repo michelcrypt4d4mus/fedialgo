@@ -10,8 +10,8 @@ const TIME_DECAY = WeightName.TIME_DECAY;
 
 
 export default class Scorer {
-    description: string;
     defaultWeight: number;
+    description: string;
     name: WeightName;
     isReady: boolean = false;
 

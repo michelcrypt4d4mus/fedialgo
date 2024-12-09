@@ -142,15 +142,8 @@ export default class Toot implements TootObj {
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(user: mastodon.v1.Account): boolean {
         if (this?.reblog?.muted || this?.muted) return false;  // Remove muted accounts and toots
-
-        // Remove things the user has already retooted
-        if (this?.reblog?.reblogged) {
-            return false;
-        }
-        // Remove the user's own toots
-        if (this.account.username == user.username && this.account.id == user.id) {
-            return false;
-        }
+        if (this?.reblog?.reblogged) return false; // Remove things the user has already retooted
+        if (this.account.username == user.username && this.account.id == user.id) return false;  // Remove user's toots
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
         if (Date.now() < new Date(this.createdAt).getTime()) {
