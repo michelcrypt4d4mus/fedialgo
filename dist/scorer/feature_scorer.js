@@ -21,7 +21,7 @@ class FeatureScorer extends scorer_1.default {
         catch (e) {
             console.warn(`Error in getFeature() for ${this.name}:`, e);
         }
-        this._isReady = true;
+        this.isReady = true;
         return []; // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
 }

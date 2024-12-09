@@ -63,6 +63,7 @@ const isRecord = (x) => {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 };
 exports.isRecord = isRecord;
+// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
 const incrementCount = (counts, key) => {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + 1;

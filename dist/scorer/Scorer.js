@@ -11,10 +11,10 @@ const config_1 = require("../config");
 const types_1 = require("../types");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 class Scorer {
-    name;
     description;
     defaultWeight;
-    _isReady = false;
+    name;
+    isReady = false;
     constructor(name) {
         console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
@@ -37,7 +37,7 @@ class Scorer {
         };
     }
     checkIsReady() {
-        if (!this._isReady) {
+        if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;
             console.warn(msg);
             throw new Error(msg);

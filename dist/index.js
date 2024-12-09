@@ -303,8 +303,8 @@ class TheAlgorithm {
             try {
                 // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
                 let promises = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
-                if (!this.featureScorers.every(scorer => scorer._isReady)) {
-                    console.warn(`For some reasons featuresScorers are not ready yet. Making it so...`);
+                if (!this.featureScorers.every(scorer => scorer.isReady)) {
+                    console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
                     promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
                 }
                 await Promise.all(promises);

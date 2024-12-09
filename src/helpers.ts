@@ -70,10 +70,8 @@ export const isRecord = (x: unknown): x is Record<string, unknown> => {
 };
 
 
-export const incrementCount = (
-    counts: StringNumberDict,
-    key: CountKey | undefined | null
-): void => {
+// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
+export const incrementCount = (counts: StringNumberDict, key?: CountKey | null): void => {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + 1;
 };
