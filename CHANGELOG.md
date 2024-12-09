@@ -1,7 +1,7 @@
 ## NEXT
 
 ## `0.8.5`
-* Handle `FeatureScorer` not being ready if page is reloaded
+* [bug] Handle `FeatureScorer` not being ready if page is reloaded
 
 ## `0.8.4`
 * Fix de/serialization of score data on `Toot` objects introduced by `Toot` refactor
@@ -11,7 +11,6 @@
 * Refactor out a proper `Toot` class
 
 ## `0.8.2`
-* Refactoring
 * [bug] Fix server side filter application
 
 ## `0.8.1`
