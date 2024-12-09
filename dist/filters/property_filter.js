@@ -108,7 +108,6 @@ class PropertyFilter extends toot_filter_1.default {
         return this.invertSelection ? !isMatched : isMatched;
     }
     setOptions(optionInfo) {
-        // optionInfo = transformKeys(optionInfo, (key) => key.toLowerCase());
         this.optionInfo = optionInfo;
         // Server side filters get all the options immediately set to filter out toots
         if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
