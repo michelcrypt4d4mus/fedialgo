@@ -7,7 +7,10 @@ export declare enum Key {
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
+    RECENT_FAVOURITES = "recentFavourites",
+    RECENT_NOTIFICATIONS = "recentNotifications",
     RECENT_TOOTS = "recentToots",
+    RECENT_USER_TOOTS = "recentUserToots",
     SERVER_SIDE_FILTERS = "serverFilters",
     TIMELINE = "timeline",
     USER = "algouser",
@@ -28,8 +31,8 @@ export default class Storage {
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
-    protected static get(key: Key | WeightName): Promise<StorageValue | null>;
-    protected static set(key: Key | WeightName, value: StorageValue): Promise<void>;
-    protected static remove(key: Key | WeightName): Promise<void>;
+    static get(key: Key | WeightName): Promise<StorageValue | null>;
+    static set(key: Key | WeightName, value: StorageValue): Promise<void>;
+    static remove(key: Key | WeightName): Promise<void>;
     private static buildKey;
 }

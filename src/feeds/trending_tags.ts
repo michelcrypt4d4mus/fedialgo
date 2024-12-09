@@ -21,7 +21,6 @@
  */
 import { mastodon } from "masto";
 
-import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { fetchTrendingTags } from "../api/mastodon_servers_info";
@@ -43,7 +42,7 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
-    const topDomains = await MastodonApiCache.getTopServerDomains(api);
+    const topDomains = await MastoApi.instance.getTopServerDomains(api);
     const trendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers

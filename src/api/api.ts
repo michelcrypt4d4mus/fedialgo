@@ -1,15 +1,27 @@
 /*
  * Helper methods for using mastodon API.
  */
+import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
 
 import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
-import MastodonApiCache from "./mastodon_api_cache";
-import Storage from "../Storage";
+import mastodonServersInfo from "./mastodon_servers_info";
+import Storage, { Key } from "../Storage";
 import Toot from './objects/toot';
-import { TimelineData, TrendingTag, UserData } from "../types";
+import { buildAccountNames } from "./objects/account";
+import { countValues } from '../helpers';
+import {
+    AccountFeature,
+    AccountNames,
+    ServerFeature,
+    StorageValue,
+    StringNumberDict,
+    TimelineData,
+    UserData,
+    WeightName
+} from "../types";
 
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
@@ -18,10 +30,19 @@ const STATUSES = "statuses"
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 
 
+// Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
+interface FetchParams<T> {
+    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
+    label: Key | WeightName,
+    maxRecords?: number,
+};
+
+
 export class MastoApi {
     static #instance: MastoApi;
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    mutexes: Record<Key | WeightName, Mutex>;
 
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void {
         if (MastoApi.#instance) {
@@ -30,51 +51,21 @@ export class MastoApi {
         }
 
         MastoApi.#instance = new MastoApi(api, user);
-    }
+    };
 
     public static get instance(): MastoApi {
         if (!MastoApi.#instance) throw new Error("MastoApi wasn't initialized before use!");
         return MastoApi.#instance;
-    }
+    };
 
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
-    }
+        this.mutexes = {} as Record<Key | WeightName, Mutex>;
 
-    // Retrieve background data about the user that will be used for scoring etc.
-    async getStartupData(): Promise<UserData> {
-        const responses = await Promise.all([
-            MastodonApiCache.getFollowedAccounts(this.api),
-            MastodonApiCache.getFollowedTags(this.api),
-            this.getServerSideFilters(),
-        ]);
-
-        return {
-            followedAccounts: responses[0],
-            followedTags: responses[1],
-            serverSideFilters: responses[2],
-        } as UserData;
-    }
-
-    // Get the user's recent toots
-    // TODO: the args are unused hangover from pre-singleton era
-    async getUserRecentToots(): Promise<Toot[]> {
-        const recentToots = await mastodonFetchPages<mastodon.v1.Status>({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: 'recentToots'
-        });
-
-        return recentToots.map(t => new Toot(t));
-    };
-
-    // TODO: the args are unused hangover from pre-singleton era
-    async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
-        return await mastodonFetchPages<mastodon.v1.Account>({
-            fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
-            label: 'followedAccounts'
-        });
+        // Initialize mutexes for each key in Key and WeightName
+        for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
+        for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
     };
 
     // Get the toots that make up the user's home timeline feed
@@ -93,13 +84,28 @@ export class MastoApi {
 
         const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
-        let homeToots = allResponses.shift();
+        const homeToots = allResponses.shift();
 
         return {
             homeToots: homeToots,
             otherToots: allResponses.flat(),
         } as TimelineData;
-    }
+    };
+
+    // Retrieve background data about the user that will be used for scoring etc.
+    async getStartupData(): Promise<UserData> {
+        const responses = await Promise.all([
+            this.fetchFollowedAccounts(),
+            this.getFollowedTags(),
+            this.getServerSideFilters(),
+        ]);
+
+        return {
+            followedAccounts: buildAccountNames(responses[0]),
+            followedTags: countValues<mastodon.v1.Tag>(responses[1], (tag) => tag.name.toLowerCase()),
+            serverSideFilters: responses[2],
+        } as UserData;
+    };
 
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
     async searchForToots(searchQuery: string, limit?: number): Promise<Toot[]> {
@@ -116,6 +122,64 @@ export class MastoApi {
             throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
             return [];
         }
+    };
+
+    // Get the user's recent toots
+    async getUserRecentToots(): Promise<Toot[]> {
+        const recentToots = await this.mastodonFetchPages<mastodon.v1.Status>({
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
+            label: Key.RECENT_USER_TOOTS
+        });
+
+        return recentToots.map(t => new Toot(t));
+    };
+
+    async getFollowedAccounts(): Promise<AccountNames> {
+        return buildAccountNames(await this.fetchFollowedAccounts());
+    };
+
+    async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
+        return await this.mastodonFetchPages<mastodon.v1.Account>({
+            fetch: this.api.v1.accounts.$select(this.user.id).following.list,
+            label: Key.FOLLOWED_ACCOUNTS,
+            maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
+        });
+    };
+
+    // Get a count of number of favorites for each account in the user's recent favorites
+    async getMostFavouritedAccounts(): Promise<AccountFeature> {
+        const recentFavoriteToots = await this.fetchRecentFavourites();
+
+        return recentFavoriteToots.reduce(
+            (favouriteCounts, toot: mastodon.v1.Status,) => {
+                if (!toot.account) return favouriteCounts;
+                favouriteCounts[toot.account.acct] = (favouriteCounts[toot.account.acct] || 0) + 1;
+                return favouriteCounts;
+            },
+            {} as AccountFeature
+        );
+    }
+
+    async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
+        return await this.mastodonFetchPages<mastodon.v1.Tag>({
+            fetch: this.api.v1.followedTags.list,
+            label: WeightName.FOLLOWED_TAGS
+        });
+    }
+
+    async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
+        return await this.mastodonFetchPages<mastodon.v1.Notification>({
+            fetch: this.api.v1.notifications.list,
+            label: Key.RECENT_NOTIFICATIONS
+        });
+    }
+
+    // Get an array of Toots the user has recently favourited
+    async fetchRecentFavourites(): Promise<mastodon.v1.Status[]> {
+        return await this.mastodonFetchPages<mastodon.v1.Status>({
+            fetch: this.api.v1.favourites.list,
+            label: WeightName.FAVORITED_ACCOUNTS
+        });
     };
 
     // TODO: should we cache this?
@@ -136,45 +200,73 @@ export class MastoApi {
         return filters;
     }
 
+    // Returns information about mastodon servers
+    async getCoreServer(): Promise<ServerFeature> {
+        return await mastodonServersInfo(buildAccountNames(await this.fetchFollowedAccounts()));
+    }
+
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    async getTopServerDomains(api: mastodon.rest.Client): Promise<string[]> {
+        const coreServers = await this.getCoreServer();
+
+        // Count the number of followed users per server
+        const topServerDomains = Object.keys(coreServers)
+                                       .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
+                                       .sort((a, b) => (coreServers[b] - coreServers[a]));
+
+        console.log(`[API] Found top server domains:`, topServerDomains);
+        return topServerDomains;
+    };
+
+    private async mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
+        let { fetch, maxRecords, label } = fetchParams;
+        maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+        console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}`);
+        const releaseMutex = await this.mutexes[label].acquire();
+        let results: T[] = [];
+        let pageNumber = 0;
+
+        try {
+            const cachedData = await Storage.get(label);
+
+            if (cachedData && !(await this.shouldReloadFeatures())) {
+                const rows = cachedData as T[];
+                console.log(`[${label}] Loaded ${rows.length} cached records:`, cachedData);
+                return rows as T[];
+            };
+
+            for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
+                results = results.concat(page as T[]);
+                console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
+
+                if (results.length >= maxRecords) {
+                    console.log(`Halting record retrieval at page ${pageNumber} w/ ${results.length} records...`);
+                    break;
+                }
+            }
+
+            console.log(`[${label}] Fetched ${results.length} records:`, results);
+            await Storage.set(label, results as StorageValue);
+        } catch (e) {
+            throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
+            return results;
+        } finally {
+            releaseMutex();
+        }
+
+        return results;
+    };
+
+    // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
+    // starting at the 9th one. Also bc of the way it was implemented it won't work the same
+    // way for any number other than 9.
+    private async shouldReloadFeatures() {
+        return (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
+    }
+
     public static v1Url = (path: string) => `${API_V1}/${path}`;
     public static v2Url = (path: string) => `${API_V2}/${path}`;
     public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
-};
-
-
-// Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
-interface FetchParams<T> {
-    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
-    maxRecords?: number,
-    label?: string,
-    noParams?: boolean
-};
-
-export async function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-    let { fetch, maxRecords, label } = fetchParams;
-    maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-    label ||= "unknown";
-    console.debug(`mastodonFetchPages() for ${label} w/ maxRecords=${maxRecords}, fetch:`, fetch);
-
-    let results: T[] = [];
-    let pageNumber = 0;
-
-    try {
-        for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
-            results = results.concat(page as T[]);
-            console.log(`Retrieved page ${++pageNumber} of current user's ${label}...`);
-
-            if (results.length >= maxRecords) {
-                console.log(`Halting record retrieval at page ${pageNumber} w/ ${results.length} records...`);
-                break;
-            }
-        }
-    } catch (e) {
-        throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
-        return results;
-    }
-
-    return results;
 };
 
 

@@ -5,16 +5,16 @@
 import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
-import MastodonApiCache from "../../api/mastodon_api_cache";
 import Toot from '../../api/objects/toot';
 import { MastoApi } from "../../api/api";
 import { WeightName } from "../../types";
 
 
+// TODO: rename MostRetootedUsersScorer
 export default class RetootedUsersScorer extends FeatureScorer {
     constructor() {
         super({
-            featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostRetootedAccounts(api),
+            featureGetter: () => RetootedUsersScorer.fetchRequiredData(),
             scoreName: WeightName.MOST_RETOOTED_ACCOUNTS,
         });
     }
@@ -25,12 +25,8 @@ export default class RetootedUsersScorer extends FeatureScorer {
         return authorScore + retootScore;
     }
 
-    static async fetchRequiredData(
-        api: mastodon.rest.Client,
-        user: mastodon.v1.Account,
-        recentToots?: mastodon.v1.Status[]
-    ): Promise<Record<string, number>> {
-        recentToots ||= await MastoApi.instance.getUserRecentToots();
+    static async fetchRequiredData(): Promise<Record<string, number>> {
+        const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);

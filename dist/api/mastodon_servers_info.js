@@ -53,7 +53,7 @@ const _POPULAR_SERVERS = [
 const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
 const POPULAR_SRERVERS_MAU_GUESS = 1000;
 // Returns something called "overrepresentedServerFrequ"??
-async function mastodonServersInfo(_api, _user, followedAccounts) {
+async function mastodonServersInfo(followedAccounts) {
     const numServersToCheck = Storage_1.default.getConfig().numServersToCheck;
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = Object.values(followedAccounts).reduce((userCounts, follower) => {

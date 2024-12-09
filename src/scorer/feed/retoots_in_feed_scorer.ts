@@ -3,6 +3,7 @@
  */
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
+import { incrementCount } from "../../helpers";
 import { WeightName } from "../../types";
 
 
@@ -15,10 +16,8 @@ export default class RetootsInFeedScorer extends FeedScorer {
     feedExtractor(feed: Toot[]) {
         return feed.reduce(
             (tootCounts: Record<string, number>, toot: Toot) => {
-                if (toot.reblog) {
-                    tootCounts[toot.reblog.uri] = (tootCounts[toot.reblog.uri] || 0) + 1;
-                }
-
+                if (!toot.reblog) return tootCounts;
+                incrementCount(tootCounts, toot.reblog.uri)
                 return tootCounts;
             },
             {}

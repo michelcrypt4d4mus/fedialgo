@@ -3,7 +3,7 @@ import Scorer from "./scorer";
 import Toot from '../api/objects/toot';
 import { FeedFeature, WeightName } from "../types";
 interface RankParams {
-    featureGetter?: (api: mastodon.rest.Client) => Promise<FeedFeature>;
+    featureGetter?: () => Promise<FeedFeature>;
     scoreName: WeightName;
 }
 export default class FeatureScorer extends Scorer {

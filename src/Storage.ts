@@ -22,7 +22,10 @@ export enum Key {
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
+    RECENT_FAVOURITES = "recentFavourites",
+    RECENT_NOTIFICATIONS = 'recentNotifications',
     RECENT_TOOTS = "recentToots",
+    RECENT_USER_TOOTS = 'recentUserToots',
     SERVER_SIDE_FILTERS = 'serverFilters',
     TIMELINE = 'timeline',
     USER = 'algouser',
@@ -123,18 +126,18 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    protected static async get(key: Key | WeightName): Promise<StorageValue | null> {
+    static async get(key: Key | WeightName): Promise<StorageValue | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    protected static async set(key: Key | WeightName, value: StorageValue): Promise<void> {
+    static async set(key: Key | WeightName, value: StorageValue): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localForage.setItem(storageKey, value);
     }
 
-    protected static async remove(key: Key | WeightName): Promise<void> {
+    static async remove(key: Key | WeightName): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);

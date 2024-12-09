@@ -14,7 +14,7 @@ import { FeedFeature, WeightName } from "../types";
 
 
 interface RankParams {
-    featureGetter?: (api: mastodon.rest.Client) => Promise<FeedFeature>,
+    featureGetter?: () => Promise<FeedFeature>,
     scoreName: WeightName,
 };
 

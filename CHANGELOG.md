@@ -1,4 +1,5 @@
 ## NEXT
+* Standardize caching of data fetched from Mastodon
 
 ## `0.8.5`
 * [bug] Handle `FeatureScorer` not being ready if page is reloaded

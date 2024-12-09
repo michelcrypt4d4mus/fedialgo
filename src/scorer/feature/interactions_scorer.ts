@@ -4,16 +4,15 @@
 import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
-import MastodonApiCache from "../../api/mastodon_api_cache";
 import Toot from '../../api/objects/toot';
 import { AccountFeature, WeightName } from "../../types";
-import { mastodonFetchPages } from "../../api/api";
+import { MastoApi } from "../../api/api";
 
 
 export default class InteractionsScorer extends FeatureScorer {
     constructor() {
         super({
-            featureGetter: (api: mastodon.rest.Client) => MastodonApiCache.getMostFrequentlyInteractingUsers(api),
+            featureGetter: () => InteractionsScorer.fetchRequiredData(),
             scoreName: WeightName.INTERACTIONS,
         });
     }
@@ -22,15 +21,8 @@ export default class InteractionsScorer extends FeatureScorer {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 
-    static async fetchRequiredData(
-        api: mastodon.rest.Client,
-        _user: mastodon.v1.Account
-    ): Promise<AccountFeature> {
-        const results = await mastodonFetchPages<mastodon.v1.Notification>({
-            fetch: api.v1.notifications.list,
-            label: 'notifications'
-        });
-
+    static async fetchRequiredData(): Promise<AccountFeature> {
+        const results = await MastoApi.instance.getRecentNotifications();
         console.log(`Retrieved ${results.length} notifications for InteractionsScorer: `, results);
 
         return results.reduce(

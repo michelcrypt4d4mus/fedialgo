@@ -1,29 +1,33 @@
+import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
+import { Key } from "../Storage";
 import Toot from './objects/toot';
-import { TimelineData, UserData } from "../types";
+import { AccountFeature, AccountNames, ServerFeature, TimelineData, UserData, WeightName } from "../types";
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    mutexes: Record<Key | WeightName, Mutex>;
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
     static get instance(): MastoApi;
     private constructor();
-    getStartupData(): Promise<UserData>;
-    getUserRecentToots(): Promise<Toot[]>;
-    fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
     getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
+    getStartupData(): Promise<UserData>;
     searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
+    getUserRecentToots(): Promise<Toot[]>;
+    getFollowedAccounts(): Promise<AccountNames>;
+    fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
+    getMostFavouritedAccounts(): Promise<AccountFeature>;
+    getFollowedTags(): Promise<mastodon.v1.Tag[]>;
+    getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
+    fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
+    getCoreServer(): Promise<ServerFeature>;
+    getTopServerDomains(api: mastodon.rest.Client): Promise<string[]>;
+    private mastodonFetchPages;
+    private shouldReloadFeatures;
     static v1Url: (path: string) => string;
     static v2Url: (path: string) => string;
     static trendUrl: (path: string) => string;
 }
-interface FetchParams<T> {
-    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>);
-    maxRecords?: number;
-    label?: string;
-    noParams?: boolean;
-}
-export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
 export declare function throwIfAccessTokenRevoked(e: unknown, msg: string): void;
-export {};

@@ -32,9 +32,9 @@ declare class TheAlgorithm {
     scoreMutex: Mutex;
     reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
-    featureScorers: (ChaosScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | RetootedUsersScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    featureScorers: (ChaosScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
-    weightedScorers: (ChaosScorer | DiversityFeedScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | RetootedUsersScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | RetootsInFeedScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

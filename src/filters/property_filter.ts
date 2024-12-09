@@ -125,7 +125,6 @@ export default class PropertyFilter extends TootFilter {
     }
 
     setOptions(optionInfo: FilterOptionInfo) {
-        optionInfo = transformKeys(optionInfo, (key) => key.toLowerCase());
         this.optionInfo = optionInfo;
 
         // Server side filters get all the options immediately set to filter out toots

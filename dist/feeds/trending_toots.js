@@ -3,14 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
 const toot_1 = __importDefault(require("../api/objects/toot"));
 const helpers_1 = require("../helpers");
 const api_1 = require("../api/api");
 const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
-    const topServerDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
+    const topServerDomains = await api_1.MastoApi.instance.getTopServerDomains(api);
     // Pull top trending toots from each server
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
         let topToots = [];

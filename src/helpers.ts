@@ -71,7 +71,16 @@ export const isRecord = (x: unknown): x is Record<string, unknown> => {
 
 
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-export const incrementCount = (counts: StringNumberDict, key?: CountKey | null): void => {
+export const incrementCount = (counts: StringNumberDict, key?: CountKey | null): StringNumberDict => {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + 1;
+    return counts;
 };
+
+
+export function countValues<T>(items: T[], getKey: (item: T) => string): StringNumberDict {
+    return items.reduce(
+        (counts, item) => incrementCount(counts, getKey(item)),
+        {} as StringNumberDict
+    );
+}

@@ -4,7 +4,6 @@
  */
 import { mastodon } from "masto";
 
-import MastodonApiCache from "../api/mastodon_api_cache";
 import Toot from "../api/objects/toot";
 import { average } from '../helpers';
 import { MastoApi } from "../api/api";
@@ -13,7 +12,7 @@ import { mastodonFetch } from "../api/mastodon_servers_info";
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
-    const topServerDomains = await MastodonApiCache.getTopServerDomains(api);
+    const topServerDomains = await MastoApi.instance.getTopServerDomains(api);
 
     // Pull top trending toots from each server
     let trendingTootses: Toot[][] = await Promise.all(
