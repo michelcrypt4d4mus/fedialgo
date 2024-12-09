@@ -6,7 +6,7 @@ import { mastodon } from 'masto';
 import FeatureScorer from '../feature_scorer';
 import MastodonApiCache from '../../api/mastodon_api_cache';
 import Toot from '../../api/objects/toot';
-import { getUserRecentToots } from '../../api/api';
+import { MastoApi } from '../../api/api';
 import { WeightName } from '../../types';
 
 
@@ -27,7 +27,7 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
         user: mastodon.v1.Account,
         recentToots?: mastodon.v1.Status[]
     ): Promise<Record<string, number>> {
-        recentToots ||= await getUserRecentToots(api, user);
+        recentToots ||= await MastoApi.instance.getUserRecentToots(api, user);
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         console.log(`Recent reply history: `, recentReplies);
 

@@ -1,19 +1,23 @@
 import { mastodon } from "masto";
 import Toot from './objects/toot';
-import { TimelineData, TrendingTag, UserData } from "../types";
-export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-export declare const FILTER_ENDPOINT = "api/v2/filters";
+import { TimelineData, UserData } from "../types";
 export declare class MastoApi {
+    #private;
     api: mastodon.rest.Client;
-    constructor(api: mastodon.rest.Client);
+    user: mastodon.v1.Account;
+    static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
+    static get instance(): MastoApi;
+    private constructor();
     getStartupData(): Promise<UserData>;
+    getUserRecentToots(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<Toot[]>;
+    fetchFollowedAccounts(_api: mastodon.rest.Client, _user: mastodon.v1.Account): Promise<mastodon.v1.Account[]>;
     getFeed(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
+    searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
+    getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     static v1Url: (path: string) => string;
     static v2Url: (path: string) => string;
     static trendUrl: (path: string) => string;
 }
-export declare function searchForToots(api: mastodon.rest.Client, searchQuery: string, limit?: number): Promise<Toot[]>;
-export declare const mastodonFetch: <T>(server: string, endpoint: string, limit?: number) => Promise<T | undefined>;
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>);
     maxRecords?: number;
@@ -21,6 +25,5 @@ interface FetchParams<T> {
     noParams?: boolean;
 }
 export declare function mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]>;
-export declare function getUserRecentToots(api: mastodon.rest.Client, user: mastodon.v1.Account): Promise<Toot[]>;
-export declare function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]>;
+export declare function throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 export {};

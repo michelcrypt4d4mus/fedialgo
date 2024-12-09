@@ -18,7 +18,7 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
         return this.feature[toot.account.id] || 0;
     }
     static async fetchRequiredData(api, user, recentToots) {
-        recentToots ||= await (0, api_1.getUserRecentToots)(api, user);
+        recentToots ||= await api_1.MastoApi.instance.getUserRecentToots(api, user);
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         console.log(`Recent reply history: `, recentReplies);
         // Count replied per user. Note that this does NOT pull the Account object because that

@@ -15,8 +15,8 @@
         "Fediverse",
         "Home"
     ],
-    "author": "pkreissel",
-    "license": "ISC",
+    "author": "michelcryptadamus",
+    "license": "GPL-3.0-only",
     "devDependencies": {
         "@eslint/compat": "^1.1.0",
         "@eslint/js": "^9.6.0",

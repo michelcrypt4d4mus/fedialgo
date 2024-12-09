@@ -68,7 +68,6 @@ class TheAlgorithm {
     api;
     user;
     filters;
-    mastoApi;
     // Variables with initial values
     feed = [];
     serverSideFilters = [];
@@ -125,10 +124,10 @@ class TheAlgorithm {
     }
     constructor(params) {
         this.api = params.api;
-        this.filters = (0, config_1.buildNewFilterSettings)();
-        this.mastoApi = new api_1.MastoApi(this.api);
-        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.user = params.user;
+        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
+        api_1.MastoApi.init(this.api, this.user);
+        this.filters = (0, config_1.buildNewFilterSettings)();
         this.reloadIfOlderThanMS = Storage_1.default.getConfig().reloadIfOlderThanMinutes * 60 * 1000;
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -137,11 +136,11 @@ class TheAlgorithm {
         if (!this.shouldReloadFeed() && !maxId)
             return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [this.mastoApi.getFeed(numTimelineToots, maxId)];
+        let promises = [api_1.MastoApi.instance.getFeed(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
             promises = promises.concat([
-                this.mastoApi.getStartupData(),
+                api_1.MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);

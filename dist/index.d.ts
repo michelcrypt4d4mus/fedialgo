@@ -19,14 +19,12 @@ import Toot from './api/objects/toot';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { MastoApi } from "./api/api";
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    mastoApi: MastoApi;
     feed: Toot[];
     serverSideFilters: mastodon.v2.Filter[];
     followedAccounts: AccountNames;

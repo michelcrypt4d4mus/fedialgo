@@ -25,7 +25,7 @@ import MastodonApiCache from "../api/mastodon_api_cache";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { fetchTrendingTags } from "../api/mastodon_servers_info";
-import { getTootsForTag } from "../api/api";
+import { MastoApi, throwIfAccessTokenRevoked } from "../api/api";
 import { TrendingTag } from "../types";
 
 const LOG_PREFIX = "[TrendingTags]";
@@ -35,9 +35,8 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
     const tags = await getTrendingTags(api);
     const tootses: Toot[][] = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots: Toot[] = Toot.dedupeToots(tootses.flat(), "trendingTags");
-
-    return toots.toSorted((a, b) => b.popularity() - a.popularity())
-                .slice(0, Storage.getConfig().numTrendingTagsToots);
+    toots.sort((a, b) => b.popularity() - a.popularity())
+    return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 
 
@@ -67,4 +66,25 @@ async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, Storage.getConfig().numTrendingTags);
+};
+
+
+// Get latest toots for a given tag
+async function getTootsForTag(api: mastodon.rest.Client, tag: TrendingTag): Promise<Toot[]> {
+    try {
+        // TODO: this doesn't append a an octothorpe to the tag name. Should it?
+        const toots = await MastoApi.instance.searchForToots(tag.name, Storage.getConfig().numTootsPerTrendingTag);
+
+        // Inject the tag into each toot as a trendingTag element
+        toots.forEach((toot) => {
+            toot.trendingTags ||= [];
+            toot.trendingTags.push(tag);
+        });
+
+        console.debug(`Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    } catch (e) {
+        throwIfAccessTokenRevoked(e, `Failed to get toots for tag '${tag.name}'`);
+        return [];
+    }
 };

@@ -2,12 +2,15 @@
  * Methods for making calls to the publilcly available Mastodon API methods
  * that don't require authentication.
  */
+import axios from "axios";
+import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
 import { AccountNames, ServerFeature, StringNumberDict, TrendingTag } from "../types";
 import { decorateTrendingTag } from "./objects/tag";
-import { MastoApi, mastodonFetch } from "./api";
+import { MastoApi } from "./api";
+import { transformKeys } from "../helpers";
 
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
@@ -146,4 +149,30 @@ export async function fetchTrendingTags(server: string, numTags?: number): Promi
     const tags = _tags.map(decorateTrendingTag);
     console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
     return tags;
+};
+
+
+// Retrieve Mastodon server information from a given server's public (no auth) endpoint
+export const mastodonFetch = async <T>(
+    server: string,
+    endpoint: string,
+    limit?: number
+): Promise<T | undefined> => {
+    let url = `https://${server}${endpoint}`;
+    if (limit) url += `?limit=${limit}`;
+    console.debug(`mastodonFetch() ${url}'...`);
+
+    try {
+        const json = await axios.get<T>(url);
+        console.debug(`mastodonFetch() response for ${url}:`, json);
+
+        if (json.status === 200 && json.data) {
+            return transformKeys(json.data, camelCase);
+        } else {
+            throw json;
+        }
+    } catch (e) {
+        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
+        return;
+    }
 };

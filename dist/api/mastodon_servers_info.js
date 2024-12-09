@@ -3,10 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchTrendingTags = exports.getMonthlyUsers = void 0;
+exports.mastodonFetch = exports.fetchTrendingTags = exports.getMonthlyUsers = void 0;
+/*
+ * Methods for making calls to the publilcly available Mastodon API methods
+ * that don't require authentication.
+ */
+const axios_1 = __importDefault(require("axios"));
+const change_case_1 = require("change-case");
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_1 = require("./objects/tag");
 const api_1 = require("./api");
+const helpers_1 = require("../helpers");
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
@@ -96,7 +103,7 @@ async function getMonthlyUsers(server) {
         return 0;
     }
     try {
-        const instance = await (0, api_1.mastodonFetch)(server, api_1.MastoApi.v2Url("instance"));
+        const instance = await (0, exports.mastodonFetch)(server, api_1.MastoApi.v2Url("instance"));
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     }
@@ -112,7 +119,7 @@ async function fetchTrendingTags(server, numTags) {
     const tagsUrl = api_1.MastoApi.trendUrl("tags");
     let _tags;
     try {
-        _tags = await (0, api_1.mastodonFetch)(server, tagsUrl, numTags);
+        _tags = await (0, exports.mastodonFetch)(server, tagsUrl, numTags);
         if (!_tags || _tags.length == 0)
             throw new Error(`No tags found on '${server}'!`);
     }
@@ -126,4 +133,26 @@ async function fetchTrendingTags(server, numTags) {
 }
 exports.fetchTrendingTags = fetchTrendingTags;
 ;
+// Retrieve Mastodon server information from a given server's public (no auth) endpoint
+const mastodonFetch = async (server, endpoint, limit) => {
+    let url = `https://${server}${endpoint}`;
+    if (limit)
+        url += `?limit=${limit}`;
+    console.debug(`mastodonFetch() ${url}'...`);
+    try {
+        const json = await axios_1.default.get(url);
+        console.debug(`mastodonFetch() response for ${url}:`, json);
+        if (json.status === 200 && json.data) {
+            return (0, helpers_1.transformKeys)(json.data, change_case_1.camelCase);
+        }
+        else {
+            throw json;
+        }
+    }
+    catch (e) {
+        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
+        return;
+    }
+};
+exports.mastodonFetch = mastodonFetch;
 //# sourceMappingURL=mastodon_servers_info.js.map

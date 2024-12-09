@@ -47,14 +47,7 @@ class MastodonApiCache extends Storage_1.default {
     static tagPullMutex = new async_mutex_1.Mutex(); // at startup multiple calls
     // Get an array of Accounts the user is following
     static async getFollowedAccounts(api) {
-        const fetchFollows = async (_api, _user) => {
-            return await (0, api_1.mastodonFetchPages)({
-                fetch: _api.v1.accounts.$select(_user.id).following.list,
-                maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
-                label: 'followedAccounts'
-            });
-        };
-        const followedAccounts = await this.getAggregatedData(api, Storage_1.Key.FOLLOWED_ACCOUNTS, fetchFollows);
+        const followedAccounts = await this.getAggregatedData(api, Storage_1.Key.FOLLOWED_ACCOUNTS, api_1.MastoApi.instance.fetchFollowedAccounts.bind(api_1.MastoApi.instance));
         return (0, account_1.buildAccountNames)(followedAccounts);
     }
     static async getMostFavoritedAccounts(api) {
@@ -64,7 +57,7 @@ class MastodonApiCache extends Storage_1.default {
     // TODO: gets called twice in parallel during startup w/empty storage. use a mutex so second call uses cache?
     // TODO: probably shouldn't load toots from storage usually beyond a certain age (that's not long?)
     static async getRecentToots(api) {
-        const recentToots = await this.getAggregatedData(api, Storage_1.Key.RECENT_TOOTS, api_1.getUserRecentToots);
+        const recentToots = await this.getAggregatedData(api, Storage_1.Key.RECENT_TOOTS, api_1.MastoApi.instance.getUserRecentToots);
         // TODO: this rebuild of the {uri: toot} dict is done anew unnecessarily for each call to getRecentToots
         return recentToots.reduce((acc, toot) => {
             acc[toot.reblog?.uri || toot.uri] = toot;
@@ -102,29 +95,6 @@ class MastodonApiCache extends Storage_1.default {
             .sort((a, b) => (coreServers[b] - coreServers[a]));
         console.log(`${logPrefix("topServerDomains")} Found top server domains:`, topServerDomains);
         return topServerDomains;
-    }
-    // https://docs.joinmastodon.org/methods/filters/#response
-    // https://neet.github.io/masto.js/interfaces/mastodon.v2.Filter.html
-    static async getServerSideFilters(api) {
-        console.log(`${logPrefix('getServerSideFilters()')} called`);
-        let filters = await this.get(Storage_1.Key.SERVER_SIDE_FILTERS);
-        let logAction = LOADED_FROM_STORAGE;
-        if (!filters || (await this.shouldReloadFeatures())) {
-            logAction = RETRIEVED;
-            filters = await api.v2.filters.list();
-            await this.set(Storage_1.Key.SERVER_SIDE_FILTERS, filters);
-        }
-        // Filter out filters that either are just warnings or don't apply to the home context
-        filters = filters.filter(filter => {
-            // before 4.0 Filter objects lacked a 'context' property altogether
-            if (filter.context?.length > 0 && !filter.context.includes("home"))
-                return false;
-            if (filter.filterAction != "hide")
-                return false;
-            return true;
-        });
-        console.log(`${logPrefix(logAction)} ${Storage_1.Key.SERVER_SIDE_FILTERS}:`, filters);
-        return filters;
     }
     // Generic method to pull cached data from storage or fetch it from the API
     static async getAggregatedData(api, storageKey, fetch, extraArg) {

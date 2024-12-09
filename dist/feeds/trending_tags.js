@@ -11,10 +11,10 @@ const api_1 = require("../api/api");
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags(api) {
     const tags = await getTrendingTags(api);
-    const tootses = await Promise.all(tags.map((tag) => (0, api_1.getTootsForTag)(api, tag)));
+    const tootses = await Promise.all(tags.map((tag) => getTootsForTag(api, tag)));
     const toots = toot_1.default.dedupeToots(tootses.flat(), "trendingTags");
-    return toots.toSorted((a, b) => b.popularity() - a.popularity())
-        .slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+    toots.sort((a, b) => b.popularity() - a.popularity());
+    return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;
@@ -38,6 +38,25 @@ async function getTrendingTags(api) {
     aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
     console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
     return aggregatedTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
+}
+;
+// Get latest toots for a given tag
+async function getTootsForTag(api, tag) {
+    try {
+        // TODO: this doesn't append a an octothorpe to the tag name. Should it?
+        const toots = await api_1.MastoApi.instance.searchForToots(tag.name, Storage_1.default.getConfig().numTootsPerTrendingTag);
+        // Inject the tag into each toot as a trendingTag element
+        toots.forEach((toot) => {
+            toot.trendingTags ||= [];
+            toot.trendingTags.push(tag);
+        });
+        console.debug(`Found toots for tag '${tag.name}':`, toots);
+        return toots;
+    }
+    catch (e) {
+        (0, api_1.throwIfAccessTokenRevoked)(e, `Failed to get toots for tag '${tag.name}'`);
+        return [];
+    }
 }
 ;
 //# sourceMappingURL=trending_tags.js.map

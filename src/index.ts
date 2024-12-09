@@ -47,7 +47,6 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    mastoApi: MastoApi;
 
     // Variables with initial values
     feed: Toot[] = [];
@@ -114,10 +113,10 @@ class TheAlgorithm {
 
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
-        this.filters = buildNewFilterSettings();
-        this.mastoApi = new MastoApi(this.api);
-        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         this.user = params.user;
+        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
+        MastoApi.init(this.api, this.user);
+        this.filters = buildNewFilterSettings();
         this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;
     }
 
@@ -126,12 +125,12 @@ class TheAlgorithm {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         if (!this.shouldReloadFeed() && !maxId) return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let promises: Promise<any>[] = [this.mastoApi.getFeed(numTimelineToots, maxId)];
+        let promises: Promise<any>[] = [MastoApi.instance.getFeed(numTimelineToots, maxId)];
 
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
             promises = promises.concat([
-                this.mastoApi.getStartupData(),
+                MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
             ]);

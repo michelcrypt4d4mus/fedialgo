@@ -7,6 +7,7 @@ const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"
 const toot_1 = __importDefault(require("../api/objects/toot"));
 const helpers_1 = require("../helpers");
 const api_1 = require("../api/api");
+const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
     const topServerDomains = await mastodon_api_cache_1.default.getTopServerDomains(api);
@@ -14,7 +15,7 @@ async function getTrendingToots(api) {
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
         let topToots = [];
         try {
-            topToots = await (0, api_1.mastodonFetch)(server, api_1.MastoApi.trendUrl("statuses"));
+            topToots = await (0, mastodon_servers_info_1.mastodonFetch)(server, api_1.MastoApi.trendUrl("statuses"));
             if (!topToots?.length)
                 throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
             topToots = topToots.map(t => new toot_1.default(t));
