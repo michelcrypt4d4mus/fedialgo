@@ -93,7 +93,7 @@ class Toot {
         this.repairToot();
     }
     containsString(str) {
-        str = str.toLowerCase();
+        str = str.trim().toLowerCase();
         if (str.startsWith("#")) {
             return this.tags.some((tag) => str.slice(1) == tag.name.toLowerCase());
         }

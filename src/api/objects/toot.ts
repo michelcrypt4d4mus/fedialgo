@@ -101,7 +101,7 @@ export default class Toot implements TootObj {
     }
 
     containsString(str: string): boolean {
-        str = str.toLowerCase();
+        str = str.trim().toLowerCase();
 
         if (str.startsWith("#")) {
             return this.tags.some((tag) => str.slice(1) == tag.name.toLowerCase());
