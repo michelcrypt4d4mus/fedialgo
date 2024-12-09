@@ -11,8 +11,8 @@ const config_1 = require("../config");
 const types_1 = require("../types");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 class Scorer {
-    description;
     defaultWeight;
+    description;
     name;
     isReady = false;
     constructor(name) {

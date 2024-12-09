@@ -129,14 +129,10 @@ class Toot {
     isValidForFeed(user) {
         if (this?.reblog?.muted || this?.muted)
             return false; // Remove muted accounts and toots
-        // Remove things the user has already retooted
-        if (this?.reblog?.reblogged) {
-            return false;
-        }
-        // Remove the user's own toots
-        if (this.account.username == user.username && this.account.id == user.id) {
-            return false;
-        }
+        if (this?.reblog?.reblogged)
+            return false; // Remove things the user has already retooted
+        if (this.account.username == user.username && this.account.id == user.id)
+            return false; // Remove user's toots
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
         if (Date.now() < new Date(this.createdAt).getTime()) {
             console.warn(`Removed toot with future timestamp: `, this);
@@ -163,7 +159,7 @@ class Toot {
         this.followedTags ??= [];
         // Inject the @server info to the account string if it's missing
         if (this.account.acct && !this.account.acct.includes("@")) {
-            console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
+            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
             this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
         }
         // Check for weird media types

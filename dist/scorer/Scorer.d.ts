@@ -1,8 +1,8 @@
 import Toot from '../api/objects/toot';
 import { ScorerInfo, WeightName } from "../types";
 export default class Scorer {
-    description: string;
     defaultWeight: number;
+    description: string;
     name: WeightName;
     isReady: boolean;
     constructor(name: WeightName);
