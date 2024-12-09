@@ -16,7 +16,7 @@ export default class Scorer {
     isReady: boolean = false;
 
     constructor(name: WeightName) {
-        console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
+        // console.debug(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
         this.description = DEFAULT_WEIGHTS[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name].defaultWeight ?? 1;
