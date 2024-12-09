@@ -91,11 +91,11 @@ export const DEFAULT_CONFIG = {
 
     // Timeline toots
     enableIncrementalLoad: true,         // Continue loading in background after initial load
-    maxTimelineTootsToFetch: 2_500,       // How many standard timeline toots to pull
-    // maxTimelineTootsToFetch: 800,      // useful dev options for faster load
-    incrementalLoadDelayMS: 1_000,        // Delay between incremental loads of toots
+    maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
+    // maxTimelineTootsToFetch: 800,       // useful dev options for faster load
+    incrementalLoadDelayMS: 1_000,       // Delay between incremental loads of toots
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
-    numTootsInFirstFetch: 80,           // How many toots to pull in the first fetch
+    numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
     reloadIfOlderThanMinutes: 10,        // currently unused
 
     // API stuff
@@ -132,24 +132,4 @@ export function buildNewFilterSettings(): FeedFilterSettings {
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
     console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;
-};
-
-
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
-export function populateFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
-    serializedFilterSettings.filterSections ??= {} as Record<PropertyName, PropertyFilter>;
-    serializedFilterSettings.numericFilters ??= {} as Record<WeightName, NumericFilter>;
-
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
-        serializedFilterSettings.filterSections[args.title as PropertyName] = new PropertyFilter(args);
-    });
-
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title as WeightName] = new NumericFilter(args);
-    });
-
-    // Fill in any missing values
-    FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
-    });
 };

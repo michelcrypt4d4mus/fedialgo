@@ -3,6 +3,21 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
 import Toot from './api/objects/toot';
+export declare enum Key {
+    CORE_SERVER = "coreServer",
+    FILTERS = "filters",
+    FOLLOWED_ACCOUNTS = "FollowedAccounts",
+    LAST_OPENED = "lastOpened",
+    OPENINGS = "openings",
+    RECENT_FAVOURITES = "recentFavourites",
+    RECENT_NOTIFICATIONS = "recentNotifications",
+    RECENT_TOOTS = "recentToots",
+    RECENT_USER_TOOTS = "recentUserToots",
+    SERVER_SIDE_FILTERS = "serverFilters",
+    TIMELINE = "timeline",
+    USER = "algouser",
+    WEIGHTS = "weights"
+}
 export declare enum WeightName {
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
@@ -21,11 +36,8 @@ export declare enum WeightName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments"
 }
-export type AccountFeature = Record<mastodon.v1.Account["acct"], number>;
 export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
-export type FeedFeature = AccountFeature | StringNumberDict;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
-export type ServerFeature = Record<mastodon.v1.Instance["uri"], number>;
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
@@ -60,6 +72,7 @@ export type Config = {
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
+export type StorageKey = Key | WeightName;
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
@@ -110,4 +123,4 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number;
+export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number;

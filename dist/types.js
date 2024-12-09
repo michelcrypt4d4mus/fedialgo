@@ -1,6 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WeightName = void 0;
+exports.WeightName = exports.Key = void 0;
+var Key;
+(function (Key) {
+    Key["CORE_SERVER"] = "coreServer";
+    Key["FILTERS"] = "filters";
+    Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
+    Key["LAST_OPENED"] = "lastOpened";
+    Key["OPENINGS"] = "openings";
+    Key["RECENT_FAVOURITES"] = "recentFavourites";
+    Key["RECENT_NOTIFICATIONS"] = "recentNotifications";
+    Key["RECENT_TOOTS"] = "recentToots";
+    Key["RECENT_USER_TOOTS"] = "recentUserToots";
+    Key["SERVER_SIDE_FILTERS"] = "serverFilters";
+    Key["TIMELINE"] = "timeline";
+    Key["USER"] = "algouser";
+    Key["WEIGHTS"] = "weights";
+})(Key || (exports.Key = Key = {}));
+;
 var WeightName;
 (function (WeightName) {
     WeightName["CHAOS"] = "Chaos";

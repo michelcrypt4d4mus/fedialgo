@@ -1,13 +1,13 @@
 import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
-import { Key } from "../Storage";
 import Toot from './objects/toot';
-import { AccountFeature, AccountNames, ServerFeature, TimelineData, UserData, WeightName } from "../types";
+import { AccountNames, StorageKey, StringNumberDict, TimelineData, UserData } from "../types";
+type ApiMutex = Record<StorageKey, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    mutexes: Record<Key | WeightName, Mutex>;
+    mutexes: ApiMutex;
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
     static get instance(): MastoApi;
     private constructor();
@@ -17,12 +17,12 @@ export declare class MastoApi {
     getUserRecentToots(): Promise<Toot[]>;
     getFollowedAccounts(): Promise<AccountNames>;
     fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
-    getMostFavouritedAccounts(): Promise<AccountFeature>;
+    getMostFavouritedAccounts(): Promise<StringNumberDict>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getCoreServer(): Promise<ServerFeature>;
+    getCoreServer(): Promise<StringNumberDict>;
     getTopServerDomains(api: mastodon.rest.Client): Promise<string[]>;
     private mastodonFetchPages;
     private shouldReloadFeatures;
@@ -31,3 +31,4 @@ export declare class MastoApi {
     static trendUrl: (path: string) => string;
 }
 export declare function throwIfAccessTokenRevoked(e: unknown, msg: string): void;
+export {};

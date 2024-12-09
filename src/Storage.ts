@@ -4,34 +4,23 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
+import NumericFilter from "./filters/numeric_filter";
+import PropertyFilter from "./filters/property_filter";
 import Toot from './api/objects/toot';
+import { FILTERABLE_SCORES } from "./filters/numeric_filter";
+import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings } from "./config";
+import { PropertyName } from "./filters/property_filter";
 import {
     Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
+    Key,
+    StorageKey,
     StorageValue,
     TootExtension,
     WeightName,
     Weights
 } from "./types";
-import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings, populateFiltersFromArgs } from "./config";
-
-
-export enum Key {
-    CORE_SERVER = 'coreServer',
-    FILTERS = 'filters',
-    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    LAST_OPENED = "lastOpened",
-    OPENINGS = "openings",
-    RECENT_FAVOURITES = "recentFavourites",
-    RECENT_NOTIFICATIONS = 'recentNotifications',
-    RECENT_TOOTS = "recentToots",
-    RECENT_USER_TOOTS = 'recentUserToots',
-    SERVER_SIDE_FILTERS = 'serverFilters',
-    TIMELINE = 'timeline',
-    USER = 'algouser',
-    WEIGHTS = 'weights'
-};
 
 
 export default class Storage {
@@ -127,24 +116,24 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    static async get(key: Key | WeightName): Promise<StorageValue | null> {
+    static async get(key: StorageKey): Promise<StorageValue | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    static async set(key: Key | WeightName, value: StorageValue): Promise<void> {
+    static async set(key: StorageKey, value: StorageValue): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localForage.setItem(storageKey, value);
     }
 
-    static async remove(key: Key | WeightName): Promise<void> {
+    static async remove(key: StorageKey): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 
-    private static async buildKey(key: Key | WeightName): Promise<string> {
+    private static async buildKey(key: StorageKey): Promise<string> {
         const user = await this.getIdentity();
 
         if (user) {
@@ -153,4 +142,24 @@ export default class Storage {
             throw new Error("No user identity found");
         }
     }
+};
+
+
+// For building a FeedFilterSettings object from the serialized version. Mutates object.
+function populateFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
+    serializedFilterSettings.filterSections ??= {} as Record<PropertyName, PropertyFilter>;
+    serializedFilterSettings.numericFilters ??= {} as Record<WeightName, NumericFilter>;
+
+    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+        serializedFilterSettings.filterSections[args.title as PropertyName] = new PropertyFilter(args);
+    });
+
+    serializedFilterSettings.numericFilterArgs.forEach((args) => {
+        serializedFilterSettings.numericFilters[args.title as WeightName] = new NumericFilter(args);
+    });
+
+    // Fill in any missing values
+    FILTERABLE_SCORES.forEach(weightName => {
+        serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
+    });
 };

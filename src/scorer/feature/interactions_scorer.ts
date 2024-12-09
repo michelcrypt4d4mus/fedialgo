@@ -5,9 +5,9 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import Toot from '../../api/objects/toot';
-import { AccountFeature, WeightName } from "../../types";
 import { countValues } from "../../helpers";
 import { MastoApi } from "../../api/api";
+import { StringNumberDict, WeightName } from "../../types";
 
 
 export default class InteractionsScorer extends FeatureScorer {
@@ -22,7 +22,7 @@ export default class InteractionsScorer extends FeatureScorer {
         return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
     }
 
-    static async fetchRequiredData(): Promise<AccountFeature> {
+    static async fetchRequiredData(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
         return countValues<mastodon.v1.Notification>(notifications, n => n?.account?.acct);
     };

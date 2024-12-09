@@ -10,19 +10,19 @@ import { mastodon } from "masto";
 
 import Scorer from "./scorer";
 import Toot from '../api/objects/toot';
-import { FeedFeature, WeightName } from "../types";
+import { StringNumberDict, WeightName } from "../types";
 
 
 interface RankParams {
-    featureGetter?: () => Promise<FeedFeature>,
+    featureGetter?: () => Promise<StringNumberDict>,
     scoreName: WeightName,
 };
 
 export default class FeatureScorer extends Scorer {
     // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
     // e.g. things like most commonly retooted users etc.
-    featureGetter: (api: mastodon.rest.Client) => Promise<FeedFeature>;
-    feature: FeedFeature = {};  // TODO: rename this to supportData or something
+    featureGetter: (api: mastodon.rest.Client) => Promise<StringNumberDict>;
+    feature: StringNumberDict = {};  // TODO: rename this to supportData or something
 
     constructor(params: RankParams) {
         super(params.scoreName);

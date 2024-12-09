@@ -7,10 +7,10 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { AccountNames, ServerFeature, StringNumberDict, TrendingTag } from "../types";
 import { countValues } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { MastoApi } from "./api";
+import { StringNumberDict, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
 
 // Popular servers are usually culled from the users' following list but if there aren't
@@ -55,11 +55,11 @@ const POPULAR_SRERVERS_MAU_GUESS = 1000;
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function mastodonServersInfo(followedAccounts: mastodon.v1.Account[]): Promise<ServerFeature> {
+export default async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = countValues<mastodon.v1.Account>(
-        followedAccounts,
-        (follower) => follower.url?.split("@")[0]?.split("https://")[1]
+        follows,
+        (follow) => follow.url?.split("@")[0]?.split("https://")[1]
     );
 
     const numServersToCheck = Storage.getConfig().numServersToCheck;

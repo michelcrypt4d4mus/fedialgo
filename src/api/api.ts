@@ -8,15 +8,16 @@ import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
 import mastodonServersInfo from "./mastodon_servers_info";
-import Storage, { Key } from "../Storage";
+import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues } from '../helpers';
 import {
-    AccountFeature,
     AccountNames,
-    ServerFeature,
+    Key,
+    StorageKey,
     StorageValue,
+    StringNumberDict,
     TimelineData,
     UserData,
     WeightName
@@ -28,20 +29,22 @@ const API_V2 = `${API_URI}/v2`;
 const STATUSES = "statuses"
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 
+type ApiMutex = Record<StorageKey, Mutex>;
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
-    label: Key | WeightName,
+    label: StorageKey,
     maxRecords?: number,
 };
 
 
+// Singleton class for interacting with the Mastodon API
 export class MastoApi {
-    static #instance: MastoApi;
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    mutexes: Record<Key | WeightName, Mutex>;
+    mutexes: ApiMutex;
+    static #instance: MastoApi;
 
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void {
         if (MastoApi.#instance) {
@@ -60,7 +63,7 @@ export class MastoApi {
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
-        this.mutexes = {} as Record<Key | WeightName, Mutex>;
+        this.mutexes = {} as ApiMutex;
 
         // Initialize mutexes for each key in Key and WeightName
         for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
@@ -146,7 +149,7 @@ export class MastoApi {
     };
 
     // Get a count of number of favorites for each account in the user's recent favorites
-    async getMostFavouritedAccounts(): Promise<AccountFeature> {
+    async getMostFavouritedAccounts(): Promise<StringNumberDict> {
         const recentFavoriteToots = await this.fetchRecentFavourites();
         return countValues<mastodon.v1.Status>(recentFavoriteToots, (toot) => toot.account?.acct);
     }
@@ -192,7 +195,7 @@ export class MastoApi {
     }
 
     // Returns information about mastodon servers
-    async getCoreServer(): Promise<ServerFeature> {
+    async getCoreServer(): Promise<StringNumberDict> {
         return await mastodonServersInfo(await this.fetchFollowedAccounts());
     }
 
@@ -212,7 +215,7 @@ export class MastoApi {
     private async mastodonFetchPages<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        console.debug(`[${label}] mastodonFetchPages() w/ maxRecords=${maxRecords}`);
+        console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
@@ -222,21 +225,21 @@ export class MastoApi {
 
             if (cachedData && !(await this.shouldReloadFeatures())) {
                 const rows = cachedData as T[];
-                console.log(`[${label}] Loaded ${rows.length} cached records:`, cachedData);
+                console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
                 return rows as T[];
             };
 
             for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
                 results = results.concat(page as T[]);
-                console.log(`[${label}] Retrieved page ${++pageNumber} of current user's ${label}...`);
+                console.log(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
 
                 if (results.length >= maxRecords) {
-                    console.log(`[${label}] Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
+                    console.log(`[API] ${label}: Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
 
-            console.log(`[${label}] Fetched ${results.length} records:`, results);
+            console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
             await Storage.set(label, results as StorageValue);
         } catch (e) {
             throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)

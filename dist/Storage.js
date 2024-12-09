@@ -3,30 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Key = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 const localforage_1 = __importDefault(require("localforage"));
+const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
+const property_filter_1 = __importDefault(require("./filters/property_filter"));
 const toot_1 = __importDefault(require("./api/objects/toot"));
+const numeric_filter_2 = require("./filters/numeric_filter");
 const config_1 = require("./config");
-var Key;
-(function (Key) {
-    Key["CORE_SERVER"] = "coreServer";
-    Key["FILTERS"] = "filters";
-    Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    Key["LAST_OPENED"] = "lastOpened";
-    Key["OPENINGS"] = "openings";
-    Key["RECENT_FAVOURITES"] = "recentFavourites";
-    Key["RECENT_NOTIFICATIONS"] = "recentNotifications";
-    Key["RECENT_TOOTS"] = "recentToots";
-    Key["RECENT_USER_TOOTS"] = "recentUserToots";
-    Key["SERVER_SIDE_FILTERS"] = "serverFilters";
-    Key["TIMELINE"] = "timeline";
-    Key["USER"] = "algouser";
-    Key["WEIGHTS"] = "weights";
-})(Key || (exports.Key = Key = {}));
-;
+const types_1 = require("./types");
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
     // TODO: consider actually storing the config in browser storage.
@@ -34,16 +20,16 @@ class Storage {
         return this.config;
     }
     static async getWeightings() {
-        const weightings = await this.get(Key.WEIGHTS);
+        const weightings = await this.get(types_1.Key.WEIGHTS);
         return (weightings ?? {});
     }
     static async setWeightings(userWeightings) {
-        await this.set(Key.WEIGHTS, userWeightings);
+        await this.set(types_1.Key.WEIGHTS, userWeightings);
     }
     static async getFilters() {
-        let filters = await this.get(Key.FILTERS); // Returns serialized FeedFilterSettings
+        let filters = await this.get(types_1.Key.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
-            (0, config_1.populateFiltersFromArgs)(filters);
+            populateFiltersFromArgs(filters);
         }
         else {
             filters = (0, config_1.buildNewFilterSettings)();
@@ -58,21 +44,21 @@ class Storage {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
-        await this.set(Key.FILTERS, filterSettings);
+        await this.set(types_1.Key.FILTERS, filterSettings);
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {
-        const followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+        const followedAccounts = await this.get(types_1.Key.FOLLOWED_ACCOUNTS);
         return (followedAccounts ?? []);
     }
     static async logAppOpen() {
-        let numAppOpens = (await this.get(Key.OPENINGS) || 0) + 1;
-        await this.set(Key.OPENINGS, numAppOpens);
-        await this.set(Key.LAST_OPENED, new Date().getTime());
+        let numAppOpens = (await this.get(types_1.Key.OPENINGS) || 0) + 1;
+        await this.set(types_1.Key.OPENINGS, numAppOpens);
+        await this.set(types_1.Key.LAST_OPENED, new Date().getTime());
     }
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(Key.LAST_OPENED);
+        const lastOpenedInt = await this.get(types_1.Key.LAST_OPENED);
         if (!lastOpenedInt || numAppOpens <= 1) {
             console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
             return 0;
@@ -81,25 +67,25 @@ class Storage {
         return lastOpenedInt;
     }
     static async getNumAppOpens() {
-        let numAppOpens = await this.get(Key.OPENINGS) || 0;
+        let numAppOpens = await this.get(types_1.Key.OPENINGS) || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }
     static async getIdentity() {
-        return await localforage_1.default.getItem(Key.USER);
+        return await localforage_1.default.getItem(types_1.Key.USER);
     }
     static async setIdentity(user) {
         console.debug(`Setting identity to:`, user);
-        await localforage_1.default.setItem(Key.USER, user);
+        await localforage_1.default.setItem(types_1.Key.USER, user);
     }
     static async getFeed() {
-        let cachedToots = await this.get(Key.TIMELINE);
+        let cachedToots = await this.get(types_1.Key.TIMELINE);
         let toots = (cachedToots ?? []); // Status doesn't include all our Toot props but it should be OK?
         return toots.map(t => new toot_1.default(t));
     }
     static async setFeed(timeline) {
         const toots = timeline.map(t => ({ ...t })); // Remove functions so it can be serialized
-        await this.set(Key.TIMELINE, toots);
+        await this.set(types_1.Key.TIMELINE, toots);
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
@@ -127,5 +113,21 @@ class Storage {
     }
 }
 exports.default = Storage;
+;
+// For building a FeedFilterSettings object from the serialized version. Mutates object.
+function populateFiltersFromArgs(serializedFilterSettings) {
+    serializedFilterSettings.filterSections ??= {};
+    serializedFilterSettings.numericFilters ??= {};
+    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+        serializedFilterSettings.filterSections[args.title] = new property_filter_1.default(args);
+    });
+    serializedFilterSettings.numericFilterArgs.forEach((args) => {
+        serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
+    });
+    // Fill in any missing values
+    numeric_filter_2.FILTERABLE_SCORES.forEach(weightName => {
+        serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
+    });
+}
 ;
 //# sourceMappingURL=Storage.js.map

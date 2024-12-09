@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -35,7 +12,7 @@ const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
 const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
-const Storage_1 = __importStar(require("../Storage"));
+const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
@@ -46,11 +23,12 @@ const API_V2 = `${API_URI}/v2`;
 const STATUSES = "statuses";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 ;
+// Singleton class for interacting with the Mastodon API
 class MastoApi {
-    static #instance;
     api;
     user;
     mutexes;
+    static #instance;
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
@@ -70,8 +48,8 @@ class MastoApi {
         this.user = user;
         this.mutexes = {};
         // Initialize mutexes for each key in Key and WeightName
-        for (const key in Storage_1.Key)
-            this.mutexes[Storage_1.Key[key]] = new async_mutex_1.Mutex();
+        for (const key in types_1.Key)
+            this.mutexes[types_1.Key[key]] = new async_mutex_1.Mutex();
         for (const key in types_1.WeightName)
             this.mutexes[types_1.WeightName[key]] = new async_mutex_1.Mutex();
     }
@@ -132,7 +110,7 @@ class MastoApi {
     async getUserRecentToots() {
         const recentToots = await this.mastodonFetchPages({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: Storage_1.Key.RECENT_USER_TOOTS
+            label: types_1.Key.RECENT_USER_TOOTS
         });
         return recentToots.map(t => new toot_1.default(t));
     }
@@ -144,7 +122,7 @@ class MastoApi {
     async fetchFollowedAccounts() {
         return await this.mastodonFetchPages({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            label: Storage_1.Key.FOLLOWED_ACCOUNTS,
+            label: types_1.Key.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
         });
     }
@@ -163,7 +141,7 @@ class MastoApi {
     async getRecentNotifications() {
         return await this.mastodonFetchPages({
             fetch: this.api.v1.notifications.list,
-            label: Storage_1.Key.RECENT_NOTIFICATIONS
+            label: types_1.Key.RECENT_NOTIFICATIONS
         });
     }
     // Get an array of Toots the user has recently favourited
@@ -209,7 +187,7 @@ class MastoApi {
     async mastodonFetchPages(fetchParams) {
         let { fetch, maxRecords, label } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        console.debug(`[${label}] mastodonFetchPages() w/ maxRecords=${maxRecords}`);
+        console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
@@ -217,19 +195,19 @@ class MastoApi {
             const cachedData = await Storage_1.default.get(label);
             if (cachedData && !(await this.shouldReloadFeatures())) {
                 const rows = cachedData;
-                console.log(`[${label}] Loaded ${rows.length} cached records:`, cachedData);
+                console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
                 return rows;
             }
             ;
             for await (const page of fetch({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
                 results = results.concat(page);
-                console.log(`[${label}] Retrieved page ${++pageNumber} of current user's ${label}...`);
+                console.log(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
                 if (results.length >= maxRecords) {
-                    console.log(`[${label}] Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
+                    console.log(`[API] ${label}: Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
-            console.log(`[${label}] Fetched ${results.length} records:`, results);
+            console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
             await Storage_1.default.set(label, results);
         }
         catch (e) {

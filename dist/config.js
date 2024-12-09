@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.populateFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
+exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -111,7 +111,7 @@ exports.DEFAULT_CONFIG = {
     // Timeline toots
     enableIncrementalLoad: true,
     maxTimelineTootsToFetch: 2500,
-    // maxTimelineTootsToFetch: 800,      // useful dev options for faster load
+    // maxTimelineTootsToFetch: 800,       // useful dev options for faster load
     incrementalLoadDelayMS: 1000,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
@@ -148,22 +148,5 @@ function buildNewFilterSettings() {
     return filters;
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
-;
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
-function populateFiltersFromArgs(serializedFilterSettings) {
-    serializedFilterSettings.filterSections ??= {};
-    serializedFilterSettings.numericFilters ??= {};
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
-        serializedFilterSettings.filterSections[args.title] = new property_filter_1.default(args);
-    });
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
-    });
-    // Fill in any missing values
-    numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
-    });
-}
-exports.populateFiltersFromArgs = populateFiltersFromArgs;
 ;
 //# sourceMappingURL=config.js.map
