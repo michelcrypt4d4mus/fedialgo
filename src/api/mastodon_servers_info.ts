@@ -159,7 +159,7 @@ async function mastodonPublicFetch<T>(
             throw json;
         }
     } catch (e) {
-        console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
+        console.warn(`Error fetching data from '${url}'`, e);
         return;
     }
 };
