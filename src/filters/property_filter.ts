@@ -7,6 +7,7 @@ import Storage, { Key } from "../Storage";
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs } from "../types";
+import { transformKeys } from "../helpers";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
@@ -124,6 +125,7 @@ export default class PropertyFilter extends TootFilter {
     }
 
     setOptions(optionInfo: FilterOptionInfo) {
+        optionInfo = transformKeys(optionInfo, (key) => key.toLowerCase());
         this.optionInfo = optionInfo;
 
         // Server side filters get all the options immediately set to filter out toots

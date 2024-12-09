@@ -93,12 +93,12 @@ class Toot {
         this.repairToot();
     }
     containsString(str) {
+        str = str.toLowerCase();
         if (str.startsWith("#")) {
-            const tagStr = str.slice(1);
-            return this.tags.some(tag => tag.name.toLowerCase() == tagStr.toLowerCase());
+            return this.tags.some((tag) => str.slice(1) == tag.name.toLowerCase());
         }
         else {
-            return this.content.toLowerCase().includes(str.toLowerCase());
+            return this.content.toLowerCase().includes(str);
         }
     }
     describe() {

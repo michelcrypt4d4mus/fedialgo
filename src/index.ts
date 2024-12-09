@@ -201,8 +201,7 @@ class TheAlgorithm {
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 
-    // Compute language and application counts. Repair broken toots and populate extra data:
-    //   - Set isFollowed flag
+    // Compute language, app, etc. counts.
     extractSummaryInfo(): void {
         const tootCounts = Object.values(PropertyName).reduce((counts, propertyName) => {
             // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
@@ -212,6 +211,7 @@ class TheAlgorithm {
         }, {} as Record<PropertyName, StringNumberDict>);
 
         this.feed.forEach(toot => {
+            // Set isFollowed flag
             toot.isFollowed = toot.account.acct in this.followedAccounts;
             incrementCount(tootCounts[PropertyName.APP], toot.application.name);
             incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
@@ -248,6 +248,7 @@ class TheAlgorithm {
             this.filters.filterSections[propertyName as PropertyName].setOptions(counts);
         });
 
+        Storage.setFilters(this.filters);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
