@@ -10,11 +10,11 @@ import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
     StorageValue,
+    TootExtension,
     WeightName,
     Weights
 } from "./types";
-import { DEFAULT_CONFIG, DEFAULT_FILTERS } from "./config";
-import { buildNewFilterSettings, populateFiltersFromArgs } from "./config";
+import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings, populateFiltersFromArgs } from "./config";
 
 export enum Key {
     CORE_SERVER = 'coreServer',
@@ -113,12 +113,12 @@ export default class Storage {
 
     static async getFeed(): Promise<Toot[]> {
         let cachedToots = await this.get(Key.TIMELINE);
-        let toots = (cachedToots ?? []) as mastodon.v1.Status[];  // Status doesn't include all our Toot props but it should be OK?
+        let toots = (cachedToots ?? []) as TootExtension[];  // Status doesn't include all our Toot props but it should be OK?
         return toots.map(t => new Toot(t));
     }
 
     static async setFeed(timeline: Toot[]) {
-        const toots = timeline.map(t => ({...t})) as mastodon.v1.Status[];  // Remove functions so it can be serialized
+        const toots = timeline.map(t => ({...t})) as TootExtension[];  // Remove functions so it can be serialized
         await this.set(Key.TIMELINE, toots);
     }
 

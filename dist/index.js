@@ -117,6 +117,7 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
+        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
         algo.repairFeedAndExtractSummaryInfo();
         algo.setFeedInApp(algo.feed);

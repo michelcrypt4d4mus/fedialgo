@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { TootObj, TootScore, TrendingTag } from "../../types";
+import { TootExtension, TootObj, TootScore, TrendingTag } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -37,7 +37,7 @@ export default class Toot implements TootObj {
     url?: string | null;
     inReplyToId?: string | null;
     inReplyToAccountId?: string | null;
-    reblog?: Toot;
+    reblog?: Toot | null;
     poll?: mastodon.v1.Poll | null;
     card?: mastodon.v1.PreviewCard | null;
     language?: string | null;
@@ -56,7 +56,7 @@ export default class Toot implements TootObj {
     trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[]; // Tags that are trending in this toot
 
-    constructor(toot: mastodon.v1.Status) {
+    constructor(toot: TootExtension) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
         this.id = toot.id;
         this.uri = toot.uri;
@@ -91,6 +91,12 @@ export default class Toot implements TootObj {
 
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
+        this.followedTags = toot.followedTags as mastodon.v1.Tag[];
+        this.isFollowed = toot.isFollowed;
+        this.reblogBy = toot.reblogBy as mastodon.v1.Account;
+        this.scoreInfo = toot.scoreInfo as TootScore;
+        this.trendingRank = toot.trendingRank;
+        this.trendingTags = toot.trendingTags as TrendingTag[];
         this.repairToot();
     }
 

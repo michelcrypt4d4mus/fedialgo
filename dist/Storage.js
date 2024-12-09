@@ -10,7 +10,6 @@ exports.Key = void 0;
 const localforage_1 = __importDefault(require("localforage"));
 const toot_1 = __importDefault(require("./api/objects/toot"));
 const config_1 = require("./config");
-const config_2 = require("./config");
 var Key;
 (function (Key) {
     Key["CORE_SERVER"] = "coreServer";
@@ -41,10 +40,10 @@ class Storage {
     static async getFilters() {
         let filters = await this.get(Key.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
-            (0, config_2.populateFiltersFromArgs)(filters);
+            (0, config_1.populateFiltersFromArgs)(filters);
         }
         else {
-            filters = (0, config_2.buildNewFilterSettings)();
+            filters = (0, config_1.buildNewFilterSettings)();
             await this.setFilters(config_1.DEFAULT_FILTERS); // DEFAULT_FILTERS not the filters we just built
         }
         console.log(`[Storage] getFilters() returning:`, filters);

@@ -84,6 +84,12 @@ class Toot {
         this.pinned = toot.pinned;
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
+        this.followedTags = toot.followedTags;
+        this.isFollowed = toot.isFollowed;
+        this.reblogBy = toot.reblogBy;
+        this.scoreInfo = toot.scoreInfo;
+        this.trendingRank = toot.trendingRank;
+        this.trendingTags = toot.trendingTags;
         this.repairToot();
     }
     containsString(str) {

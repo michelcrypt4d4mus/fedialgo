@@ -114,7 +114,7 @@ export type UserData = {
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblog?: TootExtension,                     // The toot that was retooted (if any)
+    reblog?: TootExtension | null,                     // The toot that was retooted (if any)
     reblogBy?: mastodon.v1.Account;    // The account that retooted this toot (if any)
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
@@ -145,7 +145,7 @@ export interface TrendingTag extends mastodon.v1.Tag {
 };
 
 export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature |
-    TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Status[] |
+    TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] |
     number;
 
 

@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { TootObj, TootScore, TrendingTag } from "../../types";
+import { TootExtension, TootObj, TootScore, TrendingTag } from "../../types";
 export default class Toot implements TootObj {
     id: string;
     uri: string;
@@ -38,7 +38,7 @@ export default class Toot implements TootObj {
     scoreInfo?: TootScore;
     trendingRank?: number;
     trendingTags?: TrendingTag[];
-    constructor(toot: mastodon.v1.Status);
+    constructor(toot: TootExtension);
     containsString(str: string): boolean;
     describe(): string;
     describeAccount(): string;

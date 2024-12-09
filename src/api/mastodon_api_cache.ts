@@ -13,7 +13,7 @@ import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_s
 import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
 import Storage, { Key } from "../Storage";
 import Toot from './objects/toot';
-import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, TootURIs } from "../types";
+import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, TootExtension, TootURIs } from "../types";
 import { buildAccountNames } from "./objects/account";
 import { getUserRecentToots, mastodonFetchPages } from "./api";
 import { WeightName } from "../types";
@@ -170,7 +170,7 @@ export default class MastodonApiCache extends Storage {
 
         // TODO: this is a pretty horrific hack to force serialized Toots to get their functions back
         if (storageKey == Key.RECENT_TOOTS && storedData) {
-            data = storedData as mastodon.v1.Status[];
+            data = storedData as TootExtension[];
         } else {
             data = storedData as T;
         }
@@ -191,7 +191,7 @@ export default class MastodonApiCache extends Storage {
         }
 
         console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
-        if (storageKey == Key.RECENT_TOOTS && storedData) data = (data as mastodon.v1.Status[]).map(t => new Toot(t)) as T
+        if (storageKey == Key.RECENT_TOOTS && storedData) data = (data as TootExtension[]).map(t => new Toot(t)) as T
         return data as T;
     }
 
