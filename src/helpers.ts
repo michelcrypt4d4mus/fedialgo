@@ -1,3 +1,6 @@
+/*
+ * Various small helper methods.
+ */
 import { CountKey, StringNumberDict } from "./types";
 
 export const IMAGE = "image";
