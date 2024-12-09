@@ -11,6 +11,7 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 const UNKNOWN_APP = "unknown";
+;
 class Toot {
     id;
     uri;

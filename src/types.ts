@@ -121,15 +121,6 @@ export interface TootExtension extends mastodon.v1.Status {
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
 };
 
-export interface TootObj extends TootExtension {
-    containsString: (str: string) => boolean;
-    describe: () => string;
-    popularity: () => number;
-    tootedAt: () => Date;
-    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
-    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
-};
-
 export type TootScore = {
     rawScore: number;             // Score before applying timeDecayMultiplier
     rawScores: Weights;

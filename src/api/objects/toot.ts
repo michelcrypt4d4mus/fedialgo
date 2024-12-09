@@ -6,13 +6,23 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { TootExtension, TootObj, TootScore, TrendingTag } from "../../types";
+import { TootExtension, TootScore, TrendingTag } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const BROKEN_TAG = "<<BROKEN_TAG>>"
 const UNKNOWN_APP = "unknown";
+
+
+interface TootObj extends TootExtension {
+    containsString: (str: string) => boolean;
+    describe: () => string;
+    popularity: () => number;
+    tootedAt: () => Date;
+    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
+    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
+};
 
 
 export default class Toot implements TootObj {

@@ -1,5 +1,13 @@
 import { mastodon } from "masto";
-import { TootExtension, TootObj, TootScore, TrendingTag } from "../../types";
+import { TootExtension, TootScore, TrendingTag } from "../../types";
+interface TootObj extends TootExtension {
+    containsString: (str: string) => boolean;
+    describe: () => string;
+    popularity: () => number;
+    tootedAt: () => Date;
+    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
+    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
+}
 export default class Toot implements TootObj {
     id: string;
     uri: string;
@@ -59,3 +67,4 @@ export declare const mostRecentToot: (toots: mastodon.v1.Status[]) => mastodon.v
 export declare const mostRecentTootAt: (toots: mastodon.v1.Status[]) => Date | null;
 export declare const earliestToot: (toots: mastodon.v1.Status[]) => mastodon.v1.Status | null;
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;
+export {};
