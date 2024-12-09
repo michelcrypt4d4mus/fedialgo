@@ -1,8 +1,8 @@
 /*
  * Put a minimum number on things like reblogs and replies.
  */
-import TootFilter from "./toot_filter";
 import Toot from '../api/objects/toot';
+import TootFilter from "./toot_filter";
 import { FilterArgs, WeightName } from "../types";
 
 
