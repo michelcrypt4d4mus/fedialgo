@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.createRandomString = exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
@@ -35,38 +35,35 @@ function groupBy(array, makeKey) {
 exports.groupBy = groupBy;
 ;
 // Apply a transform() function to all keys in a nested object.
-const transformKeys = (data, transform) => {
+function transformKeys(data, transform) {
     if (Array.isArray(data)) {
-        return data.map((value) => (0, exports.transformKeys)(value, transform));
+        return data.map((value) => transformKeys(value, transform));
     }
-    if ((0, exports.isRecord)(data)) {
+    if (isRecord(data)) {
         return Object.fromEntries(Object.entries(data).map(([key, value]) => [
             transform(key),
-            (0, exports.transformKeys)(value, transform),
+            transformKeys(value, transform),
         ]));
     }
     return data;
-};
+}
 exports.transformKeys = transformKeys;
-// Masto does not support top posts from foreign servers, so we have to do it manually
-const isRecord = (x) => {
-    return typeof x === "object" && x !== null && x.constructor.name === "Object";
-};
-exports.isRecord = isRecord;
+;
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-const incrementCount = (counts, key) => {
+function incrementCount(counts, key) {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + 1;
     return counts;
-};
+}
 exports.incrementCount = incrementCount;
+;
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 function countValues(items, getKey, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
         if (key == null && !countNulls)
             return counts;
-        return (0, exports.incrementCount)(counts, key);
+        return incrementCount(counts, key);
     }, {});
 }
 exports.countValues = countValues;
@@ -97,5 +94,10 @@ function createRandomString(length) {
     return result;
 }
 exports.createRandomString = createRandomString;
+;
+// Masto does not support top posts from foreign servers, so we have to do it manually
+function isRecord(x) {
+    return typeof x === "object" && x !== null && x.constructor.name === "Object";
+}
 ;
 //# sourceMappingURL=helpers.js.map

@@ -37,7 +37,7 @@ export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<str
 
 
 // Apply a transform() function to all keys in a nested object.
-export const transformKeys = <T>(data: T, transform: (key: string) => string): T => {
+export function transformKeys<T>(data: T, transform: (key: string) => string): T {
     if (Array.isArray(data)) {
         return data.map((value) => transformKeys<T>(value, transform)) as T;
     }
@@ -55,14 +55,8 @@ export const transformKeys = <T>(data: T, transform: (key: string) => string): T
 };
 
 
-// Masto does not support top posts from foreign servers, so we have to do it manually
-export const isRecord = (x: unknown): x is Record<string, unknown> => {
-    return typeof x === "object" && x !== null && x.constructor.name === "Object";
-};
-
-
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-export const incrementCount = (counts: StringNumberDict, key?: CountKey | null): StringNumberDict => {
+export function incrementCount(counts: StringNumberDict, key?: CountKey | null): StringNumberDict {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + 1;
     return counts;
@@ -115,4 +109,10 @@ export function createRandomString(length: number): string {
     }
 
     return result;
+};
+
+
+// Masto does not support top posts from foreign servers, so we have to do it manually
+function isRecord(x: unknown): x is Record<string, unknown> {
+    return typeof x === "object" && x !== null && x.constructor.name === "Object";
 };
