@@ -47,6 +47,7 @@ export default class Toot implements TootObj {
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
     attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment>;
+    isValidForFeed(user: mastodon.v1.Account): boolean;
     repairToot(): void;
     condensedStatus(): {};
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];

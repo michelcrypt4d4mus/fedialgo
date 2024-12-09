@@ -47,13 +47,12 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filteredFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
-    repairFeedAndExtractSummaryInfo(): void;
+    extractSummaryInfo(): void;
     list(): Paginator;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
     private isInTimeline;
-    private isValidForFeed;
     private logTootCounts;
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;

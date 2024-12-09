@@ -119,7 +119,7 @@ class TheAlgorithm {
         algo.feed = await Storage_1.default.getFeed();
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
-        algo.repairFeedAndExtractSummaryInfo();
+        algo.extractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -158,12 +158,12 @@ class TheAlgorithm {
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanNewToots = newToots.filter((toot) => this.isValidForFeed.bind(this)(toot));
+        let cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this.user));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         const cleanFeed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-        this.repairFeedAndExtractSummaryInfo();
+        this.extractSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots);
         return this.scoreFeed.bind(this)();
     }
@@ -202,7 +202,7 @@ class TheAlgorithm {
     }
     // Compute language and application counts. Repair broken toots and populate extra data:
     //   - Set isFollowed flag
-    repairFeedAndExtractSummaryInfo() {
+    extractSummaryInfo() {
         const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
             // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
             this.filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
@@ -336,34 +336,6 @@ class TheAlgorithm {
         let isOK = Object.values(this.filters.filterSections).every((section) => section.isAllowed(toot));
         return isOK && Object.values(this.filters.numericFilters).every((filter) => filter.isAllowed(toot));
     }
-    // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(toot) {
-        if (toot == undefined)
-            return false;
-        if (toot?.reblog?.muted || toot?.muted)
-            return false; // Remove muted accounts and toots
-        // Remove things the user has already retooted
-        if (toot?.reblog?.reblogged) {
-            return false;
-        }
-        // Remove the user's own toots
-        if (toot.account.username == this.user.username && toot.account.id == this.user.id) {
-            return false;
-        }
-        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < new Date(toot.createdAt).getTime()) {
-            console.warn(`Removed toot with future timestamp: `, toot);
-            return false;
-        }
-        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-        if (toot.filtered?.length) {
-            const filterMatch = toot.filtered[0];
-            console.debug(`Removed toot matching server filter (${filterMatch.keywordMatches?.join(' ')}): `, toot);
-            return false;
-        }
-        return true;
-    }
-    ;
     // Utility method to log progress of getFeed() calls
     logTootCounts(newToots, newHomeToots) {
         let msg = `Got ${Object.keys(this.followedAccounts).length} followed accounts, ${newToots.length} new toots`;

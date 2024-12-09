@@ -139,6 +139,35 @@ export default class Toot implements TootObj {
         return mediaAttachments.filter(attachment => attachment.type === attachmentType);
     }
 
+    // Return false if Toot should be discarded from feed altogether and permanently
+    isValidForFeed(user: mastodon.v1.Account): boolean {
+        if (this?.reblog?.muted || this?.muted) return false;  // Remove muted accounts and toots
+
+        // Remove things the user has already retooted
+        if (this?.reblog?.reblogged) {
+            return false;
+        }
+        // Remove the user's own toots
+        if (this.account.username == user.username && this.account.id == user.id) {
+            return false;
+        }
+
+        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+        if (Date.now() < new Date(this.createdAt).getTime()) {
+            console.warn(`Removed toot with future timestamp: `, this);
+            return false;
+        }
+
+        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
+        if (this.filtered?.length) {
+            const filterMatch = this.filtered[0];
+            console.debug(`Toot matched server filter (${filterMatch.keywordMatches?.join(' ')}): `, this);
+            return false;
+        }
+
+        return true;
+    }
+
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN_APP if missing
     //   - Set toot.language to defaultLanguage if missing
@@ -153,7 +182,7 @@ export default class Toot implements TootObj {
 
         // Inject the @server info to the account string if it's missing
         if (this.account.acct && !this.account.acct.includes("@")) {
-            console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
+            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
             this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
         }
 
