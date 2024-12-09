@@ -56,21 +56,20 @@ const POPULAR_SERVERS = [
 async function mastodonServersInfo(follows) {
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = (0, helpers_1.countValues)(follows, follow => (0, account_1.extractServer)(follow));
-    const numServersToCheck = Storage_1.default.getConfig().numServersToCheck;
-    const minServerMAU = Storage_1.default.getConfig().minServerMAU;
+    const config = Storage_1.default.getConfig();
     console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
     // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
     const mostFollowedServers = Object.keys(userServerCounts)
         .sort((a, b) => userServerCounts[b] - userServerCounts[a])
-        .slice(0, numServersToCheck);
+        .slice(0, config.numServersToCheck);
     let serverMAUs = await (0, helpers_1.zipPromises)(mostFollowedServers, getMonthlyUsers);
-    const validServers = (0, helpers_1.atLeastValues)(serverMAUs, minServerMAU);
+    const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
     const numValidServers = Object.keys(validServers).length;
-    const numDefaultServers = numServersToCheck - numValidServers;
+    const numDefaultServers = config.numServersToCheck - numValidServers;
     console.debug(`Most followed servers:`, mostFollowedServers, `\nserverMAUs:`, serverMAUs, `\nvalidServers:`, validServers);
     if (numDefaultServers > 0) {
-        console.warn(`Only found ${numValidServers} servers with MAUs above the ${minServerMAU} threshold!`);
+        console.warn(`Only found ${numValidServers} servers with MAUs above the ${config.minServerMAU} threshold!`);
         const defaultServers = POPULAR_SERVERS.filter(s => !validServers[s]).slice(0, numDefaultServers);
         const defaultServerMAUs = await (0, helpers_1.zipPromises)(defaultServers, getMonthlyUsers);
         console.log(`Got popular server MAUs:`, defaultServerMAUs);

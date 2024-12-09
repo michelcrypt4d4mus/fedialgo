@@ -1,5 +1,5 @@
-import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 import Toot from './objects/toot';
 import { StorageKey, TimelineData, UserData } from "../types";
 type ApiMutex = Record<StorageKey, Mutex>;

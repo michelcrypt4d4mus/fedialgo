@@ -4,9 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = void 0;
-/*
- * Helper methods for using mastodon API.
- */
 const async_mutex_1 = require("async-mutex");
 const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
