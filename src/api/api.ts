@@ -1,18 +1,18 @@
 /*
  * Helper methods for using mastodon API.
  */
-import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 
 import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
-import mastodonServersInfo from "./mastodon_servers_info";
 import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
+import { mastodonServersInfo } from "./mastodon_servers_info";
 
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
@@ -70,8 +70,8 @@ export class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                getTrendingToots(this.api),
-                getRecentTootsForTrendingTags(this.api),
+                getTrendingToots(),
+                getRecentTootsForTrendingTags(),
             ]);
         }
 

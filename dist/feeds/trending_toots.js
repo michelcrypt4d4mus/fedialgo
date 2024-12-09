@@ -7,7 +7,7 @@ const toot_1 = __importDefault(require("../api/objects/toot"));
 const helpers_1 = require("../helpers");
 const api_1 = require("../api/api");
 const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
-async function getTrendingToots(api) {
+async function getTrendingToots() {
     console.log(`[TrendingToots] getTrendingToots() called`);
     const topServerDomains = await api_1.MastoApi.instance.getTopServerDomains();
     // Pull top trending toots from each server

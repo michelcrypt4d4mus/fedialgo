@@ -7,14 +7,12 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { atLeastValues, countValues, zipArrays, zipPromises } from "../helpers";
+import { atLeastValues, countValues, zipPromises } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { extractServer } from "./objects/account";
 import { MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
-
-const POPULAR_SERVERS_MAU_GUESS = 1000;
 
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
@@ -55,7 +53,7 @@ const POPULAR_SERVERS = [
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export default async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
+export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
     // Tally what Mastodon servers the accounts that the user follows live on
     const userServerCounts = countValues<mastodon.v1.Account>(follows, follow => extractServer(follow));
     const numServersToCheck = Storage.getConfig().numServersToCheck;
@@ -90,24 +88,6 @@ export default async function mastodonServersInfo(follows: mastodon.v1.Account[]
     console.log(`Final serverMAUs: `, serverMAUs);
     console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
-};
-
-
-// Get publicly available MAU information. Requires no login (??)
-export async function getMonthlyUsers(server: string): Promise<number> {
-    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
-        console.debug(`monthlyUsers() for '${server}' is not available`);
-        return 0;
-    }
-
-    try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    } catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
-        return 0;
-    }
 };
 
 
@@ -153,5 +133,23 @@ export const mastodonFetch = async <T>(
     } catch (e) {
         console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
         return;
+    }
+};
+
+
+// Get publicly available MAU information. Requires no login (??)
+async function getMonthlyUsers(server: string): Promise<number> {
+    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available`);
+        return 0;
+    }
+
+    try {
+        const instance = await mastodonFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    } catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
+        return 0;
     }
 };

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mastodonFetch = exports.fetchTrendingTags = exports.getMonthlyUsers = void 0;
+exports.mastodonFetch = exports.fetchTrendingTags = exports.mastodonServersInfo = void 0;
 /*
  * Methods for making calls to the publilcly available Mastodon API methods
  * that don't require authentication.
@@ -16,7 +16,6 @@ const tag_1 = require("./objects/tag");
 const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const helpers_2 = require("../helpers");
-const POPULAR_SERVERS_MAU_GUESS = 1000;
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
@@ -85,25 +84,7 @@ async function mastodonServersInfo(follows) {
     console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
 }
-exports.default = mastodonServersInfo;
-;
-// Get publicly available MAU information. Requires no login (??)
-async function getMonthlyUsers(server) {
-    if (Storage_1.default.getConfig().noMauServers.some(s => server.startsWith(s))) {
-        console.debug(`monthlyUsers() for '${server}' is not available`);
-        return 0;
-    }
-    try {
-        const instance = await (0, exports.mastodonFetch)(server, api_1.MastoApi.v2Url("instance"));
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    }
-    catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
-        return 0;
-    }
-}
-exports.getMonthlyUsers = getMonthlyUsers;
+exports.mastodonServersInfo = mastodonServersInfo;
 ;
 // Get the tags that are trending on 'server'
 async function fetchTrendingTags(server, numTags) {
@@ -147,4 +128,21 @@ const mastodonFetch = async (server, endpoint, limit) => {
     }
 };
 exports.mastodonFetch = mastodonFetch;
+// Get publicly available MAU information. Requires no login (??)
+async function getMonthlyUsers(server) {
+    if (Storage_1.default.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available`);
+        return 0;
+    }
+    try {
+        const instance = await (0, exports.mastodonFetch)(server, api_1.MastoApi.v2Url("instance"));
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    }
+    catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
+        return 0;
+    }
+}
+;
 //# sourceMappingURL=mastodon_servers_info.js.map

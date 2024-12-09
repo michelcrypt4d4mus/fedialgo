@@ -10,7 +10,7 @@ import { MastoApi } from "../api/api";
 import { mastodonFetch } from "../api/mastodon_servers_info";
 
 
-export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
+export default async function getTrendingToots(): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
     const topServerDomains = await MastoApi.instance.getTopServerDomains();
 

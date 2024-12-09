@@ -3,22 +3,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Pull top trending tags on mastodon server (servers?). Example trending tag:
+ *
+ *   {
+ *     "name": "southkorea",
+ *     "url": "https://journa.host/tags/southkorea",
+ *     "history": [
+ *       {
+ *         "day": "1733184000",
+ *         "accounts": "125",
+ *         "uses": "374"
+ *       },
+ *       {
+ *         "day": "1733097600",
+ *         "accounts": "4",
+ *         "uses": "146"
+ *       },
+ *       <...snip, usually 7 days of info...>
+ *     ]
+ *   }
+ */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("../api/objects/toot"));
 const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
 const api_1 = require("../api/api");
 const LOG_PREFIX = "[TrendingTags]";
-async function getRecentTootsForTrendingTags(api) {
-    const tags = await getTrendingTags(api);
+async function getRecentTootsForTrendingTags() {
+    const tags = await getTrendingTags();
     const tootses = await Promise.all(tags.map(getTootsForTag));
-    const toots = toot_1.default.dedupeToots(tootses.flat(), "trendingTags");
+    const toots = toot_1.default.dedupeToots(tootses.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
+    console.log(`getRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
 exports.default = getRecentTootsForTrendingTags;
 ;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
-async function getTrendingTags(api) {
+async function getTrendingTags() {
     console.log(`${LOG_PREFIX} getTrendingTags() called`);
     const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
     const trendingTags = await Promise.all(topDomains.map(mastodon_servers_info_1.fetchTrendingTags));

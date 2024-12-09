@@ -19,8 +19,6 @@
  *     ]
  *   }
  */
-import { mastodon } from "masto";
-
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { fetchTrendingTags } from "../api/mastodon_servers_info";
@@ -30,17 +28,18 @@ import { TrendingTag } from "../types";
 const LOG_PREFIX = "[TrendingTags]";
 
 
-export default async function getRecentTootsForTrendingTags(api: mastodon.rest.Client): Promise<Toot[]> {
-    const tags = await getTrendingTags(api);
+export default async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
+    const tags = await getTrendingTags();
     const tootses: Toot[][] = await Promise.all(tags.map(getTootsForTag));
-    const toots: Toot[] = Toot.dedupeToots(tootses.flat(), "trendingTags");
+    const toots: Toot[] = Toot.dedupeToots(tootses.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity())
+    console.log(`getRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 
 
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
-async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
+async function getTrendingTags(): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
     const topDomains = await MastoApi.instance.getTopServerDomains();
     const trendingTags = await Promise.all(topDomains.map(fetchTrendingTags));

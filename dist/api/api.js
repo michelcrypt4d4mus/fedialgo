@@ -11,12 +11,12 @@ const async_mutex_1 = require("async-mutex");
 const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
-const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const types_1 = require("../types");
+const mastodon_servers_info_1 = require("./mastodon_servers_info");
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
@@ -28,7 +28,6 @@ class MastoApi {
     api;
     user;
     mutexes;
-    serverMauMutex;
     static #instance;
     static init(api, user) {
         if (MastoApi.#instance) {
@@ -48,7 +47,6 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.mutexes = {};
-        this.serverMauMutex = new async_mutex_1.Mutex();
         // Initialize mutexes for each key in Key and WeightName
         for (const key in types_1.Key)
             this.mutexes[types_1.Key[key]] = new async_mutex_1.Mutex();
@@ -64,8 +62,8 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                (0, trending_toots_1.default)(this.api),
-                (0, trending_tags_1.default)(this.api),
+                (0, trending_toots_1.default)(),
+                (0, trending_tags_1.default)(),
             ]);
         }
         const allResponses = await Promise.all(promises);
@@ -166,12 +164,12 @@ class MastoApi {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains() {
-        const releaseMutex = await this.serverMauMutex.acquire();
+        const releaseMutex = await this.mutexes[types_1.Key.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
+                servers = await (0, mastodon_servers_info_1.mastodonServersInfo)(await this.fetchFollowedAccounts());
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {

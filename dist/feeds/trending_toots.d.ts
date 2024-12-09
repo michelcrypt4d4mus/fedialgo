@@ -1,3 +1,2 @@
-import { mastodon } from "masto";
 import Toot from "../api/objects/toot";
-export default function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]>;
+export default function getTrendingToots(): Promise<Toot[]>;
