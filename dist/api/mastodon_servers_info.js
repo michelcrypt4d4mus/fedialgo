@@ -50,19 +50,19 @@ exports.mastodonServersInfo = mastodonServersInfo;
 async function fetchTrendingTags(server, numTags) {
     numTags ||= Storage_1.default.getConfig().numTrendingTootsPerServer;
     const tagsUrl = api_1.MastoApi.trendUrl("tags");
-    let _tags;
+    let tags;
     try {
-        _tags = await mastodonPublicFetch(server, tagsUrl, numTags);
-        if (!_tags || _tags.length == 0)
+        tags = await mastodonPublicFetch(server, tagsUrl, numTags);
+        if (!tags || tags.length == 0)
             throw new Error(`No tags found on '${server}'!`);
     }
     catch (e) {
         console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
         return [];
     }
-    const tags = _tags.map(tag_1.decorateTrendingTag);
-    console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
-    return tags;
+    const trendingTags = tags.map(tag_1.decorateTrendingTag);
+    console.debug(`[TrendingTags] trendingTags for server '${server}':`, trendingTags);
+    return trendingTags;
 }
 exports.fetchTrendingTags = fetchTrendingTags;
 ;

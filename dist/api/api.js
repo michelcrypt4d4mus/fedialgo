@@ -173,7 +173,7 @@ class MastoApi {
                 console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers;
             }
-            const topServerDomains = Object.keys(servers).sort((a, b) => (servers[b] - servers[a]));
+            const topServerDomains = (0, helpers_1.sortKeysByValue)(servers);
             console.log(`[API] Found top server domains:`, topServerDomains);
             return topServerDomains;
         }

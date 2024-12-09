@@ -53,19 +53,19 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
 export async function fetchTrendingTags(server: string, numTags?: number): Promise<TrendingTag[]> {
     numTags ||= Storage.getConfig().numTrendingTootsPerServer;
     const tagsUrl = MastoApi.trendUrl("tags")
-    let _tags: mastodon.v1.Tag[] | undefined;
+    let tags: mastodon.v1.Tag[] | undefined;
 
     try {
-        _tags = await mastodonPublicFetch<mastodon.v1.Tag[]>(server, tagsUrl, numTags);
-        if (!_tags || _tags.length == 0) throw new Error(`No tags found on '${server}'!`);
+        tags = await mastodonPublicFetch<mastodon.v1.Tag[]>(server, tagsUrl, numTags);
+        if (!tags || tags.length == 0) throw new Error(`No tags found on '${server}'!`);
     } catch (e) {
         console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
         return [];
     }
 
-    const tags = _tags.map(decorateTrendingTag);
-    console.debug(`[TrendingTags] trendingTags for server '${server}':`, tags);
-    return tags;
+    const trendingTags = tags.map(decorateTrendingTag);
+    console.debug(`[TrendingTags] trendingTags for server '${server}':`, trendingTags);
+    return trendingTags;
 };
 
 
