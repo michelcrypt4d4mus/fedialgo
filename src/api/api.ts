@@ -35,7 +35,6 @@ export class MastoApi {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     mutexes: ApiMutex;
-    serverMauMutex: Mutex;
     static #instance: MastoApi;
 
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void {
@@ -56,7 +55,6 @@ export class MastoApi {
         this.api = api;
         this.user = user;
         this.mutexes = {} as ApiMutex;
-        this.serverMauMutex = new Mutex();
 
         // Initialize mutexes for each key in Key and WeightName
         for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
@@ -180,8 +178,8 @@ export class MastoApi {
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    async getTopServerDomains(api: mastodon.rest.Client): Promise<string[]> {
-        const releaseMutex = await this.serverMauMutex.acquire();
+    async getTopServerDomains(): Promise<string[]> {
+        const releaseMutex = await this.mutexes[Key.POPULAR_SERVERS].acquire()
 
         try {
             let servers = await Storage.get(Key.POPULAR_SERVERS) as StringNumberDict;;

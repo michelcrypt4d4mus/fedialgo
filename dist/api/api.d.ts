@@ -21,7 +21,7 @@ export declare class MastoApi {
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getTopServerDomains(api: mastodon.rest.Client): Promise<string[]>;
+    getTopServerDomains(): Promise<string[]>;
     private fetchData;
     private shouldReloadFeatures;
     private throwIfAccessTokenRevoked;

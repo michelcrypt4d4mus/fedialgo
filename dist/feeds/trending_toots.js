@@ -9,7 +9,7 @@ const api_1 = require("../api/api");
 const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
-    const topServerDomains = await api_1.MastoApi.instance.getTopServerDomains(api);
+    const topServerDomains = await api_1.MastoApi.instance.getTopServerDomains();
     // Pull top trending toots from each server
     let trendingTootses = await Promise.all(topServerDomains.map(async (server) => {
         let topToots = [];
@@ -23,18 +23,15 @@ async function getTrendingToots(api) {
             console.warn(`Error fetching trending toots from '${server}':`, e);
             return [];
         }
-        // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
-        // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
-        // toot gets numTrendingTootsPerServer points, least trending gets 1).
-        topToots = topToots.filter(toot => toot.popularity() > 0)
-            .map((toot, i) => {
-            toot.trendingRank = 1 + (topToots?.length || 0) - i;
-            return toot;
-        });
+        // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
+        // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+        topToots = topToots.filter(toot => toot.popularity() > 0);
+        topToots.forEach((toot, i) => toot.trendingRank = 1 + (topToots?.length || 0) - i);
         console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
         return topToots;
     }));
-    return toot_1.default.dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    const trendingToots = setTrendingRankToAvg(trendingTootses.flat());
+    return toot_1.default.dedupeToots(trendingToots, "getTrendingToots");
 }
 exports.default = getTrendingToots;
 ;
@@ -49,7 +46,7 @@ function setTrendingRankToAvg(rankedToots) {
         acc[toot.uri].push(toot);
         return acc;
     }, {});
-    Object.entries(tootsTrendingOnMultipleServers).forEach(([uri, toots]) => {
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
         if (toots.length <= 1)
             return;
         const trendingRanks = toots.map(t => t.trendingRank);

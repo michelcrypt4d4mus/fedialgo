@@ -165,7 +165,7 @@ class MastoApi {
         return filters;
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    async getTopServerDomains(api) {
+    async getTopServerDomains() {
         const releaseMutex = await this.serverMauMutex.acquire();
         try {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);

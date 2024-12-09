@@ -42,7 +42,7 @@ export default async function getRecentTootsForTrendingTags(api: mastodon.rest.C
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api: mastodon.rest.Client): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
-    const topDomains = await MastoApi.instance.getTopServerDomains(api);
+    const topDomains = await MastoApi.instance.getTopServerDomains();
     const trendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers

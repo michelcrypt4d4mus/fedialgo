@@ -20,7 +20,7 @@ exports.default = getRecentTootsForTrendingTags;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags(api) {
     console.log(`${LOG_PREFIX} getTrendingTags() called`);
-    const topDomains = await api_1.MastoApi.instance.getTopServerDomains(api);
+    const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
     const trendingTags = await Promise.all(topDomains.map(mastodon_servers_info_1.fetchTrendingTags));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const aggregatedTags = trendingTags.flat().reduce((tags, tag) => {

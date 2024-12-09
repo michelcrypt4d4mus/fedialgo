@@ -16,7 +16,7 @@ class Scorer {
     name;
     isReady = false;
     constructor(name) {
-        console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
+        // console.debug(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
         this.description = config_1.DEFAULT_WEIGHTS[name].description;
         this.defaultWeight = config_1.DEFAULT_WEIGHTS[name].defaultWeight ?? 1;

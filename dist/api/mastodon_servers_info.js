@@ -43,7 +43,7 @@ const POPULAR_SERVERS = [
     "ioc.exchange",
     "mastodon.art",
     "techhub.social",
-    "mathstodon.xyz",
+    // "mathstodon.xyz",             // Doesn't return MAU data
     "mastodon.sdf.org",
     "defcon.social",
     "mstdn.party",

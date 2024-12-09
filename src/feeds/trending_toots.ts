@@ -12,7 +12,7 @@ import { mastodonFetch } from "../api/mastodon_servers_info";
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`)
-    const topServerDomains = await MastoApi.instance.getTopServerDomains(api);
+    const topServerDomains = await MastoApi.instance.getTopServerDomains();
 
     // Pull top trending toots from each server
     let trendingTootses: Toot[][] = await Promise.all(
@@ -28,21 +28,17 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
                 return [];
             }
 
-            // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
-            // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
-            // toot gets numTrendingTootsPerServer points, least trending gets 1).
+            // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
+            // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
             topToots = topToots.filter(toot => toot.popularity() > 0)
-                               .map((toot: Toot, i: number) => {
-                                    toot.trendingRank = 1 + (topToots?.length || 0) - i;
-                                    return toot;
-                                });
-
+            topToots.forEach((toot, i) => toot.trendingRank = 1 + (topToots?.length || 0) - i);
             console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
             return topToots;
         })
     );
 
-    return Toot.dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    const trendingToots = setTrendingRankToAvg(trendingTootses.flat());
+    return Toot.dedupeToots(trendingToots, "getTrendingToots");
 };
 
 
@@ -60,7 +56,7 @@ function setTrendingRankToAvg(rankedToots: Toot[]): Toot[] {
         {} as Record<string, Toot[]>
     );
 
-    Object.entries(tootsTrendingOnMultipleServers).forEach(([uri, toots]) => {
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
         if (toots.length <= 1) return;
 
         const trendingRanks = toots.map(t => t.trendingRank) as number[];
