@@ -12,16 +12,7 @@ import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues } from '../helpers';
-import {
-    AccountNames,
-    Key,
-    StorageKey,
-    StorageValue,
-    StringNumberDict,
-    TimelineData,
-    UserData,
-    WeightName
-} from "../types";
+import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
@@ -44,6 +35,7 @@ export class MastoApi {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     mutexes: ApiMutex;
+    serverMauMutex: Mutex;
     static #instance: MastoApi;
 
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void {
@@ -64,6 +56,7 @@ export class MastoApi {
         this.api = api;
         this.user = user;
         this.mutexes = {} as ApiMutex;
+        this.serverMauMutex = new Mutex();
 
         // Initialize mutexes for each key in Key and WeightName
         for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
@@ -172,7 +165,6 @@ export class MastoApi {
     // TODO: should we cache this?
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         console.log(`getServerSideFilters() called`);
-        // let filters = await this.get(Key.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
         let filters = await this.api.v2.filters.list();
 
         // Filter out filters that either are just warnings or don't apply to the home context
@@ -189,15 +181,25 @@ export class MastoApi {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(api: mastodon.rest.Client): Promise<string[]> {
-        const coreServers = await mastodonServersInfo(await this.fetchFollowedAccounts());
+        const releaseMutex = await this.serverMauMutex.acquire();
 
-        // Count the number of followed users per server
-        const topServerDomains = Object.keys(coreServers)
-                                       .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-                                       .sort((a, b) => (coreServers[b] - coreServers[a]));
+        try {
+            let servers = await Storage.get(Key.POPULAR_SERVERS) as StringNumberDict;;
 
-        console.log(`[API] Found top server domains:`, topServerDomains);
-        return topServerDomains;
+            if (!servers || (await this.shouldReloadFeatures())) {
+                servers = await mastodonServersInfo(await this.fetchFollowedAccounts());
+                await Storage.set(Key.POPULAR_SERVERS, servers);
+            } else {
+                console.log(`Loaded popular servers from cache:`, servers);
+                servers = servers as StringNumberDict;
+            }
+
+            const topServerDomains = Object.keys(servers).sort((a, b) => (servers[b] - servers[a]));
+            console.log(`[API] Found top server domains:`, topServerDomains);
+            return topServerDomains;
+        } finally {
+            releaseMutex();
+        }
     };
 
     // Generic data fetcher

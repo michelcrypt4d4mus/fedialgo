@@ -75,7 +75,7 @@ class Storage {
         return await localforage_1.default.getItem(types_1.Key.USER);
     }
     static async setIdentity(user) {
-        console.debug(`Setting identity to:`, user);
+        console.debug(`Setting identity to:`, user); // TODO: this is insecure logging
         await localforage_1.default.setItem(types_1.Key.USER, user);
     }
     static async getFeed() {

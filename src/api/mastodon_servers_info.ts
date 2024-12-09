@@ -7,16 +7,19 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { countValues } from "../helpers";
+import { atLeastValues, countValues, zipArrays, zipPromises } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
+import { extractServer } from "./objects/account";
 import { MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
 
+const POPULAR_SERVERS_MAU_GUESS = 1000;
+
 // Popular servers are usually culled from the users' following list but if there aren't
 // enough of them to get good trending data fill the list out with these.
 // Culled from https://mastodonservers.net and https://joinmastodon.org/
-const _POPULAR_SERVERS = [
+const POPULAR_SERVERS = [
     "mastodon.social",
     // "pawoo.net",   // Japanese (and maybe NSFW?)
     // "baraag.net",  // very NSFW
@@ -27,7 +30,7 @@ const _POPULAR_SERVERS = [
     "mastodon.online",
     "mas.to",
     "mastodon.world",
-    "mastodon.lol",
+    // "mastodon.lol",               // Doesn't return MAU data
     "c.im",
     "hachyderm.io",
     "fosstodon.org",
@@ -35,11 +38,11 @@ const _POPULAR_SERVERS = [
     "infosec.exchange",
     "mastodon.gamedev.place",
     "mastodonapp.uk",
-    "mastodon.technology",
+    // "mastodon.technology",        // Doesn't return MAU data
     "ioc.exchange",
     "mastodon.art",
     "techhub.social",
-    "mathstodon.xyz",
+    // "mathstodon.xyz",             // Doesn't return MAU data
     "mastodon.sdf.org",
     "defcon.social",
     "mstdn.party",
@@ -50,58 +53,42 @@ const _POPULAR_SERVERS = [
     "toot.io",
 ];
 
-const POPULAR_SERVERS = _POPULAR_SERVERS.map(s => `${s}/`);
-const POPULAR_SRERVERS_MAU_GUESS = 1000;
-
 
 // Returns something called "overrepresentedServerFrequ"??
 export default async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
     // Tally what Mastodon servers the accounts that the user follows live on
-    const userServerCounts = countValues<mastodon.v1.Account>(
-        follows,
-        (follow) => follow.url?.split("@")[0]?.split("https://")[1]
-    );
-
+    const userServerCounts = countValues<mastodon.v1.Account>(follows, follow => extractServer(follow));
     const numServersToCheck = Storage.getConfig().numServersToCheck;
-    const numServers = Object.keys(userServerCounts).length;
-
-    if (numServers < numServersToCheck) {
-        POPULAR_SERVERS.filter(s => !userServerCounts[s])
-                       .slice(0, numServersToCheck - numServers)
-                       .forEach(s => (userServerCounts[s] = POPULAR_SRERVERS_MAU_GUESS));
-
-        console.log(
-            `User only follows accounts on ${numServers} servers so added some default servers:`,
-            userServerCounts
-        );
-    }
+    const minServerMAU = Storage.getConfig().minServerMAU;
+    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
 
     // Find the top numServersToCheck servers among accounts followed by the user.
     // These are the servers we will check for trending toots.
-    const popularServers = Object.keys(userServerCounts)
-                                 .sort((a, b) => userServerCounts[b] - userServerCounts[a])
-                                 .slice(0, numServersToCheck);
+    const mostFollowedServers = Object.keys(userServerCounts)
+                                      .sort((a, b) => userServerCounts[b] - userServerCounts[a])
+                                      .slice(0, numServersToCheck);
 
-    console.debug(`mastodonServersInfo() userServerCounts: `, userServerCounts);
-    console.debug(`Top ${numServersToCheck} servers: `, popularServers);
-    const monthlyUsers = await Promise.all(popularServers.map(s => getMonthlyUsers(s)));
-    const serverMAUs: StringNumberDict = {};
-    const overrepresentedServerFrequ: StringNumberDict = {};
+    let serverMAUs = await zipPromises<number>(mostFollowedServers, getMonthlyUsers);
+    const validServers = atLeastValues(serverMAUs, minServerMAU);
+    const numValidServers = Object.keys(validServers).length;
+    const numDefaultServers = numServersToCheck - numValidServers;
+    console.debug(`Most followed servers:`, mostFollowedServers, `\nserverMAUs:`, serverMAUs, `\nvalidServers:`, validServers);
 
-    popularServers.forEach((server, i) => {
-        if (monthlyUsers[i] < Storage.getConfig().minServerMAU) {
-            console.log(`Ignoring server '${server}' with only ${monthlyUsers[i]} MAU...`);
-            return;
-        }
+    if (numDefaultServers > 0) {
+        console.warn(`Only found ${numValidServers} servers with MAUs above the ${minServerMAU} threshold!`);
+        const defaultServers = POPULAR_SERVERS.filter(s => !validServers[s]).slice(0, numDefaultServers);
+        const defaultServerMAUs = await zipPromises<number>(defaultServers, getMonthlyUsers);
+        console.log(`Got popular server MAUs:`, defaultServerMAUs);
+        serverMAUs = { ...validServers, ...defaultServerMAUs };
+    }
 
-        // I guess this is looking to do something that compares active users vs. followed users
-        // to maybe account for a lot of dead accounts or something?
-        overrepresentedServerFrequ[server] = userServerCounts[server] / monthlyUsers[i];
-        serverMAUs[server] = monthlyUsers[i];
-    });
+    const overrepresentedServerFrequ = Object.keys(serverMAUs).reduce((overRepped, server) => {
+        overRepped[server] = (userServerCounts[server] || 0) / serverMAUs[server];
+        return overRepped;
+    }, {} as StringNumberDict);
 
-    console.log(`serverMAUs: `, serverMAUs);
-    console.log(`overrepresentedServerFrequ: `, overrepresentedServerFrequ);
+    console.log(`Final serverMAUs: `, serverMAUs);
+    console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFrequ);
     return overrepresentedServerFrequ;
 };
 
@@ -124,6 +111,7 @@ export async function getMonthlyUsers(server: string): Promise<number> {
 };
 
 
+// Get the tags that are trending on 'server'
 export async function fetchTrendingTags(server: string, numTags?: number): Promise<TrendingTag[]> {
     numTags ||= Storage.getConfig().numTrendingTootsPerServer;
     const tagsUrl = MastoApi.trendUrl("tags")
@@ -149,7 +137,7 @@ export const mastodonFetch = async <T>(
     endpoint: string,
     limit?: number
 ): Promise<T | undefined> => {
-    let url = `https://${server}${endpoint}`;
+    let url = `https://${server}/${endpoint}`;
     if (limit) url += `?limit=${limit}`;
     console.debug(`mastodonFetch() ${url}'...`);
 

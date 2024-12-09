@@ -12,3 +12,6 @@ export declare const transformKeys: <T>(data: T, transform: (key: string) => str
 export declare const isRecord: (x: unknown) => x is Record<string, unknown>;
 export declare const incrementCount: (counts: StringNumberDict, key?: CountKey | null) => StringNumberDict;
 export declare function countValues<T>(items: T[], getKey: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
+export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
+export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
+export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;

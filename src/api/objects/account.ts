@@ -16,3 +16,9 @@ export function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames
         {} as AccountNames
     );
 };
+
+
+// 'https://journa.host/@dell' -> 'journa.host'
+export function extractServer(account: mastodon.v1.Account): string {
+    return account.url?.split("/")[2] || "unknown.server";
+};

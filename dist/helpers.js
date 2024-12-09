@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.countValues = exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
+exports.atLeastValues = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.isRecord = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.createRandomString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = void 0;
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
@@ -70,6 +70,7 @@ const incrementCount = (counts, key) => {
     return counts;
 };
 exports.incrementCount = incrementCount;
+// Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 function countValues(items, getKey, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
@@ -79,5 +80,22 @@ function countValues(items, getKey, countNulls) {
     }, {});
 }
 exports.countValues = countValues;
+;
+// [ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 }
+function zipArrays(array1, array2) {
+    return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
+}
+exports.zipArrays = zipArrays;
+;
+async function zipPromises(args, promiser) {
+    return zipArrays(args, await Promise.all(args.map(promiser)));
+}
+exports.zipPromises = zipPromises;
+;
+// Return a new object with only the key/value pairs that have a value greater than minValue
+function atLeastValues(obj, minValue) {
+    return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
+}
+exports.atLeastValues = atLeastValues;
 ;
 //# sourceMappingURL=helpers.js.map

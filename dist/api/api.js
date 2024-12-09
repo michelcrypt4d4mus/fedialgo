@@ -28,6 +28,7 @@ class MastoApi {
     api;
     user;
     mutexes;
+    serverMauMutex;
     static #instance;
     static init(api, user) {
         if (MastoApi.#instance) {
@@ -47,6 +48,7 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.mutexes = {};
+        this.serverMauMutex = new async_mutex_1.Mutex();
         // Initialize mutexes for each key in Key and WeightName
         for (const key in types_1.Key)
             this.mutexes[types_1.Key[key]] = new async_mutex_1.Mutex();
@@ -149,7 +151,6 @@ class MastoApi {
     // TODO: should we cache this?
     async getServerSideFilters() {
         console.log(`getServerSideFilters() called`);
-        // let filters = await this.get(Key.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
         let filters = await this.api.v2.filters.list();
         // Filter out filters that either are just warnings or don't apply to the home context
         filters = filters.filter(filter => {
@@ -165,13 +166,25 @@ class MastoApi {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(api) {
-        const coreServers = await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
-        // Count the number of followed users per server
-        const topServerDomains = Object.keys(coreServers)
-            .filter(s => s !== "undefined" && typeof s !== "undefined" && s.length > 0)
-            .sort((a, b) => (coreServers[b] - coreServers[a]));
-        console.log(`[API] Found top server domains:`, topServerDomains);
-        return topServerDomains;
+        const releaseMutex = await this.serverMauMutex.acquire();
+        try {
+            let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
+            ;
+            if (!servers || (await this.shouldReloadFeatures())) {
+                servers = await (0, mastodon_servers_info_1.default)(await this.fetchFollowedAccounts());
+                await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
+            }
+            else {
+                console.log(`Loaded popular servers from cache:`, servers);
+                servers = servers;
+            }
+            const topServerDomains = Object.keys(servers).sort((a, b) => (servers[b] - servers[a]));
+            console.log(`[API] Found top server domains:`, topServerDomains);
+            return topServerDomains;
+        }
+        finally {
+            releaseMutex();
+        }
     }
     ;
     // Generic data fetcher

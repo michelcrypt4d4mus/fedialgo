@@ -8,6 +8,7 @@ export declare class MastoApi {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     mutexes: ApiMutex;
+    serverMauMutex: Mutex;
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
     static get instance(): MastoApi;
     private constructor();

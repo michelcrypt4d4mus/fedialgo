@@ -25,7 +25,6 @@ export default class FollowedTagsFeatureScorer extends FeatureScorer {
 
     static async fetchRequiredData(): Promise<StringNumberDict> {
         const tags = await MastoApi.instance.getFollowedTags();
-        console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
         return countValues<mastodon.v1.Tag>(tags, (tag) => tag.name?.toLowerCase());
     }
 };

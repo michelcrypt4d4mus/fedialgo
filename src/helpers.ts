@@ -78,6 +78,7 @@ export const incrementCount = (counts: StringNumberDict, key?: CountKey | null):
 };
 
 
+// Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 export function countValues<T>(
     items: T[],
     getKey: (item: T) => string | null | undefined,
@@ -91,4 +92,24 @@ export function countValues<T>(
         },
         {} as StringNumberDict
     );
+};
+
+
+// [ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 }
+export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
+    return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
+};
+
+
+export async function zipPromises<T>(
+    args: string[],
+    promiser: (s: string) => Promise<T>
+): Promise<Record<string, T>> {
+    return zipArrays(args, await Promise.all(args.map(promiser)));
+};
+
+
+// Return a new object with only the key/value pairs that have a value greater than minValue
+export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
+    return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
 };

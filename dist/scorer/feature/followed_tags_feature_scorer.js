@@ -24,7 +24,6 @@ class FollowedTagsFeatureScorer extends feature_scorer_1.default {
     }
     static async fetchRequiredData() {
         const tags = await api_1.MastoApi.instance.getFollowedTags();
-        console.log(`Retrieved followed tags with FollowedTagsFeature():`, tags);
         return (0, helpers_1.countValues)(tags, (tag) => tag.name?.toLowerCase());
     }
 }

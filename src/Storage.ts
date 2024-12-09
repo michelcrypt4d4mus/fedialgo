@@ -100,7 +100,7 @@ export default class Storage {
     }
 
     static async setIdentity(user: mastodon.v1.Account) {
-        console.debug(`Setting identity to:`, user);
+        console.debug(`Setting identity to:`, user);  // TODO: this is insecure logging
         await localForage.setItem(Key.USER, user);
     }
 

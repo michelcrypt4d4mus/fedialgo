@@ -7,11 +7,11 @@ import Toot from './api/objects/toot';
 
 
 export enum Key {
-    CORE_SERVER = 'coreServer',
     FILTERS = 'filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
+    POPULAR_SERVERS = 'popularServers',
     RECENT_FAVOURITES = "recentFavourites",
     RECENT_NOTIFICATIONS = 'recentNotifications',
     RECENT_TOOTS = "recentToots",
@@ -149,7 +149,7 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized |
+export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict |
     TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] |
     number;
 
