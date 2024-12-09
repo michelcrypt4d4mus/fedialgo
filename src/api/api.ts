@@ -10,7 +10,7 @@ import fetchTrendingToots from "./mastodon_servers_info";
 import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
-import { countValues } from '../helpers';
+import { countValues, sortKeysByValue } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { mastodonServersInfo } from "./mastodon_servers_info";
 
@@ -192,7 +192,7 @@ export class MastoApi {
                 servers = servers as StringNumberDict;
             }
 
-            const topServerDomains = Object.keys(servers).sort((a, b) => (servers[b] - servers[a]));
+            const topServerDomains = sortKeysByValue(servers);
             console.log(`[API] Found top server domains:`, topServerDomains);
             return topServerDomains;
         } finally {
