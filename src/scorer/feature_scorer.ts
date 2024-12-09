@@ -3,6 +3,8 @@
  * a toot based solely on the properties of that toot, optionally coupled with other
  * sources that are not other toots in the feed, e.g. things like notifications,
  * favorites, etc.
+ *
+ * // TODO: Find a better name than "Feature" for this class
  */
 import { mastodon } from "masto";
 
@@ -34,7 +36,7 @@ export default class FeatureScorer extends Scorer {
             console.warn(`Error in getFeature() for ${this.name}:`, e);
         }
 
-        this._isReady = true;
+        this.isReady = true;
         return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
 };

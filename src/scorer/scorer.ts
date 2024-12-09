@@ -10,10 +10,10 @@ const TIME_DECAY = WeightName.TIME_DECAY;
 
 
 export default class Scorer {
-    name: WeightName;
     description: string;
     defaultWeight: number;
-    _isReady: boolean = false;
+    name: WeightName;
+    isReady: boolean = false;
 
     constructor(name: WeightName) {
         console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
@@ -41,7 +41,7 @@ export default class Scorer {
     }
 
     private checkIsReady(): void {
-        if (!this._isReady) {
+        if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;
             console.warn(msg);
             throw new Error(msg);

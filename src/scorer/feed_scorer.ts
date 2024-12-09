@@ -14,7 +14,7 @@ export default class FeedScorer extends Scorer {
         // console.debug(`before feedExtractor() this.features=`, this.features);
         this.features = this.feedExtractor(feed);
         console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.features);
-        this._isReady = true;
+        this.isReady = true;
     }
 
     //* Should be overloaded in subclasses. */
