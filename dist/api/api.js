@@ -3,21 +3,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = void 0;
+exports.MastoApi = exports.STATUSES = void 0;
 const async_mutex_1 = require("async-mutex");
 const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
-const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
+const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const types_1 = require("../types");
-const mastodon_servers_info_1 = require("./mastodon_servers_info");
+const mastodon_servers_info_2 = require("./mastodon_servers_info");
+exports.STATUSES = "statuses";
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-const STATUSES = "statuses";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 ;
 // Singleton class for interacting with the Mastodon API
@@ -59,7 +59,7 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                (0, trending_toots_1.default)(),
+                (0, mastodon_servers_info_1.default)(),
                 (0, trending_tags_1.default)(),
             ]);
         }
@@ -90,7 +90,7 @@ class MastoApi {
     async searchForToots(searchQuery, limit) {
         limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
         console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
-        const mastoQuery = { limit: limit, q: searchQuery, type: STATUSES };
+        const mastoQuery = { limit: limit, q: searchQuery, type: exports.STATUSES };
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
             const toots = searchResult.statuses.map(t => new toot_1.default(t));
@@ -166,7 +166,7 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await (0, mastodon_servers_info_1.mastodonServersInfo)(await this.fetchFollowedAccounts());
+                servers = await (0, mastodon_servers_info_2.mastodonServersInfo)(await this.fetchFollowedAccounts());
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {
@@ -225,7 +225,7 @@ class MastoApi {
     async shouldReloadFeatures() {
         return (await Storage_1.default.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
     }
-    // re-raise access revoked errors.
+    // Re-raise access revoked errors so they can trigger a logout() call
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
         if (!(e instanceof Error))

@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 
 import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
-import getTrendingToots from "../feeds/trending_toots";
+import fetchTrendingToots from "./mastodon_servers_info";
 import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
@@ -14,10 +14,10 @@ import { countValues } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { mastodonServersInfo } from "./mastodon_servers_info";
 
+export const STATUSES = "statuses"
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-const STATUSES = "statuses"
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 
 type ApiMutex = Record<StorageKey, Mutex>;
@@ -70,7 +70,7 @@ export class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                getTrendingToots(),
+                fetchTrendingToots(),
                 getRecentTootsForTrendingTags(),
             ]);
         }
@@ -215,7 +215,7 @@ export class MastoApi {
             if (cachedData && !(await this.shouldReloadFeatures())) {
                 const rows = cachedData as T[];
                 console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
-                return rows as T[];
+                return rows;
             };
 
             for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
@@ -247,7 +247,7 @@ export class MastoApi {
         return (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
     }
 
-// re-raise access revoked errors.
+    // Re-raise access revoked errors so they can trigger a logout() call
     private throwIfAccessTokenRevoked(e: unknown, msg: string): void {
         console.error(`${msg}. Error:`, e);
         if (!(e instanceof Error)) return;

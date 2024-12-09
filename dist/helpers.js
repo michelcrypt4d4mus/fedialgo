@@ -34,12 +34,12 @@ function isImage(uri) {
 exports.isImage = isImage;
 ;
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
-function groupBy(arr, key) {
-    return arr.reduce((acc, item) => {
-        const group = key(item);
-        acc[group] ||= [];
-        acc[group].push(item);
-        return acc;
+function groupBy(array, makeKey) {
+    return array.reduce((grouped, item) => {
+        const group = makeKey(item);
+        grouped[group] ||= [];
+        grouped[group].push(item);
+        return grouped;
     }, {});
 }
 exports.groupBy = groupBy;

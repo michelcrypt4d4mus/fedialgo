@@ -35,13 +35,16 @@ export function isImage(uri: string | null | undefined): boolean {
 
 
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
-export function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]> {
-    return arr.reduce((acc, item) => {
-        const group = key(item);
-        acc[group] ||= [];
-        acc[group].push(item);
-        return acc;
-    }, {} as Record<string, T[]>);
+export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
+    return array.reduce(
+        (grouped, item) => {
+            const group = makeKey(item);
+            grouped[group] ||= [];
+            grouped[group].push(item);
+            return grouped;
+        },
+        {} as Record<string, T[]>
+    );
 };
 
 

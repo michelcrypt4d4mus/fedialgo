@@ -7,12 +7,13 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
 import Storage from "../Storage";
-import { atLeastValues, countValues, zipPromises } from "../helpers";
+import Toot from "./objects/toot";
+import { atLeastValues, average, countValues, groupBy, zipPromises } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { extractServer } from "./objects/account";
-import { MastoApi } from "./api";
+import { STATUSES, MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
-import { transformKeys } from "../helpers";;
+import { transformKeys } from "../helpers";
 
 
 // Returns something called "overrepresentedServerFrequ"??
@@ -42,14 +43,14 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
         serverMAUs = { ...validServers, ...extraServerMAUs };
     }
 
-    const overrepresentedServerFrequ = Object.keys(serverMAUs).reduce((overRepped, server) => {
+    const overrepresentedServerFreq = Object.keys(serverMAUs).reduce((overRepped, server) => {
         overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
         return overRepped;
     }, {} as StringNumberDict);
 
     console.log(`Final serverMAUs: `, serverMAUs);
-    console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFrequ);
-    return overrepresentedServerFrequ;
+    console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFreq);
+    return overrepresentedServerFreq;
 };
 
 
@@ -60,7 +61,7 @@ export async function fetchTrendingTags(server: string, numTags?: number): Promi
     let _tags: mastodon.v1.Tag[] | undefined;
 
     try {
-        _tags = await mastodonFetch<mastodon.v1.Tag[]>(server, tagsUrl, numTags);
+        _tags = await mastodonPublicFetch<mastodon.v1.Tag[]>(server, tagsUrl, numTags);
         if (!_tags || _tags.length == 0) throw new Error(`No tags found on '${server}'!`);
     } catch (e) {
         console.warn(`[TrendingTags] Failed to get trending toots from '${server}'!`, e);
@@ -73,19 +74,84 @@ export async function fetchTrendingTags(server: string, numTags?: number): Promi
 };
 
 
-// Retrieve Mastodon server information from a given server's public (no auth) endpoint
-export const mastodonFetch = async <T>(
+// Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
+export default async function fetchTrendingToots(): Promise<Toot[]> {
+    console.log(`[TrendingToots] getTrendingToots() called`);
+    const topServerDomains = await MastoApi.instance.getTopServerDomains();
+
+    // Pull top trending toots from each server
+    let trendingTootses: Toot[][] = await Promise.all(
+        topServerDomains.map(async (server: string): Promise<Toot[]> => {
+            let topToots: Toot[] | undefined = [];
+
+            try {
+                topToots = await mastodonPublicFetch<Toot[]>(server, MastoApi.trendUrl(STATUSES));
+                if (!topToots?.length) throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
+                topToots = topToots.map(t => new Toot(t));
+            } catch (e) {
+                console.warn(`Error fetching trending toots from '${server}':`, e);
+                return [];
+            }
+
+            // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
+            // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+            topToots = topToots.filter(toot => toot.popularity() > 0);
+            topToots.forEach((toot, i) => toot.trendingRank = 1 + (topToots?.length || 0) - i);
+            console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
+            return topToots;
+        })
+    );
+
+    const trendingToots = setTrendingRankToAvg(trendingTootses.flat());
+    return Toot.dedupeToots(trendingToots, "getTrendingToots");
+};
+
+
+// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
+// TODO: maybe we should add the # of servers to the avg?
+function setTrendingRankToAvg(rankedToots: Toot[]): Toot[] {
+    const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, (toot) => toot.uri);
+
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
+        const avgScore = average(toots.map(t => t.trendingRank) as number[]);
+        toots.forEach(toot => toot.trendingRank = avgScore);
+    });
+
+    return rankedToots;
+};
+
+
+// Get publicly available MAU information. Requires no login (??)
+async function getMonthlyUsers(server: string): Promise<number> {
+    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
+        console.debug(`monthlyUsers() for '${server}' is not available, skipping...`);
+        return 0;
+    }
+
+    try {
+        const instance = await mastodonPublicFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
+        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
+        return instance ? instance.usage.users.activeMonth : 0;
+    } catch (error) {
+        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
+        return 0;
+    }
+};
+
+
+// Get data from a public API endpoint on a Mastodon server.
+async function mastodonPublicFetch<T>(
     server: string,
     endpoint: string,
     limit?: number
-): Promise<T | undefined> => {
+): Promise<T | undefined> {
     let url = `https://${server}/${endpoint}`;
     if (limit) url += `?limit=${limit}`;
-    console.debug(`mastodonFetch() ${url}'...`);
+    console.debug(`mastodonFetch() URL: '${url}'`);
 
     try {
         const json = await axios.get<T>(url);
-        console.debug(`mastodonFetch() response for ${url}:`, json);
+        console.debug(`mastodonFetch() response for '${url}':`, json);
 
         if (json.status === 200 && json.data) {
             return transformKeys(json.data, camelCase);
@@ -95,23 +161,5 @@ export const mastodonFetch = async <T>(
     } catch (e) {
         console.warn(`Error fetching data for server ${server} from endpoint '${endpoint}'`, e);
         return;
-    }
-};
-
-
-// Get publicly available MAU information. Requires no login (??)
-async function getMonthlyUsers(server: string): Promise<number> {
-    if (Storage.getConfig().noMauServers.some(s => server.startsWith(s))) {
-        console.debug(`monthlyUsers() for '${server}' is not available`);
-        return 0;
-    }
-
-    try {
-        const instance = await mastodonFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
-        console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
-        return instance ? instance.usage.users.activeMonth : 0;
-    } catch (error) {
-        console.warn(`Error in getMonthlyUsers() for server ${server}`, error);
-        return 0;
     }
 };
