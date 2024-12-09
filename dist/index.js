@@ -302,7 +302,12 @@ class TheAlgorithm {
             const releaseMutex = await this.scoreMutex.acquire();
             try {
                 // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
-                await Promise.all(this.feedScorers.map(scorer => scorer.setFeed(this.feed)));
+                let promises = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
+                if (!this.featureScorers.every(scorer => scorer._isReady)) {
+                    console.warn(`For some reasons featuresScorers are not ready yet. Making it so...`);
+                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
+                }
+                await Promise.all(promises);
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
                 for (const toot of this.feed) {
                     await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers);

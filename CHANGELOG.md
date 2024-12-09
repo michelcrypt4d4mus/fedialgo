@@ -1,7 +1,7 @@
 ## NEXT
 
 ## `0.8.4`
-* Fix de/serialization of score data on `Toot` objects
+* Fix de/serialization of score data on `Toot` objects introduced by `Toot` refactor
 
 ## `0.8.3`
 * Enable `reloadFeed()` method to return true after 10 minutes has passed since latest toot in timline

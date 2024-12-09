@@ -4,7 +4,7 @@ export default class Scorer {
     name: WeightName;
     description: string;
     defaultWeight: number;
-    protected _isReady: boolean;
+    _isReady: boolean;
     constructor(name: WeightName);
     score(toot: Toot): Promise<number>;
     _score(_toot: Toot): Promise<number>;

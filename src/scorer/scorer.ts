@@ -13,7 +13,7 @@ export default class Scorer {
     name: WeightName;
     description: string;
     defaultWeight: number;
-    protected _isReady: boolean = false;
+    _isReady: boolean = false;
 
     constructor(name: WeightName) {
         console.log(`Scorer's this.constructor.name: ${this.constructor.name}`);
