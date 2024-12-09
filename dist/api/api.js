@@ -14,6 +14,7 @@ const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const trending_toots_1 = __importDefault(require("../feeds/trending_toots"));
 const mastodon_api_cache_1 = __importDefault(require("./mastodon_api_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
+const toot_1 = __importDefault(require("./objects/toot"));
 const helpers_1 = require("../helpers");
 exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const API_URI = "api";
@@ -71,7 +72,7 @@ async function searchForToots(api, searchQuery, limit) {
     const mastoQuery = { limit: limit, q: searchQuery, type: "statuses" };
     try {
         const searchResult = await api.v2.search.fetch(mastoQuery);
-        const toots = searchResult.statuses;
+        const toots = searchResult.statuses.map(t => new toot_1.default(t));
         console.debug(`[searchForToots] Found toots for query`, mastoQuery);
         return toots;
     }
@@ -136,7 +137,7 @@ async function getUserRecentToots(api, user) {
         fetch: api.v1.accounts.$select(user.id).statuses.list,
         label: 'recentToots'
     });
-    return recentToots;
+    return recentToots.map(t => new toot_1.default(t));
 }
 exports.getUserRecentToots = getUserRecentToots;
 ;

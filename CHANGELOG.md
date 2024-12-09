@@ -1,5 +1,6 @@
 ## NEXT
-* Enable `reloadFeed()` after 5 minutes (on focus in demo app)
+* Enable `reloadFeed()` after 10 minutes (on focus in demo app)
+* Refactor out a proper `Toot` class
 
 ## `0.8.2`
 * Refactoring

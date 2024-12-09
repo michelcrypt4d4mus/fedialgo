@@ -2,8 +2,9 @@
  * Base class for Toot scorers.
  */
 import Storage from "../Storage";
+import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "../config";
-import { ScorerInfo, StringNumberDict, Toot, TootScore, WeightName } from "../types";
+import { ScorerInfo, StringNumberDict, TootScore, WeightName } from "../types";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
 

@@ -3,8 +3,8 @@
  * trending tags across the Fediverse.
  */
 import FeatureScorer from '../feature_scorer';
-import { Toot, TrendingTag } from "../../types";
-import { WeightName } from "../../types";
+import Toot from '../../api/objects/toot';
+import { TrendingTag, WeightName } from "../../types";
 
 
 export default class TrendingTagsScorer extends FeatureScorer {

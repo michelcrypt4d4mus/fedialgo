@@ -133,6 +133,7 @@ exports.DEFAULT_CONFIG = {
     numTrendingTootsPerServer: 30,
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
+        "agora.echelon.pl",
         "fediverse.one",
         "flipboard.com",
         "threads.net",

@@ -117,6 +117,7 @@ export const DEFAULT_CONFIG = {
 
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
+        "agora.echelon.pl",
         "fediverse.one",
         "flipboard.com",
         "threads.net",

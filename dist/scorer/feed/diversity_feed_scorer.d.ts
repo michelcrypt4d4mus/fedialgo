@@ -1,5 +1,6 @@
 import FeedScorer from "../feed_scorer";
-import { StringNumberDict, Toot } from "../../types";
+import Toot from '../../api/objects/toot';
+import { StringNumberDict } from "../../types";
 export default class DiversityFeedScorer extends FeedScorer {
     constructor();
     feedExtractor(feed: Toot[]): StringNumberDict;

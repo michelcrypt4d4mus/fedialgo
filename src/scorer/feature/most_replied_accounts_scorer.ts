@@ -5,8 +5,9 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import MastodonApiCache from '../../api/mastodon_api_cache';
+import Toot from '../../api/objects/toot';
 import { getUserRecentToots } from '../../api/api';
-import { Toot, WeightName } from '../../types';
+import { WeightName } from '../../types';
 
 
 export default class MostRepliedAccountsScorer extends FeatureScorer {

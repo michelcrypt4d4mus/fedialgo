@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
-import { TimelineData, Toot, TrendingTag, UserData } from "../types";
+import Toot from './objects/toot';
+import { TimelineData, TrendingTag, UserData } from "../types";
 export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 export declare const FILTER_ENDPOINT = "api/v2/filters";
 export declare class MastoApi {

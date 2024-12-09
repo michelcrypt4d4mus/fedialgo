@@ -2,8 +2,7 @@
  * Score how many times the toot has been favorited by other users.
  */
 import FeatureScorer from '../feature_scorer';
-import { imageAttachments } from '../../api/objects/toot';
-import { Toot } from '../../types';
+import Toot from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 
@@ -14,6 +13,6 @@ export default class ImageAttachmentScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return imageAttachments(toot).length;
+        return toot.imageAttachments().length;
     }
 };

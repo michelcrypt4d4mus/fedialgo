@@ -34,6 +34,7 @@ const most_favorited_accounts_scorer_1 = __importDefault(require("../scorer/feat
 const most_replied_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_replied_accounts_scorer"));
 const retooted_users_scorer_1 = __importDefault(require("../scorer/feature/retooted_users_scorer"));
 const Storage_1 = __importStar(require("../Storage"));
+const toot_1 = __importDefault(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const types_1 = require("../types");
@@ -127,8 +128,17 @@ class MastodonApiCache extends Storage_1.default {
     }
     // Generic method to pull cached data from storage or fetch it from the API
     static async getAggregatedData(api, storageKey, fetch, extraArg) {
-        let data = await this.get(storageKey);
         let logAction = LOADED_FROM_STORAGE;
+        const storedData = await this.get(storageKey);
+        console.log(`[${storageKey}] Got stored data:`, storedData);
+        let data;
+        // TODO: this is a pretty horrific hack to force serialized Toots to get their functions back
+        if (storageKey == Storage_1.Key.RECENT_TOOTS && storedData) {
+            data = storedData;
+        }
+        else {
+            data = storedData;
+        }
         if (data == null || (await this.shouldReloadFeatures())) {
             const user = await this.getIdentity();
             if (user == null)
@@ -144,6 +154,8 @@ class MastodonApiCache extends Storage_1.default {
             await this.set(storageKey, data);
         }
         console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
+        if (storageKey == Storage_1.Key.RECENT_TOOTS && storedData)
+            data = data.map(t => new toot_1.default(t));
         return data;
     }
     static async shouldReloadFeatures() {

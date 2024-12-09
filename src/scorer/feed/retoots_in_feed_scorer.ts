@@ -2,7 +2,7 @@
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
 import FeedScorer from "../feed_scorer";
-import { Toot } from "../../types";
+import Toot from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 

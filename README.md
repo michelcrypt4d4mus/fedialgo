@@ -62,7 +62,7 @@ const filteredFeed = algorithm.updateFilters(filters);
 You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`, An example involving React component state:
 
 ```typescript
-import { Toot } from "fedialgo";
+import Toot from "fedialgo";
 
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currUser = await api.v1.accounts.verifyCredentials()

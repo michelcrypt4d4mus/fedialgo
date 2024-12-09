@@ -2,7 +2,7 @@
  * Score how many times the toot has been retooted.
  */
 import FeatureScorer from '../feature_scorer';
-import { Toot } from '../../types';
+import Toot from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 

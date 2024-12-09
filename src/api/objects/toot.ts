@@ -5,8 +5,8 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { IMAGE, MEDIA_TYPES, groupBy, isImage } from "../../helpers";
-import { Toot } from "../../types";
+import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
+import { TootObj, TootScore, TrendingTag } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -15,84 +15,219 @@ const BROKEN_TAG = "<<BROKEN_TAG>>"
 const UNKNOWN_APP = "unknown";
 
 
-// Return total of favourites and reblogs
-export function popularity(toot: Toot): number {
-    return (toot.favouritesCount || 0) + (toot.reblogsCount || 0);
-};
+export default class Toot implements TootObj {
+    id: string;
+    uri: string;
+    createdAt: string;
+    editedAt: string | null;
+    account: mastodon.v1.Account;
+    content: string;
+    visibility: mastodon.v1.StatusVisibility;
+    sensitive: boolean;
+    spoilerText: string;
+    mediaAttachments: mastodon.v1.MediaAttachment[];
+    application: mastodon.v1.Application;
+    mentions: mastodon.v1.StatusMention[];
+    tags: mastodon.v1.Tag[];
+    emojis: mastodon.v1.CustomEmoji[];
+    reblogsCount: number;
+    favouritesCount: number;
+    filtered?: mastodon.v1.FilterResult[];
+    repliesCount: number;
+    url?: string | null;
+    inReplyToId?: string | null;
+    inReplyToAccountId?: string | null;
+    reblog?: Toot;
+    poll?: mastodon.v1.Poll | null;
+    card?: mastodon.v1.PreviewCard | null;
+    language?: string | null;
+    text?: string | null;
+    favourited?: boolean | null;
+    reblogged?: boolean | null;
+    muted?: boolean | null;
+    bookmarked?: boolean | null;
+    pinned?: boolean | null;
 
+    // extensions to mastodon.v1.Status
+    followedTags?: mastodon.v1.Tag[]; // Array of tags that the user follows that exist in this toot
+    isFollowed?: boolean; // Whether the user follows the account that posted this toot
+    reblogBy?: mastodon.v1.Account; // The account that retooted this toot (if any)
+    scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
+    trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TrendingTag[]; // Tags that are trending in this toot
 
-// Returns a simplified version of the toot for logging
-export const condensedStatus = (toot: Toot) => {
-    // Contents of toot (the text)
-    let content = toot.reblog?.content || toot.content || "";
-    if (content.length > MAX_CONTENT_PREVIEW_CHARS) content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
-    // Account info for the person who tooted it
-    let accountLabel = describeAccount(toot);
-    if (toot.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${describeAccount(toot.reblog)}⬆️⬆️｠`;
-    // Attachment info
-    let mediaAttachments = toot.mediaAttachments.map(attachment => attachment.type);
-    if (mediaAttachments.length == 0) mediaAttachments = [];
+    constructor(toot: mastodon.v1.Status) {
+        // TODO is there a less dumb way to do this other than manually copying all the properties?
+        this.id = toot.id;
+        this.uri = toot.uri;
+        this.createdAt = toot.createdAt;
+        this.editedAt = toot.editedAt;
+        this.account = toot.account;
+        this.content = toot.content;
+        this.visibility = toot.visibility;
+        this.sensitive = toot.sensitive;
+        this.spoilerText = toot.spoilerText;
+        this.mediaAttachments = toot.mediaAttachments;
+        this.application = toot.application;
+        this.mentions = toot.mentions;
+        this.tags = toot.tags;
+        this.emojis = toot.emojis;
+        this.reblogsCount = toot.reblogsCount;
+        this.favouritesCount = toot.favouritesCount;
+        this.filtered = toot.filtered;
+        this.repliesCount = toot.repliesCount;
+        this.url = toot.url;
+        this.inReplyToId = toot.inReplyToId;
+        this.inReplyToAccountId = toot.inReplyToAccountId;
+        this.poll = toot.poll;
+        this.card = toot.card;
+        this.language = toot.language;
+        this.text = toot.text;
+        this.favourited = toot.favourited;
+        this.reblogged = toot.reblogged;
+        this.muted = toot.muted;
+        this.bookmarked = toot.bookmarked;
+        this.pinned = toot.pinned;
 
-    const tootObj = {
-        FROM: `${accountLabel} [${toot.createdAt}]`,
-        URL: toot.url,
-        content: content,
-        retootOf: toot.reblog ? `${describeAccount(toot.reblog)} (${toot.reblog.createdAt})` : null,
-        inReplyToId: toot.inReplyToId,
-        mediaAttachments: mediaAttachments,
-        raw: toot,
-        scoreInfo: toot.scoreInfo,
+        // Unique to fedialgo
+        this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
+        this.repairToot();
+    }
 
-        properties: {
-            favouritesCount: toot.favouritesCount,
-            reblogsCount: toot.reblogsCount,
-            repliesCount: toot.repliesCount,
-            tags: (toot.tags || toot.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
-        },
+    containsString(str: string): boolean {
+        if (str.startsWith("#")) {
+            const tagStr = str.slice(1);
+            return this.tags.some(tag => tag.name.toLowerCase() == tagStr.toLowerCase());
+        } else {
+            return this.content.toLowerCase().includes(str.toLowerCase());
+        }
+    }
+
+    describe(): string {
+        let msg = `[${this.createdAt}]: ID: ${this.id}`;
+        return `${msg} (${this.describeAccount()}): "${this.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
+    }
+
+    describeAccount(): string {
+        return `${this.account.displayName} (${this.account.acct})`;
+    }
+
+    popularity(): number {
+        return (this.favouritesCount || 0) + (this.reblogsCount || 0);
+    }
+
+    tootedAt(): Date {
+        return new Date(this.createdAt);
     };
 
-    return Object.keys(tootObj)
-        .filter((k) => tootObj[k as keyof typeof tootObj] != null)
-        .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+    imageAttachments(): Array<mastodon.v1.MediaAttachment> {
+        return this.attachmentsOfType(IMAGE);
+    }
+
+    videoAttachments(): Array<mastodon.v1.MediaAttachment> {
+        return this.attachmentsOfType(VIDEO);
+    }
+
+    attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
+        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
+        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
+    }
+
+    // Repair toot properties:
+    //   - Set toot.application.name to UNKNOWN_APP if missing
+    //   - Set toot.language to defaultLanguage if missing
+    //   - Add server info to the account string if missing
+    //   - Set media type to "image" if unknown and reparable
+    //   - Lowercase all tags
+    repairToot(): void {
+        this.application ??= {name: UNKNOWN_APP};
+        this.application.name ??= UNKNOWN_APP;
+        this.language ??= Storage.getConfig().defaultLanguage;
+        this.followedTags ??= [];
+
+        // Inject the @server info to the account string if it's missing
+        if (this.account.acct && !this.account.acct.includes("@")) {
+            console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
+            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
+        }
+
+        // Check for weird media types
+        this.mediaAttachments.forEach((media) => {
+            if (media.type === "unknown" && isImage(media.remoteUrl)) {
+                console.log(`Repairing broken media attachment in toot:`, this);
+                media.type = IMAGE;
+            } else if (!MEDIA_TYPES.includes(media.type)) {
+                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
+            }
+        });
+
+        // Lowercase and count tags
+        this.tags.forEach(tag => {
+            tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
+        });
+    }
+
+    // Returns a simplified version of the toot for logging
+    condensedStatus()  {
+        // Contents of toot (the text)
+        let content = this.reblog?.content || this.content || "";
+        if (content.length > MAX_CONTENT_PREVIEW_CHARS) content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
+        // Account info for the person who tooted it
+        let accountLabel = this.describeAccount();
+        if (this.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${this.reblog.describeAccount()}⬆️⬆️｠`;
+        // Attachment info
+        let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
+        if (mediaAttachments.length == 0) mediaAttachments = [];
+
+        const tootObj = {
+            FROM: `${accountLabel} [${this.createdAt}]`,
+            URL: this.url,
+            content: content,
+            retootOf: this.reblog ? `${this.reblog.describeAccount()} (${this.reblog.createdAt})` : null,
+            inReplyToId: this.inReplyToId,
+            mediaAttachments: mediaAttachments,
+            raw: this,
+            scoreInfo: this.scoreInfo,
+
+            properties: {
+                favouritesCount: this.favouritesCount,
+                reblogsCount: this.reblogsCount,
+                repliesCount: this.repliesCount,
+                tags: (this.tags || this.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
+            },
+        };
+
+        return Object.keys(tootObj)
+            .filter((k) => tootObj[k as keyof typeof tootObj] != null)
+            .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+    }
+
+    // Remove dupes by uniquifying on the toot's URI
+    static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
+        const prefix = logLabel ? `[${logLabel}] ` : '';
+        const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
+
+        Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+            if (!uriToots || uriToots.length == 0) return;
+            const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+            const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+
+            // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
+            //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
+            //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
+            // }
+            // Set all toots to have all trending tags so when we uniquify we catch everything
+            uriToots.forEach((toot) => {
+                toot.trendingTags = uniqueTrendingTags || [];
+            });
+        });
+
+        const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
+        console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+        return deduped;
+    };
 };
 
-
-// Build a string that can be used in logs to identify a toot
-export const describeToot = (toot: Toot): string => {
-    return `${describeTootTime(toot)} (${describeAccount(toot)}): "${toot.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
-};
-
-
-// Build a string that can be used in logs to identify an account
-export const describeAccount = (toot: Toot): string => {
-    return `${toot.account.displayName} (${toot.account.acct})`;
-};
-
-
-export const describeTootTime = (toot: Toot): string => {
-    return `[${toot.createdAt}]: ID: ${toot.id}`;
-};
-
-
-// Extract attachments from Toots
-export const imageAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
-    return attachmentsOfType(toot, "image");
-};
-
-export const videoAttachments = (toot: Toot): Array<mastodon.v1.MediaAttachment> => {
-    const videos = attachmentsOfType(toot, "video");
-    const gifs = attachmentsOfType(toot, "gifv");  // gifv format is just an mp4 video file?
-    return videos.concat(gifs);
-};
-
-const attachmentsOfType = (
-    toot: Toot,
-    attachmentType: mastodon.v1.MediaAttachmentType
-): Array<mastodon.v1.MediaAttachment> => {
-    if (toot.reblog) toot = toot.reblog;
-    if (!toot.mediaAttachments) return [];
-    return toot.mediaAttachments.filter(att => att.type === attachmentType);
-};
 
 
 // Find the minimum ID in a list of toots
@@ -112,126 +247,42 @@ export const minimumID = (toots: Toot[]): number | null => {
 };
 
 
-export const sortByCreatedAt = (toots: Toot[]): Toot[] => {
+export const sortByCreatedAt = (toots: mastodon.v1.Status[]): mastodon.v1.Status[] => {
     return toots.toSorted((a, b) => {
         return a.createdAt < b.createdAt ? -1 : 1;
     });
 };
 
 
-export const earliestTootAt = (toots: Toot[]): Date | null => {
+export const earliestTootAt = (toots: mastodon.v1.Status[]): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;
 };
 
 
 // Find the most recent toot in the feed
-export const mostRecentToot = (toots: Toot[]): Toot | null => {
+export const mostRecentToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status | null => {
     if (toots.length == 0) return null;
     return sortByCreatedAt(toots).slice(-1)[0];
 };
 
 
-export const mostRecentTootAt = (toots: Toot[]): Date | null => {
+export const mostRecentTootAt = (toots: mastodon.v1.Status[]): Date | null => {
     const mostRecent = mostRecentToot(toots);
     return mostRecent ? tootedAt(mostRecent) : null;
 };
 
 
 // Find the most recent toot in the feed
-export const earliestToot = (toots: Toot[]): Toot | null => {
+export const earliestToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status | null => {
     if (toots.length == 0) return null;
-
-    return toots.reduce(
-        (earliest: Toot, toot: Toot) => {
-            try {
-                return (tootedAt(toot) < tootedAt(earliest)) ? toot : earliest;
-            } catch (e) {
-                console.warn(`Failed to parse toot's createdAt:`, toot);
-                return earliest;
-            }
-        },
-        toots[0]
-    );
+    return sortByCreatedAt(toots)[0];
 };
 
 
-// Repair toot properties:
-//   - Set toot.application.name to UNKNOWN_APP if missing
-//   - Set toot.language to defaultLanguage if missing
-//   - Add server info to the account string if missing
-//   - Set media type to "image" if unknown and reparable
-//   - Lowercase all tags
-export function repairToot(toot: Toot): void {
-    toot.application ??= {name: UNKNOWN_APP};
-    toot.application.name ??= UNKNOWN_APP;
-    toot.language ??= Storage.getConfig().defaultLanguage;
-    toot.followedTags ??= [];
-
-    // Inject the @server info to the account string if it's missing
-    if (toot.account.acct && !toot.account.acct.includes("@")) {
-        console.debug(`Injecting @server info to account string '${toot.account.acct}' for:`, toot);
-        toot.account.acct = `${toot.account.acct}@${toot.account.url.split("/")[2]}`;
-    }
-
-    // Check for weird media types
-    toot.mediaAttachments.forEach((media) => {
-        if (media.type === "unknown" && isImage(media.remoteUrl)) {
-            console.log(`Repairing broken media attachment in toot:`, toot);
-            media.type = IMAGE;
-        } else if (!MEDIA_TYPES.includes(media.type)) {
-            console.warn(`Unknown media type: '${media.type}' for toot:`, toot);
-        }
-    });
-
-    // Lowercase and count tags
-    toot.tags.forEach(tag => {
-        tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-    });
-};
-
-
-export const tootedAt = (toot: Toot): Date => {
+export const tootedAt = (toot: mastodon.v1.Status): Date => {
     return new Date(toot.createdAt);
 };
-
-
-// Tags get turned into links so we can't just use toot.content.includes(tag)
-// example: 'class="mention hashtag" rel="tag">#<span>CatsOfMastodon</span></a>'
-export function containsString(toot: Toot, str: string): boolean {
-    if (str.startsWith("#")) {
-        const tagStr = str.slice(1);
-        return toot.tags.some(tag => tag.name.toLowerCase() == tagStr.toLowerCase());
-    } else {
-        return toot.content.toLowerCase().includes(str.toLowerCase());
-    }
-};
-
-
-// Remove dupes by uniquifying on the toot's URI
-export function dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
-    const prefix = logLabel ? `[${logLabel}] ` : '';
-    const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
-
-    Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
-        if (!uriToots || uriToots.length == 0) return;
-        const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
-        const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
-
-        // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
-        //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
-        //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
-        // }
-        // Set all toots to have all trending tags so when we uniquify we catch everything
-        uriToots.forEach((toot) => {
-            toot.trendingTags = uniqueTrendingTags || [];
-        });
-    });
-
-    const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
-    console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
-    return deduped;
-}
 
 
 // export const tootSize = (toot: Toot): number => {

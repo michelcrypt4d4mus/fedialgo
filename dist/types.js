@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WeightName = void 0;
+exports.WeightName = exports.MAX_CONTENT_PREVIEW_CHARS = void 0;
+exports.MAX_CONTENT_PREVIEW_CHARS = 110;
 var WeightName;
 (function (WeightName) {
     WeightName["CHAOS"] = "Chaos";
@@ -20,6 +21,7 @@ var WeightName;
     WeightName["TRENDING_TOOTS"] = "TrendingToots";
     WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
 })(WeightName || (exports.WeightName = WeightName = {}));
+;
 ;
 ;
 ;

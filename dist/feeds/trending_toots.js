@@ -4,9 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mastodon_api_cache_1 = __importDefault(require("../api/mastodon_api_cache"));
+const toot_1 = __importDefault(require("../api/objects/toot"));
 const helpers_1 = require("../helpers");
-const toot_1 = require("../api/objects/toot");
-const toot_2 = require("../api/objects/toot");
 const api_1 = require("../api/api");
 async function getTrendingToots(api) {
     console.log(`[TrendingToots] getTrendingToots() called`);
@@ -18,6 +17,7 @@ async function getTrendingToots(api) {
             topToots = await (0, api_1.mastodonFetch)(server, api_1.MastoApi.trendUrl("statuses"));
             if (!topToots?.length)
                 throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
+            topToots = topToots.map(t => new toot_1.default(t));
         }
         catch (e) {
             console.warn(`Error fetching trending toots from '${server}':`, e);
@@ -26,15 +26,15 @@ async function getTrendingToots(api) {
         // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
         // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
         // toot gets numTrendingTootsPerServer points, least trending gets 1).
-        topToots = topToots.filter(toot => (0, toot_1.popularity)(toot) > 0)
+        topToots = topToots.filter(toot => toot.popularity() > 0)
             .map((toot, i) => {
             toot.trendingRank = 1 + (topToots?.length || 0) - i;
             return toot;
         });
-        console.debug(`trendingToots for '${server}': `, topToots.map(toot_1.condensedStatus));
+        console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
         return topToots;
     }));
-    return (0, toot_2.dedupeToots)(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    return toot_1.default.dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
 }
 exports.default = getTrendingToots;
 ;

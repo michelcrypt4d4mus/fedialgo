@@ -1,4 +1,5 @@
-import { FilterArgs, FilterTitle, Toot } from "../types";
+import Toot from '../api/objects/toot';
+import { FilterArgs, FilterTitle } from "../types";
 export default class TootFilter {
     description: string;
     invertSelection: boolean;

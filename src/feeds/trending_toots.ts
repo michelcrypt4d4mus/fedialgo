@@ -5,11 +5,9 @@
 import { mastodon } from "masto";
 
 import MastodonApiCache from "../api/mastodon_api_cache";
+import Toot from "../api/objects/toot";
 import { average } from '../helpers';
-import { condensedStatus, popularity } from "../api/objects/toot";
-import { dedupeToots } from "../api/objects/toot";
 import { MastoApi, mastodonFetch } from "../api/api";
-import { Toot } from "../types";
 
 
 export default async function getTrendingToots(api: mastodon.rest.Client): Promise<Toot[]> {
@@ -24,6 +22,7 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
             try {
                 topToots = await mastodonFetch<Toot[]>(server, MastoApi.trendUrl("statuses"));
                 if (!topToots?.length) throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
+                topToots = topToots.map(t => new Toot(t));
             } catch (e) {
                 console.warn(`Error fetching trending toots from '${server}':`, e);
                 return [];
@@ -32,18 +31,18 @@ export default async function getTrendingToots(api: mastodon.rest.Client): Promi
             // Ignore toots that have no favourites or retoots, append @server.tld to account strings,
             // and inject a trendingRank score property that is reverse-ordered, e.g most popular trending
             // toot gets numTrendingTootsPerServer points, least trending gets 1).
-            topToots = topToots.filter(toot => popularity(toot) > 0)
+            topToots = topToots.filter(toot => toot.popularity() > 0)
                                .map((toot: Toot, i: number) => {
                                     toot.trendingRank = 1 + (topToots?.length || 0) - i;
                                     return toot;
                                 });
 
-            console.debug(`trendingToots for '${server}': `, topToots.map(condensedStatus));
+            console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
             return topToots;
         })
     );
 
-    return dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
+    return Toot.dedupeToots(setTrendingRankToAvg(trendingTootses.flat()), "getTrendingToots");
 };
 
 

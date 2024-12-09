@@ -12,7 +12,8 @@ import MostFavoritedAccountsScorer from "../scorer/feature/most_favorited_accoun
 import MostRepliedAccountsScorer from "../scorer/feature/most_replied_accounts_scorer";
 import RetootedUsersScorer from "../scorer/feature/retooted_users_scorer";
 import Storage, { Key } from "../Storage";
-import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, Toot, TootURIs } from "../types";
+import Toot from './objects/toot';
+import { AccountFeature, AccountNames, StringNumberDict, ServerFeature, StorageValue, TootURIs } from "../types";
 import { buildAccountNames } from "./objects/account";
 import { getUserRecentToots, mastodonFetchPages } from "./api";
 import { WeightName } from "../types";
@@ -162,8 +163,17 @@ export default class MastodonApiCache extends Storage {
         fetch: (api: mastodon.rest.Client, user: mastodon.v1.Account, ...args: any) => Promise<T>,
         extraArg?: any
     ): Promise<T> {
-        let data: T = await this.get(storageKey) as T;
         let logAction = LOADED_FROM_STORAGE;
+        const storedData = await this.get(storageKey);
+        console.log(`[${storageKey}] Got stored data:`, storedData);
+        let data;
+
+        // TODO: this is a pretty horrific hack to force serialized Toots to get their functions back
+        if (storageKey == Key.RECENT_TOOTS && storedData) {
+            data = storedData as mastodon.v1.Status[];
+        } else {
+            data = storedData as T;
+        }
 
         if (data == null || (await this.shouldReloadFeatures())) {
             const user = await this.getIdentity();
@@ -181,7 +191,8 @@ export default class MastodonApiCache extends Storage {
         }
 
         console.log(`${logPrefix(logAction)} ${storageKey}:`, data);
-        return data;
+        if (storageKey == Key.RECENT_TOOTS && storedData) data = (data as mastodon.v1.Status[]).map(t => new Toot(t)) as T
+        return data as T;
     }
 
     private static async shouldReloadFeatures() {

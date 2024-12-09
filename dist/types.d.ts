@@ -1,7 +1,9 @@
 import { mastodon } from 'masto';
-import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
+import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
+import Toot from './api/objects/toot';
+export declare const MAX_CONTENT_PREVIEW_CHARS = 110;
 export declare enum WeightName {
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
@@ -88,14 +90,22 @@ export type UserData = {
     followedTags: StringNumberDict;
     serverSideFilters: mastodon.v2.Filter[];
 };
-export interface Toot extends mastodon.v1.Status {
+export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
-    reblog?: Toot;
+    reblog?: TootExtension;
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;
     trendingRank?: number;
     trendingTags?: TrendingTag[];
+}
+export interface TootObj extends TootExtension {
+    containsString: (str: string) => boolean;
+    describe: () => string;
+    popularity: () => number;
+    tootedAt: () => Date;
+    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
+    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
 }
 export type TootScore = {
     rawScore: number;
@@ -109,4 +119,4 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootURIs | Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number;
+export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Status[] | number;

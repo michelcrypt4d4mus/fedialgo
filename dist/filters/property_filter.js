@@ -11,7 +11,6 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const toot_1 = require("../api/objects/toot");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
@@ -58,7 +57,7 @@ const TOOT_MATCHERS = {
         return toot.tags.some(tag => validValues.includes(tag.name));
     },
     [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
-        return !!validValues.find((v) => (0, toot_1.containsString)(toot, v));
+        return !!validValues.find((v) => toot.containsString(v));
     },
     [PropertyName.SOURCE]: (toot, validValues) => {
         return Object.entries(exports.SOURCE_FILTERS).some(([filterName, filter]) => {

@@ -5,7 +5,8 @@ import { mastodon } from "masto";
 
 import FeatureScorer from "../feature_scorer";
 import MastodonApiCache from "../../api/mastodon_api_cache";
-import { AccountFeature, Toot, WeightName } from "../../types";
+import Toot from '../../api/objects/toot';
+import { AccountFeature, WeightName } from "../../types";
 import { mastodonFetchPages } from "../../api/api";
 
 

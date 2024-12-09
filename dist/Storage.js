@@ -8,6 +8,7 @@ exports.Key = void 0;
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 const localforage_1 = __importDefault(require("localforage"));
+const toot_1 = __importDefault(require("./api/objects/toot"));
 const config_1 = require("./config");
 const config_2 = require("./config");
 var Key;
@@ -90,11 +91,13 @@ class Storage {
         await localforage_1.default.setItem(Key.USER, user);
     }
     static async getFeed() {
-        let toots = await this.get(Key.TIMELINE);
-        return (toots ?? []);
+        let cachedToots = await this.get(Key.TIMELINE);
+        let toots = (cachedToots ?? []); // Status doesn't include all our Toot props but it should be OK?
+        return toots.map(t => new toot_1.default(t));
     }
     static async setFeed(timeline) {
-        await this.set(Key.TIMELINE, timeline);
+        const toots = timeline.map(t => ({ ...t })); // Remove functions so it can be serialized
+        await this.set(Key.TIMELINE, toots);
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {

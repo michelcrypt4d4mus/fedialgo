@@ -4,12 +4,12 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
+import Toot from './api/objects/toot';
 import {
     Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
     StorageValue,
-    Toot,
     WeightName,
     Weights
 } from "./types";
@@ -112,12 +112,14 @@ export default class Storage {
     }
 
     static async getFeed(): Promise<Toot[]> {
-        let toots = await this.get(Key.TIMELINE);
-        return (toots ?? []) as Toot[];
+        let cachedToots = await this.get(Key.TIMELINE);
+        let toots = (cachedToots ?? []) as mastodon.v1.Status[];  // Status doesn't include all our Toot props but it should be OK?
+        return toots.map(t => new Toot(t));
     }
 
     static async setFeed(timeline: Toot[]) {
-        await this.set(Key.TIMELINE, timeline);
+        const toots = timeline.map(t => ({...t})) as mastodon.v1.Status[];  // Remove functions so it can be serialized
+        await this.set(Key.TIMELINE, toots);
     }
 
     // Get the value at the given key (with the user ID as a prefix)

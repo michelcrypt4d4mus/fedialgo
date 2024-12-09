@@ -3,7 +3,7 @@
  * that as the score.
  */
 import FeatureScorer from '../feature_scorer';
-import { Toot } from "../../types";
+import Toot from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 

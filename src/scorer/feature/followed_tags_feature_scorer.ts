@@ -6,8 +6,9 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import MastodonApiCache from '../../api/mastodon_api_cache';
+import Toot from '../../api/objects/toot';
 import { mastodonFetchPages } from '../../api/api';
-import { StringNumberDict, Toot, WeightName } from '../../types';
+import { StringNumberDict, WeightName } from '../../types';
 
 
 export default class FollowedTagsFeatureScorer extends FeatureScorer {

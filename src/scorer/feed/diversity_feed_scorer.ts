@@ -3,7 +3,8 @@
  * prevent prolific tooters from clogging up the feed.
  */
 import FeedScorer from "../feed_scorer";
-import { StringNumberDict, Toot, WeightName } from "../../types";
+import Toot from '../../api/objects/toot';
+import { StringNumberDict, WeightName } from "../../types";
 
 
 export default class DiversityFeedScorer extends FeedScorer {

@@ -4,9 +4,9 @@
  * (e.g. language).
  */
 import Storage, { Key } from "../Storage";
+import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { containsString } from "../api/objects/toot";
-import { FilterArgs, Toot } from "../types";
+import { FilterArgs } from "../types";
 
 type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
@@ -65,7 +65,7 @@ const TOOT_MATCHERS: TootMatchers = {
         return toot.tags.some(tag => validValues.includes(tag.name));
     },
     [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
-        return !!validValues.find((v) => containsString(toot, v));
+        return !!validValues.find((v) => toot.containsString(v));
     },
     [PropertyName.SOURCE]: (toot: Toot, validValues: string[]) => {
         return Object.entries(SOURCE_FILTERS).some(([filterName, filter]) => {

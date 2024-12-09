@@ -21,6 +21,7 @@ import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
+import Toot, { mostRecentTootAt, sortByCreatedAt } from './api/objects/toot';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -35,22 +36,9 @@ import {
     ScorerDict,
     ScorerInfo,
     StringNumberDict,
-    Toot,
     WeightName,
     Weights,
 } from "./types";
-import {
-    condensedStatus,
-    containsString,
-    dedupeToots,
-    describeAccount,
-    describeToot,
-    imageAttachments,
-    mostRecentTootAt,
-    repairToot,
-    sortByCreatedAt,
-    videoAttachments,
-} from "./api/objects/toot";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
 
@@ -166,7 +154,7 @@ class TheAlgorithm {
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
 
-        const cleanFeed = dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
+        const cleanFeed = Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
         this.repairFeedAndExtractSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots);
@@ -208,7 +196,7 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(condensedStatus));
+        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 
@@ -223,7 +211,6 @@ class TheAlgorithm {
         }, {} as Record<PropertyName, StringNumberDict>);
 
         this.feed.forEach(toot => {
-            repairToot(toot);
             toot.isFollowed = toot.account.acct in this.followedAccounts;
             incrementCount(tootCounts[PropertyName.APP], toot.application.name);
             incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
@@ -246,8 +233,8 @@ class TheAlgorithm {
             // Aggregate server-side filter counts
             this.serverSideFilters.forEach((filter) => {
                 filter.keywords.forEach((keyword) => {
-                    if (containsString(toot, keyword.keyword)) {
-                        console.debug(`toot ${describeToot(toot)} matched server filter:`, filter);
+                    if (toot.containsString(keyword.keyword)) {
+                        console.debug(`toot ${toot.describe()} matched server filter:`, filter);
                         incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
@@ -447,9 +434,7 @@ class TheAlgorithm {
 
 export {
     TIME_DECAY,
-    describeAccount,
     FeedFilterSettings,
-    imageAttachments,
     NumericFilter,
     PropertyFilter,
     PropertyName,
@@ -458,6 +443,5 @@ export {
     StringNumberDict,
     TheAlgorithm,
     Toot,
-    videoAttachments,
     Weights,
 };

@@ -15,12 +15,12 @@ import Paginator from "./api/paginator";
 import PropertyFilter, { PropertyName, SourceFilterName } from "./filters/property_filter";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
+import Toot from './api/objects/toot';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { MastoApi } from "./api/api";
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, Toot, WeightName, Weights } from "./types";
-import { describeAccount, imageAttachments, videoAttachments } from "./api/objects/toot";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
@@ -58,4 +58,4 @@ declare class TheAlgorithm {
     private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
-export { TIME_DECAY, describeAccount, FeedFilterSettings, imageAttachments, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, videoAttachments, Weights, };
+export { TIME_DECAY, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };

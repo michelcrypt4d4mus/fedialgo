@@ -10,7 +10,8 @@ import getRecentTootsForTrendingTags from "../feeds/trending_tags";
 import getTrendingToots from "../feeds/trending_toots";
 import MastodonApiCache from "./mastodon_api_cache";
 import Storage from "../Storage";
-import { TimelineData, Toot, TrendingTag, UserData } from "../types";
+import Toot from './objects/toot';
+import { TimelineData, TrendingTag, UserData } from "../types";
 import { transformKeys } from "../helpers";
 
 export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -84,7 +85,7 @@ export async function searchForToots(
 
     try {
         const searchResult = await api.v2.search.fetch(mastoQuery);
-        const toots = searchResult.statuses as Toot[];
+        const toots = searchResult.statuses.map(t => new Toot(t));
         console.debug(`[searchForToots] Found toots for query`, mastoQuery);
         return toots;
     } catch (e) {
@@ -167,7 +168,7 @@ export async function getUserRecentToots(
         label: 'recentToots'
     });
 
-    return recentToots as Toot[];
+    return recentToots.map(t => new Toot(t));
 };
 
 

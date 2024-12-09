@@ -1,9 +1,11 @@
 import { mastodon } from 'masto';
 
-import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
+import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
+import Toot from './api/objects/toot';
 
+export const MAX_CONTENT_PREVIEW_CHARS = 110;
 
 export enum WeightName {
     CHAOS = 'Chaos',
@@ -109,14 +111,23 @@ export type UserData = {
     serverSideFilters: mastodon.v2.Filter[],
 };
 
-export interface Toot extends mastodon.v1.Status {
+export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblog?: Toot,                     // The toot that was retooted (if any)
+    reblog?: TootExtension,                     // The toot that was retooted (if any)
     reblogBy?: mastodon.v1.Account;    // The account that retooted this toot (if any)
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
+};
+
+export interface TootObj extends TootExtension {
+    containsString: (str: string) => boolean;
+    describe: () => string;
+    popularity: () => number;
+    tootedAt: () => Date;
+    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
+    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
 };
 
 export type TootScore = {
@@ -134,8 +145,8 @@ export interface TrendingTag extends mastodon.v1.Tag {
 };
 
 export type StorageValue = FeedFeature | FeedFilterSettings | FeedFilterSettingsSerialized | ServerFeature |
-    TootURIs |Toot[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number;
-
+    TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Status[] |
+    number;
 
 
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm

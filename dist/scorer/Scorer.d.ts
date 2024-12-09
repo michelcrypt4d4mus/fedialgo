@@ -1,4 +1,5 @@
-import { ScorerInfo, Toot, WeightName } from "../types";
+import Toot from '../api/objects/toot';
+import { ScorerInfo, WeightName } from "../types";
 export default class Scorer {
     name: WeightName;
     description: string;
