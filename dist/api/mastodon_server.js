@@ -55,7 +55,7 @@ class MastodonServer {
         }
         topToots = topToots.filter(toot => toot.popularity() > 0);
         let filteredToots = topToots.filter(toot => toot.popularity() > 0);
-        console.log(`trendingToots() Removed ${topToots.length - filteredToots.length} toots with no favorites or retoots`);
+        console.debug(`trendingToots() Removed ${topToots.length - filteredToots.length} toots with no favorites or retoots`);
         // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
         // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         filteredToots.forEach((toot, i) => toot.trendingRank = 1 + (filteredToots?.length || 0) - i);
