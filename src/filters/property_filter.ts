@@ -29,7 +29,7 @@ export enum PropertyName {
 };
 
 export enum SourceFilterName {
-    DIRECT_MESSAGE = 'directMessage',
+    DIRECT_MESSAGE = 'directMessages',
     FOLLOWED_ACCOUNTS = 'followedAccounts',
     FOLLOWED_HASHTAGS = 'followedHashtags',
     LINKS = 'links',
