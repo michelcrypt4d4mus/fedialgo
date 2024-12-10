@@ -20,6 +20,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         // console.debug(`[TrendingTagsScorer] Scored ${tagScore} for toot w/${toot.trendingTags?.length} trending tags:`, toot);
         return tagScore;
     }
+    // Take the log base 2 for numbers over e because numAccounts can get huge (thousands) sometimes
     scoreTag(tag) {
         const numAccounts = tag.numAccounts || Math.E;
         let score = 0;
