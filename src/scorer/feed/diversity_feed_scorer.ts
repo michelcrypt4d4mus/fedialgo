@@ -21,13 +21,16 @@ export default class DiversityFeedScorer extends FeedScorer {
         const sortRandom = (a: Toot, b: Toot) => md5(a.id).localeCompare(md5(b.id));
 
         // Count toots by account (but negative instead of positive count)
-        return feed.toSorted(sortRandom).reduce(
+        const diversityTootsOrdered = feed.toSorted(sortRandom).reduce(
             (tootCounts, toot) => {
                 tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
                 return tootCounts;
             },
             {} as StringNumberDict
         );
+
+        console.log(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
+        return diversityTootsOrdered;
     }
 
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*

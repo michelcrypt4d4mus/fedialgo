@@ -6,8 +6,8 @@ import { mastodon } from 'masto';
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers';
-import { StringNumberDict, WeightName } from '../../types';
 import { MastoApi } from '../../api/api';
+import { StringNumberDict, WeightName } from '../../types';
 
 
 export default class MostFavoritedAccountsScorer extends FeatureScorer {
