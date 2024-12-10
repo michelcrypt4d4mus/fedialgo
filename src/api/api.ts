@@ -20,11 +20,15 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 
 type ApiMutex = Record<StorageKey, Mutex>;
 
+
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     label: StorageKey,
+    maxId?: string | number,
     maxRecords?: number,
+    skipCache?: boolean,
+    breakIf?: (pageOfResults: T[], allResults: T[]) => boolean,
 };
 
 
@@ -103,32 +107,26 @@ export class MastoApi {
         numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
         const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-        const params = MastoApi.buildParams(maxId);
-        console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params:`, params);
-        let statuses: mastodon.v1.Status[] = [];
-        let pageNumber = 0;
+        console.log(`getHomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}`);
 
-        // TODO: this didn't quite work with mastodonFetchPages() but it probably could
-        for await (const page of this.api.v1.timelines.home.list(params)) {
-            const pageToots = page as mastodon.v1.Status[];
-            statuses = sortByCreatedAt(statuses.concat(pageToots));
-            let oldestTootAt = earliestTootAt(statuses) || new Date();
-            pageNumber++;
+        const statuses = await this.fetchData<mastodon.v1.Status>({
+            fetch: this.api.v1.timelines.home.list,
+            label: Key.HOME_TIMELINE,
+            maxId: maxId,
+            maxRecords: numToots,
+            skipCache: true,
+            breakIf: (pageOfResults, allResults) => {
+                let oldestTootAt = earliestTootAt(allResults) || new Date();
+                console.log(`oldest in page: ${earliestTootAt(pageOfResults)}, oldest: ${oldestTootAt})`);
 
-            let msg = `fetchHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
-            msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;
-            oldestTootAt ||= new Date();
-            console.log(msg);
-
-            // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
-            if ((statuses.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
-                if (oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
+                if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
+                    console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
+                    return true;
                 }
 
-                break;
+                return false;
             }
-        }
+        });
 
         const toots = statuses.map((status) => new Toot(status));
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestTootAt(statuses)}'):`, toots);
@@ -238,7 +236,7 @@ export class MastoApi {
 
     // Generic data fetcher
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-        let { fetch, maxRecords, label } = fetchParams;
+        let { breakIf, fetch, maxId, maxRecords, label, skipCache } = fetchParams;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
         console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
@@ -246,20 +244,24 @@ export class MastoApi {
         let pageNumber = 0;
 
         try {
-            const cachedData = await Storage.get(label);
+            if (!skipCache) {
+                const cachedData = await Storage.get(label);
 
-            if (cachedData && !(await this.shouldReloadFeatures())) {
-                const rows = cachedData as T[];
-                console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
-                return rows;
-            };
+                if (cachedData && !(await this.shouldReloadFeatures())) {
+                    const rows = cachedData as T[];
+                    console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
+                    return rows;
+                };
+            }
 
-            for await (const page of fetch(MastoApi.buildParams())) {
+            for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page as T[]);
                 console.debug(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
 
                 if (results.length >= maxRecords) {
                     console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
+                    break;
+                } else if (breakIf && breakIf(page as T[], results)) {
                     break;
                 }
             }

@@ -122,10 +122,6 @@ class Toot {
     videoAttachments() {
         return this.attachmentsOfType(helpers_1.VIDEO);
     }
-    attachmentsOfType(attachmentType) {
-        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
-    }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
         let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
@@ -216,6 +212,10 @@ class Toot {
         return Object.keys(tootObj)
             .filter((k) => tootObj[k] != null)
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
+    }
+    attachmentsOfType(attachmentType) {
+        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
+        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {

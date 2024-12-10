@@ -55,11 +55,11 @@ export default class Toot implements TootObj {
     tootedAt(): Date;
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
-    attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment>;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(user: mastodon.v1.Account): boolean;
     repairToot(): void;
     condensedStatus(): {};
+    private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }
 export declare const minimumID: (toots: Toot[]) => number | null;

@@ -112,28 +112,23 @@ class MastoApi {
         numToots ||= Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-        const params = MastoApi.buildParams(maxId);
-        console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params:`, params);
-        let statuses = [];
-        let pageNumber = 0;
-        // TODO: this didn't quite work with mastodonFetchPages() but it probably could
-        for await (const page of this.api.v1.timelines.home.list(params)) {
-            const pageToots = page;
-            statuses = (0, toot_1.sortByCreatedAt)(statuses.concat(pageToots));
-            let oldestTootAt = (0, toot_1.earliestTootAt)(statuses) || new Date();
-            pageNumber++;
-            let msg = `fetchHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
-            msg += `oldest in page: ${(0, toot_1.earliestTootAt)(pageToots)}, oldest: ${oldestTootAt})`;
-            oldestTootAt ||= new Date();
-            console.log(msg);
-            // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
-            if ((statuses.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
-                if (oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
+        console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}`);
+        const statuses = await this.fetchData({
+            fetch: this.api.v1.timelines.home.list,
+            label: types_1.Key.HOME_TIMELINE,
+            maxId: maxId,
+            maxRecords: numToots,
+            skipCache: true,
+            breakIf: (pageOfResults, allResults) => {
+                let oldestTootAt = (0, toot_1.earliestTootAt)(allResults) || new Date();
+                console.log(`oldest in page: ${(0, toot_1.earliestTootAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
+                if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
+                    console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
+                    return true;
                 }
-                break;
+                return false;
             }
-        }
+        });
         const toots = statuses.map((status) => new toot_1.default(status));
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootAt)(statuses)}'):`, toots);
         console.debug(toots.map(t => t.describe()).join("\n"));
@@ -238,25 +233,30 @@ class MastoApi {
     ;
     // Generic data fetcher
     async fetchData(fetchParams) {
-        let { fetch, maxRecords, label } = fetchParams;
+        let { breakIf, fetch, maxId, maxRecords, label, skipCache } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
         try {
-            const cachedData = await Storage_1.default.get(label);
-            if (cachedData && !(await this.shouldReloadFeatures())) {
-                const rows = cachedData;
-                console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
-                return rows;
+            if (!skipCache) {
+                const cachedData = await Storage_1.default.get(label);
+                if (cachedData && !(await this.shouldReloadFeatures())) {
+                    const rows = cachedData;
+                    console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
+                    return rows;
+                }
+                ;
             }
-            ;
-            for await (const page of fetch(MastoApi.buildParams())) {
+            for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page);
                 console.debug(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
                 if (results.length >= maxRecords) {
                     console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
+                    break;
+                }
+                else if (breakIf && breakIf(page, results)) {
                     break;
                 }
             }

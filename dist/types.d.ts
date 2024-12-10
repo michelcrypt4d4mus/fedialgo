@@ -6,6 +6,7 @@ import Toot from './api/objects/toot';
 export declare enum Key {
     FILTERS = "filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
+    HOME_TIMELINE = "homeTimeline",
     LAST_OPENED = "lastOpened",
     OPENINGS = "openings",
     POPULAR_SERVERS = "popularServers",

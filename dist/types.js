@@ -5,6 +5,7 @@ var Key;
 (function (Key) {
     Key["FILTERS"] = "filters";
     Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
+    Key["HOME_TIMELINE"] = "homeTimeline";
     Key["LAST_OPENED"] = "lastOpened";
     Key["OPENINGS"] = "openings";
     Key["POPULAR_SERVERS"] = "popularServers";

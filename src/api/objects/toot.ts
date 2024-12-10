@@ -146,11 +146,6 @@ export default class Toot implements TootObj {
         return this.attachmentsOfType(VIDEO);
     }
 
-    attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
-        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
-    }
-
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters: FeedFilterSettings): boolean {
         let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
@@ -246,6 +241,11 @@ export default class Toot implements TootObj {
         return Object.keys(tootObj)
             .filter((k) => tootObj[k as keyof typeof tootObj] != null)
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+    }
+
+    private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
+        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
+        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
     }
 
     // Remove dupes by uniquifying on the toot's URI
