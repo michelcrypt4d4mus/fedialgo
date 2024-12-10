@@ -5,8 +5,8 @@ import { mastodon } from 'masto';
 
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict, WeightName } from '../../types';
 import { countValues } from '../../helpers';
+import { StringNumberDict, WeightName } from '../../types';
 import { MastoApi } from '../../api/api';
 
 

@@ -89,6 +89,7 @@ export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
 };
 
 
+// Run a list of promises in parallel and return a dict of the results keyed by the input
 export async function zipPromises<T>(
     args: string[],
     promiser: (s: string) => Promise<T>
@@ -97,6 +98,7 @@ export async function zipPromises<T>(
 };
 
 
+// Sort the keys of a dict by their values in descending order
 export function sortKeysByValue(dict: StringNumberDict): string[] {
     return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
 };
