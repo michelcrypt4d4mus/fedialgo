@@ -40,6 +40,7 @@ export async function mastodonServersInfo(): Promise<StringNumberDict> {
         serverMAUs = { ...validServers, ...extraServerMAUs };
     }
 
+    // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
     const overrepresentedServerFreq = Object.keys(serverMAUs).reduce((overRepped, server) => {
         overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
         return overRepped;
