@@ -4,24 +4,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * Pull top trending tags on mastodon server (servers?). Example trending tag:
- *
+ * Pull top trending tags on mastodon servers and get a set of toots for each.
+ * Example trending tag:
  *   {
- *     "name": "southkorea",
- *     "url": "https://journa.host/tags/southkorea",
- *     "history": [
- *       {
- *         "day": "1733184000",
- *         "accounts": "125",
- *         "uses": "374"
- *       },
- *       {
- *         "day": "1733097600",
- *         "accounts": "4",
- *         "uses": "146"
- *       },
- *       <...snip, usually 7 days of info...>
- *     ]
+ *       "name": "southkorea",
+ *       "url": "https://journa.host/tags/southkorea",
+ *       "history": [
+ *           {
+ *               "day": "1733184000",
+ *               "accounts": "125",
+ *               "uses": "374"
+ *           },
+ *           {
+ *               "day": "1733097600",
+ *               "accounts": "4",
+ *               "uses": "146"
+ *           },
+ *           <...snip, usually 7 days of info...>
+ *        ]
  *   }
  */
 const Storage_1 = __importDefault(require("../Storage"));
