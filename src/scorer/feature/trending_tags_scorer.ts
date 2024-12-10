@@ -20,6 +20,7 @@ export default class TrendingTagsScorer extends FeatureScorer {
         return tagScore;
     }
 
+    // Take the log base 2 for numbers over e because numAccounts can get huge (thousands) sometimes
     private scoreTag(tag: TrendingTag): number {
         const numAccounts = tag.numAccounts || Math.E;
         let score = 0;
