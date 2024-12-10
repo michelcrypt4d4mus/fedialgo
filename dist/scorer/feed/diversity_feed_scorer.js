@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Generates a NEGATIVE score based on how many times the tooter has tooted recently to help
  * prevent prolific tooters from clogging up the feed.
  */
+const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const types_1 = require("../../types");
 class DiversityFeedScorer extends feed_scorer_1.default {
@@ -17,7 +18,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // Shuffle the feed before penalizing multiple tooters
         // TODO: maybe reverse chronological order would be better?
         console.log(`DiversityFeedScorer.feedExtractor() called...`);
-        const sortRandom = () => Math.random() - 0.5;
+        const sortRandom = (a, b) => (0, blueimp_md5_1.default)(a.id).localeCompare((0, blueimp_md5_1.default)(b.id));
         // Count toots by account (but negative instead of positive count)
         return feed.toSorted(sortRandom).reduce((tootCounts, toot) => {
             tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
