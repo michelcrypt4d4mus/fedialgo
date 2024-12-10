@@ -13,7 +13,6 @@ class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.TRENDING_TAGS);
     }
-    // TODO: we could also use tag.numStatuses in some way (or instead)
     async _score(toot) {
         const tags = toot.trendingTags || [];
         const tagScore = tags.reduce((sum, tag) => sum + this.scoreTag(tag), 0);
@@ -21,6 +20,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         return tagScore;
     }
     // Take the log base 2 for numbers over e because numAccounts can get huge (thousands) sometimes
+    // TODO: we could also use tag.numStatuses in some way (or instead)
     scoreTag(tag) {
         const numAccounts = tag.numAccounts || Math.E;
         let score = 0;

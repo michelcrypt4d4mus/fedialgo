@@ -1,3 +1,6 @@
+/*
+ * Helper methods for dealing with Mastodon's Tag objects.
+ */
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";

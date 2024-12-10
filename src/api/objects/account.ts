@@ -1,5 +1,5 @@
 /*
- * Helper methods for dealing with mastodon Account objects.
+ * Helper methods for dealing with Mastodon's Account objects.
  */
 import { mastodon } from "masto";
 
