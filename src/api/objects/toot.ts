@@ -161,12 +161,12 @@ export default class Toot implements TootObj {
         if (this?.reblog?.reblogged) return false; // Remove things the user has already retooted
 
         if (this.account.username == user.username && this.account.id == user.id) {
-            console.debug(`Removing user's own toot: `, this);
+            // console.debug(`Removing user's own toot: `, this);
             return false;  // Remove user's toots
         }
 
         if (this.account.acct in mutedAccounts) {
-            console.debug(`Removing toot from muted account (${this.describeAccount}):`, this);
+            console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
             return false;  // Remove muted accounts
         }
 

@@ -159,8 +159,8 @@ class Toot {
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN_APP if missing
     //   - Set toot.language to defaultLanguage if missing
-    //   - Add server info to the account string if missing
     //   - Set media type to "image" if unknown and reparable
+    //   - Add server info to the account string if missing
     //   - Lowercase all tags
     repairToot() {
         this.application ??= { name: UNKNOWN_APP };
@@ -183,9 +183,7 @@ class Toot {
             }
         });
         // Lowercase and count tags
-        this.tags.forEach(tag => {
-            tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-        });
+        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
     // Returns a simplified version of the toot for logging
     condensedStatus() {
@@ -235,9 +233,9 @@ class Toot {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-            if (firstScoredToot && uriToots.length > 1) {
-                console.log(`${prefix}First scored toot in group of ${uriToots.length}:`, firstScoredToot, `\nall toots:`, uriToots);
-            }
+            // if (firstScoredToot && uriToots.length > 1) {
+            //     console.debug(`${prefix}First scored toot in group of ${uriToots.length}:`, firstScoredToot, `\nall toots:`, uriToots);
+            // }
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
@@ -267,9 +265,7 @@ const minimumID = (toots) => {
 };
 exports.minimumID = minimumID;
 const sortByCreatedAt = (toots) => {
-    return toots.toSorted((a, b) => {
-        return a.createdAt < b.createdAt ? -1 : 1;
-    });
+    return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
 exports.sortByCreatedAt = sortByCreatedAt;
 const earliestCreatedAt = (toots) => {
