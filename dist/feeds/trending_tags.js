@@ -43,9 +43,9 @@ exports.default = getRecentTootsForTrendingTags;
 async function getTrendingTags() {
     console.log(`${LOG_PREFIX} getTrendingTags() called`);
     const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
-    const trendingTags = await Promise.all(topDomains.map(public_1.fetchTrendingTags));
+    const serversTrendingTags = await Promise.all(topDomains.map(public_1.fetchTrendingTags));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const aggregatedTags = trendingTags.flat().reduce((tags, tag) => {
+    const aggregatedTags = serversTrendingTags.flat().reduce((tags, tag) => {
         const existingTag = tags.find(t => t.name === tag.name);
         if (existingTag) {
             existingTag.numAccounts = (existingTag.numAccounts || 0) + (tag.numAccounts || 0);

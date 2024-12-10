@@ -45,7 +45,7 @@ async function getTrendingTags(): Promise<TrendingTag[]> {
     const serversTrendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const aggregatedTags = serversTrendingTags.flat().reduce(
+    const trendingTags = serversTrendingTags.flat().reduce(
         (tags, tag) => {
             const existingTag = tags.find(t => t.name === tag.name);
 
@@ -61,9 +61,9 @@ async function getTrendingTags(): Promise<TrendingTag[]> {
         [] as TrendingTag[]
     );
 
-    aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
-    console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
-    return aggregatedTags.slice(0, Storage.getConfig().numTrendingTags);
+    trendingTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
+    console.log(`${LOG_PREFIX} Aggregated trending tags:`, trendingTags);
+    return trendingTags.slice(0, Storage.getConfig().numTrendingTags);
 };
 
 
