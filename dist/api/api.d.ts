@@ -2,10 +2,10 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Toot from './objects/toot';
 import { StorageKey, TimelineData, UserData } from "../types";
+type ApiMutex = Record<StorageKey, Mutex>;
 export declare const INSTANCE = "instance";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-type ApiMutex = Record<StorageKey, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
