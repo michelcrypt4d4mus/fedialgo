@@ -74,11 +74,13 @@ function zipArrays(array1, array2) {
 }
 exports.zipArrays = zipArrays;
 ;
+// Run a list of promises in parallel and return a dict of the results keyed by the input
 async function zipPromises(args, promiser) {
     return zipArrays(args, await Promise.all(args.map(promiser)));
 }
 exports.zipPromises = zipPromises;
 ;
+// Sort the keys of a dict by their values in descending order
 function sortKeysByValue(dict) {
     return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
 }

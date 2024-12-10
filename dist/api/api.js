@@ -197,7 +197,7 @@ class MastoApi {
                 return rows;
             }
             ;
-            for await (const page of fetch({ limit: Storage_1.default.getConfig().defaultRecordsPerPage })) {
+            for await (const page of fetch(MastoApi.buildParams())) {
                 results = results.concat(page);
                 console.log(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
                 if (results.length >= maxRecords) {
@@ -233,6 +233,16 @@ class MastoApi {
             throw e;
         }
     }
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    static buildParams(maxId, limit) {
+        let params = {
+            limit: limit || Storage_1.default.getConfig().defaultRecordsPerPage
+        };
+        if (maxId)
+            params = { ...params, maxId: `${maxId}` };
+        return params;
+    }
+    ;
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);

@@ -217,12 +217,12 @@ export class MastoApi {
                 return rows;
             };
 
-            for await (const page of fetch({ limit: Storage.getConfig().defaultRecordsPerPage })) {
+            for await (const page of fetch(MastoApi.buildParams())) {
                 results = results.concat(page as T[]);
                 console.log(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
 
                 if (results.length >= maxRecords) {
-                    console.log(`[API] ${label}: Halting record retrieval at page ${pageNumber} w/ ${results.length} records`);
+                    console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
@@ -255,6 +255,16 @@ export class MastoApi {
             throw e;
         }
     }
+
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    static buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
+        let params: mastodon.DefaultPaginationParams = {
+            limit: limit || Storage.getConfig().defaultRecordsPerPage
+        };
+
+        if (maxId) params = {...params, maxId: `${maxId}`};
+        return params as mastodon.DefaultPaginationParams;
+    };
 
     public static v1Url = (path: string) => `${API_V1}/${path}`;
     public static v2Url = (path: string) => `${API_V2}/${path}`;

@@ -25,6 +25,7 @@ export declare class MastoApi {
     private fetchData;
     private shouldReloadFeatures;
     private throwIfAccessTokenRevoked;
+    static buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams;
     static v1Url: (path: string) => string;
     static v2Url: (path: string) => string;
     static trendUrl: (path: string) => string;

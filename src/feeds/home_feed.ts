@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 
 import Storage from "../Storage";
 import Toot, { earliestTootAt, sortByCreatedAt } from '../api/objects/toot';
+import { MastoApi } from "../api/api";
 
 
 export default async function getHomeFeed(
@@ -14,29 +15,20 @@ export default async function getHomeFeed(
     numToots?: number,
     maxId?: string | number
 ): Promise<Toot[]> {
+    numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
     const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
     const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-    numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
+    const params = MastoApi.buildParams(maxId);
+    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params:`, params);
     let statuses: mastodon.v1.Status[] = [];
     let pageNumber = 0;
 
-    const timelineParams: mastodon.rest.v1.ListTimelineParams = {
-        limit: Storage.getConfig().defaultRecordsPerPage,
-        maxId: maxId ? `${maxId}` : undefined,
-    };
-
-    console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params`, timelineParams);
-
-    // Sometimes there are weird outliers in the feed, like a toot that happened a few days ago.
-    // Seems like these might be coming from federated apps other than Mastodon?
-    // example: https://flipboard.com/users/AxiosNews/statuses/LxBgpIAhTnO1TEZ-uG2T2Q:a:2150299410
-    // TODO: we should probably detect these outliers and exclude them from the cutoff time calculation
     // TODO: this didn't quite work with mastodonFetchPages() but it probably could
-    for await (const page of api.v1.timelines.home.list(timelineParams)) {
+    for await (const page of api.v1.timelines.home.list(params)) {
         const pageToots = page as mastodon.v1.Status[];
-        pageNumber++;
         statuses = sortByCreatedAt(statuses.concat(pageToots));
         let oldestTootAt = earliestTootAt(statuses) || new Date();
+        pageNumber++;
 
         let msg = `getHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
         msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;

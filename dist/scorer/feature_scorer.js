@@ -6,8 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const scorer_1 = __importDefault(require("./scorer"));
 ;
 class FeatureScorer extends scorer_1.default {
-    // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
-    // e.g. things like most commonly retooted users etc.
     featureGetter;
     feature = {}; // TODO: rename this to supportData or something
     constructor(params) {
