@@ -36,14 +36,14 @@ export default class DiversityFeedScorer extends FeedScorer {
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
     async _score(toot: Toot) {
-        this.features[toot.account.acct] = (this.features[toot.account.acct] || 0) + 1;
+        this.feed[toot.account.acct] = (this.feed[toot.account.acct] || 0) + 1;
 
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
-        if (this.features[toot.account.acct] > 0) {
-            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.features[toot.account.acct]}), diversity features:`, this.features);
+        if (this.feed[toot.account.acct] > 0) {
+            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.feed[toot.account.acct]}), diversity features:`, this.feed);
             return 0;
         } else {
-            return this.features[toot.account.acct];
+            return this.feed[toot.account.acct];
         }
     }
 };
