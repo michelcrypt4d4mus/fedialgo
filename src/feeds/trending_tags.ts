@@ -42,10 +42,10 @@ export default async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 async function getTrendingTags(): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
     const topDomains = await MastoApi.instance.getTopServerDomains();
-    const trendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
+    const serversTrendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const aggregatedTags = trendingTags.flat().reduce(
+    const aggregatedTags = serversTrendingTags.flat().reduce(
         (tags, tag) => {
             const existingTag = tags.find(t => t.name === tag.name);
 

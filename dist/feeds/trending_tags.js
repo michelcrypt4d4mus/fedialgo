@@ -30,9 +30,9 @@ const public_1 = require("../api/public");
 const api_1 = require("../api/api");
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags() {
-    const tags = await getTrendingTags();
-    const tootses = await Promise.all(tags.map(getTootsForTag));
-    const toots = toot_1.default.dedupeToots(tootses.flat(), LOG_PREFIX);
+    const trendingTags = await getTrendingTags();
+    const tootTags = await Promise.all(trendingTags.map(getTootsForTag));
+    const toots = toot_1.default.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
     console.debug(`getRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
