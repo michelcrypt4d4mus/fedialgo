@@ -18,9 +18,10 @@ const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const helpers_2 = require("../helpers");
 // Returns something called "overrepresentedServerFrequ"??
-async function mastodonServersInfo(follows) {
-    // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
+async function mastodonServersInfo() {
     const config = Storage_1.default.getConfig();
+    const follows = await api_1.MastoApi.instance.fetchFollowedAccounts();
+    // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
     const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => (0, account_1.extractServer)(account));
     const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
     console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
@@ -41,7 +42,7 @@ async function mastodonServersInfo(follows) {
         return overRepped;
     }, {});
     console.log(`Final serverMAUs: `, serverMAUs);
-    console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFreq);
+    console.log(`Final overrepresentedServerFreq: `, overrepresentedServerFreq);
     return overrepresentedServerFreq;
 }
 exports.mastodonServersInfo = mastodonServersInfo;

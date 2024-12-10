@@ -227,7 +227,7 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await (0, public_1.mastodonServersInfo)(await this.fetchFollowedAccounts());
+                servers = await (0, public_1.mastodonServersInfo)();
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {

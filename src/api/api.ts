@@ -232,7 +232,7 @@ export class MastoApi {
             let servers = await Storage.get(Key.POPULAR_SERVERS) as StringNumberDict;;
 
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await mastodonServersInfo(await this.fetchFollowedAccounts());
+                servers = await mastodonServersInfo();
                 await Storage.set(Key.POPULAR_SERVERS, servers);
             } else {
                 console.log(`Loaded popular servers from cache:`, servers);

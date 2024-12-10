@@ -11,7 +11,7 @@ const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const BROKEN_TAG = "<<BROKEN_TAG>>";
-const UNKNOWN_APP = "unknown";
+const UNKNOWN = "unknown";
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -208,14 +208,14 @@ class Toot {
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
     }
     // Repair toot properties:
-    //   - Set toot.application.name to UNKNOWN_APP if missing
+    //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
     //   - Set media type to "image" if unknown and reparable
     //   - Add server info to the account string if missing
     //   - Lowercase all tags
     repairToot() {
-        this.application ??= { name: UNKNOWN_APP };
-        this.application.name ??= UNKNOWN_APP;
+        this.application ??= { name: UNKNOWN };
+        this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
         this.followedTags ??= [];
         // Inject the @server info to the account string if it's missing
@@ -225,7 +225,7 @@ class Toot {
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
-            if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
+            if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {
                 console.log(`Repairing broken media attachment in toot:`, this);
                 media.type = helpers_1.IMAGE;
             }

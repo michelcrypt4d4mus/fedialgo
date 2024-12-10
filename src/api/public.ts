@@ -17,9 +17,11 @@ import { transformKeys } from "../helpers";
 
 
 // Returns something called "overrepresentedServerFrequ"??
-export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promise<StringNumberDict> {
-    // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
+export async function mastodonServersInfo(): Promise<StringNumberDict> {
     const config = Storage.getConfig();
+    const follows = await MastoApi.instance.fetchFollowedAccounts();
+
+    // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
     const followedServerUserCounts = countValues<mastodon.v1.Account>(follows, account => extractServer(account));
     const mostFollowedServers = sortKeysByValue(followedServerUserCounts).slice(0, config.numServersToCheck);
     console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
@@ -44,7 +46,7 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
     }, {} as StringNumberDict);
 
     console.log(`Final serverMAUs: `, serverMAUs);
-    console.log(`Final overrepresentedServerFrequ: `, overrepresentedServerFreq);
+    console.log(`Final overrepresentedServerFreq: `, overrepresentedServerFreq);
     return overrepresentedServerFreq;
 };
 
