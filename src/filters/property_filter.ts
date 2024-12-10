@@ -6,9 +6,9 @@
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { FilterArgs, Key } from "../types";
+import { countValues } from "../helpers";
+import { FilterArgs, Key, StringNumberDict } from "../types";
 
-type FilterOptionInfo = Record<string, number>;  // e.g. { 'en': 10, 'de': 5 }
 type SourceFilter = (toot: Toot) => boolean;
 type SourceFilters = Record<SourceFilterName, SourceFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -40,7 +40,7 @@ export enum SourceFilterName {
 };
 
 export interface PropertyFilterArgs extends FilterArgs {
-    optionInfo?: FilterOptionInfo;  // e.g. counts of toots with this option
+    optionInfo?: StringNumberDict;  // e.g. counts of toots with this option
     validValues?: string[];
 };
 
@@ -84,7 +84,7 @@ const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 export default class PropertyFilter extends TootFilter {
     title: PropertyName
-    optionInfo: FilterOptionInfo;
+    optionInfo: StringNumberDict;
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
@@ -94,11 +94,7 @@ export default class PropertyFilter extends TootFilter {
 
         if (title == PropertyName.SOURCE) {
             // Set up the default for source filters so something always shows up in the options
-            optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
-                acc[option] = 1;
-                return acc;
-            }, {} as FilterOptionInfo);
-
+            optionInfo = countValues<SourceFilterName>(Object.values(SourceFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
             const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
@@ -125,7 +121,7 @@ export default class PropertyFilter extends TootFilter {
         return this.invertSelection ? !isMatched : isMatched;
     }
 
-    setOptions(optionInfo: FilterOptionInfo) {
+    setOptions(optionInfo: StringNumberDict) {
         this.optionInfo = optionInfo;
 
         // Server side filters get all the options immediately set to filter out toots

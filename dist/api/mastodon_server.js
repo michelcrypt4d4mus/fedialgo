@@ -121,17 +121,16 @@ class MastodonServer {
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => (0, account_1.extractServer)(account));
         const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
-        console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
-        let serverMAUs = await this.callForServers(mostFollowedServers, (server) => server.fetchMonthlyUsers());
-        console.log(`mastodonServersInfo() serverMAUs: `, serverMAUs);
+        let serverMAUs = await this.callForServers(mostFollowedServers, (s) => s.fetchMonthlyUsers());
         const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
-        console.debug(`Most followed servers:`, mostFollowedServers, `\nserverMAUs:`, serverMAUs, `\nvalidServers:`, validServers);
+        console.debug(`followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
+        console.debug(`validServers:`, validServers);
         if (numDefaultServers > 0) {
             console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
             const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
-            const extraServerMAUs = await this.callForServers(extraServers, (server) => server.fetchMonthlyUsers());
+            const extraServerMAUs = await this.callForServers(extraServers, (s) => s.fetchMonthlyUsers());
             console.log(`Extra default server MAUs:`, extraServerMAUs);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }

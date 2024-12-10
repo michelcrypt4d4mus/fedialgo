@@ -58,7 +58,7 @@ function incrementCount(counts, key) {
 exports.incrementCount = incrementCount;
 ;
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
-function countValues(items, getKey, countNulls) {
+function countValues(items, getKey = (item) => item, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
         if (key == null && !countNulls)

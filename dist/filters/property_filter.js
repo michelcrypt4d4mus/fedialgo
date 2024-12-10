@@ -11,6 +11,7 @@ exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
+const helpers_1 = require("../helpers");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
@@ -81,10 +82,7 @@ class PropertyFilter extends toot_filter_1.default {
         let description;
         if (title == PropertyName.SOURCE) {
             // Set up the default for source filters so something always shows up in the options
-            optionInfo = Object.values(SourceFilterName).reduce((acc, option) => {
-                acc[option] = 1;
-                return acc;
-            }, {});
+            optionInfo = (0, helpers_1.countValues)(Object.values(SourceFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {

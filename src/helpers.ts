@@ -69,7 +69,7 @@ export function incrementCount(counts: StringNumberDict, key?: CountKey | null):
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 export function countValues<T>(
     items: T[],
-    getKey: (item: T) => string | null | undefined,
+    getKey: (item: T) => string | null | undefined = (item) => item as string,
     countNulls?: boolean
 ): StringNumberDict {
     return items.reduce(
