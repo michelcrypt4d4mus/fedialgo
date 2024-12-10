@@ -1,5 +1,12 @@
 import Toot from "./objects/toot";
 import { StringNumberDict, TrendingTag } from "../types";
-export declare function mastodonServersInfo(): Promise<StringNumberDict>;
-export declare function fetchTrendingTags(server: string, numTags?: number): Promise<TrendingTag[]>;
-export declare function fetchTrendingToots(): Promise<Toot[]>;
+export declare class MastodonServer {
+    domain: string;
+    constructor(domain: string);
+    fetchTrendingTags(numTags?: number): Promise<TrendingTag[]>;
+    trendingToots(): Promise<Toot[] | undefined>;
+    getMonthlyUsers(): Promise<number>;
+    private fetch;
+    static fetchTrendingToots(): Promise<Toot[]>;
+    static mastodonServersInfo(): Promise<StringNumberDict>;
+}

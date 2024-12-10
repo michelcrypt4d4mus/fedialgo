@@ -21,8 +21,8 @@
  */
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { fetchTrendingTags } from "../api/public";
 import { MastoApi } from "../api/api";
+import { MastodonServer } from "../api/public";
 import { TrendingTag } from "../types";
 
 const LOG_PREFIX = "[TrendingTags]";
@@ -42,7 +42,7 @@ export default async function fetchRecentTootsForTrendingTags(): Promise<Toot[]>
 async function getTrendingTags(): Promise<TrendingTag[]> {
     console.log(`${LOG_PREFIX} getTrendingTags() called`)
     const topDomains = await MastoApi.instance.getTopServerDomains();
-    const serversTrendingTags = await Promise.all(topDomains.map(fetchTrendingTags));
+    const serversTrendingTags = await Promise.all(topDomains.map(s => new MastodonServer(s).fetchTrendingTags()));
 
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const trendingTags = serversTrendingTags.flat().reduce(

@@ -84,7 +84,7 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                (0, public_1.fetchTrendingToots)(),
+                public_1.MastodonServer.fetchTrendingToots(),
                 (0, trending_tags_1.default)(),
             ]);
         }
@@ -227,7 +227,7 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await (0, public_1.mastodonServersInfo)();
+                servers = await public_1.MastodonServer.mastodonServersInfo();
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {

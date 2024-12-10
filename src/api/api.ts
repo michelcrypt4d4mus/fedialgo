@@ -9,7 +9,7 @@ import Storage from "../Storage";
 import Toot, { earliestCreatedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
-import { fetchTrendingToots, mastodonServersInfo } from "./public";
+import { MastodonServer } from "./public";
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 
 export const INSTANCE = "instance"
@@ -78,7 +78,7 @@ export class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                fetchTrendingToots(),
+                MastodonServer.fetchTrendingToots(),
                 fetchRecentTootsForTrendingTags(),
             ]);
         }
@@ -232,7 +232,7 @@ export class MastoApi {
             let servers = await Storage.get(Key.POPULAR_SERVERS) as StringNumberDict;;
 
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await mastodonServersInfo();
+                servers = await MastodonServer.mastodonServersInfo();
                 await Storage.set(Key.POPULAR_SERVERS, servers);
             } else {
                 console.log(`Loaded popular servers from cache:`, servers);
