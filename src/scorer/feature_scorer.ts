@@ -14,13 +14,12 @@ import { StringNumberDict, WeightName } from "../types";
 
 
 interface RankParams {
+    // featureGetter() is a fxn to get data the scorer needs, e.g. most commonly retooted users
     featureGetter?: () => Promise<StringNumberDict>,
     scoreName: WeightName,
 };
 
 export default class FeatureScorer extends Scorer {
-    // The featureGetter is a fxn that retrieves data the scorer will need to score a toot,
-    // e.g. things like most commonly retooted users etc.
     featureGetter: (api: mastodon.rest.Client) => Promise<StringNumberDict>;
     feature: StringNumberDict = {};  // TODO: rename this to supportData or something
 
