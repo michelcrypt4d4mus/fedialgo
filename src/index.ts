@@ -15,7 +15,6 @@ import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
-import Paginator from "./api/paginator";
 import PropertyFilter, { SOURCE_FILTERS, PropertyName, SourceFilterName } from "./filters/property_filter";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
@@ -182,11 +181,11 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
-        return this.filteredFeed();
+        return this.filterFeed();
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
-    filteredFeed(): Toot[] {
+    filterFeed(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
@@ -249,11 +248,6 @@ class TheAlgorithm {
 
         Storage.setFilters(this.filters);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
-    }
-
-    // TODO: is this ever used?
-    list(): Paginator {
-        return new Paginator(this.feed);
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots
@@ -347,7 +341,7 @@ class TheAlgorithm {
             }
         }
 
-        return this.filteredFeed();
+        return this.filterFeed();
     }
 
     // Utility method to log progress of getFeed() calls

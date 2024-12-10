@@ -43,7 +43,6 @@ exports.NumericFilter = numeric_filter_1.default;
 const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
-const paginator_1 = __importDefault(require("./api/paginator"));
 const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
@@ -184,10 +183,10 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters: `, newFilters);
         this.filters = newFilters;
         Storage_1.default.setFilters(newFilters);
-        return this.filteredFeed();
+        return this.filterFeed();
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
-    filteredFeed() {
+    filterFeed() {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
@@ -243,10 +242,6 @@ class TheAlgorithm {
         });
         Storage_1.default.setFilters(this.filters);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
-    }
-    // TODO: is this ever used?
-    list() {
-        return new paginator_1.default(this.feed);
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
@@ -329,7 +324,7 @@ class TheAlgorithm {
                 console.warn(`${logPrefix} caught error:`, e);
             }
         }
-        return this.filteredFeed();
+        return this.filterFeed();
     }
     // Utility method to log progress of getFeed() calls
     logTootCounts(newToots, newHomeToots) {

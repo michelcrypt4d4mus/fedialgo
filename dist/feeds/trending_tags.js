@@ -29,15 +29,15 @@ const toot_1 = __importDefault(require("../api/objects/toot"));
 const public_1 = require("../api/public");
 const api_1 = require("../api/api");
 const LOG_PREFIX = "[TrendingTags]";
-async function getRecentTootsForTrendingTags() {
+async function fetchRecentTootsForTrendingTags() {
     const trendingTags = await getTrendingTags();
     const tootTags = await Promise.all(trendingTags.map(getTootsForTag));
     const toots = toot_1.default.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
-    console.debug(`getRecentTootsForTrendingTags() possible toots:`, toots);
+    console.debug(`fetchRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
-exports.default = getRecentTootsForTrendingTags;
+exports.default = fetchRecentTootsForTrendingTags;
 ;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags() {
