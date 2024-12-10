@@ -21,13 +21,13 @@ export default abstract class FeatureScorer extends Scorer {
     }
 
     // Can be overloaded in subclasses to retrieve feature data from the server
-    async featureGetter(api: mastodon.rest.Client): Promise<StringNumberDict> {
+    async featureGetter(): Promise<StringNumberDict> {
         return {}
     }
 
-    async getFeature(api: mastodon.rest.Client): Promise<Toot[]> {
+    async getFeature(): Promise<Toot[]> {
         try {
-            this.requiredData = await this.featureGetter(api);
+            this.requiredData = await this.featureGetter();
         } catch (e) {
             console.warn(`Error in getFeature() for ${this.name}:`, e);
         }

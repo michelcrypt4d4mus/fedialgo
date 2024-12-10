@@ -138,7 +138,7 @@ class TheAlgorithm {
             promises = promises.concat([
                 api_1.MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
-                ...this.featureScorers.map(scorer => scorer.getFeature(this.api)),
+                ...this.featureScorers.map(scorer => scorer.getFeature()),
             ]);
         }
         const allResponses = await Promise.all(promises);
@@ -300,7 +300,7 @@ class TheAlgorithm {
                 let promises = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
                 if (!this.featureScorers.every(scorer => scorer.isReady)) {
                     console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
+                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature()));
                 }
                 // Sort by createdAt so that we get consistent scoring from DiversityFeedScorer
                 let tempFeed = this.feed.sort((a, b) => a.tootedAt().getTime() - b.tootedAt().getTime());

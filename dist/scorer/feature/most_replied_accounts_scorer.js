@@ -11,9 +11,6 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_REPLIED_ACCOUNTS);
     }
-    async _score(toot) {
-        return this.requiredData[toot.account.id] || 0;
-    }
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT
     // unique across all servers.
@@ -21,6 +18,10 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         return (0, helpers_1.countValues)(recentReplies, (toot) => toot?.inReplyToAccountId);
+    }
+    ;
+    async _score(toot) {
+        return this.requiredData[toot.account.id] || 0;
     }
     ;
 }

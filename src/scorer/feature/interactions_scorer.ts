@@ -15,12 +15,12 @@ export default class InteractionsScorer extends FeatureScorer {
         super(WeightName.INTERACTIONS);
     }
 
-    async _score(toot: Toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
-    }
-
     async featureGetter(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
         return countValues<mastodon.v1.Notification>(notifications, n => n?.account?.acct);
     };
+
+    async _score(toot: Toot) {
+        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
+    }
 };

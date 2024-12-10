@@ -3,6 +3,6 @@ import Toot from '../../api/objects/toot';
 import { StringNumberDict } from '../../types';
 export default class MostFavoritedAccountsScorer extends FeatureScorer {
     constructor();
-    _score(toot: Toot): Promise<number>;
     featureGetter(): Promise<StringNumberDict>;
+    _score(toot: Toot): Promise<number>;
 }

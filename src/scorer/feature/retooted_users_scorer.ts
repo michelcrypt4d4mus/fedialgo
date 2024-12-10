@@ -17,12 +17,6 @@ export default class RetootedUsersScorer extends FeatureScorer {
         super(WeightName.MOST_RETOOTED_ACCOUNTS);
     }
 
-    async _score(toot: Toot) {
-        const authorScore = this.requiredData[toot.account.acct] || 0;
-        const retootScore = toot.reblog?.account?.acct ? (this.requiredData[toot.reblog.account.acct] || 0) : 0;
-        return authorScore + retootScore;
-    }
-
     async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
@@ -31,5 +25,11 @@ export default class RetootedUsersScorer extends FeatureScorer {
         const retootCounts = countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
         console.log(`Retoot counts:`, retootCounts);
         return retootCounts;
+    };
+
+    async _score(toot: Toot) {
+        const authorScore = this.requiredData[toot.account.acct] || 0;
+        const retootScore = toot.reblog?.account?.acct ? (this.requiredData[toot.reblog.account.acct] || 0) : 0;
+        return authorScore + retootScore;
     };
 };

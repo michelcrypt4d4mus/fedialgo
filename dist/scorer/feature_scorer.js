@@ -10,12 +10,12 @@ class FeatureScorer extends scorer_1.default {
         super(scoreName);
     }
     // Can be overloaded in subclasses to retrieve feature data from the server
-    async featureGetter(api) {
+    async featureGetter() {
         return {};
     }
-    async getFeature(api) {
+    async getFeature() {
         try {
-            this.requiredData = await this.featureGetter(api);
+            this.requiredData = await this.featureGetter();
         }
         catch (e) {
             console.warn(`Error in getFeature() for ${this.name}:`, e);

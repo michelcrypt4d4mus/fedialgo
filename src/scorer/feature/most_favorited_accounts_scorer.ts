@@ -13,16 +13,16 @@ import { StringNumberDict, WeightName } from '../../types';
 export default class MostFavoritedAccountsScorer extends FeatureScorer {
     constructor() {
         super(WeightName.FAVORITED_ACCOUNTS);
-    }
-
-    async _score(toot: Toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
-    }
+    };
 
     async featureGetter(): Promise<StringNumberDict> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
         const faves = countValues<mastodon.v1.Status>(recentFavourites, (toot) => toot.account?.acct);
         console.log(`Retrieved MostFavoritedAccountsScorer:`, faves);
         return faves;
+    };
+
+    async _score(toot: Toot) {
+        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
     };
 };

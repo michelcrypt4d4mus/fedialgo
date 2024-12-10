@@ -15,10 +15,6 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
         super(WeightName.MOST_REPLIED_ACCOUNTS);
     }
 
-    async _score(toot: Toot) {
-        return this.requiredData[toot.account.id] || 0;
-    }
-
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT
     // unique across all servers.
@@ -26,5 +22,9 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         return countValues<mastodon.v1.Status>(recentReplies, (toot) => toot?.inReplyToAccountId);
+    };
+
+    async _score(toot: Toot) {
+        return this.requiredData[toot.account.id] || 0;
     };
 };
