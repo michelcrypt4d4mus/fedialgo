@@ -219,7 +219,7 @@ export class MastoApi {
 
             for await (const page of fetch(MastoApi.buildParams())) {
                 results = results.concat(page as T[]);
-                console.log(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
+                console.debug(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
 
                 if (results.length >= maxRecords) {
                     console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
