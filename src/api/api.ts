@@ -4,10 +4,9 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
-import getHomeFeed from "../feeds/home_feed";
 import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import Storage from "../Storage";
-import Toot from './objects/toot';
+import Toot, { earliestTootAt, sortByCreatedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
 import { fetchTrendingToots, mastodonServersInfo } from "./public";
@@ -64,7 +63,7 @@ export class MastoApi {
     async getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let promises: Promise<any>[] = [getHomeFeed(this.api, numTimelineToots, maxId)]
+        let promises: Promise<any>[] = [this.fetchHomeFeed(numTimelineToots, maxId)]
 
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
@@ -97,6 +96,44 @@ export class MastoApi {
             followedTags: countValues<mastodon.v1.Tag>(responses[1], (tag) => tag.name.toLowerCase()),
             serverSideFilters: responses[2],
         } as UserData;
+    };
+
+    // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
+    async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
+        numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
+        const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
+        const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
+        const params = MastoApi.buildParams(maxId);
+        console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}, params:`, params);
+        let statuses: mastodon.v1.Status[] = [];
+        let pageNumber = 0;
+
+        // TODO: this didn't quite work with mastodonFetchPages() but it probably could
+        for await (const page of this.api.v1.timelines.home.list(params)) {
+            const pageToots = page as mastodon.v1.Status[];
+            statuses = sortByCreatedAt(statuses.concat(pageToots));
+            let oldestTootAt = earliestTootAt(statuses) || new Date();
+            pageNumber++;
+
+            let msg = `fetchHomeFeed() page ${pageNumber} (${pageToots.length} toots, `;
+            msg += `oldest in page: ${earliestTootAt(pageToots)}, oldest: ${oldestTootAt})`;
+            oldestTootAt ||= new Date();
+            console.log(msg);
+
+            // break if we've pulled maxTimelineTootsToFetch toots or if we've reached the cutoff date
+            if ((statuses.length >= numToots) || (oldestTootAt < cutoffTimelineAt)) {
+                if (oldestTootAt < cutoffTimelineAt) {
+                    console.log(`Halting fetchHomeFeed() after ${pageNumber} pages bc oldestTootAt='${oldestTootAt}'`);
+                }
+
+                break;
+            }
+        }
+
+        const toots = statuses.map((status) => new Toot(status));
+        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestTootAt(statuses)}'):`, toots);
+        console.debug(toots.map(t => t.describe()).join("\n"));
+        return toots;
     };
 
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
