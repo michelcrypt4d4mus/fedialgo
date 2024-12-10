@@ -6,7 +6,7 @@ interface RankParams {
     featureGetter?: () => Promise<StringNumberDict>;
     scoreName: WeightName;
 }
-export default class FeatureScorer extends Scorer {
+export default abstract class FeatureScorer extends Scorer {
     featureGetter: (api: mastodon.rest.Client) => Promise<StringNumberDict>;
     feature: StringNumberDict;
     constructor(params: RankParams);

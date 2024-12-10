@@ -19,7 +19,7 @@ interface RankParams {
     scoreName: WeightName,
 };
 
-export default class FeatureScorer extends Scorer {
+export default abstract class FeatureScorer extends Scorer {
     featureGetter: (api: mastodon.rest.Client) => Promise<StringNumberDict>;
     feature: StringNumberDict = {};  // TODO: rename this to supportData or something
 

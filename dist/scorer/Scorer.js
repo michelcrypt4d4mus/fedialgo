@@ -25,10 +25,6 @@ class Scorer {
         this.checkIsReady();
         return await this._score(toot);
     }
-    //* _score() should be overloaded in subclasses. *//
-    async _score(_toot) {
-        throw new Error("Method not implemented.");
-    }
     getInfo() {
         return {
             description: this.description,

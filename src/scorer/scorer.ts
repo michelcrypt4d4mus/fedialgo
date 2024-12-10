@@ -9,7 +9,7 @@ import { ScorerInfo, StringNumberDict, TootScore, WeightName } from "../types";
 const TIME_DECAY = WeightName.TIME_DECAY;
 
 
-export default class Scorer {
+export default abstract class Scorer {
     defaultWeight: number;
     description: string;
     name: WeightName;
@@ -27,10 +27,7 @@ export default class Scorer {
         return await this._score(toot);
     }
 
-    //* _score() should be overloaded in subclasses. *//
-    async _score(_toot: Toot): Promise<number> {
-        throw new Error("Method not implemented.");
-    }
+    abstract _score(_toot: Toot): Promise<number>;
 
     getInfo(): ScorerInfo {
         return {

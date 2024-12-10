@@ -17,10 +17,6 @@ class FeedScorer extends scorer_1.default {
         console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.features);
         this.isReady = true;
     }
-    //* Should be overloaded in subclasses. */
-    feedExtractor(_feed) {
-        throw new Error("Method not implemented.");
-    }
 }
 exports.default = FeedScorer;
 ;

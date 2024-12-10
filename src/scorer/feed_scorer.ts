@@ -5,9 +5,10 @@
  */
 import Scorer from "./scorer";
 import Toot from '../api/objects/toot';
+import { StringNumberDict } from "../types";
 
 
-export default class FeedScorer extends Scorer {
+export default abstract class FeedScorer extends Scorer {
     features: Record<string, number> = {};
 
     async setFeed(feed: Toot[]) {
@@ -17,8 +18,5 @@ export default class FeedScorer extends Scorer {
         this.isReady = true;
     }
 
-    //* Should be overloaded in subclasses. */
-    feedExtractor(_feed: Toot[]): Record<string, number> {
-        throw new Error("Method not implemented.");
-    }
+    abstract feedExtractor(_feed: Toot[]): StringNumberDict;
 };
