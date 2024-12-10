@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
-// TODO: unclear whether favorites are pulled from servers other than the users' home server
 class VideoAttachmentScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.VIDEO_ATTACHMENTS);

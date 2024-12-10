@@ -1,18 +1,14 @@
 /*
  * Base class for a "feature scorer" which appears to be something that can score
  * a toot based solely on the properties of that toot, optionally coupled with other
- * sources that are not other toots in the feed, e.g. things like notifications,
- * favorites, etc.
- *
- * // TODO: Find a better name than "Feature" for this class
+ * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
-import { mastodon } from "masto";
-
 import Scorer from "./scorer";
 import Toot from '../api/objects/toot';
 import { StringNumberDict, WeightName } from "../types";
 
 
+// TODO: Find a better name than "Feature" for this class
 export default abstract class FeatureScorer extends Scorer {
     requiredData: StringNumberDict = {};  // TODO: rename this to supportData or something
 

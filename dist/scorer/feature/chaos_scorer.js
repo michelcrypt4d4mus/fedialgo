@@ -17,8 +17,7 @@ class ChaosScorer extends feature_scorer_1.default {
             return this.decimalHash(toot.content);
         }
         catch (e) {
-            console.warn(`Error in _score() for ${this.name}:`, e);
-            console.warn(`Toot with error in ChaosScorer:`, toot);
+            console.warn(`Error in _score() for ${this.name}:`, e, `\nToot with error in ChaosScorer:`, toot);
             return 0;
         }
     }
