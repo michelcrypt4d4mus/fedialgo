@@ -1,4 +1,5 @@
 ## NEXT
+* Stop muted accounts from sneaking into the feed via trending toots
 
 ## `0.9.1`
 * `DiversityFeedScorer` sorts by MD5 of id to get random but repeatable ordering so scores don't bounce around as incremental loads happen

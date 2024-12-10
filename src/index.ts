@@ -52,6 +52,7 @@ class TheAlgorithm {
     serverSideFilters: mastodon.v2.Filter[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
+    mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
@@ -141,12 +142,13 @@ class TheAlgorithm {
             const userData = allResponses.shift();
             this.followedAccounts = userData.followedAccounts;
             this.followedTags = userData.followedTags;
+            this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
         }
 
         this.logTootCounts(newToots, homeToots)
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this.user));
+        let cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
 

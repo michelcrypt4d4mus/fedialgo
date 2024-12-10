@@ -28,6 +28,7 @@ declare class TheAlgorithm {
     serverSideFilters: mastodon.v2.Filter[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
+    mutedAccounts: AccountNames;
     scoreMutex: Mutex;
     setFeedInApp: (f: Toot[]) => void;
     featureScorers: (ChaosScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];

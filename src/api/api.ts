@@ -6,13 +6,15 @@ import { Mutex } from 'async-mutex';
 
 import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import Storage from "../Storage";
-import Toot, { earliestCreatedAt, sortByCreatedAt } from './objects/toot';
+import Toot, { earliestCreatedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
 import { fetchTrendingToots, mastodonServersInfo } from "./public";
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 
+export const INSTANCE = "instance"
 export const STATUSES = "statuses"
+export const TAGS = "tags"
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
@@ -94,14 +96,16 @@ export class MastoApi {
     async getStartupData(): Promise<UserData> {
         const responses = await Promise.all([
             this.fetchFollowedAccounts(),
+            this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
 
         return {
             followedAccounts: buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[1], (tag) => tag.name.toLowerCase()),
-            serverSideFilters: responses[2],
+            followedTags: countValues<mastodon.v1.Tag>(responses[2], (tag) => tag.name.toLowerCase()),
+            mutedAccounts: buildAccountNames(responses[1]),
+            serverSideFilters: responses[3],
         } as UserData;
     };
 
@@ -195,6 +199,13 @@ export class MastoApi {
         });
     };
 
+    async fetchMutedAccounts(): Promise<mastodon.v1.Account[]> {
+        return await this.fetchData<mastodon.v1.Account>({
+            fetch: this.api.v1.mutes.list,
+            label: Key.MUTED_ACCOUNTS
+        });
+    };
+
     // TODO: should we cache this?
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         console.log(`getServerSideFilters() called`);
@@ -210,7 +221,7 @@ export class MastoApi {
 
         console.log(`Retrieved server side filters:`, filters);
         return filters;
-    }
+    };
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(): Promise<string[]> {

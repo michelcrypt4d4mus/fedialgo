@@ -99,13 +99,15 @@ class MastoApi {
     async getStartupData() {
         const responses = await Promise.all([
             this.fetchFollowedAccounts(),
+            this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
         return {
             followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
-            followedTags: (0, helpers_1.countValues)(responses[1], (tag) => tag.name.toLowerCase()),
-            serverSideFilters: responses[2],
+            followedTags: (0, helpers_1.countValues)(responses[2], (tag) => tag.name.toLowerCase()),
+            mutedAccounts: (0, account_1.buildAccountNames)(responses[1]),
+            serverSideFilters: responses[3],
         };
     }
     ;
@@ -192,6 +194,13 @@ class MastoApi {
         });
     }
     ;
+    async fetchMutedAccounts() {
+        return await this.fetchData({
+            fetch: this.api.v1.mutes.list,
+            label: types_1.Key.MUTED_ACCOUNTS
+        });
+    }
+    ;
     // TODO: should we cache this?
     async getServerSideFilters() {
         console.log(`getServerSideFilters() called`);
@@ -208,6 +217,7 @@ class MastoApi {
         console.log(`Retrieved server side filters:`, filters);
         return filters;
     }
+    ;
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains() {
         const releaseMutex = await this.mutexes[types_1.Key.POPULAR_SERVERS].acquire();

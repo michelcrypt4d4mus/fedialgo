@@ -7,6 +7,7 @@ var Key;
     Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     Key["HOME_TIMELINE"] = "homeTimeline";
     Key["LAST_OPENED"] = "lastOpened";
+    Key["MUTED_ACCOUNTS"] = "mutedAccounts";
     Key["OPENINGS"] = "openings";
     Key["POPULAR_SERVERS"] = "popularServers";
     Key["RECENT_FAVOURITES"] = "recentFavourites";

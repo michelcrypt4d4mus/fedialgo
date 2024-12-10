@@ -21,6 +21,7 @@ export declare class MastoApi {
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
+    fetchMutedAccounts(): Promise<mastodon.v1.Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getTopServerDomains(): Promise<string[]>;
     private fetchData;

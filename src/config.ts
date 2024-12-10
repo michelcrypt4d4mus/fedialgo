@@ -100,15 +100,15 @@ export const DEFAULT_CONFIG: Config = {
     // API stuff
     minRecordsForFeatureScoring: 400,    // number of notifications, replies, etc. to pull
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
-    reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
+    minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
     numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
-    minServerMAU: 100,                   // MINIMUM_MAU
+    reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
 
     // Trending tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 20,          // How many toots to pull for each trending tag
-    numTrendingTags: 20,                 // How many trending tags to use after ranking their popularity
-    numTrendingTagsPerServer: 20,        // How many trending tags to pull from each server (Mastodon default is 10)
+    numTrendingTags: 18,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+    numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
     numTrendingTagsToots: 100,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server

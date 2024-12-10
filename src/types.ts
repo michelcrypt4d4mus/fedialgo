@@ -11,6 +11,7 @@ export enum Key {
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     HOME_TIMELINE = 'homeTimeline',
     LAST_OPENED = "lastOpened",
+    MUTED_ACCOUNTS = 'mutedAccounts',
     OPENINGS = "openings",
     POPULAR_SERVERS = 'popularServers',
     RECENT_FAVOURITES = "recentFavourites",
@@ -123,6 +124,7 @@ export type TimelineData = {
 export type UserData = {
     followedAccounts: AccountNames,
     followedTags: StringNumberDict,
+    mutedAccounts: AccountNames,
     serverSideFilters: mastodon.v2.Filter[],
 };
 

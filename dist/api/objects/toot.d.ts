@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import { FeedFilterSettings } from "../../types";
+import { TheAlgorithm } from "../..";
 import { TootExtension, TootScore, TrendingTag } from "../../types";
 interface TootObj extends TootExtension {
     containsString: (str: string) => boolean;
@@ -56,7 +57,7 @@ export default class Toot implements TootObj {
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
     isInTimeline(filters: FeedFilterSettings): boolean;
-    isValidForFeed(user: mastodon.v1.Account): boolean;
+    isValidForFeed(algo: TheAlgorithm): boolean;
     repairToot(): void;
     condensedStatus(): {};
     private attachmentsOfType;

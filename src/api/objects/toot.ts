@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 import Storage from "../../Storage";
 import { FeedFilterSettings } from "../../types";
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
+import { TheAlgorithm } from "../..";
 import { TootExtension, TootScore, TrendingTag } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -153,21 +154,32 @@ export default class Toot implements TootObj {
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(user: mastodon.v1.Account): boolean {
+    isValidForFeed(algo: TheAlgorithm): boolean {
+        const user = algo.user;
+        const mutedAccounts = algo.mutedAccounts;
         if (this?.reblog?.muted || this?.muted) return false;  // Remove muted accounts and toots
         if (this?.reblog?.reblogged) return false; // Remove things the user has already retooted
-        if (this.account.username == user.username && this.account.id == user.id) return false;  // Remove user's toots
+
+        if (this.account.username == user.username && this.account.id == user.id) {
+            console.debug(`Removing user's own toot: `, this);
+            return false;  // Remove user's toots
+        }
+
+        if (this.account.acct in mutedAccounts) {
+            console.debug(`Removing toot from muted account (${this.describeAccount}):`, this);
+            return false;  // Remove muted accounts
+        }
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
         if (Date.now() < new Date(this.createdAt).getTime()) {
-            console.warn(`Removed toot with future timestamp: `, this);
+            console.warn(`Removed toot with future timestamp:`, this);
             return false;
         }
 
         // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
         if (this.filtered?.length) {
-            const filterMatch = this.filtered[0];
-            console.debug(`Toot matched server filter (${filterMatch.keywordMatches?.join(' ')}): `, this);
+            const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
+            console.debug(`Removed toot matching server filter (${filterMatchStr}):`, this);
             return false;
         }
 

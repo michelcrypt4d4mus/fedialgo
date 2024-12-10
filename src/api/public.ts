@@ -11,7 +11,7 @@ import Toot from "./objects/toot";
 import { atLeastValues, average, countValues, groupBy, sortKeysByValue, zipPromises } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { extractServer } from "./objects/account";
-import { STATUSES, MastoApi } from "./api";
+import { INSTANCE, STATUSES, TAGS, MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
 
@@ -51,8 +51,8 @@ export async function mastodonServersInfo(follows: mastodon.v1.Account[]): Promi
 
 // Get the tags that are trending on 'server'
 export async function fetchTrendingTags(server: string, numTags?: number): Promise<TrendingTag[]> {
-    numTags ||= Storage.getConfig().numTrendingTootsPerServer;
-    const tagsUrl = MastoApi.trendUrl("tags")
+    numTags ||= Storage.getConfig().numTrendingTagsPerServer;
+    const tagsUrl = MastoApi.trendUrl(TAGS);
     let tags: mastodon.v1.Tag[] | undefined;
 
     try {
@@ -124,7 +124,7 @@ async function getMonthlyUsers(server: string): Promise<number> {
     }
 
     try {
-        const instance = await mastodonPublicFetch<mastodon.v2.Instance>(server, MastoApi.v2Url("instance"));
+        const instance = await mastodonPublicFetch<mastodon.v2.Instance>(server, MastoApi.v2Url(INSTANCE));
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     } catch (error) {
