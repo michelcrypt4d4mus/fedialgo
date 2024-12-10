@@ -253,19 +253,19 @@ export default class Toot implements TootObj {
         const prefix = logLabel ? `[${logLabel}] ` : '';
         const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
 
-        Object.entries(tootsByURI).forEach(([uri, uriToots]) => {
+        Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
             if (!uriToots || uriToots.length == 0) return;
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
 
-            // if (allTrendingTags.length > 0 && uniqueTrendingTags.length != allTrendingTags.length) {
-            //     console.debug(`${prefix}allTags for ${uri}:`, allTrendingTags);
-            //     console.debug(`${prefix}uniqueTags for ${uri}:`, uniqueTrendingTags);
-            // }
-            // Set all toots to have all trending tags so when we uniquify we catch everything
             uriToots.forEach((toot) => {
+                // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
+                // Set missing scoreInfo to first scoreInfo we can find (if any)
+                toot.scoreInfo ??= firstScoredToot?.scoreInfo;
             });
+
         });
 
         const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];

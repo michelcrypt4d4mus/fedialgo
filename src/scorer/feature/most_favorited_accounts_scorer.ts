@@ -25,8 +25,7 @@ export default class MostFavoritedAccountsScorer extends FeatureScorer {
     static async fetchRequiredData(): Promise<StringNumberDict> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
         const faves = countValues<mastodon.v1.Status>(recentFavourites, (toot) => toot.account?.acct);
-        console.log(`Retrieved MostFavoritedAccountsScorer: `, faves);
+        console.log(`Retrieved MostFavoritedAccountsScorer:`, faves);
         return faves;
     };
-
 };
