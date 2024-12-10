@@ -45,7 +45,7 @@ async function getTrendingTags() {
     const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
     const serversTrendingTags = await Promise.all(topDomains.map(public_1.fetchTrendingTags));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const aggregatedTags = serversTrendingTags.flat().reduce((tags, tag) => {
+    const trendingTags = serversTrendingTags.flat().reduce((tags, tag) => {
         const existingTag = tags.find(t => t.name === tag.name);
         if (existingTag) {
             existingTag.numAccounts = (existingTag.numAccounts || 0) + (tag.numAccounts || 0);
@@ -56,9 +56,9 @@ async function getTrendingTags() {
         }
         return tags;
     }, []);
-    aggregatedTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
-    console.log(`${LOG_PREFIX} Aggregated trending tags:`, aggregatedTags);
-    return aggregatedTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
+    trendingTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
+    console.log(`${LOG_PREFIX} Aggregated trending tags:`, trendingTags);
+    return trendingTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
 }
 ;
 // Get latest toots for a given tag and populate trendingToots property

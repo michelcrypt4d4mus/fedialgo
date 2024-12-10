@@ -5,7 +5,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import getHomeFeed from "../feeds/home_feed";
-import getRecentTootsForTrendingTags from "../feeds/trending_tags";
+import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
@@ -70,7 +70,7 @@ export class MastoApi {
         if (!maxId) {
             promises = promises.concat([
                 fetchTrendingToots(),
-                getRecentTootsForTrendingTags(),
+                fetchRecentTootsForTrendingTags(),
             ]);
         }
 

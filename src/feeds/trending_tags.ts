@@ -28,12 +28,12 @@ import { TrendingTag } from "../types";
 const LOG_PREFIX = "[TrendingTags]";
 
 
-export default async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
+export default async function fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
     const trendingTags = await getTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));
     const toots: Toot[] = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity())
-    console.debug(`getRecentTootsForTrendingTags() possible toots:`, toots);
+    console.debug(`fetchRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 
