@@ -59,17 +59,17 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosScorer(),
-        new MostFavoritedAccountsScorer(),
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
+        new MostFavoritedAccountsScorer(),
+        new MostRepliedAccountsScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
-        new MostRepliedAccountsScorer(),
-        new TrendingTootScorer(),
         new TrendingTagsScorer(),
+        new TrendingTootScorer(),
         new VideoAttachmentScorer(),
     ];
 

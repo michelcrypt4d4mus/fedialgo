@@ -78,17 +78,17 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaos_scorer_1.default(),
-        new most_favorited_accounts_scorer_1.default(),
         new followed_tags_feature_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
+        new most_favorited_accounts_scorer_1.default(),
+        new most_replied_accounts_scorer_1.default(),
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
-        new most_replied_accounts_scorer_1.default(),
-        new trending_toots_scorer_1.default(),
         new trending_tags_scorer_1.default(),
+        new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
     ];
     // These scorers require the complete feed to work properly

@@ -28,7 +28,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour image attachments",
     },
     [WeightName.INTERACTIONS]: {
-        defaultWeight: 2,
+        defaultWeight: 1.5,
         description: "Favour accounts that recently interacted with your toots",
     },
     [WeightName.MOST_REPLIED_ACCOUNTS]: {

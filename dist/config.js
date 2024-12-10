@@ -52,7 +52,7 @@ exports.DEFAULT_WEIGHTS = {
         description: "Favour image attachments",
     },
     [types_1.WeightName.INTERACTIONS]: {
-        defaultWeight: 2,
+        defaultWeight: 1.5,
         description: "Favour accounts that recently interacted with your toots",
     },
     [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
