@@ -13,29 +13,26 @@ import Toot from '../api/objects/toot';
 import { StringNumberDict, WeightName } from "../types";
 
 
-interface RankParams {
-    // featureGetter() is a fxn to get data the scorer needs, e.g. most commonly retooted users
-    featureGetter?: () => Promise<StringNumberDict>,
-    scoreName: WeightName,
-};
-
 export default abstract class FeatureScorer extends Scorer {
-    featureGetter: (api: mastodon.rest.Client) => Promise<StringNumberDict>;
-    feature: StringNumberDict = {};  // TODO: rename this to supportData or something
+    requiredData: StringNumberDict = {};  // TODO: rename this to supportData or something
 
-    constructor(params: RankParams) {
-        super(params.scoreName);
-        this.featureGetter = params.featureGetter || (async (_api) => { return {} });
+    constructor(scoreName: WeightName) {
+        super(scoreName);
+    }
+
+    // Can be overloaded in subclasses to retrieve feature data from the server
+    async featureGetter(api: mastodon.rest.Client): Promise<StringNumberDict> {
+        return {}
     }
 
     async getFeature(api: mastodon.rest.Client): Promise<Toot[]> {
         try {
-            this.feature = await this.featureGetter(api);
+            this.requiredData = await this.featureGetter(api);
         } catch (e) {
             console.warn(`Error in getFeature() for ${this.name}:`, e);
         }
 
-        console.log(`${this.constructor.name} featureGetter() returned:`, this.feature);
+        console.log(`${this.constructor.name} featureGetter() returned:`, this.requiredData);
         this.isReady = true;
         return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }

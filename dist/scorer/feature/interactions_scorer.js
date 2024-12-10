@@ -9,15 +9,12 @@ const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class InteractionsScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            featureGetter: () => InteractionsScorer.fetchRequiredData(),
-            scoreName: types_1.WeightName.INTERACTIONS,
-        });
+        super(types_1.WeightName.INTERACTIONS);
     }
     async _score(toot) {
-        return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
+        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
     }
-    static async fetchRequiredData() {
+    async featureGetter() {
         const notifications = await api_1.MastoApi.instance.getRecentNotifications();
         return (0, helpers_1.countValues)(notifications, n => n?.account?.acct);
     }

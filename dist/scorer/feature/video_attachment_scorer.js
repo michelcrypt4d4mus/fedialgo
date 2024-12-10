@@ -11,7 +11,7 @@ const types_1 = require("../../types");
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 class VideoAttachmentScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: types_1.WeightName.VIDEO_ATTACHMENTS });
+        super(types_1.WeightName.VIDEO_ATTACHMENTS);
     }
     async _score(toot) {
         return toot.videoAttachments().length;

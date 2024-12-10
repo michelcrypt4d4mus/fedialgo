@@ -8,7 +8,7 @@ import { WeightName } from "../../types";
 
 export default class ChaosScorer extends FeatureScorer {
     constructor() {
-        super({scoreName: WeightName.CHAOS});
+        super(WeightName.CHAOS);
     }
 
     async _score(toot: Toot) {

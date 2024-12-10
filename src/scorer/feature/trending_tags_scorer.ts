@@ -9,7 +9,7 @@ import { TrendingTag, WeightName } from "../../types";
 
 export default class TrendingTagsScorer extends FeatureScorer {
     constructor() {
-        super({scoreName: WeightName.TRENDING_TAGS});
+        super(WeightName.TRENDING_TAGS);
     }
 
     // TODO: we could also use tag.numStatuses in some way (or instead)

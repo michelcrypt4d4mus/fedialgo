@@ -4,5 +4,5 @@ import { StringNumberDict } from "../../types";
 export default class RetootedUsersScorer extends FeatureScorer {
     constructor();
     _score(toot: Toot): Promise<number>;
-    static fetchRequiredData(): Promise<StringNumberDict>;
+    featureGetter(): Promise<StringNumberDict>;
 }

@@ -10,17 +10,14 @@ const types_1 = require("../../types");
 // TODO: rename MostRetootedUsersScorer
 class RetootedUsersScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            featureGetter: () => RetootedUsersScorer.fetchRequiredData(),
-            scoreName: types_1.WeightName.MOST_RETOOTED_ACCOUNTS,
-        });
+        super(types_1.WeightName.MOST_RETOOTED_ACCOUNTS);
     }
     async _score(toot) {
-        const authorScore = this.feature[toot.account.acct] || 0;
-        const retootScore = toot.reblog?.account?.acct ? (this.feature[toot.reblog.account.acct] || 0) : 0;
+        const authorScore = this.requiredData[toot.account.acct] || 0;
+        const retootScore = toot.reblog?.account?.acct ? (this.requiredData[toot.reblog.account.acct] || 0) : 0;
         return authorScore + retootScore;
     }
-    static async fetchRequiredData() {
+    async featureGetter() {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);

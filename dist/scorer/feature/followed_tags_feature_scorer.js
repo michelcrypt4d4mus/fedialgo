@@ -13,18 +13,15 @@ const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class FollowedTagsFeatureScorer extends feature_scorer_1.default {
     constructor() {
-        super({
-            featureGetter: () => FollowedTagsFeatureScorer.fetchRequiredData(),
-            scoreName: types_1.WeightName.FOLLOWED_TAGS,
-        });
+        super(types_1.WeightName.FOLLOWED_TAGS);
     }
-    async _score(toot) {
-        toot.followedTags = toot.tags.filter((tag) => tag.name in this.feature);
-        return toot.followedTags.length;
-    }
-    static async fetchRequiredData() {
+    async featureGetter() {
         const tags = await api_1.MastoApi.instance.getFollowedTags();
         return (0, helpers_1.countValues)(tags, (tag) => tag.name?.toLowerCase());
+    }
+    async _score(toot) {
+        toot.followedTags = toot.tags.filter((tag) => tag.name in this.requiredData);
+        return toot.followedTags.length;
     }
 }
 exports.default = FollowedTagsFeatureScorer;

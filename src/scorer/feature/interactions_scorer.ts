@@ -12,17 +12,14 @@ import { StringNumberDict, WeightName } from "../../types";
 
 export default class InteractionsScorer extends FeatureScorer {
     constructor() {
-        super({
-            featureGetter: () => InteractionsScorer.fetchRequiredData(),
-            scoreName: WeightName.INTERACTIONS,
-        });
+        super(WeightName.INTERACTIONS);
     }
 
     async _score(toot: Toot) {
-        return (toot.account.acct in this.feature) ? this.feature[toot.account.acct] : 0;
+        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
     }
 
-    static async fetchRequiredData(): Promise<StringNumberDict> {
+    async featureGetter(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
         return countValues<mastodon.v1.Notification>(notifications, n => n?.account?.acct);
     };

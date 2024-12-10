@@ -11,7 +11,7 @@ import { WeightName } from "../../types";
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 export default class NumFavoritesScorer extends FeatureScorer {
     constructor() {
-        super({scoreName: WeightName.NUM_FAVOURITES});
+        super(WeightName.NUM_FAVOURITES);
     }
 
     async _score(toot: Toot) {

@@ -14,19 +14,16 @@ import { StringNumberDict, WeightName } from "../../types";
 // TODO: rename MostRetootedUsersScorer
 export default class RetootedUsersScorer extends FeatureScorer {
     constructor() {
-        super({
-            featureGetter: () => RetootedUsersScorer.fetchRequiredData(),
-            scoreName: WeightName.MOST_RETOOTED_ACCOUNTS,
-        });
+        super(WeightName.MOST_RETOOTED_ACCOUNTS);
     }
 
     async _score(toot: Toot) {
-        const authorScore = this.feature[toot.account.acct] || 0;
-        const retootScore = toot.reblog?.account?.acct ? (this.feature[toot.reblog.account.acct] || 0) : 0;
+        const authorScore = this.requiredData[toot.account.acct] || 0;
+        const retootScore = toot.reblog?.account?.acct ? (this.requiredData[toot.reblog.account.acct] || 0) : 0;
         return authorScore + retootScore;
     }
 
-    static async fetchRequiredData(): Promise<StringNumberDict> {
+    async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);

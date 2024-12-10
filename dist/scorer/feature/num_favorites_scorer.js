@@ -13,7 +13,7 @@ const types_1 = require("../../types");
 // TODO: unclear whether favorites are pulled from servers other than the users' home server
 class NumFavoritesScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: types_1.WeightName.NUM_FAVOURITES });
+        super(types_1.WeightName.NUM_FAVOURITES);
     }
     async _score(toot) {
         return toot?.favouritesCount || 0;

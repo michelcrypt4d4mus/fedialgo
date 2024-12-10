@@ -9,7 +9,7 @@ import { WeightName } from "../../types";
 
 export default class TrendingTootScorer extends FeatureScorer {
     constructor() {
-        super({scoreName: WeightName.TRENDING_TOOTS});
+        super(WeightName.TRENDING_TOOTS);
     }
 
     async _score(toot: Toot) {

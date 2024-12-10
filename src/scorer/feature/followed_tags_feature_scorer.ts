@@ -12,19 +12,16 @@ import { mastodon } from 'masto';
 
 export default class FollowedTagsFeatureScorer extends FeatureScorer {
     constructor() {
-        super({
-            featureGetter: () => FollowedTagsFeatureScorer.fetchRequiredData(),
-            scoreName: WeightName.FOLLOWED_TAGS,
-        });
+        super(WeightName.FOLLOWED_TAGS);
+    }
+
+    async featureGetter(): Promise<StringNumberDict> {
+        const tags = await MastoApi.instance.getFollowedTags();
+        return countValues<mastodon.v1.Tag>(tags, (tag) => tag.name?.toLowerCase());
     }
 
     async _score(toot: Toot) {
-        toot.followedTags = toot.tags.filter((tag) => tag.name in this.feature);
+        toot.followedTags = toot.tags.filter((tag) => tag.name in this.requiredData);
         return toot.followedTags.length;
-    }
-
-    static async fetchRequiredData(): Promise<StringNumberDict> {
-        const tags = await MastoApi.instance.getFollowedTags();
-        return countValues<mastodon.v1.Tag>(tags, (tag) => tag.name?.toLowerCase());
     }
 };

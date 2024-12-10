@@ -8,7 +8,7 @@ import { WeightName } from "../../types";
 
 export default class NumRepliesScorer extends FeatureScorer {
     constructor() {
-        super({scoreName: WeightName.NUM_REPLIES});
+        super(WeightName.NUM_REPLIES);
     }
 
     async _score(toot: Toot) {

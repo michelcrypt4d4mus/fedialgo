@@ -10,7 +10,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class NumRepliesScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: types_1.WeightName.NUM_REPLIES });
+        super(types_1.WeightName.NUM_REPLIES);
     }
     async _score(toot) {
         return toot?.repliesCount || 0;

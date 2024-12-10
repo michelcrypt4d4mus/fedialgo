@@ -11,7 +11,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
-        super({ scoreName: types_1.WeightName.TRENDING_TAGS });
+        super(types_1.WeightName.TRENDING_TAGS);
     }
     // TODO: we could also use tag.numStatuses in some way (or instead)
     async _score(toot) {
