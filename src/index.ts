@@ -209,8 +209,7 @@ class TheAlgorithm {
         }, {} as Record<PropertyName, StringNumberDict>);
 
         this.feed.forEach(toot => {
-            // Set isFollowed flag
-            toot.isFollowed = toot.account.acct in this.followedAccounts;
+            toot.isFollowed = toot.account.acct in this.followedAccounts;     // Set isFollowed flag
             incrementCount(tootCounts[PropertyName.APP], toot.application.name);
             incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
             incrementCount(tootCounts[PropertyName.USER], toot.account.acct);
