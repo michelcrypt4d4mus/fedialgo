@@ -64,9 +64,9 @@ export default class Toot implements TootObj {
 }
 export declare const minimumID: (toots: Toot[]) => number | null;
 export declare const sortByCreatedAt: (toots: mastodon.v1.Status[]) => mastodon.v1.Status[];
-export declare const earliestTootAt: (toots: mastodon.v1.Status[]) => Date | null;
+export declare const earliestCreatedAt: (toots: mastodon.v1.Status[]) => Date | null;
 export declare const mostRecentToot: (toots: mastodon.v1.Status[]) => mastodon.v1.Status | null;
-export declare const mostRecentTootAt: (toots: mastodon.v1.Status[]) => Date | null;
+export declare const mostRecentCreatedAt: (toots: mastodon.v1.Status[]) => Date | null;
 export declare const earliestToot: (toots: mastodon.v1.Status[]) => mastodon.v1.Status | null;
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;
 export {};

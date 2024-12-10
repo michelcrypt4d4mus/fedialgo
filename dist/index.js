@@ -132,8 +132,6 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        if (!this.shouldReloadFeed() && !maxId)
-            return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         let promises = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
@@ -242,6 +240,9 @@ class TheAlgorithm {
         Storage_1.default.setFilters(this.filters);
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
+    mostRecentTootAt() {
+        return (0, toot_1.mostRecentCreatedAt)(this.feed);
+    }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
     async maybeGetMoreToots(newHomeToots, numTimelineToots) {
@@ -334,7 +335,7 @@ class TheAlgorithm {
         console.log(msg);
     }
     shouldReloadFeed() {
-        const mostRecentAt = (0, toot_1.mostRecentTootAt)(this.feed);
+        const mostRecentAt = (0, toot_1.mostRecentCreatedAt)(this.feed);
         if (this.feed.length == 0 || !mostRecentAt)
             return true;
         const should = ((Date.now() - mostRecentAt.getTime()) > this.reloadIfOlderThanMS);

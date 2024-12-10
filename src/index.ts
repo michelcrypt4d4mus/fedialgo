@@ -20,7 +20,7 @@ import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
-import Toot, { mostRecentTootAt, sortByCreatedAt } from './api/objects/toot';
+import Toot, { mostRecentCreatedAt, sortByCreatedAt } from './api/objects/toot';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -122,7 +122,6 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        if (!this.shouldReloadFeed() && !maxId) return this.scoreFeed.bind(this)();
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let promises: Promise<any>[] = [MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
 
@@ -249,6 +248,10 @@ class TheAlgorithm {
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
+    mostRecentTootAt(): Date | null {
+        return mostRecentCreatedAt(this.feed);
+    }
+
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
@@ -353,7 +356,7 @@ class TheAlgorithm {
     }
 
     private shouldReloadFeed(): boolean {
-        const mostRecentAt = mostRecentTootAt(this.feed);
+        const mostRecentAt = mostRecentCreatedAt(this.feed);
         if (this.feed.length == 0 || !mostRecentAt) return true;
         const should = ((Date.now() - mostRecentAt.getTime()) > this.reloadIfOlderThanMS);
         console.log(`shouldReloadFeed() mostRecentAt: ${mostRecentAt}, should: ${should}`);

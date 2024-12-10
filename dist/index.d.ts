@@ -45,6 +45,7 @@ declare class TheAlgorithm {
     filterFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
     extractSummaryInfo(): void;
+    mostRecentTootAt(): Date | null;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;

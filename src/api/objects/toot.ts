@@ -303,7 +303,7 @@ export const sortByCreatedAt = (toots: mastodon.v1.Status[]): mastodon.v1.Status
 };
 
 
-export const earliestTootAt = (toots: mastodon.v1.Status[]): Date | null => {
+export const earliestCreatedAt = (toots: mastodon.v1.Status[]): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;
 };
@@ -316,7 +316,7 @@ export const mostRecentToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status 
 };
 
 
-export const mostRecentTootAt = (toots: mastodon.v1.Status[]): Date | null => {
+export const mostRecentCreatedAt = (toots: mastodon.v1.Status[]): Date | null => {
     const mostRecent = mostRecentToot(toots);
     return mostRecent ? tootedAt(mostRecent) : null;
 };
