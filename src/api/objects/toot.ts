@@ -189,8 +189,8 @@ export default class Toot implements TootObj {
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN_APP if missing
     //   - Set toot.language to defaultLanguage if missing
-    //   - Add server info to the account string if missing
     //   - Set media type to "image" if unknown and reparable
+    //   - Add server info to the account string if missing
     //   - Lowercase all tags
     repairToot(): void {
         this.application ??= {name: UNKNOWN_APP};
@@ -215,9 +215,7 @@ export default class Toot implements TootObj {
         });
 
         // Lowercase and count tags
-        this.tags.forEach(tag => {
-            tag.name = (tag.name?.length > 0) ? tag.name.toLowerCase() : BROKEN_TAG;
-        });
+        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
 
     // Returns a simplified version of the toot for logging
