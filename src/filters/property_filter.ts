@@ -29,6 +29,7 @@ export enum PropertyName {
 };
 
 export enum SourceFilterName {
+    DIRECT_MESSAGE = 'directMessage',
     FOLLOWED_ACCOUNTS = 'followedAccounts',
     FOLLOWED_HASHTAGS = 'followedHashtags',
     LINKS = 'links',
@@ -45,6 +46,7 @@ export interface PropertyFilterArgs extends FilterArgs {
 
 
 export const SOURCE_FILTERS: SourceFilters = {
+    [SourceFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
     [SourceFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),

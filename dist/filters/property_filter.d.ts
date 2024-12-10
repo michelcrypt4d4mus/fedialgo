@@ -13,6 +13,7 @@ export declare enum PropertyName {
     SERVER_SIDE_FILTERS = "serverFilters"
 }
 export declare enum SourceFilterName {
+    DIRECT_MESSAGE = "directMessage",
     FOLLOWED_ACCOUNTS = "followedAccounts",
     FOLLOWED_HASHTAGS = "followedHashtags",
     LINKS = "links",

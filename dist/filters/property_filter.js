@@ -27,6 +27,7 @@ var PropertyName;
 ;
 var SourceFilterName;
 (function (SourceFilterName) {
+    SourceFilterName["DIRECT_MESSAGE"] = "directMessage";
     SourceFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
     SourceFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
     SourceFilterName["LINKS"] = "links";
@@ -38,6 +39,7 @@ var SourceFilterName;
 ;
 ;
 exports.SOURCE_FILTERS = {
+    [SourceFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
     [SourceFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),

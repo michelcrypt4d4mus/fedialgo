@@ -58,6 +58,13 @@ filters.filterSections[PropertyName.LANGUAGE].updateValidOptions("de", true);
 const filteredFeed = algorithm.updateFilters(filters);
 ```
 
+### `Toot` API
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
+
+### Configuration
+Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
+
+
 ### Timeline Feed Callbacks
 You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`, An example involving React component state:
 
@@ -84,8 +91,6 @@ const newWeights = await algoObj.learnWeights(scores)
 
 
 # Contributing
-Package configuration options can be found in [`src/config.ts`](src/config.ts).
-
 ### Developer Setup
 If necessary install the dev dependencies with `npm install --include=dev`.
 
