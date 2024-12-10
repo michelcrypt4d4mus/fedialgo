@@ -5,11 +5,11 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
+import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestCreatedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
-import { MastodonServer } from "./public";
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 
 export const INSTANCE = "instance"
@@ -78,7 +78,7 @@ export class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                MastodonServer.fetchTrendingToots(),
+                MastodonServer.fediverseTrendingToots(),
                 fetchRecentTootsForTrendingTags(),
             ]);
         }

@@ -3,10 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastodonServer = void 0;
 /*
- * Methods for making calls to the publilcly available Mastodon API methods
- * that don't require authentication.
+ * Class for interacting with the public non-authenticated API of a Mastodon server.
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
@@ -17,7 +15,6 @@ const tag_1 = require("./objects/tag");
 const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const helpers_2 = require("../helpers");
-// Class for interacting with the public API of a Mastodon server.
 class MastodonServer {
     domain;
     constructor(domain) {
@@ -44,11 +41,29 @@ class MastodonServer {
     }
     ;
     // Fetch toots that are trending on this server
-    async trendingToots() {
-        return await this.fetch(api_1.MastoApi.trendUrl(api_1.STATUSES));
+    async fetchTrendingToots() {
+        let topToots = [];
+        try {
+            topToots = await this.fetch(api_1.MastoApi.trendUrl(api_1.STATUSES));
+            if (!topToots?.length)
+                throw new Error(`Failed to get topToots, got: ${JSON.stringify(topToots)}`);
+            topToots = topToots.map(t => new toot_1.default(t));
+        }
+        catch (e) {
+            console.warn(`Error fetching trending toots from '${this.domain}':`, e);
+            return [];
+        }
+        topToots = topToots.filter(toot => toot.popularity() > 0);
+        let filteredToots = topToots.filter(toot => toot.popularity() > 0);
+        console.log(`trendingToots() Removed ${topToots.length - filteredToots.length} toots with no favorites or retoots`);
+        // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
+        // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+        filteredToots.forEach((toot, i) => toot.trendingRank = 1 + (filteredToots?.length || 0) - i);
+        console.debug(`trendingToots for '${this.domain}': `, filteredToots.map(t => t.condensedStatus()));
+        return filteredToots ?? [];
     }
     // Get publicly available MAU information for this server.
-    async getMonthlyUsers() {
+    async fetchMonthlyUsers() {
         if (Storage_1.default.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
             console.debug(`monthlyUsers() for '${this.domain}' is not available, skipping...`);
             return 0;
@@ -86,32 +101,16 @@ class MastodonServer {
         }
     }
     ;
+    ////////////////////
+    // Static Methods //
+    ////////////////////
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
-    static async fetchTrendingToots() {
+    static async fediverseTrendingToots() {
         console.log(`[TrendingToots] fetchTrendingToots() called`);
-        const topServerDomains = await api_1.MastoApi.instance.getTopServerDomains();
         // Pull top trending toots from each server
-        const trendingTootses = await Promise.all(topServerDomains.map(async (domain) => {
-            const server = new MastodonServer(domain);
-            let topToots = [];
-            try {
-                topToots = await server.trendingToots();
-                if (!topToots?.length)
-                    throw new Error(`Failed to get topToots: ${JSON.stringify(topToots)}`);
-                topToots = topToots.map(t => new toot_1.default(t));
-            }
-            catch (e) {
-                console.warn(`Error fetching trending toots from '${server}':`, e);
-                return [];
-            }
-            // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
-            // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-            topToots = topToots.filter(toot => toot.popularity() > 0);
-            topToots.forEach((toot, i) => toot.trendingRank = 1 + (topToots?.length || 0) - i);
-            console.debug(`trendingToots for '${server}': `, topToots.map(t => t.condensedStatus()));
-            return topToots;
-        }));
-        const trendingToots = setTrendingRankToAvg(trendingTootses.flat());
+        let trendingTootses = await this.callForAllServers((server) => server.fetchTrendingToots());
+        let trendingToots = Object.values(trendingTootses).flat();
+        setTrendingRankToAvg(trendingToots);
         return toot_1.default.dedupeToots(trendingToots, "getTrendingToots");
     }
     ;
@@ -123,8 +122,8 @@ class MastodonServer {
         const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => (0, account_1.extractServer)(account));
         const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
         console.debug(`mastodonServersInfo() userServerCounts: `, followedServerUserCounts);
-        const servers = mostFollowedServers.map(server => new MastodonServer(server));
-        let serverMAUs = await (0, helpers_1.zipPromises)(mostFollowedServers, (s) => new MastodonServer(s).getMonthlyUsers());
+        let serverMAUs = await this.callForServers(mostFollowedServers, (server) => server.fetchMonthlyUsers());
+        console.log(`mastodonServersInfo() serverMAUs: `, serverMAUs);
         const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
@@ -132,7 +131,7 @@ class MastodonServer {
         if (numDefaultServers > 0) {
             console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
             const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
-            const extraServerMAUs = await (0, helpers_1.zipPromises)(extraServers, (s) => new MastodonServer(s).getMonthlyUsers());
+            const extraServerMAUs = await this.callForServers(extraServers, (server) => server.fetchMonthlyUsers());
             console.log(`Extra default server MAUs:`, extraServerMAUs);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
@@ -146,8 +145,19 @@ class MastodonServer {
         return overrepresentedServerFreq;
     }
     ;
+    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    static async callForAllServers(fxn) {
+        const domains = await api_1.MastoApi.instance.getTopServerDomains();
+        return await this.callForServers(domains, fxn);
+    }
+    ;
+    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    static async callForServers(domains, fxn) {
+        return await (0, helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
+    }
+    ;
 }
-exports.MastodonServer = MastodonServer;
+exports.default = MastodonServer;
 ;
 // A toot can trend on multiple servers in which case we set trendingRank for all to the avg
 // TODO: maybe we should add the # of servers to the avg?
@@ -157,7 +167,6 @@ function setTrendingRankToAvg(rankedToots) {
         const avgScore = (0, helpers_1.average)(toots.map(t => t.trendingRank));
         toots.forEach(toot => toot.trendingRank = avgScore);
     });
-    return rankedToots;
 }
 ;
-//# sourceMappingURL=public.js.map
+//# sourceMappingURL=mastodon_server.js.map

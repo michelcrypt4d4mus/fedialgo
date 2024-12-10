@@ -1,4 +1,5 @@
 ## NEXT
+* Refactor a `MastodonServer` class for calls to the public API
 
 ## `0.10.0`
 * Add `Toot.isDM()` instance method and filter option

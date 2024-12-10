@@ -17,6 +17,7 @@ export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 };
 
+
 export default class NumericFilter extends TootFilter {
     title: WeightName;
     value: number;

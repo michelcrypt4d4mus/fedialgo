@@ -7,7 +7,7 @@ import { FilterArgs, FilterTitle} from "../types";
 import { PropertyName } from "./property_filter";
 
 
-export default class TootFilter {
+export default abstract class TootFilter {
     description: string;
     invertSelection: boolean;
     title: FilterTitle;
@@ -20,10 +20,7 @@ export default class TootFilter {
         this.visible = visible ?? true;
     }
 
-    // Override in subclasses. Return true if the toot should appear in the timeline feed
-    isAllowed(toot: Toot): boolean {
-        throw new Error("Method not implemented.");
-    }
+    abstract isAllowed(toot: Toot): boolean;
 
     // Extend in subclasses. Required for serialization to local storage
     toArgs(): FilterArgs {

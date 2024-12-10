@@ -11,10 +11,6 @@ class TootFilter {
         this.title = title;
         this.visible = visible ?? true;
     }
-    // Override in subclasses. Return true if the toot should appear in the timeline feed
-    isAllowed(toot) {
-        throw new Error("Method not implemented.");
-    }
     // Extend in subclasses. Required for serialization to local storage
     toArgs() {
         return {

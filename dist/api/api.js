@@ -29,11 +29,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = exports.TAGS = exports.STATUSES = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
+const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
-const public_1 = require("./public");
 const types_1 = require("../types");
 exports.INSTANCE = "instance";
 exports.STATUSES = "statuses";
@@ -84,7 +84,7 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                public_1.MastodonServer.fetchTrendingToots(),
+                mastodon_server_1.default.fediverseTrendingToots(),
                 (0, trending_tags_1.default)(),
             ]);
         }
@@ -227,7 +227,7 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await public_1.MastodonServer.mastodonServersInfo();
+                servers = await mastodon_server_1.default.mastodonServersInfo();
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {

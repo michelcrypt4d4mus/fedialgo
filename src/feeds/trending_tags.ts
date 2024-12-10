@@ -19,10 +19,10 @@
  *        ]
  *   }
  */
+import MastodonServer from "../api/mastodon_server";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { MastoApi } from "../api/api";
-import { MastodonServer } from "../api/public";
 import { TrendingTag } from "../types";
 
 const LOG_PREFIX = "[TrendingTags]";
