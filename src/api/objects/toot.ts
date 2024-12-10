@@ -290,7 +290,6 @@ export default class Toot implements TootObj {
 };
 
 
-
 // Find the minimum ID in a list of toots
 export const minimumID = (toots: Toot[]): number | null => {
     const minId =  toots.reduce((min, toot) => {
