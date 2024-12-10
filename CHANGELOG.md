@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.9.1`
 * `DiversityFeedScorer` sorts by MD5 of id to get random but repeatable ordering so scores don't bounce around as incremental loads happen
 * `ChaosScorer` uses a hashing function to generate a deterministic score instead of `Math.random()`
 * Don't decide whether to reload feed (leave that to the client app using this package)
