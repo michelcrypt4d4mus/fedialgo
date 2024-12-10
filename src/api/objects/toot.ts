@@ -308,9 +308,7 @@ export const minimumID = (toots: Toot[]): number | null => {
 
 
 export const sortByCreatedAt = (toots: mastodon.v1.Status[]): mastodon.v1.Status[] => {
-    return toots.toSorted((a, b) => {
-        return a.createdAt < b.createdAt ? -1 : 1;
-    });
+    return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
 
 
