@@ -15,6 +15,7 @@ import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData
 export const INSTANCE = "instance"
 export const STATUSES = "statuses"
 export const TAGS = "tags"
+
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
