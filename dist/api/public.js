@@ -48,8 +48,8 @@ exports.mastodonServersInfo = mastodonServersInfo;
 ;
 // Get the tags that are trending on 'server'
 async function fetchTrendingTags(server, numTags) {
-    numTags ||= Storage_1.default.getConfig().numTrendingTootsPerServer;
-    const tagsUrl = api_1.MastoApi.trendUrl("tags");
+    numTags ||= Storage_1.default.getConfig().numTrendingTagsPerServer;
+    const tagsUrl = api_1.MastoApi.trendUrl(api_1.TAGS);
     let tags;
     try {
         tags = await mastodonPublicFetch(server, tagsUrl, numTags);
@@ -113,7 +113,7 @@ async function getMonthlyUsers(server) {
         return 0;
     }
     try {
-        const instance = await mastodonPublicFetch(server, api_1.MastoApi.v2Url("instance"));
+        const instance = await mastodonPublicFetch(server, api_1.MastoApi.v2Url(api_1.INSTANCE));
         console.debug(`monthlyUsers() for '${server}', 'instance' var: `, instance);
         return instance ? instance.usage.users.activeMonth : 0;
     }

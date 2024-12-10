@@ -118,14 +118,14 @@ exports.DEFAULT_CONFIG = {
     // API stuff
     minRecordsForFeatureScoring: 400,
     maxFollowingAccountsToPull: 5000,
-    reloadFeaturesEveryNthOpen: 9,
-    numServersToCheck: 30,
     minServerMAU: 100,
+    numServersToCheck: 30,
+    reloadFeaturesEveryNthOpen: 9,
     // Trending tags
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,
-    numTrendingTags: 20,
-    numTrendingTagsPerServer: 20,
+    numTrendingTags: 18,
+    numTrendingTagsPerServer: 30,
     numTrendingTagsToots: 100,
     // Trending toots
     numTrendingTootsPerServer: 30,

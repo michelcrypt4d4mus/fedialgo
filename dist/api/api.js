@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = exports.STATUSES = void 0;
+exports.MastoApi = exports.TAGS = exports.STATUSES = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -35,7 +35,9 @@ const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const public_1 = require("./public");
 const types_1 = require("../types");
+exports.INSTANCE = "instance";
 exports.STATUSES = "statuses";
+exports.TAGS = "tags";
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
