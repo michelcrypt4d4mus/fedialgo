@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.minimumID = exports.TootVisibility = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
+const account_1 = require("./account");
 const helpers_1 = require("../../helpers");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -102,6 +103,7 @@ class Toot {
         this.trendingTags = toot.trendingTags;
         this.repairToot();
     }
+    // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
     containsString(str) {
         str = str.trim().toLowerCase();
         if (str.startsWith("#")) {
@@ -111,12 +113,13 @@ class Toot {
             return this.content.toLowerCase().includes(str);
         }
     }
+    // String that describes the toot in not so many characters
     describe() {
         let msg = `[${this.createdAt}]: ID: ${this.id}`;
         return `${msg} (${this.describeAccount()}): "${this.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
     }
     describeAccount() {
-        return `${this.account.displayName} (${this.account.acct})`;
+        return (0, account_1.describeAccount)(this.account);
     }
     popularity() {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0);
@@ -170,35 +173,6 @@ class Toot {
     isDM() {
         return this.visibility === TootVisibility.DIRECT_MSG;
     }
-    // Repair toot properties:
-    //   - Set toot.application.name to UNKNOWN_APP if missing
-    //   - Set toot.language to defaultLanguage if missing
-    //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string if missing
-    //   - Lowercase all tags
-    repairToot() {
-        this.application ??= { name: UNKNOWN_APP };
-        this.application.name ??= UNKNOWN_APP;
-        this.language ??= Storage_1.default.getConfig().defaultLanguage;
-        this.followedTags ??= [];
-        // Inject the @server info to the account string if it's missing
-        if (this.account.acct && !this.account.acct.includes("@")) {
-            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
-            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
-        }
-        // Check for weird media types
-        this.mediaAttachments.forEach((media) => {
-            if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
-                console.log(`Repairing broken media attachment in toot:`, this);
-                media.type = helpers_1.IMAGE;
-            }
-            else if (!helpers_1.MEDIA_TYPES.includes(media.type)) {
-                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
-            }
-        });
-        // Lowercase and count tags
-        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
-    }
     // Returns a simplified version of the toot for logging
     condensedStatus() {
         // Contents of toot (the text)
@@ -232,6 +206,35 @@ class Toot {
         return Object.keys(tootObj)
             .filter((k) => tootObj[k] != null)
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
+    }
+    // Repair toot properties:
+    //   - Set toot.application.name to UNKNOWN_APP if missing
+    //   - Set toot.language to defaultLanguage if missing
+    //   - Set media type to "image" if unknown and reparable
+    //   - Add server info to the account string if missing
+    //   - Lowercase all tags
+    repairToot() {
+        this.application ??= { name: UNKNOWN_APP };
+        this.application.name ??= UNKNOWN_APP;
+        this.language ??= Storage_1.default.getConfig().defaultLanguage;
+        this.followedTags ??= [];
+        // Inject the @server info to the account string if it's missing
+        if (this.account.acct && !this.account.acct.includes("@")) {
+            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
+            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
+        }
+        // Check for weird media types
+        this.mediaAttachments.forEach((media) => {
+            if (media.type === "unknown" && (0, helpers_1.isImage)(media.remoteUrl)) {
+                console.log(`Repairing broken media attachment in toot:`, this);
+                media.type = helpers_1.IMAGE;
+            }
+            else if (!helpers_1.MEDIA_TYPES.includes(media.type)) {
+                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
+            }
+        });
+        // Lowercase and count tags
+        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
     attachmentsOfType(attachmentType) {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;

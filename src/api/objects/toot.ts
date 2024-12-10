@@ -5,10 +5,10 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { FeedFilterSettings } from "../../types";
+import { describeAccount } from "./account";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { TheAlgorithm } from "../..";
-import { TootExtension, TootScore, TrendingTag } from "../../types";
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -122,6 +122,7 @@ export default class Toot implements TootObj {
         this.repairToot();
     }
 
+    // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
 
@@ -132,13 +133,14 @@ export default class Toot implements TootObj {
         }
     }
 
+    // String that describes the toot in not so many characters
     describe(): string {
         let msg = `[${this.createdAt}]: ID: ${this.id}`;
         return `${msg} (${this.describeAccount()}): "${this.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
     }
 
     describeAccount(): string {
-        return `${this.account.displayName} (${this.account.acct})`;
+        return describeAccount(this.account);
     }
 
     popularity(): number {
@@ -201,38 +203,6 @@ export default class Toot implements TootObj {
         return this.visibility === TootVisibility.DIRECT_MSG;
     }
 
-    // Repair toot properties:
-    //   - Set toot.application.name to UNKNOWN_APP if missing
-    //   - Set toot.language to defaultLanguage if missing
-    //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string if missing
-    //   - Lowercase all tags
-    repairToot(): void {
-        this.application ??= {name: UNKNOWN_APP};
-        this.application.name ??= UNKNOWN_APP;
-        this.language ??= Storage.getConfig().defaultLanguage;
-        this.followedTags ??= [];
-
-        // Inject the @server info to the account string if it's missing
-        if (this.account.acct && !this.account.acct.includes("@")) {
-            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
-            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
-        }
-
-        // Check for weird media types
-        this.mediaAttachments.forEach((media) => {
-            if (media.type === "unknown" && isImage(media.remoteUrl)) {
-                console.log(`Repairing broken media attachment in toot:`, this);
-                media.type = IMAGE;
-            } else if (!MEDIA_TYPES.includes(media.type)) {
-                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
-            }
-        });
-
-        // Lowercase and count tags
-        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
-    }
-
     // Returns a simplified version of the toot for logging
     condensedStatus()  {
         // Contents of toot (the text)
@@ -266,6 +236,38 @@ export default class Toot implements TootObj {
         return Object.keys(tootObj)
             .filter((k) => tootObj[k as keyof typeof tootObj] != null)
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+    }
+
+    // Repair toot properties:
+    //   - Set toot.application.name to UNKNOWN_APP if missing
+    //   - Set toot.language to defaultLanguage if missing
+    //   - Set media type to "image" if unknown and reparable
+    //   - Add server info to the account string if missing
+    //   - Lowercase all tags
+    private repairToot(): void {
+        this.application ??= {name: UNKNOWN_APP};
+        this.application.name ??= UNKNOWN_APP;
+        this.language ??= Storage.getConfig().defaultLanguage;
+        this.followedTags ??= [];
+
+        // Inject the @server info to the account string if it's missing
+        if (this.account.acct && !this.account.acct.includes("@")) {
+            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
+            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
+        }
+
+        // Check for weird media types
+        this.mediaAttachments.forEach((media) => {
+            if (media.type === "unknown" && isImage(media.remoteUrl)) {
+                console.log(`Repairing broken media attachment in toot:`, this);
+                media.type = IMAGE;
+            } else if (!MEDIA_TYPES.includes(media.type)) {
+                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
+            }
+        });
+
+        // Lowercase and count tags
+        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
 
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {

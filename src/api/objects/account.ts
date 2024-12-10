@@ -22,3 +22,9 @@ export function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames
 export function extractServer(account: mastodon.v1.Account): string {
     return account.url?.split("/")[2] || "unknown.server";
 };
+
+
+// e.g. "Foobar (@foobar@mastodon.social)"
+export function describeAccount(account: mastodon.v1.Account): string {
+    return `${account.displayName} (${account.acct})`;
+};

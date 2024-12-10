@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
-import { FeedFilterSettings } from "../../types";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
-import { TootExtension, TootScore, TrendingTag } from "../../types";
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",
@@ -66,8 +65,8 @@ export default class Toot implements TootObj {
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(algo: TheAlgorithm): boolean;
     isDM(): boolean;
-    repairToot(): void;
     condensedStatus(): {};
+    private repairToot;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }
