@@ -12,6 +12,8 @@ import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 
+type ApiMutex = Record<StorageKey, Mutex>;
+
 export const INSTANCE = "instance"
 export const STATUSES = "statuses"
 export const TAGS = "tags"
@@ -21,8 +23,6 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
-
-type ApiMutex = Record<StorageKey, Mutex>;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
