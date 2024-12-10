@@ -50,7 +50,7 @@ export default class Storage {
             await this.setFilters(DEFAULT_FILTERS);  // DEFAULT_FILTERS not the filters we just built
         }
 
-        console.debug(`[Storage] getFilters() returning:`, filters);
+        // console.debug(`[Storage] getFilters() returning:`, filters);
         return filters;
     }
 

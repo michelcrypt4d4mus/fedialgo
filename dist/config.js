@@ -116,8 +116,8 @@ exports.DEFAULT_CONFIG = {
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     // API stuff
-    minRecordsForFeatureScoring: 400,
     maxFollowingAccountsToPull: 5000,
+    minRecordsForFeatureScoring: 400,
     minServerMAU: 100,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
