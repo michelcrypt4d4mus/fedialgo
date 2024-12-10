@@ -2,12 +2,13 @@
  * Populate the 'followedTags' property on Toot object and return the number of tags
  * on the Toot that the user is following.
  */
+import { mastodon } from 'masto';
+
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers';
 import { MastoApi } from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
-import { mastodon } from 'masto';
 
 
 export default class FollowedTagsFeatureScorer extends FeatureScorer {
