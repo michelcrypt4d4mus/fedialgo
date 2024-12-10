@@ -17,9 +17,19 @@ const BROKEN_TAG = "<<BROKEN_TAG>>"
 const UNKNOWN_APP = "unknown";
 
 
+// https://docs.joinmastodon.org/entities/Status/#visibility
+export enum TootVisibility {
+    DIRECT_MSG = "direct",
+    PUBLIC = "public",
+    PRIVATE = "private",
+    UNLISTED = "unlisted",
+};
+
+
 interface TootObj extends TootExtension {
     containsString: (str: string) => boolean;
     describe: () => string;
+    isDM: () => boolean;
     popularity: () => number;
     tootedAt: () => Date;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -184,6 +194,11 @@ export default class Toot implements TootObj {
         }
 
         return true;
+    };
+
+    // return true if it's a direct message
+    isDM(): boolean {
+        return this.visibility === TootVisibility.DIRECT_MSG;
     }
 
     // Repair toot properties:

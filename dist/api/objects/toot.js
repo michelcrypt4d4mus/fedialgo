@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.minimumID = void 0;
+exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.minimumID = exports.TootVisibility = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
@@ -11,6 +11,15 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 const UNKNOWN_APP = "unknown";
+// https://docs.joinmastodon.org/entities/Status/#visibility
+var TootVisibility;
+(function (TootVisibility) {
+    TootVisibility["DIRECT_MSG"] = "direct";
+    TootVisibility["PUBLIC"] = "public";
+    TootVisibility["PRIVATE"] = "private";
+    TootVisibility["UNLISTED"] = "unlisted";
+})(TootVisibility || (exports.TootVisibility = TootVisibility = {}));
+;
 ;
 class Toot {
     id;
@@ -155,6 +164,11 @@ class Toot {
             return false;
         }
         return true;
+    }
+    ;
+    // return true if it's a direct message
+    isDM() {
+        return this.visibility === TootVisibility.DIRECT_MSG;
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN_APP if missing

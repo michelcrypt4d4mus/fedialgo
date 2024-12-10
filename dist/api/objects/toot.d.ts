@@ -2,9 +2,16 @@ import { mastodon } from "masto";
 import { FeedFilterSettings } from "../../types";
 import { TheAlgorithm } from "../..";
 import { TootExtension, TootScore, TrendingTag } from "../../types";
+export declare enum TootVisibility {
+    DIRECT_MSG = "direct",
+    PUBLIC = "public",
+    PRIVATE = "private",
+    UNLISTED = "unlisted"
+}
 interface TootObj extends TootExtension {
     containsString: (str: string) => boolean;
     describe: () => string;
+    isDM: () => boolean;
     popularity: () => number;
     tootedAt: () => Date;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -58,6 +65,7 @@ export default class Toot implements TootObj {
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(algo: TheAlgorithm): boolean;
+    isDM(): boolean;
     repairToot(): void;
     condensedStatus(): {};
     private attachmentsOfType;
