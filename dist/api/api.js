@@ -40,6 +40,7 @@ const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 ;
 // Singleton class for interacting with the Mastodon API
 class MastoApi {
@@ -75,8 +76,9 @@ class MastoApi {
     // Get the toots that make up the user's home timeline feed
     async getTimelineToots(numTimelineToots, maxId) {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [this.fetchHomeFeed(numTimelineToots, maxId)];
+        let promises = [
+            this.fetchHomeFeed(numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch, maxId),
+        ];
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
@@ -109,15 +111,13 @@ class MastoApi {
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
-        numToots ||= Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-        console.log(`gethomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}`);
         const statuses = await this.fetchData({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.Key.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots,
+            maxRecords: numToots || Storage_1.default.getConfig().maxTimelineTootsToFetch,
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 let oldestTootAt = (0, toot_1.earliestTootAt)(allResults) || new Date();
@@ -235,7 +235,8 @@ class MastoApi {
     async fetchData(fetchParams) {
         let { breakIf, fetch, maxId, maxRecords, label, skipCache } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
+        breakIf = breakIf || DEFAULT_BREAK_IF;
+        console.debug(`[API] ${label}: fetchData() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
@@ -251,12 +252,9 @@ class MastoApi {
             }
             for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page);
-                console.debug(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
-                if (results.length >= maxRecords) {
-                    console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
-                    break;
-                }
-                else if (breakIf && breakIf(page, results)) {
+                console.debug(`[API] ${label}: Retrieved page ${++pageNumber}`);
+                if (results.length >= maxRecords || breakIf(page, results)) {
+                    console.log(`[API] ${label}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
@@ -264,7 +262,7 @@ class MastoApi {
             await Storage_1.default.set(label, results);
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`);
+            this.throwIfAccessTokenRevoked(e, `fetchData() for ${label} failed`);
             return results;
         }
         finally {

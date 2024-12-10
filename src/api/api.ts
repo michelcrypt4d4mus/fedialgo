@@ -17,6 +17,7 @@ const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 
 type ApiMutex = Record<StorageKey, Mutex>;
 
@@ -66,8 +67,10 @@ export class MastoApi {
     // Get the toots that make up the user's home timeline feed
     async getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let promises: Promise<any>[] = [this.fetchHomeFeed(numTimelineToots, maxId)]
+
+        let promises: Promise<any>[] = [
+            this.fetchHomeFeed(numTimelineToots || Storage.getConfig().numTootsInFirstFetch, maxId),
+        ]
 
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
@@ -104,16 +107,14 @@ export class MastoApi {
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
-        numToots ||= Storage.getConfig().maxTimelineTootsToFetch;
         const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
-        console.log(`getHomeFeed(${numToots} toots, maxId: ${maxId}), cutoff: ${cutoffTimelineAt}`);
 
         const statuses = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             label: Key.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots,
+            maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 let oldestTootAt = earliestTootAt(allResults) || new Date();
@@ -236,9 +237,10 @@ export class MastoApi {
 
     // Generic data fetcher
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-        let { breakIf, fetch, maxId, maxRecords, label, skipCache } = fetchParams;
+        let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        console.debug(`[API] ${label}: mastodonFetchPages() w/ maxRecords=${maxRecords}`);
+        breakIf = breakIf || DEFAULT_BREAK_IF;
+        console.debug(`[API] ${label}: fetchData() w/ maxRecords=${maxRecords}`);
         const releaseMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
@@ -256,12 +258,10 @@ export class MastoApi {
 
             for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page as T[]);
-                console.debug(`[API] ${label}: Retrieved page ${++pageNumber} of current user's ${label}...`);
+                console.debug(`[API] ${label}: Retrieved page ${++pageNumber}`);
 
-                if (results.length >= maxRecords) {
-                    console.log(`[API] ${label}: Halting retrieval at page ${pageNumber} w/ ${results.length} records`);
-                    break;
-                } else if (breakIf && breakIf(page as T[], results)) {
+                if (results.length >= maxRecords || breakIf(page, results)) {
+                    console.log(`[API] ${label}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
@@ -269,7 +269,7 @@ export class MastoApi {
             console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
             await Storage.set(label, results as StorageValue);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `mastodonFetchPages() for ${label} failed`)
+            this.throwIfAccessTokenRevoked(e, `fetchData() for ${label} failed`)
             return results;
         } finally {
             releaseMutex();
