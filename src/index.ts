@@ -156,7 +156,7 @@ class TheAlgorithm {
         const cleanFeed = Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
         this.extractSummaryInfo();
-        this.maybeGetMoreToots(homeToots, numTimelineToots);
+        this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
 

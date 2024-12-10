@@ -162,7 +162,7 @@ class TheAlgorithm {
         const cleanFeed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
         this.extractSummaryInfo();
-        this.maybeGetMoreToots(homeToots, numTimelineToots);
+        this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
     // Return the user's current weightings for each score category

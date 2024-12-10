@@ -112,7 +112,7 @@ exports.DEFAULT_CONFIG = {
     enableIncrementalLoad: true,
     maxTimelineTootsToFetch: 2500,
     // maxTimelineTootsToFetch: 800,       // useful dev options for faster load
-    incrementalLoadDelayMS: 1000,
+    incrementalLoadDelayMS: 500,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     reloadIfOlderThanMinutes: 10,
