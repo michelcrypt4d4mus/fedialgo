@@ -301,13 +301,15 @@ class TheAlgorithm {
                     console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
                     promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature(this.api)));
                 }
+                // Sort by createdAt so that we get consistent scoring from DiversityFeedScorer
+                let tempFeed = this.feed.sort((a, b) => a.tootedAt().getTime() - b.tootedAt().getTime());
                 await Promise.all(promises);
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
-                for (const toot of this.feed) {
+                for (const toot of tempFeed) {
                     await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers);
                 }
                 // Sort feed based on score from high to low.
-                this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+                this.feed = tempFeed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo(logPrefix);
                 Storage_1.default.setFeed(this.feed);
             }
