@@ -36,7 +36,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour accounts you often reply to",
     },
     [WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 3,
+        defaultWeight: 2,
         description: "Favour accounts you often retoot",
     },
     [WeightName.NUM_FAVOURITES]: {

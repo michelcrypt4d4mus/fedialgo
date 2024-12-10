@@ -60,7 +60,7 @@ exports.DEFAULT_WEIGHTS = {
         description: "Favour accounts you often reply to",
     },
     [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 3,
+        defaultWeight: 2,
         description: "Favour accounts you often retoot",
     },
     [types_1.WeightName.NUM_FAVOURITES]: {
