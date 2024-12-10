@@ -67,7 +67,6 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
-    reloadIfOlderThanMinutes: number;
     // API stuff
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;

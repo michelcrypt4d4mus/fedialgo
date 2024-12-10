@@ -29,7 +29,6 @@ declare class TheAlgorithm {
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
     scoreMutex: Mutex;
-    reloadIfOlderThanMS: number;
     setFeedInApp: (f: Toot[]) => void;
     featureScorers: (ChaosScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
@@ -50,7 +49,6 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
-    private shouldReloadFeed;
     learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
 export { TIME_DECAY, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, SourceFilterName, StringNumberDict, TheAlgorithm, Toot, Weights, };

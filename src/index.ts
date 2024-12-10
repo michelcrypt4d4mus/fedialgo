@@ -53,7 +53,6 @@ class TheAlgorithm {
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     scoreMutex = new Mutex();
-    reloadIfOlderThanMS: number;
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
 
@@ -116,7 +115,6 @@ class TheAlgorithm {
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         MastoApi.init(this.api, this.user);
         this.filters = buildNewFilterSettings();
-        this.reloadIfOlderThanMS = Storage.getConfig().reloadIfOlderThanMinutes * 60 * 1000;
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -353,14 +351,6 @@ class TheAlgorithm {
         let msg = `Got ${Object.keys(this.followedAccounts).length} followed accounts, ${newToots.length} new toots`;
         msg += `, ${newHomeToots.length} new home toots, ${newToots.length} total new toots, this.feed has ${this.feed.length} toots`;
         console.log(msg);
-    }
-
-    private shouldReloadFeed(): boolean {
-        const mostRecentAt = mostRecentCreatedAt(this.feed);
-        if (this.feed.length == 0 || !mostRecentAt) return true;
-        const should = ((Date.now() - mostRecentAt.getTime()) > this.reloadIfOlderThanMS);
-        console.log(`shouldReloadFeed() mostRecentAt: ${mostRecentAt}, should: ${should}`);
-        return should;
     }
 
     // Adjust toot weights based on user's chosen slider values
