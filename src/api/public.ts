@@ -70,7 +70,7 @@ export async function fetchTrendingTags(server: string, numTags?: number): Promi
 
 
 // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
-export default async function fetchTrendingToots(): Promise<Toot[]> {
+export async function fetchTrendingToots(): Promise<Toot[]> {
     console.log(`[TrendingToots] getTrendingToots() called`);
     const topServerDomains = await MastoApi.instance.getTopServerDomains();
 

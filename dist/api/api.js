@@ -7,13 +7,12 @@ exports.MastoApi = exports.STATUSES = void 0;
 const async_mutex_1 = require("async-mutex");
 const home_feed_1 = __importDefault(require("../feeds/home_feed"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
-const mastodon_servers_info_1 = __importDefault(require("./mastodon_servers_info"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
+const public_1 = require("./public");
 const types_1 = require("../types");
-const mastodon_servers_info_2 = require("./mastodon_servers_info");
 exports.STATUSES = "statuses";
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
@@ -59,7 +58,7 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                (0, mastodon_servers_info_1.default)(),
+                (0, public_1.fetchTrendingToots)(),
                 (0, trending_tags_1.default)(),
             ]);
         }
@@ -166,7 +165,7 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
             ;
             if (!servers || (await this.shouldReloadFeatures())) {
-                servers = await (0, mastodon_servers_info_2.mastodonServersInfo)(await this.fetchFollowedAccounts());
+                servers = await (0, public_1.mastodonServersInfo)(await this.fetchFollowedAccounts());
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
             }
             else {

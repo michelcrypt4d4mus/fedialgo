@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("../api/objects/toot"));
-const mastodon_servers_info_1 = require("../api/mastodon_servers_info");
+const public_1 = require("../api/public");
 const api_1 = require("../api/api");
 const LOG_PREFIX = "[TrendingTags]";
 async function getRecentTootsForTrendingTags() {
@@ -34,7 +34,7 @@ async function getRecentTootsForTrendingTags() {
     const tootses = await Promise.all(tags.map(getTootsForTag));
     const toots = toot_1.default.dedupeToots(tootses.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
-    console.log(`getRecentTootsForTrendingTags() possible toots:`, toots);
+    console.debug(`getRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
 }
 exports.default = getRecentTootsForTrendingTags;
@@ -43,7 +43,7 @@ exports.default = getRecentTootsForTrendingTags;
 async function getTrendingTags() {
     console.log(`${LOG_PREFIX} getTrendingTags() called`);
     const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
-    const trendingTags = await Promise.all(topDomains.map(mastodon_servers_info_1.fetchTrendingTags));
+    const trendingTags = await Promise.all(topDomains.map(public_1.fetchTrendingTags));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
     const aggregatedTags = trendingTags.flat().reduce((tags, tag) => {
         const existingTag = tags.find(t => t.name === tag.name);

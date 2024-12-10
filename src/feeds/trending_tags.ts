@@ -21,7 +21,7 @@
  */
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { fetchTrendingTags } from "../api/mastodon_servers_info";
+import { fetchTrendingTags } from "../api/public";
 import { MastoApi } from "../api/api";
 import { TrendingTag } from "../types";
 
@@ -33,7 +33,7 @@ export default async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
     const tootses: Toot[][] = await Promise.all(tags.map(getTootsForTag));
     const toots: Toot[] = Toot.dedupeToots(tootses.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity())
-    console.log(`getRecentTootsForTrendingTags() possible toots:`, toots);
+    console.debug(`getRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 

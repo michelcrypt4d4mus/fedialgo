@@ -6,13 +6,12 @@ import { Mutex } from 'async-mutex';
 
 import getHomeFeed from "../feeds/home_feed";
 import getRecentTootsForTrendingTags from "../feeds/trending_tags";
-import fetchTrendingToots from "./mastodon_servers_info";
 import Storage from "../Storage";
 import Toot from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
+import { fetchTrendingToots, mastodonServersInfo } from "./public";
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
-import { mastodonServersInfo } from "./mastodon_servers_info";
 
 export const STATUSES = "statuses"
 const API_URI = "api"
