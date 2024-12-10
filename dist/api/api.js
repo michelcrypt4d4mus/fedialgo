@@ -233,7 +233,7 @@ class MastoApi {
     ;
     // Generic data fetcher
     async fetchData(fetchParams) {
-        let { breakIf, fetch, maxId, maxRecords, label, skipCache } = fetchParams;
+        let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         console.debug(`[API] ${label}: fetchData() w/ maxRecords=${maxRecords}`);

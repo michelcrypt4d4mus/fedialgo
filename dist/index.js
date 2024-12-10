@@ -207,8 +207,7 @@ class TheAlgorithm {
             return counts;
         }, {});
         this.feed.forEach(toot => {
-            // Set isFollowed flag
-            toot.isFollowed = toot.account.acct in this.followedAccounts;
+            toot.isFollowed = toot.account.acct in this.followedAccounts; // Set isFollowed flag
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);

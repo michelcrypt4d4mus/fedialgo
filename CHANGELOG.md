@@ -1,5 +1,8 @@
 ## NEXT
 
+## `0.9.0`
+* (demo app) switch to sort filters by count instead of by name
+
 ## `0.8.6`
 * Remove followed servers that don't meet MAU requirements from trending data
 * Standardize caching of data fetched from Mastodon
