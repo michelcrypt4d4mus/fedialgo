@@ -4,10 +4,11 @@ import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
 export default class MastodonServer {
     domain: string;
     constructor(domain: string);
-    fetchTrendingTags(numTags?: number): Promise<TrendingTag[]>;
     fetchTrendingToots(): Promise<Toot[]>;
-    fetchMonthlyUsers(): Promise<number>;
     fetchTrendingLinks(): Promise<TrendingLink[]>;
+    fetchTrendingTags(numTags?: number): Promise<TrendingTag[]>;
+    fetchMonthlyUsers(): Promise<number>;
+    private fetchList;
     private fetch;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<mastodon.v1.TrendLink[]>;

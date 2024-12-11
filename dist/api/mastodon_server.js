@@ -21,45 +21,29 @@ class MastodonServer {
         this.domain = domain;
     }
     ;
+    // Fetch toots that are trending on this server
+    async fetchTrendingToots() {
+        const toots = await this.fetchList(api_1.MastoApi.trendUrl(api_1.STATUSES));
+        const trendingToots = toots.map(t => new toot_1.default(t)).filter(t => t.popularity() > 0);
+        // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
+        // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+        trendingToots.forEach((toot, i) => toot.trendingRank = 1 + (trendingToots?.length || 0) - i);
+        return trendingToots;
+    }
+    // Get the links that are trending on this server
+    async fetchTrendingLinks() {
+        const trendingLinks = await this.fetchList(api_1.MastoApi.trendUrl(api_1.LINKS));
+        trendingLinks.forEach(feature_scorer_1.default.decorateHistoryScores);
+        return trendingLinks;
+    }
+    ;
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(numTags) {
-        numTags ||= Storage_1.default.getConfig().numTrendingTagsPerServer;
-        const tagsUrl = api_1.MastoApi.trendUrl(api_1.TAGS);
-        let tags = [];
-        try {
-            tags = await this.fetch(tagsUrl, numTags);
-            if (!tags?.length)
-                throw new Error(`No tags found on '${this.domain}'!`);
-        }
-        catch (e) {
-            console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
-        }
+        const tags = await this.fetchList(api_1.MastoApi.trendUrl(api_1.TAGS), numTags);
         tags.forEach(tag => feature_scorer_1.default.decorateHistoryScores((0, tag_1.repairTag)(tag)));
-        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, tags);
         return tags;
     }
     ;
-    // Fetch toots that are trending on this server
-    async fetchTrendingToots() {
-        let topToots = [];
-        try {
-            topToots = await this.fetch(api_1.MastoApi.trendUrl(api_1.STATUSES));
-            if (!topToots?.length)
-                throw new Error(`Failed to fetch topToots, got: ${JSON.stringify(topToots)}`);
-            topToots = topToots.map(t => new toot_1.default(t));
-        }
-        catch (e) {
-            console.warn(`Error fetching trending toots from '${this.domain}':`, e);
-        }
-        topToots = topToots.filter(toot => toot.popularity() > 0);
-        let filteredToots = topToots.filter(toot => toot.popularity() > 0);
-        console.debug(`trendingToots() Removed ${topToots.length - filteredToots.length} toots with no favorites or retoots`);
-        // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
-        // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        filteredToots.forEach((toot, i) => toot.trendingRank = 1 + (filteredToots?.length || 0) - i);
-        console.debug(`trendingToots for '${this.domain}': `, filteredToots.map(t => t.condensedStatus()));
-        return filteredToots ?? [];
-    }
     // Get publicly available MAU information for this server.
     async fetchMonthlyUsers() {
         if (Storage_1.default.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
@@ -77,19 +61,21 @@ class MastodonServer {
         }
     }
     ;
-    async fetchTrendingLinks() {
-        let links = [];
+    // Fetch a list of objects of type T from a public API endpoint
+    async fetchList(endpoint, limit) {
+        const label = endpoint.split("/").pop();
+        let list = [];
         try {
-            links = await this.fetch(api_1.MastoApi.trendUrl(api_1.LINKS));
-            if (!links?.length)
-                throw new Error(`No links found on '${this.domain}'!`);
+            list = await this.fetch(endpoint);
+            if (!list?.length) {
+                throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
+            }
         }
         catch (e) {
-            console.warn(`[TrendingLinks] Failed to get trending links from '${this.domain}'!`, e);
+            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
-        links.forEach(feature_scorer_1.default.decorateHistoryScores);
-        console.debug(`[TrendingLinks] trendingLinks for server '${this.domain}':`, links);
-        return links;
+        console.debug(`Retrieved ${list.length} of ${label} from '${this.domain}':`, list);
+        return list;
     }
     ;
     // Get data from a public API endpoint on a Mastodon server.
