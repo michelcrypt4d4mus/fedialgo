@@ -1,24 +1,15 @@
 /*
  * Helper methods for dealing with Mastodon's Tag objects.
+ * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import { mastodon } from "masto";
 
-import Storage from "../../Storage";
-import { TrendingTag } from "../../types";
+const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
-// Lowercase the tag text; inject toot / account counts summed over last NUM_DAYS_TO_COUNT_TAG_DATA.
-export function decorateTrendingTag(tag: mastodon.v1.Tag): TrendingTag {
-    const trendingTag = tag as TrendingTag;
-    trendingTag.name = trendingTag.name.toLowerCase();
-
-    if (!trendingTag?.history || trendingTag.history.length == 0) {
-        console.warn(`decorateTrendingTag() found no history for tag:`, trendingTag);
-        trendingTag.history = [];
-    }
-
-    const recentHistory = trendingTag.history.slice(0, Storage.getConfig().numDaysToCountTrendingTagData);
-    trendingTag.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
-    trendingTag.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
-    return trendingTag;
+// Lowercase the tag name and URL
+export function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag {
+    tag.name = tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG;
+    tag.url = tag.url.toLowerCase();
+    return tag;
 };

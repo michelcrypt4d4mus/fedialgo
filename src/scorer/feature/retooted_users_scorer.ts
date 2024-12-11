@@ -22,9 +22,7 @@ export default class RetootedUsersScorer extends FeatureScorer {
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);
-        const retootCounts = countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
-        console.log(`Retoot counts:`, retootCounts);
-        return retootCounts;
+        return countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
     };
 
     async _score(toot: Toot) {

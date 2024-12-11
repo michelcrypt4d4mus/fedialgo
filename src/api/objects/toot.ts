@@ -6,16 +6,16 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { describeAccount, repairAccount, webfingerURI } from "./account";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
+import { describeAccount, repairAccount } from "./account";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
+import { repairTag } from "./tag";
 
 type StatusList = mastodon.v1.Status[];
 
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
-const BROKEN_TAG = "<<BROKEN_TAG>>"
 const UNKNOWN = "unknown";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -78,6 +78,7 @@ export default class Toot implements TootObj {
     reblogBy?: mastodon.v1.Account; // The account that retooted this toot (if any)
     scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
     trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks?: TrendingLink[]; // Links that are trending in this toot
     trendingTags?: TrendingTag[]; // Tags that are trending in this toot
 
     constructor(toot: TootExtension) {
@@ -120,6 +121,7 @@ export default class Toot implements TootObj {
         this.reblogBy = toot.reblogBy as mastodon.v1.Account;
         this.scoreInfo = toot.scoreInfo as TootScore;
         this.trendingRank = toot.trendingRank;
+        this.trendingLinks = toot.trendingLinks as TrendingLink[];
         this.trendingTags = toot.trendingTags as TrendingTag[];
         this.repairToot();
     }
@@ -129,7 +131,7 @@ export default class Toot implements TootObj {
         str = str.trim().toLowerCase();
 
         if (str.startsWith("#")) {
-            return this.tags.some((tag) => str.slice(1) == tag.name.toLowerCase());
+            return this.tags.some((tag) => str.slice(1) == tag.name);
         } else {
             return this.content.toLowerCase().includes(str);
         }
@@ -252,10 +254,13 @@ export default class Toot implements TootObj {
         this.application ??= {name: UNKNOWN};
         this.application.name ??= UNKNOWN;
         this.language ??= Storage.getConfig().defaultLanguage;
+        // Repair Tags
         this.followedTags ??= [];
+        this.tags.forEach(repairTag);
+        // Repair Accounts
         repairAccount(this.account);
+        this.mentions.forEach(repairAccount);
         if (this.reblog?.account) repairAccount(this.reblog.account);
-        this.mentions.forEach((mention) => repairAccount(mention));
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
@@ -266,9 +271,6 @@ export default class Toot implements TootObj {
                 console.warn(`Unknown media type: '${media.type}' for toot:`, this);
             }
         });
-
-        // Lowercase and count tags
-        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
 
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {

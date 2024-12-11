@@ -1,13 +1,17 @@
 import Toot from "./objects/toot";
-import { StringNumberDict, TrendingTag } from "../types";
+import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
 export default class MastodonServer {
     domain: string;
     constructor(domain: string);
-    fetchTrendingTags(numTags?: number): Promise<TrendingTag[]>;
     fetchTrendingToots(): Promise<Toot[]>;
+    fetchTrendingLinks(): Promise<TrendingLink[]>;
+    fetchTrendingTags(): Promise<TrendingTag[]>;
     fetchMonthlyUsers(): Promise<number>;
+    private fetchList;
     private fetch;
     static fediverseTrendingToots(): Promise<Toot[]>;
+    static fediverseTrendingLinks(): Promise<TrendingLink[]>;
+    static fediverseTrendingTags(): Promise<TrendingTag[]>;
     static mastodonServersInfo(): Promise<StringNumberDict>;
     static callForAllServers<T>(fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;
     static callForServers<T>(domains: string[], fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;

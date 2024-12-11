@@ -1,3 +1,2 @@
 import { mastodon } from "masto";
-import { TrendingTag } from "../../types";
-export declare function decorateTrendingTag(tag: mastodon.v1.Tag): TrendingTag;
+export declare function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag;

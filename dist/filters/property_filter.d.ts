@@ -19,6 +19,7 @@ export declare enum TypeFilterName {
     REPLIES = "replies",
     REPOSTS = "reposts",
     TRENDING_HASHTAGS = "trendingHashtags",
+    TRENDING_LINKS = "trendingLinks",
     TRENDING_TOOTS = "trendingToots"
 }
 export interface PropertyFilterArgs extends FilterArgs {

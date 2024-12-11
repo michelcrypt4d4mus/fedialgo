@@ -88,6 +88,10 @@ exports.DEFAULT_WEIGHTS = {
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
+    [types_1.WeightName.TRENDING_LINKS]: {
+        defaultWeight: 0.4,
+        description: "Favour links that are trending in the Fediverse",
+    },
     [types_1.WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",
@@ -129,6 +133,7 @@ exports.DEFAULT_CONFIG = {
     // Trending tags
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,
+    numTrendingLinksPerServer: 20,
     numTrendingTags: 18,
     numTrendingTagsPerServer: 30,
     numTrendingTagsToots: 100,

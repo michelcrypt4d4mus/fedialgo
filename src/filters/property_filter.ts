@@ -36,6 +36,7 @@ export enum TypeFilterName {
     REPLIES = 'replies',
     REPOSTS = 'reposts',
     TRENDING_HASHTAGS = 'trendingHashtags',
+    TRENDING_LINKS = 'trendingLinks',
     TRENDING_TOOTS = 'trendingToots',
 };
 
@@ -53,6 +54,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.REPLIES]:           (toot) => !!toot.inReplyToId,
     [TypeFilterName.REPOSTS]:           (toot) => !!toot.reblog,
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
+    [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.trendingRank,
 };
 

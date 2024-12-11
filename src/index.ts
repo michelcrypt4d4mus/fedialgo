@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
+import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
@@ -22,6 +22,7 @@ import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
 import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
+import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -51,6 +52,7 @@ class TheAlgorithm {
     // Variables with initial values
     feed: Toot[] = [];
     serverSideFilters: mastodon.v2.Filter[] = [];
+    trendingLinks: mastodon.v1.TrendLink[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
@@ -61,7 +63,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosScorer(),
-        new FollowedTagsFeatureScorer(),
+        new FollowedTagsScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
         new MentionsFollowedScorer(),
@@ -71,6 +73,7 @@ class TheAlgorithm {
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
+        new TrendingLinksScorer(),
         new TrendingTagsScorer(),
         new TrendingTootScorer(),
         new VideoAttachmentScorer(),
@@ -131,7 +134,7 @@ class TheAlgorithm {
             promises = promises.concat([
                 MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
-                ...this.featureScorers.map(scorer => scorer.getFeature()),
+                ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
 
@@ -146,6 +149,7 @@ class TheAlgorithm {
             this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
+            this.trendingLinks = userData.trendingLinks;
         }
 
         this.logTootCounts(newToots, homeToots)
@@ -322,7 +326,7 @@ class TheAlgorithm {
 
                 if (!this.featureScorers.every(scorer => scorer.isReady)) {
                     console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature()));
+                    promises = promises.concat(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
                 }
 
                 await Promise.all(promises);

@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = exports.TAGS = exports.STATUSES = exports.INSTANCE = void 0;
+exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
@@ -35,7 +35,9 @@ const toot_1 = __importStar(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const types_1 = require("../types");
+const tag_1 = require("./objects/tag");
 exports.INSTANCE = "instance";
+exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
 const API_URI = "api";
@@ -84,8 +86,8 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                mastodon_server_1.default.fediverseTrendingToots(),
                 (0, trending_tags_1.default)(),
+                mastodon_server_1.default.fediverseTrendingToots(),
             ]);
         }
         const allResponses = await Promise.all(promises);
@@ -108,7 +110,7 @@ class MastoApi {
         ]);
         return {
             followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
-            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name.toLowerCase()),
+            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name),
             mutedAccounts: (0, account_1.buildAccountNames)(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
         };
@@ -177,10 +179,11 @@ class MastoApi {
     ;
     // Get hashtags the user is following
     async getFollowedTags() {
-        return await this.fetchData({
+        const followedTags = await this.fetchData({
             fetch: this.api.v1.followedTags.list,
             label: types_1.WeightName.FOLLOWED_TAGS
         });
+        return followedTags.map(tag_1.repairTag);
     }
     // Get the user's recent notifications
     async getRecentNotifications() {

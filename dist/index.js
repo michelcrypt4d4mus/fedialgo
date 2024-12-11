@@ -33,7 +33,7 @@ exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyN
 const async_mutex_1 = require("async-mutex");
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
+const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
@@ -54,6 +54,7 @@ const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
+const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
@@ -71,6 +72,7 @@ class TheAlgorithm {
     // Variables with initial values
     feed = [];
     serverSideFilters = [];
+    trendingLinks = [];
     followedAccounts = {};
     followedTags = {};
     mutedAccounts = {};
@@ -80,7 +82,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaos_scorer_1.default(),
-        new followed_tags_feature_scorer_1.default(),
+        new followed_tags_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
         new mentions_followed_scorer_1.default(),
@@ -90,6 +92,7 @@ class TheAlgorithm {
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
+        new trending_links_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
@@ -140,7 +143,7 @@ class TheAlgorithm {
             promises = promises.concat([
                 api_1.MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
-                ...this.featureScorers.map(scorer => scorer.getFeature()),
+                ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
         const allResponses = await Promise.all(promises);
@@ -153,6 +156,7 @@ class TheAlgorithm {
             this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
+            this.trendingLinks = userData.trendingLinks;
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
@@ -304,7 +308,7 @@ class TheAlgorithm {
                 let promises = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
                 if (!this.featureScorers.every(scorer => scorer.isReady)) {
                     console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature()));
+                    promises = promises.concat(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
                 }
                 await Promise.all(promises);
                 // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop

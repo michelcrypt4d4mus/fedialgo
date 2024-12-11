@@ -5,14 +5,14 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
+import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { atLeastValues, average, countValues, groupBy, sortKeysByValue, zipPromises } from "../helpers";
-import { decorateTrendingTag } from "./objects/tag";
+import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers";
 import { extractServer } from "./objects/account";
-import { INSTANCE, STATUSES, TAGS, MastoApi } from "./api";
-import { StringNumberDict, TrendingTag } from "../types";
-import { transformKeys } from "../helpers";
+import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
+import { repairTag } from "./objects/tag";
+import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
 
 
 export default class MastodonServer {
@@ -22,48 +22,31 @@ export default class MastodonServer {
         this.domain = domain;
     };
 
-    // Get the tags that are trending on 'server'
-    async fetchTrendingTags(numTags?: number): Promise<TrendingTag[]> {
-        numTags ||= Storage.getConfig().numTrendingTagsPerServer;
-        const tagsUrl = MastoApi.trendUrl(TAGS);
-        let tags: mastodon.v1.Tag[] | undefined;
-
-        try {
-            tags = await this.fetch<mastodon.v1.Tag[]>(tagsUrl, numTags);
-            if (!tags || tags.length == 0) throw new Error(`No tags found on '${this.domain}'!`);
-        } catch (e) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${this.domain}'!`, e);
-            return [];
-        }
-
-        const trendingTags = tags.map(decorateTrendingTag);
-        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
-        return trendingTags;
-    };
-
     // Fetch toots that are trending on this server
     async fetchTrendingToots(): Promise<Toot[]> {
-        let topToots: Toot[] | undefined = [];
-
-        try {
-            topToots = await this.fetch<Toot[]>(MastoApi.trendUrl(STATUSES));
-            if (!topToots?.length) throw new Error(`Failed to get topToots, got: ${JSON.stringify(topToots)}`);
-            topToots = topToots.map(t => new Toot(t));
-        } catch (e) {
-            console.warn(`Error fetching trending toots from '${this.domain}':`, e);
-            return [];
-        }
-
-        topToots = topToots.filter(toot => toot.popularity() > 0);
-        let filteredToots = topToots.filter(toot => toot.popularity() > 0);
-        console.debug(`trendingToots() Removed ${topToots.length - filteredToots.length} toots with no favorites or retoots`);
-
-        // Inject toots with at least one favorite of retoot with a trendingRank score that is reverse-ordered.
-        // e.g most popular trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        filteredToots.forEach((toot, i) => toot.trendingRank = 1 + (filteredToots?.length || 0) - i);
-        console.debug(`trendingToots for '${this.domain}': `, filteredToots.map(t => t.condensedStatus()));
-        return filteredToots ?? [];
+        const toots = await this.fetchList<mastodon.v1.Status>(MastoApi.trendUrl(STATUSES));
+        const trendingToots = toots.map(t => new Toot(t)).filter(t => t.popularity() > 0);
+        // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
+        // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+        trendingToots.forEach((toot, i) => toot.trendingRank = 1 + (trendingToots?.length || 0) - i);
+        return trendingToots;
     }
+
+    // Get the links that are trending on this server
+    async fetchTrendingLinks(): Promise<TrendingLink[]> {
+        const numLinks = Storage.getConfig().numTrendingLinksPerServer;
+        const trendingLinks = await this.fetchList<TrendingLink>(MastoApi.trendUrl(LINKS), numLinks);
+        trendingLinks.forEach(FeatureScorer.decorateHistoryScores);
+        return trendingLinks;
+    };
+
+    // Get the tags that are trending on 'server'
+    async fetchTrendingTags(): Promise<TrendingTag[]> {
+        const numTags = Storage.getConfig().numTrendingTagsPerServer;
+        const trendingTags = await this.fetchList<TrendingTag>(MastoApi.trendUrl(TAGS), numTags);
+        trendingTags.forEach(tag => FeatureScorer.decorateHistoryScores(repairTag(tag)));
+        return trendingTags;
+    };
 
     // Get publicly available MAU information for this server.
     async fetchMonthlyUsers(): Promise<number> {
@@ -82,24 +65,36 @@ export default class MastodonServer {
         }
     };
 
-    // Get data from a public API endpoint on a Mastodon server.
-    private async fetch<T>(endpoint: string, limit?: number): Promise<T | undefined> {
-        let url = `https://${this.domain}/${endpoint}`;
-        if (limit) url += `?limit=${limit}`;
-        console.debug(`mastodonFetch() URL: '${url}'`);
+    // Fetch a list of objects of type T from a public API endpoint
+    private async fetchList<T>(endpoint: string, limit?: number): Promise<T[]> {
+        const label = endpoint.split("/").pop();
+        let list: T[] = [];
 
         try {
-            const json = await axios.get<T>(url);
-            console.debug(`mastodonFetch() response for '${url}':`, json);
+            list = await this.fetch<T[]>(endpoint);
 
-            if (json.status === 200 && json.data) {
-                return transformKeys(json.data, camelCase);
-            } else {
-                throw json;
+            if (!list?.length) {
+                throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
         } catch (e) {
-            console.warn(`Error fetching data from '${url}'`, e);
-            return;
+            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
+        }
+
+        console.debug(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
+        return list as T[];
+    };
+
+    // Get data from a public API endpoint on a Mastodon server.
+    private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
+        let url = `https://${this.domain}/${endpoint}`;
+        if (limit) url += `?limit=${limit}`;
+        const json = await axios.get<T>(url);
+        console.debug(`mastodonFetch() response for '${url}':`, json);
+
+        if (json.status === 200 && json.data) {
+            return transformKeys(json.data, camelCase) as T;
+        } else {
+            throw json;
         }
     };
 
@@ -109,13 +104,28 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        console.log(`[TrendingToots] fetchTrendingToots() called`);
-        // Pull top trending toots from each server
-        let trendingTootses = await this.callForAllServers<Toot[]>((server) => server.fetchTrendingToots());
+        let trendingTootses = await this.callForAllServers<Toot[]>((s) => s.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return Toot.dedupeToots(trendingToots, "getTrendingToots");
     };
+
+    static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
+        const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
+        console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
+        const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat());
+        console.info(`[fediverseTrendingLinks] unique links:`, links);
+        return links as TrendingLink[];
+    };
+
+    // Get the top trending tags from all servers
+    static async fediverseTrendingTags(): Promise<TrendingTag[]> {
+        const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
+        console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
+        const tags = FeatureScorer.uniquifyTrendingObjs(Object.values(serverTags).flat());
+        console.info(`[fediverseTrendingTags] unique tags:`, tags);
+        return tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
+    }
 
     // Returns something called "overrepresentedServerFrequ"??
     static async mastodonServersInfo(): Promise<StringNumberDict> {

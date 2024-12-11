@@ -64,6 +64,10 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
+    [WeightName.TRENDING_LINKS]: {
+        defaultWeight: 0.4,
+        description: "Favour links that are trending in the Fediverse",
+    },
     [WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",
@@ -112,6 +116,7 @@ export const DEFAULT_CONFIG: Config = {
     // Trending tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 20,          // How many toots to pull for each trending tag
+    numTrendingLinksPerServer: 20,       // How many trending links to pull from each server
     numTrendingTags: 18,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
     numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
     numTrendingTagsToots: 100,           // Maximum number of toots with trending tags to push into the user's feed

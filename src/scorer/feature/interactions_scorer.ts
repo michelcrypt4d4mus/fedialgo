@@ -17,7 +17,7 @@ export default class InteractionsScorer extends FeatureScorer {
 
     async featureGetter(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
-        return countValues<mastodon.v1.Notification>(notifications, n => n?.account?.acct);
+        return countValues<mastodon.v1.Notification>(notifications, notif => notif?.account?.acct);
     };
 
     async _score(toot: Toot) {
