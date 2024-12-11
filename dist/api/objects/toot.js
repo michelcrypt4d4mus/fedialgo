@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.TootVisibility = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
-const account_1 = require("./account");
 const helpers_1 = require("../../helpers");
+const account_1 = require("./account");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
@@ -128,6 +128,9 @@ class Toot {
         return new Date(this.createdAt);
     }
     ;
+    audioAttachments() {
+        return this.attachmentsOfType(helpers_1.AUDIO);
+    }
     imageAttachments() {
         return this.attachmentsOfType(helpers_1.IMAGE);
     }

@@ -1,4 +1,5 @@
 import { CountKey, StringNumberDict } from "./types";
+export declare const AUDIO = "audio";
 export declare const IMAGE = "image";
 export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO = "video";

@@ -5,9 +5,9 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
+import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { describeAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
-import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { TheAlgorithm } from "../..";
 
 type StatusList = mastodon.v1.Status[];
@@ -151,6 +151,10 @@ export default class Toot implements TootObj {
     tootedAt(): Date {
         return new Date(this.createdAt);
     };
+
+    audioAttachments(): Array<mastodon.v1.MediaAttachment> {
+        return this.attachmentsOfType(AUDIO);
+    }
 
     imageAttachments(): Array<mastodon.v1.MediaAttachment> {
         return this.attachmentsOfType(IMAGE);

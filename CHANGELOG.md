@@ -1,4 +1,5 @@
 ## NEXT
+* Add handling for audio `mediaAttachment`
 
 ## `0.10.1`
 * Refactor a `MastodonServer` class for calls to the public API

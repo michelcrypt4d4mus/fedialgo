@@ -3,6 +3,7 @@
  */
 import { CountKey, StringNumberDict } from "./types";
 
+export const AUDIO = "audio";
 export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
