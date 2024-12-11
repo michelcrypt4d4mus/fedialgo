@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
 type StatusList = mastodon.v1.Status[];
 export declare enum TootVisibility {
@@ -55,6 +55,7 @@ export default class Toot implements TootObj {
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;
     trendingRank?: number;
+    trendingLinks?: TrendingLink[];
     trendingTags?: TrendingTag[];
     constructor(toot: TootExtension);
     containsString(str: string): boolean;

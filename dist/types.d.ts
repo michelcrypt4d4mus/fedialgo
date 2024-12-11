@@ -116,6 +116,7 @@ export interface TootExtension extends mastodon.v1.Status {
     reblogBy?: mastodon.v1.Account;
     scoreInfo?: TootScore;
     trendingRank?: number;
+    trendingLinks?: TrendingLink[];
     trendingTags?: TrendingTag[];
 }
 export type TootScore = {

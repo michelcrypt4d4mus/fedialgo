@@ -60,6 +60,7 @@ class Toot {
     reblogBy; // The account that retooted this toot (if any)
     scoreInfo; // Scoring info for weighting/sorting this toot
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks; // Links that are trending in this toot
     trendingTags; // Tags that are trending in this toot
     constructor(toot) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
@@ -100,6 +101,7 @@ class Toot {
         this.reblogBy = toot.reblogBy;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
+        this.trendingLinks = toot.trendingLinks;
         this.trendingTags = toot.trendingTags;
         this.repairToot();
     }

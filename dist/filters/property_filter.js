@@ -35,6 +35,7 @@ var TypeFilterName;
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["REPOSTS"] = "reposts";
     TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
+    TypeFilterName["TRENDING_LINKS"] = "trendingLinks";
     TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
@@ -47,6 +48,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
     [TypeFilterName.REPOSTS]: (toot) => !!toot.reblog,
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
+    [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
 };
 const TOOT_MATCHERS = {

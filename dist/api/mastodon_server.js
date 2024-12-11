@@ -32,8 +32,8 @@ class MastodonServer {
     }
     // Get the links that are trending on this server
     async fetchTrendingLinks() {
-        const numTags = Storage_1.default.getConfig().numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchList(api_1.MastoApi.trendUrl(api_1.LINKS), numTags);
+        const numLinks = Storage_1.default.getConfig().numTrendingLinksPerServer;
+        const trendingLinks = await this.fetchList(api_1.MastoApi.trendUrl(api_1.LINKS), numLinks);
         trendingLinks.forEach(feature_scorer_1.default.decorateHistoryScores);
         return trendingLinks;
     }

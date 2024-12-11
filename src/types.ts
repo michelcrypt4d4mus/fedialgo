@@ -133,6 +133,7 @@ export type UserData = {
     // trendingLinks: mastodon.v1.TrendLink[],
 };
 
+// Serialized version of a Toot
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
@@ -140,6 +141,7 @@ export interface TootExtension extends mastodon.v1.Status {
     reblogBy?: mastodon.v1.Account;    // The account that retooted this toot (if any)
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
 };
 

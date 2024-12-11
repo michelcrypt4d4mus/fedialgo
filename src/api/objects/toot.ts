@@ -6,8 +6,8 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { describeAccount, repairAccount, webfingerURI } from "./account";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
+import { describeAccount, repairAccount } from "./account";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
 import { repairTag } from "./tag";
 
@@ -78,6 +78,7 @@ export default class Toot implements TootObj {
     reblogBy?: mastodon.v1.Account; // The account that retooted this toot (if any)
     scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
     trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks?: TrendingLink[]; // Links that are trending in this toot
     trendingTags?: TrendingTag[]; // Tags that are trending in this toot
 
     constructor(toot: TootExtension) {
@@ -120,6 +121,7 @@ export default class Toot implements TootObj {
         this.reblogBy = toot.reblogBy as mastodon.v1.Account;
         this.scoreInfo = toot.scoreInfo as TootScore;
         this.trendingRank = toot.trendingRank;
+        this.trendingLinks = toot.trendingLinks as TrendingLink[];
         this.trendingTags = toot.trendingTags as TrendingTag[];
         this.repairToot();
     }
