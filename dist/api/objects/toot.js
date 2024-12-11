@@ -7,10 +7,10 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const account_1 = require("./account");
+const tag_1 = require("./tag");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
-const BROKEN_TAG = "<<BROKEN_TAG>>";
 const UNKNOWN = "unknown";
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
@@ -107,7 +107,7 @@ class Toot {
     containsString(str) {
         str = str.trim().toLowerCase();
         if (str.startsWith("#")) {
-            return this.tags.some((tag) => str.slice(1) == tag.name.toLowerCase());
+            return this.tags.some((tag) => str.slice(1) == tag.name);
         }
         else {
             return this.content.toLowerCase().includes(str);
@@ -217,11 +217,14 @@ class Toot {
         this.application ??= { name: UNKNOWN };
         this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
+        // Repair Tags
         this.followedTags ??= [];
+        this.tags.forEach(tag_1.repairTag);
+        // Repair Accounts
         (0, account_1.repairAccount)(this.account);
+        this.mentions.forEach(account_1.repairAccount);
         if (this.reblog?.account)
             (0, account_1.repairAccount)(this.reblog.account);
-        this.mentions.forEach((mention) => (0, account_1.repairAccount)(mention));
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {
@@ -232,8 +235,6 @@ class Toot {
                 console.warn(`Unknown media type: '${media.type}' for toot:`, this);
             }
         });
-        // Lowercase and count tags
-        this.tags.forEach(tag => tag.name = (tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG));
     }
     attachmentsOfType(attachmentType) {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;

@@ -6,7 +6,7 @@
 import Scorer from "./scorer";
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
-import { StringNumberDict, TrendingLink, TrendingTag, WeightName } from "../types";
+import { StringNumberDict, TrendingLink, TrendingTag, TrendingWithHistory, WeightName } from "../types";
 import { mastodon } from "masto";
 
 
@@ -36,9 +36,8 @@ export default abstract class FeatureScorer extends Scorer {
     }
 
     // Add numToots and numAccounts to the TrendingLink or TrendingTag object
-    static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): TrendingLink | TrendingTag {
-        // obj = obj.type == "link" ? obj as TrendingLink : obj as TrendingTag;
-        const obj = _obj as TrendingLink | TrendingTag;
+    static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void {
+        const obj = _obj as TrendingWithHistory;
         obj.url = obj.url.toLowerCase();
 
         if (!obj?.history?.length) {
@@ -49,6 +48,5 @@ export default abstract class FeatureScorer extends Scorer {
         const recentHistory = obj.history.slice(0, Storage.getConfig().numDaysToCountTrendingTagData);
         obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
         obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
-        return obj;
     };
 };

@@ -2,13 +2,10 @@
  * Score toots that contain currently trending links.
  * https://docs.joinmastodon.org/methods/trends/#links
  */
-import { mastodon } from 'masto';
-
 import FeatureScorer from '../feature_scorer';
 import MastodonServer from '../../api/mastodon_server';
-import Storage from '../../Storage';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict, TrendingLink, TrendingLinkUrls, WeightName } from "../../types";
+import { StringNumberDict, TrendingLink, WeightName } from "../../types";
 
 
 export default class TrendingLinksScorer extends FeatureScorer {
@@ -19,14 +16,13 @@ export default class TrendingLinksScorer extends FeatureScorer {
     }
 
     async featureGetter(): Promise<StringNumberDict> {
-        const links = await MastodonServer.fediverseTrendingLinks();
-        this.trendingLinks = links.map(FeatureScorer.decorateHistoryScores) as TrendingLink[];
+        this.trendingLinks = await MastodonServer.fediverseTrendingLinks();
 
-        return Object.fromEntries(
-            Object.entries(this.trendingLinks).map(
-                ([url, link]) => [url, (link.numAccounts || 0) + (link.numToots || 0)]
-            )
-        )
+        // TODO: could add numtoots? + (link.numToots || 0);
+        return this.trendingLinks.reduce((accountsPostingLinkCounts, link) => {
+            accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
+            return accountsPostingLinkCounts;
+        }, {} as StringNumberDict);
     }
 
     async _score(toot: Toot): Promise<number> {

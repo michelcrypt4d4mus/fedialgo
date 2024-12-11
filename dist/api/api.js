@@ -35,6 +35,7 @@ const toot_1 = __importStar(require("./objects/toot"));
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const types_1 = require("../types");
+const tag_1 = require("./objects/tag");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -106,14 +107,14 @@ class MastoApi {
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
-            mastodon_server_1.default.fediverseTrendingLinks(),
+            // MastodonServer.fediverseTrendingLinks(),
         ]);
         return {
             followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
-            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name.toLowerCase()),
+            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name),
             mutedAccounts: (0, account_1.buildAccountNames)(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
-            trendingLinks: responses[5],
+            // trendingLinks: responses[5],
         };
     }
     ;
@@ -180,10 +181,11 @@ class MastoApi {
     ;
     // Get hashtags the user is following
     async getFollowedTags() {
-        return await this.fetchData({
+        const followedTags = await this.fetchData({
             fetch: this.api.v1.followedTags.list,
             label: types_1.WeightName.FOLLOWED_TAGS
         });
+        return followedTags.map(tag_1.repairTag);
     }
     // Get the user's recent notifications
     async getRecentNotifications() {

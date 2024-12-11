@@ -34,12 +34,9 @@ class MastodonServer {
         catch (e) {
             console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
-        const trendingTags = tags.map((tag) => {
-            (0, tag_1.repairTag)(tag);
-            return feature_scorer_1.default.decorateHistoryScores(tag);
-        });
-        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
-        return trendingTags;
+        tags.forEach(tag => feature_scorer_1.default.decorateHistoryScores((0, tag_1.repairTag)(tag)));
+        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, tags);
+        return tags;
     }
     ;
     // Fetch toots that are trending on this server
@@ -90,6 +87,7 @@ class MastodonServer {
         catch (e) {
             console.warn(`[TrendingLinks] Failed to get trending links from '${this.domain}'!`, e);
         }
+        links.forEach(feature_scorer_1.default.decorateHistoryScores);
         console.debug(`[TrendingLinks] trendingLinks for server '${this.domain}':`, links);
         return links;
     }
@@ -125,6 +123,7 @@ class MastodonServer {
     static async fediverseTrendingLinks() {
         let links = await this.callForAllServers((s) => s.fetchTrendingLinks());
         console.log(`[TrendingLinks] links from all servers:`, links);
+        const tagsByURL = (0, helpers_1.groupBy)(Object.values(links).flat(), link => link.url);
         return Object.values(links).flat();
     }
     ;

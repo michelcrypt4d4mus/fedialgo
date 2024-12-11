@@ -107,7 +107,6 @@ export type UserData = {
     followedTags: StringNumberDict;
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
-    trendingLinks: mastodon.v1.TrendLink[];
 };
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
@@ -129,10 +128,10 @@ export interface TrendingLink extends mastodon.v1.TrendLink {
     numToots?: number;
     numAccounts?: number;
 }
-export type TrendingLinkUrls = Record<string, TrendingLink>;
 export interface TrendingTag extends mastodon.v1.Tag {
     numAccounts?: number;
     numToots?: number;
     trendingRank?: number;
 }
+export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;

@@ -1,13 +1,13 @@
 import { mastodon } from "masto";
 import Toot from "./objects/toot";
-import { StringNumberDict, TrendingTag } from "../types";
+import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
 export default class MastodonServer {
     domain: string;
     constructor(domain: string);
     fetchTrendingTags(numTags?: number): Promise<TrendingTag[]>;
     fetchTrendingToots(): Promise<Toot[]>;
     fetchMonthlyUsers(): Promise<number>;
-    fetchTrendingLinks(): Promise<mastodon.v1.TrendLink[]>;
+    fetchTrendingLinks(): Promise<TrendingLink[]>;
     private fetch;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<mastodon.v1.TrendLink[]>;

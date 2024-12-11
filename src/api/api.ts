@@ -11,6 +11,7 @@ import Toot, { earliestTootedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
+import { repairTag } from "./objects/tag";
 
 type ApiMutex = Record<StorageKey, Mutex>;
 
@@ -102,15 +103,15 @@ export class MastoApi {
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
-            MastodonServer.fediverseTrendingLinks(),
+            // MastodonServer.fediverseTrendingLinks(),
         ]);
 
         return {
             followedAccounts: buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name.toLowerCase()),
+            followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name),
             mutedAccounts: buildAccountNames(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
-            trendingLinks: responses[5],
+            // trendingLinks: responses[5],
         } as UserData;
     };
 
@@ -182,10 +183,12 @@ export class MastoApi {
 
     // Get hashtags the user is following
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
-        return await this.fetchData<mastodon.v1.Tag>({
+        const followedTags = await this.fetchData<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             label: WeightName.FOLLOWED_TAGS
         });
+
+        return followedTags.map(repairTag);
     }
 
     // Get the user's recent notifications

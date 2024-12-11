@@ -12,7 +12,7 @@ import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transfor
 import { extractServer } from "./objects/account";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { repairTag } from "./objects/tag";
-import { StringNumberDict, TrendingTag } from "../types";
+import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
 
 
 export default class MastodonServer {
@@ -35,13 +35,9 @@ export default class MastodonServer {
             console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
 
-        const trendingTags = tags.map((tag) => {
-            repairTag(tag);
-            return FeatureScorer.decorateHistoryScores(tag) as TrendingTag;
-        });
-
-        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
-        return trendingTags;
+        tags.forEach(tag => FeatureScorer.decorateHistoryScores(repairTag(tag)));
+        console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, tags);
+        return tags as TrendingTag[];
     };
 
     // Fetch toots that are trending on this server
@@ -84,7 +80,7 @@ export default class MastodonServer {
         }
     };
 
-    async fetchTrendingLinks(): Promise<mastodon.v1.TrendLink[]> {
+    async fetchTrendingLinks(): Promise<TrendingLink[]> {
         let links: mastodon.v1.TrendLink[] = [];
 
         try {
@@ -94,8 +90,9 @@ export default class MastodonServer {
             console.warn(`[TrendingLinks] Failed to get trending links from '${this.domain}'!`, e);
         }
 
+        links.forEach(FeatureScorer.decorateHistoryScores);
         console.debug(`[TrendingLinks] trendingLinks for server '${this.domain}':`, links);
-        return links;
+        return links as TrendingLink[];
     };
 
     // Get data from a public API endpoint on a Mastodon server.
@@ -129,6 +126,7 @@ export default class MastodonServer {
     static async fediverseTrendingLinks(): Promise<mastodon.v1.TrendLink[]> {
         let links = await this.callForAllServers<mastodon.v1.TrendLink[]>((s) => s.fetchTrendingLinks());
         console.log(`[TrendingLinks] links from all servers:`, links);
+        const tagsByURL = groupBy<TrendingLink>(Object.values(links).flat(), link => link.url);
         return Object.values(links).flat();
     };
 

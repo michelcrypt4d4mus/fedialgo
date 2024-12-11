@@ -33,7 +33,6 @@ class FeatureScorer extends scorer_1.default {
     }
     // Add numToots and numAccounts to the TrendingLink or TrendingTag object
     static decorateHistoryScores(_obj) {
-        // obj = obj.type == "link" ? obj as TrendingLink : obj as TrendingTag;
         const obj = _obj;
         obj.url = obj.url.toLowerCase();
         if (!obj?.history?.length) {
@@ -43,7 +42,6 @@ class FeatureScorer extends scorer_1.default {
         const recentHistory = obj.history.slice(0, Storage_1.default.getConfig().numDaysToCountTrendingTagData);
         obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
         obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
-        return obj;
     }
     ;
 }
