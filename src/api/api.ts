@@ -86,7 +86,7 @@ export class MastoApi {
         }
 
         const allResponses = await Promise.all(promises);
-        console.debug(`[MastoApi] getFeed() allResponses:`, allResponses);
+        console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift();
 
         return {

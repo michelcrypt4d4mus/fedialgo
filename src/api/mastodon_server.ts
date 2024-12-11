@@ -71,7 +71,7 @@ export default class MastodonServer {
         let list: T[] = [];
 
         try {
-            list = await this.fetch<T[]>(endpoint);
+            list = await this.fetch<T[]>(endpoint, limit);
 
             if (!list?.length) {
                 throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
@@ -113,7 +113,7 @@ export default class MastodonServer {
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
         const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
         console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
-        const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat());
+        const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
         console.info(`[fediverseTrendingLinks] unique links:`, links);
         return links as TrendingLink[];
     };
@@ -122,7 +122,7 @@ export default class MastodonServer {
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
         const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
         console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
-        const tags = FeatureScorer.uniquifyTrendingObjs(Object.values(serverTags).flat());
+        const tags = FeatureScorer.uniquifyTrendingObjs(Object.values(serverTags).flat(), tag => (tag as TrendingTag).name);
         console.info(`[fediverseTrendingTags] unique tags:`, tags);
         return tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
     }

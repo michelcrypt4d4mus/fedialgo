@@ -77,6 +77,7 @@ const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 class PropertyFilter extends toot_filter_1.default {
     title;
     optionInfo;
+    effectiveOptionInfo = {}; // optionInfo with the counts of toots that match the filter
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     constructor({ title, invertSelection, optionInfo, validValues }) {

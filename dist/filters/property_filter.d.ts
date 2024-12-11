@@ -30,6 +30,7 @@ export declare const TYPE_FILTERS: TypeFilters;
 export default class PropertyFilter extends TootFilter {
     title: PropertyName;
     optionInfo: StringNumberDict;
+    effectiveOptionInfo: StringNumberDict;
     validValues: string[];
     visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs);

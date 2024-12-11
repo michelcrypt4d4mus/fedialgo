@@ -41,14 +41,15 @@ class FeatureScorer extends scorer_1.default {
     ;
     // Return one of each unique trending object w/numToots & numAccounts set to the max in the Fediverse
     // sorted by numAccounts.
-    static uniquifyTrendingObjs(trendingObjs) {
+    static uniquifyTrendingObjs(trendingObjs, uniqueKey) {
         const urlObjs = trendingObjs.reduce((unique, obj) => {
-            if (unique[obj.url]) {
-                unique[obj.url].numToots = Math.max(unique[obj.url].numToots || 0, obj.numToots || 0);
-                unique[obj.url].numAccounts = Math.max(unique[obj.url].numAccounts || 0, obj.numAccounts || 0);
+            const key = uniqueKey(obj);
+            if (unique[key]) {
+                unique[key].numToots = Math.max(unique[key].numToots || 0, obj.numToots || 0);
+                unique[key].numAccounts = Math.max(unique[key].numAccounts || 0, obj.numAccounts || 0);
             }
             else {
-                unique[obj.url] = obj;
+                unique[key] = obj;
             }
             return unique;
         }, {});

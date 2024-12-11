@@ -68,7 +68,7 @@ class MastodonServer {
         const label = endpoint.split("/").pop();
         let list = [];
         try {
-            list = await this.fetch(endpoint);
+            list = await this.fetch(endpoint, limit);
             if (!list?.length) {
                 throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
@@ -109,7 +109,7 @@ class MastodonServer {
     static async fediverseTrendingLinks() {
         const serverLinks = await this.callForAllServers(s => s.fetchTrendingLinks());
         console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
-        const links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat());
+        const links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
         console.info(`[fediverseTrendingLinks] unique links:`, links);
         return links;
     }
@@ -118,7 +118,7 @@ class MastodonServer {
     static async fediverseTrendingTags() {
         const serverTags = await this.callForAllServers(s => s.fetchTrendingTags());
         console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
-        const tags = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverTags).flat());
+        const tags = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverTags).flat(), tag => tag.name);
         console.info(`[fediverseTrendingTags] unique tags:`, tags);
         return tags.slice(0, Storage_1.default.getConfig().numTrendingTags);
     }
