@@ -300,23 +300,6 @@ export default class Toot implements TootObj {
 };
 
 
-// Find the minimum ID in a list of toots
-export const minimumID = (toots: Toot[]): number | null => {
-    const minId =  toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id);  // IDs are not guaranteed to be numerical
-
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-
-    return minId == HUGE_ID ? null : minId;
-};
-
-
 export const sortByCreatedAt = (toots: mastodon.v1.Status[]): mastodon.v1.Status[] => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
@@ -350,6 +333,24 @@ export const earliestToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status | 
 
 export const tootedAt = (toot: mastodon.v1.Status): Date => {
     return new Date(toot.createdAt);
+};
+
+
+// Find the minimum ID in a list of toots.
+// Unused because sorting by ID only works when all toots came from the same server.
+export const minimumID = (toots: Toot[]): number | null => {
+    const minId =  toots.reduce((min, toot) => {
+        const numericalID = parseInt(toot.id);  // IDs are not guaranteed to be numerical
+
+        if (isNaN(numericalID)) {
+            console.warn(`toot.id is not a number: ${toot.id}`);
+            return min;
+        }
+
+        return numericalID < min ? numericalID : min;
+    }, HUGE_ID);
+
+    return minId == HUGE_ID ? null : minId;
 };
 
 

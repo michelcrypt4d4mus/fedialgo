@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.minimumID = exports.TootVisibility = void 0;
+exports.minimumID = exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.TootVisibility = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
 const account_1 = require("./account");
 const helpers_1 = require("../../helpers");
@@ -263,19 +263,6 @@ class Toot {
 }
 exports.default = Toot;
 ;
-// Find the minimum ID in a list of toots
-const minimumID = (toots) => {
-    const minId = toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id); // IDs are not guaranteed to be numerical
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-    return minId == HUGE_ID ? null : minId;
-};
-exports.minimumID = minimumID;
 const sortByCreatedAt = (toots) => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
@@ -308,6 +295,20 @@ const tootedAt = (toot) => {
     return new Date(toot.createdAt);
 };
 exports.tootedAt = tootedAt;
+// Find the minimum ID in a list of toots.
+// Unused because sorting by ID only works when all toots came from the same server.
+const minimumID = (toots) => {
+    const minId = toots.reduce((min, toot) => {
+        const numericalID = parseInt(toot.id); // IDs are not guaranteed to be numerical
+        if (isNaN(numericalID)) {
+            console.warn(`toot.id is not a number: ${toot.id}`);
+            return min;
+        }
+        return numericalID < min ? numericalID : min;
+    }, HUGE_ID);
+    return minId == HUGE_ID ? null : minId;
+};
+exports.minimumID = minimumID;
 // export const tootSize = (toot: Toot): number => {
 //     return JSON.stringify(toot).length;
 //     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
