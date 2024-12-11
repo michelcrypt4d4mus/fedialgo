@@ -9,13 +9,14 @@ import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
+import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
-import PropertyFilter, { SOURCE_FILTERS, PropertyName, SourceFilterName } from "./filters/property_filter";
+import PropertyFilter, { TYPE_FILTERS, PropertyName, TypeFilterName } from "./filters/property_filter";
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
@@ -63,6 +64,7 @@ class TheAlgorithm {
         new FollowedTagsFeatureScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
+        new MentionsFollowedScorer(),
         new MostFavoritedAccountsScorer(),
         new MostRepliedAccountsScorer(),
         new NumFavoritesScorer(),
@@ -220,10 +222,10 @@ class TheAlgorithm {
                 incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
             });
 
-            // Aggregate source counts
-            Object.entries(SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
-                if (sourceFilter(toot)) {
-                    incrementCount(tootCounts[PropertyName.SOURCE], sourceName);
+            // Aggregate type counts
+            Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
+                if (typeFilter(toot)) {
+                    incrementCount(tootCounts[PropertyName.TYPE], name);
                 }
             });
 
@@ -401,9 +403,9 @@ export {
     PropertyFilter,
     PropertyName,
     ScorerInfo,
-    SourceFilterName,
     StringNumberDict,
     TheAlgorithm,
     Toot,
+    TypeFilterName,
     Weights,
 };

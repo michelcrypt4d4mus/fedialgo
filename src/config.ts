@@ -31,6 +31,10 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         defaultWeight: 1.5,
         description: "Favour accounts that recently interacted with your toots",
     },
+    [WeightName.MENTIONS_FOLLOWED]: {
+        defaultWeight: 2,
+        description: "Favour toots that mention accounts you follow",
+    },
     [WeightName.MOST_REPLIED_ACCOUNTS]: {
         defaultWeight: 1,
         description: "Favour accounts you often reply to",
@@ -162,10 +166,10 @@ export const DEFAULT_CONFIG: Config = {
 
 
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.
+// Start with numeric & type filters. Other PropertyFilters depend on what's in the toots.
 export function buildNewFilterSettings(): FeedFilterSettings {
     const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
-    filters.filterSections[PropertyName.SOURCE] = new PropertyFilter({title: PropertyName.SOURCE});
+    filters.filterSections[PropertyName.TYPE] = new PropertyFilter({title: PropertyName.TYPE});
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
     // console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;

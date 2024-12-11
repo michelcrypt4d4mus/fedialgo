@@ -9,15 +9,15 @@ import TootFilter from "./toot_filter";
 import { countValues } from "../helpers";
 import { FilterArgs, Key, StringNumberDict } from "../types";
 
-type SourceFilter = (toot: Toot) => boolean;
-type SourceFilters = Record<SourceFilterName, SourceFilter>;
+type TypeFilter = (toot: Toot) => boolean;
+type TypeFilters = Record<TypeFilterName, TypeFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
 type TootMatchers = Record<PropertyName, TootMatcher>;
 
 
 // This is the order the filters will appear in the UI in the demo app
 export enum PropertyName {
-    SOURCE = 'source',
+    TYPE = 'type',
     LANGUAGE = 'language',
     HASHTAG = 'hashtag',
     USER = 'user',
@@ -28,7 +28,7 @@ export enum PropertyName {
     SERVER_SIDE_FILTERS = Key.SERVER_SIDE_FILTERS,
 };
 
-export enum SourceFilterName {
+export enum TypeFilterName {
     DIRECT_MESSAGE = 'directMessages',
     FOLLOWED_ACCOUNTS = 'followedAccounts',
     FOLLOWED_HASHTAGS = 'followedHashtags',
@@ -45,15 +45,15 @@ export interface PropertyFilterArgs extends FilterArgs {
 };
 
 
-export const SOURCE_FILTERS: SourceFilters = {
-    [SourceFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
-    [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
-    [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [SourceFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),
-    [SourceFilterName.REPLIES]:           (toot) => !!toot.inReplyToId,
-    [SourceFilterName.REPOSTS]:           (toot) => !!toot.reblog,
-    [SourceFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
-    [SourceFilterName.TRENDING_TOOTS]:    (toot) => !!toot.trendingRank,
+export const TYPE_FILTERS: TypeFilters = {
+    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
+    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
+    [TypeFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),
+    [TypeFilterName.REPLIES]:           (toot) => !!toot.inReplyToId,
+    [TypeFilterName.REPOSTS]:           (toot) => !!toot.reblog,
+    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
+    [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.trendingRank,
 };
 
 const TOOT_MATCHERS: TootMatchers = {
@@ -69,8 +69,8 @@ const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.containsString(v));
     },
-    [PropertyName.SOURCE]: (toot: Toot, validValues: string[]) => {
-        return Object.entries(SOURCE_FILTERS).some(([filterName, filter]) => {
+    [PropertyName.TYPE]: (toot: Toot, validValues: string[]) => {
+        return Object.entries(TYPE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
     },
@@ -92,9 +92,9 @@ export default class PropertyFilter extends TootFilter {
         optionInfo ??= {};
         let description: string;
 
-        if (title == PropertyName.SOURCE) {
+        if (title == PropertyName.TYPE) {
             // Set up the default for source filters so something always shows up in the options
-            optionInfo = countValues<SourceFilterName>(Object.values(SourceFilterName));
+            optionInfo = countValues<TypeFilterName>(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
             const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";

@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Toot = exports.TheAlgorithm = exports.SourceFilterName = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
+exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -36,6 +36,7 @@ const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity
 const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
+const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
@@ -46,7 +47,7 @@ const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoo
 const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
-Object.defineProperty(exports, "SourceFilterName", { enumerable: true, get: function () { return property_filter_1.SourceFilterName; } });
+Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return property_filter_1.TypeFilterName; } });
 const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
@@ -82,6 +83,7 @@ class TheAlgorithm {
         new followed_tags_feature_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
+        new mentions_followed_scorer_1.default(),
         new most_favorited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
         new num_favorites_scorer_1.default(),
@@ -216,10 +218,10 @@ class TheAlgorithm {
                     toot.followedTags.push(tag);
                 (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
             });
-            // Aggregate source counts
-            Object.entries(property_filter_1.SOURCE_FILTERS).forEach(([sourceName, sourceFilter]) => {
-                if (sourceFilter(toot)) {
-                    (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SOURCE], sourceName);
+            // Aggregate type counts
+            Object.entries(property_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
+                if (typeFilter(toot)) {
+                    (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
                 }
             });
             // Aggregate server-side filter counts

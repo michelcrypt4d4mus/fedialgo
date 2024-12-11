@@ -6,7 +6,7 @@ exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
-exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
+exports.MEDIA_TYPES = [exports.AUDIO, exports.IMAGE, ...exports.VIDEO_TYPES];
 // "http://mast.ai/foobar" => "mast.ai"
 const extractDomain = (url) => url?.split("/")[2];
 exports.extractDomain = extractDomain;

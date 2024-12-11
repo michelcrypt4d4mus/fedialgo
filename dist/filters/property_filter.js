@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SOURCE_FILTERS = exports.SourceFilterName = exports.PropertyName = void 0;
+exports.TYPE_FILTERS = exports.TypeFilterName = exports.PropertyName = void 0;
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -15,7 +15,7 @@ const helpers_1 = require("../helpers");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
-    PropertyName["SOURCE"] = "source";
+    PropertyName["TYPE"] = "type";
     PropertyName["LANGUAGE"] = "language";
     PropertyName["HASHTAG"] = "hashtag";
     PropertyName["USER"] = "user";
@@ -26,28 +26,28 @@ var PropertyName;
     PropertyName["SERVER_SIDE_FILTERS"] = "serverFilters";
 })(PropertyName || (exports.PropertyName = PropertyName = {}));
 ;
-var SourceFilterName;
-(function (SourceFilterName) {
-    SourceFilterName["DIRECT_MESSAGE"] = "directMessages";
-    SourceFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
-    SourceFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
-    SourceFilterName["LINKS"] = "links";
-    SourceFilterName["REPLIES"] = "replies";
-    SourceFilterName["REPOSTS"] = "reposts";
-    SourceFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
-    SourceFilterName["TRENDING_TOOTS"] = "trendingToots";
-})(SourceFilterName || (exports.SourceFilterName = SourceFilterName = {}));
+var TypeFilterName;
+(function (TypeFilterName) {
+    TypeFilterName["DIRECT_MESSAGE"] = "directMessages";
+    TypeFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
+    TypeFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
+    TypeFilterName["LINKS"] = "links";
+    TypeFilterName["REPLIES"] = "replies";
+    TypeFilterName["REPOSTS"] = "reposts";
+    TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
+    TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
+})(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
 ;
-exports.SOURCE_FILTERS = {
-    [SourceFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
-    [SourceFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
-    [SourceFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [SourceFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
-    [SourceFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
-    [SourceFilterName.REPOSTS]: (toot) => !!toot.reblog,
-    [SourceFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
-    [SourceFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
+exports.TYPE_FILTERS = {
+    [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
+    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
+    [TypeFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
+    [TypeFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
+    [TypeFilterName.REPOSTS]: (toot) => !!toot.reblog,
+    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
+    [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
 };
 const TOOT_MATCHERS = {
     [PropertyName.APP]: (toot, validValues) => {
@@ -62,8 +62,8 @@ const TOOT_MATCHERS = {
     [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
         return !!validValues.find((v) => toot.containsString(v));
     },
-    [PropertyName.SOURCE]: (toot, validValues) => {
-        return Object.entries(exports.SOURCE_FILTERS).some(([filterName, filter]) => {
+    [PropertyName.TYPE]: (toot, validValues) => {
+        return Object.entries(exports.TYPE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
     },
@@ -80,9 +80,9 @@ class PropertyFilter extends toot_filter_1.default {
     constructor({ title, invertSelection, optionInfo, validValues }) {
         optionInfo ??= {};
         let description;
-        if (title == PropertyName.SOURCE) {
+        if (title == PropertyName.TYPE) {
             // Set up the default for source filters so something always shows up in the options
-            optionInfo = (0, helpers_1.countValues)(Object.values(SourceFilterName));
+            optionInfo = (0, helpers_1.countValues)(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {

@@ -31,6 +31,7 @@ export enum WeightName {
     FOLLOWED_TAGS = 'FollowedTags',
     IMAGE_ATTACHMENTS = 'ImageAttachments',
     INTERACTIONS = 'Interactions',
+    MENTIONS_FOLLOWED = 'MentionsFollowed',
     MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
     MOST_RETOOTED_ACCOUNTS = 'MostRetootedAccounts',
     NUM_FAVOURITES = 'NumFavourites',

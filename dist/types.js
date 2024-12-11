@@ -28,6 +28,7 @@ var WeightName;
     WeightName["FOLLOWED_TAGS"] = "FollowedTags";
     WeightName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
     WeightName["INTERACTIONS"] = "Interactions";
+    WeightName["MENTIONS_FOLLOWED"] = "MentionsFollowed";
     WeightName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
     WeightName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
     WeightName["NUM_FAVOURITES"] = "NumFavourites";
