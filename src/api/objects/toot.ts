@@ -33,6 +33,7 @@ interface TootObj extends TootExtension {
     isDM: () => boolean;
     popularity: () => number;
     tootedAt: () => Date;
+    audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
     videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
 };
