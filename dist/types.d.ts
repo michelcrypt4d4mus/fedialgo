@@ -67,6 +67,7 @@ export type Config = {
     minServerMAU: number;
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
+    numTrendingLinksPerServer: number;
     numTrendingTags: number;
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;

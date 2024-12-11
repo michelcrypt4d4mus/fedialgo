@@ -3,11 +3,12 @@
  * a toot based solely on the properties of that toot, optionally coupled with other
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
+import { mastodon } from "masto";
+
 import Scorer from "./scorer";
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
-import { StringNumberDict, TrendingLink, TrendingTag, TrendingWithHistory, WeightName } from "../types";
-import { mastodon } from "masto";
+import { StringNumberDict, TrendingWithHistory, WeightName } from "../types";
 
 
 // TODO: Find a better name than "Feature" for this class
@@ -49,4 +50,21 @@ export default abstract class FeatureScorer extends Scorer {
         obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
         obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
     };
+
+    // Return one of each unique trending object w/numToots & numAccounts set to the max in the Fediverse
+    // sorted by numAccounts.
+    static uniquifyTrendingObjs(trendingObjs: TrendingWithHistory[]): TrendingWithHistory[] {
+        const urlObjs = trendingObjs.reduce((unique, obj) => {
+            if (unique[obj.url]) {
+                unique[obj.url].numToots = Math.max(unique[obj.url].numToots || 0, obj.numToots || 0);
+                unique[obj.url].numAccounts = Math.max(unique[obj.url].numAccounts || 0, obj.numAccounts || 0);
+            } else {
+                unique[obj.url] = obj;
+            }
+
+            return unique;
+        }, {} as Record<string, TrendingWithHistory>);
+
+        return Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+    }
 };

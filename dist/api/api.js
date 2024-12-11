@@ -107,14 +107,12 @@ class MastoApi {
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
-            // MastodonServer.fediverseTrendingLinks(),
         ]);
         return {
             followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
             followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name),
             mutedAccounts: (0, account_1.buildAccountNames)(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
-            // trendingLinks: responses[5],
         };
     }
     ;

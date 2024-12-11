@@ -3,11 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Base class for a "feature scorer" which appears to be something that can score
- * a toot based solely on the properties of that toot, optionally coupled with other
- * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
- */
 const scorer_1 = __importDefault(require("./scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 // TODO: Find a better name than "Feature" for this class
@@ -44,6 +39,21 @@ class FeatureScorer extends scorer_1.default {
         obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
     }
     ;
+    // Return one of each unique trending object w/numToots & numAccounts set to the max in the Fediverse
+    // sorted by numAccounts.
+    static uniquifyTrendingObjs(trendingObjs) {
+        const urlObjs = trendingObjs.reduce((unique, obj) => {
+            if (unique[obj.url]) {
+                unique[obj.url].numToots = Math.max(unique[obj.url].numToots || 0, obj.numToots || 0);
+                unique[obj.url].numAccounts = Math.max(unique[obj.url].numAccounts || 0, obj.numAccounts || 0);
+            }
+            else {
+                unique[obj.url] = obj;
+            }
+            return unique;
+        }, {});
+        return Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+    }
 }
 exports.default = FeatureScorer;
 ;

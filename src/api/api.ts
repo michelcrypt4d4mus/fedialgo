@@ -103,7 +103,6 @@ export class MastoApi {
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
-            // MastodonServer.fediverseTrendingLinks(),
         ]);
 
         return {
@@ -111,7 +110,6 @@ export class MastoApi {
             followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name),
             mutedAccounts: buildAccountNames(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
-            // trendingLinks: responses[5],
         } as UserData;
     };
 

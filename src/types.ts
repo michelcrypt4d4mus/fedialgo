@@ -80,6 +80,7 @@ export type Config = {
     // Trending tags
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
+    numTrendingLinksPerServer: number;
     numTrendingTags: number;
     numTrendingTagsPerServer: number;
     numTrendingTagsToots: number;

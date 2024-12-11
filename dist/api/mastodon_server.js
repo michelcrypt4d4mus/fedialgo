@@ -32,16 +32,18 @@ class MastodonServer {
     }
     // Get the links that are trending on this server
     async fetchTrendingLinks() {
-        const trendingLinks = await this.fetchList(api_1.MastoApi.trendUrl(api_1.LINKS));
+        const numTags = Storage_1.default.getConfig().numTrendingLinksPerServer;
+        const trendingLinks = await this.fetchList(api_1.MastoApi.trendUrl(api_1.LINKS), numTags);
         trendingLinks.forEach(feature_scorer_1.default.decorateHistoryScores);
         return trendingLinks;
     }
     ;
     // Get the tags that are trending on 'server'
-    async fetchTrendingTags(numTags) {
-        const tags = await this.fetchList(api_1.MastoApi.trendUrl(api_1.TAGS), numTags);
-        tags.forEach(tag => feature_scorer_1.default.decorateHistoryScores((0, tag_1.repairTag)(tag)));
-        return tags;
+    async fetchTrendingTags() {
+        const numTags = Storage_1.default.getConfig().numTrendingTagsPerServer;
+        const trendingTags = await this.fetchList(api_1.MastoApi.trendUrl(api_1.TAGS), numTags);
+        trendingTags.forEach(tag => feature_scorer_1.default.decorateHistoryScores((0, tag_1.repairTag)(tag)));
+        return trendingTags;
     }
     ;
     // Get publicly available MAU information for this server.
@@ -74,7 +76,7 @@ class MastodonServer {
         catch (e) {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
-        console.debug(`Retrieved ${list.length} of ${label} from '${this.domain}':`, list);
+        console.debug(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
         return list;
     }
     ;
@@ -98,8 +100,6 @@ class MastodonServer {
     ////////////////////
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
-        console.log(`[TrendingToots] fetchTrendingToots() called`);
-        // Pull top trending toots from each server
         let trendingTootses = await this.callForAllServers((s) => s.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
@@ -107,12 +107,21 @@ class MastodonServer {
     }
     ;
     static async fediverseTrendingLinks() {
-        let links = await this.callForAllServers((s) => s.fetchTrendingLinks());
-        console.log(`[TrendingLinks] links from all servers:`, links);
-        const tagsByURL = (0, helpers_1.groupBy)(Object.values(links).flat(), link => link.url);
-        return Object.values(links).flat();
+        const serverLinks = await this.callForAllServers(s => s.fetchTrendingLinks());
+        console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
+        const links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat());
+        console.info(`[fediverseTrendingLinks] unique links:`, links);
+        return links;
     }
     ;
+    // Get the top trending tags from all servers
+    static async fediverseTrendingTags() {
+        const serverTags = await this.callForAllServers(s => s.fetchTrendingTags());
+        console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
+        const tags = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverTags).flat());
+        console.info(`[fediverseTrendingTags] unique tags:`, tags);
+        return tags.slice(0, Storage_1.default.getConfig().numTrendingTags);
+    }
     // Returns something called "overrepresentedServerFrequ"??
     static async mastodonServersInfo() {
         const config = Storage_1.default.getConfig();

@@ -133,6 +133,7 @@ exports.DEFAULT_CONFIG = {
     // Trending tags
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,
+    numTrendingLinksPerServer: 20,
     numTrendingTags: 18,
     numTrendingTagsPerServer: 30,
     numTrendingTagsToots: 100,

@@ -29,41 +29,12 @@ const LOG_PREFIX = "[TrendingTags]";
 
 
 export default async function fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
-    const trendingTags = await getTrendingTags();
+    const trendingTags = await MastodonServer.fediverseTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));
     const toots: Toot[] = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity())
     console.debug(`fetchRecentTootsForTrendingTags() possible toots:`, toots);
     return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
-};
-
-
-// Find tags that are trending across the Fediverse by adding up the number uses of the tag
-async function getTrendingTags(): Promise<TrendingTag[]> {
-    console.log(`${LOG_PREFIX} getTrendingTags() called`)
-    const domains = await MastoApi.instance.getTopServerDomains();
-    const serversTags = await Promise.all(domains.map(s => new MastodonServer(s).fetchTrendingTags()));
-
-    // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const trendingTags = serversTags.flat().reduce(
-        (tags, tag) => {
-            const existingTag = tags.find(t => t.name === tag.name);
-
-            if (existingTag) {
-                existingTag.numAccounts = (existingTag.numAccounts || 0) + (tag.numAccounts || 0);
-                existingTag.numToots = (existingTag.numToots || 0) + (tag.numToots || 0);
-            } else {
-                tags.push(tag);
-            }
-
-            return tags;
-        },
-        [] as TrendingTag[]
-    );
-
-    trendingTags.sort((a, b) => (b.numToots || 0) - (a.numToots || 0));
-    console.log(`${LOG_PREFIX} Aggregated trending tags:`, trendingTags);
-    return trendingTags.slice(0, Storage.getConfig().numTrendingTags);
 };
 
 
