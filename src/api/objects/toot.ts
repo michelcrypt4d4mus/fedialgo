@@ -178,7 +178,7 @@ export default class Toot implements TootObj {
         if (this.account.acct in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
             return false;
-            
+
         }
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
@@ -284,10 +284,6 @@ export default class Toot implements TootObj {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-
-            // if (firstScoredToot && uriToots.length > 1) {
-            //     console.debug(`${prefix}First scored toot in group of ${uriToots.length}:`, firstScoredToot, `\nall toots:`, uriToots);
-            // }
 
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
