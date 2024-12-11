@@ -65,7 +65,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         minValue: 0.001,
     },
     [WeightName.TRENDING_LINKS]: {
-        defaultWeight: 0.5,
+        defaultWeight: 0.4,
         description: "Favour links that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TAGS]: {
