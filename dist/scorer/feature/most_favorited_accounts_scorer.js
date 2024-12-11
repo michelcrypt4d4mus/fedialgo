@@ -14,9 +14,7 @@ class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     ;
     async featureGetter() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
-        const faves = (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.acct);
-        console.log(`Retrieved MostFavoritedAccountsScorer:`, faves);
-        return faves;
+        return (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.acct);
     }
     ;
     async _score(toot) {

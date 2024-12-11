@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WeightName = exports.Key = void 0;
 var Key;
 (function (Key) {
+    Key["BLOCKED_ACCOUNTS"] = "blockedAccounts";
     Key["FILTERS"] = "filters";
     Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     Key["HOME_TIMELINE"] = "homeTimeline";

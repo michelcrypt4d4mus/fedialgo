@@ -218,8 +218,10 @@ class Toot {
         this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
         this.followedTags ??= [];
-        this.account.acct = (0, account_1.webfingerURI)(this.account);
-        this.mentions.forEach((mention) => mention.acct = (0, account_1.webfingerURI)(mention));
+        (0, account_1.repairAccount)(this.account);
+        if (this.reblog?.account)
+            (0, account_1.repairAccount)(this.reblog.account);
+        this.mentions.forEach((mention) => (0, account_1.repairAccount)(mention));
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {

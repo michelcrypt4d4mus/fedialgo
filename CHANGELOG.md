@@ -1,4 +1,6 @@
 ## NEXT
+* Add blocked accounts to muted account list
+* [bug] Add `@server.com` string to `Account` objects for users on the home server that didn't have it.
 
 ## `0.11.0`
 * Add `MentionsFollowedScorer`

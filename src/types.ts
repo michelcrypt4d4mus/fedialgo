@@ -7,6 +7,7 @@ import Toot from './api/objects/toot';
 
 
 export enum Key {
+    BLOCKED_ACCOUNTS = 'blockedAccounts',
     FILTERS = 'filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     HOME_TIMELINE = 'homeTimeline',

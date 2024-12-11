@@ -101,15 +101,16 @@ class MastoApi {
     async getStartupData() {
         const responses = await Promise.all([
             this.fetchFollowedAccounts(),
+            this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
         return {
             followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
-            followedTags: (0, helpers_1.countValues)(responses[2], (tag) => tag.name.toLowerCase()),
-            mutedAccounts: (0, account_1.buildAccountNames)(responses[1]),
-            serverSideFilters: responses[3],
+            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name.toLowerCase()),
+            mutedAccounts: (0, account_1.buildAccountNames)(responses[1].concat(responses[2])),
+            serverSideFilters: responses[4],
         };
     }
     ;
@@ -193,6 +194,13 @@ class MastoApi {
         return await this.fetchData({
             fetch: this.api.v1.favourites.list,
             label: types_1.WeightName.FAVORITED_ACCOUNTS
+        });
+    }
+    ;
+    async fetchBlockedAccounts() {
+        return await this.fetchData({
+            fetch: this.api.v1.blocks.list,
+            label: types_1.Key.BLOCKED_ACCOUNTS
         });
     }
     ;

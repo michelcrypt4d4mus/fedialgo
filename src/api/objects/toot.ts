@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { describeAccount, webfingerURI } from "./account";
+import { describeAccount, repairAccount, webfingerURI } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
 
@@ -184,7 +184,6 @@ export default class Toot implements TootObj {
         if (this.account.acct in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
             return false;
-
         }
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
@@ -254,8 +253,9 @@ export default class Toot implements TootObj {
         this.application.name ??= UNKNOWN;
         this.language ??= Storage.getConfig().defaultLanguage;
         this.followedTags ??= [];
-        this.account.acct = webfingerURI(this.account);
-        this.mentions.forEach((mention) => mention.acct = webfingerURI(mention));
+        repairAccount(this.account);
+        if (this.reblog?.account) repairAccount(this.reblog.account);
+        this.mentions.forEach((mention) => repairAccount(mention));
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {

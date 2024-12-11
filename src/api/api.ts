@@ -97,6 +97,7 @@ export class MastoApi {
     async getStartupData(): Promise<UserData> {
         const responses = await Promise.all([
             this.fetchFollowedAccounts(),
+            this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
@@ -104,9 +105,9 @@ export class MastoApi {
 
         return {
             followedAccounts: buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[2], (tag) => tag.name.toLowerCase()),
-            mutedAccounts: buildAccountNames(responses[1]),
-            serverSideFilters: responses[3],
+            followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name.toLowerCase()),
+            mutedAccounts: buildAccountNames(responses[1].concat(responses[2])),
+            serverSideFilters: responses[4],
         } as UserData;
     };
 
@@ -197,6 +198,13 @@ export class MastoApi {
         return await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: WeightName.FAVORITED_ACCOUNTS
+        });
+    };
+
+    async fetchBlockedAccounts(): Promise<mastodon.v1.Account[]> {
+        return await this.fetchData<mastodon.v1.Account>({
+            fetch: this.api.v1.blocks.list,
+            label: Key.BLOCKED_ACCOUNTS
         });
     };
 
