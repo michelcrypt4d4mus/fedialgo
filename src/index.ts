@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FollowedTagsFeatureScorer from "./scorer/feature/followed_tags_feature_scorer";
+import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
@@ -63,7 +63,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosScorer(),
-        new FollowedTagsFeatureScorer(),
+        new FollowedTagsScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
         new MentionsFollowedScorer(),

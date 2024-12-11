@@ -33,7 +33,7 @@ exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyN
 const async_mutex_1 = require("async-mutex");
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const followed_tags_feature_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_feature_scorer"));
+const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
@@ -82,7 +82,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaos_scorer_1.default(),
-        new followed_tags_feature_scorer_1.default(),
+        new followed_tags_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
         new mentions_followed_scorer_1.default(),

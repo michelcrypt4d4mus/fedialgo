@@ -11,7 +11,7 @@ import { MastoApi } from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
 
 
-export default class FollowedTagsFeatureScorer extends FeatureScorer {
+export default class FollowedTagsScorer extends FeatureScorer {
     constructor() {
         super(WeightName.FOLLOWED_TAGS);
     }
