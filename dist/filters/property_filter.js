@@ -28,7 +28,7 @@ var PropertyName;
 ;
 var SourceFilterName;
 (function (SourceFilterName) {
-    SourceFilterName["DIRECT_MESSAGE"] = "directMessage";
+    SourceFilterName["DIRECT_MESSAGE"] = "directMessages";
     SourceFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
     SourceFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
     SourceFilterName["LINKS"] = "links";

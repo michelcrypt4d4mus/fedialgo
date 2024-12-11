@@ -21,7 +21,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *               "uses": "146"
  *           },
  *           <...snip, usually 7 days of info...>
- *        ]
+ *       ]
  *   }
  */
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
@@ -42,10 +42,10 @@ exports.default = fetchRecentTootsForTrendingTags;
 // Find tags that are trending across the Fediverse by adding up the number uses of the tag
 async function getTrendingTags() {
     console.log(`${LOG_PREFIX} getTrendingTags() called`);
-    const topDomains = await api_1.MastoApi.instance.getTopServerDomains();
-    const serversTrendingTags = await Promise.all(topDomains.map(s => new mastodon_server_1.default(s).fetchTrendingTags()));
+    const domains = await api_1.MastoApi.instance.getTopServerDomains();
+    const serversTags = await Promise.all(domains.map(s => new mastodon_server_1.default(s).fetchTrendingTags()));
     // Aggregate how many toots and users in the past NUM_DAYS_TO_COUNT_TAG_DATA days across all servers
-    const trendingTags = serversTrendingTags.flat().reduce((tags, tag) => {
+    const trendingTags = serversTags.flat().reduce((tags, tag) => {
         const existingTag = tags.find(t => t.name === tag.name);
         if (existingTag) {
             existingTag.numAccounts = (existingTag.numAccounts || 0) + (tag.numAccounts || 0);

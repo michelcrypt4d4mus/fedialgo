@@ -141,19 +141,17 @@ class Toot {
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(algo) {
-        const user = algo.user;
-        const mutedAccounts = algo.mutedAccounts;
+        const { user, mutedAccounts } = algo;
         if (this?.reblog?.muted || this?.muted)
             return false; // Remove muted accounts and toots
         if (this?.reblog?.reblogged)
             return false; // Remove things the user has already retooted
         if (this.account.username == user.username && this.account.id == user.id) {
-            // console.debug(`Removing user's own toot: `, this);
-            return false; // Remove user's toots
+            return false; // Remove user's own toots
         }
         if (this.account.acct in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
-            return false; // Remove muted accounts
+            return false;
         }
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
         if (Date.now() < new Date(this.createdAt).getTime()) {
