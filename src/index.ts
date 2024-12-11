@@ -20,7 +20,7 @@ import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
-import Toot, { mostRecentCreatedAt, sortByCreatedAt } from './api/objects/toot';
+import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -249,7 +249,7 @@ class TheAlgorithm {
     }
 
     mostRecentTootAt(): Date | null {
-        return mostRecentCreatedAt(this.feed);
+        return mostRecentTootedAt(this.feed);
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots
@@ -267,6 +267,8 @@ class TheAlgorithm {
             setTimeout(
                 () => {
                     // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
+                    // It's important that we *only* look at home timeline toots here. Toots from other servers
+                    // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[5];
                     console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);

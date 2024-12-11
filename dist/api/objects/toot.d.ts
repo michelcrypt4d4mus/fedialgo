@@ -1,6 +1,7 @@
 import { mastodon } from "masto";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
+type StatusList = mastodon.v1.Status[];
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",
@@ -70,11 +71,11 @@ export default class Toot implements TootObj {
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }
-export declare const sortByCreatedAt: (toots: mastodon.v1.Status[]) => mastodon.v1.Status[];
-export declare const earliestCreatedAt: (toots: mastodon.v1.Status[]) => Date | null;
-export declare const mostRecentToot: (toots: mastodon.v1.Status[]) => mastodon.v1.Status | null;
-export declare const mostRecentCreatedAt: (toots: mastodon.v1.Status[]) => Date | null;
-export declare const earliestToot: (toots: mastodon.v1.Status[]) => mastodon.v1.Status | null;
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;
+export declare const earliestToot: (toots: StatusList) => mastodon.v1.Status | null;
+export declare const mostRecentToot: (toots: StatusList) => mastodon.v1.Status | null;
+export declare const sortByCreatedAt: (toots: StatusList) => StatusList;
+export declare const earliestTootedAt: (toots: StatusList) => Date | null;
+export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;
 export declare const minimumID: (toots: Toot[]) => number | null;
 export {};

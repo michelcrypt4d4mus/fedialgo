@@ -7,7 +7,7 @@ import { Mutex } from 'async-mutex';
 import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
-import Toot, { earliestCreatedAt } from './objects/toot';
+import Toot, { earliestTootedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
 import { countValues, sortKeysByValue } from '../helpers';
 import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
@@ -122,8 +122,8 @@ export class MastoApi {
             maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
-                let oldestTootAt = earliestCreatedAt(allResults) || new Date();
-                console.log(`oldest in page: ${earliestCreatedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
+                const oldestTootAt = earliestTootedAt(allResults) || new Date();
+                console.log(`oldest in page: ${earliestTootedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
 
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
                     console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
@@ -135,8 +135,8 @@ export class MastoApi {
         });
 
         const toots = statuses.map((status) => new Toot(status));
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestCreatedAt(statuses)}'):`, toots);
-        console.debug(toots.map(t => t.describe()).join("\n"));
+        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestTootedAt(toots)}'):`, toots);
+        // console.debug(toots.map(t => t.describe()).join("\n"));
         return toots;
     };
 

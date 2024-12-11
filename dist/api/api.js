@@ -124,8 +124,8 @@ class MastoApi {
             maxRecords: numToots || Storage_1.default.getConfig().maxTimelineTootsToFetch,
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
-                let oldestTootAt = (0, toot_1.earliestCreatedAt)(allResults) || new Date();
-                console.log(`oldest in page: ${(0, toot_1.earliestCreatedAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
+                const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
+                console.log(`oldest in page: ${(0, toot_1.earliestTootedAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
                     console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
                     return true;
@@ -134,8 +134,8 @@ class MastoApi {
             }
         });
         const toots = statuses.map((status) => new toot_1.default(status));
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestCreatedAt)(statuses)}'):`, toots);
-        console.debug(toots.map(t => t.describe()).join("\n"));
+        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootedAt)(toots)}'):`, toots);
+        // console.debug(toots.map(t => t.describe()).join("\n"));
         return toots;
     }
     ;

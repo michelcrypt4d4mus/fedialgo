@@ -241,7 +241,7 @@ class TheAlgorithm {
         console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     mostRecentTootAt() {
-        return (0, toot_1.mostRecentCreatedAt)(this.feed);
+        return (0, toot_1.mostRecentTootedAt)(this.feed);
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
@@ -255,6 +255,8 @@ class TheAlgorithm {
         ) {
             setTimeout(() => {
                 // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
+                // It's important that we *only* look at home timeline toots here. Toots from other servers
+                // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[5];
                 console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);

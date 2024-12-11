@@ -161,11 +161,11 @@ export const DEFAULT_CONFIG: Config = {
 
 
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
+// Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.
 export function buildNewFilterSettings(): FeedFilterSettings {
     const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
-    // Start with numeric & sources filters. Other PropertyFilters depend on what's in the toots.
     filters.filterSections[PropertyName.SOURCE] = new PropertyFilter({title: PropertyName.SOURCE});
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
-    console.debug(`Built new FeedFilterSettings:`, filters);
+    // console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;
 };

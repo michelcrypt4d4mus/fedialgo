@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.tootedAt = exports.earliestToot = exports.mostRecentCreatedAt = exports.mostRecentToot = exports.earliestCreatedAt = exports.sortByCreatedAt = exports.TootVisibility = void 0;
+exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.TootVisibility = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
 const account_1 = require("./account");
 const helpers_1 = require("../../helpers");
@@ -263,38 +263,26 @@ class Toot {
 }
 exports.default = Toot;
 ;
+const tootedAt = (toot) => new Date(toot.createdAt);
+exports.tootedAt = tootedAt;
+const earliestToot = (toots) => (0, exports.sortByCreatedAt)(toots)[0];
+exports.earliestToot = earliestToot;
+const mostRecentToot = (toots) => (0, exports.sortByCreatedAt)(toots).slice(-1)[0];
+exports.mostRecentToot = mostRecentToot;
 const sortByCreatedAt = (toots) => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
 exports.sortByCreatedAt = sortByCreatedAt;
-const earliestCreatedAt = (toots) => {
+const earliestTootedAt = (toots) => {
     const earliest = (0, exports.earliestToot)(toots);
     return earliest ? (0, exports.tootedAt)(earliest) : null;
 };
-exports.earliestCreatedAt = earliestCreatedAt;
-// Find the most recent toot in the feed
-const mostRecentToot = (toots) => {
-    if (toots.length == 0)
-        return null;
-    return (0, exports.sortByCreatedAt)(toots).slice(-1)[0];
+exports.earliestTootedAt = earliestTootedAt;
+const mostRecentTootedAt = (toots) => {
+    const newest = (0, exports.mostRecentToot)(toots);
+    return newest ? (0, exports.tootedAt)(newest) : null;
 };
-exports.mostRecentToot = mostRecentToot;
-const mostRecentCreatedAt = (toots) => {
-    const mostRecent = (0, exports.mostRecentToot)(toots);
-    return mostRecent ? (0, exports.tootedAt)(mostRecent) : null;
-};
-exports.mostRecentCreatedAt = mostRecentCreatedAt;
-// Find the most recent toot in the feed
-const earliestToot = (toots) => {
-    if (toots.length == 0)
-        return null;
-    return (0, exports.sortByCreatedAt)(toots)[0];
-};
-exports.earliestToot = earliestToot;
-const tootedAt = (toot) => {
-    return new Date(toot.createdAt);
-};
-exports.tootedAt = tootedAt;
+exports.mostRecentTootedAt = mostRecentTootedAt;
 // Find the minimum ID in a list of toots.
 // Unused because sorting by ID only works when all toots came from the same server.
 const minimumID = (toots) => {

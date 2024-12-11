@@ -10,12 +10,13 @@ import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../..
 import { IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { TheAlgorithm } from "../..";
 
+type StatusList = mastodon.v1.Status[];
+
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const BROKEN_TAG = "<<BROKEN_TAG>>"
 const UNKNOWN = "unknown";
-
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 export enum TootVisibility {
@@ -300,40 +301,23 @@ export default class Toot implements TootObj {
 };
 
 
-export const sortByCreatedAt = (toots: mastodon.v1.Status[]): mastodon.v1.Status[] => {
+export const tootedAt = (toot: mastodon.v1.Status): Date => new Date(toot.createdAt);
+export const earliestToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots)[0];
+export const mostRecentToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots).slice(-1)[0];
+
+export const sortByCreatedAt = (toots: StatusList): StatusList => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };
 
-
-export const earliestCreatedAt = (toots: mastodon.v1.Status[]): Date | null => {
+export const earliestTootedAt = (toots: StatusList): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;
-};
+}
 
-
-// Find the most recent toot in the feed
-export const mostRecentToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status | null => {
-    if (toots.length == 0) return null;
-    return sortByCreatedAt(toots).slice(-1)[0];
-};
-
-
-export const mostRecentCreatedAt = (toots: mastodon.v1.Status[]): Date | null => {
-    const mostRecent = mostRecentToot(toots);
-    return mostRecent ? tootedAt(mostRecent) : null;
-};
-
-
-// Find the most recent toot in the feed
-export const earliestToot = (toots: mastodon.v1.Status[]): mastodon.v1.Status | null => {
-    if (toots.length == 0) return null;
-    return sortByCreatedAt(toots)[0];
-};
-
-
-export const tootedAt = (toot: mastodon.v1.Status): Date => {
-    return new Date(toot.createdAt);
-};
+export const mostRecentTootedAt = (toots: StatusList): Date | null => {
+    const newest = mostRecentToot(toots);
+    return newest ? tootedAt(newest) : null;
+}
 
 
 // Find the minimum ID in a list of toots.
