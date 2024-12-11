@@ -80,8 +80,8 @@ export class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                MastodonServer.fediverseTrendingToots(),
                 fetchRecentTootsForTrendingTags(),
+                MastodonServer.fediverseTrendingToots(),
             ]);
         }
 

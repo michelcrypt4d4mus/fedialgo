@@ -17,9 +17,7 @@ class RetootedUsersScorer extends feature_scorer_1.default {
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
         console.log(`Recent toot history: `, recentToots);
         console.log(`Recent retoot history: `, recentRetoots);
-        const retootCounts = (0, helpers_1.countValues)(recentRetoots, (toot) => toot?.reblog?.account?.acct);
-        console.log(`Retoot counts:`, retootCounts);
-        return retootCounts;
+        return (0, helpers_1.countValues)(recentRetoots, (toot) => toot?.reblog?.account?.acct);
     }
     ;
     async _score(toot) {

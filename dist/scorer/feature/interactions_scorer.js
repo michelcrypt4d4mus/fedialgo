@@ -13,7 +13,7 @@ class InteractionsScorer extends feature_scorer_1.default {
     }
     async featureGetter() {
         const notifications = await api_1.MastoApi.instance.getRecentNotifications();
-        return (0, helpers_1.countValues)(notifications, n => n?.account?.acct);
+        return (0, helpers_1.countValues)(notifications, notif => notif?.account?.acct);
     }
     ;
     async _score(toot) {

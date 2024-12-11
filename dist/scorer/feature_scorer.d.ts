@@ -6,7 +6,7 @@ export default abstract class FeatureScorer extends Scorer {
     requiredData: StringNumberDict;
     constructor(scoreName: WeightName);
     featureGetter(): Promise<StringNumberDict>;
-    getFeature(): Promise<Toot[]>;
+    fetchRequiredData(): Promise<Toot[]>;
     static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void;
     static uniquifyTrendingObjs(trendingObjs: TrendingWithHistory[]): TrendingWithHistory[];
 }

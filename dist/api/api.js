@@ -86,8 +86,8 @@ class MastoApi {
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
             promises = promises.concat([
-                mastodon_server_1.default.fediverseTrendingToots(),
                 (0, trending_tags_1.default)(),
+                mastodon_server_1.default.fediverseTrendingToots(),
             ]);
         }
         const allResponses = await Promise.all(promises);

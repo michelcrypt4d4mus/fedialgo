@@ -15,7 +15,7 @@ class FeatureScorer extends scorer_1.default {
     async featureGetter() {
         return {};
     }
-    async getFeature() {
+    async fetchRequiredData() {
         try {
             this.requiredData = await this.featureGetter();
         }
@@ -26,7 +26,7 @@ class FeatureScorer extends scorer_1.default {
         this.isReady = true;
         return []; // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
-    // Add numToots and numAccounts to the TrendingLink or TrendingTag object
+    // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
     static decorateHistoryScores(_obj) {
         const obj = _obj;
         obj.url = obj.url.toLowerCase();
