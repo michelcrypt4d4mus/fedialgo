@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.11.0`
 * Add `MentionsFollowedScorer`
 * Add handling for audio `mediaAttachment`
 
