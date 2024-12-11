@@ -5,14 +5,14 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
+import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { atLeastValues, average, countValues, groupBy, sortKeysByValue, zipPromises } from "../helpers";
-import { decorateTrendingTag } from "./objects/tag";
+import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers";
 import { extractServer } from "./objects/account";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
+import { repairTag } from "./objects/tag";
 import { StringNumberDict, TrendingTag } from "../types";
-import { transformKeys } from "../helpers";
 
 
 export default class MastodonServer {
@@ -35,7 +35,11 @@ export default class MastodonServer {
             console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
 
-        const trendingTags = tags.map(decorateTrendingTag);
+        const trendingTags = tags.map((tag) => {
+            repairTag(tag);
+            return FeatureScorer.decorateHistoryScores(tag) as TrendingTag;
+        });
+
         console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
         return trendingTags;
     };

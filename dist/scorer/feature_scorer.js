@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
 const scorer_1 = __importDefault(require("./scorer"));
+const Storage_1 = __importDefault(require("../Storage"));
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
     requiredData = {};
@@ -30,6 +31,21 @@ class FeatureScorer extends scorer_1.default {
         this.isReady = true;
         return []; // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
+    // Add numToots and numAccounts to the TrendingLink or TrendingTag object
+    static decorateHistoryScores(_obj) {
+        // obj = obj.type == "link" ? obj as TrendingLink : obj as TrendingTag;
+        const obj = _obj;
+        obj.url = obj.url.toLowerCase();
+        if (!obj?.history?.length) {
+            console.warn(`decorateHistoryScores() found no history for:`, obj);
+            obj.history = [];
+        }
+        const recentHistory = obj.history.slice(0, Storage_1.default.getConfig().numDaysToCountTrendingTagData);
+        obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
+        obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+        return obj;
+    }
+    ;
 }
 exports.default = FeatureScorer;
 ;

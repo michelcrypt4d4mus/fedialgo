@@ -8,13 +8,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
+const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const helpers_1 = require("../helpers");
-const tag_1 = require("./objects/tag");
 const account_1 = require("./objects/account");
 const api_1 = require("./api");
-const helpers_2 = require("../helpers");
+const tag_1 = require("./objects/tag");
 class MastodonServer {
     domain;
     constructor(domain) {
@@ -34,7 +34,10 @@ class MastodonServer {
         catch (e) {
             console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
-        const trendingTags = tags.map(tag_1.decorateTrendingTag);
+        const trendingTags = tags.map((tag) => {
+            (0, tag_1.repairTag)(tag);
+            return feature_scorer_1.default.decorateHistoryScores(tag);
+        });
         console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
         return trendingTags;
     }
@@ -99,7 +102,7 @@ class MastodonServer {
         const json = await axios_1.default.get(url);
         console.debug(`mastodonFetch() response for '${url}':`, json);
         if (json.status === 200 && json.data) {
-            return (0, helpers_2.transformKeys)(json.data, change_case_1.camelCase);
+            return (0, helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
             throw json;
