@@ -134,7 +134,7 @@ class TheAlgorithm {
             promises = promises.concat([
                 MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
-                ...this.featureScorers.map(scorer => scorer.getFeature()),
+                ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
 
@@ -326,7 +326,7 @@ class TheAlgorithm {
 
                 if (!this.featureScorers.every(scorer => scorer.isReady)) {
                     console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.getFeature()));
+                    promises = promises.concat(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
                 }
 
                 await Promise.all(promises);

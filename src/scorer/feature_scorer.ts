@@ -24,7 +24,7 @@ export default abstract class FeatureScorer extends Scorer {
         return {};
     }
 
-    async getFeature(): Promise<Toot[]> {
+    async fetchRequiredData(): Promise<Toot[]> {
         try {
             this.requiredData = await this.featureGetter();
         } catch (e) {
