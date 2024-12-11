@@ -155,6 +155,7 @@ export const DEFAULT_CONFIG: Config = {
         "agora.echelon.pl",
         "fediverse.one",
         "flipboard.com",
+        'mathstodon.xyz',
         "threads.net",
     ],
 };

@@ -151,7 +151,7 @@ export default class Toot implements TootObj {
 
     tootedAt(): Date {
         return new Date(this.createdAt);
-    };
+    }
 
     audioAttachments(): Array<mastodon.v1.MediaAttachment> {
         return this.attachmentsOfType(AUDIO);
