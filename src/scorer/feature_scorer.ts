@@ -36,7 +36,7 @@ export default abstract class FeatureScorer extends Scorer {
         return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
 
-    // Add numToots and numAccounts to the TrendingLink or TrendingTag object
+    // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
     static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void {
         const obj = _obj as TrendingWithHistory;
         obj.url = obj.url.toLowerCase();

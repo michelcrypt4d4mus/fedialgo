@@ -21,6 +21,7 @@ export default class FollowedTagsScorer extends FeatureScorer {
         return countValues<mastodon.v1.Tag>(tags, (tag) => tag.name?.toLowerCase());
     }
 
+    // Sets the followedTags property on the Toot object before returning the score
     async _score(toot: Toot) {
         toot.followedTags = toot.tags.filter((tag) => tag.name in this.requiredData);
         return toot.followedTags.length;
