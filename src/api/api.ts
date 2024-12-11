@@ -15,6 +15,7 @@ import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData
 type ApiMutex = Record<StorageKey, Mutex>;
 
 export const INSTANCE = "instance"
+export const LINKS = "links";
 export const STATUSES = "statuses"
 export const TAGS = "tags"
 
@@ -101,6 +102,7 @@ export class MastoApi {
             this.fetchMutedAccounts(),
             this.getFollowedTags(),
             this.getServerSideFilters(),
+            MastodonServer.fediverseTrendingLinks(),
         ]);
 
         return {
@@ -108,6 +110,7 @@ export class MastoApi {
             followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name.toLowerCase()),
             mutedAccounts: buildAccountNames(responses[1].concat(responses[2])),
             serverSideFilters: responses[4],
+            trendingLinks: responses[5],
         } as UserData;
     };
 

@@ -54,6 +54,7 @@ const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
+const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
@@ -71,6 +72,7 @@ class TheAlgorithm {
     // Variables with initial values
     feed = [];
     serverSideFilters = [];
+    trendingLinks = [];
     followedAccounts = {};
     followedTags = {};
     mutedAccounts = {};
@@ -90,6 +92,7 @@ class TheAlgorithm {
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
+        new trending_links_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
@@ -153,6 +156,7 @@ class TheAlgorithm {
             this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
+            this.trendingLinks = userData.trendingLinks;
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.

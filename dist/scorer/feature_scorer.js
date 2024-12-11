@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const scorer_1 = __importDefault(require("./scorer"));
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
-    requiredData = {}; // TODO: rename this to supportData or something
+    requiredData = {};
     constructor(scoreName) {
         super(scoreName);
     }

@@ -16,6 +16,7 @@ import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property
 import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Toot from './api/objects/toot';
+import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -27,14 +28,15 @@ declare class TheAlgorithm {
     filters: FeedFilterSettings;
     feed: Toot[];
     serverSideFilters: mastodon.v2.Filter[];
+    trendingLinks: mastodon.v1.TrendLink[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
     mutedAccounts: AccountNames;
     scoreMutex: Mutex;
     setFeedInApp: (f: Toot[]) => void;
-    featureScorers: (ChaosScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    featureScorers: (ChaosScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
-    weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | RetootsInFeedScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsFeatureScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

@@ -10,7 +10,7 @@ import { StringNumberDict, WeightName } from "../types";
 
 // TODO: Find a better name than "Feature" for this class
 export default abstract class FeatureScorer extends Scorer {
-    requiredData: StringNumberDict = {};  // TODO: rename this to supportData or something
+    requiredData: StringNumberDict = {};
 
     constructor(scoreName: WeightName) {
         super(scoreName);
@@ -18,7 +18,7 @@ export default abstract class FeatureScorer extends Scorer {
 
     // Can be overloaded in subclasses to retrieve feature data from the server
     async featureGetter(): Promise<StringNumberDict> {
-        return {}
+        return {};
     }
 
     async getFeature(): Promise<Toot[]> {

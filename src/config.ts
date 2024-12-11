@@ -64,6 +64,10 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
+    [WeightName.TRENDING_LINKS]: {
+        defaultWeight: 0.5,
+        description: "Favour links that are trending in the Fediverse",
+    },
     [WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",

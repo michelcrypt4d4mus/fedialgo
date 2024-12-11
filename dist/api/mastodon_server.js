@@ -25,15 +25,14 @@ class MastodonServer {
     async fetchTrendingTags(numTags) {
         numTags ||= Storage_1.default.getConfig().numTrendingTagsPerServer;
         const tagsUrl = api_1.MastoApi.trendUrl(api_1.TAGS);
-        let tags;
+        let tags = [];
         try {
             tags = await this.fetch(tagsUrl, numTags);
-            if (!tags || tags.length == 0)
+            if (!tags?.length)
                 throw new Error(`No tags found on '${this.domain}'!`);
         }
         catch (e) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${this.domain}'!`, e);
-            return [];
+            console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
         const trendingTags = tags.map(tag_1.decorateTrendingTag);
         console.debug(`[TrendingTags] trendingTags for server '${this.domain}':`, trendingTags);
@@ -46,12 +45,11 @@ class MastodonServer {
         try {
             topToots = await this.fetch(api_1.MastoApi.trendUrl(api_1.STATUSES));
             if (!topToots?.length)
-                throw new Error(`Failed to get topToots, got: ${JSON.stringify(topToots)}`);
+                throw new Error(`Failed to fetch topToots, got: ${JSON.stringify(topToots)}`);
             topToots = topToots.map(t => new toot_1.default(t));
         }
         catch (e) {
             console.warn(`Error fetching trending toots from '${this.domain}':`, e);
-            return [];
         }
         topToots = topToots.filter(toot => toot.popularity() > 0);
         let filteredToots = topToots.filter(toot => toot.popularity() > 0);
@@ -79,25 +77,32 @@ class MastodonServer {
         }
     }
     ;
+    async fetchTrendingLinks() {
+        let links = [];
+        try {
+            links = await this.fetch(api_1.MastoApi.trendUrl(api_1.LINKS));
+            if (!links?.length)
+                throw new Error(`No links found on '${this.domain}'!`);
+        }
+        catch (e) {
+            console.warn(`[TrendingLinks] Failed to get trending links from '${this.domain}'!`, e);
+        }
+        console.debug(`[TrendingLinks] trendingLinks for server '${this.domain}':`, links);
+        return links;
+    }
+    ;
     // Get data from a public API endpoint on a Mastodon server.
     async fetch(endpoint, limit) {
         let url = `https://${this.domain}/${endpoint}`;
         if (limit)
             url += `?limit=${limit}`;
-        console.debug(`mastodonFetch() URL: '${url}'`);
-        try {
-            const json = await axios_1.default.get(url);
-            console.debug(`mastodonFetch() response for '${url}':`, json);
-            if (json.status === 200 && json.data) {
-                return (0, helpers_2.transformKeys)(json.data, change_case_1.camelCase);
-            }
-            else {
-                throw json;
-            }
+        const json = await axios_1.default.get(url);
+        console.debug(`mastodonFetch() response for '${url}':`, json);
+        if (json.status === 200 && json.data) {
+            return (0, helpers_2.transformKeys)(json.data, change_case_1.camelCase);
         }
-        catch (e) {
-            console.warn(`Error fetching data from '${url}'`, e);
-            return;
+        else {
+            throw json;
         }
     }
     ;
@@ -108,10 +113,16 @@ class MastodonServer {
     static async fediverseTrendingToots() {
         console.log(`[TrendingToots] fetchTrendingToots() called`);
         // Pull top trending toots from each server
-        let trendingTootses = await this.callForAllServers((server) => server.fetchTrendingToots());
+        let trendingTootses = await this.callForAllServers((s) => s.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return toot_1.default.dedupeToots(trendingToots, "getTrendingToots");
+    }
+    ;
+    static async fediverseTrendingLinks() {
+        let links = await this.callForAllServers((s) => s.fetchTrendingLinks());
+        console.log(`[TrendingLinks] links from all servers:`, links);
+        return Object.values(links).flat();
     }
     ;
     // Returns something called "overrepresentedServerFrequ"??

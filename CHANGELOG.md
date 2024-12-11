@@ -1,4 +1,5 @@
 ## NEXT
+* Add `TrendingLinksScorer` to boost toots that contain Fediverse-wide trending links
 * Add blocked accounts to muted account list
 * [bug] Add `@server.com` string to `Account` objects for users on the home server that didn't have it.
 

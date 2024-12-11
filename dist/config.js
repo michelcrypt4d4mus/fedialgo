@@ -88,6 +88,10 @@ exports.DEFAULT_WEIGHTS = {
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
+    [types_1.WeightName.TRENDING_LINKS]: {
+        defaultWeight: 0.5,
+        description: "Favour links that are trending in the Fediverse",
+    },
     [types_1.WeightName.TRENDING_TAGS]: {
         defaultWeight: 0.4,
         description: "Favour hashtags that are trending in the Fediverse",

@@ -36,6 +36,7 @@ export declare enum WeightName {
     NUM_RETOOTS = "NumRetoots",
     RETOOTED_IN_FEED = "RetootedInFeed",
     TIME_DECAY = "TimeDecay",
+    TRENDING_LINKS = "TrendingLinks",
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments"
@@ -106,6 +107,7 @@ export type UserData = {
     followedTags: StringNumberDict;
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
+    trendingLinks: mastodon.v1.TrendLink[];
 };
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
@@ -123,9 +125,14 @@ export type TootScore = {
     timeDecayMultiplier: number;
     weightedScores: Weights;
 };
+export interface TrendingLink extends mastodon.v1.TrendLink {
+    numToots?: number;
+    numAccounts?: number;
+}
+export type TrendingLinkUrls = Record<string, TrendingLink>;
 export interface TrendingTag extends mastodon.v1.Tag {
     numAccounts?: number;
     numToots?: number;
     trendingRank?: number;
 }
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number;
+export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;

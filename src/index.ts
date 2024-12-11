@@ -22,6 +22,7 @@ import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
 import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
+import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
@@ -51,6 +52,7 @@ class TheAlgorithm {
     // Variables with initial values
     feed: Toot[] = [];
     serverSideFilters: mastodon.v2.Filter[] = [];
+    trendingLinks: mastodon.v1.TrendLink[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
@@ -71,6 +73,7 @@ class TheAlgorithm {
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
+        new TrendingLinksScorer(),
         new TrendingTagsScorer(),
         new TrendingTootScorer(),
         new VideoAttachmentScorer(),
@@ -146,6 +149,7 @@ class TheAlgorithm {
             this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
+            this.trendingLinks = userData.trendingLinks;
         }
 
         this.logTootCounts(newToots, homeToots)

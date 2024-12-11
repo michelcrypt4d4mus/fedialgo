@@ -10,7 +10,7 @@ import Toot from "./objects/toot";
 import { atLeastValues, average, countValues, groupBy, sortKeysByValue, zipPromises } from "../helpers";
 import { decorateTrendingTag } from "./objects/tag";
 import { extractServer } from "./objects/account";
-import { INSTANCE, STATUSES, TAGS, MastoApi } from "./api";
+import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { StringNumberDict, TrendingTag } from "../types";
 import { transformKeys } from "../helpers";
 
@@ -26,14 +26,13 @@ export default class MastodonServer {
     async fetchTrendingTags(numTags?: number): Promise<TrendingTag[]> {
         numTags ||= Storage.getConfig().numTrendingTagsPerServer;
         const tagsUrl = MastoApi.trendUrl(TAGS);
-        let tags: mastodon.v1.Tag[] | undefined;
+        let tags: mastodon.v1.Tag[] = [];
 
         try {
             tags = await this.fetch<mastodon.v1.Tag[]>(tagsUrl, numTags);
-            if (!tags || tags.length == 0) throw new Error(`No tags found on '${this.domain}'!`);
+            if (!tags?.length) throw new Error(`No tags found on '${this.domain}'!`);
         } catch (e) {
-            console.warn(`[TrendingTags] Failed to get trending toots from '${this.domain}'!`, e);
-            return [];
+            console.warn(`[TrendingTags] Failed to fetch trending toots from '${this.domain}'!`, e);
         }
 
         const trendingTags = tags.map(decorateTrendingTag);
@@ -43,15 +42,14 @@ export default class MastodonServer {
 
     // Fetch toots that are trending on this server
     async fetchTrendingToots(): Promise<Toot[]> {
-        let topToots: Toot[] | undefined = [];
+        let topToots: Toot[] = [];
 
         try {
             topToots = await this.fetch<Toot[]>(MastoApi.trendUrl(STATUSES));
-            if (!topToots?.length) throw new Error(`Failed to get topToots, got: ${JSON.stringify(topToots)}`);
+            if (!topToots?.length) throw new Error(`Failed to fetch topToots, got: ${JSON.stringify(topToots)}`);
             topToots = topToots.map(t => new Toot(t));
         } catch (e) {
             console.warn(`Error fetching trending toots from '${this.domain}':`, e);
-            return [];
         }
 
         topToots = topToots.filter(toot => toot.popularity() > 0);
@@ -82,24 +80,31 @@ export default class MastodonServer {
         }
     };
 
-    // Get data from a public API endpoint on a Mastodon server.
-    private async fetch<T>(endpoint: string, limit?: number): Promise<T | undefined> {
-        let url = `https://${this.domain}/${endpoint}`;
-        if (limit) url += `?limit=${limit}`;
-        console.debug(`mastodonFetch() URL: '${url}'`);
+    async fetchTrendingLinks(): Promise<mastodon.v1.TrendLink[]> {
+        let links: mastodon.v1.TrendLink[] = [];
 
         try {
-            const json = await axios.get<T>(url);
-            console.debug(`mastodonFetch() response for '${url}':`, json);
-
-            if (json.status === 200 && json.data) {
-                return transformKeys(json.data, camelCase);
-            } else {
-                throw json;
-            }
+            links = await this.fetch<mastodon.v1.TrendLink[]>(MastoApi.trendUrl(LINKS));
+            if (!links?.length) throw new Error(`No links found on '${this.domain}'!`);
         } catch (e) {
-            console.warn(`Error fetching data from '${url}'`, e);
-            return;
+            console.warn(`[TrendingLinks] Failed to get trending links from '${this.domain}'!`, e);
+        }
+
+        console.debug(`[TrendingLinks] trendingLinks for server '${this.domain}':`, links);
+        return links;
+    };
+
+    // Get data from a public API endpoint on a Mastodon server.
+    private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
+        let url = `https://${this.domain}/${endpoint}`;
+        if (limit) url += `?limit=${limit}`;
+        const json = await axios.get<T>(url);
+        console.debug(`mastodonFetch() response for '${url}':`, json);
+
+        if (json.status === 200 && json.data) {
+            return transformKeys(json.data, camelCase) as T;
+        } else {
+            throw json;
         }
     };
 
@@ -111,10 +116,16 @@ export default class MastodonServer {
     static async fediverseTrendingToots(): Promise<Toot[]> {
         console.log(`[TrendingToots] fetchTrendingToots() called`);
         // Pull top trending toots from each server
-        let trendingTootses = await this.callForAllServers<Toot[]>((server) => server.fetchTrendingToots());
+        let trendingTootses = await this.callForAllServers<Toot[]>((s) => s.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return Toot.dedupeToots(trendingToots, "getTrendingToots");
+    };
+
+    static async fediverseTrendingLinks(): Promise<mastodon.v1.TrendLink[]> {
+        let links = await this.callForAllServers<mastodon.v1.TrendLink[]>((s) => s.fetchTrendingLinks());
+        console.log(`[TrendingLinks] links from all servers:`, links);
+        return Object.values(links).flat();
     };
 
     // Returns something called "overrepresentedServerFrequ"??
