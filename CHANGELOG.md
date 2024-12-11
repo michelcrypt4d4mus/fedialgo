@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.10.1`
 * Refactor a `MastodonServer` class for calls to the public API
 
 ## `0.10.0`
