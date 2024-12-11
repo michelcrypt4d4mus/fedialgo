@@ -85,6 +85,7 @@ const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 export default class PropertyFilter extends TootFilter {
     title: PropertyName
     optionInfo: StringNumberDict;
+    effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
