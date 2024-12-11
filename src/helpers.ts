@@ -8,8 +8,11 @@ export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
 export const VIDEO_TYPES = ["gifv", VIDEO];
-export const MEDIA_TYPES = [IMAGE, ...VIDEO_TYPES];
+export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
 
+
+// "http://mast.ai/foobar" => "mast.ai"
+export const extractDomain = (url: string): string => url?.split("/")[2];
 
 // Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number {

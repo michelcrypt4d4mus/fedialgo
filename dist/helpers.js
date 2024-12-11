@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
 exports.AUDIO = "audio";
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
 exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
 exports.MEDIA_TYPES = [exports.IMAGE, ...exports.VIDEO_TYPES];
+// "http://mast.ai/foobar" => "mast.ai"
+const extractDomain = (url) => url?.split("/")[2];
+exports.extractDomain = extractDomain;
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);

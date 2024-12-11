@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
-import { describeAccount } from "./account";
+import { describeAccount, webfingerURI } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
 
@@ -247,19 +247,15 @@ export default class Toot implements TootObj {
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
     //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string if missing
+    //   - Add server info to the account string and mentions for home server accounts
     //   - Lowercase all tags
     private repairToot(): void {
         this.application ??= {name: UNKNOWN};
         this.application.name ??= UNKNOWN;
         this.language ??= Storage.getConfig().defaultLanguage;
         this.followedTags ??= [];
-
-        // Inject the @server info to the account string if it's missing
-        if (this.account.acct && !this.account.acct.includes("@")) {
-            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
-            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
-        }
+        this.account.acct = webfingerURI(this.account);
+        this.mentions.forEach((mention) => mention.acct = webfingerURI(mention));
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {

@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import { AccountNames } from "../../types";
 export declare function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames;
-export declare function extractServer(account: mastodon.v1.Account): string;
+export declare function extractServer(account: mastodon.v1.Account | mastodon.v1.StatusMention): string;
 export declare function describeAccount(account: mastodon.v1.Account): string;
+export declare const webfingerURI: (account: mastodon.v1.Account | mastodon.v1.StatusMention) => string;

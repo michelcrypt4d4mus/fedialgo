@@ -5,6 +5,7 @@ export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: string[];
 export declare const MEDIA_TYPES: string[];
+export declare const extractDomain: (url: string) => string;
 export declare function average(values: number[]): number;
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;

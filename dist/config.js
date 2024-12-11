@@ -171,6 +171,7 @@ exports.DEFAULT_CONFIG = {
         "agora.echelon.pl",
         "fediverse.one",
         "flipboard.com",
+        'mathstodon.xyz',
         "threads.net",
     ],
 };

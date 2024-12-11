@@ -127,7 +127,6 @@ class Toot {
     tootedAt() {
         return new Date(this.createdAt);
     }
-    ;
     audioAttachments() {
         return this.attachmentsOfType(helpers_1.AUDIO);
     }
@@ -212,18 +211,15 @@ class Toot {
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
     //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string if missing
+    //   - Add server info to the account string and mentions for home server accounts
     //   - Lowercase all tags
     repairToot() {
         this.application ??= { name: UNKNOWN };
         this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
         this.followedTags ??= [];
-        // Inject the @server info to the account string if it's missing
-        if (this.account.acct && !this.account.acct.includes("@")) {
-            // console.debug(`Injecting @server info to account string '${this.account.acct}' for:`, this);
-            this.account.acct = `${this.account.acct}@${this.account.url.split("/")[2]}`;
-        }
+        this.account.acct = (0, account_1.webfingerURI)(this.account);
+        this.mentions.forEach((mention) => mention.acct = (0, account_1.webfingerURI)(mention));
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {
