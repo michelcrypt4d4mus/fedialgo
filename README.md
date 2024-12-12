@@ -44,8 +44,10 @@ const algorithm = await TheAlgorithm.create({api: api, user: currentUser})
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
 ```typescript
-// Get a weighted (and weight-ordered) timeline of Toot objects
-const feed = await algorithm.getFeed();
+// Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
+let feed = await algorithm.getFeed(400);
+// Get next 400 timeline toots. Args are numToots and maxID. Also see "Callbacks" section below
+feed = await algorithm.getFeed(400, feed[0].id);
 
 // Get and set score weightings
 const weights = await algorithm.getUserWeights();
@@ -70,7 +72,12 @@ Package configuration options can be found in [`src/config.ts`](src/config.ts). 
 
 
 ### Timeline Callback
-You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`. An example involving React component state:
+You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of size `Config.numTootsInFirstFetch` toots in the background. The callback will be invoked when:
+
+* An incremental batch of toots is retrieved from the server and integrated into the timeline
+* A call is made to `algorithm.updateUserWeights()` or `algorithm.updateFilters()`.
+
+An example involving React component state:
 
 ```typescript
 import Toot from "fedialgo";
