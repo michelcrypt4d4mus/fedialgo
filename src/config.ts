@@ -73,7 +73,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.4,
+        defaultWeight: 0.08,
         description: "Favour toots that are trending in the Fediverse",
     },
     [WeightName.VIDEO_ATTACHMENTS]: {
