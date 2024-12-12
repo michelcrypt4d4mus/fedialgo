@@ -7,6 +7,7 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const account_1 = require("./account");
+const types_1 = require("../../types");
 const tag_1 = require("./tag");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -171,9 +172,15 @@ class Toot {
         return true;
     }
     ;
-    // return true if it's a direct message
+    // Return true if it's a direct message
     isDM() {
         return this.visibility === TootVisibility.DIRECT_MSG;
+    }
+    // Return true if it's a trending toot
+    isTrending() {
+        return !!(this.scoreInfo?.rawScores[types_1.WeightName.TRENDING_TOOTS]
+            || this.trendingLinks?.length
+            || this.trendingTags?.length);
     }
     // Returns a simplified version of the toot for logging
     condensedStatus() {

@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TIME_DECAY = void 0;
+exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -65,6 +65,8 @@ const api_1 = require("./api/api");
 const types_1 = require("./types");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
+const TRENDING = types_1.WeightName.TRENDING;
+exports.TRENDING = TRENDING;
 class TheAlgorithm {
     api;
     user;
@@ -110,8 +112,11 @@ class TheAlgorithm {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, 
-    // TimeDecay requires bespoke handling so it's not included in the loop above
-    { [TIME_DECAY]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TIME_DECAY]) });
+    // TimeDecay and Trending require bespoke handling so it's not included in the loop above
+    {
+        [TIME_DECAY]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TIME_DECAY]),
+        [TRENDING]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TRENDING]),
+    });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
         await Storage_1.default.setIdentity(params.user);

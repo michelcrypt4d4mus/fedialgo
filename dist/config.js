@@ -31,6 +31,18 @@ const numeric_filter_1 = __importStar(require("./filters/numeric_filter"));
 const property_filter_1 = __importStar(require("./filters/property_filter"));
 const types_1 = require("./types");
 exports.DEFAULT_WEIGHTS = {
+    // Global modifiers that affect all weighted scores
+    [types_1.WeightName.TIME_DECAY]: {
+        defaultWeight: 0.05,
+        description: "Higher values favour recent toots more",
+        minValue: 0.001,
+    },
+    [types_1.WeightName.TRENDING]: {
+        defaultWeight: 0.08,
+        minValue: 0.001,
+        description: "Favour links that are trending in the Fediverse",
+    },
+    // Weighted scores
     [types_1.WeightName.CHAOS]: {
         defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
@@ -83,11 +95,6 @@ exports.DEFAULT_WEIGHTS = {
         defaultWeight: 2,
         description: "Favour toots retooted by multiple accounts you follow",
     },
-    [types_1.WeightName.TIME_DECAY]: {
-        defaultWeight: 0.05,
-        description: "Higher values favour recent toots more",
-        minValue: 0.001,
-    },
     [types_1.WeightName.TRENDING_LINKS]: {
         defaultWeight: 0.1,
         description: "Favour links that are trending in the Fediverse",
@@ -97,7 +104,7 @@ exports.DEFAULT_WEIGHTS = {
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.4,
+        defaultWeight: 0.3,
         description: "Favour toots that are trending in the Fediverse",
     },
     [types_1.WeightName.VIDEO_ATTACHMENTS]: {

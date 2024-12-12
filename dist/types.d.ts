@@ -35,11 +35,12 @@ export declare enum WeightName {
     NUM_REPLIES = "NumReplies",
     NUM_RETOOTS = "NumRetoots",
     RETOOTED_IN_FEED = "RetootedInFeed",
-    TIME_DECAY = "TimeDecay",
     TRENDING_LINKS = "TrendingLinks",
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = "VideoAttachments"
+    VIDEO_ATTACHMENTS = "VideoAttachments",
+    TIME_DECAY = "TimeDecay",
+    TRENDING = "Trending"
 }
 export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;

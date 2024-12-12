@@ -36,11 +36,13 @@ var WeightName;
     WeightName["NUM_REPLIES"] = "NumReplies";
     WeightName["NUM_RETOOTS"] = "NumRetoots";
     WeightName["RETOOTED_IN_FEED"] = "RetootedInFeed";
-    WeightName["TIME_DECAY"] = "TimeDecay";
     WeightName["TRENDING_LINKS"] = "TrendingLinks";
     WeightName["TRENDING_TAGS"] = "TrendingTags";
     WeightName["TRENDING_TOOTS"] = "TrendingToots";
     WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
+    // Special weights
+    WeightName["TIME_DECAY"] = "TimeDecay";
+    WeightName["TRENDING"] = "Trending";
 })(WeightName || (exports.WeightName = WeightName = {}));
 ;
 ;

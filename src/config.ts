@@ -7,6 +7,18 @@ import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 
 export const DEFAULT_WEIGHTS: ScorerDict = {
+    // Global modifiers that affect all weighted scores
+    [WeightName.TIME_DECAY]: {
+        defaultWeight: 0.05,
+        description: "Higher values favour recent toots more",
+        minValue: 0.001,
+    },
+    [WeightName.TRENDING]: {
+        defaultWeight: 0.08,
+        minValue: 0.001,
+        description: "Multiplier applied to trending toots, tags, and links",
+    },
+    // Weighted scores
     [WeightName.CHAOS]: {
         defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
@@ -59,11 +71,6 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         defaultWeight: 2,
         description: "Favour toots retooted by multiple accounts you follow",
     },
-    [WeightName.TIME_DECAY]: {
-        defaultWeight: 0.05,
-        description: "Higher values favour recent toots more",
-        minValue: 0.001,
-    },
     [WeightName.TRENDING_LINKS]: {
         defaultWeight: 0.1,
         description: "Favour links that are trending in the Fediverse",
@@ -73,7 +80,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.08,
+        defaultWeight: 0.3,
         description: "Favour toots that are trending in the Fediverse",
     },
     [WeightName.VIDEO_ATTACHMENTS]: {

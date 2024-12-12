@@ -1,4 +1,5 @@
 ## NEXT
+* Adjustable global `Trending` multiplier that's applied to cumulative score of trending toots of all types
 
 ## `0.12.0`
 * Add `TrendingLinksScorer` to boost toots that contain Fediverse-wide trending links

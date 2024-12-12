@@ -64,27 +64,27 @@ export default abstract class Scorer {
             rawScore += weightedScores[scorer.name];
         });
 
-        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-        // high scores. To fix this we hack a final adjustment to the score by multiplying by the
-        // trending toot weighting if the weighting is less than 1.0.
-        const trendingScore = rawScores[WeightName.TRENDING_TOOTS] ?? 0;
-        const trendingWeighting = userWeights[WeightName.TRENDING_TOOTS] ?? 0;
-        if (trendingScore > 0 && trendingWeighting < 1.0) rawScore *= trendingWeighting;
-
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
         const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        const score = rawScore * timeDecayMultiplier;
 
         toot.scoreInfo = {
             rawScore,
             rawScores,
-            score,
+            score: 0,
             timeDecayMultiplier,
             weightedScores,
         } as TootScore;
 
+        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
+        // high scores. To adjust for this we hack a final adjustment to the score by multiplying by the
+        // trending weighting value.
+        if (toot.isTrending()) {
+            toot.scoreInfo.rawScore *= (userWeights[WeightName.TRENDING] ?? 0);
+        }
+
+        toot.scoreInfo.score = toot.scoreInfo.rawScore * timeDecayMultiplier;
         // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
         if (toot.reblog) toot.reblog.scoreInfo = toot.scoreInfo;
     }

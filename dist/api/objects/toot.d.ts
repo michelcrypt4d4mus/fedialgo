@@ -69,6 +69,7 @@ export default class Toot implements TootObj {
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(algo: TheAlgorithm): boolean;
     isDM(): boolean;
+    isTrending(): boolean;
     condensedStatus(): {};
     private repairToot;
     private attachmentsOfType;

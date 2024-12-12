@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 import Storage from "../../Storage";
 import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { TheAlgorithm } from "../..";
 import { repairTag } from "./tag";
 
@@ -204,9 +204,18 @@ export default class Toot implements TootObj {
         return true;
     };
 
-    // return true if it's a direct message
+    // Return true if it's a direct message
     isDM(): boolean {
         return this.visibility === TootVisibility.DIRECT_MSG;
+    }
+
+    // Return true if it's a trending toot
+    isTrending(): boolean {
+        return !!(
+               this.scoreInfo?.rawScores[WeightName.TRENDING_TOOTS]
+            || this.trendingLinks?.length
+            || this.trendingTags?.length
+        );
     }
 
     // Returns a simplified version of the toot for logging
