@@ -64,13 +64,6 @@ filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
 const filteredFeed = algorithm.updateFilters(filters);
 ```
 
-### `Toot` API
-The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
-
-### Configuration
-Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
-
-
 ### Timeline Callback
 You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of size `Config.numTootsInFirstFetch` toots in the background. The callback will be invoked when:
 
@@ -90,7 +83,13 @@ const [feed, setFeed] = useState<Toot[]>([]);
 const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedInApp: setFeed})
 ```
 
-### Learn Weights
+### `Toot` API
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
+
+### Package Configuration
+Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
+
+### ~~Learn Weights~~
 **DOES NOT CURRENTLY WORK!** can be enabled only by manually changing the value of `weightLearningEnabled` variable in this codebase.
 
 You can also let the algorithm learn the weights from the user's behaviour. This is done by passing the scores of the posts to the algorithm. The algorithm will then adjust the weights accordingly. This is quite simple, but still has impact on the feed. For example you could choose to adjust the weight after each click on a post, after a reblog, or after a link click.
