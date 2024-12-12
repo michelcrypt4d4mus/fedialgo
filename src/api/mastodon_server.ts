@@ -173,7 +173,7 @@ export default class MastodonServer {
         return await this.callForServers(domains, fxn);
     };
 
-    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers<T>(
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
