@@ -24,7 +24,7 @@ export default class MastodonServer {
 
     // Fetch toots that are trending on this server
     async fetchTrendingToots(): Promise<Toot[]> {
-        const toots = await this.fetchList<mastodon.v1.Status>(MastoApi.trendUrl(STATUSES));
+        const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
         const trendingToots = toots.map(t => new Toot(t)).filter(t => t.popularity() > 0);
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
@@ -36,7 +36,7 @@ export default class MastodonServer {
     // Get the links that are trending on this server
     async fetchTrendingLinks(): Promise<TrendingLink[]> {
         const numLinks = Storage.getConfig().numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchList<TrendingLink>(MastoApi.trendUrl(LINKS), numLinks);
+        const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
         trendingLinks.forEach(FeatureScorer.decorateHistoryScores);
         return trendingLinks;
     };
@@ -44,7 +44,7 @@ export default class MastodonServer {
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TrendingTag[]> {
         const numTags = Storage.getConfig().numTrendingTagsPerServer;
-        const trendingTags = await this.fetchList<TrendingTag>(MastoApi.trendUrl(TAGS), numTags);
+        const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
         trendingTags.forEach(tag => FeatureScorer.decorateHistoryScores(repairTag(tag)));
         return trendingTags;
     };
@@ -52,7 +52,7 @@ export default class MastodonServer {
     // Get publicly available MAU information for this server.
     async fetchMonthlyUsers(): Promise<number> {
         if (Storage.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
-            console.debug(`monthlyUsers() for '${this.domain}' is not available, skipping...`);
+            console.debug(`monthlyUsers() for '${this.domain}' is not available...`);
             return 0;
         }
 
@@ -63,6 +63,11 @@ export default class MastodonServer {
             console.warn(`Error in getMonthlyUsers() for server ${this.domain}`, error);
             return 0;
         }
+    };
+
+    // Fetch a list of objects of type T from a public API endpoint
+    private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
+        return this.fetchList<T>(MastoApi.trendUrl(typeStr), limit);
     };
 
     // Fetch a list of objects of type T from a public API endpoint

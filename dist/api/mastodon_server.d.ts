@@ -7,6 +7,7 @@ export default class MastodonServer {
     fetchTrendingLinks(): Promise<TrendingLink[]>;
     fetchTrendingTags(): Promise<TrendingTag[]>;
     fetchMonthlyUsers(): Promise<number>;
+    private fetchTrending;
     private fetchList;
     private fetch;
     static fediverseTrendingToots(): Promise<Toot[]>;
