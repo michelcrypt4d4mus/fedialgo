@@ -89,15 +89,15 @@ exports.DEFAULT_WEIGHTS = {
         minValue: 0.001,
     },
     [types_1.WeightName.TRENDING_LINKS]: {
-        defaultWeight: 0.4,
+        defaultWeight: 0.1,
         description: "Favour links that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TAGS]: {
-        defaultWeight: 0.4,
+        defaultWeight: 0.1,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.08,
+        defaultWeight: 0.4,
         description: "Favour toots that are trending in the Fediverse",
     },
     [types_1.WeightName.VIDEO_ATTACHMENTS]: {

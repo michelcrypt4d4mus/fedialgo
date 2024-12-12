@@ -29,6 +29,7 @@ export default class MastodonServer {
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => toot.trendingRank = 1 + (trendingToots?.length || 0) - i);
+        console.log(`[fetchTrendingToots] trendingToots for '${this.domain}':`, trendingToots);
         return trendingToots;
     }
 
@@ -57,8 +58,7 @@ export default class MastodonServer {
 
         try {
             const instance = await this.fetch<mastodon.v2.Instance>(MastoApi.v2Url(INSTANCE));
-            console.debug(`monthlyUsers() for '${this.domain}', 'instance' var: `, instance);
-            return instance ? instance.usage.users.activeMonth : 0;
+            return instance?.usage?.users?.activeMonth || 0;
         } catch (error) {
             console.warn(`Error in getMonthlyUsers() for server ${this.domain}`, error);
             return 0;
@@ -80,7 +80,7 @@ export default class MastodonServer {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
 
-        console.debug(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
+        console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
         return list as T[];
     };
 
@@ -107,7 +107,7 @@ export default class MastodonServer {
         let trendingTootses = await this.callForAllServers<Toot[]>((s) => s.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
-        return Toot.dedupeToots(trendingToots, "getTrendingToots");
+        return Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
     };
 
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {

@@ -72,10 +72,11 @@ export class MastoApi {
     // Get the toots that make up the user's home timeline feed
     async getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
         console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        numTimelineToots ||= Storage.getConfig().numTootsInFirstFetch;
 
         let promises: Promise<any>[] = [
-            this.fetchHomeFeed(numTimelineToots || Storage.getConfig().numTootsInFirstFetch, maxId),
-        ]
+            this.fetchHomeFeed(numTimelineToots, maxId),
+        ];
 
         // Only retrieve trending toots on the first call to this method
         if (!maxId) {
