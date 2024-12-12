@@ -65,7 +65,9 @@ const filteredFeed = algorithm.updateFilters(filters);
 ```
 
 ### Timeline Callback
-You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of size `Config.numTootsInFirstFetch` toots in the background. The callback will be invoked when:
+You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of toots in the background and integrating them into the timeline.
+
+The callback will be invoked when:
 
 * An incremental batch of toots is retrieved from the server and integrated into the timeline
 * A call is made to `algorithm.updateUserWeights()` or `algorithm.updateFilters()`.
