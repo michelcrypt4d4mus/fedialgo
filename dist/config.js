@@ -40,7 +40,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.TRENDING]: {
         defaultWeight: 0.08,
         minValue: 0.001,
-        description: "Favour links that are trending in the Fediverse",
+        description: "Multiplier applied to trending toots, tags, and links",
     },
     // Weighted scores
     [types_1.WeightName.CHAOS]: {
