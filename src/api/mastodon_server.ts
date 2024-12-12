@@ -141,7 +141,6 @@ export default class MastodonServer {
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
         console.debug(`followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
-        console.debug(`validServers:`, validServers);
 
         if (numDefaultServers > 0) {
             console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
@@ -157,8 +156,7 @@ export default class MastodonServer {
             return overRepped;
         }, {} as StringNumberDict);
 
-        console.log(`Final serverMAUs: `, serverMAUs);
-        console.log(`Final overrepresentedServerFreq: `, overrepresentedServerFreq);
+        console.log(`Final serverMAUs: `, serverMAUs, `\noverrepresentedServerFreq:`, overrepresentedServerFreq);
         return overrepresentedServerFreq;
     };
 
