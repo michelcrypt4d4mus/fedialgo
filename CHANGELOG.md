@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.12.0`
 * Add `TrendingLinksScorer` to boost toots that contain Fediverse-wide trending links
 * `TrendingTagsScorer` uses max of `numAccounts` not `log2(sum(numAccounts))`
 * Add blocked accounts to muted account list
