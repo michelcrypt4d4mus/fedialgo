@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.13.0`
 * Adjustable global `Trending` multiplier that's applied to cumulative score of trending toots of all types
 
 ## `0.12.0`
