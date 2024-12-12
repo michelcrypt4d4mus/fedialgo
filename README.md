@@ -66,7 +66,7 @@ Package configuration options can be found in [`src/config.ts`](src/config.ts). 
 
 
 ### Timeline Feed Callbacks
-You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`, An example involving React component state:
+You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`. An example involving React component state:
 
 ```typescript
 import Toot from "fedialgo";
@@ -126,7 +126,6 @@ There's a pre-commit git hook that runs `npm run build`.
 
 # TODO
 1. Add scoring for links similar to `onlyLinks` filter
-1. Add filter for public/private toots
 
 
 # Resources
