@@ -161,7 +161,7 @@ class MastodonServer {
         return await this.callForServers(domains, fxn);
     }
     ;
-    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
         return await (0, helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
     }

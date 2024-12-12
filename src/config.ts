@@ -14,7 +14,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         minValue: 0.001,
     },
     [WeightName.TRENDING]: {
-        defaultWeight: 0.08,
+        defaultWeight: 0.1,
         minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
     },
@@ -33,7 +33,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour accounts you often favourite",
     },
     [WeightName.FOLLOWED_TAGS]: {
-        defaultWeight: 2,
+        defaultWeight: 2.0,
         description: "Favour toots that contain hashtags you are following",
     },
     [WeightName.IMAGE_ATTACHMENTS]: {
@@ -45,7 +45,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour accounts that recently interacted with your toots",
     },
     [WeightName.MENTIONS_FOLLOWED]: {
-        defaultWeight: 2,
+        defaultWeight: 2.0,
         description: "Favour toots that mention accounts you follow",
     },
     [WeightName.MOST_REPLIED_ACCOUNTS]: {
@@ -69,19 +69,19 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour toots that are retooted a lot",
     },
     [WeightName.RETOOTED_IN_FEED]: {
-        defaultWeight: 2,
+        defaultWeight: 2.0,
         description: "Favour toots retooted by multiple accounts you follow",
     },
     [WeightName.TRENDING_LINKS]: {
-        defaultWeight: 0.1,
+        defaultWeight: 1.0,
         description: "Favour links that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TAGS]: {
-        defaultWeight: 0.1,
+        defaultWeight: 1.0,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 0.3,
+        defaultWeight: 1.0,
         description: "Favour toots that are trending in the Fediverse",
     },
     [WeightName.VIDEO_ATTACHMENTS]: {
