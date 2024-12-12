@@ -20,8 +20,6 @@ export default class RetootedUsersScorer extends FeatureScorer {
     async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        console.log(`Recent toot history: `, recentToots);
-        console.log(`Recent retoot history: `, recentRetoots);
         return countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
     };
 

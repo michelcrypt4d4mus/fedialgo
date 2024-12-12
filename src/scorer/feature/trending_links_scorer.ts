@@ -20,10 +20,12 @@ export default class TrendingLinksScorer extends FeatureScorer {
 
         // TODO: could add numtoots? + (link.numToots || 0);
         // TODO: we don't need to return this, this.trendingLinks is enough
-        return this.trendingLinks.reduce((accountsPostingLinkCounts, link) => {
-            accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
-            return accountsPostingLinkCounts;
-        }, {} as StringNumberDict);
+        return this.trendingLinks.reduce(
+            (accountsPostingLinkCounts, link) => {
+                accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
+                return accountsPostingLinkCounts;
+            }, {} as StringNumberDict
+        );
     }
 
     async _score(toot: Toot): Promise<number> {
