@@ -8,13 +8,14 @@ const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class FollowedTagsScorer extends feature_scorer_1.default {
+    followedTags = [];
     constructor() {
         super(types_1.WeightName.FOLLOWED_TAGS);
     }
     // Return a dict keyed by tag name (values should be all 1)
     async featureGetter() {
-        const followedTags = await api_1.MastoApi.instance.getFollowedTags();
-        return (0, helpers_1.countValues)(followedTags, tag => tag.name);
+        this.followedTags = await api_1.MastoApi.instance.getFollowedTags();
+        return (0, helpers_1.countValues)(this.followedTags, tag => tag.name);
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {

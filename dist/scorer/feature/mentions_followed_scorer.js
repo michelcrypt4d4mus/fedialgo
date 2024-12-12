@@ -8,6 +8,7 @@ const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
+    followedAccounts = [];
     constructor() {
         super(types_1.WeightName.MENTIONS_FOLLOWED);
     }
@@ -15,8 +16,8 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     // would require a lot of API calls, so it's just working with the account ID which is NOT
     // unique across all servers.
     async featureGetter() {
-        const followedAccounts = await api_1.MastoApi.instance.fetchFollowedAccounts();
-        return (0, helpers_1.countValues)(followedAccounts, (account) => account.acct);
+        this.followedAccounts = await api_1.MastoApi.instance.fetchFollowedAccounts();
+        return (0, helpers_1.countValues)(this.followedAccounts, (account) => account.acct);
     }
     ;
     async _score(toot) {

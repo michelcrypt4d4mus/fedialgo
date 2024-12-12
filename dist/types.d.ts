@@ -105,8 +105,6 @@ export type TimelineData = {
     otherToots: Toot[];
 };
 export type UserData = {
-    followedAccounts: AccountNames;
-    followedTags: StringNumberDict;
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
 };

@@ -81,13 +81,15 @@ class TheAlgorithm {
     scoreMutex = new async_mutex_1.Mutex();
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
+    followedTagsScorer = new followed_tags_scorer_1.default();
+    mentionsFollowedScorer = new mentions_followed_scorer_1.default();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        this.followedTagsScorer,
+        this.mentionsFollowedScorer,
         new chaos_scorer_1.default(),
-        new followed_tags_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
-        new mentions_followed_scorer_1.default(),
         new most_favorited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
         new num_favorites_scorer_1.default(),
@@ -157,11 +159,11 @@ class TheAlgorithm {
         const newToots = [...homeToots, ...otherToots];
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
-            this.followedAccounts = userData.followedAccounts;
-            this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
-            this.trendingLinks = userData.trendingLinks;
+            // Pull followed accounts and tags from the scorers
+            this.followedAccounts = (0, account_1.buildAccountNames)(this.mentionsFollowedScorer.followedAccounts);
+            this.followedTags = this.followedTagsScorer.requiredData;
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.

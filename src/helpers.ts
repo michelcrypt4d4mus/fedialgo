@@ -1,13 +1,15 @@
 /*
  * Various small helper methods.
  */
+import { mastodon } from "masto";
+
 import { CountKey, StringNumberDict } from "./types";
 
 export const AUDIO = "audio";
 export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
-export const VIDEO_TYPES = ["gifv", VIDEO];
+export const VIDEO_TYPES = ["gifv", VIDEO] as mastodon.v1.MediaAttachmentType[];
 export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
 
 

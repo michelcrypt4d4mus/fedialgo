@@ -103,17 +103,13 @@ class MastoApi {
     // Retrieve background data about the user that will be used for scoring etc.
     async getStartupData() {
         const responses = await Promise.all([
-            this.fetchFollowedAccounts(),
             this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
-            this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
         return {
-            followedAccounts: (0, account_1.buildAccountNames)(responses[0]),
-            followedTags: (0, helpers_1.countValues)(responses[3], (tag) => tag.name),
-            mutedAccounts: (0, account_1.buildAccountNames)(responses[1].concat(responses[2])),
-            serverSideFilters: responses[4],
+            mutedAccounts: (0, account_1.buildAccountNames)(responses[0].concat(responses[1])),
+            serverSideFilters: responses[2],
         };
     }
     ;

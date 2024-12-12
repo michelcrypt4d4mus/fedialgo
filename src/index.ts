@@ -61,13 +61,16 @@ class TheAlgorithm {
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
 
+    followedTagsScorer = new FollowedTagsScorer();
+    mentionsFollowedScorer = new MentionsFollowedScorer();
+
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        this.followedTagsScorer,
+        this.mentionsFollowedScorer,  // pulls followed accounts
         new ChaosScorer(),
-        new FollowedTagsScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
-        new MentionsFollowedScorer(),
         new MostFavoritedAccountsScorer(),
         new MostRepliedAccountsScorer(),
         new NumFavoritesScorer(),
@@ -149,14 +152,14 @@ class TheAlgorithm {
 
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
-            this.followedAccounts = userData.followedAccounts;
-            this.followedTags = userData.followedTags;
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
-            this.trendingLinks = userData.trendingLinks;
+            // Pull followed accounts and tags from the scorers
+            this.followedAccounts = buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
+            this.followedTags = this.followedTagsScorer.requiredData;
         }
 
-        this.logTootCounts(newToots, homeToots)
+        this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
         let cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;

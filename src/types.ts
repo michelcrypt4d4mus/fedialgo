@@ -127,12 +127,10 @@ export type TimelineData = {
     otherToots: Toot[],
 };
 
+// Data retrieved at startup and stored in TheAlgorithm
 export type UserData = {
-    followedAccounts: AccountNames,
-    followedTags: StringNumberDict,
     mutedAccounts: AccountNames,
     serverSideFilters: mastodon.v2.Filter[],
-    // trendingLinks: mastodon.v1.TrendLink[],
 };
 
 // Serialized version of a Toot

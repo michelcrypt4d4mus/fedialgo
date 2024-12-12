@@ -3,7 +3,7 @@ export declare const AUDIO = "audio";
 export declare const IMAGE = "image";
 export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO = "video";
-export declare const VIDEO_TYPES: string[];
+export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
 export declare const MEDIA_TYPES: string[];
 export declare const extractDomain: (url: string) => string;
 export declare function average(values: number[]): number;

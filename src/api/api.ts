@@ -99,18 +99,14 @@ export class MastoApi {
     // Retrieve background data about the user that will be used for scoring etc.
     async getStartupData(): Promise<UserData> {
         const responses = await Promise.all([
-            this.fetchFollowedAccounts(),
             this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
-            this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
 
         return {
-            followedAccounts: buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[3], (tag) => tag.name),
-            mutedAccounts: buildAccountNames(responses[1].concat(responses[2])),
-            serverSideFilters: responses[4],
+            mutedAccounts: buildAccountNames(responses[0].concat(responses[1])),
+            serverSideFilters: responses[2],
         } as UserData;
     };
 

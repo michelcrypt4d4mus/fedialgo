@@ -137,7 +137,7 @@ class Toot {
         return this.attachmentsOfType(helpers_1.IMAGE);
     }
     videoAttachments() {
-        return this.attachmentsOfType(helpers_1.VIDEO);
+        return helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {

@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, groupBy, isImage } from "../../helpers";
+import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, VIDEO_TYPES, groupBy, isImage } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { TheAlgorithm } from "../..";
@@ -164,7 +164,7 @@ export default class Toot implements TootObj {
     }
 
     videoAttachments(): Array<mastodon.v1.MediaAttachment> {
-        return this.attachmentsOfType(VIDEO);
+        return VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
 
     // Return true if the toot has not been filtered out of the feed

@@ -18,6 +18,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
     },
+
     // Weighted scores
     [WeightName.CHAOS]: {
         defaultWeight: 1,
