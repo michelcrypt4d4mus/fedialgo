@@ -52,9 +52,13 @@ const weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
 const timeline = await algorithm.updateUserWeights(newWeights);
 
-// Get and set filters to include / exclude different kinds of toots
+// Set a filter for only German language toots
 const filters = algorithm.getFilters();
 filters.filterSections[PropertyName.LANGUAGE].updateValidOptions("de", true);
+const filteredFeed = algorithm.updateFilters(filters);
+
+// Set a filter for only toots with at least 3 replies
+filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
 const filteredFeed = algorithm.updateFilters(filters);
 ```
 
@@ -65,7 +69,7 @@ The timeline is returned as an array of `Toot` objects which are a minimal exten
 Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
 
 
-### Timeline Feed Callbacks
+### Timeline Callback
 You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The callback will be invoked whenever you call `algorithm.updateUserWeights()` or `algorithm.updateFilters()`. An example involving React component state:
 
 ```typescript
