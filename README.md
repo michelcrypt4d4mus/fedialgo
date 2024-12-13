@@ -14,7 +14,7 @@ Fedialgo is a `node.js` package that can be used to produce an algorithmic fediv
 ### The Demo App
 `fedialgo` is just a `node.js` package. You don't use it on its own; it can only function when used inside of a larger application.
 
-However if you're not developing your own app there's a simple demo app that can spin up a webserver, score and order your Mastodon feed with `fedialgo`, and present it to your browser at `http://localhost:3000/`. The demo app is incredibly easy to setup; you can find it over in the [`fedialgo_demo_app_foryoufeed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed) repo.
+If you're not developing your own app there's a simple demo app that can spin up a webserver, score and order a curated "For You" style Mastodon feed, and present it to your browser at `http://localhost:3000/`. The demo app is incredibly easy to setup; you can find it over in the [`fedialgo_demo_app_foryoufeed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed) repo.
 
 ### In A `node.js` Project
 You can install from github with `npm`:
@@ -24,6 +24,7 @@ npm install --save github:michelcrypt4d4mus/fedialgo#stable
 ```
 
 Or with `yarn`:
+
 ```bash
 yarn add https://github.com/michelcrypt4d4mus/fedialgo#stable
 ```
