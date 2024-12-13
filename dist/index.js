@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
+exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -63,6 +63,7 @@ const helpers_1 = require("./helpers");
 const config_1 = require("./config");
 const api_1 = require("./api/api");
 const types_1 = require("./types");
+Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 const TRENDING = types_1.WeightName.TRENDING;

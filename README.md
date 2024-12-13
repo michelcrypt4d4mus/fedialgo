@@ -29,7 +29,7 @@ yarn add https://github.com/michelcrypt4d4mus/fedialgo#stable
 ```
 
 # Usage
-A quick overview of how to get up and running:
+The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running:
 
 ```typescript
 import { login, mastodon } from "masto";
@@ -44,15 +44,17 @@ const algorithm = await TheAlgorithm.create({api: api, user: currentUser})
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
 ```typescript
-// Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
-let feed = await algorithm.getFeed(400);
-// Get next 400 timeline toots. Args are numToots and maxID. Also see "Callbacks" section below
-feed = await algorithm.getFeed(400, feed[0].id);
+import { Toot, WeightName, Weights } from "fedialgo";
 
-// Get and set score weightings
-const weights = await algorithm.getUserWeights();
+// Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
+let timelineFeed: Toot[] = await algorithm.getFeed(400);
+// Get next 400 timeline toots. Args are numToots and maxID. Also see "Callbacks" section below
+timelineFeed = await algorithm.getFeed(400, feed[0].id);
+
+// Get and set score weightings (the things controlled by the sliders in the demo app)
+const weights: Weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
-const timeline = await algorithm.updateUserWeights(newWeights);
+timelineFeed = await algorithm.updateUserWeights(weights);
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
@@ -75,14 +77,15 @@ The callback will be invoked when:
 An example involving React component state:
 
 ```typescript
-import Toot from "fedialgo";
+import { useState } from React;
+import { TheAlgorithm, Toot } from "fedialgo";
 
-const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
-const currUser = await api.v1.accounts.verifyCredentials()
+const api = await login({url: user.server, accessToken: user.access_token});
+const currentUser = await api.v1.accounts.verifyCredentials()
 const [feed, setFeed] = useState<Toot[]>([]);
 
 // setFeed() will be invoked when the feed is changed (e.g. via updateUserWeights() or updateFilters())
-const algorithm = await TheAlgorithm.create({api: api, user: currUser, setFeedInApp: setFeed})
+const algorithm = await TheAlgorithm.create({api: api, user: currentUser, setFeedInApp: setFeed})
 ```
 
 ### `Toot` API

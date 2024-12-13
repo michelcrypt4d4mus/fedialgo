@@ -407,6 +407,7 @@ class TheAlgorithm {
 };
 
 
+// Export types and constants needed by apps using this package
 export {
     TIME_DECAY,
     TRENDING,
@@ -419,5 +420,6 @@ export {
     TheAlgorithm,
     Toot,
     TypeFilterName,
+    WeightName,
     Weights,
 };
