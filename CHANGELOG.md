@@ -1,4 +1,5 @@
 ## NEXT
+* Unified `Toot.realURI()` method
 
 ## `0.13.3`
 * Convert `Toot.reblogBy` (an `Account`) to `Toot.reblogsBy` (an `Account[]`)
