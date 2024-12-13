@@ -1,5 +1,8 @@
 ## NEXT
 
+## `0.13.2`
+* Fix bug where retoots were being scored based on the retooter not on the original toot
+
 ## `0.13.1`
 * [bug] `videoAttachments()` wasn't including `gifv` videos
 * [bug] export `WeightName` enum for usage in client app

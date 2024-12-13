@@ -43,11 +43,12 @@ class Scorer {
     static async decorateWithScoreInfo(toot, scorers) {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         let rawScore = 1;
+        const tootToScore = toot.reblog ?? toot;
         const rawScores = {};
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeightings();
-        const scores = await Promise.all(scorers.map(s => s.score(toot)));
-        toot.followedTags ??= [];
+        const scores = await Promise.all(scorers.map(s => s.score(tootToScore)));
+        tootToScore.followedTags ??= [];
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         scorers.forEach((scorer, i) => {
@@ -58,9 +59,9 @@ class Scorer {
         });
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || config_1.DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
-        const seconds = Math.floor((new Date().getTime() - new Date(toot.createdAt).getTime()) / 1000);
+        const seconds = Math.floor((new Date().getTime() - new Date(tootToScore.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
-        toot.scoreInfo = {
+        tootToScore.scoreInfo = {
             rawScore,
             rawScores,
             score: 0,
@@ -70,13 +71,11 @@ class Scorer {
         // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
         // high scores. To adjust for this we hack a final adjustment to the score by multiplying by the
         // trending weighting value.
-        if (toot.isTrending()) {
-            toot.scoreInfo.rawScore *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
+        if (tootToScore.isTrending()) {
+            tootToScore.scoreInfo.rawScore *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
         }
-        toot.scoreInfo.score = toot.scoreInfo.rawScore * timeDecayMultiplier;
-        // If it's a retoot copy the scores to the retooted toot as well // TODO: this is janky
-        if (toot.reblog)
-            toot.reblog.scoreInfo = toot.scoreInfo;
+        tootToScore.scoreInfo.score = tootToScore.scoreInfo.rawScore * timeDecayMultiplier;
+        toot.scoreInfo = tootToScore.scoreInfo; // Copy the score info to the retoot if need be
     }
 }
 exports.default = Scorer;
