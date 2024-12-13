@@ -32,6 +32,7 @@ interface TootObj extends TootExtension {
     describe: () => string;
     isDM: () => boolean;
     popularity: () => number;
+    realURI: () => string;
     tootedAt: () => Date;
     audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -149,6 +150,10 @@ export default class Toot implements TootObj {
 
     popularity(): number {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0);
+    }
+
+    realURI(): string {
+        return this.reblog?.uri || this.uri;
     }
 
     tootedAt(): Date {
@@ -294,7 +299,7 @@ export default class Toot implements TootObj {
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
         const prefix = logLabel ? `[${logLabel}] ` : '';
-        const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
+        const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
         Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
@@ -305,6 +310,7 @@ export default class Toot implements TootObj {
             let reblogsBy = uriToots.flatMap(toot => toot.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
 
+            // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
@@ -316,12 +322,12 @@ export default class Toot implements TootObj {
             });
 
             // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            // if (reblogsBy.length > 0) {
-            //     console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            // }
+            if (reblogsBy.length > 1) {
+                console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            }
         });
 
-        const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
+        const deduped: Toot[] = Object.values(tootsByURI).map(toots => toots[0]);
         console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
         return deduped;
     };

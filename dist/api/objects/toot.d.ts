@@ -13,6 +13,7 @@ interface TootObj extends TootExtension {
     describe: () => string;
     isDM: () => boolean;
     popularity: () => number;
+    realURI: () => string;
     tootedAt: () => Date;
     audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -62,6 +63,7 @@ export default class Toot implements TootObj {
     describe(): string;
     describeAccount(): string;
     popularity(): number;
+    realURI(): string;
     tootedAt(): Date;
     audioAttachments(): Array<mastodon.v1.MediaAttachment>;
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;

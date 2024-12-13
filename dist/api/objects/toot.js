@@ -127,6 +127,9 @@ class Toot {
     popularity() {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0);
     }
+    realURI() {
+        return this.reblog?.uri || this.uri;
+    }
     tootedAt() {
         return new Date(this.createdAt);
     }
@@ -254,7 +257,7 @@ class Toot {
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
         const prefix = logLabel ? `[${logLabel}] ` : '';
-        const tootsByURI = (0, helpers_1.groupBy)(toots, (toot) => toot.uri);
+        const tootsByURI = (0, helpers_1.groupBy)(toots, toot => toot.realURI());
         Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
@@ -263,6 +266,7 @@ class Toot {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
+            // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
@@ -273,11 +277,11 @@ class Toot {
                 toot.reblogsBy = reblogsBy;
             });
             // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            // if (reblogsBy.length > 0) {
-            //     console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            // }
+            if (reblogsBy.length > 1) {
+                console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            }
         });
-        const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
+        const deduped = Object.values(tootsByURI).map(toots => toots[0]);
         console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
         return deduped;
     }
