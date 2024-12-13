@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.13.3`
 * Convert `Toot.reblogBy` (an `Account`) to `Toot.reblogsBy` (an `Account[]`)
 * Make `DiversityFeedScorer` properly account for retoots
 
