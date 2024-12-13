@@ -1,7 +1,9 @@
 ## NEXT
+* Convert `Toot.reblogBy` (an `Account`) to `Toot.reblogsBy` (an `Account[]`)
+* Make `DiversityFeedScorer` properly account for retoots
 
 ## `0.13.2`
-* Fix bug where retoots were being scored based on the retooter not on the original toot
+* [bug] Fix retoots being scored based on the retooter not on the original toot
 
 ## `0.13.1`
 * [bug] `videoAttachments()` wasn't including `gifv` videos

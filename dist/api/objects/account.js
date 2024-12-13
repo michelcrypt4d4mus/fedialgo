@@ -19,6 +19,7 @@ function describeAccount(account) {
 exports.describeAccount = describeAccount;
 ;
 // Inject the @server info to accounts on the user's home server
+// TODO: home server needs to be removed from URL or links break!
 function repairAccount(account) {
     account.acct = webfingerURI(account);
 }

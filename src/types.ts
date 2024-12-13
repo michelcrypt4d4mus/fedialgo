@@ -137,8 +137,8 @@ export type UserData = {
 export interface TootExtension extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblog?: TootExtension | null,                     // The toot that was retooted (if any)
-    reblogBy?: mastodon.v1.Account;    // The account that retooted this toot (if any)
+    reblog?: TootExtension | null,     // The toot that was retooted (if any)
+    reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot

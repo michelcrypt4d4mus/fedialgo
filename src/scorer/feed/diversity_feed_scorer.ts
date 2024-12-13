@@ -6,6 +6,7 @@ import md5 from "blueimp-md5";
 
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
+import { incrementCount } from "../../helpers";
 import { StringNumberDict, WeightName } from "../../types";
 
 
@@ -23,7 +24,8 @@ export default class DiversityFeedScorer extends FeedScorer {
         // Count toots by account (but negative instead of positive count)
         const diversityTootsOrdered = feed.toSorted(sortRandom).reduce(
             (tootCounts, toot) => {
-                tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
+                incrementCount(tootCounts, toot.account.acct, -1);
+                if (toot.reblog) incrementCount(tootCounts, toot.reblog.account.acct, -1);
                 return tootCounts;
             },
             {} as StringNumberDict
@@ -36,14 +38,16 @@ export default class DiversityFeedScorer extends FeedScorer {
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
     async _score(toot: Toot) {
-        this.feed[toot.account.acct] = (this.feed[toot.account.acct] || 0) + 1;
+        incrementCount(this.requiredData, toot.account.acct);
+        if (toot.reblog) incrementCount(this.requiredData, toot.reblog.account.acct);
+        const acct = toot.reblog?.account?.acct ?? toot.account.acct;
 
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
-        if (this.feed[toot.account.acct] > 0) {
-            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.feed[toot.account.acct]}), diversity features:`, this.feed);
+        if (this.requiredData[acct] > 0) {
+            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.requiredData[toot.account.acct]}), diversity features:`, this.requiredData);
             return 0;
         } else {
-            return this.feed[toot.account.acct];
+            return this.requiredData[acct];
         }
     }
 };

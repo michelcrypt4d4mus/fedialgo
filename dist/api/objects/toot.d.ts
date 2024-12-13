@@ -50,13 +50,13 @@ export default class Toot implements TootObj {
     muted?: boolean | null;
     bookmarked?: boolean | null;
     pinned?: boolean | null;
-    followedTags?: mastodon.v1.Tag[];
+    followedTags: mastodon.v1.Tag[];
     isFollowed?: boolean;
-    reblogBy?: mastodon.v1.Account;
+    reblogsBy: mastodon.v1.Account[];
     scoreInfo?: TootScore;
     trendingRank?: number;
-    trendingLinks?: TrendingLink[];
-    trendingTags?: TrendingTag[];
+    trendingLinks: TrendingLink[];
+    trendingTags: TrendingTag[];
     constructor(toot: TootExtension);
     containsString(str: string): boolean;
     describe(): string;

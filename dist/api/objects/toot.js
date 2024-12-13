@@ -58,7 +58,7 @@ class Toot {
     // extensions to mastodon.v1.Status
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
-    reblogBy; // The account that retooted this toot (if any)
+    reblogsBy; // The accounts that retooted this toot
     scoreInfo; // Scoring info for weighting/sorting this toot
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
@@ -97,13 +97,13 @@ class Toot {
         this.pinned = toot.pinned;
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = toot.followedTags;
+        this.followedTags = (toot.followedTags ?? []);
         this.isFollowed = toot.isFollowed;
-        this.reblogBy = toot.reblogBy;
+        this.reblogsBy = (toot.reblogsBy ?? []);
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks;
-        this.trendingTags = toot.trendingTags;
+        this.trendingLinks = (toot.trendingLinks ?? []);
+        this.trendingTags = (toot.trendingTags ?? []);
         this.repairToot();
     }
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
@@ -227,13 +227,15 @@ class Toot {
         this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
         // Repair Tags
-        this.followedTags ??= [];
         this.tags.forEach(tag_1.repairTag);
         // Repair Accounts
         (0, account_1.repairAccount)(this.account);
         this.mentions.forEach(account_1.repairAccount);
-        if (this.reblog?.account)
+        // Repair / initialize reblog properties
+        if (this.reblog?.account) {
             (0, account_1.repairAccount)(this.reblog.account);
+            this.reblog.reblogsBy.push(this.account);
+        }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {
@@ -254,19 +256,26 @@ class Toot {
         const prefix = logLabel ? `[${logLabel}] ` : '';
         const tootsByURI = (0, helpers_1.groupBy)(toots, (toot) => toot.uri);
         Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
-            if (!uriToots || uriToots.length == 0)
-                return;
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
+            // Collate multiple retooters if they exist
+            let reblogsBy = uriToots.flatMap(toot => toot.reblogsBy ?? []);
+            reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
+                // Set reblogsBy
+                toot.reblogsBy = reblogsBy;
             });
+            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
+            // if (reblogsBy.length > 0) {
+            //     console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            // }
         });
         const deduped = [...new Map(toots.map((toot) => [toot.uri, toot])).values()];
         console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);

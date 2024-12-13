@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
+const helpers_1 = require("../../helpers");
 const types_1 = require("../../types");
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
@@ -21,7 +22,9 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const sortRandom = (a, b) => (0, blueimp_md5_1.default)(a.id).localeCompare((0, blueimp_md5_1.default)(b.id));
         // Count toots by account (but negative instead of positive count)
         const diversityTootsOrdered = feed.toSorted(sortRandom).reduce((tootCounts, toot) => {
-            tootCounts[toot.account.acct] = (tootCounts[toot.account.acct] || 0) - 1;
+            (0, helpers_1.incrementCount)(tootCounts, toot.account.acct, -1);
+            if (toot.reblog)
+                (0, helpers_1.incrementCount)(tootCounts, toot.reblog.account.acct, -1);
             return tootCounts;
         }, {});
         console.log(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
@@ -30,14 +33,17 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
     async _score(toot) {
-        this.feed[toot.account.acct] = (this.feed[toot.account.acct] || 0) + 1;
+        (0, helpers_1.incrementCount)(this.requiredData, toot.account.acct);
+        if (toot.reblog)
+            (0, helpers_1.incrementCount)(this.requiredData, toot.reblog.account.acct);
+        const acct = toot.reblog?.account?.acct ?? toot.account.acct;
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
-        if (this.feed[toot.account.acct] > 0) {
-            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.feed[toot.account.acct]}), diversity features:`, this.feed);
+        if (this.requiredData[acct] > 0) {
+            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.requiredData[toot.account.acct]}), diversity features:`, this.requiredData);
             return 0;
         }
         else {
-            return this.feed[toot.account.acct];
+            return this.requiredData[acct];
         }
     }
 }

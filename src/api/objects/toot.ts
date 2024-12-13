@@ -73,13 +73,13 @@ export default class Toot implements TootObj {
     pinned?: boolean | null;
 
     // extensions to mastodon.v1.Status
-    followedTags?: mastodon.v1.Tag[]; // Array of tags that the user follows that exist in this toot
+    followedTags: mastodon.v1.Tag[]; // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean; // Whether the user follows the account that posted this toot
-    reblogBy?: mastodon.v1.Account; // The account that retooted this toot (if any)
+    reblogsBy: mastodon.v1.Account[]; // The accounts that retooted this toot
     scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
     trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
-    trendingLinks?: TrendingLink[]; // Links that are trending in this toot
-    trendingTags?: TrendingTag[]; // Tags that are trending in this toot
+    trendingLinks: TrendingLink[]; // Links that are trending in this toot
+    trendingTags: TrendingTag[]; // Tags that are trending in this toot
 
     constructor(toot: TootExtension) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
@@ -116,13 +116,13 @@ export default class Toot implements TootObj {
 
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = toot.followedTags as mastodon.v1.Tag[];
+        this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];
         this.isFollowed = toot.isFollowed;
-        this.reblogBy = toot.reblogBy as mastodon.v1.Account;
+        this.reblogsBy = (toot.reblogsBy ?? []) as mastodon.v1.Account[];
         this.scoreInfo = toot.scoreInfo as TootScore;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks as TrendingLink[];
-        this.trendingTags = toot.trendingTags as TrendingTag[];
+        this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
+        this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repairToot();
     }
 
@@ -264,12 +264,16 @@ export default class Toot implements TootObj {
         this.application.name ??= UNKNOWN;
         this.language ??= Storage.getConfig().defaultLanguage;
         // Repair Tags
-        this.followedTags ??= [];
         this.tags.forEach(repairTag);
         // Repair Accounts
         repairAccount(this.account);
         this.mentions.forEach(repairAccount);
-        if (this.reblog?.account) repairAccount(this.reblog.account);
+
+        // Repair / initialize reblog properties
+        if (this.reblog?.account) {
+            repairAccount(this.reblog.account);
+            this.reblog.reblogsBy.push(this.account);
+        }
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
@@ -293,11 +297,13 @@ export default class Toot implements TootObj {
         const tootsByURI = groupBy<Toot>(toots, (toot) => toot.uri);
 
         Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
-            if (!uriToots || uriToots.length == 0) return;
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
+            // Collate multiple retooters if they exist
+            let reblogsBy = uriToots.flatMap(toot => toot.reblogsBy ?? []);
+            reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
 
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
@@ -305,7 +311,14 @@ export default class Toot implements TootObj {
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
+                // Set reblogsBy
+                toot.reblogsBy = reblogsBy;
             });
+
+            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
+            // if (reblogsBy.length > 0) {
+            //     console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            // }
         });
 
         const deduped = [...new Map(toots.map((toot: Toot) => [toot.uri, toot])).values()];
@@ -326,12 +339,12 @@ export const sortByCreatedAt = (toots: StatusList): StatusList => {
 export const earliestTootedAt = (toots: StatusList): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;
-}
+};
 
 export const mostRecentTootedAt = (toots: StatusList): Date | null => {
     const newest = mostRecentToot(toots);
     return newest ? tootedAt(newest) : null;
-}
+};
 
 
 // Find the minimum ID in a list of toots.

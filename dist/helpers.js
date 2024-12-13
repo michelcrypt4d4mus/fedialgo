@@ -54,9 +54,9 @@ function transformKeys(data, transform) {
 exports.transformKeys = transformKeys;
 ;
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-function incrementCount(counts, key) {
+function incrementCount(counts, key, increment = 1) {
     key = key ?? "unknown";
-    counts[key] = (counts[key] || 0) + 1;
+    counts[key] = (counts[key] || 0) + increment;
     return counts;
 }
 exports.incrementCount = incrementCount;

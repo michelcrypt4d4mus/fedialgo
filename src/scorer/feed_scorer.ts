@@ -9,12 +9,12 @@ import { StringNumberDict } from "../types";
 
 
 export default abstract class FeedScorer extends Scorer {
-    feed: StringNumberDict = {};
+    requiredData: StringNumberDict = {};
 
     async setFeed(feed: Toot[]) {
         // console.debug(`before feedExtractor() this.features=`, this.features);
-        this.feed = this.feedExtractor(feed);
-        console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.feed);
+        this.requiredData = this.feedExtractor(feed);
+        console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.requiredData);
         this.isReady = true;
     }
 
