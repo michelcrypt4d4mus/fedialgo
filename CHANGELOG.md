@@ -1,5 +1,8 @@
 ## NEXT
+
+## 0.13.1
 * [bug] `videoAttachments()` wasn't including `gifv` videos
+* [bug] export `WeightName` enum for usage in client app
 
 ## `0.13.0`
 * Adjustable global `Trending` multiplier that's applied to cumulative score of trending toots of all types
