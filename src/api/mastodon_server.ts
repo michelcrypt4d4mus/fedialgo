@@ -186,7 +186,7 @@ export default class MastodonServer {
 // A toot can trend on multiple servers in which case we set trendingRank for all to the avg
 // TODO: maybe we should add the # of servers to the avg?
 function setTrendingRankToAvg(rankedToots: Toot[]): void {
-    const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, (toot) => toot.uri);
+    const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, toot => toot.uri);
 
     Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
         const avgScore = average(toots.map(t => t.trendingRank) as number[]);
