@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO, VIDEO_TYPES, groupBy, isImage } from "../../helpers";
+import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO_TYPES, groupBy, isImage } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { TheAlgorithm } from "../..";
@@ -273,12 +273,7 @@ export default class Toot implements TootObj {
         // Repair Accounts
         repairAccount(this.account);
         this.mentions.forEach(repairAccount);
-
-        // Repair / initialize reblog properties
-        if (this.reblog?.account) {
-            repairAccount(this.reblog.account);
-            this.reblog.reblogsBy.push(this.account);
-        }
+        if (this.reblog?.account) this.reblog.reblogsBy.push(this.account);
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
