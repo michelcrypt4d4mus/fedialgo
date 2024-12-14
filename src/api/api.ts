@@ -9,16 +9,17 @@ import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { buildAccountNames } from "./objects/account";
-import { countValues, sortKeysByValue } from '../helpers';
-import { Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
+import { extractDomain } from "../helpers";
+import { AccountLike, Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
+import { sortKeysByValue } from '../helpers';
 
 type ApiMutex = Record<StorageKey, Mutex>;
 
-export const INSTANCE = "instance"
+export const INSTANCE = "instance";
 export const LINKS = "links";
-export const STATUSES = "statuses"
-export const TAGS = "tags"
+export const STATUSES = "statuses";
+export const TAGS = "tags";
 
 const API_URI = "api"
 const API_V1 = `${API_URI}/v1`;
@@ -42,6 +43,7 @@ interface FetchParams<T> {
 export class MastoApi {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    homeDomain: mastodon.v1.Account["url"];
     mutexes: ApiMutex;
     static #instance: MastoApi;
 
@@ -51,6 +53,7 @@ export class MastoApi {
             return;
         }
 
+        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user);
         MastoApi.#instance = new MastoApi(api, user);
     };
 
@@ -62,9 +65,10 @@ export class MastoApi {
     private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
         this.api = api;
         this.user = user;
-        this.mutexes = {} as ApiMutex;
+        this.homeDomain = extractDomain(user.url);
 
         // Initialize mutexes for each key in Key and WeightName
+        this.mutexes = {} as ApiMutex;
         for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
         for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
     };
@@ -255,6 +259,15 @@ export class MastoApi {
             releaseMutex();
         }
     };
+
+    // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
+    getAccountURL(account: AccountLike): string {
+        if (account.url.endsWith(`@${this.homeDomain}`)) {
+            return account.url.substring(0, account.url.lastIndexOf('@'));
+        } else {
+            return account.url;
+        }
+    }
 
     // Generic data fetcher
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {

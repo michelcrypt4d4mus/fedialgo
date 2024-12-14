@@ -3,10 +3,9 @@
  */
 import { mastodon } from "masto";
 
+import { AccountLike, AccountNames } from "../../types";
 import { extractDomain } from "../../helpers";
-import { AccountNames } from "../../types";
-
-type AccountLike = mastodon.v1.Account | mastodon.v1.StatusMention;
+import { MastoApi } from "../api";
 
 
 // Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
@@ -31,8 +30,9 @@ export function describeAccount(account: mastodon.v1.Account): string {
 // Inject the @server info to accounts on the user's home server
 // TODO: home server needs to be removed from URL or links break!
 export function repairAccount(account: AccountLike): void {
+    account.url = MastoApi.instance.getAccountURL(account);
     account.acct = webfingerURI(account);
-}
+};
 
 
 // 'https://journa.host/@dell' -> 'journa.host'

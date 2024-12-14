@@ -125,10 +125,10 @@ exports.DEFAULT_CONFIG = {
     maxNumCachedToots: 5000,
     // Timeline toots
     enableIncrementalLoad: true,
-    incrementalLoadDelayMS: 500,
-    maxTimelineTootsToFetch: 2500,
-    // incrementalLoadDelayMS: 2500,         // Delay between incremental loads of toots
-    // maxTimelineTootsToFetch: 800,       // useful dev options for faster load
+    // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
+    // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
+    incrementalLoadDelayMS: 2500,
+    maxTimelineTootsToFetch: 800,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     // API stuff

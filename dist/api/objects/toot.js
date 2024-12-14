@@ -234,11 +234,8 @@ class Toot {
         // Repair Accounts
         (0, account_1.repairAccount)(this.account);
         this.mentions.forEach(account_1.repairAccount);
-        // Repair / initialize reblog properties
-        if (this.reblog?.account) {
-            (0, account_1.repairAccount)(this.reblog.account);
+        if (this.reblog?.account)
             this.reblog.reblogsBy.push(this.account);
-        }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {

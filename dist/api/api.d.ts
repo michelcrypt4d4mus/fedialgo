@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Toot from './objects/toot';
-import { StorageKey, TimelineData, UserData } from "../types";
+import { AccountLike, StorageKey, TimelineData, UserData } from "../types";
 type ApiMutex = Record<StorageKey, Mutex>;
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
@@ -11,6 +11,7 @@ export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
+    homeDomain: mastodon.v1.Account["url"];
     mutexes: ApiMutex;
     static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
     static get instance(): MastoApi;
@@ -28,6 +29,7 @@ export declare class MastoApi {
     fetchMutedAccounts(): Promise<mastodon.v1.Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getTopServerDomains(): Promise<string[]>;
+    getAccountURL(account: AccountLike): string;
     private fetchData;
     private shouldReloadFeatures;
     private throwIfAccessTokenRevoked;

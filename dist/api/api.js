@@ -36,6 +36,7 @@ const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
+const helpers_2 = require("../helpers");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -50,6 +51,7 @@ const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 class MastoApi {
     api;
     user;
+    homeDomain;
     mutexes;
     static #instance;
     static init(api, user) {
@@ -57,6 +59,7 @@ class MastoApi {
             console.warn("MastoApi instance already initialized...");
             return;
         }
+        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user);
         MastoApi.#instance = new MastoApi(api, user);
     }
     ;
@@ -69,8 +72,9 @@ class MastoApi {
     constructor(api, user) {
         this.api = api;
         this.user = user;
-        this.mutexes = {};
+        this.homeDomain = (0, helpers_1.extractDomain)(user.url);
         // Initialize mutexes for each key in Key and WeightName
+        this.mutexes = {};
         for (const key in types_1.Key)
             this.mutexes[types_1.Key[key]] = new async_mutex_1.Mutex();
         for (const key in types_1.WeightName)
@@ -242,7 +246,7 @@ class MastoApi {
                 console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers;
             }
-            const topServerDomains = (0, helpers_1.sortKeysByValue)(servers);
+            const topServerDomains = (0, helpers_2.sortKeysByValue)(servers);
             console.log(`[API] Found top server domains:`, topServerDomains);
             return topServerDomains;
         }
@@ -251,6 +255,15 @@ class MastoApi {
         }
     }
     ;
+    // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
+    getAccountURL(account) {
+        if (account.url.endsWith(`@${this.homeDomain}`)) {
+            return account.url.substring(0, account.url.lastIndexOf('@'));
+        }
+        else {
+            return account.url;
+        }
+    }
     // Generic data fetcher
     async fetchData(fetchParams) {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
