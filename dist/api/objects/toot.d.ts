@@ -73,6 +73,7 @@ export default class Toot implements TootObj {
     isDM(): boolean;
     isTrending(): boolean;
     condensedStatus(): {};
+    reblogsByAccts(): string[];
     private repairToot;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];

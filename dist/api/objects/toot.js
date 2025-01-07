@@ -219,6 +219,10 @@ class Toot {
             .filter((k) => tootObj[k] != null)
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k] }), {});
     }
+    // Returns an array of account strings for all accounts that reblogged this toot
+    reblogsByAccts() {
+        return this.reblogsBy.map((account) => account.acct);
+    }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
@@ -234,8 +238,9 @@ class Toot {
         // Repair Accounts
         (0, account_1.repairAccount)(this.account);
         this.mentions.forEach(account_1.repairAccount);
-        if (this.reblog?.account)
+        if (this.reblog?.account && !this.reblogsByAccts().includes(this.account.acct)) {
             this.reblog.reblogsBy.push(this.account);
+        }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {

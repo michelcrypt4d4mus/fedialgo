@@ -258,6 +258,11 @@ export default class Toot implements TootObj {
             .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
     }
 
+    // Returns an array of account strings for all accounts that reblogged this toot
+    reblogsByAccts(): string[] {
+        return this.reblogsBy.map((account) => account.acct);
+    }
+
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
@@ -273,7 +278,10 @@ export default class Toot implements TootObj {
         // Repair Accounts
         repairAccount(this.account);
         this.mentions.forEach(repairAccount);
-        if (this.reblog?.account) this.reblog.reblogsBy.push(this.account);
+
+        if (this.reblog?.account && !this.reblogsByAccts().includes(this.account.acct)) {
+            this.reblog.reblogsBy.push(this.account);
+        }
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
