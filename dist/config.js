@@ -38,7 +38,7 @@ exports.DEFAULT_WEIGHTS = {
         minValue: 0.001,
     },
     [types_1.WeightName.TRENDING]: {
-        defaultWeight: 0.1,
+        defaultWeight: 0.06,
         minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
     },
@@ -96,11 +96,11 @@ exports.DEFAULT_WEIGHTS = {
         description: "Favour toots retooted by multiple accounts you follow",
     },
     [types_1.WeightName.TRENDING_LINKS]: {
-        defaultWeight: 1.0,
+        defaultWeight: 0.7,
         description: "Favour links that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TAGS]: {
-        defaultWeight: 1.0,
+        defaultWeight: 0.5,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TOOTS]: {
