@@ -14,7 +14,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         minValue: 0.001,
     },
     [WeightName.TRENDING]: {
-        defaultWeight: 0.1,
+        defaultWeight: 0.06,
         minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
     },
@@ -73,11 +73,11 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
         description: "Favour toots retooted by multiple accounts you follow",
     },
     [WeightName.TRENDING_LINKS]: {
-        defaultWeight: 1.0,
+        defaultWeight: 0.7,
         description: "Favour links that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TAGS]: {
-        defaultWeight: 1.0,
+        defaultWeight: 0.5,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TOOTS]: {
