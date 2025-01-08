@@ -1,4 +1,5 @@
 ## NEXT
+* `accountNameWithEmojis()` and `Toot.contentWithEmojis()` API methods
 
 ## `0.13.4`
 * [bug] Remove dupes from `Toot.reblogsBy` array

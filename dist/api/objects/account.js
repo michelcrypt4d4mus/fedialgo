@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.webfingerURI = exports.extractServer = exports.repairAccount = exports.describeAccount = exports.buildAccountNames = void 0;
+exports.accountNameWithEmojis = exports.webfingerURI = exports.extractServer = exports.repairAccount = exports.describeAccount = exports.buildAccountNames = void 0;
 const helpers_1 = require("../../helpers");
 const api_1 = require("../api");
+const helpers_2 = require("../../helpers");
 // Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
 function buildAccountNames(accounts) {
     return accounts.reduce((accountNames, account) => {
@@ -43,5 +44,10 @@ function webfingerURI(account) {
     }
 }
 exports.webfingerURI = webfingerURI;
+;
+function accountNameWithEmojis(account) {
+    return (0, helpers_2.replaceEmojiShortcodesWithImageTags)(account.displayName, account.emojis || []);
+}
+exports.accountNameWithEmojis = accountNameWithEmojis;
 ;
 //# sourceMappingURL=account.js.map

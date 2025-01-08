@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
+exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -59,6 +59,8 @@ const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trendin
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const account_1 = require("./api/objects/account");
+Object.defineProperty(exports, "accountNameWithEmojis", { enumerable: true, get: function () { return account_1.accountNameWithEmojis; } });
+const account_2 = require("./api/objects/account");
 const helpers_1 = require("./helpers");
 const config_1 = require("./config");
 const api_1 = require("./api/api");
@@ -129,7 +131,7 @@ class TheAlgorithm {
         algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
-        algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
+        algo.followedAccounts = (0, account_2.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
         algo.extractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -163,7 +165,7 @@ class TheAlgorithm {
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
             // Pull followed accounts and tags from the scorers
-            this.followedAccounts = (0, account_1.buildAccountNames)(this.mentionsFollowedScorer.followedAccounts);
+            this.followedAccounts = (0, account_2.buildAccountNames)(this.mentionsFollowedScorer.followedAccounts);
             this.followedTags = this.followedTagsScorer.requiredData;
         }
         this.logTootCounts(newToots, homeToots);

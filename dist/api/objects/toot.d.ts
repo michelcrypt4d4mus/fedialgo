@@ -70,6 +70,7 @@ export default class Toot implements TootObj {
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(algo: TheAlgorithm): boolean;
+    contentWithEmojis(): string;
     isDM(): boolean;
     isTrending(): boolean;
     condensedStatus(): {};

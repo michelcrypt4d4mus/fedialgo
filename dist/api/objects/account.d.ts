@@ -5,3 +5,4 @@ export declare function describeAccount(account: mastodon.v1.Account): string;
 export declare function repairAccount(account: AccountLike): void;
 export declare function extractServer(account: AccountLike): string;
 export declare function webfingerURI(account: AccountLike): string;
+export declare function accountNameWithEmojis(account: mastodon.v1.Account): string;

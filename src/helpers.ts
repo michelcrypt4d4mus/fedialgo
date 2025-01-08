@@ -120,6 +120,18 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 };
 
 
+export function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[]): string {
+    emojis.forEach((emoji) => {
+        html = html.replace(
+            new RegExp(`:${emoji.shortcode}:`, 'g'),
+            `<img src="${emoji.url}" height="15px" width="15px">`
+        );
+    });
+
+    return html;
+};
+
+
 export function createRandomString(length: number): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -132,7 +144,7 @@ export function createRandomString(length: number): string {
 };
 
 
-// Masto does not support top posts from foreign servers, so we have to do it manually
+// Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x: unknown): x is Record<string, unknown> {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 };

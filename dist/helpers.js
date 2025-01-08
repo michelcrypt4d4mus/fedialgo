@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
 exports.AUDIO = "audio";
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
@@ -96,6 +96,14 @@ function atLeastValues(obj, minValue) {
 }
 exports.atLeastValues = atLeastValues;
 ;
+function replaceEmojiShortcodesWithImageTags(html, emojis) {
+    emojis.forEach((emoji) => {
+        html = html.replace(new RegExp(`:${emoji.shortcode}:`, 'g'), `<img src="${emoji.url}" height="15px" width="15px">`);
+    });
+    return html;
+}
+exports.replaceEmojiShortcodesWithImageTags = replaceEmojiShortcodesWithImageTags;
+;
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -106,7 +114,7 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
-// Masto does not support top posts from foreign servers, so we have to do it manually
+// Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x) {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 }

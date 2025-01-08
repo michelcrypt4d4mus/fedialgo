@@ -1,3 +1,4 @@
+import { mastodon } from "masto";
 import { CountKey, StringNumberDict } from "./types";
 export declare const AUDIO = "audio";
 export declare const IMAGE = "image";
@@ -16,4 +17,5 @@ export declare function zipArrays<T>(array1: string[], array2: T[]): Record<stri
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
+export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[]): string;
 export declare function createRandomString(length: number): string;

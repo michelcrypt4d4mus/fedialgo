@@ -174,7 +174,11 @@ class Toot {
         }
         return true;
     }
-    ;
+    // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
+    contentWithEmojis() {
+        const emojis = (this.emojis || []).concat(this.account.emojis || []);
+        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis);
+    }
     // Return true if it's a direct message
     isDM() {
         return this.visibility === TootVisibility.DIRECT_MSG;
