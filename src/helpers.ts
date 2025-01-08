@@ -11,10 +11,12 @@ export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
 export const VIDEO_TYPES = ["gifv", VIDEO] as mastodon.v1.MediaAttachmentType[];
 export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
+export const DEFAULT_FONT_SIZE = 15;
 
 
 // "http://mast.ai/foobar" => "mast.ai"
 export const extractDomain = (url: string): string => url?.split("/")[2];
+
 
 // Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number {
@@ -120,11 +122,19 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 };
 
 
-export function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[]): string {
+export function replaceEmojiShortcodesWithImageTags(
+    html: string,
+    emojis: mastodon.v1.CustomEmoji[],
+    fontSize: number = DEFAULT_FONT_SIZE
+): string {
+    const fontSizeStr = `${fontSize}px`;
+
     emojis.forEach((emoji) => {
+        const shortcode = `:${emoji.shortcode}:`;
+
         html = html.replace(
-            new RegExp(`:${emoji.shortcode}:`, 'g'),
-            `<img src="${emoji.url}" height="15px" width="15px">`
+            new RegExp(shortcode, 'g'),
+            `<img src="${emoji.url}" alt="${shortcode}" height="${fontSizeStr}" width="${fontSizeStr}">`
         );
     });
 

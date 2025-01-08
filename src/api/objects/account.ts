@@ -4,9 +4,9 @@
 import { mastodon } from "masto";
 
 import { AccountLike, AccountNames } from "../../types";
+import { DEFAULT_FONT_SIZE, replaceEmojiShortcodesWithImageTags } from "../../helpers";
 import { extractDomain } from "../../helpers";
 import { MastoApi } from "../api";
-import { replaceEmojiShortcodesWithImageTags } from "../../helpers";
 
 
 // Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
@@ -52,6 +52,6 @@ export function webfingerURI(account: AccountLike): string {
 };
 
 
-export function accountNameWithEmojis(account: mastodon.v1.Account): string {
+export function accountNameWithEmojis(account: mastodon.v1.Account, fontSize: number = DEFAULT_FONT_SIZE): string {
     return replaceEmojiShortcodesWithImageTags(account.displayName, account.emojis || []);
 };

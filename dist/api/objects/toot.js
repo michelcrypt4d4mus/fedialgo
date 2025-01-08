@@ -175,9 +175,9 @@ class Toot {
         return true;
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
-    contentWithEmojis() {
+    contentWithEmojis(fontSize = helpers_1.DEFAULT_FONT_SIZE) {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis);
+        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis, fontSize);
     }
     // Return true if it's a direct message
     isDM() {

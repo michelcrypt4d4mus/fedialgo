@@ -5,7 +5,7 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { AUDIO, IMAGE, MEDIA_TYPES, VIDEO_TYPES, groupBy, isImage, replaceEmojiShortcodesWithImageTags } from "../../helpers";
+import { AUDIO, DEFAULT_FONT_SIZE, IMAGE, MEDIA_TYPES, VIDEO_TYPES, groupBy, isImage, replaceEmojiShortcodesWithImageTags } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { TheAlgorithm } from "../..";
@@ -210,9 +210,9 @@ export default class Toot implements TootObj {
     }
 
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
-    contentWithEmojis(): string {
+    contentWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return replaceEmojiShortcodesWithImageTags(this.content, emojis);
+        return replaceEmojiShortcodesWithImageTags(this.content, emojis, fontSize);
     }
 
     // Return true if it's a direct message

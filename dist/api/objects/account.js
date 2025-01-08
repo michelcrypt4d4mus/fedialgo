@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.accountNameWithEmojis = exports.webfingerURI = exports.extractServer = exports.repairAccount = exports.describeAccount = exports.buildAccountNames = void 0;
 const helpers_1 = require("../../helpers");
-const api_1 = require("../api");
 const helpers_2 = require("../../helpers");
+const api_1 = require("../api");
 // Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
 function buildAccountNames(accounts) {
     return accounts.reduce((accountNames, account) => {
@@ -30,7 +30,7 @@ exports.repairAccount = repairAccount;
 ;
 // 'https://journa.host/@dell' -> 'journa.host'
 function extractServer(account) {
-    return (0, helpers_1.extractDomain)(account.url) || "unknown.server";
+    return (0, helpers_2.extractDomain)(account.url) || "unknown.server";
 }
 exports.extractServer = extractServer;
 ;
@@ -45,8 +45,8 @@ function webfingerURI(account) {
 }
 exports.webfingerURI = webfingerURI;
 ;
-function accountNameWithEmojis(account) {
-    return (0, helpers_2.replaceEmojiShortcodesWithImageTags)(account.displayName, account.emojis || []);
+function accountNameWithEmojis(account, fontSize = helpers_1.DEFAULT_FONT_SIZE) {
+    return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(account.displayName, account.emojis || []);
 }
 exports.accountNameWithEmojis = accountNameWithEmojis;
 ;

@@ -6,6 +6,7 @@ export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
 export declare const MEDIA_TYPES: string[];
+export declare const DEFAULT_FONT_SIZE = 15;
 export declare const extractDomain: (url: string) => string;
 export declare function average(values: number[]): number;
 export declare function isImage(uri: string | null | undefined): boolean;
@@ -17,5 +18,5 @@ export declare function zipArrays<T>(array1: string[], array2: T[]): Record<stri
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
-export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[]): string;
+export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
 export declare function createRandomString(length: number): string;
