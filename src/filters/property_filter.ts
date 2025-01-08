@@ -14,7 +14,6 @@ type TypeFilters = Record<TypeFilterName, TypeFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
 type TootMatchers = Record<PropertyName, TootMatcher>;
 
-
 // This is the order the filters will appear in the UI in the demo app
 export enum PropertyName {
     TYPE = 'type',
