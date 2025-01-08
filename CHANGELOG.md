@@ -1,8 +1,8 @@
 ## NEXT
 
 ## `0.13.4`
+* [bug] Remove dupes from `Toot.reblogsBy` array
 * Unified `Toot.realURI()` method
-* Remove dupes from `Toot.reblogsBy` array
 * Tweak default weights
 
 ## `0.13.3`
