@@ -1,5 +1,7 @@
 ## NEXT
-* Set `trendingRank` on retoots
+
+## 0.14.1
+* Make sure `trendingRank` is set correctly on trending toots retooted by people you follow
 
 ## 0.14.0
 * `accountNameWithEmojis()` and `Toot.contentWithEmojis()` API methods
