@@ -242,8 +242,11 @@ class Toot {
         // Repair Accounts
         (0, account_1.repairAccount)(this.account);
         this.mentions.forEach(account_1.repairAccount);
-        if (this.reblog?.account && !this.reblogsByAccts().includes(this.account.acct)) {
-            this.reblog.reblogsBy.push(this.account);
+        if (this.reblog) {
+            this.trendingRank ||= this.reblog.trendingRank;
+            if (!this.reblogsByAccts().includes(this.account.acct)) {
+                this.reblog.reblogsBy.push(this.account);
+            }
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
@@ -264,7 +267,7 @@ class Toot {
     static dedupeToots(toots, logLabel) {
         const prefix = logLabel ? `[${logLabel}] ` : '';
         const tootsByURI = (0, helpers_1.groupBy)(toots, toot => toot.realURI());
-        Object.entries(tootsByURI).forEach(([_uri, uriToots]) => {
+        Object.values(tootsByURI).forEach((uriToots) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
@@ -279,6 +282,8 @@ class Toot {
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
+                if (toot.reblog)
+                    toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
                 // Set reblogsBy
                 toot.reblogsBy = reblogsBy;
             });

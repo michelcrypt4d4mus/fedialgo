@@ -27,7 +27,11 @@ class MastodonServer {
         const trendingToots = toots.map(t => new toot_1.default(t)).filter(t => t.popularity() > 0);
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        trendingToots.forEach((toot, i) => toot.trendingRank = 1 + (trendingToots?.length || 0) - i);
+        trendingToots.forEach((toot, i) => {
+            toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
+            if (toot.reblog)
+                toot.trendingRank = toot.trendingRank;
+        });
         console.log(`[fetchTrendingToots] trendingToots for '${this.domain}':`, trendingToots);
         return trendingToots;
     }
@@ -105,7 +109,7 @@ class MastodonServer {
     ////////////////////
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
-        let trendingTootses = await this.callForAllServers((s) => s.fetchTrendingToots());
+        let trendingTootses = await this.callForAllServers(server => server.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return toot_1.default.dedupeToots(trendingToots, "fediverseTrendingToots");
@@ -174,8 +178,14 @@ exports.default = MastodonServer;
 function setTrendingRankToAvg(rankedToots) {
     const tootsTrendingOnMultipleServers = (0, helpers_1.groupBy)(rankedToots, toot => toot.uri);
     Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = (0, helpers_1.average)(toots.map(t => t.trendingRank));
-        toots.forEach(toot => toot.trendingRank = avgScore);
+        const avgScore = (0, helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
+        toots.forEach((toot) => {
+            toot.trendingRank = avgScore;
+            if (toot.reblog) {
+                toot.reblog.trendingRank = avgScore;
+                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
+            }
+        });
     });
 }
 ;

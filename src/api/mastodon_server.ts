@@ -26,9 +26,14 @@ export default class MastodonServer {
     async fetchTrendingToots(): Promise<Toot[]> {
         const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
         const trendingToots = toots.map(t => new Toot(t)).filter(t => t.popularity() > 0);
+
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        trendingToots.forEach((toot, i) => toot.trendingRank = 1 + (trendingToots?.length || 0) - i);
+        trendingToots.forEach((toot, i) => {
+            toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
+            if (toot.reblog) toot.trendingRank = toot.trendingRank;
+        });
+
         console.log(`[fetchTrendingToots] trendingToots for '${this.domain}':`, trendingToots);
         return trendingToots;
     }
@@ -109,7 +114,7 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        let trendingTootses = await this.callForAllServers<Toot[]>((s) => s.fetchTrendingToots());
+        let trendingTootses = await this.callForAllServers<Toot[]>(server => server.fetchTrendingToots());
         let trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
@@ -189,7 +194,14 @@ function setTrendingRankToAvg(rankedToots: Toot[]): void {
     const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, toot => toot.uri);
 
     Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = average(toots.map(t => t.trendingRank) as number[]);
-        toots.forEach(toot => toot.trendingRank = avgScore);
+        const avgScore = average(toots.map(t => t.reblog?.trendingRank || t.trendingRank) as number[]);
+
+        toots.forEach((toot) => {
+            toot.trendingRank = avgScore;
+            if (toot.reblog) {
+                toot.reblog.trendingRank = avgScore;
+                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
+            }
+        });
     });
 };

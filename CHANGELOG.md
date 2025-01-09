@@ -1,4 +1,5 @@
 ## NEXT
+* Set `trendingRank` on retoots
 
 ## 0.14.0
 * `accountNameWithEmojis()` and `Toot.contentWithEmojis()` API methods
