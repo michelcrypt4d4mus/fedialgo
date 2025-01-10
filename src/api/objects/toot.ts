@@ -5,7 +5,16 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
-import { AUDIO, DEFAULT_FONT_SIZE, IMAGE, MEDIA_TYPES, VIDEO_TYPES, groupBy, isImage, replaceEmojiShortcodesWithImageTags } from "../../helpers";
+import {
+    AUDIO,
+    DEFAULT_FONT_SIZE,
+    IMAGE,
+    MEDIA_TYPES,
+    VIDEO_TYPES,
+    groupBy,
+    isImage,
+    replaceEmojiShortcodesWithImageTags
+} from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { TheAlgorithm } from "../..";
