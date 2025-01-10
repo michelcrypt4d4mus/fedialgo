@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.14.2`
 * [bug] Force removal of duplicats `Toot.reblogsBy` values
 * Exclude `bsky.brid.gy` from MAU numbers
 
