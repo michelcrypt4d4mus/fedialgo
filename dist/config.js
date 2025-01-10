@@ -185,6 +185,7 @@ exports.DEFAULT_CONFIG = {
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "agora.echelon.pl",
+        "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",
         'mathstodon.xyz',
