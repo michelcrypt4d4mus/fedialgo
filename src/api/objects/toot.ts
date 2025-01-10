@@ -291,6 +291,9 @@ export default class Toot implements TootObj {
             if (!this.reblogsByAccts().includes(this.account.acct)) {
                 this.reblog.reblogsBy.push(this.account);
             }
+
+            // TODO: we still need to de-dupe because a few dupes sneak through
+            this.reblogsBy = [...new Map(this.reblogsBy.map((acct) => [acct.acct, acct])).values()];
         }
 
         // Check for weird media types

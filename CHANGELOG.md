@@ -1,4 +1,6 @@
 ## NEXT
+* [bug] Force removal of duplicats `Toot.reblogsBy` values
+* Exclude `bsky.brid.gy` from MAU numbers
 
 ## `0.14.1`
 * Make sure `trendingRank` is set correctly on trending toots retooted by people you follow
