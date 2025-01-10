@@ -17,8 +17,8 @@ import {
 } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
-import { TheAlgorithm } from "../..";
 import { repairTag } from "./tag";
+import { TheAlgorithm } from "../..";
 
 type StatusList = mastodon.v1.Status[];
 
