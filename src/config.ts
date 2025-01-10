@@ -58,7 +58,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
     },
     [WeightName.NUM_FAVOURITES]: {
         defaultWeight: 1,
-        description: "Favour things favourited by users on your home server",
+        description: "Favour things favourited by your server's users",
     },
     [WeightName.NUM_REPLIES]: {
         defaultWeight: 1,
@@ -70,7 +70,7 @@ export const DEFAULT_WEIGHTS: ScorerDict = {
     },
     [WeightName.RETOOTED_IN_FEED]: {
         defaultWeight: 2.0,
-        description: "Favour toots retooted by multiple accounts you follow",
+        description: "Favour toots retooted by accounts you follow",
     },
     [WeightName.TRENDING_LINKS]: {
         defaultWeight: 0.7,

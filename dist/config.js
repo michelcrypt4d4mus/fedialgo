@@ -81,7 +81,7 @@ exports.DEFAULT_WEIGHTS = {
     },
     [types_1.WeightName.NUM_FAVOURITES]: {
         defaultWeight: 1,
-        description: "Favour things favourited by users on your home server",
+        description: "Favour things favourited by your server's users",
     },
     [types_1.WeightName.NUM_REPLIES]: {
         defaultWeight: 1,
@@ -93,7 +93,7 @@ exports.DEFAULT_WEIGHTS = {
     },
     [types_1.WeightName.RETOOTED_IN_FEED]: {
         defaultWeight: 2.0,
-        description: "Favour toots retooted by multiple accounts you follow",
+        description: "Favour toots retooted by accounts you follow",
     },
     [types_1.WeightName.TRENDING_LINKS]: {
         defaultWeight: 0.7,
