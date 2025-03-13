@@ -1,4 +1,6 @@
 ## NEXT
+
+## `0.15.1`
 * Fix `unknown` media type for video files with extension `.mp4`
 * Fix demo app dependency
 
