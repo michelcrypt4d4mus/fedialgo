@@ -11,8 +11,10 @@ import {
     IMAGE,
     MEDIA_TYPES,
     VIDEO_TYPES,
+    VIDEO,
     groupBy,
     isImage,
+    isVideo,
     replaceEmojiShortcodesWithImageTags
 } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
@@ -307,11 +309,18 @@ export default class Toot implements TootObj {
 
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
-            if (media.type === UNKNOWN && isImage(media.remoteUrl)) {
-                console.log(`Repairing broken media attachment in toot:`, this);
-                media.type = IMAGE;
+            if (media.type == UNKNOWN) {
+                if (isImage(media.remoteUrl)) {
+                    console.log(`Repairing broken image attachment in toot:`, this);
+                    media.type = IMAGE;
+                } else if (isVideo(media.remoteUrl)) {
+                    console.log(`Repairing broken video attachment in toot:`, this);
+                    media.type = VIDEO;
+                } else {
+                    console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                }
             } else if (!MEDIA_TYPES.includes(media.type)) {
-                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
+                console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
     }

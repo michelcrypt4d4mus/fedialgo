@@ -148,7 +148,7 @@ export const DEFAULT_CONFIG: Config = {
         // "mastodon.lol",               // Doesn't return MAU data
         "c.im",
         "hachyderm.io",
-        "fosstodon.org",
+        // "fosstodon.org",              // Doesn't support trending links/toots
         "universeodon.com",
         "infosec.exchange",
         "mastodon.gamedev.place",

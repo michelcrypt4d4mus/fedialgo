@@ -1,4 +1,6 @@
 ## NEXT
+* Fix `unknown` media type for video files with extension `.mp4`
+* Fix demo app dependency
 
 ## `0.15.0`
 * Make `Poll` a filterable type

@@ -9,7 +9,8 @@ export const AUDIO = "audio";
 export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 export const VIDEO = "video";
-export const VIDEO_TYPES = ["gifv", VIDEO] as mastodon.v1.MediaAttachmentType[];
+export const VIDEO_TYPES = [VIDEO, "gifv"] as mastodon.v1.MediaAttachmentType[];
+export const VIDEO_EXTENSIONS = ["mp4"];
 export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
 export const DEFAULT_FONT_SIZE = 15;
 
@@ -31,6 +32,14 @@ export function isImage(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 };
+
+
+// Return true if uri ends with an image extension like .jpg or .png
+export function isVideo(uri: string | null | undefined): boolean {
+    if (!uri) return false;
+    return VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
+};
+
 
 
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
