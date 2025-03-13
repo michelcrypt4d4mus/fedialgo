@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isImage = exports.average = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
 exports.AUDIO = "audio";
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
 exports.VIDEO = "video";
-exports.VIDEO_TYPES = ["gifv", exports.VIDEO];
+exports.VIDEO_TYPES = [exports.VIDEO, "gifv"];
+exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.MEDIA_TYPES = [exports.AUDIO, exports.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;
 // "http://mast.ai/foobar" => "mast.ai"
@@ -27,6 +28,14 @@ function isImage(uri) {
     return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
 }
 exports.isImage = isImage;
+;
+// Return true if uri ends with an image extension like .jpg or .png
+function isVideo(uri) {
+    if (!uri)
+        return false;
+    return exports.VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
+}
+exports.isVideo = isVideo;
 ;
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
 function groupBy(array, makeKey) {

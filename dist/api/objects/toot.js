@@ -252,12 +252,21 @@ class Toot {
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
-            if (media.type === UNKNOWN && (0, helpers_1.isImage)(media.remoteUrl)) {
-                console.log(`Repairing broken media attachment in toot:`, this);
-                media.type = helpers_1.IMAGE;
+            if (media.type == UNKNOWN) {
+                if ((0, helpers_1.isImage)(media.remoteUrl)) {
+                    console.log(`Repairing broken image attachment in toot:`, this);
+                    media.type = helpers_1.IMAGE;
+                }
+                else if ((0, helpers_1.isVideo)(media.remoteUrl)) {
+                    console.log(`Repairing broken video attachment in toot:`, this);
+                    media.type = helpers_1.VIDEO;
+                }
+                else {
+                    console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                }
             }
             else if (!helpers_1.MEDIA_TYPES.includes(media.type)) {
-                console.warn(`Unknown media type: '${media.type}' for toot:`, this);
+                console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
     }
