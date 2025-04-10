@@ -1,4 +1,6 @@
 ## NEXT
+## 0.15.3
+* Fix miscased `Scorer.ts` files in `dist/` package.
 
 ## 0.15.2
 * Fix `unknown` media type for video files with extension `.mp4`
