@@ -1,4 +1,6 @@
 ## NEXT
+
+## 0.16.0
 * `Algorithm.buildTagURL()` helper method
 * `DiversityFeedScorer` logs at DEBUG level
 * [Demo App] "What's Trending" accordion section
