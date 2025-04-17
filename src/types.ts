@@ -126,6 +126,9 @@ export type ScorerInfo = {
 export type TimelineData = {
     homeToots: Toot[],
     otherToots: Toot[],
+    trendingLinks?: TrendingLink[],
+    trendingTags?: TrendingTag[],
+    trendingToots?: Toot[],
 };
 
 // Data retrieved at startup and stored in TheAlgorithm
@@ -167,9 +170,24 @@ export interface TrendingTag extends mastodon.v1.Tag {
 
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict |
-    TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] |
-    mastodon.v1.TrendLink[] | number;
+export type TrendingTagToots = {
+    tags: TrendingTag[];
+    toots: Toot[];
+};
+
+// Types that are valid for browser local storage
+export type StorageValue =
+        FeedFilterSettings |
+        FeedFilterSettingsSerialized |
+        StringNumberDict |
+        TootExtension[] |
+        TootURIs |
+        Weights |
+        mastodon.v1.Account |
+        mastodon.v1.Account[] |
+        mastodon.v2.Filter[] |
+        mastodon.v1.TrendLink[] |
+        number;
 
 
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm

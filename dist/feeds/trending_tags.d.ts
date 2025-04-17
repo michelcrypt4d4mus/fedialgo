@@ -1,2 +1,2 @@
-import Toot from "../api/objects/toot";
-export default function fetchRecentTootsForTrendingTags(): Promise<Toot[]>;
+import { TrendingTagToots } from "../types";
+export default function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots>;

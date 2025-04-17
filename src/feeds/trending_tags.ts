@@ -23,17 +23,21 @@ import MastodonServer from "../api/mastodon_server";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { MastoApi } from "../api/api";
-import { TrendingTag } from "../types";
+import { TrendingTag, TrendingTagToots } from "../types";
 
 const LOG_PREFIX = "[TrendingTags]";
 
 
-export default async function fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
+export default async function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots> {
     const trendingTags = await MastodonServer.fediverseTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));
     const toots: Toot[] = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity())
-    return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
+
+    return {
+        tags: trendingTags,
+        toots: toots.slice(0, Storage.getConfig().numTrendingTagsToots),
+    };
 };
 
 

@@ -76,12 +76,14 @@ class TheAlgorithm {
     filters;
     // Variables with initial values
     feed = [];
-    serverSideFilters = [];
-    trendingLinks = [];
     followedAccounts = {};
     followedTags = {};
     mutedAccounts = {};
     scoreMutex = new async_mutex_1.Mutex();
+    serverSideFilters = [];
+    trendingLinks = [];
+    trendingTags = [];
+    trendingToots = [];
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
     followedTagsScorer = new followed_tags_scorer_1.default();
@@ -158,8 +160,11 @@ class TheAlgorithm {
         }
         const allResponses = await Promise.all(promises);
         console.debug(`getFeed() allResponses:`, allResponses);
-        const { homeToots, otherToots } = allResponses.shift();
+        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // 1st promise yields TimelineData obj
         const newToots = [...homeToots, ...otherToots];
+        // Store trending data so it's accessible to client
+        this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
+        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
             this.mutedAccounts = userData.mutedAccounts;
@@ -258,6 +263,10 @@ class TheAlgorithm {
     }
     mostRecentTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed);
+    }
+    // Return the URL for a given tag on the local server
+    buildTagURL(tag) {
+        return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count

@@ -38,6 +38,7 @@ import {
     ScorerDict,
     ScorerInfo,
     StringNumberDict,
+    TrendingTag,
     WeightName,
     Weights,
 } from "./types";
@@ -53,12 +54,14 @@ class TheAlgorithm {
 
     // Variables with initial values
     feed: Toot[] = [];
-    serverSideFilters: mastodon.v2.Filter[] = [];
-    trendingLinks: mastodon.v1.TrendLink[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
+    serverSideFilters: mastodon.v2.Filter[] = [];
+    trendingLinks: mastodon.v1.TrendLink[] = [];
+    trendingTags: TrendingTag[] = [];
+    trendingToots: Toot[] = [];
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
 
@@ -148,8 +151,11 @@ class TheAlgorithm {
 
         const allResponses = await Promise.all(promises);
         console.debug(`getFeed() allResponses:`, allResponses);
-        const { homeToots, otherToots } = allResponses.shift();
+        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // 1st promise yields TimelineData obj
         const newToots = [...homeToots, ...otherToots];
+        // Store trending data so it's accessible to client
+        this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
+        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
 
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
@@ -264,6 +270,11 @@ class TheAlgorithm {
 
     mostRecentTootAt(): Date | null {
         return mostRecentTootedAt(this.feed);
+    }
+
+    // Return the URL for a given tag on the local server
+    buildTagURL(tag: mastodon.v1.Tag): string {
+        return `https://${MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots

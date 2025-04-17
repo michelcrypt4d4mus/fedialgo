@@ -91,16 +91,27 @@ class MastoApi {
         // Only fetch trending toots first time this is called (skip when paging through timeline)
         if (!maxId) {
             promises = promises.concat([
-                (0, trending_tags_1.default)(),
                 mastodon_server_1.default.fediverseTrendingToots(),
+                (0, trending_tags_1.default)(), // ORDER MATTERS! must be 2nd for handling below
             ]);
         }
         const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift(); // Pop timeline toots off the array
+        let trendingTags, trendingToots, trendingTagToots;
+        let otherToots = [];
+        if (allResponses.length > 0) {
+            trendingToots = allResponses.shift();
+            trendingTagToots = allResponses.shift();
+            trendingTags = trendingTagToots.tags;
+            otherToots = trendingToots.concat(trendingTagToots.toots);
+            console.debug(`Extracted trendingTags during load:`, trendingTags);
+        }
         return {
-            homeToots: homeToots,
-            otherToots: allResponses.flat(),
+            homeToots,
+            otherToots,
+            trendingTags,
+            trendingToots,
         };
     }
     ;
@@ -139,7 +150,6 @@ class MastoApi {
         });
         const toots = statuses.map((status) => new toot_1.default(status));
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootedAt)(toots)}'):`, toots);
-        // console.debug(toots.map(t => t.describe()).join("\n"));
         return toots;
     }
     ;
@@ -264,13 +274,13 @@ class MastoApi {
             return account.url;
         }
     }
-    // Generic data fetcher
+    // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     async fetchData(fetchParams) {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         breakIf = breakIf || DEFAULT_BREAK_IF;
-        console.debug(`[API] ${label}: fetchData() w/ maxRecords=${maxRecords}`);
-        const releaseMutex = await this.mutexes[label].acquire();
+        maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        console.debug(`[API] ${label}: fetchData() called (maxRecords=${maxRecords})`);
+        const releaseFetchMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
         try {
@@ -299,7 +309,7 @@ class MastoApi {
             return results;
         }
         finally {
-            releaseMutex();
+            releaseFetchMutex();
         }
         return results;
     }

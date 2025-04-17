@@ -1,5 +1,7 @@
 ## NEXT
+* `Algorithm.buildTagURL()` helper method
 * `DiversityFeedScorer` logs at DEBUG level
+* [Demo App] "What's Trending" accordion section
 
 ## 0.15.3
 * Fix miscased `Scorer.ts` files in `dist/` package.

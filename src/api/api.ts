@@ -29,6 +29,12 @@ const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
+//   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF()
+//   - fetch: the data fetching function to call with params
+//   - label: key to use for caching
+//   - maxId: optional maxId to use for pagination
+//   - maxRecords: optional max number of records to fetch
+//   - skipCache: if true, don't use cached data
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     label: StorageKey,
@@ -85,18 +91,30 @@ export class MastoApi {
         // Only fetch trending toots first time this is called (skip when paging through timeline)
         if (!maxId) {
             promises = promises.concat([
-                fetchRecentTootsForTrendingTags(),
                 MastodonServer.fediverseTrendingToots(),
+                fetchRecentTootsForTrendingTags(),  // ORDER MATTERS! must be 2nd for handling below
             ]);
         }
 
         const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift();  // Pop timeline toots off the array
+        let trendingTags, trendingToots, trendingTagToots;
+        let otherToots = [];
+
+        if (allResponses.length > 0) {
+            trendingToots = allResponses.shift();
+            trendingTagToots = allResponses.shift();
+            trendingTags = trendingTagToots.tags;
+            otherToots = trendingToots.concat(trendingTagToots.toots);
+            console.debug(`Extracted trendingTags during load:`, trendingTags);
+        }
 
         return {
-            homeToots: homeToots,
-            otherToots: allResponses.flat(),
+            homeToots,
+            otherToots,
+            trendingTags,
+            trendingToots,
         } as TimelineData;
     };
 
@@ -124,7 +142,7 @@ export class MastoApi {
             label: Key.HOME_TIMELINE,
             maxId: maxId,
             maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
-            skipCache: true,
+            skipCache: true,  // always skip the cache for the home timeline
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
                 console.log(`oldest in page: ${earliestTootedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
@@ -140,7 +158,6 @@ export class MastoApi {
 
         const toots = statuses.map((status) => new Toot(status));
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestTootedAt(toots)}'):`, toots);
-        // console.debug(toots.map(t => t.describe()).join("\n"));
         return toots;
     };
 
@@ -269,13 +286,13 @@ export class MastoApi {
         }
     }
 
-    // Generic data fetcher
+    // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
         breakIf = breakIf || DEFAULT_BREAK_IF;
-        console.debug(`[API] ${label}: fetchData() w/ maxRecords=${maxRecords}`);
-        const releaseMutex = await this.mutexes[label].acquire();
+        maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+        console.debug(`[API] ${label}: fetchData() called (maxRecords=${maxRecords})`);
+        const releaseFetchMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
 
@@ -306,7 +323,7 @@ export class MastoApi {
             this.throwIfAccessTokenRevoked(e, `fetchData() for ${label} failed`)
             return results;
         } finally {
-            releaseMutex();
+            releaseFetchMutex();
         }
 
         return results;

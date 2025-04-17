@@ -34,7 +34,10 @@ async function fetchRecentTootsForTrendingTags() {
     const tootTags = await Promise.all(trendingTags.map(getTootsForTag));
     const toots = toot_1.default.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
-    return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+    return {
+        tags: trendingTags,
+        toots: toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots),
+    };
 }
 exports.default = fetchRecentTootsForTrendingTags;
 ;

@@ -24,7 +24,8 @@ export default class TrendingLinksScorer extends FeatureScorer {
             (accountsPostingLinkCounts, link) => {
                 accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
                 return accountsPostingLinkCounts;
-            }, {} as StringNumberDict
+            },
+            {} as StringNumberDict
         );
     }
 
