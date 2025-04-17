@@ -88,7 +88,7 @@ class MastoApi {
         let promises = [
             this.fetchHomeFeed(numTimelineToots, maxId),
         ];
-        // Only retrieve trending toots on the first call to this method
+        // Only fetch trending toots first time this is called (skip when paging through timeline)
         if (!maxId) {
             promises = promises.concat([
                 (0, trending_tags_1.default)(),
@@ -97,7 +97,7 @@ class MastoApi {
         }
         const allResponses = await Promise.all(promises);
         console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
-        const homeToots = allResponses.shift();
+        const homeToots = allResponses.shift(); // Pop timeline toots off the array
         return {
             homeToots: homeToots,
             otherToots: allResponses.flat(),

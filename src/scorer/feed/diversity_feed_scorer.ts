@@ -18,7 +18,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     feedExtractor(feed: Toot[]): StringNumberDict {
         // Shuffle the feed before penalizing multiple tooters
         // TODO: maybe reverse chronological order would be better?
-        console.log(`DiversityFeedScorer.feedExtractor() called...`);
+        console.debug(`DiversityFeedScorer.feedExtractor() called...`);
         const sortRandom = (a: Toot, b: Toot) => md5(a.id).localeCompare(md5(b.id));
 
         // Count toots by account (but negative instead of positive count)
@@ -31,7 +31,7 @@ export default class DiversityFeedScorer extends FeedScorer {
             {} as StringNumberDict
         );
 
-        console.log(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
+        console.debug(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
         return diversityTootsOrdered;
     }
 

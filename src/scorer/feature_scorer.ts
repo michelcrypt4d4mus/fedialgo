@@ -51,8 +51,8 @@ export default abstract class FeatureScorer extends Scorer {
         obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
     };
 
-    // Return one of each unique trending object w/numToots & numAccounts set to the max in the Fediverse
-    // sorted by numAccounts.
+    // Return one of each unique trending object sorted by the number of accounts tooting that object.
+    // The numToots & numAccounts props for each trending object are set to the max value encountered.
     static uniquifyTrendingObjs(
         trendingObjs: TrendingWithHistory[],
         uniqueKey: (obj: TrendingWithHistory) => string

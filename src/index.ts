@@ -363,10 +363,15 @@ class TheAlgorithm {
     }
 
     // Utility method to log progress of getFeed() calls
-    private logTootCounts(newToots: Toot[], newHomeToots: Toot[]) {
-        let msg = `Got ${Object.keys(this.followedAccounts).length} followed accounts, ${newToots.length} new toots`;
-        msg += `, ${newHomeToots.length} new home toots, ${newToots.length} total new toots, this.feed has ${this.feed.length} toots`;
-        console.log(msg);
+    private logTootCounts(toots: Toot[], newHomeToots: Toot[]) {
+        let msg = [
+            `Got ${toots.length} new toots from ${Object.keys(this.followedAccounts).length} followed accts`,
+            `${newHomeToots.length} new home toots`,
+            `${toots.length} total new toots`,
+            `this.feed has ${this.feed.length} toots`,
+        ];
+
+        console.log(msg.join(', '));
     }
 
     // Adjust toot weights based on user's chosen slider values

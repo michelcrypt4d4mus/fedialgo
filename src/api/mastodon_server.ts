@@ -114,8 +114,8 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        let trendingTootses = await this.callForAllServers<Toot[]>(server => server.fetchTrendingToots());
-        let trendingToots = Object.values(trendingTootses).flat();
+        const trendingTootses = await this.callForAllServers<Toot[]>(server => server.fetchTrendingToots());
+        const trendingToots = Object.values(trendingTootses).flat();
         setTrendingRankToAvg(trendingToots);
         return Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
     };
@@ -132,7 +132,8 @@ export default class MastodonServer {
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
         const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
         console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
-        const tags = FeatureScorer.uniquifyTrendingObjs(Object.values(serverTags).flat(), tag => (tag as TrendingTag).name);
+        const allTags = Object.values(serverTags).flat();
+        const tags = FeatureScorer.uniquifyTrendingObjs(allTags, tag => (tag as TrendingTag).name);
         console.info(`[fediverseTrendingTags] unique tags:`, tags);
         return tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
     }

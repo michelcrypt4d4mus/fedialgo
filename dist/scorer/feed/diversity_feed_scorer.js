@@ -18,7 +18,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     feedExtractor(feed) {
         // Shuffle the feed before penalizing multiple tooters
         // TODO: maybe reverse chronological order would be better?
-        console.log(`DiversityFeedScorer.feedExtractor() called...`);
+        console.debug(`DiversityFeedScorer.feedExtractor() called...`);
         const sortRandom = (a, b) => (0, blueimp_md5_1.default)(a.id).localeCompare((0, blueimp_md5_1.default)(b.id));
         // Count toots by account (but negative instead of positive count)
         const diversityTootsOrdered = feed.toSorted(sortRandom).reduce((tootCounts, toot) => {
@@ -27,7 +27,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 (0, helpers_1.incrementCount)(tootCounts, toot.reblog.account.acct, -1);
             return tootCounts;
         }, {});
-        console.log(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
+        console.debug(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
         return diversityTootsOrdered;
     }
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*

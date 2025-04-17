@@ -1,4 +1,6 @@
 ## NEXT
+* `DiversityFeedScorer` logs at DEBUG level
+
 ## 0.15.3
 * Fix miscased `Scorer.ts` files in `dist/` package.
 
