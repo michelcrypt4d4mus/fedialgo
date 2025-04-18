@@ -190,7 +190,7 @@ class Toot {
             || this.trendingTags?.length);
     }
     // Shortened string of contents, stripped of HTML tags
-    linkText() {
+    contentShortened() {
         let content = this.reblog?.content || this.content || "";
         if (content.length > MAX_CONTENT_PREVIEW_CHARS)
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;

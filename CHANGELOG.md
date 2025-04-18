@@ -1,5 +1,8 @@
 ## NEXT
 
+### 0.16.4
+* Store and reload trendingToots; add `Toot.contentShortened()` method
+
 ### 0.16.3
 * [Demo App] Add Stick To Top checkbox for left panel
 
