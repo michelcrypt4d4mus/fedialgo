@@ -162,7 +162,7 @@ class TheAlgorithm {
         // Store trending data so it's accessible to client
         this.trendingLinks = (this.featureScorers[0] as TrendingLinksScorer).trendingLinks;
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
-        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
+        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;  // TODO: display trending toots?
 
         // This if condition should be equivalent to the if (!maxId) above
         if (allResponses.length > 0) {

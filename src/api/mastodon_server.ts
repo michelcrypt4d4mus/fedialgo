@@ -120,6 +120,7 @@ export default class MastodonServer {
         return Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
     };
 
+    // TODO: this doesn't fully de-dedupe links by URL yet so there are sometimes TrendingLink objs w/same URL in list
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
         const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
         console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
