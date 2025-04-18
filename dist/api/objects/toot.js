@@ -189,6 +189,13 @@ class Toot {
             || this.trendingLinks?.length
             || this.trendingTags?.length);
     }
+    // Shortened string of contents, stripped of HTML tags
+    linkText() {
+        let content = this.reblog?.content || this.content || "";
+        if (content.length > MAX_CONTENT_PREVIEW_CHARS)
+            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
+        return content.replace(/\n/g, " ").replace(/<[^>]+>/g, "");
+    }
     // Returns a simplified version of the toot for logging
     condensedStatus() {
         // Contents of toot (the text)

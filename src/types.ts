@@ -179,6 +179,7 @@ export type TrendingTagToots = {
 export type TrendingStorage = {
     tags: TrendingTag[];
     links: TrendingLink[];
+    toots: Toot[];
 };
 
 // Types that are valid for browser local storage

@@ -124,6 +124,7 @@ class TheAlgorithm {
         const trendingData = await Storage.getTrending();
         algo.trendingLinks = trendingData.links;
         algo.trendingTags = trendingData.tags;
+        algo.trendingToots = trendingData.toots;
 
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
@@ -368,7 +369,7 @@ class TheAlgorithm {
                 this.logFeedInfo(logPrefix);
                 // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage.setFeed(this.feed);
-                Storage.setTrending(this.trendingLinks, this.trendingTags);
+                Storage.setTrending(this.trendingLinks, this.trendingTags, this.trendingToots);
             } finally {
                 releaseMutex();
             }

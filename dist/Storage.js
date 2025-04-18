@@ -84,17 +84,19 @@ class Storage {
         return toots.map(t => new toot_1.default(t));
     }
     static async setFeed(timeline) {
-        const toots = timeline.map(t => ({ ...t })); // Remove functions so it can be serialized
+        const toots = timeline.map(t => ({ ...t })); // Remove fxns so toots can be serialized
         await this.set(types_1.Key.TIMELINE, toots);
     }
-    static async setTrending(links, tags) {
-        await this.set(types_1.Key.TRENDING, { links, tags });
+    static async setTrending(links, tags, toots) {
+        toots = toots.map(t => ({ ...t })); // Remove fxns so toots can be serialized
+        await this.set(types_1.Key.TRENDING, { links, tags, toots });
     }
     static async getTrending() {
         const trendingData = await this.get(types_1.Key.TRENDING);
         return {
             links: (trendingData?.links ?? []),
             tags: (trendingData?.tags ?? []),
+            toots: (trendingData?.toots ?? []).map((t) => new toot_1.default(t)),
         };
     }
     // Get the value at the given key (with the user ID as a prefix)

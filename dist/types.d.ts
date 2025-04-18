@@ -147,5 +147,6 @@ export type TrendingTagToots = {
 export type TrendingStorage = {
     tags: TrendingTag[];
     links: TrendingLink[];
+    toots: Toot[];
 };
 export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;

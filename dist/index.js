@@ -136,6 +136,7 @@ class TheAlgorithm {
         const trendingData = await Storage_1.default.getTrending();
         algo.trendingLinks = trendingData.links;
         algo.trendingTags = trendingData.tags;
+        algo.trendingToots = trendingData.toots;
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = (0, account_2.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
         algo.extractSummaryInfo();
@@ -169,7 +170,7 @@ class TheAlgorithm {
         // Store trending data so it's accessible to client
         this.trendingLinks = this.featureScorers[0].trendingLinks;
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
-        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
+        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots; // TODO: display trending toots?
         // This if condition should be equivalent to the if (!maxId) above
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
@@ -345,7 +346,7 @@ class TheAlgorithm {
                 this.logFeedInfo(logPrefix);
                 // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage_1.default.setFeed(this.feed);
-                Storage_1.default.setTrending(this.trendingLinks, this.trendingTags);
+                Storage_1.default.setTrending(this.trendingLinks, this.trendingTags, this.trendingToots);
             }
             finally {
                 releaseMutex();

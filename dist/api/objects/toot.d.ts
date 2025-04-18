@@ -73,6 +73,7 @@ export default class Toot implements TootObj {
     contentWithEmojis(fontSize?: number): string;
     isDM(): boolean;
     isTrending(): boolean;
+    linkText(): string;
     condensedStatus(): {};
     reblogsByAccts(): string[];
     private repairToot;

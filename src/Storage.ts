@@ -114,12 +114,13 @@ export default class Storage {
     }
 
     static async setFeed(timeline: Toot[]) {
-        const toots = timeline.map(t => ({...t})) as TootExtension[];  // Remove functions so it can be serialized
+        const toots = timeline.map(t => ({...t})) as TootExtension[];  // Remove fxns so toots can be serialized
         await this.set(Key.TIMELINE, toots);
     }
 
-    static async setTrending(links: TrendingLink[], tags: TrendingTag[]) {
-        await this.set(Key.TRENDING, {links, tags} as TrendingStorage);
+    static async setTrending(links: TrendingLink[], tags: TrendingTag[], toots: Toot[] | TootExtension[]) {
+        toots = toots.map(t => ({...t})) as TootExtension[];  // Remove fxns so toots can be serialized
+        await this.set(Key.TRENDING, {links, tags, toots} as TrendingStorage);
     }
 
     static async getTrending(): Promise<TrendingStorage> {
@@ -128,6 +129,7 @@ export default class Storage {
         return {
             links: (trendingData?.links ?? []) as TrendingLink[],
             tags: (trendingData?.tags ?? []) as TrendingTag[],
+            toots: (trendingData?.toots ?? []).map((t) => new Toot(t)),
         }
     }
 
