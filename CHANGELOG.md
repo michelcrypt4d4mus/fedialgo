@@ -1,6 +1,4 @@
 ## NEXT
-
-### 0.16.6
 * `Toot.homeserverURL()` method to allow linking on the user's mastodon instance instead of remote servers
 * Fix display of image/video/audio only toots in Trending Toots section
 
