@@ -87,6 +87,20 @@ class Storage {
         const toots = timeline.map(t => ({ ...t })); // Remove functions so it can be serialized
         await this.set(types_1.Key.TIMELINE, toots);
     }
+    static async setTrending(tags, links) {
+        const trendingData = {
+            links: links,
+            tags: tags,
+        };
+        await this.set(types_1.Key.TRENDING, trendingData);
+    }
+    static async getTrending() {
+        const trendingData = await this.get(types_1.Key.TRENDING);
+        return {
+            links: (trendingData?.links ?? []),
+            tags: (trendingData?.tags ?? []),
+        };
+    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
         return await localforage_1.default.getItem(await this.buildKey(key));

@@ -21,6 +21,7 @@ export enum Key {
     RECENT_USER_TOOTS = 'recentUserToots',
     SERVER_SIDE_FILTERS = 'serverFilters',
     TIMELINE = 'timeline',
+    TRENDING = 'trending',
     USER = 'algouser',
     WEIGHTS = 'weights'
 };
@@ -175,6 +176,11 @@ export type TrendingTagToots = {
     toots: Toot[];
 };
 
+export type TrendingStorage = {
+    tags: TrendingTag[];
+    links: TrendingLink[];
+};
+
 // Types that are valid for browser local storage
 export type StorageValue =
         FeedFilterSettings |
@@ -182,6 +188,7 @@ export type StorageValue =
         StringNumberDict |
         TootExtension[] |
         TootURIs |
+        TrendingStorage |
         Weights |
         mastodon.v1.Account |
         mastodon.v1.Account[] |

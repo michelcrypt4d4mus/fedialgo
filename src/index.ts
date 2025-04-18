@@ -118,8 +118,13 @@ class TheAlgorithm {
 
         const algo = new TheAlgorithm(params);
         await algo.setDefaultWeights();
-        algo.filters = await Storage.getFilters();
         algo.feed = await Storage.getFeed();
+        algo.filters = await Storage.getFilters();
+        // Set trending data properties
+        const trendingData = await Storage.getTrending();
+        algo.trendingLinks = trendingData.links;
+        algo.trendingTags = trendingData.tags;
+
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
         algo.extractSummaryInfo();
@@ -156,7 +161,6 @@ class TheAlgorithm {
         const newToots = [...homeToots, ...otherToots];
         // Store trending data so it's accessible to client
         this.trendingLinks = (this.featureScorers[0] as TrendingLinksScorer).trendingLinks;
-        console.log(`Extracted ${this.trendingLinks.length} trending links from the feed...`, this.trendingLinks);
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
         this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
 

@@ -130,8 +130,12 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen();
         const algo = new TheAlgorithm(params);
         await algo.setDefaultWeights();
-        algo.filters = await Storage_1.default.getFilters();
         algo.feed = await Storage_1.default.getFeed();
+        algo.filters = await Storage_1.default.getFilters();
+        // Set trending data properties
+        const trendingData = await Storage_1.default.getTrending();
+        algo.trendingLinks = trendingData.links;
+        algo.trendingTags = trendingData.tags;
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = (0, account_2.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
         algo.extractSummaryInfo();

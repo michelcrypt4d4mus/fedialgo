@@ -17,6 +17,7 @@ var Key;
     Key["RECENT_USER_TOOTS"] = "recentUserToots";
     Key["SERVER_SIDE_FILTERS"] = "serverFilters";
     Key["TIMELINE"] = "timeline";
+    Key["TRENDING"] = "trending";
     Key["USER"] = "algouser";
     Key["WEIGHTS"] = "weights";
 })(Key || (exports.Key = Key = {}));

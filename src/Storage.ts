@@ -18,6 +18,9 @@ import {
     StorageKey,
     StorageValue,
     TootExtension,
+    TrendingLink,
+    TrendingStorage,
+    TrendingTag,
     WeightName,
     Weights
 } from "./types";
@@ -113,6 +116,24 @@ export default class Storage {
     static async setFeed(timeline: Toot[]) {
         const toots = timeline.map(t => ({...t})) as TootExtension[];  // Remove functions so it can be serialized
         await this.set(Key.TIMELINE, toots);
+    }
+
+    static async setTrending(tags: TrendingTag[], links: TrendingLink[]) {
+        const trendingData: TrendingStorage = {
+            links: links,
+            tags: tags,
+        };
+
+        await this.set(Key.TRENDING, trendingData);
+    }
+
+    static async getTrending(): Promise<TrendingStorage> {
+        const trendingData = await this.get(Key.TRENDING) as TrendingStorage;
+
+        return {
+            links: (trendingData?.links ?? []) as TrendingLink[],
+            tags: (trendingData?.tags ?? []) as TrendingTag[],
+        }
     }
 
     // Get the value at the given key (with the user ID as a prefix)

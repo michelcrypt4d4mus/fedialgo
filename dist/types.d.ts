@@ -18,6 +18,7 @@ export declare enum Key {
     RECENT_USER_TOOTS = "recentUserToots",
     SERVER_SIDE_FILTERS = "serverFilters",
     TIMELINE = "timeline",
+    TRENDING = "trending",
     USER = "algouser",
     WEIGHTS = "weights"
 }
@@ -143,4 +144,8 @@ export type TrendingTagToots = {
     tags: TrendingTag[];
     toots: Toot[];
 };
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;
+export type TrendingStorage = {
+    tags: TrendingTag[];
+    links: TrendingLink[];
+};
+export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;
