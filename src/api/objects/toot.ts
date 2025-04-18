@@ -240,9 +240,10 @@ export default class Toot implements TootObj {
         );
     }
 
-    // Shortened string of contents, stripped of HTML tags
+    // Shortened string of content property stripped of HTML tags
     contentShortened(): string {
         let content = this.reblog?.content || this.content || "";
+        content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
 
         if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -258,7 +259,7 @@ export default class Toot implements TootObj {
             content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
         }
 
-        return content.replace(/\n/g, " ").replace(/<[^>]+>/g, "");
+        return content;
     }
 
     // Returns a simplified version of the toot for logging
