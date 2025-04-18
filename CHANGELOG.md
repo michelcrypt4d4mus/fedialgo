@@ -1,10 +1,12 @@
 ## NEXT
+* Preserve `TheAlgorithm.trendingLinks` for use in client
 
 ### 0.16.1
 * Bump `image-size` package for vulnerability fix (`npm audit fix`)
 
 ## 0.16.0
 * `Algorithm.buildTagURL()` helper method
+* Extract and preserve `TheAlgorithm.trendingTags` for use in client
 * `DiversityFeedScorer` logs at DEBUG level
 * [Demo App] "What's Trending" accordion section
 

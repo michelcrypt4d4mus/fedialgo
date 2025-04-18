@@ -21,7 +21,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, TrendingTag, WeightName, Weights } from "./types";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingTag, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare const TRENDING = WeightName.TRENDING;
 declare class TheAlgorithm {
@@ -34,7 +34,7 @@ declare class TheAlgorithm {
     mutedAccounts: AccountNames;
     scoreMutex: Mutex;
     serverSideFilters: mastodon.v2.Filter[];
-    trendingLinks: mastodon.v1.TrendLink[];
+    trendingLinks: TrendingLink[];
     trendingTags: TrendingTag[];
     trendingToots: Toot[];
     setFeedInApp: (f: Toot[]) => void;

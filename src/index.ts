@@ -38,6 +38,7 @@ import {
     ScorerDict,
     ScorerInfo,
     StringNumberDict,
+    TrendingLink,
     TrendingTag,
     WeightName,
     Weights,
@@ -59,7 +60,7 @@ class TheAlgorithm {
     mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
     serverSideFilters: mastodon.v2.Filter[] = [];
-    trendingLinks: mastodon.v1.TrendLink[] = [];
+    trendingLinks: TrendingLink[] = [];
     trendingTags: TrendingTag[] = [];
     trendingToots: Toot[] = [];
     // Optional callback to set the feed in the code using this package
@@ -70,6 +71,7 @@ class TheAlgorithm {
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        new TrendingLinksScorer(),    // Must come first for trendingLinks extraction!
         this.followedTagsScorer,
         this.mentionsFollowedScorer,  // pulls followed accounts
         new ChaosScorer(),
@@ -81,7 +83,6 @@ class TheAlgorithm {
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootedUsersScorer(),
-        new TrendingLinksScorer(),
         new TrendingTagsScorer(),
         new TrendingTootScorer(),
         new VideoAttachmentScorer(),
@@ -103,7 +104,7 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        // TimeDecay and Trending require bespoke handling so it's not included in the loop above
+        // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
         {
             [TIME_DECAY]: Object.assign({}, DEFAULT_WEIGHTS[TIME_DECAY]),
             [TRENDING]: Object.assign({}, DEFAULT_WEIGHTS[TRENDING]),
@@ -151,9 +152,11 @@ class TheAlgorithm {
 
         const allResponses = await Promise.all(promises);
         console.debug(`getFeed() allResponses:`, allResponses);
-        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // 1st promise yields TimelineData obj
+        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift();  // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
         // Store trending data so it's accessible to client
+        this.trendingLinks = (this.featureScorers[0] as TrendingLinksScorer).trendingLinks;
+        console.log(`Extracted ${this.trendingLinks.length} trending links from the feed...`, this.trendingLinks);
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
         this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
 

@@ -90,6 +90,7 @@ class TheAlgorithm {
     mentionsFollowedScorer = new mentions_followed_scorer_1.default();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        new trending_links_scorer_1.default(),
         this.followedTagsScorer,
         this.mentionsFollowedScorer,
         new chaos_scorer_1.default(),
@@ -101,7 +102,6 @@ class TheAlgorithm {
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retooted_users_scorer_1.default(),
-        new trending_links_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
@@ -119,7 +119,7 @@ class TheAlgorithm {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, 
-    // TimeDecay and Trending require bespoke handling so it's not included in the loop above
+    // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
     {
         [TIME_DECAY]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TIME_DECAY]),
         [TRENDING]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TRENDING]),
@@ -160,9 +160,11 @@ class TheAlgorithm {
         }
         const allResponses = await Promise.all(promises);
         console.debug(`getFeed() allResponses:`, allResponses);
-        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // 1st promise yields TimelineData obj
+        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
         // Store trending data so it's accessible to client
+        this.trendingLinks = this.featureScorers[0].trendingLinks;
+        console.log(`Extracted ${this.trendingLinks.length} trending links from the feed...`, this.trendingLinks);
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
         this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
         if (allResponses.length > 0) {
