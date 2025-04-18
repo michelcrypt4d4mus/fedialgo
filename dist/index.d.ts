@@ -60,6 +60,5 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
-    learnWeights(tootScores: Weights, step?: number): Promise<Weights | undefined>;
 }
 export { TIME_DECAY, TRENDING, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TypeFilterName, WeightName, Weights, accountNameWithEmojis, };

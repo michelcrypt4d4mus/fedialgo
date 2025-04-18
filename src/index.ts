@@ -395,43 +395,6 @@ class TheAlgorithm {
 
         console.log(msg.join(', '));
     }
-
-    // Adjust toot weights based on user's chosen slider values
-    // TODO: unclear whether this is working correctly
-    async learnWeights(tootScores: Weights, step = 0.001): Promise<Weights | undefined> {
-        console.debug(`learnWeights() called with 'tootScores' arg but is not implemented`, tootScores);
-        return;
-
-        // if (!this.filters.weightLearningEnabled) {
-        if (true) {
-            console.debug(`learnWeights() called but weight learning is disabled...`);
-            return;
-        } else if (!tootScores) {
-            console.debug(`learnWeights() called but tootScores arg is empty...`);
-            return;
-        }
-
-        // Compute the total and mean score (AKA 'weight') of all the posts we are weighting
-        const total = Object.values(tootScores)
-                            .filter((value) => !isNaN(value))
-                            .reduce((accumulator, currentValue) => accumulator + Math.abs(currentValue), 0);
-        const mean = total / Object.values(tootScores).length;
-
-        // Compute the sum and mean of the preferred weighting configured by the user with the weight sliders
-        const newTootScores = await this.getUserWeights()
-        const userWeightTotal = Object.values(newTootScores)
-                                   .filter((value: number) => !isNaN(value))
-                                   .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        const meanUserWeight = userWeightTotal / Object.values(newTootScores).length;
-
-        for (let key in newTootScores) {
-            const reweight = 1 - (Math.abs(tootScores[key as WeightName]) / mean) / (newTootScores[key as WeightName] / meanUserWeight);
-            newTootScores[key as WeightName] = newTootScores[key as WeightName] - (step * newTootScores[key as WeightName] * reweight);  // TODO: this seems wrong?
-        }
-
-        await this.updateUserWeights(newTootScores);
-        return newTootScores;
-    }
 };
 
 

@@ -95,16 +95,6 @@ The timeline is returned as an array of `Toot` objects which are a minimal exten
 ### Package Configuration
 Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
 
-### ~~Learn Weights~~
-**DOES NOT CURRENTLY WORK!** can be enabled only by manually changing the value of `weightLearningEnabled` variable in this codebase.
-
-You can also let the algorithm learn the weights from the user's behaviour. This is done by passing the scores of the posts to the algorithm. The algorithm will then adjust the weights accordingly. This is quite simple, but still has impact on the feed. For example you could choose to adjust the weight after each click on a post, after a reblog, or after a link click.
-
-```typescript
-const scores = status.scores
-const newWeights = await algoObj.learnWeights(scores)
-```
-
 
 # Contributing
 ### Developer Setup
