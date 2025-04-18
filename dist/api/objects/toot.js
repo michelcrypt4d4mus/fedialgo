@@ -192,8 +192,21 @@ class Toot {
     // Shortened string of contents, stripped of HTML tags
     contentShortened() {
         let content = this.reblog?.content || this.content || "";
-        if (content.length > MAX_CONTENT_PREVIEW_CHARS)
+        if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
+        }
+        else if (content.length == 0) {
+            if (this.videoAttachments.length > 0) {
+                content = "VIDEO";
+            }
+            else if (this.audioAttachments.length > 0) {
+                content = "AUDIO";
+            }
+            else if (this.imageAttachments.length > 0) {
+                content = "IMAGE";
+            }
+            content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
+        }
         return content.replace(/\n/g, " ").replace(/<[^>]+>/g, "");
     }
     // Returns a simplified version of the toot for logging
