@@ -189,9 +189,10 @@ class Toot {
             || this.trendingLinks?.length
             || this.trendingTags?.length);
     }
-    // Shortened string of contents, stripped of HTML tags
+    // Shortened string of content property stripped of HTML tags
     contentShortened() {
         let content = this.reblog?.content || this.content || "";
+        content = content.replace(/<\/p>/gi, "\n").trim();
         content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
         if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -212,10 +213,6 @@ class Toot {
     }
     // Returns a simplified version of the toot for logging
     condensedStatus() {
-        // Contents of toot (the text)
-        let content = this.reblog?.content || this.content || "";
-        if (content.length > MAX_CONTENT_PREVIEW_CHARS)
-            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         // Account info for the person who tooted it
         let accountLabel = this.describeAccount();
         if (this.reblog)
@@ -227,7 +224,7 @@ class Toot {
         const tootObj = {
             FROM: `${accountLabel} [${this.createdAt}]`,
             URL: this.url,
-            content: content,
+            content: this.contentShortened(),
             retootOf: this.reblog ? `${this.reblog.describeAccount()} (${this.reblog.createdAt})` : null,
             inReplyToId: this.inReplyToId,
             mediaAttachments: mediaAttachments,
