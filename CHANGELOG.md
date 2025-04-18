@@ -1,4 +1,6 @@
 ## NEXT
+
+### 0.16.5
 * Better handling of no text toots in `Toot.contentShortened()`
 
 ### 0.16.4
