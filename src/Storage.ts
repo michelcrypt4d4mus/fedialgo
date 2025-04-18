@@ -119,12 +119,7 @@ export default class Storage {
     }
 
     static async setTrending(links: TrendingLink[], tags: TrendingTag[]) {
-        const trendingData: TrendingStorage = {
-            links: links,
-            tags: tags,
-        };
-
-        await this.set(Key.TRENDING, trendingData);
+        await this.set(Key.TRENDING, {links, tags} as TrendingStorage);
     }
 
     static async getTrending(): Promise<TrendingStorage> {

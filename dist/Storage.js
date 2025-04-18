@@ -88,11 +88,7 @@ class Storage {
         await this.set(types_1.Key.TIMELINE, toots);
     }
     static async setTrending(links, tags) {
-        const trendingData = {
-            links: links,
-            tags: tags,
-        };
-        await this.set(types_1.Key.TRENDING, trendingData);
+        await this.set(types_1.Key.TRENDING, { links, tags });
     }
     static async getTrending() {
         const trendingData = await this.get(types_1.Key.TRENDING);
