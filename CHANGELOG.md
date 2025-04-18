@@ -1,5 +1,8 @@
 ## NEXT
 
+### 0.16.3
+* [Demo App] Add Stick To Top checkbox for left panel
+
 ### 0.16.2
 * Preserve `TheAlgorithm.trendingLinks` for use in client
 * Save trending links and data to local storage
