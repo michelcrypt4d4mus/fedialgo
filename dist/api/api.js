@@ -32,9 +32,9 @@ const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
+const types_1 = require("../types");
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
-const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
 const helpers_2 = require("../helpers");
 exports.INSTANCE = "instance";
@@ -266,6 +266,7 @@ class MastoApi {
     }
     ;
     // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
+    // TODO: maybe rename to getLocalAccountURL()?
     getAccountURL(account) {
         if (account.url.endsWith(`@${this.homeDomain}`)) {
             return account.url.substring(0, account.url.lastIndexOf('@'));
@@ -274,6 +275,29 @@ class MastoApi {
             return account.url;
         }
     }
+    ;
+    // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
+    // foreign server toot URI to one on the user's local server.
+    //
+    // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
+    //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    async resolveToot(toot) {
+        console.debug(`resolveToot() called for`, toot);
+        const tootURI = toot.realURI();
+        const urlDomain = (0, helpers_1.extractDomain)(tootURI);
+        if (urlDomain == this.homeDomain)
+            return toot;
+        const lookupResult = await this.api.v2.search.fetch({ q: tootURI, resolve: true });
+        if (!lookupResult?.statuses?.length) {
+            const msg = `resolveToot('${tootURI}') got bad result:`;
+            console.warn(msg, lookupResult);
+            throw new Error(`${msg}\n${JSON.stringify(lookupResult)}`);
+        }
+        const resolvedStatus = lookupResult.statuses[0];
+        console.debug(`resolveToot('${tootURI}') found resolvedStatus:`, resolvedStatus);
+        return new toot_1.default(resolvedStatus);
+    }
+    ;
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     async fetchData(fetchParams) {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;

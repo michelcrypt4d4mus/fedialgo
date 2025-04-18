@@ -19,6 +19,7 @@ import {
 } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
+import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
@@ -41,9 +42,12 @@ export enum TootVisibility {
 interface TootObj extends TootExtension {
     containsString: (str: string) => boolean;
     describe: () => string;
+    homserverAccountURL: () => string;
+    homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
     realURI: () => string;
+    resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
     audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -88,6 +92,8 @@ export default class Toot implements TootObj {
     followedTags: mastodon.v1.Tag[]; // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean; // Whether the user follows the account that posted this toot
     reblogsBy: mastodon.v1.Account[]; // The accounts that retooted this toot
+    resolveAttempted?: boolean; // Set to true if an attempt at resolving the toot has occurred
+    resolvedToot?: Toot; // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
     trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks: TrendingLink[]; // Links that are trending in this toot
@@ -131,6 +137,8 @@ export default class Toot implements TootObj {
         this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []) as mastodon.v1.Account[];
+        this.resolveAttempted = toot.resolveAttempted ?? false;
+        this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo as TootScore;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
@@ -165,6 +173,41 @@ export default class Toot implements TootObj {
 
     realURI(): string {
         return this.reblog?.uri || this.uri;
+    }
+
+    // Default to this.uri if this.url is empty
+    realURL(): string {
+        return this.reblog?.url || this.url || this.realURI();
+    }
+
+    async resolve(): Promise<Toot | undefined> {
+        if (this.resolveAttempted) return this.resolvedToot;
+
+        try {
+            this.resolvedToot = await MastoApi.instance.resolveToot(this);
+        } catch (error) {
+            console.warn(`Error resolving toot:`, error);
+            console.warn(`Failed to resolve toot:`, this);
+        }
+
+        this.resolveAttempted = true;
+        return this.resolvedToot;
+    }
+
+    // TODO: account.acct should have the "@" injected at repair time
+    homserverAccountURL(): string {
+        return `https://${MastoApi.instance.homeDomain}/@${this.account.acct}`;
+    }
+
+    // Convert remote mastodon server URLs to local ones, e.g.
+    //     transform this: https://fosstodon.org/@kate/114360290341300577
+    //            to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    async homeserverURL(): Promise<string> {
+        const resolved = await this.resolve();
+        if (!resolved) return this.realURL();
+        const homeURL = `${this.homserverAccountURL()}/${resolved.id}`;
+        console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
+        return homeURL;
     }
 
     tootedAt(): Date {
@@ -246,18 +289,19 @@ export default class Toot implements TootObj {
         content = content.replace(/<\/p>/gi, "\n").trim();
         content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
 
-        if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
-            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
-        } else if (content.length == 0) {
-            if (this.videoAttachments.length > 0) {
+        // Fill in placeholders if content string is empty, truncate it if it's too long
+        if (content.length == 0) {
+            if (this.videoAttachments().length > 0) {
                 content = "VIDEO";
-            } else if (this.audioAttachments.length > 0) {
+            } else if (this.audioAttachments().length > 0) {
                 content = "AUDIO";
-            } else if (this.imageAttachments.length > 0) {
+            } else if (this.imageAttachments().length > 0) {
                 content = "IMAGE";
             }
 
             content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
+        } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
+            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
 
         return content;

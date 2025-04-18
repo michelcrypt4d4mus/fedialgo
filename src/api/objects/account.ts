@@ -29,6 +29,7 @@ export function describeAccount(account: mastodon.v1.Account): string {
 
 
 // Inject the @server info to accounts on the user's home server
+// TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
 // TODO: home server needs to be removed from URL or links break!
 export function repairAccount(account: AccountLike): void {
     account.url = MastoApi.instance.getAccountURL(account);

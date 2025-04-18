@@ -11,9 +11,12 @@ export declare enum TootVisibility {
 interface TootObj extends TootExtension {
     containsString: (str: string) => boolean;
     describe: () => string;
+    homserverAccountURL: () => string;
+    homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
     realURI: () => string;
+    resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
     audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
     imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
@@ -54,6 +57,8 @@ export default class Toot implements TootObj {
     followedTags: mastodon.v1.Tag[];
     isFollowed?: boolean;
     reblogsBy: mastodon.v1.Account[];
+    resolveAttempted?: boolean;
+    resolvedToot?: Toot;
     scoreInfo?: TootScore;
     trendingRank?: number;
     trendingLinks: TrendingLink[];
@@ -64,6 +69,10 @@ export default class Toot implements TootObj {
     describeAccount(): string;
     popularity(): number;
     realURI(): string;
+    realURL(): string;
+    resolve(): Promise<Toot | undefined>;
+    homserverAccountURL(): string;
+    homeserverURL(): Promise<string>;
     tootedAt(): Date;
     audioAttachments(): Array<mastodon.v1.MediaAttachment>;
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;

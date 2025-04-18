@@ -30,6 +30,7 @@ export declare class MastoApi {
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getTopServerDomains(): Promise<string[]>;
     getAccountURL(account: AccountLike): string;
+    resolveToot(toot: Toot): Promise<Toot>;
     private fetchData;
     private shouldReloadFeatures;
     private throwIfAccessTokenRevoked;

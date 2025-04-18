@@ -8,6 +8,7 @@ const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const account_1 = require("./account");
 const types_1 = require("../../types");
+const api_1 = require("../api");
 const tag_1 = require("./tag");
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 const MAX_CONTENT_PREVIEW_CHARS = 110;
@@ -59,6 +60,8 @@ class Toot {
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
     reblogsBy; // The accounts that retooted this toot
+    resolveAttempted; // Set to true if an attempt at resolving the toot has occurred
+    resolvedToot; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
@@ -100,6 +103,8 @@ class Toot {
         this.followedTags = (toot.followedTags ?? []);
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []);
+        this.resolveAttempted = toot.resolveAttempted ?? false;
+        this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = (toot.trendingLinks ?? []);
@@ -129,6 +134,38 @@ class Toot {
     }
     realURI() {
         return this.reblog?.uri || this.uri;
+    }
+    // Default to this.uri if this.url is empty
+    realURL() {
+        return this.reblog?.url || this.url || this.realURI();
+    }
+    async resolve() {
+        if (this.resolveAttempted)
+            return this.resolvedToot;
+        try {
+            this.resolvedToot = await api_1.MastoApi.instance.resolveToot(this);
+        }
+        catch (error) {
+            console.warn(`Error resolving toot:`, error);
+            console.warn(`Failed to resolve toot:`, this);
+        }
+        this.resolveAttempted = true;
+        return this.resolvedToot;
+    }
+    // TODO: account.acct should have the "@" injected at repair time
+    homserverAccountURL() {
+        return `https://${api_1.MastoApi.instance.homeDomain}/@${this.account.acct}`;
+    }
+    // Convert remote mastodon server URLs to local ones, e.g.
+    //     transform this: https://fosstodon.org/@kate/114360290341300577
+    //            to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    async homeserverURL() {
+        const resolved = await this.resolve();
+        if (!resolved)
+            return this.realURL();
+        const homeURL = `${this.homserverAccountURL()}/${resolved.id}`;
+        console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
+        return homeURL;
     }
     tootedAt() {
         return new Date(this.createdAt);
@@ -194,20 +231,21 @@ class Toot {
         let content = this.reblog?.content || this.content || "";
         content = content.replace(/<\/p>/gi, "\n").trim();
         content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
-        if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
-            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
-        }
-        else if (content.length == 0) {
-            if (this.videoAttachments.length > 0) {
+        // Fill in placeholders if content string is empty, truncate it if it's too long
+        if (content.length == 0) {
+            if (this.videoAttachments().length > 0) {
                 content = "VIDEO";
             }
-            else if (this.audioAttachments.length > 0) {
+            else if (this.audioAttachments().length > 0) {
                 content = "AUDIO";
             }
-            else if (this.imageAttachments.length > 0) {
+            else if (this.imageAttachments().length > 0) {
                 content = "IMAGE";
             }
             content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
+        }
+        else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
+            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
         return content;
     }
