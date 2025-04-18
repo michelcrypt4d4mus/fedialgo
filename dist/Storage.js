@@ -87,7 +87,7 @@ class Storage {
         const toots = timeline.map(t => ({ ...t })); // Remove functions so it can be serialized
         await this.set(types_1.Key.TIMELINE, toots);
     }
-    static async setTrending(tags, links) {
+    static async setTrending(links, tags) {
         const trendingData = {
             links: links,
             tags: tags,

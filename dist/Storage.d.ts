@@ -16,7 +16,7 @@ export default class Storage {
     static setIdentity(user: mastodon.v1.Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
-    static setTrending(tags: TrendingTag[], links: TrendingLink[]): Promise<void>;
+    static setTrending(links: TrendingLink[], tags: TrendingTag[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static get(key: StorageKey): Promise<StorageValue | null>;
     static set(key: StorageKey, value: StorageValue): Promise<void>;

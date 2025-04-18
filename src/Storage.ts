@@ -118,7 +118,7 @@ export default class Storage {
         await this.set(Key.TIMELINE, toots);
     }
 
-    static async setTrending(tags: TrendingTag[], links: TrendingLink[]) {
+    static async setTrending(links: TrendingLink[], tags: TrendingTag[]) {
         const trendingData: TrendingStorage = {
             links: links,
             tags: tags,

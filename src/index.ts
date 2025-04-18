@@ -164,6 +164,7 @@ class TheAlgorithm {
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
         this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
 
+        // This if condition should be equivalent to the if (!maxId) above
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
             this.mutedAccounts = userData.mutedAccounts;
@@ -365,7 +366,9 @@ class TheAlgorithm {
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.logFeedInfo(logPrefix);
+                // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage.setFeed(this.feed);
+                Storage.setTrending(this.trendingLinks, this.trendingTags);
             } finally {
                 releaseMutex();
             }
