@@ -1,5 +1,6 @@
 ## NEXT
 * Preserve `TheAlgorithm.trendingLinks` for use in client
+* Save trending links and data to local storage
 
 ### 0.16.1
 * Bump `image-size` package for vulnerability fix (`npm audit fix`)
