@@ -1,4 +1,5 @@
 ## NEXT
+* Better handling of no text toots in `Toot.contentShortened()`
 
 ### 0.16.4
 * Store and reload trendingToots; add `Toot.contentShortened()` method
