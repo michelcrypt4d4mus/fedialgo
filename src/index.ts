@@ -304,7 +304,7 @@ class TheAlgorithm {
                     // It's important that we *only* look at home timeline toots here. Toots from other servers
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[5];
-                    console.log(`calling getFeed() recursively current newHomeToots:`, newHomeToots);
+                    console.log(`calling getFeed() recursively, current newHomeToots:`, newHomeToots);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS
