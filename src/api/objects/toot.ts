@@ -306,7 +306,8 @@ export default class Toot implements TootObj {
     }
 
     // Shortened string of content property stripped of HTML tags
-    contentShortened(): string {
+    contentShortened(maxChars?: number): string {
+        maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
         let content = htmlToText(this.reblog?.content || this.content || "");
         content = replaceHttpsLinks(content);
 

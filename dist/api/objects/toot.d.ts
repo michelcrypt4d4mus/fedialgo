@@ -94,7 +94,7 @@ export default class Toot implements TootObj {
     contentWithEmojis(fontSize?: number): string;
     isDM(): boolean;
     isTrending(): boolean;
-    contentShortened(): string;
+    contentShortened(maxChars?: number): string;
     condensedStatus(): object;
     reblogsByAccts(): string[];
     attachmentPrefix(): string;

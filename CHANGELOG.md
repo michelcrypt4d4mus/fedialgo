@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Include `Toot.repliesCount` in `Toot.popularity()`
 
 ### 0.16.8
 * Replace links with `[domain.name]` in trending link titles

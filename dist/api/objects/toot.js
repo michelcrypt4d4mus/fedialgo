@@ -140,7 +140,7 @@ class Toot {
         return this.reblog ? (0, account_1.describeAccount)(this.reblog.account) : this.describeAccount();
     }
     popularity() {
-        return (this.favouritesCount || 0) + (this.reblogsCount || 0);
+        return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
     }
     realURI() {
         return this.reblog?.uri || this.uri;
@@ -238,7 +238,8 @@ class Toot {
             || this.trendingTags?.length);
     }
     // Shortened string of content property stripped of HTML tags
-    contentShortened() {
+    contentShortened(maxChars) {
+        maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
         let content = (0, helpers_1.htmlToText)(this.reblog?.content || this.content || "");
         content = (0, helpers_1.replaceHttpsLinks)(content);
         // Fill in placeholders if content string is empty, truncate it if it's too long
