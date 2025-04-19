@@ -289,18 +289,19 @@ class Toot {
     // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
     attachmentPrefix() {
         const attachmentType = this.attachmentType();
-        return attachmentType ? `[${ATTACHMENT_ICONS[attachmentType]}]` : "";
+        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
     }
     // Return 'video' if toot contains a video, 'image' if it contains an image, undefined if no attachments
+    // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
-        if (this.videoAttachments().length > 0) {
-            return helpers_1.VIDEO;
-        }
-        else if (this.audioAttachments().length > 0) {
+        if (this.audioAttachments().length > 0) {
             return helpers_1.AUDIO;
         }
         else if (this.imageAttachments().length > 0) {
             return helpers_1.IMAGE;
+        }
+        else if (this.videoAttachments().length > 0) {
+            return helpers_1.VIDEO;
         }
     }
     // Remove fxns so toots can be serialized
