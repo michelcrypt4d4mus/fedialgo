@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Include `Toot.repliesCount` in `Toot.popularity()`
+* Include `Toot.repliesCount` when scoring `Toot.popularity()`
+* Add optional maxChars arg to `Toot.contentShortened()`
 
 ### 0.16.8
 * Replace links with `[domain.name]` in trending link titles
