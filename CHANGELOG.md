@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### 0.16.8
+
 ### 0.16.7
 * Replace links with `[domain.name]` in trending link titles
 * Prefix trending links with `[domain.name]`
