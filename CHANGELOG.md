@@ -2,6 +2,7 @@
 
 ### 0.16.7
 * Replace links with `[domain.name]` in trending link titles
+* Prefix trending links with `[domain.name]`
 * Remove unused learnWeights related cruft
 * Add account name when describing no text Toots in trending list
 

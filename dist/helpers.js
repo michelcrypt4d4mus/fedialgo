@@ -14,7 +14,7 @@ exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.MEDIA_TYPES = [exports.AUDIO, exports.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-// "http://mast.ai/foobar" => "mast.ai"
+// "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";
     if (countInstances(url, "/") < 2) {
