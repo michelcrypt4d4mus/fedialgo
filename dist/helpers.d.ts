@@ -9,6 +9,7 @@ export declare const VIDEO_EXTENSIONS: string[];
 export declare const MEDIA_TYPES: string[];
 export declare const DEFAULT_FONT_SIZE = 15;
 export declare const extractDomain: (url: string) => string;
+export declare function htmlToText(html: string): string;
 export declare function average(values: number[]): number;
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function isVideo(uri: string | null | undefined): boolean;

@@ -67,6 +67,7 @@ export default class Toot implements TootObj {
     containsString(str: string): boolean;
     describe(): string;
     describeAccount(): string;
+    describeRealAccount(): string;
     popularity(): number;
     realURI(): string;
     realURL(): string;

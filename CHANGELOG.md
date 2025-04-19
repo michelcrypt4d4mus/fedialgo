@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Remove unused learnWeights related cruft
+* Add account name when describing no text Toots in trending list
 
 ### 0.16.6
 * `Toot.homeserverURL()` method to allow linking on the user's mastodon instance instead of remote servers

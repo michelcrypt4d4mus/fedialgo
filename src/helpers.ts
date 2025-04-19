@@ -19,6 +19,16 @@ export const DEFAULT_FONT_SIZE = 15;
 export const extractDomain = (url: string): string => url?.split("/")[2];
 
 
+// Remove HTML tags and newlines from a string
+export function htmlToText(html: string): string {
+    let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
+    txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
+    txt = txt.replace(/\n/g, " ");                   // Strip newlines
+    txt = txt.replace(/\s+/g, " ");                  // Collapse multiple spaces
+    return txt.trim();
+};
+
+
 // Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number {
     values = values.filter(v => !!v);

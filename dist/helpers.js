@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
 exports.AUDIO = "audio";
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
@@ -12,6 +12,16 @@ exports.DEFAULT_FONT_SIZE = 15;
 // "http://mast.ai/foobar" => "mast.ai"
 const extractDomain = (url) => url?.split("/")[2];
 exports.extractDomain = extractDomain;
+// Remove HTML tags and newlines from a string
+function htmlToText(html) {
+    let txt = html.replace(/<\/p>/gi, "\n").trim(); // Turn closed <p> tags into newlines
+    txt = txt.replace(/<[^>]+>/g, ""); // Strip HTML tags
+    txt = txt.replace(/\n/g, " "); // Strip newlines
+    txt = txt.replace(/\s+/g, " "); // Collapse multiple spaces
+    return txt.trim();
+}
+exports.htmlToText = htmlToText;
+;
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);

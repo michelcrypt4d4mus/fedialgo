@@ -13,6 +13,7 @@ import {
     VIDEO_TYPES,
     VIDEO,
     groupBy,
+    htmlToText,
     isImage,
     isVideo,
     replaceEmojiShortcodesWithImageTags
@@ -167,6 +168,11 @@ export default class Toot implements TootObj {
         return describeAccount(this.account);
     }
 
+    // Describe the original account that posted this toot if it's a reblog falling back to this.describeAccount()
+    describeRealAccount(): string {
+        return this.reblog ? describeAccount(this.reblog.account) : this.describeAccount();
+    }
+
     popularity(): number {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0);
     }
@@ -286,21 +292,21 @@ export default class Toot implements TootObj {
 
     // Shortened string of content property stripped of HTML tags
     contentShortened(): string {
-        let content = this.reblog?.content || this.content || "";
-        content = content.replace(/<\/p>/gi, "\n").trim();
-        content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
+        let content = htmlToText(this.reblog?.content || this.content || "");
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             if (this.videoAttachments().length > 0) {
-                content = "VIDEO";
+                content = VIDEO;
             } else if (this.audioAttachments().length > 0) {
-                content = "AUDIO";
+                content = AUDIO;
             } else if (this.imageAttachments().length > 0) {
-                content = "IMAGE";
+                content = IMAGE;
             }
 
-            content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
+            content = content.toUpperCase();
+            content = content.length > 0 ? `${content}_ONLY from ${this.describeRealAccount()}` : "EMPTY_TOOT";
+            content = `[${content}]`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
@@ -312,7 +318,7 @@ export default class Toot implements TootObj {
     condensedStatus()  {
         // Account info for the person who tooted it
         let accountLabel = this.describeAccount();
-        if (this.reblog) accountLabel += ` ｟⬆️⬆️RETOOT of ${this.reblog.describeAccount()}⬆️⬆️｠`;
+        if (this.reblog) accountLabel += ` ｟⬆️⬆RETOOT of ${this.reblog.describeAccount()}⬆️⬆｠`;
         // Attachment info
         let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
         if (mediaAttachments.length == 0) mediaAttachments = [];

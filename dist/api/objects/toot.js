@@ -129,6 +129,10 @@ class Toot {
     describeAccount() {
         return (0, account_1.describeAccount)(this.account);
     }
+    // Describe the original account that posted this toot if it's a reblog falling back to this.describeAccount()
+    describeRealAccount() {
+        return this.reblog ? (0, account_1.describeAccount)(this.reblog.account) : this.describeAccount();
+    }
     popularity() {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0);
     }
@@ -152,13 +156,14 @@ class Toot {
         this.resolveAttempted = true;
         return this.resolvedToot;
     }
-    // TODO: account.acct should have the "@" injected at repair time
+    // URL for the account that posted this toot on the home server isntead of on the poster's server
+    // TODO: account.acct should have the "@" injected at repair time?
     homserverAccountURL() {
         return `https://${api_1.MastoApi.instance.homeDomain}/@${this.account.acct}`;
     }
-    // Convert remote mastodon server URLs to local ones, e.g.
-    //     transform this: https://fosstodon.org/@kate/114360290341300577
-    //            to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
+    //          this: https://fosstodon.org/@kate/114360290341300577
+    //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL() {
         const resolved = await this.resolve();
         if (!resolved)
@@ -228,21 +233,21 @@ class Toot {
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened() {
-        let content = this.reblog?.content || this.content || "";
-        content = content.replace(/<\/p>/gi, "\n").trim();
-        content = content.replace(/<[^>]+>/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
+        let content = (0, helpers_1.htmlToText)(this.reblog?.content || this.content || "");
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             if (this.videoAttachments().length > 0) {
-                content = "VIDEO";
+                content = helpers_1.VIDEO;
             }
             else if (this.audioAttachments().length > 0) {
-                content = "AUDIO";
+                content = helpers_1.AUDIO;
             }
             else if (this.imageAttachments().length > 0) {
-                content = "IMAGE";
+                content = helpers_1.IMAGE;
             }
-            content = content.length > 0 ? `[${content}_ONLY]` : "[EMPTY_TOOT]";
+            content = content.toUpperCase();
+            content = content.length > 0 ? `${content}_ONLY from ${this.describeRealAccount()}` : "EMPTY_TOOT";
+            content = `[${content}]`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -254,7 +259,7 @@ class Toot {
         // Account info for the person who tooted it
         let accountLabel = this.describeAccount();
         if (this.reblog)
-            accountLabel += ` ｟⬆️⬆️RETOOT of ${this.reblog.describeAccount()}⬆️⬆️｠`;
+            accountLabel += ` ｟⬆️⬆RETOOT of ${this.reblog.describeAccount()}⬆️⬆｠`;
         // Attachment info
         let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
         if (mediaAttachments.length == 0)
