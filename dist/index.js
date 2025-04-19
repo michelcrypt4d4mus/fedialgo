@@ -154,23 +154,24 @@ class TheAlgorithm {
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
+        let dataFetches = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
-            promises = promises.concat([
+            dataFetches = dataFetches.concat([
                 api_1.MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
-        const allResponses = await Promise.all(promises);
+        const allResponses = await Promise.all(dataFetches);
         console.debug(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
-        // Store trending data so it's accessible to client
+        // Store trending data so it's accessible to client if page is reloaded
         this.trendingLinks = this.featureScorers[0].trendingLinks;
         this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
-        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots; // TODO: display trending toots?
+        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
+        Storage_1.default.setTrending(this.trendingLinks, this.trendingTags, this.trendingToots);
         // This if condition should be equivalent to the if (!maxId) above
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
@@ -261,7 +262,7 @@ class TheAlgorithm {
             });
         });
         // TODO: if there's a validValues element for a filter section that is no longer in the feed
-        // the user will not be presented with the option to turn it off. This is a bug.
+        //       the user will not be presented with the option to turn it off. This is a bug.
         Object.entries(tootCounts).forEach(([propertyName, counts]) => {
             this.filters.filterSections[propertyName].setOptions(counts);
         });
@@ -346,7 +347,6 @@ class TheAlgorithm {
                 this.logFeedInfo(logPrefix);
                 // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage_1.default.setFeed(this.feed);
-                Storage_1.default.setTrending(this.trendingLinks, this.trendingTags, this.trendingToots);
             }
             finally {
                 releaseMutex();

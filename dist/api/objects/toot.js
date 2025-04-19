@@ -259,7 +259,7 @@ class Toot {
         // Account info for the person who tooted it
         let accountLabel = this.describeAccount();
         if (this.reblog)
-            accountLabel += ` ｟⬆️⬆RETOOT of ${this.reblog.describeAccount()}⬆️⬆｠`;
+            accountLabel += ` (⬆ retooting ${this.reblog.describeAccount()} ⬆)`;
         // Attachment info
         let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
         if (mediaAttachments.length == 0)
