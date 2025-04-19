@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### 0.16.9
 * Include `Toot.repliesCount` when scoring `Toot.popularity()`
 * Add optional maxChars arg to `Toot.contentShortened()`
 
