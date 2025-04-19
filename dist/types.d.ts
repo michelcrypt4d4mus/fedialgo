@@ -50,11 +50,10 @@ export type StatusList = mastodon.v1.Status[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
-export interface AlgorithmArgs {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;
-}
+export type CountKey = FilterTitle | string;
+export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
+export type FilterTitle = PropertyName | WeightName;
+export type StorageKey = Key | WeightName;
 export type Config = {
     defaultLanguage: string;
     defaultRecordsPerPage: number;
@@ -79,10 +78,11 @@ export type Config = {
     defaultServers: string[];
     noMauServers: string[];
 };
-export type CountKey = FilterTitle | string;
-export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = PropertyName | WeightName;
-export type StorageKey = Key | WeightName;
+export interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;
+}
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
@@ -141,4 +141,4 @@ export type TrendingStorage = {
 };
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;
+export type StorageValue = (FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number);

@@ -59,11 +59,12 @@ export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
 
-export interface AlgorithmArgs {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
-};
+// Misc
+export type CountKey = FilterTitle | string;
+export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
+export type FilterTitle = PropertyName | WeightName;
+export type StorageKey = Key | WeightName;
+
 
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
@@ -96,10 +97,13 @@ export type Config = {
     noMauServers: string[];
 };
 
-export type CountKey = FilterTitle | string;
-export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = PropertyName | WeightName;
-export type StorageKey = Key | WeightName;
+
+export interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
+};
+
 
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
@@ -173,19 +177,20 @@ export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
 // Types that are valid for browser local storage
-export type StorageValue =
-        FeedFilterSettings |
-        FeedFilterSettingsSerialized |
-        StringNumberDict |
-        SerializableToot[] |
-        TootURIs |
-        TrendingStorage |
-        Weights |
-        mastodon.v1.Account |
-        mastodon.v1.Account[] |
-        mastodon.v2.Filter[] |
-        mastodon.v1.TrendLink[] |
-        number;
+export type StorageValue = (
+    FeedFilterSettings |
+    FeedFilterSettingsSerialized |
+    StringNumberDict |
+    SerializableToot[] |
+    TootURIs |
+    TrendingStorage |
+    Weights |
+    mastodon.v1.Account |
+    mastodon.v1.Account[] |
+    mastodon.v2.Filter[] |
+    mastodon.v1.TrendLink[] |
+    number
+);
 
 
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
