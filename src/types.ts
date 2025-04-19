@@ -66,6 +66,12 @@ export type FilterTitle = PropertyName | WeightName;
 export type StorageKey = Key | WeightName;
 
 
+export interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
+};
+
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
     defaultLanguage: string;
@@ -97,22 +103,14 @@ export type Config = {
     noMauServers: string[];
 };
 
-
-export interface AlgorithmArgs {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
+export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
+    filterSections: Record<PropertyName, PropertyFilter>;
+    numericFilters: Record<WeightName, NumericFilter>;
 };
-
 
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
-};
-
-export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<PropertyName, PropertyFilter>;
-    numericFilters: Record<WeightName, NumericFilter>;
 };
 
 export type FilterArgs = {
@@ -129,18 +127,28 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 
+// Types that are valid for browser local storage
+export type StorableObj = (
+    FeedFilterSettings |
+    FeedFilterSettingsSerialized |
+    StringNumberDict |
+    SerializableToot[] |
+    TootURIs |
+    TrendingStorage |
+    Weights |
+    mastodon.v1.Account |
+    mastodon.v1.Account[] |
+    mastodon.v2.Filter[] |
+    mastodon.v1.TrendLink[] |
+    number
+);
+
 export type TimelineData = {
     homeToots: Toot[],
     otherToots: Toot[],
     trendingLinks?: TrendingLink[],
     trendingTags?: TrendingTag[],
     trendingToots?: Toot[],
-};
-
-// Data retrieved at startup and stored in TheAlgorithm
-export type UserData = {
-    mutedAccounts: AccountNames,
-    serverSideFilters: mastodon.v2.Filter[],
 };
 
 export type TootScore = {
@@ -176,21 +184,11 @@ export type TrendingStorage = {
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
-// Types that are valid for browser local storage
-export type StorageValue = (
-    FeedFilterSettings |
-    FeedFilterSettingsSerialized |
-    StringNumberDict |
-    SerializableToot[] |
-    TootURIs |
-    TrendingStorage |
-    Weights |
-    mastodon.v1.Account |
-    mastodon.v1.Account[] |
-    mastodon.v2.Filter[] |
-    mastodon.v1.TrendLink[] |
-    number
-);
+// Data retrieved at startup and stored in TheAlgorithm
+export type UserData = {
+    mutedAccounts: AccountNames,
+    serverSideFilters: mastodon.v2.Filter[],
+};
 
 
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm

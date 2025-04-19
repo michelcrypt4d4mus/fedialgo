@@ -8,7 +8,7 @@ import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
-import { AccountLike, Key, StorageKey, StorageValue, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
+import { AccountLike, Key, StorageKey, StorableObj, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { buildAccountNames } from "./objects/account";
 import { extractDomain } from "../helpers";
 import { repairTag } from "./objects/tag";
@@ -342,7 +342,7 @@ export class MastoApi {
             }
 
             console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
-            await Storage.set(label, results as StorageValue);
+            await Storage.set(label, results as StorableObj);
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `fetchData() for ${label} failed`)
             return results;

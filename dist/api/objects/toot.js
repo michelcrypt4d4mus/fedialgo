@@ -15,10 +15,6 @@ const account_1 = require("./account");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const tag_1 = require("./tag");
-const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: helpers_1.AUDIO, [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
-const MAX_CONTENT_PREVIEW_CHARS = 110;
-const HUGE_ID = 10 ** 100;
-const UNKNOWN = "unknown";
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -28,6 +24,10 @@ var TootVisibility;
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (exports.TootVisibility = TootVisibility = {}));
 ;
+const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: helpers_1.AUDIO, [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
+const MAX_CONTENT_PREVIEW_CHARS = 110;
+const HUGE_ID = 10 ** 100;
+const UNKNOWN = "unknown";
 ;
 ;
 class Toot {

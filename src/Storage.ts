@@ -16,7 +16,7 @@ import {
     FeedFilterSettingsSerialized,
     Key,
     StorageKey,
-    StorageValue,
+    StorableObj,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
@@ -132,12 +132,12 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix)
-    static async get(key: StorageKey): Promise<StorageValue | null> {
+    static async get(key: StorageKey): Promise<StorableObj | null> {
         return await localForage.getItem(await this.buildKey(key));
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    static async set(key: StorageKey, value: StorageValue): Promise<void> {
+    static async set(key: StorageKey, value: StorableObj): Promise<void> {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
         await localForage.setItem(storageKey, value);

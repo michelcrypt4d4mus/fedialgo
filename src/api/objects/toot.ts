@@ -26,11 +26,6 @@ import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
-const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: AUDIO, [IMAGE]: "pic", [VIDEO]: "vid"};
-const MAX_CONTENT_PREVIEW_CHARS = 110;
-const HUGE_ID = 10 ** 100;
-const UNKNOWN = "unknown";
-
 // https://docs.joinmastodon.org/entities/Status/#visibility
 export enum TootVisibility {
     DIRECT_MSG = "direct",
@@ -38,6 +33,11 @@ export enum TootVisibility {
     PRIVATE = "private",
     UNLISTED = "unlisted",
 };
+
+const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: AUDIO, [IMAGE]: "pic", [VIDEO]: "vid"};
+const MAX_CONTENT_PREVIEW_CHARS = 110;
+const HUGE_ID = 10 ** 100;
+const UNKNOWN = "unknown";
 
 
 // Serialized version of a Toot
@@ -105,15 +105,15 @@ export default class Toot implements TootObj {
     pinned?: boolean | null;
 
     // extensions to mastodon.v1.Status
-    followedTags: mastodon.v1.Tag[]; // Array of tags that the user follows that exist in this toot
-    isFollowed?: boolean; // Whether the user follows the account that posted this toot
-    reblogsBy: mastodon.v1.Account[]; // The accounts that retooted this toot
-    resolveAttempted?: boolean; // Set to true if an attempt at resolving the toot has occurred
-    resolvedToot?: Toot; // This Toot with URLs resolved to homeserver versions
-    scoreInfo?: TootScore; // Scoring info for weighting/sorting this toot
-    trendingRank?: number; // Most trending on a server gets a 10, next is a 9, etc.
-    trendingLinks: TrendingLink[]; // Links that are trending in this toot
-    trendingTags: TrendingTag[]; // Tags that are trending in this toot
+    followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
+    isFollowed?: boolean;              // Whether the user follows the account that posted this toot
+    reblogsBy: mastodon.v1.Account[];  // The accounts that retooted this toot
+    resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
+    resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
+    scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
+    trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks: TrendingLink[];     // Links that are trending in this toot
+    trendingTags: TrendingTag[];       // Tags that are trending in this toot
 
     constructor(toot: SerializableToot) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?

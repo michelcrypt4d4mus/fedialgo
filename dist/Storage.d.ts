@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Toot from './api/objects/toot';
-import { Config, FeedFilterSettings, StorageKey, StorageValue, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
+import { Config, FeedFilterSettings, StorageKey, StorableObj, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
 export default class Storage {
     static config: Config;
     static getConfig(): Config;
@@ -18,8 +18,8 @@ export default class Storage {
     static setFeed(timeline: Toot[]): Promise<void>;
     static setTrending(links: TrendingLink[], tags: TrendingTag[], _toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
-    static get(key: StorageKey): Promise<StorageValue | null>;
-    static set(key: StorageKey, value: StorageValue): Promise<void>;
+    static get(key: StorageKey): Promise<StorableObj | null>;
+    static set(key: StorageKey, value: StorableObj): Promise<void>;
     static remove(key: StorageKey): Promise<void>;
     private static buildKey;
 }
