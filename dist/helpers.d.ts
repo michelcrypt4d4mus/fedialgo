@@ -8,7 +8,7 @@ export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gi
 export declare const VIDEO_EXTENSIONS: string[];
 export declare const MEDIA_TYPES: string[];
 export declare const DEFAULT_FONT_SIZE = 15;
-export declare const extractDomain: (url: string) => string;
+export declare function extractDomain(url: string): string;
 export declare function replaceHttpsLinks(input: string): string;
 export declare function htmlToText(html: string): string;
 export declare function average(values: number[]): number;
@@ -23,4 +23,5 @@ export declare function zipPromises<T>(args: string[], promiser: (s: string) => 
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
+export declare function countInstances(str: string, substr: string): number;
 export declare function createRandomString(length: number): string;

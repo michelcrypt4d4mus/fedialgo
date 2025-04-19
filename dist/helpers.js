@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
 /*
  * Various small helper methods.
  */
@@ -15,8 +15,17 @@ exports.MEDIA_TYPES = [exports.AUDIO, exports.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://mast.ai/foobar" => "mast.ai"
-const extractDomain = (url) => url?.split("/")[2];
+function extractDomain(url) {
+    url ??= "";
+    if (countInstances(url, "/") < 2) {
+        console.warn(`extractDomain() found no frontslashes in: ${url}`);
+        return "";
+    }
+    const domain = url.split("/")[2].toLowerCase();
+    return domain.startsWith("www.") ? domain.substring(4) : domain;
+}
 exports.extractDomain = extractDomain;
+;
 // Replace https links with [link to DOMAIN]
 function replaceHttpsLinks(input) {
     return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
@@ -139,6 +148,12 @@ function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DE
     return html;
 }
 exports.replaceEmojiShortcodesWithImageTags = replaceEmojiShortcodesWithImageTags;
+;
+// Count occurences of substr within str
+function countInstances(str, substr) {
+    return Math.max(str.split(substr).length - 1, 0);
+}
+exports.countInstances = countInstances;
 ;
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

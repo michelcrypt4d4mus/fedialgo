@@ -17,8 +17,18 @@ export const DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 
 
-// "http://mast.ai/foobar" => "mast.ai"
-export const extractDomain = (url: string): string => url?.split("/")[2];
+// "http://www.mast.ai/foobar" => "mast.ai"
+export function extractDomain(url: string): string {
+    url ??= "";
+
+    if (countInstances(url, "/") < 2) {
+        console.warn(`extractDomain() found no frontslashes in: ${url}`);
+        return "";
+    }
+
+    const domain = url.split("/")[2].toLowerCase();
+    return domain.startsWith("www.") ? domain.substring(4) : domain;
+};
 
 
 // Replace https links with [link to DOMAIN]
@@ -170,6 +180,12 @@ export function replaceEmojiShortcodesWithImageTags(
     });
 
     return html;
+};
+
+
+// Count occurences of substr within str
+export function countInstances(str: string, substr: string): number {
+    return Math.max(str.split(substr).length - 1, 0);
 };
 
 

@@ -21,12 +21,12 @@ import {
     replaceHttpsLinks,
 } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
-import { FeedFilterSettings, StatusList, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
+import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
-const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "audio", [IMAGE]: "pic", [VIDEO]: "vid"};
+const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: AUDIO, [IMAGE]: "pic", [VIDEO]: "vid"};
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -40,7 +40,22 @@ export enum TootVisibility {
 };
 
 
-interface TootObj extends TootExtension {
+// Serialized version of a Toot
+export interface SerializableToot extends mastodon.v1.Status {
+    followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
+    isFollowed?: boolean;              // Whether the user follows the account that posted this toot
+    reblog?: SerializableToot | null,  // The toot that was retooted (if any)
+    reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
+    resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
+    resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
+    scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
+    trendingLinks?: TrendingLink[];    // Links that are trending in this toot
+    trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TrendingTag[];      // Tags that are trending in this toot
+};
+
+
+interface TootObj extends SerializableToot {
     containsString: (str: string) => boolean;
     describe: () => string;
     homserverAccountURL: () => string;
@@ -100,7 +115,7 @@ export default class Toot implements TootObj {
     trendingLinks: TrendingLink[]; // Links that are trending in this toot
     trendingTags: TrendingTag[]; // Tags that are trending in this toot
 
-    constructor(toot: TootExtension) {
+    constructor(toot: SerializableToot) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
         this.id = toot.id;
         this.uri = toot.uri;
@@ -358,6 +373,11 @@ export default class Toot implements TootObj {
         } else if (this.imageAttachments().length > 0) {
             return IMAGE;
         }
+    }
+
+     // Remove fxns so toots can be serialized
+    serialize(): SerializableToot {
+        return {...this} as SerializableToot;
     }
 
     // Repair toot properties:

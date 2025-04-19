@@ -84,11 +84,10 @@ class Storage {
         return toots.map(t => new toot_1.default(t));
     }
     static async setFeed(timeline) {
-        const toots = timeline.map(t => ({ ...t })); // Remove fxns so toots can be serialized
-        await this.set(types_1.Key.TIMELINE, toots);
+        await this.set(types_1.Key.TIMELINE, timeline.map(t => t.serialize()));
     }
-    static async setTrending(links, tags, toots) {
-        toots = toots.map(t => ({ ...t })); // Remove fxns so toots can be serialized
+    static async setTrending(links, tags, _toots) {
+        const toots = _toots.map(t => t.serialize());
         await this.set(types_1.Key.TRENDING, { links, tags, toots });
     }
     static async getTrending() {

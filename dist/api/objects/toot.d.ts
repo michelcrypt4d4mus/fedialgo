@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { FeedFilterSettings, StatusList, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
@@ -7,7 +7,19 @@ export declare enum TootVisibility {
     PRIVATE = "private",
     UNLISTED = "unlisted"
 }
-interface TootObj extends TootExtension {
+export interface SerializableToot extends mastodon.v1.Status {
+    followedTags?: mastodon.v1.Tag[];
+    isFollowed?: boolean;
+    reblog?: SerializableToot | null;
+    reblogsBy?: mastodon.v1.Account[];
+    resolveAttempted?: boolean;
+    resolvedToot?: Toot;
+    scoreInfo?: TootScore;
+    trendingLinks?: TrendingLink[];
+    trendingRank?: number;
+    trendingTags?: TrendingTag[];
+}
+interface TootObj extends SerializableToot {
     containsString: (str: string) => boolean;
     describe: () => string;
     homserverAccountURL: () => string;
@@ -62,7 +74,7 @@ export default class Toot implements TootObj {
     trendingRank?: number;
     trendingLinks: TrendingLink[];
     trendingTags: TrendingTag[];
-    constructor(toot: TootExtension);
+    constructor(toot: SerializableToot);
     containsString(str: string): boolean;
     describe(): string;
     describeAccount(): string;
@@ -87,6 +99,7 @@ export default class Toot implements TootObj {
     reblogsByAccts(): string[];
     attachmentPrefix(): string;
     attachmentType(): string | undefined;
+    serialize(): SerializableToot;
     private repairToot;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];

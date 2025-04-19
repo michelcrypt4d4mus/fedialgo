@@ -50,7 +50,6 @@ var WeightName;
 ;
 ;
 ;
-;
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
 function promiseWithTimeout(promise, milliseconds, timeoutError = new Error('Promise timed out')) {
     // create a promise that rejects in milliseconds

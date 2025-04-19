@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import NumericFilter from "./filters/numeric_filter";
 import PropertyFilter from "./filters/property_filter";
-import Toot from './api/objects/toot';
+import Toot, { SerializableToot } from './api/objects/toot';
 import { FILTERABLE_SCORES } from "./filters/numeric_filter";
 import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings } from "./config";
 import { PropertyName } from "./filters/property_filter";
@@ -17,7 +17,6 @@ import {
     Key,
     StorageKey,
     StorageValue,
-    TootExtension,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
@@ -109,17 +108,16 @@ export default class Storage {
 
     static async getFeed(): Promise<Toot[]> {
         let cachedToots = await this.get(Key.TIMELINE);
-        let toots = (cachedToots ?? []) as TootExtension[];  // Status doesn't include all our Toot props but it should be OK?
+        let toots = (cachedToots ?? []) as SerializableToot[];  // Status doesn't include all our Toot props but it should be OK?
         return toots.map(t => new Toot(t));
     }
 
     static async setFeed(timeline: Toot[]) {
-        const toots = timeline.map(t => ({...t})) as TootExtension[];  // Remove fxns so toots can be serialized
-        await this.set(Key.TIMELINE, toots);
+        await this.set(Key.TIMELINE, timeline.map(t => t.serialize()));
     }
 
-    static async setTrending(links: TrendingLink[], tags: TrendingTag[], toots: Toot[] | TootExtension[]) {
-        toots = toots.map(t => ({...t})) as TootExtension[];  // Remove fxns so toots can be serialized
+    static async setTrending(links: TrendingLink[], tags: TrendingTag[], _toots: Toot[]) {
+        const toots = _toots.map(t => t.serialize());
         await this.set(Key.TRENDING, {links, tags, toots} as TrendingStorage);
     }
 

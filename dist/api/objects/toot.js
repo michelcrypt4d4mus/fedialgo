@@ -15,7 +15,7 @@ const account_1 = require("./account");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const tag_1 = require("./tag");
-const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: "audio", [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
+const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: helpers_1.AUDIO, [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -27,6 +27,7 @@ var TootVisibility;
     TootVisibility["PRIVATE"] = "private";
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (exports.TootVisibility = TootVisibility = {}));
+;
 ;
 ;
 class Toot {
@@ -300,6 +301,10 @@ class Toot {
         else if (this.imageAttachments().length > 0) {
             return helpers_1.IMAGE;
         }
+    }
+    // Remove fxns so toots can be serialized
+    serialize() {
+        return { ...this };
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing

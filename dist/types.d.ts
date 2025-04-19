@@ -2,7 +2,7 @@ import { mastodon } from 'masto';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
-import Toot from './api/objects/toot';
+import Toot, { SerializableToot } from './api/objects/toot';
 export declare enum Key {
     BLOCKED_ACCOUNTS = "blockedAccounts",
     FILTERS = "filters",
@@ -114,18 +114,6 @@ export type UserData = {
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
 };
-export interface TootExtension extends mastodon.v1.Status {
-    followedTags?: mastodon.v1.Tag[];
-    isFollowed?: boolean;
-    reblog?: TootExtension | null;
-    reblogsBy?: mastodon.v1.Account[];
-    resolveAttempted?: boolean;
-    resolvedToot?: Toot;
-    scoreInfo?: TootScore;
-    trendingLinks?: TrendingLink[];
-    trendingRank?: number;
-    trendingTags?: TrendingTag[];
-}
 export type TootScore = {
     rawScore: number;
     rawScores: Weights;
@@ -153,4 +141,4 @@ export type TrendingStorage = {
 };
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
-export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;
+export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;
