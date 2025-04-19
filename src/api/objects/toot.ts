@@ -194,14 +194,15 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
-    // TODO: account.acct should have the "@" injected at repair time
+    // URL for the account that posted this toot on the home server isntead of on the poster's server
+    // TODO: account.acct should have the "@" injected at repair time?
     homserverAccountURL(): string {
         return `https://${MastoApi.instance.homeDomain}/@${this.account.acct}`;
     }
 
-    // Convert remote mastodon server URLs to local ones, e.g.
-    //     transform this: https://fosstodon.org/@kate/114360290341300577
-    //            to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
+    //          this: https://fosstodon.org/@kate/114360290341300577
+    //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL(): Promise<string> {
         const resolved = await this.resolve();
         if (!resolved) return this.realURL();
