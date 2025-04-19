@@ -141,7 +141,6 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingTagToots = {
     tags: TrendingTag[];
     toots: Toot[];
@@ -151,4 +150,6 @@ export type TrendingStorage = {
     links: TrendingLink[];
     toots: Toot[];
 };
+export type TrendingWithHistory = TrendingLink | TrendingTag;
+export type TrendingObj = TrendingWithHistory | Toot;
 export type StorageValue = FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | TootExtension[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number;

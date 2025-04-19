@@ -172,8 +172,6 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-export type TrendingWithHistory = TrendingLink | TrendingTag;
-
 export type TrendingTagToots = {
     tags: TrendingTag[];
     toots: Toot[];
@@ -184,6 +182,9 @@ export type TrendingStorage = {
     links: TrendingLink[];
     toots: Toot[];
 };
+
+export type TrendingWithHistory = TrendingLink | TrendingTag;
+export type TrendingObj = TrendingWithHistory | Toot;
 
 // Types that are valid for browser local storage
 export type StorageValue =

@@ -13,6 +13,7 @@ export const VIDEO_TYPES = [VIDEO, "gifv"] as mastodon.v1.MediaAttachmentType[];
 export const VIDEO_EXTENSIONS = ["mp4"];
 export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
 export const DEFAULT_FONT_SIZE = 15;
+const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 
 
 // "http://mast.ai/foobar" => "mast.ai"

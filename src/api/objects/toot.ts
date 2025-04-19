@@ -26,7 +26,8 @@ import { TheAlgorithm } from "../..";
 
 type StatusList = mastodon.v1.Status[];
 
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
+// const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "🔈", [IMAGE]: "📸", [VIDEO]: "🎥"};
+const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "sound", [IMAGE]: "pic", [VIDEO]: "vid"};
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -292,21 +293,13 @@ export default class Toot implements TootObj {
 
     // Shortened string of content property stripped of HTML tags
     contentShortened(): string {
+        const attachmentType = this.attachmentType();
         let content = htmlToText(this.reblog?.content || this.content || "");
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            if (this.videoAttachments().length > 0) {
-                content = VIDEO;
-            } else if (this.audioAttachments().length > 0) {
-                content = AUDIO;
-            } else if (this.imageAttachments().length > 0) {
-                content = IMAGE;
-            }
-
-            content = content.toUpperCase();
-            content = content.length > 0 ? `${content}_ONLY from ${this.describeRealAccount()}` : "EMPTY_TOOT";
-            content = `[${content}]`;
+            content = (attachmentType ? `${attachmentType}_ONLY` : "EMPTY_TOOT").toUpperCase();
+            content = `[[${content}]] (from ${this.describeRealAccount()})`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
@@ -349,6 +342,23 @@ export default class Toot implements TootObj {
     // Returns an array of account strings for all accounts that reblogged this toot
     reblogsByAccts(): string[] {
         return this.reblogsBy.map((account) => account.acct);
+    }
+
+    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
+    attachmentPrefix(): string {
+        const attachmentType = this.attachmentType();
+        return attachmentType ? `[${ATTACHMENT_ICONS[attachmentType]}]` : "";
+    }
+
+    // Return 'video' if toot contains a video, 'image' if it contains an image, undefined if no attachments
+    attachmentType(): string | undefined {
+        if (this.videoAttachments().length > 0) {
+            return VIDEO;
+        } else if (this.audioAttachments().length > 0) {
+            return AUDIO;
+        } else if (this.imageAttachments().length > 0) {
+            return IMAGE;
+        }
     }
 
     // Repair toot properties:

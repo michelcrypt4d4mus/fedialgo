@@ -10,7 +10,8 @@ const account_1 = require("./account");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const tag_1 = require("./tag");
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
+// const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "🔈", [IMAGE]: "📸", [VIDEO]: "🎥"};
+const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: "sound", [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -233,21 +234,12 @@ class Toot {
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened() {
+        const attachmentType = this.attachmentType();
         let content = (0, helpers_1.htmlToText)(this.reblog?.content || this.content || "");
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            if (this.videoAttachments().length > 0) {
-                content = helpers_1.VIDEO;
-            }
-            else if (this.audioAttachments().length > 0) {
-                content = helpers_1.AUDIO;
-            }
-            else if (this.imageAttachments().length > 0) {
-                content = helpers_1.IMAGE;
-            }
-            content = content.toUpperCase();
-            content = content.length > 0 ? `${content}_ONLY from ${this.describeRealAccount()}` : "EMPTY_TOOT";
-            content = `[${content}]`;
+            content = (attachmentType ? `${attachmentType}_ONLY` : "EMPTY_TOOT").toUpperCase();
+            content = `[[${content}]] (from ${this.describeRealAccount()})`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -287,6 +279,23 @@ class Toot {
     // Returns an array of account strings for all accounts that reblogged this toot
     reblogsByAccts() {
         return this.reblogsBy.map((account) => account.acct);
+    }
+    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
+    attachmentPrefix() {
+        const attachmentType = this.attachmentType();
+        return attachmentType ? `[${ATTACHMENT_ICONS[attachmentType]}]` : "";
+    }
+    // Return 'video' if toot contains a video, 'image' if it contains an image, undefined if no attachments
+    attachmentType() {
+        if (this.videoAttachments().length > 0) {
+            return helpers_1.VIDEO;
+        }
+        else if (this.audioAttachments().length > 0) {
+            return helpers_1.AUDIO;
+        }
+        else if (this.imageAttachments().length > 0) {
+            return helpers_1.IMAGE;
+        }
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing

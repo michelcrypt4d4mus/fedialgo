@@ -86,6 +86,8 @@ export default class Toot implements TootObj {
     contentShortened(): string;
     condensedStatus(): {};
     reblogsByAccts(): string[];
+    attachmentPrefix(): string;
+    attachmentType(): string | undefined;
     private repairToot;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
