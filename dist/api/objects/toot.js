@@ -4,14 +4,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.TootVisibility = void 0;
+/*
+ * Ideally this would be a formal class but for now it's just some helper functions
+ * for dealing with Toot objects.
+ */
+const capital_case_1 = require("capital-case");
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
 const account_1 = require("./account");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const tag_1 = require("./tag");
-// const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "🔈", [IMAGE]: "📸", [VIDEO]: "🎥"};
-const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: "sound", [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
+const ATTACHMENT_ICONS = { [helpers_1.AUDIO]: "audio", [helpers_1.IMAGE]: "pic", [helpers_1.VIDEO]: "vid" };
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -234,12 +238,12 @@ class Toot {
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened() {
-        const attachmentType = this.attachmentType();
         let content = (0, helpers_1.htmlToText)(this.reblog?.content || this.content || "");
+        content = (0, helpers_1.replaceHttpsLinks)(content);
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            content = (attachmentType ? `${attachmentType}_ONLY` : "EMPTY_TOOT").toUpperCase();
-            content = `[[${content}]] (from ${this.describeRealAccount()})`;
+            let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
+            content = `<${(0, capital_case_1.capitalCase)(mediaType)} post by ${this.describeRealAccount()}>`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;

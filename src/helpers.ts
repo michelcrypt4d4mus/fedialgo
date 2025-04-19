@@ -1,6 +1,7 @@
 /*
  * Various small helper methods.
  */
+import { decode } from 'html-entities';
 import { mastodon } from "masto";
 
 import { CountKey, StringNumberDict } from "./types";
@@ -20,15 +21,25 @@ const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 export const extractDomain = (url: string): string => url?.split("/")[2];
 
 
+// Replace https links with [link to DOMAIN]
+export function replaceHttpsLinks(input: string): string {
+    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+};
+
+
 // Remove HTML tags and newlines from a string
 export function htmlToText(html: string): string {
     let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
     txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
     txt = txt.replace(/\n/g, " ");                   // Strip newlines
     txt = txt.replace(/\s+/g, " ");                  // Collapse multiple spaces
-    return txt.trim();
+    return decode(txt).trim();                       // Decode HTML entities lik '&amp;' etc.
 };
 
+
+function removeHttpsLinks(input: string): string {
+    return input.replace(/https:\/\/\S+/g, '');
+}
 
 // Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number {

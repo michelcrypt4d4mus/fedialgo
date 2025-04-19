@@ -2,6 +2,7 @@
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
+import { capitalCase } from "capital-case";
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
@@ -16,18 +17,16 @@ import {
     htmlToText,
     isImage,
     isVideo,
-    replaceEmojiShortcodesWithImageTags
+    replaceEmojiShortcodesWithImageTags,
+    replaceHttpsLinks,
 } from "../../helpers";
 import { describeAccount, repairAccount } from "./account";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
+import { FeedFilterSettings, StatusList, TootExtension, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
-type StatusList = mastodon.v1.Status[];
-
-// const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "🔈", [IMAGE]: "📸", [VIDEO]: "🎥"};
-const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "sound", [IMAGE]: "pic", [VIDEO]: "vid"};
+const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: "audio", [IMAGE]: "pic", [VIDEO]: "vid"};
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
@@ -293,13 +292,13 @@ export default class Toot implements TootObj {
 
     // Shortened string of content property stripped of HTML tags
     contentShortened(): string {
-        const attachmentType = this.attachmentType();
         let content = htmlToText(this.reblog?.content || this.content || "");
+        content = replaceHttpsLinks(content);
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            content = (attachmentType ? `${attachmentType}_ONLY` : "EMPTY_TOOT").toUpperCase();
-            content = `[[${content}]] (from ${this.describeRealAccount()})`;
+            let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
+            content = `<${capitalCase(mediaType)} post by ${this.describeRealAccount()}>`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
@@ -308,7 +307,7 @@ export default class Toot implements TootObj {
     }
 
     // Returns a simplified version of the toot for logging
-    condensedStatus()  {
+    condensedStatus(): object {
         // Account info for the person who tooted it
         let accountLabel = this.describeAccount();
         if (this.reblog) accountLabel += ` (⬆ retooting ${this.reblog.describeAccount()} ⬆)`;

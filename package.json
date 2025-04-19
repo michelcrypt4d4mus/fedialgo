@@ -46,6 +46,7 @@
         "async-mutex": "^0.5.0",
         "axios": "^1.7.2",
         "blueimp-md5": "^2.19.0",
+        "html-entities": "^2.6.0",
         "localforage": "^1.10.0",
         "masto": "^6.1.0"
     }

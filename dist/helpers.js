@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+/*
+ * Various small helper methods.
+ */
+const html_entities_1 = require("html-entities");
 exports.AUDIO = "audio";
 exports.IMAGE = "image";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
@@ -13,16 +17,25 @@ const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://mast.ai/foobar" => "mast.ai"
 const extractDomain = (url) => url?.split("/")[2];
 exports.extractDomain = extractDomain;
+// Replace https links with [link to DOMAIN]
+function replaceHttpsLinks(input) {
+    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+}
+exports.replaceHttpsLinks = replaceHttpsLinks;
+;
 // Remove HTML tags and newlines from a string
 function htmlToText(html) {
     let txt = html.replace(/<\/p>/gi, "\n").trim(); // Turn closed <p> tags into newlines
     txt = txt.replace(/<[^>]+>/g, ""); // Strip HTML tags
     txt = txt.replace(/\n/g, " "); // Strip newlines
     txt = txt.replace(/\s+/g, " "); // Collapse multiple spaces
-    return txt.trim();
+    return (0, html_entities_1.decode)(txt).trim(); // Decode HTML entities lik '&amp;' etc.
 }
 exports.htmlToText = htmlToText;
 ;
+function removeHttpsLinks(input) {
+    return input.replace(/https:\/\/\S+/g, '');
+}
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);

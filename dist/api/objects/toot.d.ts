@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
-import { FeedFilterSettings, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { FeedFilterSettings, StatusList, TootExtension, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { TheAlgorithm } from "../..";
-type StatusList = mastodon.v1.Status[];
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",
@@ -84,7 +83,7 @@ export default class Toot implements TootObj {
     isDM(): boolean;
     isTrending(): boolean;
     contentShortened(): string;
-    condensedStatus(): {};
+    condensedStatus(): object;
     reblogsByAccts(): string[];
     attachmentPrefix(): string;
     attachmentType(): string | undefined;
