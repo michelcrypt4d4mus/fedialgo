@@ -189,7 +189,7 @@ export default class Toot implements TootObj {
     }
 
     popularity(): number {
-        return (this.favouritesCount || 0) + (this.reblogsCount || 0);
+        return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
     }
 
     realURI(): string {
