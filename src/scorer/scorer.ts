@@ -3,7 +3,8 @@
  */
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
-import { DEFAULT_WEIGHTS } from "../config";
+import { DEFAULT_WEIGHTS } from "./weight_presets";
+import { SCORERS_CONFIG } from "../config";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName } from "../types";
 
 const TIME_DECAY = WeightName.TIME_DECAY;
@@ -18,8 +19,8 @@ export default abstract class Scorer {
     constructor(name: WeightName) {
         // console.debug(`Scorer's this.constructor.name: ${this.constructor.name}`);
         this.name = name;
-        this.description = DEFAULT_WEIGHTS[name].description;
-        this.defaultWeight = DEFAULT_WEIGHTS[name].defaultWeight ?? 1;
+        this.description = SCORERS_CONFIG[name].description;
+        this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 
     async score(toot: Toot): Promise<number> {
@@ -32,7 +33,6 @@ export default abstract class Scorer {
     getInfo(): ScorerInfo {
         return {
             description: this.description,
-            defaultWeight: this.defaultWeight,
             scorer: this,
         };
     }
@@ -66,7 +66,7 @@ export default abstract class Scorer {
         });
 
         // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_WEIGHTS[TIME_DECAY].defaultWeight;
+        const timeDecay = userWeights[TIME_DECAY] || DEFAULT_WEIGHTS[TIME_DECAY];
         const seconds = Math.floor((new Date().getTime() - new Date(tootToScore.createdAt).getTime()) / 1000);
         const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
 

@@ -21,6 +21,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
+import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { AccountNames, AlgorithmArgs, FeedFilterSettings, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingTag, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare const TRENDING = WeightName.TRENDING;
@@ -49,6 +50,7 @@ declare class TheAlgorithm {
     getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]>;
     getUserWeights(): Promise<Weights>;
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
+    updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
     getFilters(): FeedFilterSettings;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filterFeed(): Toot[];
@@ -61,4 +63,4 @@ declare class TheAlgorithm {
     private scoreFeed;
     private logTootCounts;
 }
-export { TIME_DECAY, TRENDING, FeedFilterSettings, NumericFilter, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TypeFilterName, WeightName, Weights, accountNameWithEmojis, };
+export { TIME_DECAY, TRENDING, FeedFilterSettings, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TypeFilterName, WeightName, Weights, accountNameWithEmojis, };

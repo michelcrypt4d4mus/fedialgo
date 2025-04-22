@@ -6,86 +6,67 @@ import PropertyFilter, { PropertyName } from "./filters/property_filter";
 import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
 
 
-export const DEFAULT_WEIGHTS: ScorerDict = {
+export const SCORERS_CONFIG: ScorerDict = {
     // Global modifiers that affect all weighted scores
     [WeightName.TIME_DECAY]: {
-        defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
     [WeightName.TRENDING]: {
-        defaultWeight: 0.06,
-        minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
+        minValue: 0.001,
     },
 
     // Weighted scores
     [WeightName.CHAOS]: {
-        defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
     },
     [WeightName.DIVERSITY]: {
-        defaultWeight: 1,
         description: "Disfavour accounts that are tooting a lot right now",
     },
     [WeightName.FAVORITED_ACCOUNTS]: {
-        defaultWeight: 1,
         description: "Favour accounts you often favourite",
     },
     [WeightName.FOLLOWED_TAGS]: {
-        defaultWeight: 2.0,
         description: "Favour toots that contain hashtags you are following",
     },
     [WeightName.IMAGE_ATTACHMENTS]: {
-        defaultWeight: 0,
         description: "Favour image attachments",
     },
     [WeightName.INTERACTIONS]: {
-        defaultWeight: 1.5,
         description: "Favour accounts that recently interacted with your toots",
     },
     [WeightName.MENTIONS_FOLLOWED]: {
-        defaultWeight: 2.0,
         description: "Favour toots that mention accounts you follow",
     },
     [WeightName.MOST_REPLIED_ACCOUNTS]: {
-        defaultWeight: 1,
         description: "Favour accounts you often reply to",
     },
     [WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 2,
         description: "Favour accounts you often retoot",
     },
     [WeightName.NUM_FAVOURITES]: {
-        defaultWeight: 1,
         description: "Favour things favourited by your server's users",
     },
     [WeightName.NUM_REPLIES]: {
-        defaultWeight: 1,
         description: "Favour toots with lots of replies",
     },
     [WeightName.NUM_RETOOTS]: {
-        defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
     },
     [WeightName.RETOOTED_IN_FEED]: {
-        defaultWeight: 2.0,
         description: "Favour toots retooted by accounts you follow",
     },
     [WeightName.TRENDING_LINKS]: {
-        defaultWeight: 0.7,
         description: "Favour links that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TAGS]: {
-        defaultWeight: 0.5,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 1.0,
         description: "Favour toots that are trending in the Fediverse",
     },
     [WeightName.VIDEO_ATTACHMENTS]: {
-        defaultWeight: 0,
         description: "Favour video attachments",
     },
 };

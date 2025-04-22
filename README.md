@@ -45,7 +45,7 @@ const algorithm = await TheAlgorithm.create({api: api, user: currentUser})
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
 ```typescript
-import { Toot, WeightName, Weights } from "fedialgo";
+import { PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
 
 // Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
 let timelineFeed: Toot[] = await algorithm.getFeed(400);
@@ -56,6 +56,9 @@ timelineFeed = await algorithm.getFeed(400, feed[0].id);
 const weights: Weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
 timelineFeed = await algorithm.updateUserWeights(weights);
+
+// Choose a preset weight configuration
+timelineFeed = await algorithm.updateUserWeightsToPreset(PresetWeightLabel.FRIENDS);
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();

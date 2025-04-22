@@ -23,92 +23,73 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.DEFAULT_WEIGHTS = void 0;
+exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.SCORERS_CONFIG = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const numeric_filter_1 = __importStar(require("./filters/numeric_filter"));
 const property_filter_1 = __importStar(require("./filters/property_filter"));
 const types_1 = require("./types");
-exports.DEFAULT_WEIGHTS = {
+exports.SCORERS_CONFIG = {
     // Global modifiers that affect all weighted scores
     [types_1.WeightName.TIME_DECAY]: {
-        defaultWeight: 0.05,
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
     [types_1.WeightName.TRENDING]: {
-        defaultWeight: 0.06,
-        minValue: 0.001,
         description: "Multiplier applied to trending toots, tags, and links",
+        minValue: 0.001,
     },
     // Weighted scores
     [types_1.WeightName.CHAOS]: {
-        defaultWeight: 1,
         description: "Insert Chaos into the scoring (social media ist krieg)",
     },
     [types_1.WeightName.DIVERSITY]: {
-        defaultWeight: 1,
         description: "Disfavour accounts that are tooting a lot right now",
     },
     [types_1.WeightName.FAVORITED_ACCOUNTS]: {
-        defaultWeight: 1,
         description: "Favour accounts you often favourite",
     },
     [types_1.WeightName.FOLLOWED_TAGS]: {
-        defaultWeight: 2.0,
         description: "Favour toots that contain hashtags you are following",
     },
     [types_1.WeightName.IMAGE_ATTACHMENTS]: {
-        defaultWeight: 0,
         description: "Favour image attachments",
     },
     [types_1.WeightName.INTERACTIONS]: {
-        defaultWeight: 1.5,
         description: "Favour accounts that recently interacted with your toots",
     },
     [types_1.WeightName.MENTIONS_FOLLOWED]: {
-        defaultWeight: 2.0,
         description: "Favour toots that mention accounts you follow",
     },
     [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
-        defaultWeight: 1,
         description: "Favour accounts you often reply to",
     },
     [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        defaultWeight: 2,
         description: "Favour accounts you often retoot",
     },
     [types_1.WeightName.NUM_FAVOURITES]: {
-        defaultWeight: 1,
         description: "Favour things favourited by your server's users",
     },
     [types_1.WeightName.NUM_REPLIES]: {
-        defaultWeight: 1,
         description: "Favour toots with lots of replies",
     },
     [types_1.WeightName.NUM_RETOOTS]: {
-        defaultWeight: 1,
         description: "Favour toots that are retooted a lot",
     },
     [types_1.WeightName.RETOOTED_IN_FEED]: {
-        defaultWeight: 2.0,
         description: "Favour toots retooted by accounts you follow",
     },
     [types_1.WeightName.TRENDING_LINKS]: {
-        defaultWeight: 0.7,
         description: "Favour links that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TAGS]: {
-        defaultWeight: 0.5,
         description: "Favour hashtags that are trending in the Fediverse",
     },
     [types_1.WeightName.TRENDING_TOOTS]: {
-        defaultWeight: 1.0,
         description: "Favour toots that are trending in the Fediverse",
     },
     [types_1.WeightName.VIDEO_ATTACHMENTS]: {
-        defaultWeight: 0,
         description: "Favour video attachments",
     },
 };

@@ -98,7 +98,6 @@ export type FilterArgs = {
     visible?: boolean;
 };
 export type ScorerInfo = {
-    defaultWeight: number;
     description: string;
     minValue?: number;
     scorer?: Scorer;

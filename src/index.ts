@@ -29,8 +29,10 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
 import { buildAccountNames } from "./api/objects/account";
 import { createRandomString, incrementCount } from "./helpers";
-import { DEFAULT_WEIGHTS, buildNewFilterSettings } from "./config";
+import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { MastoApi } from "./api/api";
+import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
 import {
     AccountNames,
     AlgorithmArgs,
@@ -106,8 +108,8 @@ class TheAlgorithm {
         },
         // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
         {
-            [TIME_DECAY]: Object.assign({}, DEFAULT_WEIGHTS[TIME_DECAY]),
-            [TRENDING]: Object.assign({}, DEFAULT_WEIGHTS[TRENDING]),
+            [TIME_DECAY]: Object.assign({}, SCORERS_CONFIG[TIME_DECAY]),
+            [TRENDING]: Object.assign({}, SCORERS_CONFIG[TRENDING]),
         } as ScorerDict
     );
 
@@ -200,6 +202,12 @@ class TheAlgorithm {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
         return this.scoreFeed.bind(this)();
+    }
+
+    // Update user weightings to one of the preset values and rescore / resort the feed.
+    async updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]> {
+        console.log("updateUserWeightsToPreset() called with presetName:", presetName);
+        return await this.updateUserWeights(PresetWeights[presetName]);
     }
 
     // TODO: maybe this should be a copy so edits don't happen in place?
@@ -334,7 +342,7 @@ class TheAlgorithm {
             const value = weightings[key as WeightName];
 
             if (!value && value !== 0) {
-                weightings[key as WeightName] = this.scorersDict[key as WeightName].defaultWeight;
+                weightings[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
                 shouldSetWeights = true;
             }
         });
@@ -408,6 +416,8 @@ export {
     TRENDING,
     FeedFilterSettings,
     NumericFilter,
+    PresetWeightLabel,
+    PresetWeights,
     PropertyFilter,
     PropertyName,
     ScorerInfo,

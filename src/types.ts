@@ -121,7 +121,6 @@ export type FilterArgs = {
 };
 
 export type ScorerInfo = {
-    defaultWeight: number;
     description: string;
     minValue?: number;
     scorer?: Scorer;

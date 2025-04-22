@@ -207,8 +207,9 @@ export default class Toot implements TootObj {
         try {
             this.resolvedToot = await MastoApi.instance.resolveToot(this);
         } catch (error) {
-            console.warn(`Error resolving toot:`, error);
-            console.warn(`Failed to resolve toot:`, this);
+            console.error(`Error resolving toot:`, error);
+            console.error(`Failed to resolve toot:`, this);
+            this.resolvedToot = this;
         }
 
         this.resolveAttempted = true;

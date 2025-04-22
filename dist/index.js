@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
+exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.TRENDING = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -62,8 +62,12 @@ const account_1 = require("./api/objects/account");
 Object.defineProperty(exports, "accountNameWithEmojis", { enumerable: true, get: function () { return account_1.accountNameWithEmojis; } });
 const account_2 = require("./api/objects/account");
 const helpers_1 = require("./helpers");
-const config_1 = require("./config");
+const weight_presets_1 = require("./scorer/weight_presets");
 const api_1 = require("./api/api");
+const weight_presets_2 = require("./scorer/weight_presets");
+Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
+Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_2.PresetWeights; } });
+const config_1 = require("./config");
 const types_1 = require("./types");
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
@@ -121,8 +125,8 @@ class TheAlgorithm {
     }, 
     // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
     {
-        [TIME_DECAY]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TIME_DECAY]),
-        [TRENDING]: Object.assign({}, config_1.DEFAULT_WEIGHTS[TRENDING]),
+        [TIME_DECAY]: Object.assign({}, config_1.SCORERS_CONFIG[TIME_DECAY]),
+        [TRENDING]: Object.assign({}, config_1.SCORERS_CONFIG[TRENDING]),
     });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
@@ -201,6 +205,11 @@ class TheAlgorithm {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage_1.default.setWeightings(userWeights);
         return this.scoreFeed.bind(this)();
+    }
+    // Update user weightings to one of the preset values and rescore / resort the feed.
+    async updateUserWeightsToPreset(presetName) {
+        console.log("updateUserWeightsToPreset() called with presetName:", presetName);
+        return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
     // TODO: maybe this should be a copy so edits don't happen in place?
     getFilters() {
@@ -314,7 +323,7 @@ class TheAlgorithm {
         Object.keys(this.scorersDict).forEach((key) => {
             const value = weightings[key];
             if (!value && value !== 0) {
-                weightings[key] = this.scorersDict[key].defaultWeight;
+                weightings[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSetWeights = true;
             }
         });

@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* `PresetWeights` object
+* Resolve Toot to self if there's an API failure when resolving
 
 ### 0.16.9
 * Include `Toot.repliesCount` when scoring `Toot.popularity()`
