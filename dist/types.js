@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MEDIA_CATEGORY = exports.WeightName = exports.Key = void 0;
+exports.MediaCategory = exports.WeightName = exports.Key = void 0;
 var Key;
 (function (Key) {
     Key["BLOCKED_ACCOUNTS"] = "blockedAccounts";
@@ -46,12 +46,12 @@ var WeightName;
     WeightName["TRENDING"] = "Trending";
 })(WeightName || (exports.WeightName = WeightName = {}));
 ;
-var MEDIA_CATEGORY;
-(function (MEDIA_CATEGORY) {
-    MEDIA_CATEGORY["AUDIO"] = "audio";
-    MEDIA_CATEGORY["IMAGE"] = "image";
-    MEDIA_CATEGORY["VIDEO"] = "video";
-})(MEDIA_CATEGORY || (exports.MEDIA_CATEGORY = MEDIA_CATEGORY = {}));
+var MediaCategory;
+(function (MediaCategory) {
+    MediaCategory["AUDIO"] = "audio";
+    MediaCategory["IMAGE"] = "image";
+    MediaCategory["VIDEO"] = "video";
+})(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 ;
 ;
 ;

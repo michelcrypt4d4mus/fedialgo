@@ -7,9 +7,9 @@ exports.createRandomString = exports.sumValues = exports.countInstances = export
 const html_entities_1 = require("html-entities");
 const types_1 = require("./types");
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
-exports.VIDEO_TYPES = [types_1.MEDIA_CATEGORY.VIDEO, "gifv"];
+exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, "gifv"];
 exports.VIDEO_EXTENSIONS = ["mp4"];
-exports.MEDIA_TYPES = [types_1.MEDIA_CATEGORY.AUDIO, types_1.MEDIA_CATEGORY.IMAGE, ...exports.VIDEO_TYPES];
+exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://www.mast.ai/foobar" => "mast.ai"

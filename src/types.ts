@@ -49,7 +49,7 @@ export enum WeightName {
     TRENDING = 'Trending',
 };
 
-export enum MEDIA_CATEGORY {
+export enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video",

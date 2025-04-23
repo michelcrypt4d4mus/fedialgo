@@ -43,7 +43,7 @@ export declare enum WeightName {
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending"
 }
-export declare enum MEDIA_CATEGORY {
+export declare enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video"

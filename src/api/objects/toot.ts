@@ -20,7 +20,7 @@ import {
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
-import { MEDIA_CATEGORY } from "../../types";
+import { MediaCategory } from "../../types";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
@@ -36,10 +36,10 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
 
-const ATTACHMENT_ICONS: Record<MEDIA_CATEGORY, string> = {
-    [MEDIA_CATEGORY.AUDIO]: "audio",
-    [MEDIA_CATEGORY.IMAGE]: "pic",
-    [MEDIA_CATEGORY.VIDEO]: "vid"
+const ATTACHMENT_ICONS: Record<MediaCategory, string> = {
+    [MediaCategory.AUDIO]: "audio",
+    [MediaCategory.IMAGE]: "pic",
+    [MediaCategory.VIDEO]: "vid"
 };
 
 
@@ -260,22 +260,22 @@ export default class Toot implements TootObj {
 
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
-    attachmentType(): MEDIA_CATEGORY | undefined {
+    attachmentType(): MediaCategory | undefined {
         if (this.audioAttachments().length > 0) {
-            return MEDIA_CATEGORY.AUDIO;
+            return MediaCategory.AUDIO;
         } else if (this.imageAttachments().length > 0) {
-            return MEDIA_CATEGORY.IMAGE;
+            return MediaCategory.IMAGE;
         } else if (this.videoAttachments().length > 0) {
-            return MEDIA_CATEGORY.VIDEO;
+            return MediaCategory.VIDEO;
         }
     }
 
     audioAttachments(): Array<mastodon.v1.MediaAttachment> {
-        return this.attachmentsOfType(MEDIA_CATEGORY.AUDIO);
+        return this.attachmentsOfType(MediaCategory.AUDIO);
     }
 
     imageAttachments(): Array<mastodon.v1.MediaAttachment> {
-        return this.attachmentsOfType(MEDIA_CATEGORY.IMAGE);
+        return this.attachmentsOfType(MediaCategory.IMAGE);
     }
 
     videoAttachments(): Array<mastodon.v1.MediaAttachment> {
@@ -434,10 +434,10 @@ export default class Toot implements TootObj {
             if (media.type == UNKNOWN) {
                 if (isImage(media.remoteUrl)) {
                     console.warn(`Repairing broken image attachment in toot:`, this);
-                    media.type = MEDIA_CATEGORY.IMAGE;
+                    media.type = MediaCategory.IMAGE;
                 } else if (isVideo(media.remoteUrl)) {
                     console.warn(`Repairing broken video attachment in toot:`, this);
-                    media.type = MEDIA_CATEGORY.VIDEO;
+                    media.type = MediaCategory.VIDEO;
 
                 } else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);

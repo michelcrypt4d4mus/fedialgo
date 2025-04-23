@@ -29,9 +29,9 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
 const ATTACHMENT_ICONS = {
-    [types_2.MEDIA_CATEGORY.AUDIO]: "audio",
-    [types_2.MEDIA_CATEGORY.IMAGE]: "pic",
-    [types_2.MEDIA_CATEGORY.VIDEO]: "vid"
+    [types_2.MediaCategory.AUDIO]: "audio",
+    [types_2.MediaCategory.IMAGE]: "pic",
+    [types_2.MediaCategory.VIDEO]: "vid"
 };
 ;
 ;
@@ -205,20 +205,20 @@ class Toot {
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
         if (this.audioAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.AUDIO;
+            return types_2.MediaCategory.AUDIO;
         }
         else if (this.imageAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.IMAGE;
+            return types_2.MediaCategory.IMAGE;
         }
         else if (this.videoAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.VIDEO;
+            return types_2.MediaCategory.VIDEO;
         }
     }
     audioAttachments() {
-        return this.attachmentsOfType(types_2.MEDIA_CATEGORY.AUDIO);
+        return this.attachmentsOfType(types_2.MediaCategory.AUDIO);
     }
     imageAttachments() {
-        return this.attachmentsOfType(types_2.MEDIA_CATEGORY.IMAGE);
+        return this.attachmentsOfType(types_2.MediaCategory.IMAGE);
     }
     videoAttachments() {
         return helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
@@ -354,11 +354,11 @@ class Toot {
             if (media.type == UNKNOWN) {
                 if ((0, helpers_1.isImage)(media.remoteUrl)) {
                     console.warn(`Repairing broken image attachment in toot:`, this);
-                    media.type = types_2.MEDIA_CATEGORY.IMAGE;
+                    media.type = types_2.MediaCategory.IMAGE;
                 }
                 else if ((0, helpers_1.isVideo)(media.remoteUrl)) {
                     console.warn(`Repairing broken video attachment in toot:`, this);
-                    media.type = types_2.MEDIA_CATEGORY.VIDEO;
+                    media.type = types_2.MediaCategory.VIDEO;
                 }
                 else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);

@@ -28,15 +28,16 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
 import { buildAccountNames } from "./api/objects/account";
-import { createRandomString, incrementCount } from "./helpers";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
+import { VIDEO_TYPES, createRandomString, incrementCount } from "./helpers";
 import {
     AccountNames,
     AlgorithmArgs,
     FeedFilterSettings,
+    MediaCategory,
     ScorerDict,
     ScorerInfo,
     StringNumberDict,
@@ -414,7 +415,9 @@ class TheAlgorithm {
 export {
     TIME_DECAY,
     TRENDING,
+    VIDEO_TYPES,
     FeedFilterSettings,
+    MediaCategory,
     NumericFilter,
     PresetWeightLabel,
     PresetWeights,

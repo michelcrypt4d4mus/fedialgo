@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Refactor `MEDIA_CATEGORY` enum
+* Refactor `MediaCategory` enum
 
 ## 0.17.0
 * Configure various algorithm weight presets that can be selected via `PresetWeights` object

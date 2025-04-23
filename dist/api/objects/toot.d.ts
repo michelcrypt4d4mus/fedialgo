@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
-import { MEDIA_CATEGORY } from "../../types";
+import { MediaCategory } from "../../types";
 import { TheAlgorithm } from "../..";
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
@@ -91,7 +91,7 @@ export default class Toot implements TootObj {
     homserverAccountURL(): string;
     homeserverURL(): Promise<string>;
     attachmentPrefix(): string;
-    attachmentType(): MEDIA_CATEGORY | undefined;
+    attachmentType(): MediaCategory | undefined;
     audioAttachments(): Array<mastodon.v1.MediaAttachment>;
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
