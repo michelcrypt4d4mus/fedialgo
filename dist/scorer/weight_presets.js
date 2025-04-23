@@ -64,7 +64,8 @@ exports.PresetWeights = {
     [PresetWeightLabel.DISCUSSIONS]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: 0.01,
-        [types_1.WeightName.CHAOS]: 0.0,
+        [types_1.WeightName.CHAOS]: 0,
+        [types_1.WeightName.DIVERSITY]: 0,
         [types_1.WeightName.NUM_REPLIES]: 50.0,
     },
     [PresetWeightLabel.FRIENDS]: {

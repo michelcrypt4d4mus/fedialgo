@@ -69,7 +69,8 @@ export const PresetWeights: WeightPresets = {
     [PresetWeightLabel.DISCUSSIONS]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.01,
-        [WeightName.CHAOS]: 0.0,
+        [WeightName.CHAOS]: 0,
+        [WeightName.DIVERSITY]: 0,
         [WeightName.NUM_REPLIES]: 50.0,
     },
 
