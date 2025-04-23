@@ -15,6 +15,7 @@ export enum PresetWeightLabel {
 
 export type WeightPresets = Record<PresetWeightLabel, Weights>;
 
+
 export const DEFAULT_WEIGHTS: Weights = {
     // Global modifiers that affect all weighted scores
     [WeightName.TIME_DECAY]: 0.05,
@@ -82,5 +83,8 @@ export const PresetWeights: WeightPresets = {
     [PresetWeightLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: DEFAULT_WEIGHTS[WeightName.TRENDING] * 3,
+        [WeightName.TRENDING_LINKS]: DEFAULT_WEIGHTS[WeightName.TRENDING_LINKS] * 3,
+        [WeightName.TRENDING_TAGS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TAGS] * 3,
+        [WeightName.TRENDING_TOOTS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TOOTS] * 3,
     },
 };
