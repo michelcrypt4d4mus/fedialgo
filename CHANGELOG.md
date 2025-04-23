@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.18.2
 * Increase `Config.maxTimelineTootsToFetch` to 1500
 
 ### v0.18.1
