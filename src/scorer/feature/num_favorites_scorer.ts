@@ -1,5 +1,5 @@
 /*
- * Score how many times the toot has been favorited by other users.
+ * Score how many times the toot has been favourited by other users.
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
  */

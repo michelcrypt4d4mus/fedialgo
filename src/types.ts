@@ -9,31 +9,11 @@ import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 
 
-// Keys that are valid for local browser storage. // TODO: Consider renaming this
-export enum Key {
-    BLOCKED_ACCOUNTS = 'blockedAccounts',
-    FILTERS = 'filters',
-    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    HOME_TIMELINE = 'homeTimeline',
-    LAST_OPENED = "lastOpened",
-    MUTED_ACCOUNTS = 'mutedAccounts',
-    OPENINGS = "openings",
-    POPULAR_SERVERS = 'popularServers',
-    RECENT_FAVOURITES = "recentFavourites",
-    RECENT_NOTIFICATIONS = 'recentNotifications',
-    RECENT_TOOTS = "recentToots",
-    RECENT_USER_TOOTS = 'recentUserToots',
-    SERVER_SIDE_FILTERS = 'serverFilters',
-    TIMELINE = 'timeline',
-    TRENDING = 'trending',
-    USER = 'algouser',
-    WEIGHTS = 'weights'
-};
-
+// Names of the user adjustable score weightings
 export enum WeightName {
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
-    FAVORITED_ACCOUNTS = 'FavoritedAccounts',
+    FAVOURITED_ACCOUNTS = 'FavouritedAccounts',
     FOLLOWED_TAGS = 'FollowedTags',
     IMAGE_ATTACHMENTS = 'ImageAttachments',
     INTERACTIONS = 'Interactions',
@@ -51,6 +31,29 @@ export enum WeightName {
     // Special weights
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
+};
+
+// Keys that are valid for local browser storage.
+export enum StorageKey {
+    BLOCKED_ACCOUNTS = 'BlockedAccounts',
+    FAVOURITED_ACCOUNTS = WeightName.FAVOURITED_ACCOUNTS,
+    FILTERS = 'Filters',
+    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
+    FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
+    HOME_TIMELINE = 'HomeTimeline',
+    LAST_OPENED = "LastOpened",
+    MUTED_ACCOUNTS = 'MutedAccounts',
+    OPENINGS = "Openings",
+    POPULAR_SERVERS = 'PopularServers',
+    RECENT_FAVOURITES = "RecentFavourites",
+    RECENT_NOTIFICATIONS = 'RecentNotifications',
+    RECENT_TOOTS = "RecentToots",
+    RECENT_USER_TOOTS = 'RecentUserToots',
+    SERVER_SIDE_FILTERS = 'ServerFilters',
+    TIMELINE = 'Timeline',
+    TRENDING = 'Trending',
+    USER = 'FedialgoUser',
+    WEIGHTS = 'Weights',
 };
 
 export enum MediaCategory {
@@ -73,14 +76,7 @@ export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | To
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
-export type StorageKey = Key | WeightName;  // TODO: Is this necessary?
 
-
-export interface AlgorithmArgs {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
-};
 
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {

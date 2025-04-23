@@ -3,29 +3,10 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-export declare enum Key {
-    BLOCKED_ACCOUNTS = "blockedAccounts",
-    FILTERS = "filters",
-    FOLLOWED_ACCOUNTS = "FollowedAccounts",
-    HOME_TIMELINE = "homeTimeline",
-    LAST_OPENED = "lastOpened",
-    MUTED_ACCOUNTS = "mutedAccounts",
-    OPENINGS = "openings",
-    POPULAR_SERVERS = "popularServers",
-    RECENT_FAVOURITES = "recentFavourites",
-    RECENT_NOTIFICATIONS = "recentNotifications",
-    RECENT_TOOTS = "recentToots",
-    RECENT_USER_TOOTS = "recentUserToots",
-    SERVER_SIDE_FILTERS = "serverFilters",
-    TIMELINE = "timeline",
-    TRENDING = "trending",
-    USER = "algouser",
-    WEIGHTS = "weights"
-}
 export declare enum WeightName {
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
-    FAVORITED_ACCOUNTS = "FavoritedAccounts",
+    FAVOURITED_ACCOUNTS = "FavouritedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     IMAGE_ATTACHMENTS = "ImageAttachments",
     INTERACTIONS = "Interactions",
@@ -43,6 +24,27 @@ export declare enum WeightName {
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending"
 }
+export declare enum StorageKey {
+    BLOCKED_ACCOUNTS = "BlockedAccounts",
+    FAVOURITED_ACCOUNTS = "FavouritedAccounts",
+    FILTERS = "Filters",
+    FOLLOWED_ACCOUNTS = "FollowedAccounts",
+    FOLLOWED_TAGS = "FollowedTags",
+    HOME_TIMELINE = "HomeTimeline",
+    LAST_OPENED = "LastOpened",
+    MUTED_ACCOUNTS = "MutedAccounts",
+    OPENINGS = "Openings",
+    POPULAR_SERVERS = "PopularServers",
+    RECENT_FAVOURITES = "RecentFavourites",
+    RECENT_NOTIFICATIONS = "RecentNotifications",
+    RECENT_TOOTS = "RecentToots",
+    RECENT_USER_TOOTS = "RecentUserToots",
+    SERVER_SIDE_FILTERS = "ServerFilters",
+    TIMELINE = "Timeline",
+    TRENDING = "Trending",
+    USER = "FedialgoUser",
+    WEIGHTS = "Weights"
+}
 export declare enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
@@ -58,12 +60,6 @@ export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | To
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
-export type StorageKey = Key | WeightName;
-export interface AlgorithmArgs {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;
-}
 export type Config = {
     defaultLanguage: string;
     defaultRecordsPerPage: number;

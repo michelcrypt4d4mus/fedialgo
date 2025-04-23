@@ -77,6 +77,7 @@ const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 exports.TIME_DECAY = TIME_DECAY;
 const TRENDING = types_1.WeightName.TRENDING;
 exports.TRENDING = TRENDING;
+;
 class TheAlgorithm {
     api;
     user;

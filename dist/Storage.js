@@ -20,14 +20,14 @@ class Storage {
         return this.config;
     }
     static async getWeightings() {
-        const weightings = await this.get(types_1.Key.WEIGHTS);
+        const weightings = await this.get(types_1.StorageKey.WEIGHTS);
         return (weightings ?? {});
     }
     static async setWeightings(userWeightings) {
-        await this.set(types_1.Key.WEIGHTS, userWeightings);
+        await this.set(types_1.StorageKey.WEIGHTS, userWeightings);
     }
     static async getFilters() {
-        let filters = await this.get(types_1.Key.FILTERS); // Returns serialized FeedFilterSettings
+        let filters = await this.get(types_1.StorageKey.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
             populateFiltersFromArgs(filters);
         }
@@ -44,21 +44,21 @@ class Storage {
             feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
-        await this.set(types_1.Key.FILTERS, filterSettings);
+        await this.set(types_1.StorageKey.FILTERS, filterSettings);
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {
-        const followedAccounts = await this.get(types_1.Key.FOLLOWED_ACCOUNTS);
+        const followedAccounts = await this.get(types_1.StorageKey.FOLLOWED_ACCOUNTS);
         return (followedAccounts ?? []);
     }
     static async logAppOpen() {
-        let numAppOpens = (await this.get(types_1.Key.OPENINGS) || 0) + 1;
-        await this.set(types_1.Key.OPENINGS, numAppOpens);
-        await this.set(types_1.Key.LAST_OPENED, new Date().getTime());
+        let numAppOpens = (await this.get(types_1.StorageKey.OPENINGS) || 0) + 1;
+        await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
+        await this.set(types_1.StorageKey.LAST_OPENED, new Date().getTime());
     }
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(types_1.Key.LAST_OPENED);
+        const lastOpenedInt = await this.get(types_1.StorageKey.LAST_OPENED);
         if (!lastOpenedInt || numAppOpens <= 1) {
             console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
             return 0;
@@ -67,31 +67,31 @@ class Storage {
         return lastOpenedInt;
     }
     static async getNumAppOpens() {
-        let numAppOpens = await this.get(types_1.Key.OPENINGS) || 0;
+        let numAppOpens = await this.get(types_1.StorageKey.OPENINGS) || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }
     static async getIdentity() {
-        return await localforage_1.default.getItem(types_1.Key.USER);
+        return await localforage_1.default.getItem(types_1.StorageKey.USER);
     }
     static async setIdentity(user) {
         console.debug(`Setting identity to:`, user); // TODO: this is insecure logging
-        await localforage_1.default.setItem(types_1.Key.USER, user);
+        await localforage_1.default.setItem(types_1.StorageKey.USER, user);
     }
     static async getFeed() {
-        let cachedToots = await this.get(types_1.Key.TIMELINE);
+        let cachedToots = await this.get(types_1.StorageKey.TIMELINE);
         let toots = (cachedToots ?? []); // Status doesn't include all our Toot props but it should be OK?
         return toots.map(t => new toot_1.default(t));
     }
     static async setFeed(timeline) {
-        await this.set(types_1.Key.TIMELINE, timeline.map(t => t.serialize()));
+        await this.set(types_1.StorageKey.TIMELINE, timeline.map(t => t.serialize()));
     }
     static async setTrending(links, tags, _toots) {
         const toots = _toots.map(t => t.serialize());
-        await this.set(types_1.Key.TRENDING, { links, tags, toots });
+        await this.set(types_1.StorageKey.TRENDING, { links, tags, toots });
     }
     static async getTrending() {
-        const trendingData = await this.get(types_1.Key.TRENDING);
+        const trendingData = await this.get(types_1.StorageKey.TRENDING);
         return {
             links: (trendingData?.links ?? []),
             tags: (trendingData?.tags ?? []),

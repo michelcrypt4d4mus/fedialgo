@@ -75,8 +75,8 @@ class MastoApi {
         this.homeDomain = (0, helpers_1.extractDomain)(user.url);
         // Initialize mutexes for each key in Key and WeightName
         this.mutexes = {};
-        for (const key in types_1.Key)
-            this.mutexes[types_1.Key[key]] = new async_mutex_1.Mutex();
+        for (const key in types_1.StorageKey)
+            this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
         for (const key in types_1.WeightName)
             this.mutexes[types_1.WeightName[key]] = new async_mutex_1.Mutex();
     }
@@ -134,7 +134,7 @@ class MastoApi {
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const statuses = await this.fetchData({
             fetch: this.api.v1.timelines.home.list,
-            label: types_1.Key.HOME_TIMELINE,
+            label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
             maxRecords: numToots || Storage_1.default.getConfig().maxTimelineTootsToFetch,
             skipCache: true,
@@ -174,7 +174,7 @@ class MastoApi {
     async getUserRecentToots() {
         const recentToots = await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: types_1.Key.RECENT_USER_TOOTS
+            label: types_1.StorageKey.RECENT_USER_TOOTS
         });
         return recentToots.map(t => new toot_1.default(t));
     }
@@ -183,7 +183,7 @@ class MastoApi {
     async fetchFollowedAccounts() {
         return await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            label: types_1.Key.FOLLOWED_ACCOUNTS,
+            label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
         });
     }
@@ -192,7 +192,7 @@ class MastoApi {
     async getFollowedTags() {
         const followedTags = await this.fetchData({
             fetch: this.api.v1.followedTags.list,
-            label: types_1.WeightName.FOLLOWED_TAGS
+            label: types_1.StorageKey.FOLLOWED_TAGS
         });
         return followedTags.map(tag_1.repairTag);
     }
@@ -200,28 +200,28 @@ class MastoApi {
     async getRecentNotifications() {
         return await this.fetchData({
             fetch: this.api.v1.notifications.list,
-            label: types_1.Key.RECENT_NOTIFICATIONS
+            label: types_1.StorageKey.RECENT_NOTIFICATIONS
         });
     }
     // Get an array of Toots the user has recently favourited
     async fetchRecentFavourites() {
         return await this.fetchData({
             fetch: this.api.v1.favourites.list,
-            label: types_1.WeightName.FAVORITED_ACCOUNTS
+            label: types_1.StorageKey.FAVOURITED_ACCOUNTS
         });
     }
     ;
     async fetchBlockedAccounts() {
         return await this.fetchData({
             fetch: this.api.v1.blocks.list,
-            label: types_1.Key.BLOCKED_ACCOUNTS
+            label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
     }
     ;
     async fetchMutedAccounts() {
         return await this.fetchData({
             fetch: this.api.v1.mutes.list,
-            label: types_1.Key.MUTED_ACCOUNTS
+            label: types_1.StorageKey.MUTED_ACCOUNTS
         });
     }
     ;
@@ -229,8 +229,8 @@ class MastoApi {
     // TODO: this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
         console.debug(`getServerSideFilters() called...`);
-        const releaseMutex = await this.mutexes[types_1.Key.SERVER_SIDE_FILTERS].acquire();
-        let filters = await Storage_1.default.get(types_1.Key.SERVER_SIDE_FILTERS);
+        const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
+        let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
         try {
             if (!filters || (await this.shouldReloadFeatures())) {
                 filters = await this.api.v2.filters.list();
@@ -243,7 +243,7 @@ class MastoApi {
                         return false;
                     return true;
                 });
-                await Storage_1.default.set(types_1.Key.SERVER_SIDE_FILTERS, filters);
+                await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`Retrieved remote server side filters:`, filters);
             }
             else {
@@ -259,12 +259,12 @@ class MastoApi {
     ;
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains() {
-        const releaseMutex = await this.mutexes[types_1.Key.POPULAR_SERVERS].acquire();
+        const releaseMutex = await this.mutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
-            let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
+            let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
-                await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);
+                await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             else {
                 console.log(`Loaded popular servers from cache:`, servers);

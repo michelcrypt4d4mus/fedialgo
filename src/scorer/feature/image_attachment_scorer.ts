@@ -1,5 +1,5 @@
 /*
- * Score how many times the toot has been favorited by other users.
+ * Score the number of image attachments in the toot.
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';

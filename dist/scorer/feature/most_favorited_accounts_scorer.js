@@ -9,7 +9,7 @@ const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.FAVORITED_ACCOUNTS);
+        super(types_1.WeightName.FAVOURITED_ACCOUNTS);
     }
     ;
     async featureGetter() {

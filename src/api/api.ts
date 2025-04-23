@@ -8,13 +8,13 @@ import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
-import { AccountLike, Key, StorageKey, StorableObj, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
+import { AccountLike, StorageKey, StorableObj, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { buildAccountNames } from "./objects/account";
 import { extractDomain } from "../helpers";
 import { repairTag } from "./objects/tag";
 import { sortKeysByValue } from '../helpers';
 
-type ApiMutex = Record<StorageKey, Mutex>;
+type ApiMutex = Record<StorageKey | WeightName, Mutex>;  // TODO: do we need WeightName mutexes?
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -75,7 +75,7 @@ export class MastoApi {
 
         // Initialize mutexes for each key in Key and WeightName
         this.mutexes = {} as ApiMutex;
-        for (const key in Key) this.mutexes[Key[key as keyof typeof Key]] = new Mutex();
+        for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
         for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
     };
 
@@ -139,7 +139,7 @@ export class MastoApi {
 
         const statuses = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
-            label: Key.HOME_TIMELINE,
+            label: StorageKey.HOME_TIMELINE,
             maxId: maxId,
             maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
             skipCache: true,  // always skip the cache for the home timeline
@@ -182,7 +182,7 @@ export class MastoApi {
     async getUserRecentToots(): Promise<Toot[]> {
         const recentToots = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: Key.RECENT_USER_TOOTS
+            label: StorageKey.RECENT_USER_TOOTS
         });
 
         return recentToots.map(t => new Toot(t));
@@ -192,7 +192,7 @@ export class MastoApi {
     async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
         return await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            label: Key.FOLLOWED_ACCOUNTS,
+            label: StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
         });
     };
@@ -201,7 +201,7 @@ export class MastoApi {
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
         const followedTags = await this.fetchData<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
-            label: WeightName.FOLLOWED_TAGS
+            label: StorageKey.FOLLOWED_TAGS
         });
 
         return followedTags.map(repairTag);
@@ -211,7 +211,7 @@ export class MastoApi {
     async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
         return await this.fetchData<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
-            label: Key.RECENT_NOTIFICATIONS
+            label: StorageKey.RECENT_NOTIFICATIONS
         });
     }
 
@@ -219,21 +219,21 @@ export class MastoApi {
     async fetchRecentFavourites(): Promise<mastodon.v1.Status[]> {
         return await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
-            label: WeightName.FAVORITED_ACCOUNTS
+            label: StorageKey.FAVOURITED_ACCOUNTS
         });
     };
 
     async fetchBlockedAccounts(): Promise<mastodon.v1.Account[]> {
         return await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.blocks.list,
-            label: Key.BLOCKED_ACCOUNTS
+            label: StorageKey.BLOCKED_ACCOUNTS
         });
     };
 
     async fetchMutedAccounts(): Promise<mastodon.v1.Account[]> {
         return await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
-            label: Key.MUTED_ACCOUNTS
+            label: StorageKey.MUTED_ACCOUNTS
         });
     };
 
@@ -241,8 +241,8 @@ export class MastoApi {
     // TODO: this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         console.debug(`getServerSideFilters() called...`);
-        const releaseMutex = await this.mutexes[Key.SERVER_SIDE_FILTERS].acquire()
-        let filters = await Storage.get(Key.SERVER_SIDE_FILTERS);
+        const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
+        let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS);
 
         try {
             if (!filters || (await this.shouldReloadFeatures())) {
@@ -256,7 +256,7 @@ export class MastoApi {
                     return true;
                 });
 
-                await Storage.set(Key.SERVER_SIDE_FILTERS, filters);
+                await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`Retrieved remote server side filters:`, filters);
             } else {
                 filters = filters as mastodon.v2.Filter[];
@@ -271,14 +271,14 @@ export class MastoApi {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     async getTopServerDomains(): Promise<string[]> {
-        const releaseMutex = await this.mutexes[Key.POPULAR_SERVERS].acquire()
+        const releaseMutex = await this.mutexes[StorageKey.POPULAR_SERVERS].acquire()
 
         try {
-            let servers = await Storage.get(Key.POPULAR_SERVERS) as StringNumberDict;
+            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as StringNumberDict;
 
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await MastodonServer.mastodonServersInfo();
-                await Storage.set(Key.POPULAR_SERVERS, servers);
+                await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
                 console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers as StringNumberDict;

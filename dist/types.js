@@ -1,33 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.WeightName = exports.Key = void 0;
-// Keys that are valid for local browser storage. // TODO: Consider renaming this
-var Key;
-(function (Key) {
-    Key["BLOCKED_ACCOUNTS"] = "blockedAccounts";
-    Key["FILTERS"] = "filters";
-    Key["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    Key["HOME_TIMELINE"] = "homeTimeline";
-    Key["LAST_OPENED"] = "lastOpened";
-    Key["MUTED_ACCOUNTS"] = "mutedAccounts";
-    Key["OPENINGS"] = "openings";
-    Key["POPULAR_SERVERS"] = "popularServers";
-    Key["RECENT_FAVOURITES"] = "recentFavourites";
-    Key["RECENT_NOTIFICATIONS"] = "recentNotifications";
-    Key["RECENT_TOOTS"] = "recentToots";
-    Key["RECENT_USER_TOOTS"] = "recentUserToots";
-    Key["SERVER_SIDE_FILTERS"] = "serverFilters";
-    Key["TIMELINE"] = "timeline";
-    Key["TRENDING"] = "trending";
-    Key["USER"] = "algouser";
-    Key["WEIGHTS"] = "weights";
-})(Key || (exports.Key = Key = {}));
-;
+exports.MediaCategory = exports.StorageKey = exports.WeightName = void 0;
+// Names of the user adjustable score weightings
 var WeightName;
 (function (WeightName) {
     WeightName["CHAOS"] = "Chaos";
     WeightName["DIVERSITY"] = "Diversity";
-    WeightName["FAVORITED_ACCOUNTS"] = "FavoritedAccounts";
+    WeightName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
     WeightName["FOLLOWED_TAGS"] = "FollowedTags";
     WeightName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
     WeightName["INTERACTIONS"] = "Interactions";
@@ -47,13 +26,36 @@ var WeightName;
     WeightName["TRENDING"] = "Trending";
 })(WeightName || (exports.WeightName = WeightName = {}));
 ;
+// Keys that are valid for local browser storage.
+var StorageKey;
+(function (StorageKey) {
+    StorageKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
+    StorageKey["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
+    StorageKey["FILTERS"] = "Filters";
+    StorageKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
+    StorageKey["FOLLOWED_TAGS"] = "FollowedTags";
+    StorageKey["HOME_TIMELINE"] = "HomeTimeline";
+    StorageKey["LAST_OPENED"] = "LastOpened";
+    StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
+    StorageKey["OPENINGS"] = "Openings";
+    StorageKey["POPULAR_SERVERS"] = "PopularServers";
+    StorageKey["RECENT_FAVOURITES"] = "RecentFavourites";
+    StorageKey["RECENT_NOTIFICATIONS"] = "RecentNotifications";
+    StorageKey["RECENT_TOOTS"] = "RecentToots";
+    StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";
+    StorageKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
+    StorageKey["TIMELINE"] = "Timeline";
+    StorageKey["TRENDING"] = "Trending";
+    StorageKey["USER"] = "FedialgoUser";
+    StorageKey["WEIGHTS"] = "Weights";
+})(StorageKey || (exports.StorageKey = StorageKey = {}));
+;
 var MediaCategory;
 (function (MediaCategory) {
     MediaCategory["AUDIO"] = "audio";
     MediaCategory["IMAGE"] = "image";
     MediaCategory["VIDEO"] = "video";
 })(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
-;
 ;
 ;
 ;

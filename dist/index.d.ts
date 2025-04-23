@@ -23,9 +23,14 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
 import { GIFV, VIDEO_TYPES, extractDomain } from "./helpers";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
+import { AccountNames, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare const TRENDING = WeightName.TRENDING;
+interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;
+}
 declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;

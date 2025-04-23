@@ -24,7 +24,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     // Weighted scores
     [WeightName.CHAOS]: 1.0,
     [WeightName.DIVERSITY]: 1.0,
-    [WeightName.FAVORITED_ACCOUNTS]: 1.0,
+    [WeightName.FAVOURITED_ACCOUNTS]: 1.0,
     [WeightName.FOLLOWED_TAGS]: 2.0,
     [WeightName.IMAGE_ATTACHMENTS]: 0,
     [WeightName.INTERACTIONS]: 1.5,
@@ -47,7 +47,7 @@ export const PresetWeights: WeightPresets = {
         [WeightName.TRENDING]: 0,
         [WeightName.CHAOS]: 0,
         [WeightName.DIVERSITY]: 0,
-        [WeightName.FAVORITED_ACCOUNTS]: 0,
+        [WeightName.FAVOURITED_ACCOUNTS]: 0,
         [WeightName.FOLLOWED_TAGS]: 0,
         [WeightName.IMAGE_ATTACHMENTS]: 0,
         [WeightName.INTERACTIONS]: 0,

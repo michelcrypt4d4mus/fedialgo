@@ -1,8 +1,8 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Toot from './objects/toot';
-import { AccountLike, StorageKey, TimelineData, UserData } from "../types";
-type ApiMutex = Record<StorageKey, Mutex>;
+import { AccountLike, StorageKey, TimelineData, UserData, WeightName } from "../types";
+type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";

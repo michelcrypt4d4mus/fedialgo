@@ -14,7 +14,6 @@ import {
     Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
-    Key,
     StorageKey,
     StorableObj,
     TrendingLink,
@@ -34,16 +33,16 @@ export default class Storage {
     }
 
     static async getWeightings(): Promise<Weights> {
-        const weightings = await this.get(Key.WEIGHTS);
+        const weightings = await this.get(StorageKey.WEIGHTS);
         return (weightings ?? {}) as Weights;
     }
 
     static async setWeightings(userWeightings: Weights): Promise<void> {
-        await this.set(Key.WEIGHTS, userWeightings);
+        await this.set(StorageKey.WEIGHTS, userWeightings);
     }
 
     static async getFilters(): Promise<FeedFilterSettings> {
-        let filters = await this.get(Key.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
+        let filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
         if (filters) {
             populateFiltersFromArgs(filters);
@@ -63,24 +62,24 @@ export default class Storage {
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         } as FeedFilterSettingsSerialized;
 
-        await this.set(Key.FILTERS, filterSettings);
+        await this.set(StorageKey.FILTERS, filterSettings);
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts(): Promise<mastodon.v1.Account[]> {
-        const followedAccounts = await this.get(Key.FOLLOWED_ACCOUNTS);
+        const followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS);
         return (followedAccounts ?? []) as mastodon.v1.Account[];
     }
 
     static async logAppOpen(): Promise<void> {
-        let numAppOpens = (await this.get(Key.OPENINGS) as number || 0) + 1;
-        await this.set(Key.OPENINGS, numAppOpens);
-        await this.set(Key.LAST_OPENED, new Date().getTime());
+        let numAppOpens = (await this.get(StorageKey.OPENINGS) as number || 0) + 1;
+        await this.set(StorageKey.OPENINGS, numAppOpens);
+        await this.set(StorageKey.LAST_OPENED, new Date().getTime());
     }
 
     static async getLastOpenedTimestamp(): Promise<number> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(Key.LAST_OPENED) as number;
+        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
 
         if (!lastOpenedInt || numAppOpens <= 1) {
             console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
@@ -92,37 +91,37 @@ export default class Storage {
     }
 
     static async getNumAppOpens(): Promise<number> {
-        let numAppOpens = await this.get(Key.OPENINGS) as number || 0;
+        let numAppOpens = await this.get(StorageKey.OPENINGS) as number || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }
 
     static async getIdentity(): Promise<mastodon.v1.Account | null> {
-        return await localForage.getItem(Key.USER);
+        return await localForage.getItem(StorageKey.USER);
     }
 
     static async setIdentity(user: mastodon.v1.Account) {
         console.debug(`Setting identity to:`, user);  // TODO: this is insecure logging
-        await localForage.setItem(Key.USER, user);
+        await localForage.setItem(StorageKey.USER, user);
     }
 
     static async getFeed(): Promise<Toot[]> {
-        let cachedToots = await this.get(Key.TIMELINE);
+        let cachedToots = await this.get(StorageKey.TIMELINE);
         let toots = (cachedToots ?? []) as SerializableToot[];  // Status doesn't include all our Toot props but it should be OK?
         return toots.map(t => new Toot(t));
     }
 
     static async setFeed(timeline: Toot[]) {
-        await this.set(Key.TIMELINE, timeline.map(t => t.serialize()));
+        await this.set(StorageKey.TIMELINE, timeline.map(t => t.serialize()));
     }
 
     static async setTrending(links: TrendingLink[], tags: TrendingTag[], _toots: Toot[]) {
         const toots = _toots.map(t => t.serialize());
-        await this.set(Key.TRENDING, {links, tags, toots} as TrendingStorage);
+        await this.set(StorageKey.TRENDING, {links, tags, toots} as TrendingStorage);
     }
 
     static async getTrending(): Promise<TrendingStorage> {
-        const trendingData = await this.get(Key.TRENDING) as TrendingStorage;
+        const trendingData = await this.get(StorageKey.TRENDING) as TrendingStorage;
 
         return {
             links: (trendingData?.links ?? []) as TrendingLink[],

@@ -27,7 +27,7 @@ export const SCORERS_CONFIG: ScorerDict = {
     [WeightName.DIVERSITY]: {
         description: "Disfavour accounts that are tooting a lot right now",
     },
-    [WeightName.FAVORITED_ACCOUNTS]: {
+    [WeightName.FAVOURITED_ACCOUNTS]: {
         description: "Favour accounts you often favourite",
     },
     [WeightName.FOLLOWED_TAGS]: {

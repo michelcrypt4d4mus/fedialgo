@@ -34,7 +34,6 @@ import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
 import {
     AccountNames,
-    AlgorithmArgs,
     FeedFilterSettings,
     MediaCategory,
     ScorerDict,
@@ -50,6 +49,12 @@ import {
 
 const TIME_DECAY = WeightName.TIME_DECAY;
 const TRENDING = WeightName.TRENDING;
+
+interface AlgorithmArgs {
+    api: mastodon.rest.Client;
+    user: mastodon.v1.Account;
+    setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
+};
 
 
 class TheAlgorithm {

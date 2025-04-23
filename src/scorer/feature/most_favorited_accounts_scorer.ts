@@ -1,5 +1,5 @@
 /*
- * Score how many times the current user has favorited the tooter in the past.
+ * Score how many times the current user has favourited the tooter in the past.
  */
 import { mastodon } from 'masto';
 
@@ -12,7 +12,7 @@ import { StringNumberDict, WeightName } from '../../types';
 
 export default class MostFavoritedAccountsScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.FAVORITED_ACCOUNTS);
+        super(WeightName.FAVOURITED_ACCOUNTS);
     };
 
     async featureGetter(): Promise<StringNumberDict> {

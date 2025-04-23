@@ -50,7 +50,7 @@ exports.SCORERS_CONFIG = {
     [types_1.WeightName.DIVERSITY]: {
         description: "Disfavour accounts that are tooting a lot right now",
     },
-    [types_1.WeightName.FAVORITED_ACCOUNTS]: {
+    [types_1.WeightName.FAVOURITED_ACCOUNTS]: {
         description: "Favour accounts you often favourite",
     },
     [types_1.WeightName.FOLLOWED_TAGS]: {

@@ -9,7 +9,7 @@ export declare enum PropertyName {
     HASHTAG = "hashtag",
     USER = "user",
     APP = "app",
-    SERVER_SIDE_FILTERS = "serverFilters"
+    SERVER_SIDE_FILTERS = "ServerFilters"
 }
 export declare enum TypeFilterName {
     DIRECT_MESSAGE = "directMessages",

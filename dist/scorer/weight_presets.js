@@ -22,7 +22,7 @@ exports.DEFAULT_WEIGHTS = {
     // Weighted scores
     [types_1.WeightName.CHAOS]: 1.0,
     [types_1.WeightName.DIVERSITY]: 1.0,
-    [types_1.WeightName.FAVORITED_ACCOUNTS]: 1.0,
+    [types_1.WeightName.FAVOURITED_ACCOUNTS]: 1.0,
     [types_1.WeightName.FOLLOWED_TAGS]: 2.0,
     [types_1.WeightName.IMAGE_ATTACHMENTS]: 0,
     [types_1.WeightName.INTERACTIONS]: 1.5,
@@ -44,7 +44,7 @@ exports.PresetWeights = {
         [types_1.WeightName.TRENDING]: 0,
         [types_1.WeightName.CHAOS]: 0,
         [types_1.WeightName.DIVERSITY]: 0,
-        [types_1.WeightName.FAVORITED_ACCOUNTS]: 0,
+        [types_1.WeightName.FAVOURITED_ACCOUNTS]: 0,
         [types_1.WeightName.FOLLOWED_TAGS]: 0,
         [types_1.WeightName.IMAGE_ATTACHMENTS]: 0,
         [types_1.WeightName.INTERACTIONS]: 0,
