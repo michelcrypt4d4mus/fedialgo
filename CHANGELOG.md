@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Expose `TheAlgorithm.mastodonServers` property
 
 ### v0.17.4
 * Fix duplicates ending up in `Toot.reblogsBy` on page reloads

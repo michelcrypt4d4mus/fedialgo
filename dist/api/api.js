@@ -247,7 +247,6 @@ class MastoApi {
         const releaseMutex = await this.mutexes[types_1.Key.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.Key.POPULAR_SERVERS);
-            ;
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
                 await Storage_1.default.set(types_1.Key.POPULAR_SERVERS, servers);

@@ -33,6 +33,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
+    mastodonServers: string[];
     mutedAccounts: AccountNames;
     scoreMutex: Mutex;
     serverSideFilters: mastodon.v2.Filter[];

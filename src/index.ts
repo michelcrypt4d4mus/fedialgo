@@ -61,6 +61,7 @@ class TheAlgorithm {
     feed: Toot[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
+    mastodonServers: string[] = [];
     mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
     serverSideFilters: mastodon.v2.Filter[] = [];
@@ -197,6 +198,12 @@ class TheAlgorithm {
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
         this.extractSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
+
+        // TODO: this is a hacky way to preserve the server domains...
+        if (this.mastodonServers.length == 0) {
+            this.mastodonServers = await MastoApi.instance.getTopServerDomains();
+        }
+
         return this.scoreFeed.bind(this)();
     }
 
