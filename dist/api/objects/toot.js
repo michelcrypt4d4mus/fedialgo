@@ -196,8 +196,23 @@ class Toot {
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }
-    tootedAt() {
-        return new Date(this.createdAt);
+    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
+    attachmentPrefix() {
+        const attachmentType = this.attachmentType();
+        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
+    }
+    // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
+    // TODO: can one toot have video and imagess? If so, we should return both (or something)
+    attachmentType() {
+        if (this.audioAttachments().length > 0) {
+            return types_2.MEDIA_CATEGORY.AUDIO;
+        }
+        else if (this.imageAttachments().length > 0) {
+            return types_2.MEDIA_CATEGORY.IMAGE;
+        }
+        else if (this.videoAttachments().length > 0) {
+            return types_2.MEDIA_CATEGORY.VIDEO;
+        }
     }
     audioAttachments() {
         return this.attachmentsOfType(types_2.MEDIA_CATEGORY.AUDIO);
@@ -304,26 +319,12 @@ class Toot {
     reblogsByAccts() {
         return this.reblogsBy.map((account) => account.acct);
     }
-    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
-    attachmentPrefix() {
-        return this.attachmentType() ? ATTACHMENT_ICONS[this.attachmentType()] : "";
-    }
-    // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
-    // TODO: can one toot have video and imagess? If so, we should return both (or something)
-    attachmentType() {
-        if (this.audioAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.AUDIO;
-        }
-        else if (this.imageAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.IMAGE;
-        }
-        else if (this.videoAttachments().length > 0) {
-            return types_2.MEDIA_CATEGORY.VIDEO;
-        }
-    }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
         return { ...this };
+    }
+    tootedAt() {
+        return new Date(this.createdAt);
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing

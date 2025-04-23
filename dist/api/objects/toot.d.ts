@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { MEDIA_CATEGORY } from "../../types";
 import { TheAlgorithm } from "../..";
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
@@ -89,7 +90,8 @@ export default class Toot implements TootObj {
     resolve(): Promise<Toot | undefined>;
     homserverAccountURL(): string;
     homeserverURL(): Promise<string>;
-    tootedAt(): Date;
+    attachmentPrefix(): string;
+    attachmentType(): MEDIA_CATEGORY | undefined;
     audioAttachments(): Array<mastodon.v1.MediaAttachment>;
     imageAttachments(): Array<mastodon.v1.MediaAttachment>;
     videoAttachments(): Array<mastodon.v1.MediaAttachment>;
@@ -101,9 +103,8 @@ export default class Toot implements TootObj {
     contentShortened(maxChars?: number): string;
     condensedStatus(): object;
     reblogsByAccts(): string[];
-    attachmentPrefix(): string;
-    attachmentType(): string | undefined;
     serialize(): SerializableToot;
+    tootedAt(): Date;
     private repairToot;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
