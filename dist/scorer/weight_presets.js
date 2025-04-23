@@ -8,6 +8,7 @@ const types_1 = require("../types");
 var PresetWeightLabel;
 (function (PresetWeightLabel) {
     PresetWeightLabel["CHRONOLOGICAL"] = "Chronological";
+    PresetWeightLabel["DISCUSSIONS"] = "Discussions";
     PresetWeightLabel["DEFAULT"] = "Default";
     PresetWeightLabel["FRIENDS"] = "Friends";
     PresetWeightLabel["PICTURES"] = "Pictures";
@@ -60,6 +61,11 @@ exports.PresetWeights = {
         [types_1.WeightName.VIDEO_ATTACHMENTS]: 0,
     },
     [PresetWeightLabel.DEFAULT]: exports.DEFAULT_WEIGHTS,
+    [PresetWeightLabel.DISCUSSIONS]: {
+        ...exports.DEFAULT_WEIGHTS,
+        [types_1.WeightName.CHAOS]: 0.0,
+        [types_1.WeightName.NUM_REPLIES]: 50.0,
+    },
     [PresetWeightLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: 0.02,
@@ -75,7 +81,7 @@ exports.PresetWeights = {
     },
     [PresetWeightLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.WeightName.TRENDING]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING] * 3,
+        [types_1.WeightName.TRENDING]: 0.5,
         [types_1.WeightName.TRENDING_LINKS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_LINKS] * 3,
         [types_1.WeightName.TRENDING_TAGS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TAGS] * 3,
         [types_1.WeightName.TRENDING_TOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TOOTS] * 3,

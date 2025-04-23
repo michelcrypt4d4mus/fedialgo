@@ -7,6 +7,7 @@ import { WeightName, Weights } from "../types";
 
 export enum PresetWeightLabel {
     CHRONOLOGICAL = 'Chronological',
+    DISCUSSIONS = 'Discussions',
     DEFAULT = 'Default',
     FRIENDS = 'Friends',
     PICTURES = 'Pictures',
@@ -65,6 +66,12 @@ export const PresetWeights: WeightPresets = {
 
     [PresetWeightLabel.DEFAULT]: DEFAULT_WEIGHTS,
 
+    [PresetWeightLabel.DISCUSSIONS]: {
+        ...DEFAULT_WEIGHTS,
+        [WeightName.CHAOS]: 0.0,
+        [WeightName.NUM_REPLIES]: 50.0,
+    },
+
     [PresetWeightLabel.FRIENDS]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.02,
@@ -82,7 +89,7 @@ export const PresetWeights: WeightPresets = {
 
     [PresetWeightLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
-        [WeightName.TRENDING]: DEFAULT_WEIGHTS[WeightName.TRENDING] * 3,
+        [WeightName.TRENDING]: 0.5,
         [WeightName.TRENDING_LINKS]: DEFAULT_WEIGHTS[WeightName.TRENDING_LINKS] * 3,
         [WeightName.TRENDING_TAGS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TAGS] * 3,
         [WeightName.TRENDING_TOOTS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TOOTS] * 3,

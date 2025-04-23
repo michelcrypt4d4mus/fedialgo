@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add `DISCUSSIONS` preset; tweak `TRENDING` preset
 
 ### v0.17.3
 * Test release
