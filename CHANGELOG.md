@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* `PresetWeights` object
-* Resolve Toot to self if there's an API failure when resolving
+* Configure various algorithm weight presets that can be selected via `PresetWeights` object
+* Add `TootScore.weightedScore` variable; make `Toot.weightedScores` object values reflect the trending multiplier
+* Resolve Toot to self (and log error) if there's an API failure when resolving
+* Add `Toot.ageInSeconds()` and `Toot.ageInHours()` methods
 
 ### 0.16.9
 * Include `Toot.repliesCount` when scoring `Toot.popularity()`

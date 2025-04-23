@@ -115,6 +115,7 @@ export type TootScore = {
     rawScores: Weights;
     score: number;
     timeDecayMultiplier: number;
+    weightedScore: number;
     weightedScores: Weights;
 };
 export interface TrendingLink extends mastodon.v1.TrendLink {

@@ -117,6 +117,12 @@ class Toot {
         this.trendingTags = (toot.trendingTags ?? []);
         this.repairToot();
     }
+    ageInSeconds() {
+        return Math.floor((new Date().getTime() - new Date(this.createdAt).getTime()) / 1000);
+    }
+    ageInHours() {
+        return this.ageInSeconds() / 3600;
+    }
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
     containsString(str) {
         str = str.trim().toLowerCase();

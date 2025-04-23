@@ -41,7 +41,7 @@ exports.PresetWeights = {
     [PresetWeightLabel.DEFAULT]: exports.DEFAULT_WEIGHTS,
     [PresetWeightLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.WeightName.TRENDING]: 0.04,
+        [types_1.WeightName.TRENDING]: 0.02,
         [types_1.WeightName.INTERACTIONS]: 2.5,
         [types_1.WeightName.MENTIONS_FOLLOWED]: 3.0,
         [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 3.0,

@@ -56,6 +56,8 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 
 interface TootObj extends SerializableToot {
+    ageInSeconds: () => number;
+    ageInHours: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
     homserverAccountURL: () => string;
@@ -160,6 +162,14 @@ export default class Toot implements TootObj {
         this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repairToot();
+    }
+
+    ageInSeconds(): number {
+        return Math.floor((new Date().getTime() - new Date(this.createdAt).getTime()) / 1000);
+    }
+
+    ageInHours(): number {
+        return this.ageInSeconds() / 3600;
     }
 
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags

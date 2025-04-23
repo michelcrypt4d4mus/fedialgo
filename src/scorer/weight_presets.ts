@@ -44,7 +44,7 @@ export const PresetWeights: WeightPresets = {
 
     [PresetWeightLabel.FRIENDS]: {
         ...DEFAULT_WEIGHTS,
-        [WeightName.TRENDING]: 0.04,
+        [WeightName.TRENDING]: 0.02,
         [WeightName.INTERACTIONS]: 2.5,
         [WeightName.MENTIONS_FOLLOWED]: 3.0,
         [WeightName.MOST_REPLIED_ACCOUNTS]: 3.0,

@@ -20,6 +20,8 @@ export interface SerializableToot extends mastodon.v1.Status {
     trendingTags?: TrendingTag[];
 }
 interface TootObj extends SerializableToot {
+    ageInSeconds: () => number;
+    ageInHours: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
     homserverAccountURL: () => string;
@@ -75,6 +77,8 @@ export default class Toot implements TootObj {
     trendingLinks: TrendingLink[];
     trendingTags: TrendingTag[];
     constructor(toot: SerializableToot);
+    ageInSeconds(): number;
+    ageInHours(): number;
     containsString(str: string): boolean;
     describe(): string;
     describeAccount(): string;

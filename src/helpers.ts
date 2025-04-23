@@ -4,7 +4,7 @@
 import { decode } from 'html-entities';
 import { mastodon } from "masto";
 
-import { CountKey, StringNumberDict } from "./types";
+import { CountKey, StringNumberDict, Weights } from "./types";
 
 export const AUDIO = "audio";
 export const IMAGE = "image";
@@ -47,10 +47,6 @@ export function htmlToText(html: string): string {
 };
 
 
-function removeHttpsLinks(input: string): string {
-    return input.replace(/https:\/\/\S+/g, '');
-}
-
 // Take the average of an array of numbers, ignoring undefined values
 export function average(values: number[]): number {
     values = values.filter(v => !!v);
@@ -71,7 +67,6 @@ export function isVideo(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
 };
-
 
 
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
@@ -186,6 +181,11 @@ export function replaceEmojiShortcodesWithImageTags(
 // Count occurences of substr within str
 export function countInstances(str: string, substr: string): number {
     return Math.max(str.split(substr).length - 1, 0);
+};
+
+
+export function sumValues(obj: StringNumberDict | Weights): number {
+    return Object.values(obj).reduce((a, b) => a + b, 0);
 };
 
 

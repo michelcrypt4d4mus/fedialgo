@@ -151,10 +151,11 @@ export type TimelineData = {
 };
 
 export type TootScore = {
-    rawScore: number;             // Score before applying timeDecayMultiplier
+    rawScore: number;             // Raw score without time decay etc. applied
     rawScores: Weights;
-    score: number;
+    score: number;                // Actual final score
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
+    weightedScore: number;        // Score before applying timeDecayMultiplier
     weightedScores: Weights;
 };
 

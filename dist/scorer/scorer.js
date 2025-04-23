@@ -10,6 +10,7 @@ const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
 const config_1 = require("../config");
 const types_1 = require("../types");
+const helpers_1 = require("../helpers");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 class Scorer {
     defaultWeight;
@@ -42,7 +43,6 @@ class Scorer {
     // Add all the score into to a toot, including a final score
     static async decorateWithScoreInfo(toot, scorers) {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
-        let rawScore = 1;
         const tootToScore = toot.reblog ?? toot;
         const rawScores = {};
         const weightedScores = {};
@@ -55,27 +55,25 @@ class Scorer {
             const scoreValue = scores[i] || 0;
             rawScores[scorer.name] = scoreValue;
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            rawScore += weightedScores[scorer.name];
+            if (tootToScore.isTrending()) {
+                weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
+            }
         });
         // Multiple rawScore by time decay penalty to get a final value
         const timeDecay = userWeights[TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[TIME_DECAY];
-        const seconds = Math.floor((new Date().getTime() - new Date(tootToScore.createdAt).getTime()) / 1000);
-        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow((seconds / 3600), 2));
+        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow(tootToScore.ageInHours(), 2));
+        // Add 1 so that time decay multiplier works even with scorers giving 0s
+        const weightedScore = 1 + (0, helpers_1.sumValues)(weightedScores);
         tootToScore.scoreInfo = {
-            rawScore,
+            rawScore: 1 + (0, helpers_1.sumValues)(rawScores),
             rawScores,
-            score: 0,
+            score: weightedScore * timeDecayMultiplier,
             timeDecayMultiplier,
             weightedScores,
+            weightedScore,
         };
-        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-        // high scores. To adjust for this we hack a final adjustment to the score by multiplying by the
-        // trending weighting value.
-        if (tootToScore.isTrending()) {
-            tootToScore.scoreInfo.rawScore *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
-        }
-        tootToScore.scoreInfo.score = tootToScore.scoreInfo.rawScore * timeDecayMultiplier;
-        toot.scoreInfo = tootToScore.scoreInfo; // Copy the score info to the retoot if need be
+        // Copy the score info to the retoot if need be  // TODO: duping the score for retoots is a hack
+        toot.scoreInfo = tootToScore.scoreInfo;
     }
 }
 exports.default = Scorer;

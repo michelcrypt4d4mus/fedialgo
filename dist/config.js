@@ -36,6 +36,9 @@ exports.SCORERS_CONFIG = {
         description: "Higher values favour recent toots more",
         minValue: 0.001,
     },
+    // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
+    // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
+    // TRENDING weighting value.
     [types_1.WeightName.TRENDING]: {
         description: "Multiplier applied to trending toots, tags, and links",
         minValue: 0.001,

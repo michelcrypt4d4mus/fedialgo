@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { CountKey, StringNumberDict } from "./types";
+import { CountKey, StringNumberDict, Weights } from "./types";
 export declare const AUDIO = "audio";
 export declare const IMAGE = "image";
 export declare const IMAGE_EXTENSIONS: string[];
@@ -24,4 +24,5 @@ export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
 export declare function countInstances(str: string, substr: string): number;
+export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function createRandomString(length: number): string;
