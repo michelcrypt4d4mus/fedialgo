@@ -8,13 +8,20 @@ import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
-import { AccountLike, StorageKey, StorableObj, StringNumberDict, TimelineData, UserData, WeightName} from "../types";
 import { buildAccountNames } from "./objects/account";
 import { extractDomain } from "../helpers";
 import { repairTag } from "./objects/tag";
 import { sortKeysByValue } from '../helpers';
-
-type ApiMutex = Record<StorageKey | WeightName, Mutex>;  // TODO: do we need WeightName mutexes?
+import {
+    AccountLike,
+    StatusList,
+    StorableObj,
+    StorageKey,
+    StringNumberDict,
+    TimelineData,
+    UserData,
+    WeightName
+} from "../types";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -26,6 +33,8 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
+
+type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -59,7 +68,7 @@ export class MastoApi {
             return;
         }
 
-        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user);
+        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     };
 
@@ -107,7 +116,6 @@ export class MastoApi {
             trendingTagToots = allResponses.shift();
             trendingTags = trendingTagToots.tags;
             otherToots = trendingToots.concat(trendingTagToots.toots);
-            console.debug(`Extracted trendingTags during load:`, trendingTags);
         }
 
         return {
@@ -216,7 +224,7 @@ export class MastoApi {
     }
 
     // Get an array of Toots the user has recently favourited
-    async fetchRecentFavourites(): Promise<mastodon.v1.Status[]> {
+    async fetchRecentFavourites(): Promise<StatusList> {
         return await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: StorageKey.FAVOURITED_ACCOUNTS

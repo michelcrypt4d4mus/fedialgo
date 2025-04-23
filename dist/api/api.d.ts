@@ -1,12 +1,12 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Toot from './objects/toot';
-import { AccountLike, StorageKey, TimelineData, UserData, WeightName } from "../types";
-type ApiMutex = Record<StorageKey | WeightName, Mutex>;
+import { AccountLike, StatusList, StorageKey, TimelineData, UserData, WeightName } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
+type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
@@ -24,7 +24,7 @@ export declare class MastoApi {
     fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
-    fetchRecentFavourites(): Promise<mastodon.v1.Status[]>;
+    fetchRecentFavourites(): Promise<StatusList>;
     fetchBlockedAccounts(): Promise<mastodon.v1.Account[]>;
     fetchMutedAccounts(): Promise<mastodon.v1.Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;

@@ -32,11 +32,11 @@ const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
-const types_1 = require("../types");
 const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const tag_1 = require("./objects/tag");
 const helpers_2 = require("../helpers");
+const types_1 = require("../types");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -59,7 +59,7 @@ class MastoApi {
             console.warn("MastoApi instance already initialized...");
             return;
         }
-        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user);
+        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
     ;
@@ -105,7 +105,6 @@ class MastoApi {
             trendingTagToots = allResponses.shift();
             trendingTags = trendingTagToots.tags;
             otherToots = trendingToots.concat(trendingTagToots.toots);
-            console.debug(`Extracted trendingTags during load:`, trendingTags);
         }
         return {
             homeToots,

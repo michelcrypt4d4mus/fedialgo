@@ -166,7 +166,7 @@ class TheAlgorithm {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         let dataFetches = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
-        // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
+        // If this is the first call to getFeed() also fetch the user's followed accounts and tags
         if (!maxId) {
             this.loadingStatus = "initial data";
             dataFetches = dataFetches.concat([

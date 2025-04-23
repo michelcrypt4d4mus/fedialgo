@@ -53,7 +53,7 @@ export declare enum MediaCategory {
 export type AccountLike = mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
-export type StatusList = mastodon.v1.Status[];
+export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;

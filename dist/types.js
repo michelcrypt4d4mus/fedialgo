@@ -50,6 +50,7 @@ var StorageKey;
     StorageKey["WEIGHTS"] = "Weights";
 })(StorageKey || (exports.StorageKey = StorageKey = {}));
 ;
+// Self explanatory
 var MediaCategory;
 (function (MediaCategory) {
     MediaCategory["AUDIO"] = "audio";

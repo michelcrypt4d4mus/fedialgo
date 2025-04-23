@@ -159,7 +159,7 @@ class TheAlgorithm {
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let dataFetches: Promise<any>[] = [MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
 
-        // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
+        // If this is the first call to getFeed() also fetch the user's followed accounts and tags
         if (!maxId) {
             this.loadingStatus = "initial data";
 
