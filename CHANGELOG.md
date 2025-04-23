@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# 0.17.0
 * Configure various algorithm weight presets that can be selected via `PresetWeights` object
 * Add `TootScore.weightedScore` variable; make `Toot.weightedScores` object values reflect the trending multiplier
 * Resolve Toot to self (and log error) if there's an API failure when resolving
