@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Tweak `TRENDING` preset
 
 ### 0.17.1
 * Refactor `MediaCategory` enum

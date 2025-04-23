@@ -76,6 +76,9 @@ exports.PresetWeights = {
     [PresetWeightLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING] * 3,
+        [types_1.WeightName.TRENDING_LINKS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_LINKS] * 3,
+        [types_1.WeightName.TRENDING_TAGS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TAGS] * 3,
+        [types_1.WeightName.TRENDING_TOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TOOTS] * 3,
     },
 };
 //# sourceMappingURL=weight_presets.js.map
