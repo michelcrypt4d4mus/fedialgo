@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Increase `Config.maxTimelineTootsToFetch` to 1500
 
 ### v0.18.1
 * Cache the user's server side filter settings
