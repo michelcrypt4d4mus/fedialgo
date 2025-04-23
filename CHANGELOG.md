@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.18.1
 * Cache the user's server side filter settings
 
 ## v0.18.0
