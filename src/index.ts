@@ -32,7 +32,7 @@ import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
-import { VIDEO_TYPES, createRandomString, incrementCount } from "./helpers";
+import { VIDEO_TYPES, createRandomString, extractDomain, incrementCount } from "./helpers";
 import {
     AccountNames,
     AlgorithmArgs,
@@ -431,4 +431,5 @@ export {
     WeightName,
     Weights,
     accountNameWithEmojis,
+    extractDomain,
 };
