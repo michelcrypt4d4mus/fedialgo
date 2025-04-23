@@ -422,11 +422,14 @@ export default class Toot implements TootObj {
             this.trendingRank ||= this.reblog.trendingRank;
 
             if (!this.reblogsByAccts().includes(this.account.acct)) {
+                if (this.reblogsBy.length > 0) {
+                    console.log(`Didn't find '${this.account.acct}' in reblogsByAccts (${JSON.stringify(this.reblogsByAccts())}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
+                }
                 this.reblog.reblogsBy.push(this.account);
             }
 
             // TODO: we still need to de-dupe because a few dupes sneak through
-            this.reblogsBy = [...new Map(this.reblogsBy.map((acct) => [acct.acct, acct])).values()];
+            this.reblog.reblogsBy = [...new Map(this.reblog.reblogsBy.map((acct) => [acct.acct, acct])).values()];
         }
 
         // Check for weird media types
@@ -458,14 +461,21 @@ export default class Toot implements TootObj {
         const prefix = logLabel ? `[${logLabel}] ` : '';
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
+        // Collect the properties of a single Toot from all the instances of the same URI (we can
+        // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
-            let reblogsBy = uriToots.flatMap(toot => toot.reblogsBy ?? []);
+            let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
+
+            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
+            if (reblogsBy.length > 1) {
+                console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            }
 
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
@@ -474,15 +484,12 @@ export default class Toot implements TootObj {
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
-                if (toot.reblog) toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
-                // Set reblogsBy
-                toot.reblogsBy = reblogsBy;
-            });
 
-            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            if (reblogsBy.length > 1) {
-                console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            }
+                if (toot.reblog) {
+                    toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
+                    toot.reblog.reblogsBy = reblogsBy;
+                }
+            });
         });
 
         const deduped: Toot[] = Object.values(tootsByURI).map(toots => toots[0]);
