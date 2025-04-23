@@ -4,15 +4,12 @@
 import { decode } from 'html-entities';
 import { mastodon } from "masto";
 
-import { CountKey, StringNumberDict, Weights } from "./types";
+import { MEDIA_CATEGORY, CountKey, StringNumberDict, Weights } from "./types";
 
-export const AUDIO = "audio";
-export const IMAGE = "image";
 export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
-export const VIDEO = "video";
-export const VIDEO_TYPES = [VIDEO, "gifv"] as mastodon.v1.MediaAttachmentType[];
+export const VIDEO_TYPES = [MEDIA_CATEGORY.VIDEO, "gifv"] as mastodon.v1.MediaAttachmentType[];
 export const VIDEO_EXTENSIONS = ["mp4"];
-export const MEDIA_TYPES = [AUDIO, IMAGE, ...VIDEO_TYPES];
+export const MEDIA_TYPES = [MEDIA_CATEGORY.AUDIO, MEDIA_CATEGORY.IMAGE, ...VIDEO_TYPES];
 export const DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 

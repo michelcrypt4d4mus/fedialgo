@@ -11,4 +11,5 @@ export default abstract class Scorer {
     getInfo(): ScorerInfo;
     private checkIsReady;
     static decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void>;
+    private static sumScores;
 }

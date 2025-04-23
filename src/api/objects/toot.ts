@@ -7,12 +7,9 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import {
-    AUDIO,
     DEFAULT_FONT_SIZE,
-    IMAGE,
     MEDIA_TYPES,
     VIDEO_TYPES,
-    VIDEO,
     groupBy,
     htmlToText,
     isImage,
@@ -23,6 +20,7 @@ import {
 import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
+import { MEDIA_CATEGORY } from "../../types";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
 
@@ -34,10 +32,15 @@ export enum TootVisibility {
     UNLISTED = "unlisted",
 };
 
-const ATTACHMENT_ICONS: Record<string, string> = {[AUDIO]: AUDIO, [IMAGE]: "pic", [VIDEO]: "vid"};
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
+
+const ATTACHMENT_ICONS: Record<MEDIA_CATEGORY, string> = {
+    [MEDIA_CATEGORY.AUDIO]: "audio",
+    [MEDIA_CATEGORY.IMAGE]: "pic",
+    [MEDIA_CATEGORY.VIDEO]: "vid"
+};
 
 
 // Serialized version of a Toot
@@ -157,17 +160,19 @@ export default class Toot implements TootObj {
         this.reblogsBy = (toot.reblogsBy ?? []) as mastodon.v1.Account[];
         this.resolveAttempted = toot.resolveAttempted ?? false;
         this.resolvedToot = toot.resolvedToot;
-        this.scoreInfo = toot.scoreInfo as TootScore;
+        this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repairToot();
     }
 
+    // Time since this toot was sent in seconds
     ageInSeconds(): number {
-        return Math.floor((new Date().getTime() - new Date(this.createdAt).getTime()) / 1000);
+        return Math.floor((new Date().getTime() - this.tootedAt().getTime()) / 1000);
     }
 
+    // Time since this toot was sent in hours
     ageInHours(): number {
         return this.ageInSeconds() / 3600;
     }
@@ -189,6 +194,7 @@ export default class Toot implements TootObj {
         return `${msg} (${this.describeAccount()}): "${this.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
     }
 
+    // String representation of the account that sent this toot
     describeAccount(): string {
         return describeAccount(this.account);
     }
@@ -198,19 +204,22 @@ export default class Toot implements TootObj {
         return this.reblog ? describeAccount(this.reblog.account) : this.describeAccount();
     }
 
+    // Sum of the reblogs, replies, and local server favourites
     popularity(): number {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
     }
 
+    // URI for the toot
     realURI(): string {
         return this.reblog?.uri || this.uri;
     }
 
-    // Default to this.uri if this.url is empty
+    // Default to this.realURI() if url property is empty
     realURL(): string {
         return this.reblog?.url || this.url || this.realURI();
     }
 
+    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve(): Promise<Toot | undefined> {
         if (this.resolveAttempted) return this.resolvedToot;
 
@@ -243,16 +252,30 @@ export default class Toot implements TootObj {
         return homeURL;
     }
 
-    tootedAt(): Date {
-        return new Date(this.createdAt);
+    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
+    attachmentPrefix(): string {
+        const attachmentType = this.attachmentType();
+        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
+    }
+
+    // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
+    // TODO: can one toot have video and imagess? If so, we should return both (or something)
+    attachmentType(): MEDIA_CATEGORY | undefined {
+        if (this.audioAttachments().length > 0) {
+            return MEDIA_CATEGORY.AUDIO;
+        } else if (this.imageAttachments().length > 0) {
+            return MEDIA_CATEGORY.IMAGE;
+        } else if (this.videoAttachments().length > 0) {
+            return MEDIA_CATEGORY.VIDEO;
+        }
     }
 
     audioAttachments(): Array<mastodon.v1.MediaAttachment> {
-        return this.attachmentsOfType(AUDIO);
+        return this.attachmentsOfType(MEDIA_CATEGORY.AUDIO);
     }
 
     imageAttachments(): Array<mastodon.v1.MediaAttachment> {
-        return this.attachmentsOfType(IMAGE);
+        return this.attachmentsOfType(MEDIA_CATEGORY.IMAGE);
     }
 
     videoAttachments(): Array<mastodon.v1.MediaAttachment> {
@@ -281,7 +304,7 @@ export default class Toot implements TootObj {
         }
 
         // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < new Date(this.createdAt).getTime()) {
+        if (Date.now() < this.tootedAt().getTime()) {
             console.warn(`Removed toot with future timestamp:`, this);
             return false;
         }
@@ -342,15 +365,15 @@ export default class Toot implements TootObj {
         let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
         if (mediaAttachments.length == 0) mediaAttachments = [];
 
-        const tootObj = {
-            FROM: `${accountLabel} [${this.createdAt}]`,
-            URL: this.url,
+        const infoObj = {
             content: this.contentShortened(),
-            retootOf: this.reblog ? `${this.reblog.describeAccount()} (${this.reblog.createdAt})` : null,
+            from: `${accountLabel} [${this.createdAt}]`,
             inReplyToId: this.inReplyToId,
             mediaAttachments: mediaAttachments,
             raw: this,
+            retootOf: this.reblog ? `${this.reblog.describeAccount()} (${this.reblog.createdAt})` : null,
             scoreInfo: this.scoreInfo,
+            url: this.url,
 
             properties: {
                 favouritesCount: this.favouritesCount,
@@ -360,9 +383,9 @@ export default class Toot implements TootObj {
             },
         };
 
-        return Object.keys(tootObj)
-            .filter((k) => tootObj[k as keyof typeof tootObj] != null)
-            .reduce((obj, k) => ({ ...obj, [k]: tootObj[k as keyof typeof tootObj] }), {});
+        return Object.keys(infoObj)
+            .filter((k) => infoObj[k as keyof typeof infoObj] != null)
+            .reduce((obj, k) => ({ ...obj, [k]: infoObj[k as keyof typeof infoObj] }), {});
     }
 
     // Returns an array of account strings for all accounts that reblogged this toot
@@ -370,27 +393,13 @@ export default class Toot implements TootObj {
         return this.reblogsBy.map((account) => account.acct);
     }
 
-    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
-    attachmentPrefix(): string {
-        const attachmentType = this.attachmentType();
-        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
-    }
-
-    // Return 'video' if toot contains a video, 'image' if it contains an image, undefined if no attachments
-    // TODO: can one toot have video and imagess? If so, we should return both (or something)
-    attachmentType(): string | undefined {
-        if (this.audioAttachments().length > 0) {
-            return AUDIO;
-        } else if (this.imageAttachments().length > 0) {
-            return IMAGE;
-        } else if (this.videoAttachments().length > 0) {
-            return VIDEO;
-        }
-    }
-
-     // Remove fxns so toots can be serialized
+     // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
         return {...this} as SerializableToot;
+    }
+
+    tootedAt(): Date {
+        return new Date(this.createdAt);
     }
 
     // Repair toot properties:
@@ -424,11 +433,12 @@ export default class Toot implements TootObj {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if (isImage(media.remoteUrl)) {
-                    console.log(`Repairing broken image attachment in toot:`, this);
-                    media.type = IMAGE;
+                    console.warn(`Repairing broken image attachment in toot:`, this);
+                    media.type = MEDIA_CATEGORY.IMAGE;
                 } else if (isVideo(media.remoteUrl)) {
-                    console.log(`Repairing broken video attachment in toot:`, this);
-                    media.type = VIDEO;
+                    console.warn(`Repairing broken video attachment in toot:`, this);
+                    media.type = MEDIA_CATEGORY.VIDEO;
+
                 } else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
@@ -440,7 +450,7 @@ export default class Toot implements TootObj {
 
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type === attachmentType);
+        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
 
     // Remove dupes by uniquifying on the toot's URI

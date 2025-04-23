@@ -1,12 +1,9 @@
 import { mastodon } from "masto";
-import { CountKey, StringNumberDict, Weights } from "./types";
-export declare const AUDIO = "audio";
-export declare const IMAGE = "image";
+import { MEDIA_CATEGORY, CountKey, StringNumberDict, Weights } from "./types";
 export declare const IMAGE_EXTENSIONS: string[];
-export declare const VIDEO = "video";
 export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
 export declare const VIDEO_EXTENSIONS: string[];
-export declare const MEDIA_TYPES: string[];
+export declare const MEDIA_TYPES: (("audio" | "video" | "image" | "unknown" | "gifv") | MEDIA_CATEGORY)[];
 export declare const DEFAULT_FONT_SIZE = 15;
 export declare function extractDomain(url: string): string;
 export declare function replaceHttpsLinks(input: string): string;

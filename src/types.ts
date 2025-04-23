@@ -49,6 +49,12 @@ export enum WeightName {
     TRENDING = 'Trending',
 };
 
+export enum MEDIA_CATEGORY {
+    AUDIO = "audio",
+    IMAGE = "image",
+    VIDEO = "video",
+};
+
 
 // Records
 export type AccountLike = mastodon.v1.Account | mastodon.v1.StatusMention;

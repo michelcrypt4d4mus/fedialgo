@@ -1,17 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.sumValues = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.VIDEO = exports.IMAGE_EXTENSIONS = exports.IMAGE = exports.AUDIO = void 0;
+exports.createRandomString = exports.sumValues = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = void 0;
 /*
  * Various small helper methods.
  */
 const html_entities_1 = require("html-entities");
-exports.AUDIO = "audio";
-exports.IMAGE = "image";
+const types_1 = require("./types");
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
-exports.VIDEO = "video";
-exports.VIDEO_TYPES = [exports.VIDEO, "gifv"];
+exports.VIDEO_TYPES = [types_1.MEDIA_CATEGORY.VIDEO, "gifv"];
 exports.VIDEO_EXTENSIONS = ["mp4"];
-exports.MEDIA_TYPES = [exports.AUDIO, exports.IMAGE, ...exports.VIDEO_TYPES];
+exports.MEDIA_TYPES = [types_1.MEDIA_CATEGORY.AUDIO, types_1.MEDIA_CATEGORY.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://www.mast.ai/foobar" => "mast.ai"

@@ -43,6 +43,11 @@ export declare enum WeightName {
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending"
 }
+export declare enum MEDIA_CATEGORY {
+    AUDIO = "audio",
+    IMAGE = "image",
+    VIDEO = "video"
+}
 export type AccountLike = mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;

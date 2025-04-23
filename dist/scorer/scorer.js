@@ -43,10 +43,10 @@ class Scorer {
     // Add all the score into to a toot, including a final score
     static async decorateWithScoreInfo(toot, scorers) {
         // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
-        const tootToScore = toot.reblog ?? toot;
         const rawScores = {};
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeightings();
+        const tootToScore = toot.reblog ?? toot;
         const scores = await Promise.all(scorers.map(s => s.score(tootToScore)));
         tootToScore.followedTags ??= [];
         // Compute a weighted score a toot based by multiplying the value of each numerical property
@@ -59,13 +59,14 @@ class Scorer {
                 weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
             }
         });
-        // Multiple rawScore by time decay penalty to get a final value
-        const timeDecay = userWeights[TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[TIME_DECAY];
-        const timeDecayMultiplier = Math.pow((1 + timeDecay), -1 * Math.pow(tootToScore.ageInHours(), 2));
-        // Add 1 so that time decay multiplier works even with scorers giving 0s
-        const weightedScore = 1 + (0, helpers_1.sumValues)(weightedScores);
+        // Multiple weighted score by time decay penalty to get a final weightedScore
+        const timeDecayWeight = userWeights[TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[TIME_DECAY];
+        // const timeDecayMultiplier = 1.0 / Math.pow(tootToScore.ageInHours(), timeDecayWeight);
+        const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(tootToScore.ageInHours(), 1.2));
+        const weightedScore = this.sumScores(weightedScores);
+        // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging
         tootToScore.scoreInfo = {
-            rawScore: 1 + (0, helpers_1.sumValues)(rawScores),
+            rawScore: this.sumScores(rawScores),
             rawScores,
             score: weightedScore * timeDecayMultiplier,
             timeDecayMultiplier,
@@ -74,6 +75,10 @@ class Scorer {
         };
         // Copy the score info to the retoot if need be  // TODO: duping the score for retoots is a hack
         toot.scoreInfo = tootToScore.scoreInfo;
+    }
+    // Add 1 so that time decay multiplier works even with scorers giving 0s
+    static sumScores(scores) {
+        return 1 + (0, helpers_1.sumValues)(scores);
     }
 }
 exports.default = Scorer;
