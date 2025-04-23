@@ -166,7 +166,7 @@ class TheAlgorithm {
         let dataFetches = [api_1.MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
-            this.loadingStatus = "Loading data required for scoring...";
+            this.loadingStatus = "initial data";
             dataFetches = dataFetches.concat([
                 api_1.MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
@@ -174,10 +174,10 @@ class TheAlgorithm {
             ]);
         }
         else {
-            this.loadingStatus = "Loading more toots...";
+            this.loadingStatus = "more toots";
         }
         const allResponses = await Promise.all(dataFetches);
-        console.debug(`getFeed() allResponses:`, allResponses);
+        // console.debug(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
         // Store trending data so it's accessible to client if page is reloaded
