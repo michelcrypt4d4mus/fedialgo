@@ -1,3 +1,6 @@
+/*
+ * Typescript type definitions.
+ */
 import { mastodon } from 'masto';
 
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
@@ -6,6 +9,7 @@ import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 
 
+// Keys that are valid for local browser storage. // TODO: Consider renaming this
 export enum Key {
     BLOCKED_ACCOUNTS = 'blockedAccounts',
     FILTERS = 'filters',
@@ -69,7 +73,7 @@ export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | To
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
-export type StorageKey = Key | WeightName;
+export type StorageKey = Key | WeightName;  // TODO: Is this necessary?
 
 
 export interface AlgorithmArgs {

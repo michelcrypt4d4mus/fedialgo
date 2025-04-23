@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Cache the user's server side filter settings
 
 ## v0.18.0
 * Expose `TheAlgorithm.mastodonServers` property

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MediaCategory = exports.WeightName = exports.Key = void 0;
+// Keys that are valid for local browser storage. // TODO: Consider renaming this
 var Key;
 (function (Key) {
     Key["BLOCKED_ACCOUNTS"] = "blockedAccounts";

@@ -225,20 +225,35 @@ class MastoApi {
         });
     }
     ;
-    // TODO: should we cache this?
+    // Retrieve content based feed filters the user has set up on the server
+    // TODO: this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
-        console.log(`getServerSideFilters() called`);
-        let filters = await this.api.v2.filters.list();
-        // Filter out filters that either are just warnings or don't apply to the home context
-        filters = filters.filter(filter => {
-            // before 4.0 Filter objects lacked a 'context' property altogether
-            if (filter.context?.length > 0 && !filter.context.includes("home"))
-                return false;
-            if (filter.filterAction != "hide")
-                return false;
-            return true;
-        });
-        console.log(`Retrieved server side filters:`, filters);
+        console.debug(`getServerSideFilters() called...`);
+        const releaseMutex = await this.mutexes[types_1.Key.SERVER_SIDE_FILTERS].acquire();
+        let filters = await Storage_1.default.get(types_1.Key.SERVER_SIDE_FILTERS);
+        try {
+            if (!filters || (await this.shouldReloadFeatures())) {
+                filters = await this.api.v2.filters.list();
+                // Filter out filters that either are just warnings or don't apply to the home context
+                filters = filters.filter(filter => {
+                    // Before Mastodon 4.0 Filter objects lacked a 'context' property altogether
+                    if (filter.context?.length > 0 && !filter.context.includes("home"))
+                        return false;
+                    if (filter.filterAction != "hide")
+                        return false;
+                    return true;
+                });
+                await Storage_1.default.set(types_1.Key.SERVER_SIDE_FILTERS, filters);
+                console.log(`Retrieved remote server side filters:`, filters);
+            }
+            else {
+                filters = filters;
+                console.debug(`Loaded server side filters from cache:`, filters);
+            }
+        }
+        finally {
+            releaseMutex();
+        }
         return filters;
     }
     ;

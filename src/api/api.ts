@@ -237,20 +237,35 @@ export class MastoApi {
         });
     };
 
-    // TODO: should we cache this?
+    // Retrieve content based feed filters the user has set up on the server
+    // TODO: this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
-        console.log(`getServerSideFilters() called`);
-        let filters = await this.api.v2.filters.list();
+        console.debug(`getServerSideFilters() called...`);
+        const releaseMutex = await this.mutexes[Key.SERVER_SIDE_FILTERS].acquire()
+        let filters = await Storage.get(Key.SERVER_SIDE_FILTERS);
 
-        // Filter out filters that either are just warnings or don't apply to the home context
-        filters = filters.filter(filter => {
-            // before 4.0 Filter objects lacked a 'context' property altogether
-            if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
-            if (filter.filterAction != "hide") return false;
-            return true;
-        });
+        try {
+            if (!filters || (await this.shouldReloadFeatures())) {
+                filters = await this.api.v2.filters.list();
 
-        console.log(`Retrieved server side filters:`, filters);
+                // Filter out filters that either are just warnings or don't apply to the home context
+                filters = filters.filter(filter => {
+                    // Before Mastodon 4.0 Filter objects lacked a 'context' property altogether
+                    if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
+                    if (filter.filterAction != "hide") return false;
+                    return true;
+                });
+
+                await Storage.set(Key.SERVER_SIDE_FILTERS, filters);
+                console.log(`Retrieved remote server side filters:`, filters);
+            } else {
+                filters = filters as mastodon.v2.Filter[];
+                console.debug(`Loaded server side filters from cache:`, filters);
+            }
+        } finally {
+            releaseMutex();
+        }
+
         return filters;
     };
 

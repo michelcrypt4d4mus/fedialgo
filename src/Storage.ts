@@ -128,7 +128,7 @@ export default class Storage {
             links: (trendingData?.links ?? []) as TrendingLink[],
             tags: (trendingData?.tags ?? []) as TrendingTag[],
             toots: (trendingData?.toots ?? []).map((t) => new Toot(t)),
-        }
+        };
     }
 
     // Get the value at the given key (with the user ID as a prefix)
