@@ -135,12 +135,12 @@ exports.DEFAULT_CONFIG = {
     // Culled from https://mastodonservers.net and https://joinmastodon.org/
     defaultServers: [
         "mastodon.social",
-        // "pawoo.net",   // Japanese (and maybe NSFW?)
-        // "baraag.net",  // very NSFW
-        // "mstdn.jp",    // Japanese
+        // "pawoo.net",       // Japanese (and maybe NSFW?)
+        // "baraag.net",      // very NSFW
+        // "mstdn.jp",        // Japanese
         "mastodon.cloud",
-        // "pravda.me"    // Russian
-        "mstdn.social",
+        // "pravda.me"        // Russian
+        // "mstdn.social",    // Slow, blocked by CORS
         "mastodon.online",
         "mas.to",
         "mastodon.world",
@@ -173,6 +173,7 @@ exports.DEFAULT_CONFIG = {
         "fediverse.one",
         "flipboard.com",
         'mathstodon.xyz',
+        "mstdn.social",
         "threads.net",
     ],
 };
