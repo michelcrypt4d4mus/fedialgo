@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.17.4
 * Fix duplicates ending up in `Toot.reblogsBy` on page reloads
 * Add `TheAlgorithm.loadingStatus` message
 * Add `DISCUSSIONS` preset; tweak `TRENDING` preset
