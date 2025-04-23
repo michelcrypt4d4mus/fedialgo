@@ -4,8 +4,8 @@
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { SCORERS_CONFIG } from "../config";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
+import { SCORERS_CONFIG } from "../config";
 import { sumValues } from "../helpers";
 
 const TIME_DECAY = WeightName.TIME_DECAY;

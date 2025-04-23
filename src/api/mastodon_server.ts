@@ -90,7 +90,7 @@ export default class MastodonServer {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
 
-        console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
+        // console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
         return list as T[];
     };
 
