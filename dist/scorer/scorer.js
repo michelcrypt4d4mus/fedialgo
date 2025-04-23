@@ -8,8 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
-const config_1 = require("../config");
 const types_1 = require("../types");
+const config_1 = require("../config");
 const helpers_1 = require("../helpers");
 const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 class Scorer {

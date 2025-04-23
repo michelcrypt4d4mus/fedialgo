@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import { MediaCategory, CountKey, StringNumberDict, Weights } from "./types";
+export declare const GIFV = "gifv";
 export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
 export declare const VIDEO_EXTENSIONS: string[];

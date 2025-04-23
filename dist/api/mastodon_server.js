@@ -85,7 +85,7 @@ class MastodonServer {
         catch (e) {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
-        console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
+        // console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
         return list;
     }
     ;
@@ -133,7 +133,8 @@ class MastodonServer {
         console.info(`[fediverseTrendingTags] unique tags:`, tags);
         return tags.slice(0, Storage_1.default.getConfig().numTrendingTags);
     }
-    // Returns something called "overrepresentedServerFrequ"??
+    // Returns a dict of servers with MAU over the minServerMAU threshold
+    // and the ratio of the number of users followed on a server to the MAU of that server.
     static async mastodonServersInfo() {
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.fetchFollowedAccounts();

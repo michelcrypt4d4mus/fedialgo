@@ -28,10 +28,10 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis, buildAccountNames } from './api/objects/account';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
+import { GIFV, VIDEO_TYPES, createRandomString, extractDomain, incrementCount } from "./helpers";
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
-import { VIDEO_TYPES, createRandomString, extractDomain, incrementCount } from "./helpers";
 import {
     AccountNames,
     AlgorithmArgs,
@@ -414,6 +414,7 @@ class TheAlgorithm {
 
 // Export types and constants needed by apps using this package
 export {
+    GIFV,
     TIME_DECAY,
     TRENDING,
     VIDEO_TYPES,

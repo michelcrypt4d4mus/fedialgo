@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.sumValues = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = void 0;
+exports.createRandomString = exports.sumValues = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = exports.GIFV = void 0;
 /*
  * Various small helper methods.
  */
 const html_entities_1 = require("html-entities");
 const types_1 = require("./types");
+exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
-exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, "gifv"];
+exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
 exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];
 exports.DEFAULT_FONT_SIZE = 15;

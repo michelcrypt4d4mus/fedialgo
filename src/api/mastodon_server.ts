@@ -139,7 +139,8 @@ export default class MastodonServer {
         return tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
     }
 
-    // Returns something called "overrepresentedServerFrequ"??
+    // Returns a dict of servers with MAU over the minServerMAU threshold
+    // and the ratio of the number of users followed on a server to the MAU of that server.
     static async mastodonServersInfo(): Promise<StringNumberDict> {
         const config = Storage.getConfig();
         const follows = await MastoApi.instance.fetchFollowedAccounts();
@@ -163,10 +164,13 @@ export default class MastodonServer {
         }
 
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        const overrepresentedServerFreq = Object.keys(serverMAUs).reduce((overRepped, server) => {
-            overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
-            return overRepped;
-        }, {} as StringNumberDict);
+        const overrepresentedServerFreq = Object.keys(serverMAUs).reduce(
+            (overRepped, server) => {
+                overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
+                return overRepped;
+            },
+            {} as StringNumberDict
+        );
 
         console.log(`Final serverMAUs: `, serverMAUs, `\noverrepresentedServerFreq:`, overrepresentedServerFreq);
         return overrepresentedServerFreq;
