@@ -69,6 +69,8 @@ class TheAlgorithm {
     trendingToots: Toot[] = [];
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
+    // Status message about what is being loaded
+    loadingStatus?: string = undefined;
 
     followedTagsScorer = new FollowedTagsScorer();
     mentionsFollowedScorer = new MentionsFollowedScorer();
@@ -153,15 +155,19 @@ class TheAlgorithm {
 
         // If this is the first call to getFeed(), also fetch the user's followed accounts and tags
         if (!maxId) {
+            this.loadingStatus = "initial data";
+
             dataFetches = dataFetches.concat([
                 MastoApi.instance.getStartupData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
+        } else {
+            this.loadingStatus = "more toots";
         }
 
         const allResponses = await Promise.all(dataFetches);
-        console.debug(`getFeed() allResponses:`, allResponses);
+        // console.debug(`getFeed() allResponses:`, allResponses);
         const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift();  // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
 
@@ -332,6 +338,8 @@ class TheAlgorithm {
             } else {
                 console.log(`halting getFeed(): fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
             }
+
+            this.loadingStatus = undefined;
         }
     }
 

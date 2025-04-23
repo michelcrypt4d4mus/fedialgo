@@ -40,6 +40,7 @@ declare class TheAlgorithm {
     trendingTags: TrendingTag[];
     trendingToots: Toot[];
     setFeedInApp: (f: Toot[]) => void;
+    loadingStatus?: string;
     followedTagsScorer: FollowedTagsScorer;
     mentionsFollowedScorer: MentionsFollowedScorer;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
