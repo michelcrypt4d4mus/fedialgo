@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### 0.17.1
 * Refactor `MediaCategory` enum
 * Explicitly export all objects and variables required by the demo app
 * Exclude `mstd.social` from default servers
