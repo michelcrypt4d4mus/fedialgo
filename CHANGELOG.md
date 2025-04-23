@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.18.0
+## v0.18.0
 * Expose `TheAlgorithm.mastodonServers` property
 
 ### v0.17.4
