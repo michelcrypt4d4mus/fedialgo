@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.17.2
 * Tweak `TRENDING` preset
 
 ### 0.17.1
