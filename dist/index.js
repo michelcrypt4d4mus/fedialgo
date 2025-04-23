@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.VIDEO_TYPES = exports.TRENDING = exports.TIME_DECAY = void 0;
+exports.extractDomain = exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.VIDEO_TYPES = exports.TRENDING = exports.TIME_DECAY = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -69,6 +69,7 @@ Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: functio
 const config_1 = require("./config");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return helpers_1.VIDEO_TYPES; } });
+Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return helpers_1.extractDomain; } });
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });

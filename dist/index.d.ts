@@ -22,8 +22,8 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { accountNameWithEmojis } from './api/objects/account';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { VIDEO_TYPES } from "./helpers";
-import { AccountNames, AlgorithmArgs, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingTag, WeightName, Weights } from "./types";
+import { VIDEO_TYPES, extractDomain } from "./helpers";
+import { AccountNames, AlgorithmArgs, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 declare const TIME_DECAY = WeightName.TIME_DECAY;
 declare const TRENDING = WeightName.TRENDING;
 declare class TheAlgorithm {
@@ -64,4 +64,4 @@ declare class TheAlgorithm {
     private scoreFeed;
     private logTootCounts;
 }
-export { TIME_DECAY, TRENDING, VIDEO_TYPES, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TypeFilterName, WeightName, Weights, accountNameWithEmojis, };
+export { TIME_DECAY, TRENDING, VIDEO_TYPES, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, accountNameWithEmojis, extractDomain, };
