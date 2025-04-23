@@ -1,5 +1,6 @@
 import { Weights } from "../types";
 export declare enum PresetWeightLabel {
+    CHRONOLOGICAL = "Chronological",
     DEFAULT = "Default",
     FRIENDS = "Friends",
     PICTURES = "Pictures",

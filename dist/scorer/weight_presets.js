@@ -7,10 +7,10 @@ exports.PresetWeights = exports.DEFAULT_WEIGHTS = exports.PresetWeightLabel = vo
 const types_1 = require("../types");
 var PresetWeightLabel;
 (function (PresetWeightLabel) {
+    PresetWeightLabel["CHRONOLOGICAL"] = "Chronological";
     PresetWeightLabel["DEFAULT"] = "Default";
     PresetWeightLabel["FRIENDS"] = "Friends";
     PresetWeightLabel["PICTURES"] = "Pictures";
-    // FOLLOWING = 'Following',
     PresetWeightLabel["TRENDING"] = "Trending";
 })(PresetWeightLabel || (exports.PresetWeightLabel = PresetWeightLabel = {}));
 ;
@@ -38,6 +38,27 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.VIDEO_ATTACHMENTS]: 0,
 };
 exports.PresetWeights = {
+    [PresetWeightLabel.CHRONOLOGICAL]: {
+        [types_1.WeightName.TIME_DECAY]: 1.0,
+        [types_1.WeightName.TRENDING]: 0,
+        [types_1.WeightName.CHAOS]: 0,
+        [types_1.WeightName.DIVERSITY]: 0,
+        [types_1.WeightName.FAVORITED_ACCOUNTS]: 0,
+        [types_1.WeightName.FOLLOWED_TAGS]: 0,
+        [types_1.WeightName.IMAGE_ATTACHMENTS]: 0,
+        [types_1.WeightName.INTERACTIONS]: 0,
+        [types_1.WeightName.MENTIONS_FOLLOWED]: 0,
+        [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 0,
+        [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: 0,
+        [types_1.WeightName.NUM_FAVOURITES]: 0,
+        [types_1.WeightName.NUM_REPLIES]: 0,
+        [types_1.WeightName.NUM_RETOOTS]: 0,
+        [types_1.WeightName.RETOOTED_IN_FEED]: 0,
+        [types_1.WeightName.TRENDING_LINKS]: 7,
+        [types_1.WeightName.TRENDING_TAGS]: 5,
+        [types_1.WeightName.TRENDING_TOOTS]: 0,
+        [types_1.WeightName.VIDEO_ATTACHMENTS]: 0,
+    },
     [PresetWeightLabel.DEFAULT]: exports.DEFAULT_WEIGHTS,
     [PresetWeightLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,

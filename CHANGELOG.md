@@ -2,6 +2,7 @@
 * Refactor `MediaCategory` enum
 * Explicitly export all objects and variables required by the demo app
 * Exclude `mstd.social` from default servers
+* Add `Reverse Chronological" preset algo
 
 ## 0.17.0
 * Configure various algorithm weight presets that can be selected via `PresetWeights` object

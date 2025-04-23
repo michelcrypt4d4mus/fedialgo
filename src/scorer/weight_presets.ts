@@ -6,10 +6,10 @@ import { WeightName, Weights } from "../types";
 
 
 export enum PresetWeightLabel {
+    CHRONOLOGICAL = 'Chronological',
     DEFAULT = 'Default',
     FRIENDS = 'Friends',
     PICTURES = 'Pictures',
-    // FOLLOWING = 'Following',
     TRENDING = 'Trending',
 };
 
@@ -40,6 +40,28 @@ export const DEFAULT_WEIGHTS: Weights = {
 };
 
 export const PresetWeights: WeightPresets = {
+    [PresetWeightLabel.CHRONOLOGICAL]: {
+        [WeightName.TIME_DECAY]: 1.0,
+        [WeightName.TRENDING]: 0,
+        [WeightName.CHAOS]: 0,
+        [WeightName.DIVERSITY]: 0,
+        [WeightName.FAVORITED_ACCOUNTS]: 0,
+        [WeightName.FOLLOWED_TAGS]: 0,
+        [WeightName.IMAGE_ATTACHMENTS]: 0,
+        [WeightName.INTERACTIONS]: 0,
+        [WeightName.MENTIONS_FOLLOWED]: 0,
+        [WeightName.MOST_REPLIED_ACCOUNTS]: 0,
+        [WeightName.MOST_RETOOTED_ACCOUNTS]: 0,
+        [WeightName.NUM_FAVOURITES]: 0,
+        [WeightName.NUM_REPLIES]: 0,
+        [WeightName.NUM_RETOOTS]: 0,
+        [WeightName.RETOOTED_IN_FEED]: 0,
+        [WeightName.TRENDING_LINKS]: 7,
+        [WeightName.TRENDING_TAGS]: 5,
+        [WeightName.TRENDING_TOOTS]: 0,
+        [WeightName.VIDEO_ATTACHMENTS]: 0,
+    },
+
     [PresetWeightLabel.DEFAULT]: DEFAULT_WEIGHTS,
 
     [PresetWeightLabel.FRIENDS]: {
