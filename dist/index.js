@@ -146,7 +146,7 @@ class TheAlgorithm {
         algo.trendingToots = trendingData.toots;
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = account_1.default.buildAccountNames((await Storage_1.default.getFollowedAccts()));
-        algo.extractSummaryInfo();
+        algo.initializeFiltersWithSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -199,7 +199,7 @@ class TheAlgorithm {
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         const cleanFeed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-        this.extractSummaryInfo();
+        this.initializeFiltersWithSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         // TODO: this is a hacky way to preserve the server domains...
         if (Object.keys(this.mastodonServers).length == 0) {
@@ -245,8 +245,8 @@ class TheAlgorithm {
         console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
-    // Compute language, app, etc. counts.
-    extractSummaryInfo() {
+    // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
+    initializeFiltersWithSummaryInfo() {
         const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
             // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
             this.filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });

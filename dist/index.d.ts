@@ -61,7 +61,7 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filterFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
-    extractSummaryInfo(): void;
+    initializeFiltersWithSummaryInfo(): void;
     mostRecentTootAt(): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
     private maybeGetMoreToots;
