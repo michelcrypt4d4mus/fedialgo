@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.4
 * `npm audit fix` a `react-router-dom` vulnerability in the demo app
 
 ### v0.19.3
