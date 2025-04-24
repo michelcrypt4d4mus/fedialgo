@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Preserve `MastodonServersInfo` information like MAU
+* Tweak `Toot.describe()` string
 
 ### v0.18.5
 * Use `Account.webfingerURI()` instead of `Account.acct`
