@@ -12,7 +12,6 @@ const scorer_1 = __importDefault(require("./scorer"));
 class FeedScorer extends scorer_1.default {
     requiredData = {};
     async setFeed(feed) {
-        // console.debug(`before feedExtractor() this.features=`, this.features);
         this.requiredData = this.feedExtractor(feed);
         console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.requiredData);
         this.isReady = true;

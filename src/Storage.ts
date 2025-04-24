@@ -4,6 +4,7 @@
 import localForage from "localforage";
 import { mastodon } from "masto";
 
+import Account from "./api/objects/account";
 import NumericFilter from "./filters/numeric_filter";
 import PropertyFilter from "./filters/property_filter";
 import Toot, { SerializableToot } from './api/objects/toot';
@@ -66,9 +67,10 @@ export default class Storage {
     }
 
     // TODO: this name is too close to the overridden method in MastodonApiCache
-    static async getFollowedAccts(): Promise<mastodon.v1.Account[]> {
-        const followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS);
-        return (followedAccounts ?? []) as mastodon.v1.Account[];
+    static async getFollowedAccts(): Promise<Account[]> {
+        let followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS);
+        followedAccounts = (followedAccounts ?? []) as mastodon.v1.Account[];
+        return followedAccounts.map((a) => new Account(a));
     }
 
     static async logAppOpen(): Promise<void> {

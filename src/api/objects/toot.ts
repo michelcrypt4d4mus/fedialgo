@@ -5,6 +5,7 @@
 import { capitalCase } from "capital-case";
 import { mastodon } from "masto";
 
+import Account from "./account";
 import Storage from "../../Storage";
 import {
     DEFAULT_FONT_SIZE,
@@ -17,7 +18,6 @@ import {
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks,
 } from "../../helpers";
-import { describeAccount, repairAccount } from "./account";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
 import { MediaCategory } from "../../types";
@@ -81,7 +81,7 @@ export default class Toot implements TootObj {
     uri: string;
     createdAt: string;
     editedAt: string | null;
-    account: mastodon.v1.Account;
+    account: Account;
     content: string;
     visibility: mastodon.v1.StatusVisibility;
     sensitive: boolean;
@@ -112,7 +112,7 @@ export default class Toot implements TootObj {
     // extensions to mastodon.v1.Status
     followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblogsBy: mastodon.v1.Account[];  // The accounts that retooted this toot
+    reblogsBy!: Account[];  // The accounts that retooted this toot
     resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
@@ -126,7 +126,7 @@ export default class Toot implements TootObj {
         this.uri = toot.uri;
         this.createdAt = toot.createdAt;
         this.editedAt = toot.editedAt;
-        this.account = toot.account;
+        this.account = new Account(toot.account);
         this.content = toot.content;
         this.visibility = toot.visibility;
         this.sensitive = toot.sensitive;
@@ -157,7 +157,7 @@ export default class Toot implements TootObj {
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
         this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];
         this.isFollowed = toot.isFollowed;
-        this.reblogsBy = (toot.reblogsBy ?? []) as mastodon.v1.Account[];
+        this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
         this.resolveAttempted = toot.resolveAttempted ?? false;
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
@@ -196,12 +196,12 @@ export default class Toot implements TootObj {
 
     // String representation of the account that sent this toot
     describeAccount(): string {
-        return describeAccount(this.account);
+        return this.account.describe();
     }
 
     // Describe the original account that posted this toot if it's a reblog falling back to this.describeAccount()
     describeRealAccount(): string {
-        return this.reblog ? describeAccount(this.reblog.account) : this.describeAccount();
+        return this.reblog ? this.reblog.account.describe() : this.describeAccount();
     }
 
     // Sum of the reblogs, replies, and local server favourites
@@ -395,7 +395,10 @@ export default class Toot implements TootObj {
 
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
-        return {...this} as SerializableToot;
+        const toot = {...this} as SerializableToot;
+        toot.account = this.account.serialize();
+        toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
+        return toot;
     }
 
     tootedAt(): Date {
@@ -415,8 +418,8 @@ export default class Toot implements TootObj {
         // Repair Tags
         this.tags.forEach(repairTag);
         // Repair Accounts
-        repairAccount(this.account);
-        this.mentions.forEach(repairAccount);
+        // TODO: mentions are probably broken
+        // this.mentions.forEach(repairAccount);
 
         if (this.reblog){
             this.trendingRank ||= this.reblog.trendingRank;
@@ -436,10 +439,10 @@ export default class Toot implements TootObj {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if (isImage(media.remoteUrl)) {
-                    console.warn(`Repairing broken image attachment in toot:`, this);
+                    console.debug(`Repairing broken image attachment in toot:`, this);
                     media.type = MediaCategory.IMAGE;
                 } else if (isVideo(media.remoteUrl)) {
-                    console.warn(`Repairing broken video attachment in toot:`, this);
+                    console.debug(`Repairing broken video attachment in toot:`, this);
                     media.type = MediaCategory.VIDEO;
 
                 } else {

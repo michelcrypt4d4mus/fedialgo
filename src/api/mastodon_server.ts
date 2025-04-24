@@ -5,11 +5,11 @@ import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
 
+import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers";
-import { extractServer } from "./objects/account";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { repairTag } from "./objects/tag";
 import { StringNumberDict, TrendingLink, TrendingTag } from "../types";
@@ -146,7 +146,7 @@ export default class MastodonServer {
         const follows = await MastoApi.instance.fetchFollowedAccounts();
 
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
-        const followedServerUserCounts = countValues<mastodon.v1.Account>(follows, account => extractServer(account));
+        const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());
         const mostFollowedServers = sortKeysByValue(followedServerUserCounts).slice(0, config.numServersToCheck);
         let serverMAUs = await this.callForServers<number>(mostFollowedServers, (s) => s.fetchMonthlyUsers());
 

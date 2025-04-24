@@ -3,6 +3,7 @@
  */
 import { mastodon } from "masto";
 
+import Account from "../../api/objects/account";
 import FeatureScorer from "../feature_scorer";
 import Toot from '../../api/objects/toot';
 import { countValues } from "../../helpers";
@@ -17,7 +18,18 @@ export default class InteractionsScorer extends FeatureScorer {
 
     async featureGetter(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
-        return countValues<mastodon.v1.Notification>(notifications, notif => notif?.account?.acct);
+
+        return countValues<mastodon.v1.Notification>(
+            notifications,
+            notif => {
+                if (!notif.account?.acct) {
+                    console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
+                    return "";
+                }
+
+                return new Account(notif.account).acct;
+            }
+        );
     };
 
     async _score(toot: Toot) {

@@ -4,11 +4,11 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
+import Account from "./objects/account";
 import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
-import { buildAccountNames } from "./objects/account";
 import { extractDomain } from "../helpers";
 import { repairTag } from "./objects/tag";
 import { sortKeysByValue } from '../helpers';
@@ -128,6 +128,8 @@ export class MastoApi {
 
     // Retrieve background data about the user that will be used for scoring etc.
     async getStartupData(): Promise<UserData> {
+        console.debug(`[MastoApi] getStartupData() fetching blocked users and server side filters...`);
+
         const responses = await Promise.all([
             this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
@@ -135,7 +137,7 @@ export class MastoApi {
         ]);
 
         return {
-            mutedAccounts: buildAccountNames(responses[0].concat(responses[1])),
+            mutedAccounts: Account.buildAccountNames(responses[0].concat(responses[1])),
             serverSideFilters: responses[2],
         } as UserData;
     };
@@ -197,12 +199,14 @@ export class MastoApi {
     };
 
     // Get accounts the user is following
-    async fetchFollowedAccounts(): Promise<mastodon.v1.Account[]> {
-        return await this.fetchData<mastodon.v1.Account>({
+    async fetchFollowedAccounts(): Promise<Account[]> {
+        const followedAccounts = await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
         });
+
+        return followedAccounts.map(a => new Account(a));
     };
 
     // Get hashtags the user is following
@@ -231,18 +235,22 @@ export class MastoApi {
         });
     };
 
-    async fetchBlockedAccounts(): Promise<mastodon.v1.Account[]> {
-        return await this.fetchData<mastodon.v1.Account>({
+    async fetchBlockedAccounts(): Promise<Account[]> {
+        const blockedAccounts = await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.blocks.list,
             label: StorageKey.BLOCKED_ACCOUNTS
         });
+
+        return blockedAccounts.map(a => new Account(a));
     };
 
-    async fetchMutedAccounts(): Promise<mastodon.v1.Account[]> {
-        return await this.fetchData<mastodon.v1.Account>({
+    async fetchMutedAccounts(): Promise<Account[]> {
+        const mutedAccounts = await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
             label: StorageKey.MUTED_ACCOUNTS
         });
+
+        return mutedAccounts.map(a => new Account(a));
     };
 
     // Retrieve content based feed filters the user has set up on the server
@@ -302,6 +310,7 @@ export class MastoApi {
 
     // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
     // TODO: maybe rename to getLocalAccountURL()?
+    // TODO: this sucks
     getAccountURL(account: AccountLike): string {
         if (account.url.endsWith(`@${this.homeDomain}`)) {
             return account.url.substring(0, account.url.lastIndexOf('@'));

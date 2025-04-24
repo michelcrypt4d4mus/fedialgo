@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 const localforage_1 = __importDefault(require("localforage"));
+const account_1 = __importDefault(require("./api/objects/account"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 const property_filter_1 = __importDefault(require("./filters/property_filter"));
 const toot_1 = __importDefault(require("./api/objects/toot"));
@@ -48,8 +49,9 @@ class Storage {
     }
     // TODO: this name is too close to the overridden method in MastodonApiCache
     static async getFollowedAccts() {
-        const followedAccounts = await this.get(types_1.StorageKey.FOLLOWED_ACCOUNTS);
-        return (followedAccounts ?? []);
+        let followedAccounts = await this.get(types_1.StorageKey.FOLLOWED_ACCOUNTS);
+        followedAccounts = (followedAccounts ?? []);
+        return followedAccounts.map((a) => new account_1.default(a));
     }
     static async logAppOpen() {
         let numAppOpens = (await this.get(types_1.StorageKey.OPENINGS) || 0) + 1;

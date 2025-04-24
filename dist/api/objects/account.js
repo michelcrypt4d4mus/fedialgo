@@ -1,54 +1,104 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.accountNameWithEmojis = exports.webfingerURI = exports.extractServer = exports.repairAccount = exports.describeAccount = exports.buildAccountNames = void 0;
 const helpers_1 = require("../../helpers");
 const helpers_2 = require("../../helpers");
 const api_1 = require("../api");
-// Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
-function buildAccountNames(accounts) {
-    return accounts.reduce((accountNames, account) => {
-        repairAccount(account);
-        accountNames[account.acct] = account;
-        return accountNames;
-    }, {});
-}
-exports.buildAccountNames = buildAccountNames;
 ;
-// e.g. "Foobar (@foobar@mastodon.social)"
-function describeAccount(account) {
-    return `${account.displayName} (${account.acct})`;
-}
-exports.describeAccount = describeAccount;
-;
-// Inject the @server info to accounts on the user's home server
-// TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
-// TODO: home server needs to be removed from URL or links break!
-function repairAccount(account) {
-    account.url = api_1.MastoApi.instance.getAccountURL(account);
-    account.acct = webfingerURI(account);
-}
-exports.repairAccount = repairAccount;
-;
-// 'https://journa.host/@dell' -> 'journa.host'
-function extractServer(account) {
-    return (0, helpers_2.extractDomain)(account.url) || "unknown.server";
-}
-exports.extractServer = extractServer;
-;
-// Inject the @server info to accounts on the user's home server
-function webfingerURI(account) {
-    if (account.acct.includes("@")) {
-        return account.acct;
+class Account {
+    id;
+    username;
+    acct;
+    bot; // isBot
+    createdAt;
+    discoverable;
+    displayName;
+    followersCount;
+    followingCount;
+    group;
+    lastStatusAt;
+    locked;
+    note; // Profile bio, in plain-text instead of in HTML.
+    statusesCount;
+    url;
+    // Arrays
+    emojis;
+    fields;
+    // Images
+    avatar;
+    avatarStatic;
+    header;
+    headerStatic;
+    // Optional
+    noindex; // Don't index this account in search engines
+    moved;
+    suspended;
+    limited;
+    roles;
+    constructor(account) {
+        this.id = account.id;
+        this.username = account.username;
+        this.acct = account.acct;
+        this.displayName = account.displayName;
+        this.locked = account.locked;
+        this.bot = account.bot;
+        this.createdAt = account.createdAt;
+        this.group = account.group;
+        this.note = account.note;
+        this.url = account.url;
+        this.avatar = account.avatar;
+        this.avatarStatic = account.avatarStatic;
+        this.header = account.header;
+        this.headerStatic = account.headerStatic;
+        this.followersCount = account.followersCount;
+        this.followingCount = account.followingCount;
+        this.statusesCount = account.statusesCount;
+        this.lastStatusAt = account.lastStatusAt;
+        this.emojis = account.emojis || [];
+        this.fields = account.fields || [];
+        this.discoverable = account.discoverable || false;
+        this.noindex = account.noindex || false;
+        this.moved = account.moved;
+        this.limited = account.limited || false;
+        this.suspended = account.suspended || false;
+        this.roles = account.roles || [];
+        // Formerly in the repairAccount() method
+        this.url = api_1.MastoApi.instance.getAccountURL(account);
+        this.acct = this.webfingerURI();
     }
-    else {
-        return `${account.acct}@${extractServer(account)}`;
+    // e.g. "Foobar (@foobar@mastodon.social)"
+    describe() {
+        return `${this.displayName} (${this.acct})`;
+    }
+    displayNameWithEmojis() {
+        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
+    }
+    // 'https://journa.host/@dell' -> 'journa.host'
+    homeserver() {
+        return (0, helpers_2.extractDomain)(this.url) || "unknown.server";
+    }
+    // Strip functions so it can be serialized to local storage
+    serialize() {
+        return { ...this };
+    }
+    // On the local server you just get the username, but on other servers you need to add the server name
+    // Inject the @server info to accounts on the user's home server
+    // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
+    // TODO: home server needs to be removed from URL or links break!
+    webfingerURI() {
+        if (this.acct.includes("@")) {
+            return this.acct;
+        }
+        else {
+            return `${this.acct}@${this.homeserver()}`;
+        }
+    }
+    static buildAccountNames(accounts) {
+        return accounts.reduce((accountNames, account) => {
+            accountNames[account.acct] = account;
+            return accountNames;
+        }, {});
     }
 }
-exports.webfingerURI = webfingerURI;
-;
-function accountNameWithEmojis(account, fontSize = helpers_1.DEFAULT_FONT_SIZE) {
-    return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(account.displayName, account.emojis || []);
-}
-exports.accountNameWithEmojis = accountNameWithEmojis;
+exports.default = Account;
 ;
 //# sourceMappingURL=account.js.map

@@ -1,4 +1,5 @@
 import { mastodon } from "masto";
+import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
 import { Config, FeedFilterSettings, StorageKey, StorableObj, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
 export default class Storage {
@@ -8,7 +9,7 @@ export default class Storage {
     static setWeightings(userWeightings: Weights): Promise<void>;
     static getFilters(): Promise<FeedFilterSettings>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
-    static getFollowedAccts(): Promise<mastodon.v1.Account[]>;
+    static getFollowedAccts(): Promise<Account[]>;
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;

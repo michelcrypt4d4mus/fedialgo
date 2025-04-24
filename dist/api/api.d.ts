@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
+import Account from "./objects/account";
 import Toot from './objects/toot';
 import { AccountLike, StatusList, StorageKey, TimelineData, UserData, WeightName } from "../types";
 export declare const INSTANCE = "instance";
@@ -21,12 +22,12 @@ export declare class MastoApi {
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
     searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
-    fetchFollowedAccounts(): Promise<mastodon.v1.Account[]>;
+    fetchFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<StatusList>;
-    fetchBlockedAccounts(): Promise<mastodon.v1.Account[]>;
-    fetchMutedAccounts(): Promise<mastodon.v1.Account[]>;
+    fetchBlockedAccounts(): Promise<Account[]>;
+    fetchMutedAccounts(): Promise<Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getTopServerDomains(): Promise<string[]>;
     getAccountURL(account: AccountLike): string;

@@ -1,8 +1,6 @@
 /*
  * Score how many times the user has replied to the author of the toot.
  */
-import { mastodon } from 'masto';
-
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers';
@@ -21,7 +19,7 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
     async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
-        return countValues<mastodon.v1.Status>(recentReplies, (toot) => toot?.inReplyToAccountId);
+        return countValues<Toot>(recentReplies, (toot) => toot?.inReplyToAccountId);
     };
 
     async _score(toot: Toot) {

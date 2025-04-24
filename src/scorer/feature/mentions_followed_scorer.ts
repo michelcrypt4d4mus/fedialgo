@@ -3,6 +3,7 @@
  */
 import { mastodon } from 'masto';
 
+import Account from '../../api/objects/account';
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers';
@@ -11,7 +12,7 @@ import { StringNumberDict, WeightName } from '../../types';
 
 
 export default class MentionsFollowedScorer extends FeatureScorer {
-    followedAccounts: mastodon.v1.Account[] = [];
+    followedAccounts: Account[] = [];
 
     constructor() {
         super(WeightName.MENTIONS_FOLLOWED);
@@ -22,7 +23,7 @@ export default class MentionsFollowedScorer extends FeatureScorer {
     // unique across all servers.
     async featureGetter(): Promise<StringNumberDict> {
         this.followedAccounts = await MastoApi.instance.fetchFollowedAccounts();
-        return countValues<mastodon.v1.Account>(this.followedAccounts, (account) => account.acct);
+        return countValues<Account>(this.followedAccounts, (account) => account.acct);
     };
 
     async _score(toot: Toot) {

@@ -3,6 +3,7 @@
  */
 import { mastodon } from 'masto';
 
+import Account from './api/objects/account';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
@@ -65,8 +66,8 @@ export enum MediaCategory {
 
 
 // Records
-export type AccountLike = mastodon.v1.Account | mastodon.v1.StatusMention;
-export type AccountNames = Record<mastodon.v1.Account["acct"], mastodon.v1.Account>;
+export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
+export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;

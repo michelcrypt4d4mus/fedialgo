@@ -4,55 +4,121 @@
 import { mastodon } from "masto";
 
 import { AccountLike, AccountNames } from "../../types";
-import { DEFAULT_FONT_SIZE, replaceEmojiShortcodesWithImageTags } from "../../helpers";
+import { replaceEmojiShortcodesWithImageTags } from "../../helpers";
 import { extractDomain } from "../../helpers";
 import { MastoApi } from "../api";
 
 
-// Build a dict from the acct (e.g @user@server.com) to the Account object for easy lookup
-export function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames {
-    return accounts.reduce(
-        (accountNames, account) => {
-            repairAccount(account);
-            accountNames[account.acct] = account;
-            return accountNames;
-        },
-        {} as AccountNames
-    );
+interface AccountObj extends mastodon.v1.Account {
+    describe?: () => string;
+    homeserver?: () => string;
+    webfingerURI?: () => string;
 };
 
 
-// e.g. "Foobar (@foobar@mastodon.social)"
-export function describeAccount(account: mastodon.v1.Account): string {
-    return `${account.displayName} (${account.acct})`;
-};
+export default class Account implements AccountObj {
+    id: string;
+    username: string;
+    acct: string;
+    bot: boolean;  // isBot
+    createdAt: string;
+    discoverable: boolean;
+    displayName: string;
+    followersCount: number;
+    followingCount: number;
+    group: boolean;
+    lastStatusAt: string;
+    locked: boolean;
+    note: string;  // Profile bio, in plain-text instead of in HTML.
+    statusesCount: number;
+    url: string;
+    // Arrays
+    emojis: mastodon.v1.CustomEmoji[];
+    fields: mastodon.v1.AccountField[];
+    // Images
+    avatar: string;
+    avatarStatic: string;
+    header: string;
+    headerStatic: string;
+    // Optional
+    noindex?: boolean;  // Don't index this account in search engines
+    moved?: mastodon.v1.Account | null | undefined;
+    suspended?: boolean | null | undefined;
+    limited?: boolean | null | undefined;
+    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
 
+    constructor(account: mastodon.v1.Account) {
+        this.id = account.id;
+        this.username = account.username;
+        this.acct = account.acct;
+        this.displayName = account.displayName;
+        this.locked = account.locked;
+        this.bot = account.bot;
+        this.createdAt = account.createdAt;
+        this.group = account.group;
+        this.note = account.note;
+        this.url = account.url;
+        this.avatar = account.avatar;
+        this.avatarStatic = account.avatarStatic;
+        this.header = account.header;
+        this.headerStatic = account.headerStatic;
+        this.followersCount = account.followersCount;
+        this.followingCount = account.followingCount;
+        this.statusesCount = account.statusesCount;
+        this.lastStatusAt = account.lastStatusAt;
+        this.emojis = account.emojis || [];
+        this.fields = account.fields || [];
 
-// Inject the @server info to accounts on the user's home server
-// TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
-// TODO: home server needs to be removed from URL or links break!
-export function repairAccount(account: AccountLike): void {
-    account.url = MastoApi.instance.getAccountURL(account);
-    account.acct = webfingerURI(account);
-};
+        this.discoverable = account.discoverable || false;
+        this.noindex = account.noindex || false;
+        this.moved = account.moved;
+        this.limited = account.limited || false;
+        this.suspended = account.suspended || false;
+        this.roles = account.roles || [];
 
-
-// 'https://journa.host/@dell' -> 'journa.host'
-export function extractServer(account: AccountLike): string {
-    return extractDomain(account.url) || "unknown.server";
-};
-
-
-// Inject the @server info to accounts on the user's home server
-export function webfingerURI(account: AccountLike): string {
-    if (account.acct.includes("@")) {
-        return account.acct;
-    } else {
-        return `${account.acct}@${extractServer(account)}`;
+        // Formerly in the repairAccount() method
+        this.url = MastoApi.instance.getAccountURL(account);
+        this.acct = this.webfingerURI();
     }
-};
 
+    // e.g. "Foobar (@foobar@mastodon.social)"
+    describe(): string {
+        return `${this.displayName} (${this.acct})`;
+    }
 
-export function accountNameWithEmojis(account: mastodon.v1.Account, fontSize: number = DEFAULT_FONT_SIZE): string {
-    return replaceEmojiShortcodesWithImageTags(account.displayName, account.emojis || []);
+    displayNameWithEmojis(): string {
+        return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || []);
+    }
+
+    // 'https://journa.host/@dell' -> 'journa.host'
+    homeserver(): string {
+        return extractDomain(this.url) || "unknown.server";
+    }
+
+    // Strip functions so it can be serialized to local storage
+    serialize(): mastodon.v1.Account {
+        return {...this} as mastodon.v1.Account;
+    }
+
+    // On the local server you just get the username, but on other servers you need to add the server name
+    // Inject the @server info to accounts on the user's home server
+    // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
+    // TODO: home server needs to be removed from URL or links break!
+    webfingerURI(): string {
+        if (this.acct.includes("@")) {
+            return this.acct;
+        } else {
+            return `${this.acct}@${this.homeserver()}`;
+        }
+    }
+
+    public static buildAccountNames(accounts: Account[]): AccountNames {
+        return accounts.reduce(
+            (accountNames, account) => {
+                accountNames[account.acct] = account;
+                return accountNames;
+            },
+            {} as AccountNames
+        );
+    }
 };

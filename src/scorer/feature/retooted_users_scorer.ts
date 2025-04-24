@@ -2,8 +2,6 @@
  * Score a toot based on how many times the user has retooted the author (or
  * the original author if it's a retoot).
  */
-import { mastodon } from "masto";
-
 import FeatureScorer from "../feature_scorer";
 import Toot from '../../api/objects/toot';
 import { countValues } from "../../helpers";
@@ -20,7 +18,7 @@ export default class RetootedUsersScorer extends FeatureScorer {
     async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        return countValues<mastodon.v1.Status>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
+        return countValues<Toot>(recentRetoots, (toot) => toot?.reblog?.account?.acct);
     };
 
     async _score(toot: Toot) {

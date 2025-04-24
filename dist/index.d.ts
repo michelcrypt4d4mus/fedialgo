@@ -1,5 +1,6 @@
 import { Mutex } from 'async-mutex';
 import { mastodon } from "masto";
+import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
@@ -20,7 +21,6 @@ import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { accountNameWithEmojis } from './api/objects/account';
 import { GIFV, VIDEO_TYPES, extractDomain } from "./helpers";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { AccountNames, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
@@ -71,4 +71,4 @@ declare class TheAlgorithm {
     private scoreFeed;
     private logTootCounts;
 }
-export { GIFV, TIME_DECAY, TRENDING, VIDEO_TYPES, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, accountNameWithEmojis, extractDomain, };
+export { GIFV, TIME_DECAY, TRENDING, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };

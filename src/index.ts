@@ -4,6 +4,7 @@
 import { E_CANCELED, Mutex } from 'async-mutex';
 import { mastodon } from "masto";
 
+import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
@@ -26,7 +27,6 @@ import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { accountNameWithEmojis, buildAccountNames } from './api/objects/account';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { GIFV, VIDEO_TYPES, createRandomString, extractDomain, incrementCount } from "./helpers";
 import { MastoApi } from "./api/api";
@@ -139,7 +139,7 @@ class TheAlgorithm {
         algo.trendingToots = trendingData.toots;
 
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
-        algo.followedAccounts = buildAccountNames((await Storage.getFollowedAccts()));
+        algo.followedAccounts = Account.buildAccountNames((await Storage.getFollowedAccts()));
         algo.extractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -189,7 +189,7 @@ class TheAlgorithm {
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
             // Pull followed accounts and tags from the scorers
-            this.followedAccounts = buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
+            this.followedAccounts = Account.buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
             this.followedTags = this.followedTagsScorer.requiredData;
         }
 
@@ -438,6 +438,7 @@ export {
     TIME_DECAY,
     TRENDING,
     VIDEO_TYPES,
+    Account,
     FeedFilterSettings,
     MediaCategory,
     NumericFilter,
@@ -456,6 +457,5 @@ export {
     TypeFilterName,
     WeightName,
     Weights,
-    accountNameWithEmojis,
     extractDomain,
 };

@@ -28,11 +28,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
+const account_1 = __importDefault(require("./objects/account"));
 const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
-const account_1 = require("./objects/account");
 const helpers_1 = require("../helpers");
 const tag_1 = require("./objects/tag");
 const helpers_2 = require("../helpers");
@@ -116,13 +116,14 @@ class MastoApi {
     ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getStartupData() {
+        console.debug(`[MastoApi] getStartupData() fetching blocked users and server side filters...`);
         const responses = await Promise.all([
             this.fetchBlockedAccounts(),
             this.fetchMutedAccounts(),
             this.getServerSideFilters(),
         ]);
         return {
-            mutedAccounts: (0, account_1.buildAccountNames)(responses[0].concat(responses[1])),
+            mutedAccounts: account_1.default.buildAccountNames(responses[0].concat(responses[1])),
             serverSideFilters: responses[2],
         };
     }
@@ -180,11 +181,12 @@ class MastoApi {
     ;
     // Get accounts the user is following
     async fetchFollowedAccounts() {
-        return await this.fetchData({
+        const followedAccounts = await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
         });
+        return followedAccounts.map(a => new account_1.default(a));
     }
     ;
     // Get hashtags the user is following
@@ -211,17 +213,19 @@ class MastoApi {
     }
     ;
     async fetchBlockedAccounts() {
-        return await this.fetchData({
+        const blockedAccounts = await this.fetchData({
             fetch: this.api.v1.blocks.list,
             label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
+        return blockedAccounts.map(a => new account_1.default(a));
     }
     ;
     async fetchMutedAccounts() {
-        return await this.fetchData({
+        const mutedAccounts = await this.fetchData({
             fetch: this.api.v1.mutes.list,
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
+        return mutedAccounts.map(a => new account_1.default(a));
     }
     ;
     // Retrieve content based feed filters the user has set up on the server
@@ -280,6 +284,7 @@ class MastoApi {
     ;
     // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
     // TODO: maybe rename to getLocalAccountURL()?
+    // TODO: this sucks
     getAccountURL(account) {
         if (account.url.endsWith(`@${this.homeDomain}`)) {
             return account.url.substring(0, account.url.lastIndexOf('@'));

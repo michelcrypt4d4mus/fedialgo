@@ -12,7 +12,6 @@ const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const helpers_1 = require("../helpers");
-const account_1 = require("./objects/account");
 const api_1 = require("./api");
 const tag_1 = require("./objects/tag");
 class MastodonServer {
@@ -139,7 +138,7 @@ class MastodonServer {
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.fetchFollowedAccounts();
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
-        const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => (0, account_1.extractServer)(account));
+        const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => account.homeserver());
         const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
         let serverMAUs = await this.callForServers(mostFollowedServers, (s) => s.fetchMonthlyUsers());
         const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);

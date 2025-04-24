@@ -26,11 +26,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractDomain = exports.accountNameWithEmojis = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.VIDEO_TYPES = exports.TRENDING = exports.TIME_DECAY = exports.GIFV = void 0;
+exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.TRENDING = exports.TIME_DECAY = exports.GIFV = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
 const async_mutex_1 = require("async-mutex");
+const account_1 = __importDefault(require("./api/objects/account"));
+exports.Account = account_1.default;
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
@@ -58,8 +60,6 @@ const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
-const account_1 = require("./api/objects/account");
-Object.defineProperty(exports, "accountNameWithEmojis", { enumerable: true, get: function () { return account_1.accountNameWithEmojis; } });
 const weight_presets_1 = require("./scorer/weight_presets");
 const helpers_1 = require("./helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return helpers_1.GIFV; } });
@@ -149,7 +149,7 @@ class TheAlgorithm {
         algo.trendingTags = trendingData.tags;
         algo.trendingToots = trendingData.toots;
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
-        algo.followedAccounts = (0, account_1.buildAccountNames)((await Storage_1.default.getFollowedAccts()));
+        algo.followedAccounts = account_1.default.buildAccountNames((await Storage_1.default.getFollowedAccts()));
         algo.extractSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
@@ -193,7 +193,7 @@ class TheAlgorithm {
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
             // Pull followed accounts and tags from the scorers
-            this.followedAccounts = (0, account_1.buildAccountNames)(this.mentionsFollowedScorer.followedAccounts);
+            this.followedAccounts = account_1.default.buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
             this.followedTags = this.followedTagsScorer.requiredData;
         }
         this.logTootCounts(newToots, homeToots);

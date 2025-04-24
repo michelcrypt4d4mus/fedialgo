@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Introduce `Account` class
 
 ### v0.18.2
 * Increase `Config.maxTimelineTootsToFetch` to 1500

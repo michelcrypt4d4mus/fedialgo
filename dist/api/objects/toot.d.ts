@@ -1,4 +1,5 @@
 import { mastodon } from "masto";
+import Account from "./account";
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
 import { MediaCategory } from "../../types";
 import { TheAlgorithm } from "../..";
@@ -41,7 +42,7 @@ export default class Toot implements TootObj {
     uri: string;
     createdAt: string;
     editedAt: string | null;
-    account: mastodon.v1.Account;
+    account: Account;
     content: string;
     visibility: mastodon.v1.StatusVisibility;
     sensitive: boolean;
@@ -70,7 +71,7 @@ export default class Toot implements TootObj {
     pinned?: boolean | null;
     followedTags: mastodon.v1.Tag[];
     isFollowed?: boolean;
-    reblogsBy: mastodon.v1.Account[];
+    reblogsBy: Account[];
     resolveAttempted?: boolean;
     resolvedToot?: Toot;
     scoreInfo?: TootScore;

@@ -3,6 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Score how many times the user has replied to the author of the toot.
+ */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");

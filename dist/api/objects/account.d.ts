@@ -1,8 +1,43 @@
 import { mastodon } from "masto";
-import { AccountLike, AccountNames } from "../../types";
-export declare function buildAccountNames(accounts: mastodon.v1.Account[]): AccountNames;
-export declare function describeAccount(account: mastodon.v1.Account): string;
-export declare function repairAccount(account: AccountLike): void;
-export declare function extractServer(account: AccountLike): string;
-export declare function webfingerURI(account: AccountLike): string;
-export declare function accountNameWithEmojis(account: mastodon.v1.Account, fontSize?: number): string;
+import { AccountNames } from "../../types";
+interface AccountObj extends mastodon.v1.Account {
+    describe?: () => string;
+    homeserver?: () => string;
+    webfingerURI?: () => string;
+}
+export default class Account implements AccountObj {
+    id: string;
+    username: string;
+    acct: string;
+    bot: boolean;
+    createdAt: string;
+    discoverable: boolean;
+    displayName: string;
+    followersCount: number;
+    followingCount: number;
+    group: boolean;
+    lastStatusAt: string;
+    locked: boolean;
+    note: string;
+    statusesCount: number;
+    url: string;
+    emojis: mastodon.v1.CustomEmoji[];
+    fields: mastodon.v1.AccountField[];
+    avatar: string;
+    avatarStatic: string;
+    header: string;
+    headerStatic: string;
+    noindex?: boolean;
+    moved?: mastodon.v1.Account | null | undefined;
+    suspended?: boolean | null | undefined;
+    limited?: boolean | null | undefined;
+    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
+    constructor(account: mastodon.v1.Account);
+    describe(): string;
+    displayNameWithEmojis(): string;
+    homeserver(): string;
+    serialize(): mastodon.v1.Account;
+    webfingerURI(): string;
+    static buildAccountNames(accounts: Account[]): AccountNames;
+}
+export {};

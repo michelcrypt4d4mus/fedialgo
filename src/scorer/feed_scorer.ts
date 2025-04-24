@@ -12,7 +12,6 @@ export default abstract class FeedScorer extends Scorer {
     requiredData: StringNumberDict = {};
 
     async setFeed(feed: Toot[]) {
-        // console.debug(`before feedExtractor() this.features=`, this.features);
         this.requiredData = this.feedExtractor(feed);
         console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.requiredData);
         this.isReady = true;

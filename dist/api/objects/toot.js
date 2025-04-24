@@ -9,9 +9,9 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
  * for dealing with Toot objects.
  */
 const capital_case_1 = require("capital-case");
+const account_1 = __importDefault(require("./account"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
-const account_1 = require("./account");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const types_2 = require("../../types");
@@ -83,7 +83,7 @@ class Toot {
         this.uri = toot.uri;
         this.createdAt = toot.createdAt;
         this.editedAt = toot.editedAt;
-        this.account = toot.account;
+        this.account = new account_1.default(toot.account);
         this.content = toot.content;
         this.visibility = toot.visibility;
         this.sensitive = toot.sensitive;
@@ -113,7 +113,7 @@ class Toot {
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
         this.followedTags = (toot.followedTags ?? []);
         this.isFollowed = toot.isFollowed;
-        this.reblogsBy = (toot.reblogsBy ?? []);
+        this.reblogsBy = (toot.reblogsBy ?? []).map(account => new account_1.default(account));
         this.resolveAttempted = toot.resolveAttempted ?? false;
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
@@ -147,11 +147,11 @@ class Toot {
     }
     // String representation of the account that sent this toot
     describeAccount() {
-        return (0, account_1.describeAccount)(this.account);
+        return this.account.describe();
     }
     // Describe the original account that posted this toot if it's a reblog falling back to this.describeAccount()
     describeRealAccount() {
-        return this.reblog ? (0, account_1.describeAccount)(this.reblog.account) : this.describeAccount();
+        return this.reblog ? this.reblog.account.describe() : this.describeAccount();
     }
     // Sum of the reblogs, replies, and local server favourites
     popularity() {
@@ -321,7 +321,10 @@ class Toot {
     }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
-        return { ...this };
+        const toot = { ...this };
+        toot.account = this.account.serialize();
+        toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
+        return toot;
     }
     tootedAt() {
         return new Date(this.createdAt);
@@ -339,8 +342,8 @@ class Toot {
         // Repair Tags
         this.tags.forEach(tag_1.repairTag);
         // Repair Accounts
-        (0, account_1.repairAccount)(this.account);
-        this.mentions.forEach(account_1.repairAccount);
+        // TODO: mentions are probably broken
+        // this.mentions.forEach(repairAccount);
         if (this.reblog) {
             this.trendingRank ||= this.reblog.trendingRank;
             if (!this.reblogsByAccts().includes(this.account.acct)) {
@@ -356,11 +359,11 @@ class Toot {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if ((0, helpers_1.isImage)(media.remoteUrl)) {
-                    console.warn(`Repairing broken image attachment in toot:`, this);
+                    console.debug(`Repairing broken image attachment in toot:`, this);
                     media.type = types_2.MediaCategory.IMAGE;
                 }
                 else if ((0, helpers_1.isVideo)(media.remoteUrl)) {
-                    console.warn(`Repairing broken video attachment in toot:`, this);
+                    console.debug(`Repairing broken video attachment in toot:`, this);
                     media.type = types_2.MediaCategory.VIDEO;
                 }
                 else {
