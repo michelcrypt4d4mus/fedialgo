@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.3
 * Add filter for Toots that mention the fedialgo user
 * Check in missing `dist/` files
 
