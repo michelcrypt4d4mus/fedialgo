@@ -50,7 +50,7 @@ const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return property_filter_1.TypeFilterName; } });
-const retooted_users_scorer_1 = __importDefault(require("./scorer/feature/retooted_users_scorer"));
+const most_retooted_users_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -112,7 +112,7 @@ class TheAlgorithm {
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
-        new retooted_users_scorer_1.default(),
+        new most_retooted_users_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),

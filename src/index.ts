@@ -18,7 +18,7 @@ import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import PropertyFilter, { TYPE_FILTERS, PropertyName, TypeFilterName } from "./filters/property_filter";
-import RetootedUsersScorer from "./scorer/feature/retooted_users_scorer";
+import RetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";

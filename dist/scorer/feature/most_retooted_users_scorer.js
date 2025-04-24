@@ -31,4 +31,4 @@ class RetootedUsersScorer extends feature_scorer_1.default {
 }
 exports.default = RetootedUsersScorer;
 ;
-//# sourceMappingURL=retooted_users_scorer.js.map
+//# sourceMappingURL=most_retooted_users_scorer.js.map
