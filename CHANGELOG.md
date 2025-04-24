@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Rename `RetootedUsersScorer` to `MostRetootedUsersScorer`
+* Remove unused exports for `TIME_DECAY` and `TRENDING`
 
 ### v0.18.3
 * Introduce `Account` class

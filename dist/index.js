@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.TRENDING = exports.TIME_DECAY = exports.GIFV = void 0;
+exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -41,6 +41,7 @@ const interactions_scorer_1 = __importDefault(require("./scorer/feature/interact
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
+const most_retooted_users_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_users_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 exports.NumericFilter = numeric_filter_1.default;
 const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
@@ -50,7 +51,6 @@ const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return property_filter_1.TypeFilterName; } });
-const most_retooted_users_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_users_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -73,10 +73,6 @@ const config_1 = require("./config");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
-const TIME_DECAY = types_1.WeightName.TIME_DECAY;
-exports.TIME_DECAY = TIME_DECAY;
-const TRENDING = types_1.WeightName.TRENDING;
-exports.TRENDING = TRENDING;
 ;
 class TheAlgorithm {
     api;
@@ -109,10 +105,10 @@ class TheAlgorithm {
         new interactions_scorer_1.default(),
         new most_favorited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
+        new most_retooted_users_scorer_1.default(),
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
-        new most_retooted_users_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
@@ -132,8 +128,8 @@ class TheAlgorithm {
     }, 
     // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
     {
-        [TIME_DECAY]: Object.assign({}, config_1.SCORERS_CONFIG[TIME_DECAY]),
-        [TRENDING]: Object.assign({}, config_1.SCORERS_CONFIG[TRENDING]),
+        [types_1.WeightName.TIME_DECAY]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TIME_DECAY]),
+        [types_1.WeightName.TRENDING]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TRENDING]),
     });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {

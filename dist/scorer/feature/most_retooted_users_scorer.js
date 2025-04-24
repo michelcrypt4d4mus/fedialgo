@@ -11,8 +11,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const helpers_1 = require("../../helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
-// TODO: rename MostRetootedUsersScorer
-class RetootedUsersScorer extends feature_scorer_1.default {
+class MostRetootedUsersScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_RETOOTED_ACCOUNTS);
     }
@@ -29,6 +28,6 @@ class RetootedUsersScorer extends feature_scorer_1.default {
     }
     ;
 }
-exports.default = RetootedUsersScorer;
+exports.default = MostRetootedUsersScorer;
 ;
 //# sourceMappingURL=most_retooted_users_scorer.js.map

@@ -8,8 +8,6 @@ import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "..
 import { SCORERS_CONFIG } from "../config";
 import { sumValues } from "../helpers";
 
-const TIME_DECAY = WeightName.TIME_DECAY;
-
 
 export default abstract class Scorer {
     defaultWeight: number;
@@ -69,7 +67,7 @@ export default abstract class Scorer {
         });
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const timeDecayWeight = userWeights[TIME_DECAY] || DEFAULT_WEIGHTS[TIME_DECAY];
+        const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
         // const timeDecayMultiplier = 1.0 / Math.pow(tootToScore.ageInHours(), timeDecayWeight);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(tootToScore.ageInHours(), 1.2));
         const weightedScore = this.sumScores(weightedScores);

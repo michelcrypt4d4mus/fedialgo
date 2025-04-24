@@ -9,12 +9,12 @@ import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
+import MostRetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
-import RetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Toot from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
@@ -24,8 +24,6 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { GIFV, VIDEO_TYPES, extractDomain } from "./helpers";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { AccountNames, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
-declare const TIME_DECAY = WeightName.TIME_DECAY;
-declare const TRENDING = WeightName.TRENDING;
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -49,9 +47,9 @@ declare class TheAlgorithm {
     loadingStatus?: string;
     followedTagsScorer: FollowedTagsScorer;
     mentionsFollowedScorer: MentionsFollowedScorer;
-    featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
-    weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootedUsersScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
@@ -71,4 +69,4 @@ declare class TheAlgorithm {
     private scoreFeed;
     private logTootCounts;
 }
-export { GIFV, TIME_DECAY, TRENDING, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };
+export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };

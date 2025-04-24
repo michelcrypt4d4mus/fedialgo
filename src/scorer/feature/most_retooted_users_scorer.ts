@@ -9,8 +9,7 @@ import { MastoApi } from "../../api/api";
 import { StringNumberDict, WeightName } from "../../types";
 
 
-// TODO: rename MostRetootedUsersScorer
-export default class RetootedUsersScorer extends FeatureScorer {
+export default class MostRetootedUsersScorer extends FeatureScorer {
     constructor() {
         super(WeightName.MOST_RETOOTED_ACCOUNTS);
     }

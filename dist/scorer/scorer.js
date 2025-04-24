@@ -11,7 +11,6 @@ const weight_presets_1 = require("./weight_presets");
 const types_1 = require("../types");
 const config_1 = require("../config");
 const helpers_1 = require("../helpers");
-const TIME_DECAY = types_1.WeightName.TIME_DECAY;
 class Scorer {
     defaultWeight;
     description;
@@ -60,7 +59,7 @@ class Scorer {
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const timeDecayWeight = userWeights[TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[TIME_DECAY];
+        const timeDecayWeight = userWeights[types_1.WeightName.TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.TIME_DECAY];
         // const timeDecayMultiplier = 1.0 / Math.pow(tootToScore.ageInHours(), timeDecayWeight);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(tootToScore.ageInHours(), 1.2));
         const weightedScore = this.sumScores(weightedScores);

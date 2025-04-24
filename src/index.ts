@@ -13,12 +13,12 @@ import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
+import MostRetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import PropertyFilter, { TYPE_FILTERS, PropertyName, TypeFilterName } from "./filters/property_filter";
-import RetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
@@ -46,9 +46,6 @@ import {
     WeightName,
     Weights,
 } from "./types";
-
-const TIME_DECAY = WeightName.TIME_DECAY;
-const TRENDING = WeightName.TRENDING;
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -91,10 +88,10 @@ class TheAlgorithm {
         new InteractionsScorer(),
         new MostFavoritedAccountsScorer(),
         new MostRepliedAccountsScorer(),
+        new MostRetootedUsersScorer(),
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),
-        new RetootedUsersScorer(),
         new TrendingTagsScorer(),
         new TrendingTootScorer(),
         new VideoAttachmentScorer(),
@@ -118,8 +115,8 @@ class TheAlgorithm {
         },
         // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
         {
-            [TIME_DECAY]: Object.assign({}, SCORERS_CONFIG[TIME_DECAY]),
-            [TRENDING]: Object.assign({}, SCORERS_CONFIG[TRENDING]),
+            [WeightName.TIME_DECAY]: Object.assign({}, SCORERS_CONFIG[WeightName.TIME_DECAY]),
+            [WeightName.TRENDING]: Object.assign({}, SCORERS_CONFIG[WeightName.TRENDING]),
         } as ScorerDict
     );
 
@@ -169,7 +166,7 @@ class TheAlgorithm {
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         } else {
-            this.loadingStatus = "more toots";
+            this.loadingStatus = `more toots (retrieved ${this.feed.length} so far)`;
         }
 
         const allResponses = await Promise.all(dataFetches);
@@ -435,8 +432,6 @@ class TheAlgorithm {
 // Export types and constants needed by apps using this package
 export {
     GIFV,
-    TIME_DECAY,
-    TRENDING,
     VIDEO_TYPES,
     Account,
     FeedFilterSettings,
