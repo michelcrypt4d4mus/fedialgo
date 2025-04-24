@@ -29,6 +29,7 @@ interface TootObj extends SerializableToot {
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
+    realAccount: () => Account;
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
@@ -82,9 +83,8 @@ export default class Toot implements TootObj {
     ageInHours(): number;
     containsString(str: string): boolean;
     describe(): string;
-    describeAccount(): string;
-    describeRealAccount(): string;
     popularity(): number;
+    realAccount(): Account;
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot | undefined>;

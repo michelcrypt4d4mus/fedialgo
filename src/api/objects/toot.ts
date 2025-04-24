@@ -66,6 +66,7 @@ interface TootObj extends SerializableToot {
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
+    realAccount: () => Account;
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
@@ -189,23 +190,18 @@ export default class Toot implements TootObj {
 
     // String that describes the toot in not so many characters
     describe(): string {
-        let msg = `[${this.createdAt}] (${this.describeAccount()}, ID=${this.id})`;
+        let msg = `[${this.createdAt}] (${this.account.describe()}, ID=${this.id})`;
         return `${msg}: "${this.contentShortened()}"`;
-    }
-
-    // String representation of the account that sent this toot
-    describeAccount(): string {
-        return this.account.describe();
-    }
-
-    // Describe the original account that posted this toot if it's a reblog falling back to this.describeAccount()
-    describeRealAccount(): string {
-        return this.reblog ? this.reblog.account.describe() : this.describeAccount();
     }
 
     // Sum of the reblogs, replies, and local server favourites
     popularity(): number {
         return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
+    }
+
+    // Return the account that posted this toot, not the account that reblogged it
+    realAccount(): Account {
+        return this.reblog?.account || this.account;
     }
 
     // URI for the toot
@@ -283,16 +279,15 @@ export default class Toot implements TootObj {
 
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(algo: TheAlgorithm): boolean {
-        const { user, mutedAccounts } = algo;
+        const { mutedAccounts, user } = algo;
         if (this?.reblog?.muted || this?.muted) return false;  // Remove muted accounts and toots
-        if (this?.reblog?.reblogged) return false; // Remove things the user has already retooted
 
         if (this.account.username == user.username && this.account.id == user.id) {
             return false;  // Remove user's own toots
         }
 
-        if (this.account.webfingerURI() in mutedAccounts) {
-            console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
+        if (this.realAccount().webfingerURI() in mutedAccounts) {
+            console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
 
@@ -341,7 +336,7 @@ export default class Toot implements TootObj {
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${capitalCase(mediaType)} post by ${this.describeRealAccount()}>`;
+            content = `<${capitalCase(mediaType)} post by ${this.realAccount().describe()}>`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
@@ -352,8 +347,8 @@ export default class Toot implements TootObj {
     // Returns a simplified version of the toot for logging
     condensedStatus(): object {
         // Account info for the person who tooted it
-        let accountLabel = this.describeAccount();
-        if (this.reblog) accountLabel += ` (⬆ retooting ${this.reblog.describeAccount()} ⬆)`;
+        let accountLabel = this.account.describe();
+        if (this.reblog) accountLabel += ` (⬆ retooting ${this.reblog.account.describe()} ⬆)`;
         // Attachment info
         let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
         if (mediaAttachments.length == 0) mediaAttachments = [];
@@ -364,7 +359,7 @@ export default class Toot implements TootObj {
             inReplyToId: this.inReplyToId,
             mediaAttachments: mediaAttachments,
             raw: this,
-            retootOf: this.reblog ? `${this.reblog.describeAccount()} (${this.reblog.createdAt})` : null,
+            retootOf: this.reblog ? `${this.reblog.account.describe()} (${this.reblog.createdAt})` : null,
             scoreInfo: this.scoreInfo,
             url: this.url,
 
