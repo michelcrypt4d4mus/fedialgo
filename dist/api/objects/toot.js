@@ -400,14 +400,14 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
-        if (![types_1.WeightName.FOLLOWED_TAGS, types_1.WeightName.TRENDING_TAGS].includes(tagType)) {
-            console.warn(`containsTagsMsg() called with invalid tagType: ${tagType}`);
-        }
-        else if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
+        if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
             tags = this.followedTags;
         }
         else if (tagType == types_1.WeightName.TRENDING_TAGS) {
             tags = this.trendingTags;
+        }
+        else {
+            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
         }
         if (!tags.length)
             return;
