@@ -221,13 +221,12 @@ class Toot {
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(algo) {
-        const { mutedAccounts, user } = algo;
-        if (this?.reblog?.muted || this?.muted)
-            return false; // Remove muted accounts and toots
-        if (this.account.username == user.username && this.account.id == user.id) {
-            return false; // Remove user's own toots
+        // Remove user's own toots
+        if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
+            return false;
         }
-        if (this.realAccount().webfingerURI() in mutedAccounts) {
+        // Remove muted accounts and toots
+        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in algo.mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }

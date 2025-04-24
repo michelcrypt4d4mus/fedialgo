@@ -289,7 +289,7 @@ export class MastoApi {
         const releaseMutex = await this.mutexes[StorageKey.POPULAR_SERVERS].acquire()
 
         try {
-            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
+            let servers = await Storage.get(StorageKey.POPULAR_SERVERS);
 
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await MastodonServer.mastodonServersInfo();

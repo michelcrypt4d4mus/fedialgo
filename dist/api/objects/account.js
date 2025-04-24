@@ -99,10 +99,11 @@ class Account {
             return `${this.acct}@${this.homeserver()}`;
         }
     }
+    // Build a dictionary from the Account.webfingerURI() to the Account object for easy lookup
     static buildAccountNames(accounts) {
-        return accounts.reduce((accountNames, account) => {
-            accountNames[account.webfingerURI()] = account;
-            return accountNames;
+        return accounts.reduce((accountsDict, account) => {
+            accountsDict[account.webfingerURI()] = account;
+            return accountsDict;
         }, {});
     }
 }

@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Store `TheAlgorithm.mastodonServers` sooner
+* Unify blocked/muted account handling
 
 ### v0.19.1
 * Rename `TheAlgorithm.extractSummaryInfo()` to `TheAlgorithm.initializeFiltersWithSummaryInfo()`

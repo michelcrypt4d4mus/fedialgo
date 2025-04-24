@@ -188,23 +188,20 @@ class TheAlgorithm {
             const userData = allResponses.shift();
             this.mutedAccounts = userData.mutedAccounts;
             this.serverSideFilters = userData.serverSideFilters;
+            this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo(); // Should load from storage
             // Pull followed accounts and tags from the scorers
             this.followedAccounts = account_1.default.buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
             this.followedTags = this.followedTagsScorer.requiredData;
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
-        let cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
+        const cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         const cleanFeed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
         this.initializeFiltersWithSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
-        // TODO: this is a hacky way to preserve the server domains...
-        if (Object.keys(this.mastodonServers).length == 0) {
-            this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
-        }
         return this.scoreFeed.bind(this)();
     }
     // Return the user's current weightings for each score category

@@ -117,11 +117,12 @@ export default class Account implements AccountObj {
         }
     }
 
+    // Build a dictionary from the Account.webfingerURI() to the Account object for easy lookup
     public static buildAccountNames(accounts: Account[]): AccountNames {
         return accounts.reduce(
-            (accountNames, account) => {
-                accountNames[account.webfingerURI()] = account;
-                return accountNames;
+            (accountsDict, account) => {
+                accountsDict[account.webfingerURI()] = account;
+                return accountsDict;
             },
             {} as AccountNames
         );
