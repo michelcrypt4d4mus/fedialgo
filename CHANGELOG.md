@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.18.4
 * Rename `RetootedUsersScorer` to `MostRetootedUsersScorer`
 * Remove unused exports for `TIME_DECAY` and `TRENDING`
 

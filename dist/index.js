@@ -172,7 +172,7 @@ class TheAlgorithm {
             ]);
         }
         else {
-            this.loadingStatus = "more toots";
+            this.loadingStatus = `more toots (retrieved ${this.feed.length} so far)`;
         }
         const allResponses = await Promise.all(dataFetches);
         // console.debug(`getFeed() allResponses:`, allResponses);
