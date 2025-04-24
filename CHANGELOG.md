@@ -18,7 +18,7 @@
 * Allow things that user has reblogged into the feed
 * `Toot.realAccount()` method
 
-# v0.19.0
+## v0.19.0
 * Preserve `MastodonServersInfo` information like MAU
 * Tweak `Toot.describe()` string
 

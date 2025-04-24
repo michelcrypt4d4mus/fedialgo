@@ -293,11 +293,10 @@ export class MastoApi {
 
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await MastodonServer.mastodonServersInfo();
-                console.log(`Retrieved remote popular servers:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
-                console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers as MastodonServersInfo;
+                console.log(`Loaded MastodonServersInfo from cache:`, servers);
             }
 
             return servers;
@@ -315,7 +314,7 @@ export class MastoApi {
             (a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU
         );
 
-        console.log(`[API] Found top server domains:`, topServerDomains, `based on server data:`, servers);
+        console.log(`[API] Found top server domains:`, topServerDomains, `\nbased on server data:`, servers);
         return topServerDomains;
     };
 

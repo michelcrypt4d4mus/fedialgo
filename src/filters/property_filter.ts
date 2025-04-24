@@ -52,6 +52,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
     [TypeFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),
+    // TODO: unclear if the MENTIONS filter works as expected
     [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]:             (toot) => !!toot.poll,
     [TypeFilterName.REPLIES]:           (toot) => !!toot.inReplyToId,

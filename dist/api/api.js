@@ -267,12 +267,11 @@ class MastoApi {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
-                console.log(`Retrieved remote popular servers:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             else {
-                console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers;
+                console.log(`Loaded MastodonServersInfo from cache:`, servers);
             }
             return servers;
         }
@@ -286,7 +285,7 @@ class MastoApi {
         const servers = await this.getMastodonServersInfo();
         // Sort the servers by the number of users on each server
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
-        console.log(`[API] Found top server domains:`, topServerDomains, `based on server data:`, servers);
+        console.log(`[API] Found top server domains:`, topServerDomains, `\nbased on server data:`, servers);
         return topServerDomains;
     }
     ;

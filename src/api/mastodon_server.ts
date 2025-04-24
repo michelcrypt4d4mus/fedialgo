@@ -190,7 +190,7 @@ export default class MastodonServer {
             {} as MastodonServersInfo
         );
 
-        console.log(`Final mastodonServersInfo:`, mastodonServers);
+        console.log(`Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
     };
 

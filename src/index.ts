@@ -232,7 +232,7 @@ class TheAlgorithm {
     }
 
     updateFilters(newFilters: FeedFilterSettings): Toot[] {
-        console.log(`updateFilters() called with newFilters: `, newFilters);
+        console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
         return this.filterFeed();
@@ -241,7 +241,7 @@ class TheAlgorithm {
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filterFeed(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        console.log(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
+        console.debug(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
