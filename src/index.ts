@@ -138,7 +138,7 @@ class TheAlgorithm {
 
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = Account.buildAccountNames((await Storage.getFollowedAccts()));
-        algo.extractSummaryInfo();
+        algo.initializeFiltersWithSummaryInfo();
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -199,7 +199,7 @@ class TheAlgorithm {
 
         const cleanFeed = Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.feed = cleanFeed.slice(0, Storage.getConfig().maxNumCachedToots);
-        this.extractSummaryInfo();
+        this.initializeFiltersWithSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
 
         // TODO: this is a hacky way to preserve the server domains...
@@ -256,7 +256,7 @@ class TheAlgorithm {
     }
 
     // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-    extractSummaryInfo(): void {
+    initializeFiltersWithSummaryInfo(): void {
         const tootCounts = Object.values(PropertyName).reduce(
             (counts, propertyName) => {
                 // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?

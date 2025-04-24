@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename `TheAlgorithm.extractSummaryInfo()` to `TheAlgorithm.initializeFiltersWithSummaryInfo()`
 
 # v0.19.0
 * Preserve `MastodonServersInfo` information like MAU
