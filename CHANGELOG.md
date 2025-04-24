@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Preserve `MastodonServersInfo` information like MAU
 
 ### v0.18.5
 * Use `Account.webfingerURI()` instead of `Account.acct`

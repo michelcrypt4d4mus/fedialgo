@@ -153,12 +153,16 @@ class MastodonServer {
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        const overrepresentedServerFreq = Object.keys(serverMAUs).reduce((overRepped, server) => {
-            overRepped[server] = (followedServerUserCounts[server] || 0) / serverMAUs[server];
-            return overRepped;
+        const mastodonServers = Object.keys(serverMAUs).reduce((serverInfo, server) => {
+            serverInfo[server] = {
+                domain: server,
+                followedPctOfMAU: 100 * (followedServerUserCounts[server] || 0) / serverMAUs[server],
+                serverMAU: serverMAUs[server],
+            };
+            return serverInfo;
         }, {});
-        console.log(`Final serverMAUs: `, serverMAUs, `\noverrepresentedServerFreq:`, overrepresentedServerFreq);
-        return overrepresentedServerFreq;
+        console.log(`Final mastodonServersInfo:`, mastodonServers);
+        return mastodonServers;
     }
     ;
     // Call 'fxn' for all the top servers and return a dict keyed by server domain

@@ -68,6 +68,7 @@ export enum MediaCategory {
 // Records
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
+export type MastodonServersInfo = Record<string, MastodonServerInfo>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
@@ -128,6 +129,13 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
+// Holds basic info about a given mastodon server
+export type MastodonServerInfo = {
+    domain: string;
+    followedPctOfMAU: number;
+    serverMAU: number;
+};
+
 export type ScorerInfo = {
     description: string;
     minValue?: number;
@@ -138,6 +146,7 @@ export type ScorerInfo = {
 export type StorableObj = (
     FeedFilterSettings |
     FeedFilterSettingsSerialized |
+    MastodonServersInfo |
     StringNumberDict |
     SerializableToot[] |
     TootURIs |

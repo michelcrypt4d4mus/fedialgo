@@ -83,7 +83,7 @@ class TheAlgorithm {
     followedAccounts = {};
     followedTags = {};
     loadingStatus = undefined; // Status message about what is being loaded
-    mastodonServers = [];
+    mastodonServers = {};
     mutedAccounts = {};
     scoreMutex = new async_mutex_1.Mutex();
     serverSideFilters = [];
@@ -202,8 +202,8 @@ class TheAlgorithm {
         this.extractSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         // TODO: this is a hacky way to preserve the server domains...
-        if (this.mastodonServers.length == 0) {
-            this.mastodonServers = await api_1.MastoApi.instance.getTopServerDomains();
+        if (Object.keys(this.mastodonServers).length == 0) {
+            this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
         }
         return this.scoreFeed.bind(this)();
     }

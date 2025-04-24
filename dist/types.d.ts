@@ -53,6 +53,7 @@ export declare enum MediaCategory {
 }
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
+export type MastodonServersInfo = Record<string, MastodonServerInfo>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
@@ -99,12 +100,17 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
+export type MastodonServerInfo = {
+    domain: string;
+    followedPctOfMAU: number;
+    serverMAU: number;
+};
 export type ScorerInfo = {
     description: string;
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettings | FeedFilterSettingsSerialized | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number);
+export type StorableObj = (FeedFilterSettings | FeedFilterSettingsSerialized | MastodonServersInfo | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number);
 export type TimelineData = {
     homeToots: Toot[];
     otherToots: Toot[];

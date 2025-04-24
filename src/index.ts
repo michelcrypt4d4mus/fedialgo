@@ -35,6 +35,7 @@ import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
 import {
     AccountNames,
     FeedFilterSettings,
+    MastodonServersInfo,
     MediaCategory,
     ScorerDict,
     ScorerInfo,
@@ -64,7 +65,7 @@ class TheAlgorithm {
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
     loadingStatus?: string = undefined;  // Status message about what is being loaded
-    mastodonServers: string[] = [];
+    mastodonServers: MastodonServersInfo = {};
     mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
     serverSideFilters: mastodon.v2.Filter[] = [];
@@ -202,8 +203,8 @@ class TheAlgorithm {
         this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
 
         // TODO: this is a hacky way to preserve the server domains...
-        if (this.mastodonServers.length == 0) {
-            this.mastodonServers = await MastoApi.instance.getTopServerDomains();
+        if (Object.keys(this.mastodonServers).length == 0) {
+            this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
         }
 
         return this.scoreFeed.bind(this)();

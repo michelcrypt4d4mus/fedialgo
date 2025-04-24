@@ -35,7 +35,6 @@ const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const helpers_1 = require("../helpers");
 const tag_1 = require("./objects/tag");
-const helpers_2 = require("../helpers");
 const types_1 = require("../types");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
@@ -262,25 +261,33 @@ class MastoApi {
     }
     ;
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    async getTopServerDomains() {
+    async getMastodonServersInfo() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
+                console.log(`Retrieved remote popular servers:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             else {
                 console.log(`Loaded popular servers from cache:`, servers);
                 servers = servers;
             }
-            const topServerDomains = (0, helpers_2.sortKeysByValue)(servers);
-            console.log(`[API] Found top server domains:`, topServerDomains);
-            return topServerDomains;
+            return servers;
         }
         finally {
             releaseMutex();
         }
+    }
+    ;
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    async getTopServerDomains() {
+        const servers = await this.getMastodonServersInfo();
+        // Sort the servers by the number of users on each server
+        const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
+        console.log(`[API] Found top server domains:`, topServerDomains, `based on server data:`, servers);
+        return topServerDomains;
     }
     ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve

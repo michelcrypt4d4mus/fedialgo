@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
-import { StorageKey, TimelineData, UserData, WeightName } from "../types";
+import { MastodonServersInfo, StorageKey, TimelineData, UserData, WeightName } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -29,6 +29,7 @@ export declare class MastoApi {
     fetchBlockedAccounts(): Promise<Account[]>;
     fetchMutedAccounts(): Promise<Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
+    getMastodonServersInfo(): Promise<MastodonServersInfo>;
     getTopServerDomains(): Promise<string[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     private fetchData;

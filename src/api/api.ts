@@ -11,13 +11,10 @@ import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { extractDomain } from "../helpers";
 import { repairTag } from "./objects/tag";
-import { sortKeysByValue } from '../helpers';
 import {
-    AccountLike,
-    StatusList,
+    MastodonServersInfo,
     StorableObj,
     StorageKey,
-    StringNumberDict,
     TimelineData,
     UserData,
     WeightName
@@ -288,26 +285,38 @@ export class MastoApi {
     };
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    async getTopServerDomains(): Promise<string[]> {
+    async getMastodonServersInfo(): Promise<MastodonServersInfo> {
         const releaseMutex = await this.mutexes[StorageKey.POPULAR_SERVERS].acquire()
 
         try {
-            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as StringNumberDict;
+            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
 
             if (!servers || (await this.shouldReloadFeatures())) {
                 servers = await MastodonServer.mastodonServersInfo();
+                console.log(`Retrieved remote popular servers:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
                 console.log(`Loaded popular servers from cache:`, servers);
-                servers = servers as StringNumberDict;
+                servers = servers as MastodonServersInfo;
             }
 
-            const topServerDomains = sortKeysByValue(servers);
-            console.log(`[API] Found top server domains:`, topServerDomains);
-            return topServerDomains;
+            return servers;
         } finally {
             releaseMutex();
         }
+    };
+
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    async getTopServerDomains(): Promise<string[]> {
+        const servers = await this.getMastodonServersInfo();
+
+        // Sort the servers by the number of users on each server
+        const topServerDomains = Object.keys(servers).sort(
+            (a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU
+        );
+
+        console.log(`[API] Found top server domains:`, topServerDomains, `based on server data:`, servers);
+        return topServerDomains;
     };
 
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve

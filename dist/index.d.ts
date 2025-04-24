@@ -23,7 +23,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { GIFV, VIDEO_TYPES, extractDomain } from "./helpers";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { AccountNames, FeedFilterSettings, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
+import { AccountNames, FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -37,7 +37,7 @@ declare class TheAlgorithm {
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
     loadingStatus?: string;
-    mastodonServers: string[];
+    mastodonServers: MastodonServersInfo;
     mutedAccounts: AccountNames;
     scoreMutex: Mutex;
     serverSideFilters: mastodon.v2.Filter[];
