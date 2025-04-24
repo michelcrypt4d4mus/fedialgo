@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.5
 * `Toot.containsTagsMsg()` method
 
 ### v0.19.4
