@@ -134,7 +134,7 @@ class Toot {
     containsUserMention() {
         if (this.mentions.length > 0) {
             let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
-            console.debug(`containsUserMention() checking for ${api_1.MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
+            console.info(`containsUserMention() checking for ${api_1.MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
         }
         const hasMention = this.mentions.some((mention) => mention.acct == api_1.MastoApi.instance.user.webfingerURI());
         if (hasMention)

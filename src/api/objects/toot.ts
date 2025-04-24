@@ -190,7 +190,7 @@ export default class Toot implements TootObj {
     containsUserMention(): boolean {
         if (this.mentions.length > 0) {
             let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
-            console.debug(`containsUserMention() checking for ${MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
+            console.info(`containsUserMention() checking for ${MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
         }
 
         const hasMention = this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());

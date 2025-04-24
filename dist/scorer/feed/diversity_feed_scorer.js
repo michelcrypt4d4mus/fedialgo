@@ -15,7 +15,6 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         super(types_1.WeightName.DIVERSITY);
     }
     feedExtractor(feed) {
-        console.debug(`DiversityFeedScorer.feedExtractor() called...`);
         // Shuffle the feed to avoid biasing the scoring based on the order of the feed
         // Count toots by account (but negative instead of positive count)
         // TODO: maybe reverse chronological order would be better?
@@ -25,7 +24,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 (0, collection_helpers_1.incrementCount)(tootCounts, toot.reblog.account.webfingerURI(), -1);
             return tootCounts;
         }, {});
-        console.debug(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
+        console.info(`DiversityFeedScorer.feedExtractor() returning: ${JSON.stringify(diversityTootsOrdered, null, 4)}`);
         return diversityTootsOrdered;
     }
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
