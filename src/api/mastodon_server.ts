@@ -9,10 +9,18 @@ import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { MastodonServersInfo, TrendingLink, TrendingTag } from "../types";
 import { repairTag } from "./objects/tag";
+import {
+    atLeastValues,
+    average,
+    countValues,
+    groupBy,
+    sortKeysByValue,
+    transformKeys,
+    zipPromises
+} from "../helpers/collection_helpers";
 
 
 export default class MastodonServer {
@@ -40,6 +48,11 @@ export default class MastodonServer {
 
     // Get the links that are trending on this server
     async fetchTrendingLinks(): Promise<TrendingLink[]> {
+        if (Storage.getConfig().noTrendingLinksServers.includes(this.domain)) {
+            console.debug(`Trending links are not available for '${this.domain}', skipping...`);
+            return [];
+        }
+
         const numLinks = Storage.getConfig().numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
         trendingLinks.forEach(FeatureScorer.decorateHistoryScores);

@@ -106,13 +106,13 @@ exports.DEFAULT_FILTERS = {
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
-    maxNumCachedToots: 5000,
+    maxNumCachedToots: 2500,
     // Timeline toots
     enableIncrementalLoad: true,
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
     // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 2000,
-    maxTimelineTootsToFetch: 1500,
+    maxTimelineTootsToFetch: 1200,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     // API stuff
@@ -175,6 +175,13 @@ exports.DEFAULT_CONFIG = {
         'mathstodon.xyz',
         "mstdn.social",
         "threads.net",
+    ],
+    // Servers that don't support trending links
+    noTrendingLinksServers: [
+        "fediscience.org",
+        "mastodon.cloud",
+        "med-mastodon.com",
+        "mastodon.gamedev.place",
     ],
 };
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.

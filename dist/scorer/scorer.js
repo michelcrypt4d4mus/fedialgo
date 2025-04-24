@@ -17,7 +17,7 @@ class Scorer {
     name;
     isReady = false;
     constructor(name) {
-        // console.debug(`Scorer's this.constructor.name: ${this.constructor.name}`);
+        // TODO: Maybe use this.constructor.name as the name property?
         this.name = name;
         this.description = config_1.SCORERS_CONFIG[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;

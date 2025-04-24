@@ -13,7 +13,7 @@ class FeedScorer extends scorer_1.default {
     requiredData = {};
     async setFeed(feed) {
         this.requiredData = this.feedExtractor(feed);
-        console.debug(`after ${this.constructor.name}.feedExtractor() this.features=`, this.requiredData);
+        console.debug(`after ${this.constructor.name}.feedExtractor() this.requiredData = `, this.requiredData);
         this.isReady = true;
     }
 }

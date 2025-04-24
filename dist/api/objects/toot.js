@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.TootVisibility = void 0;
+exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -23,7 +23,7 @@ var TootVisibility;
     TootVisibility["PUBLIC"] = "public";
     TootVisibility["PRIVATE"] = "private";
     TootVisibility["UNLISTED"] = "unlisted";
-})(TootVisibility || (exports.TootVisibility = TootVisibility = {}));
+})(TootVisibility || (TootVisibility = {}));
 ;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
@@ -120,7 +120,7 @@ class Toot {
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = (toot.trendingLinks ?? []);
         this.trendingTags = (toot.trendingTags ?? []);
-        this.repairToot();
+        this.repair();
     }
     // Time since this toot was sent in seconds
     ageInSeconds() {
@@ -320,18 +320,13 @@ class Toot {
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
-    //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string and mentions for home server accounts
     //   - Lowercase all tags
-    repairToot() {
+    //   - Repair mediaAttachment types if reparable based on URL file extension
+    repair() {
         this.application ??= { name: UNKNOWN };
         this.application.name ??= UNKNOWN;
         this.language ??= Storage_1.default.getConfig().defaultLanguage;
-        // Repair Tags
-        this.tags.forEach(tag_1.repairTag);
-        // Repair Accounts
-        // TODO: mentions are probably broken
-        // this.mentions.forEach(repairAccount);
+        this.tags.forEach(tag_1.repairTag); // Repair Tags
         if (this.reblog) {
             this.trendingRank ||= this.reblog.trendingRank;
             if (!this.reblogsByAccts().includes(this.account.webfingerURI())) {
@@ -362,6 +357,16 @@ class Toot {
                 console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
+        // Repair StatusMention.acct fields for users on the home server
+        this.mentions.forEach((mention) => {
+            if (!mention.acct?.includes("@")) {
+                console.warn(`Toot has a StatusMention without an '@': '${mention.acct}'`);
+                mention.acct += `@${(0, string_helpers_1.extractDomain)(mention.url)}`;
+            }
+            else if (mention.acct.includes(api_1.MastoApi.instance.homeDomain)) {
+                console.warn(`Found a StatusMention with the home domain in toot:`, this);
+            }
+        });
     }
     attachmentsOfType(attachmentType) {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
@@ -381,10 +386,6 @@ class Toot {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
-            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            // if (reblogsBy.length > 1) {
-            //     console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            // }
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything

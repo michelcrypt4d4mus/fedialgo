@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = exports.GIFV = void 0;
+exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
 const html_entities_1 = require("html-entities");
 const types_1 = require("../types");
+exports.DEFAULT_FONT_SIZE = 15;
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
 exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];
-exports.DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
@@ -25,7 +25,8 @@ function extractDomain(url) {
 }
 exports.extractDomain = extractDomain;
 ;
-// Replace https links with [link to DOMAIN]
+// Replace https links with [link to DOMAIN], e.g.
+// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
 function replaceHttpsLinks(input) {
     return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
 }
@@ -57,6 +58,7 @@ function isVideo(uri) {
 }
 exports.isVideo = isVideo;
 ;
+// Replace custom emoji shortcodes like :smile: with <img> tags
 function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {
     const fontSizeStr = `${fontSize}px`;
     emojis.forEach((emoji) => {

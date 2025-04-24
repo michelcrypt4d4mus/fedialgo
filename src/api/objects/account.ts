@@ -107,7 +107,7 @@ export default class Account implements AccountObj {
     // On the local server you just get the username, but on other servers you need to add the server name
     // Inject the @server info to accounts on the user's home server
     // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
-    // TODO: home server needs to be removed from URL or links break!
+    // TODO: Would require adjusting MentionsFollowedScorer (StatusMention.acct is not preceded with an '@').
     webfingerURI(): string {
         if (this.acct.includes("@")) {
             return this.acct;

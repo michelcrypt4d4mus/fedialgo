@@ -2,12 +2,6 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { TheAlgorithm } from "../..";
 import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
-export declare enum TootVisibility {
-    DIRECT_MSG = "direct",
-    PUBLIC = "public",
-    PRIVATE = "private",
-    UNLISTED = "unlisted"
-}
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -103,7 +97,7 @@ export default class Toot implements TootObj {
     reblogsByAccts(): string[];
     serialize(): SerializableToot;
     tootedAt(): Date;
-    private repairToot;
+    private repair;
     private attachmentsOfType;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }

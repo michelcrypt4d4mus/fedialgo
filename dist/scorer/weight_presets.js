@@ -29,7 +29,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.MENTIONS_FOLLOWED]: 2.0,
     [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 1.0,
     [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: 2,
-    [types_1.WeightName.NUM_FAVOURITES]: 1.0,
+    [types_1.WeightName.NUM_FAVOURITES]: 0.1,
     [types_1.WeightName.NUM_REPLIES]: 1.0,
     [types_1.WeightName.NUM_RETOOTS]: 1.0,
     [types_1.WeightName.RETOOTED_IN_FEED]: 2.0,

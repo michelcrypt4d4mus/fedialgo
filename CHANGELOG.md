@@ -2,6 +2,10 @@
 * Add `.gif` to `IMAGE_EXTENSIONS`
 * Store `TheAlgorithm.mastodonServers` sooner
 * Unify blocked/muted account handling
+* Refactor `shuffle()` method for arrays
+* Lower default `NUM_FAVOURITES` weighting
+* Add `Config.noTrendingLinksServers` so we can skip scraping trending links from servers that don't support it.
+* Lower `Config.maxTimelineTootsToFetch` to 1,200
 
 ### v0.19.1
 * Rename `TheAlgorithm.extractSummaryInfo()` to `TheAlgorithm.initializeFiltersWithSummaryInfo()`

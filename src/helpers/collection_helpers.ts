@@ -1,6 +1,8 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
+import md5 from "blueimp-md5";
+
 import { CountKey, StringNumberDict, Weights } from "../types";
 
 
@@ -12,7 +14,7 @@ export function average(values: number[]): number {
 };
 
 
-// TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
+// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
 export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
     return array.reduce(
         (grouped, item) => {
@@ -109,4 +111,11 @@ export function sumValues(obj: StringNumberDict | Weights): number {
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x: unknown): x is Record<string, unknown> {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
+};
+
+
+// Randomize the order of an array
+export function shuffle<T>(array: T[]): T[] {
+    const sortRandom = (a: T, b: T) => md5(JSON.stringify(a)).localeCompare(JSON.stringify(b));
+    return array.toSorted(sortRandom);
 };

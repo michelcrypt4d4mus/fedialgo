@@ -85,6 +85,7 @@ export type Config = {
     numTrendingTootsPerServer: number;
     defaultServers: string[];
     noMauServers: string[];
+    noTrendingLinksServers: string[];
 };
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     filterSections: Record<PropertyName, PropertyFilter>;

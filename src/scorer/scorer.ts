@@ -16,7 +16,7 @@ export default abstract class Scorer {
     isReady: boolean = false;
 
     constructor(name: WeightName) {
-        // console.debug(`Scorer's this.constructor.name: ${this.constructor.name}`);
+        // TODO: Maybe use this.constructor.name as the name property?
         this.name = name;
         this.description = SCORERS_CONFIG[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;

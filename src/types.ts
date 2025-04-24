@@ -110,6 +110,7 @@ export type Config = {
     // MAU and other server properties
     defaultServers: string[];
     noMauServers: string[];
+    noTrendingLinksServers: string[];
 };
 
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {

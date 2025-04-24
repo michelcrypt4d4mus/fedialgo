@@ -15,6 +15,7 @@ import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
     VIDEO_TYPES,
+    extractDomain,
     htmlToText,
     isImage,
     isVideo,
@@ -33,7 +34,7 @@ import {
 
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
-export enum TootVisibility {
+enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",
     PRIVATE = "private",
@@ -172,7 +173,7 @@ export default class Toot implements TootObj {
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
-        this.repairToot();
+        this.repair();
     }
 
     // Time since this toot was sent in seconds
@@ -403,18 +404,14 @@ export default class Toot implements TootObj {
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
-    //   - Set media type to "image" if unknown and reparable
-    //   - Add server info to the account string and mentions for home server accounts
     //   - Lowercase all tags
-    private repairToot(): void {
+    //   - Repair mediaAttachment types if reparable based on URL file extension
+    //   - Repair StatusMention objects for users on home server
+    private repair(): void {
         this.application ??= {name: UNKNOWN};
         this.application.name ??= UNKNOWN;
         this.language ??= Storage.getConfig().defaultLanguage;
-        // Repair Tags
-        this.tags.forEach(repairTag);
-        // Repair Accounts
-        // TODO: mentions are probably broken
-        // this.mentions.forEach(repairAccount);
+        this.tags.forEach(repairTag);  // Repair Tags
 
         if (this.reblog){
             this.trendingRank ||= this.reblog.trendingRank;
@@ -446,6 +443,17 @@ export default class Toot implements TootObj {
                 console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
+
+        // Repair StatusMention.acct fields for users on the home server
+        this.mentions.forEach((mention) => {
+            if (!mention.acct?.includes("@")) {
+                const acct = mention.acct;
+                mention.acct += `@${extractDomain(mention.url)}`;
+                console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
+            } else if (mention.acct.includes(MastoApi.instance.homeDomain)) {
+                console.warn(`Found a StatusMention with the home domain in toot:`, this);
+            }
+        })
     }
 
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
@@ -468,11 +476,6 @@ export default class Toot implements TootObj {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
-
-            // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            // if (reblogsBy.length > 1) {
-            //     console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            // }
 
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {

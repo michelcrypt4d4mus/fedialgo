@@ -6,12 +6,12 @@ import { mastodon } from 'masto';
 
 import { MediaCategory } from '../types';
 
+export const DEFAULT_FONT_SIZE = 15;
 export const GIFV = "gifv";
 export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 export const VIDEO_TYPES = [MediaCategory.VIDEO, GIFV] as mastodon.v1.MediaAttachmentType[];
 export const VIDEO_EXTENSIONS = ["mp4"];
 export const MEDIA_TYPES = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
-export const DEFAULT_FONT_SIZE = 15;
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 
 
@@ -29,7 +29,8 @@ export function extractDomain(url: string): string {
 };
 
 
-// Replace https links with [link to DOMAIN]
+// Replace https links with [link to DOMAIN], e.g.
+// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
 export function replaceHttpsLinks(input: string): string {
     return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
 };
@@ -59,6 +60,7 @@ export function isVideo(uri: string | null | undefined): boolean {
 };
 
 
+// Replace custom emoji shortcodes like :smile: with <img> tags
 export function replaceEmojiShortcodesWithImageTags(
     html: string,
     emojis: mastodon.v1.CustomEmoji[],

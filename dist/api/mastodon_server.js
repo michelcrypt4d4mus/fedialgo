@@ -11,9 +11,9 @@ const change_case_1 = require("change-case");
 const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const api_1 = require("./api");
 const tag_1 = require("./objects/tag");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 class MastodonServer {
     domain;
     constructor(domain) {
@@ -36,6 +36,10 @@ class MastodonServer {
     }
     // Get the links that are trending on this server
     async fetchTrendingLinks() {
+        if (Storage_1.default.getConfig().noTrendingLinksServers.includes(this.domain)) {
+            console.debug(`Trending links are not available for '${this.domain}', skipping...`);
+            return [];
+        }
         const numLinks = Storage_1.default.getConfig().numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(api_1.LINKS, numLinks);
         trendingLinks.forEach(feature_scorer_1.default.decorateHistoryScores);

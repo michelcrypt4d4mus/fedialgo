@@ -1,8 +1,6 @@
 /*
  * Score how many accounts that the user follows are mentioned in the toot.
  */
-import { mastodon } from 'masto';
-
 import Account from '../../api/objects/account';
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
@@ -26,7 +24,7 @@ export default class MentionsFollowedScorer extends FeatureScorer {
         return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI());
     };
 
-    // TODO: Needs equivalent of webfingerURI or won't always work correctly.
+    // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI()
     async _score(toot: Toot) {
         return toot.mentions.filter((mention) => mention.acct in this.requiredData).length;
     };

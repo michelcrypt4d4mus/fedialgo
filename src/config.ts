@@ -87,14 +87,14 @@ export const DEFAULT_FILTERS = {
 export const DEFAULT_CONFIG: Config = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-    maxNumCachedToots: 5_000,            // How many toots to keep in memory maximum
+    maxNumCachedToots: 2500,            // How many toots to keep in memory maximum
 
     // Timeline toots
     enableIncrementalLoad: true,         // Continue loading in background after initial load
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
     // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 2000,        // Delay between incremental loads of toots
-    maxTimelineTootsToFetch: 1500,       // useful dev options for faster load
+    maxTimelineTootsToFetch: 1200,       // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
 
@@ -160,6 +160,14 @@ export const DEFAULT_CONFIG: Config = {
         'mathstodon.xyz',
         "mstdn.social",    // blocked by CORS
         "threads.net",
+    ],
+    // Servers that don't support trending links
+    noTrendingLinksServers: [
+        "chaos.social",
+        "fediscience.org",
+        "mastodon.cloud",
+        "med-mastodon.com",
+        "mastodon.gamedev.place",
     ],
 };
 

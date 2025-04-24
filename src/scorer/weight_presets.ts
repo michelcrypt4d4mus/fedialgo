@@ -31,7 +31,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [WeightName.MENTIONS_FOLLOWED]: 2.0,
     [WeightName.MOST_REPLIED_ACCOUNTS]: 1.0,
     [WeightName.MOST_RETOOTED_ACCOUNTS]: 2,
-    [WeightName.NUM_FAVOURITES]: 1.0,
+    [WeightName.NUM_FAVOURITES]: 0.1,  // Favourites only show up on the home server so underweight this
     [WeightName.NUM_REPLIES]: 1.0,
     [WeightName.NUM_RETOOTS]: 1.0,
     [WeightName.RETOOTED_IN_FEED]: 2.0,
