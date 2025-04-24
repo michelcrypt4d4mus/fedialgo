@@ -470,18 +470,17 @@ export default class Toot implements TootObj {
             }
         });
 
-        // Repair StatusMention.acct fields for users on the home server
+        // Repair StatusMention.acct field for users on the home server by appending @serverDomain
         this.mentions.forEach((mention) => {
             if (!mention.acct?.includes("@")) {
-                const acct = mention.acct;
                 mention.acct += `@${extractDomain(mention.url)}`;
-                console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
+                // console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
             }
         })
     }
 
     // return MediaAttachmentType objects with type == attachmentType
-    private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
+    private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): mastodon.v1.MediaAttachment[] {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
