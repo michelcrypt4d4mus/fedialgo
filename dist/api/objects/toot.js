@@ -142,8 +142,8 @@ class Toot {
     }
     // String that describes the toot in not so many characters
     describe() {
-        let msg = `[${this.createdAt}]: ID: ${this.id}`;
-        return `${msg} (${this.describeAccount()}): "${this.content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}..."`;
+        let msg = `[${this.createdAt}] (${this.describeAccount()}, ID=${this.id})`;
+        return `${msg}: "${this.contentShortened()}"`;
     }
     // String representation of the account that sent this toot
     describeAccount() {
