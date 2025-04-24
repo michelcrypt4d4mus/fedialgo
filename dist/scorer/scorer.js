@@ -10,7 +10,7 @@ const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
 const types_1 = require("../types");
 const config_1 = require("../config");
-const helpers_1 = require("../helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 class Scorer {
     defaultWeight;
     description;
@@ -77,7 +77,7 @@ class Scorer {
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores) {
-        return 1 + (0, helpers_1.sumValues)(scores);
+        return 1 + (0, collection_helpers_1.sumValues)(scores);
     }
 }
 exports.default = Scorer;

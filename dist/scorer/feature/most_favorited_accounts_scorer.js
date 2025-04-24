@@ -3,8 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Score how many times the current user has favourited the tooter in the past.
+ */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const helpers_1 = require("../../helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MostFavoritedAccountsScorer extends feature_scorer_1.default {
@@ -14,7 +17,7 @@ class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     ;
     async featureGetter() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
-        return (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI());
+        return (0, collection_helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI());
     }
     ;
     async _score(toot) {

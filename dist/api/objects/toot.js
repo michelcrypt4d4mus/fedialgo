@@ -11,14 +11,11 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
 const capital_case_1 = require("capital-case");
 const account_1 = __importDefault(require("./account"));
 const Storage_1 = __importDefault(require("../../Storage"));
-const helpers_1 = require("../../helpers");
-const string_helpers_1 = require("../../helpers/string_helpers");
-const string_helpers_2 = require("../../helpers/string_helpers");
-const string_helpers_3 = require("../../helpers/string_helpers");
-const types_1 = require("../../types");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../api");
-const types_2 = require("../../types");
 const tag_1 = require("./tag");
+const string_helpers_1 = require("../../helpers/string_helpers");
+const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -32,9 +29,9 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
 const ATTACHMENT_ICONS = {
-    [types_2.MediaCategory.AUDIO]: "audio",
-    [types_2.MediaCategory.IMAGE]: "pic",
-    [types_2.MediaCategory.VIDEO]: "vid"
+    [types_1.MediaCategory.AUDIO]: "audio",
+    [types_1.MediaCategory.IMAGE]: "pic",
+    [types_1.MediaCategory.VIDEO]: "vid"
 };
 ;
 ;
@@ -199,23 +196,23 @@ class Toot {
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
         if (this.audioAttachments().length > 0) {
-            return types_2.MediaCategory.AUDIO;
+            return types_1.MediaCategory.AUDIO;
         }
         else if (this.imageAttachments().length > 0) {
-            return types_2.MediaCategory.IMAGE;
+            return types_1.MediaCategory.IMAGE;
         }
         else if (this.videoAttachments().length > 0) {
-            return types_2.MediaCategory.VIDEO;
+            return types_1.MediaCategory.VIDEO;
         }
     }
     audioAttachments() {
-        return this.attachmentsOfType(types_2.MediaCategory.AUDIO);
+        return this.attachmentsOfType(types_1.MediaCategory.AUDIO);
     }
     imageAttachments() {
-        return this.attachmentsOfType(types_2.MediaCategory.IMAGE);
+        return this.attachmentsOfType(types_1.MediaCategory.IMAGE);
     }
     videoAttachments() {
-        return string_helpers_3.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
+        return string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
@@ -247,7 +244,7 @@ class Toot {
         return true;
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
-    contentWithEmojis(fontSize = string_helpers_3.DEFAULT_FONT_SIZE) {
+    contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis, fontSize);
     }
@@ -264,8 +261,8 @@ class Toot {
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
         maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
-        let content = (0, string_helpers_3.htmlToText)(this.reblog?.content || this.content || "");
-        content = (0, string_helpers_3.replaceHttpsLinks)(content);
+        let content = (0, string_helpers_1.htmlToText)(this.reblog?.content || this.content || "");
+        content = (0, string_helpers_1.replaceHttpsLinks)(content);
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
@@ -349,19 +346,19 @@ class Toot {
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
-                if ((0, string_helpers_2.isImage)(media.remoteUrl)) {
+                if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
                     console.debug(`Repairing broken image attachment in toot:`, this);
-                    media.type = types_2.MediaCategory.IMAGE;
+                    media.type = types_1.MediaCategory.IMAGE;
                 }
-                else if ((0, string_helpers_2.isVideo)(media.remoteUrl)) {
+                else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
                     console.debug(`Repairing broken video attachment in toot:`, this);
-                    media.type = types_2.MediaCategory.VIDEO;
+                    media.type = types_1.MediaCategory.VIDEO;
                 }
                 else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
             }
-            else if (!string_helpers_3.MEDIA_TYPES.includes(media.type)) {
+            else if (!string_helpers_1.MEDIA_TYPES.includes(media.type)) {
                 console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
@@ -373,7 +370,7 @@ class Toot {
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
         const prefix = logLabel ? `[${logLabel}] ` : '';
-        const tootsByURI = (0, helpers_1.groupBy)(toots, toot => toot.realURI());
+        const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {

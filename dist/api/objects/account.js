@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_helpers_1 = require("../../helpers/string_helpers");
-const string_helpers_2 = require("../../helpers/string_helpers");
 const api_1 = require("../api");
 ;
 class Account {
@@ -73,7 +72,7 @@ class Account {
     }
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {
-        return (0, string_helpers_2.extractDomain)(this.url) || "unknown.server";
+        return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server";
     }
     homserverURL() {
         if (this.homeserver() == api_1.MastoApi.instance.homeDomain) {

@@ -9,7 +9,7 @@ import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers";
+import { atLeastValues, average, countValues, groupBy, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { MastodonServersInfo, TrendingLink, TrendingTag } from "../types";
 import { repairTag } from "./objects/tag";

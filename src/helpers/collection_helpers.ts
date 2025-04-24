@@ -1,7 +1,7 @@
 /*
- * Various small helper methods.
+ * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
-import { CountKey, StringNumberDict, Weights } from "./types";
+import { CountKey, StringNumberDict, Weights } from "../types";
 
 
 // Take the average of an array of numbers, ignoring undefined values

@@ -6,7 +6,7 @@ import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
-import { sumValues } from "../helpers";
+import { sumValues } from "../helpers/collection_helpers";
 
 
 export default abstract class Scorer {

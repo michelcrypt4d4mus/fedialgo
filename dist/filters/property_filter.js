@@ -11,7 +11,7 @@ exports.TYPE_FILTERS = exports.TypeFilterName = exports.PropertyName = void 0;
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const helpers_1 = require("../helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
@@ -87,7 +87,7 @@ class PropertyFilter extends toot_filter_1.default {
         let description;
         if (title == PropertyName.TYPE) {
             // Set up the default for source filters so something always shows up in the options
-            optionInfo = (0, helpers_1.countValues)(Object.values(TypeFilterName));
+            optionInfo = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {

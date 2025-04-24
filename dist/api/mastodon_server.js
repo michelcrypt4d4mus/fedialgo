@@ -11,7 +11,7 @@ const change_case_1 = require("change-case");
 const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
-const helpers_1 = require("../helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const api_1 = require("./api");
 const tag_1 = require("./objects/tag");
 class MastodonServer {
@@ -96,7 +96,7 @@ class MastodonServer {
         const json = await axios_1.default.get(url);
         console.debug(`mastodonFetch() response for '${url}':`, json);
         if (json.status === 200 && json.data) {
-            return (0, helpers_1.transformKeys)(json.data, change_case_1.camelCase);
+            return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
             throw json;
@@ -138,10 +138,10 @@ class MastodonServer {
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.fetchFollowedAccounts();
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
-        const followedServerUserCounts = (0, helpers_1.countValues)(follows, account => account.homeserver());
-        const mostFollowedServers = (0, helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
+        const followedServerUserCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
+        const mostFollowedServers = (0, collection_helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
         let serverMAUs = await this.callForServers(mostFollowedServers, (s) => s.fetchMonthlyUsers());
-        const validServers = (0, helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
+        const validServers = (0, collection_helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
         console.debug(`followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
@@ -173,7 +173,7 @@ class MastodonServer {
     ;
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
-        return await (0, helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
+        return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
     }
     ;
 }
@@ -182,9 +182,9 @@ exports.default = MastodonServer;
 // A toot can trend on multiple servers in which case we set trendingRank for all to the avg
 // TODO: maybe we should add the # of servers to the avg?
 function setTrendingRankToAvg(rankedToots) {
-    const tootsTrendingOnMultipleServers = (0, helpers_1.groupBy)(rankedToots, toot => toot.uri);
+    const tootsTrendingOnMultipleServers = (0, collection_helpers_1.groupBy)(rankedToots, toot => toot.uri);
     Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = (0, helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
+        const avgScore = (0, collection_helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
         toots.forEach((toot) => {
             toot.trendingRank = avgScore;
             if (toot.reblog) {

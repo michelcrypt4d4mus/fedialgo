@@ -1,8 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
-import { MediaCategory } from "../../types";
 import { TheAlgorithm } from "../..";
+import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
 export declare enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",

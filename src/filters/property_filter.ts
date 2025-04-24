@@ -6,7 +6,7 @@
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { countValues } from "../helpers";
+import { countValues } from "../helpers/collection_helpers";
 import { FilterArgs, StorageKey, StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;

@@ -61,12 +61,11 @@ const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trendin
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const weight_presets_1 = require("./scorer/weight_presets");
-const helpers_1 = require("./helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
-const string_helpers_2 = require("./helpers/string_helpers");
-Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_2.GIFV; } });
-Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_2.VIDEO_TYPES; } });
-Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_2.extractDomain; } });
+Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
+Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
+Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const collection_helpers_1 = require("./helpers/collection_helpers");
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
@@ -255,20 +254,20 @@ class TheAlgorithm {
         this.feed.forEach(toot => {
             // Set toot.isFollowed flag and increment counts
             toot.isFollowed = toot.account.webfingerURI() in this.followedAccounts;
-            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
-            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());
+            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
+            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
+            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());
             // Lowercase and count tags
             toot.tags.forEach((tag) => {
                 toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
                 if (tag.name in this.followedTags)
                     toot.followedTags.push(tag);
-                (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
+                (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
             });
             // Aggregate type counts
             Object.entries(property_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
                 if (typeFilter(toot)) {
-                    (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
+                    (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
                 }
             });
             // Aggregate server-side filter counts
@@ -276,7 +275,7 @@ class TheAlgorithm {
                 filter.keywords.forEach((keyword) => {
                     if (toot.containsString(keyword.keyword)) {
                         console.debug(`Matched server filter (${toot.describe()}):`, filter);
-                        (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
+                        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                     }
                 });
             });

@@ -6,7 +6,7 @@ import md5 from "blueimp-md5";
 
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
-import { incrementCount } from "../../helpers";
+import { incrementCount } from "../../helpers/collection_helpers";
 import { StringNumberDict, WeightName } from "../../types";
 
 
@@ -40,11 +40,12 @@ export default class DiversityFeedScorer extends FeedScorer {
     async _score(toot: Toot) {
         incrementCount(this.requiredData, toot.account.webfingerURI());
         if (toot.reblog) incrementCount(this.requiredData, toot.reblog.account.webfingerURI());
-        const acct = toot.reblog?.account?.webfingerURI() ?? toot.account.webfingerURI();
+        const acct = toot.realAccount().webfingerURI();
 
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
         if (this.requiredData[acct] > 0) {
-            let msg = `DiversityFeedScorer for ${toot.account.webfingerURI()} scored over 0 (${this.requiredData[toot.account.webfingerURI()]})`;
+            let msg = `DiversityFeedScorer for ${toot.account.webfingerURI()} scored over 0`;
+            msg += ` (got ${this.requiredData[toot.account.webfingerURI()]})`;
             console.warn(`${msg}, diversity features:\n${JSON.stringify(this.requiredData, null, 4)}`);
             return 0;
         } else {

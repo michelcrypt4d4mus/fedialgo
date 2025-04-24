@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const helpers_1 = require("../../helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
@@ -17,7 +17,7 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     // unique across all servers.
     async featureGetter() {
         this.followedAccounts = await api_1.MastoApi.instance.fetchFollowedAccounts();
-        return (0, helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI());
+        return (0, collection_helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI());
     }
     ;
     // TODO: Needs equivalent of webfingerURI or won't always work correctly.

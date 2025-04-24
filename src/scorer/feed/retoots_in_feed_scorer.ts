@@ -3,7 +3,7 @@
  */
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
-import { incrementCount } from "../../helpers";
+import { incrementCount } from "../../helpers/collection_helpers";
 import { WeightName } from "../../types";
 
 

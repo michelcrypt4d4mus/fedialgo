@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * the original author if it's a retoot).
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const helpers_1 = require("../../helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MostRetootedUsersScorer extends feature_scorer_1.default {
@@ -18,7 +18,7 @@ class MostRetootedUsersScorer extends feature_scorer_1.default {
     async featureGetter() {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        return (0, helpers_1.countValues)(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI());
+        return (0, collection_helpers_1.countValues)(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI());
     }
     ;
     async _score(toot) {

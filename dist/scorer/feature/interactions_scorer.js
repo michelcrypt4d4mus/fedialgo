@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const helpers_1 = require("../../helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class InteractionsScorer extends feature_scorer_1.default {
@@ -14,7 +14,7 @@ class InteractionsScorer extends feature_scorer_1.default {
     }
     async featureGetter() {
         const notifications = await api_1.MastoApi.instance.getRecentNotifications();
-        return (0, helpers_1.countValues)(notifications, notif => {
+        return (0, collection_helpers_1.countValues)(notifications, notif => {
             if (!notif.account?.acct) {
                 console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
                 return "";
