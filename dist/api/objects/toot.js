@@ -382,9 +382,9 @@ class Toot {
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
             // TODO: this warning is just so we can see if there are any toots with multiple reblogs
-            if (reblogsBy.length > 1) {
-                console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
-            }
+            // if (reblogsBy.length > 1) {
+            //     console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+            // }
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
