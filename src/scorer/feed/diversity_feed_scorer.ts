@@ -44,7 +44,8 @@ export default class DiversityFeedScorer extends FeedScorer {
 
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
         if (this.requiredData[acct] > 0) {
-            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.requiredData[toot.account.acct]}), diversity features:`, this.requiredData);
+            let msg = `DiversityFeedScorer for ${toot.account.acct} scored over 0 (${this.requiredData[toot.account.acct]})`;
+            console.warn(`${msg}, diversity features:\n${JSON.stringify(this.requiredData, null, 4)}`);
             return 0;
         } else {
             return this.requiredData[acct];

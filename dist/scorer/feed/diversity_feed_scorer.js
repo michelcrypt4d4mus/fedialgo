@@ -39,7 +39,8 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const acct = toot.reblog?.account?.acct ?? toot.account.acct;
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
         if (this.requiredData[acct] > 0) {
-            console.log(`DiversityFeedScorer for ${toot.account.acct} has score over 0 (${this.requiredData[toot.account.acct]}), diversity features:`, this.requiredData);
+            let msg = `DiversityFeedScorer for ${toot.account.acct} scored over 0 (${this.requiredData[toot.account.acct]})`;
+            console.warn(`${msg}, diversity features:\n${JSON.stringify(this.requiredData, null, 4)}`);
             return 0;
         }
         else {
