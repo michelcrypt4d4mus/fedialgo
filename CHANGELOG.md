@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.19.0
 * Preserve `MastodonServersInfo` information like MAU
 * Tweak `Toot.describe()` string
 
