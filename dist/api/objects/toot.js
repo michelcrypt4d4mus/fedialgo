@@ -133,7 +133,8 @@ class Toot {
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention() {
         if (this.mentions.length > 0) {
-            console.debug(`containsUserMention() checking for ${api_1.MastoApi.instance.user.webfingerURI()} in mentions:`, this.mentions);
+            let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
+            console.debug(`containsUserMention() checking for ${api_1.MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
         }
         const hasMention = this.mentions.some((mention) => mention.acct == api_1.MastoApi.instance.user.webfingerURI());
         if (hasMention)

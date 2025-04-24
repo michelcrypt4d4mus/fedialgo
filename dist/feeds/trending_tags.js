@@ -44,13 +44,10 @@ exports.default = fetchRecentTootsForTrendingTags;
 // Get latest toots for a given tag and populate trendingToots property
 async function getTootsForTag(tag) {
     // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
-    const toots = await api_1.MastoApi.instance.searchForToots(tag.name, Storage_1.default.getConfig().numTootsPerTrendingTag);
+    const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
+    const toots = await api_1.MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
     // Inject the tag into each toot as a trendingTag element
-    toots.forEach((toot) => {
-        toot.trendingTags ||= [];
-        toot.trendingTags.push(tag);
-    });
-    console.debug(`Found toots for trending tag '${tag.name}':`, toots);
+    toots.forEach((toot) => toot.trendingTags.push(tag));
     return toots;
 }
 ;

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `npm audit fix` a `react-router-dom` vulnerability in the demo app
 
 ### v0.19.3
 * Add filter for Toots that mention the fedialgo user

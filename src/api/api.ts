@@ -152,10 +152,10 @@ export class MastoApi {
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
-                console.log(`oldest in page: ${earliestTootedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
+                console.debug(`oldest in page: ${earliestTootedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
 
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
+                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAt}' is too old`);
                     return true;
                 }
 
@@ -169,18 +169,19 @@ export class MastoApi {
     };
 
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    async searchForToots(searchQuery: string, limit?: number): Promise<Toot[]> {
+    async searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]> {
         limit = limit || Storage.getConfig().defaultRecordsPerPage;
-        console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
+        logMsg = logMsg ? ` ${logMsg}` : "";
+        console.debug(`[searchForToots] getting${logMsg} toots for query '${searchQuery}'`);
         const mastoQuery: mastodon.rest.v1.SearchParams = {limit: limit, q: searchQuery, type: STATUSES};
 
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
             const toots = searchResult.statuses.map(t => new Toot(t));
-            console.debug(`[searchForToots] Found toots for query`, mastoQuery);
+            console.debug(`[searchForToots] Found${logMsg} toots for query`, mastoQuery);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
+            this.throwIfAccessTokenRevoked(e, `Failed to get${logMsg} toots for query '${searchQuery}'`);
             return [];
         }
     };

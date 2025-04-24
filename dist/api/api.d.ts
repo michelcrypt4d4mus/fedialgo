@@ -20,7 +20,7 @@ export declare class MastoApi {
     getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
     getStartupData(): Promise<UserData>;
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
-    searchForToots(searchQuery: string, limit?: number): Promise<Toot[]>;
+    searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
     fetchFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;

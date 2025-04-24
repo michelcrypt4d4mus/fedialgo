@@ -139,9 +139,9 @@ class MastoApi {
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
-                console.log(`oldest in page: ${(0, toot_1.earliestTootedAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
+                console.debug(`oldest in page: ${(0, toot_1.earliestTootedAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() pages bc oldestTootAt='${oldestTootAt}'`);
+                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAt}' is too old`);
                     return true;
                 }
                 return false;
@@ -153,18 +153,19 @@ class MastoApi {
     }
     ;
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    async searchForToots(searchQuery, limit) {
+    async searchForToots(searchQuery, limit, logMsg) {
         limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
-        console.debug(`[searchForToots] getting toots for query '${searchQuery}'`);
+        logMsg = logMsg ? ` ${logMsg}` : "";
+        console.debug(`[searchForToots] getting${logMsg} toots for query '${searchQuery}'`);
         const mastoQuery = { limit: limit, q: searchQuery, type: exports.STATUSES };
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
             const toots = searchResult.statuses.map(t => new toot_1.default(t));
-            console.debug(`[searchForToots] Found toots for query`, mastoQuery);
+            console.debug(`[searchForToots] Found${logMsg} toots for query`, mastoQuery);
             return toots;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `Failed to get toots for query '${searchQuery}'`);
+            this.throwIfAccessTokenRevoked(e, `Failed to get${logMsg} toots for query '${searchQuery}'`);
             return [];
         }
     }
