@@ -74,11 +74,13 @@ class Storage {
         return numAppOpens;
     }
     static async getIdentity() {
-        return await localforage_1.default.getItem(types_1.StorageKey.USER);
+        const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
+        return user ? new account_1.default(user) : null;
     }
+    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
-        console.debug(`Setting identity to:`, user); // TODO: this is insecure logging
-        await localforage_1.default.setItem(types_1.StorageKey.USER, user);
+        console.debug(`Setting fedialgo user identity to:`, user);
+        await localforage_1.default.setItem(types_1.StorageKey.USER, user.serialize());
     }
     static async getFeed() {
         let cachedToots = await this.get(types_1.StorageKey.TIMELINE);

@@ -1,4 +1,3 @@
-import { mastodon } from "masto";
 import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
 import { Config, FeedFilterSettings, StorageKey, StorableObj, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
@@ -13,8 +12,8 @@ export default class Storage {
     static logAppOpen(): Promise<void>;
     static getLastOpenedTimestamp(): Promise<number>;
     static getNumAppOpens(): Promise<number>;
-    static getIdentity(): Promise<mastodon.v1.Account | null>;
-    static setIdentity(user: mastodon.v1.Account): Promise<void>;
+    static getIdentity(): Promise<Account | null>;
+    static setIdentity(user: Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
     static setTrending(links: TrendingLink[], tags: TrendingTag[], _toots: Toot[]): Promise<void>;

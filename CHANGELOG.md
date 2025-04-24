@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Add filter for Toots that mention the fedialgo user
+* Check in missing `dist/` files
 
 ### v0.19.2
 * Add `.gif` to `IMAGE_EXTENSIONS`

@@ -98,13 +98,15 @@ export default class Storage {
         return numAppOpens;
     }
 
-    static async getIdentity(): Promise<mastodon.v1.Account | null> {
-        return await localForage.getItem(StorageKey.USER);
+    static async getIdentity(): Promise<Account | null> {
+        const user = await localForage.getItem(StorageKey.USER);
+        return user ? new Account(user as mastodon.v1.Account) : null;
     }
 
-    static async setIdentity(user: mastodon.v1.Account) {
-        console.debug(`Setting identity to:`, user);  // TODO: this is insecure logging
-        await localForage.setItem(StorageKey.USER, user);
+    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
+    static async setIdentity(user: Account) {
+        console.debug(`Setting fedialgo user identity to:`, user);
+        await localForage.setItem(StorageKey.USER, user.serialize());
     }
 
     static async getFeed(): Promise<Toot[]> {

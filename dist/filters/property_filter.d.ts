@@ -16,6 +16,7 @@ export declare enum TypeFilterName {
     FOLLOWED_ACCOUNTS = "followedAccounts",
     FOLLOWED_HASHTAGS = "followedHashtags",
     LINKS = "links",
+    MENTIONS = "mentions",
     POLLS = "polls",
     REPLIES = "replies",
     REPOSTS = "reposts",

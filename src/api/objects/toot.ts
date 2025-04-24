@@ -186,6 +186,13 @@ export default class Toot implements TootObj {
         return this.ageInSeconds() / 3600;
     }
 
+    // Returns true if the fedialgo user is mentioned in the toot
+    containsUserMention(): boolean {
+        const hasMention = this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
+        if (hasMention) console.log(`Toot contains user mention:`, this);
+        return hasMention;
+    }
+
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
@@ -450,8 +457,6 @@ export default class Toot implements TootObj {
                 const acct = mention.acct;
                 mention.acct += `@${extractDomain(mention.url)}`;
                 console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
-            } else if (mention.acct.includes(MastoApi.instance.homeDomain)) {
-                console.warn(`Found a StatusMention with the home domain in toot:`, this);
             }
         })
     }

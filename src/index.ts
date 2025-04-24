@@ -124,20 +124,22 @@ class TheAlgorithm {
 
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
-        await Storage.setIdentity(params.user);
+        const user = new Account(params.user);
+        await Storage.setIdentity(user);
         await Storage.logAppOpen();
 
-        const algo = new TheAlgorithm(params);
+        // Construct the algorithm object, set the default weights, load feed and filters
+        const algo = new TheAlgorithm({api: params.api, user: user, setFeedInApp: params.setFeedInApp});
         await algo.setDefaultWeights();
         algo.feed = await Storage.getFeed();
         algo.filters = await Storage.getFilters();
-        // Set trending data properties
+        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
+
+        // Set trending data and other properties we want to expose to the client
         const trendingData = await Storage.getTrending();
         algo.trendingLinks = trendingData.links;
         algo.trendingTags = trendingData.tags;
         algo.trendingToots = trendingData.toots;
-
-        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = Account.buildAccountNames((await Storage.getFollowedAccts()));
         algo.initializeFiltersWithSummaryInfo();
         algo.setFeedInApp(algo.feed);
@@ -148,7 +150,7 @@ class TheAlgorithm {
         this.api = params.api;
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
-        MastoApi.init(this.api, this.user);
+        MastoApi.init(this.api, this.user as Account);
         this.filters = buildNewFilterSettings();
     }
 

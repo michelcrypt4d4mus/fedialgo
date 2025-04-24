@@ -74,6 +74,7 @@ export default class Toot implements TootObj {
     constructor(toot: SerializableToot);
     ageInSeconds(): number;
     ageInHours(): number;
+    containsUserMention(): boolean;
     containsString(str: string): boolean;
     describe(): string;
     popularity(): number;

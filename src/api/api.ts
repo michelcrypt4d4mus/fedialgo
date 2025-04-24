@@ -54,12 +54,12 @@ interface FetchParams<T> {
 // Singleton class for interacting with the Mastodon API
 export class MastoApi {
     api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    homeDomain: mastodon.v1.Account["url"];
+    user: Account;
+    homeDomain: string;
     mutexes: ApiMutex;
     static #instance: MastoApi;
 
-    static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void {
+    static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
             return;
@@ -74,7 +74,7 @@ export class MastoApi {
         return MastoApi.#instance;
     };
 
-    private constructor(api: mastodon.rest.Client, user: mastodon.v1.Account) {
+    private constructor(api: mastodon.rest.Client, user: Account) {
         this.api = api;
         this.user = user;
         this.homeDomain = extractDomain(user.url);

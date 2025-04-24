@@ -12,9 +12,7 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MENTIONS_FOLLOWED);
     }
-    // Count replied per user. Note that this does NOT pull the Account object because that
-    // would require a lot of API calls, so it's just working with the account ID which is NOT
-    // unique across all servers.
+    // Build simple dictionary of followed accounts (key is webfingerURI(), value is 1)
     async featureGetter() {
         this.followedAccounts = await api_1.MastoApi.instance.fetchFollowedAccounts();
         return (0, collection_helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI());

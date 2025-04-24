@@ -134,18 +134,20 @@ class TheAlgorithm {
     });
     // This is the alternate constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
-        await Storage_1.default.setIdentity(params.user);
+        const user = new account_1.default(params.user);
+        await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
-        const algo = new TheAlgorithm(params);
+        // Construct the algorithm object, set the default weights, load feed and filters
+        const algo = new TheAlgorithm({ api: params.api, user: user, setFeedInApp: params.setFeedInApp });
         await algo.setDefaultWeights();
         algo.feed = await Storage_1.default.getFeed();
         algo.filters = await Storage_1.default.getFilters();
-        // Set trending data properties
+        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
+        // Set trending data and other properties we want to expose to the client
         const trendingData = await Storage_1.default.getTrending();
         algo.trendingLinks = trendingData.links;
         algo.trendingTags = trendingData.tags;
         algo.trendingToots = trendingData.toots;
-        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
         algo.followedAccounts = account_1.default.buildAccountNames((await Storage_1.default.getFollowedAccts()));
         algo.initializeFiltersWithSummaryInfo();
         algo.setFeedInApp(algo.feed);

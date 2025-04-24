@@ -11,10 +11,10 @@ type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    homeDomain: mastodon.v1.Account["url"];
+    user: Account;
+    homeDomain: string;
     mutexes: ApiMutex;
-    static init(api: mastodon.rest.Client, user: mastodon.v1.Account): void;
+    static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
     getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;

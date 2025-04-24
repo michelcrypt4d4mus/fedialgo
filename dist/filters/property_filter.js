@@ -32,6 +32,7 @@ var TypeFilterName;
     TypeFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
     TypeFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
     TypeFilterName["LINKS"] = "links";
+    TypeFilterName["MENTIONS"] = "mentions";
     TypeFilterName["POLLS"] = "polls";
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["REPOSTS"] = "reposts";
@@ -46,6 +47,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
     [TypeFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
+    [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.poll,
     [TypeFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
     [TypeFilterName.REPOSTS]: (toot) => !!toot.reblog,
