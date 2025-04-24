@@ -409,6 +409,20 @@ export default class Toot implements TootObj {
         return toot;
     }
 
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsMsg(): string | undefined {
+        const followedTagsMsg = this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS);
+        const trendingTagsMsg = this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS);
+
+        if (followedTagsMsg && trendingTagsMsg) {
+            return [followedTagsMsg, trendingTagsMsg].join("; ");
+        } else if (followedTagsMsg) {
+            return followedTagsMsg;
+        } else if (trendingTagsMsg) {
+            return trendingTagsMsg;
+        }
+    }
+
     tootedAt(): Date {
         return new Date(this.createdAt);
     }
@@ -466,9 +480,28 @@ export default class Toot implements TootObj {
         })
     }
 
+    // return MediaAttachmentType objects with type == attachmentType
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): Array<mastodon.v1.MediaAttachment> {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type == attachmentType);
+    }
+
+    // Generate a string describing the followed and trending tags in the toot
+    private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
+        let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
+
+        if (![WeightName.FOLLOWED_TAGS, WeightName.TRENDING_TAGS].includes(tagType)) {
+            console.warn(`containsTagsMsg() called with invalid tagType: ${tagType}`);
+            return;
+        } else if (tagType == WeightName.FOLLOWED_TAGS) {
+            tags = this.followedTags;
+        } else if (tagType == WeightName.TRENDING_TAGS) {
+            tags = this.trendingTags;
+        }
+
+        if (!tags.length) return;
+        const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
+        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
 
     // Remove dupes by uniquifying on the toot's URI

@@ -97,9 +97,11 @@ export default class Toot implements TootObj {
     condensedStatus(): object;
     reblogsByAccts(): string[];
     serialize(): SerializableToot;
+    containsTagsMsg(): string | undefined;
     tootedAt(): Date;
     private repair;
     private attachmentsOfType;
+    private containsTagsOfTypeMsg;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;

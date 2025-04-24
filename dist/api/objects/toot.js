@@ -325,6 +325,20 @@ class Toot {
         toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
         return toot;
     }
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsMsg() {
+        const followedTagsMsg = this.containsTagsOfTypeMsg(types_1.WeightName.FOLLOWED_TAGS);
+        const trendingTagsMsg = this.containsTagsOfTypeMsg(types_1.WeightName.TRENDING_TAGS);
+        if (followedTagsMsg && trendingTagsMsg) {
+            return [followedTagsMsg, trendingTagsMsg].join("; ");
+        }
+        else if (followedTagsMsg) {
+            return followedTagsMsg;
+        }
+        else if (trendingTagsMsg) {
+            return trendingTagsMsg;
+        }
+    }
     tootedAt() {
         return new Date(this.createdAt);
     }
@@ -378,9 +392,28 @@ class Toot {
             }
         });
     }
+    // return MediaAttachmentType objects with type == attachmentType
     attachmentsOfType(attachmentType) {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type == attachmentType);
+    }
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsOfTypeMsg(tagType) {
+        let tags = [];
+        if (![types_1.WeightName.FOLLOWED_TAGS, types_1.WeightName.TRENDING_TAGS].includes(tagType)) {
+            console.warn(`containsTagsMsg() called with invalid tagType: ${tagType}`);
+            return;
+        }
+        else if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
+            tags = this.followedTags;
+        }
+        else if (tagType == types_1.WeightName.TRENDING_TAGS) {
+            tags = this.trendingTags;
+        }
+        if (!tags.length)
+            return;
+        const tagTypeStr = (0, capital_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
+        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `Toot.containsTagsMsg()` method
 
 ### v0.19.4
 * `npm audit fix` a `react-router-dom` vulnerability in the demo app
