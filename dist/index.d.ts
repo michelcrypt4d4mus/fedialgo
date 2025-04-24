@@ -36,6 +36,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     followedAccounts: AccountNames;
     followedTags: StringNumberDict;
+    loadingStatus?: string;
     mastodonServers: string[];
     mutedAccounts: AccountNames;
     scoreMutex: Mutex;
@@ -44,7 +45,6 @@ declare class TheAlgorithm {
     trendingTags: TrendingTag[];
     trendingToots: Toot[];
     setFeedInApp: (f: Toot[]) => void;
-    loadingStatus?: string;
     followedTagsScorer: FollowedTagsScorer;
     mentionsFollowedScorer: MentionsFollowedScorer;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];

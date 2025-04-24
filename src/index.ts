@@ -63,6 +63,7 @@ class TheAlgorithm {
     feed: Toot[] = [];
     followedAccounts: AccountNames = {};
     followedTags: StringNumberDict = {};
+    loadingStatus?: string = undefined;  // Status message about what is being loaded
     mastodonServers: string[] = [];
     mutedAccounts: AccountNames = {};
     scoreMutex = new Mutex();
@@ -72,9 +73,8 @@ class TheAlgorithm {
     trendingToots: Toot[] = [];
     // Optional callback to set the feed in the code using this package
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
-    // Status message about what is being loaded
-    loadingStatus?: string = undefined;
 
+    // Scorers
     followedTagsScorer = new FollowedTagsScorer();
     mentionsFollowedScorer = new MentionsFollowedScorer();
 
