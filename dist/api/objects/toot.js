@@ -402,7 +402,6 @@ class Toot {
         let tags = [];
         if (![types_1.WeightName.FOLLOWED_TAGS, types_1.WeightName.TRENDING_TAGS].includes(tagType)) {
             console.warn(`containsTagsMsg() called with invalid tagType: ${tagType}`);
-            return;
         }
         else if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
             tags = this.followedTags;

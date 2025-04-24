@@ -490,13 +490,12 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
         let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
 
-        if (![WeightName.FOLLOWED_TAGS, WeightName.TRENDING_TAGS].includes(tagType)) {
-            console.warn(`containsTagsMsg() called with invalid tagType: ${tagType}`);
-            return;
-        } else if (tagType == WeightName.FOLLOWED_TAGS) {
+        if (tagType == WeightName.FOLLOWED_TAGS) {
             tags = this.followedTags;
         } else if (tagType == WeightName.TRENDING_TAGS) {
             tags = this.trendingTags;
+        } else {
+            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
         }
 
         if (!tags.length) return;
