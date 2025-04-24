@@ -17,10 +17,10 @@ export default class MostFavoritedAccountsScorer extends FeatureScorer {
 
     async featureGetter(): Promise<StringNumberDict> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
-        return countValues<mastodon.v1.Status>(recentFavourites, (toot) => toot.account?.acct);
+        return countValues<Toot>(recentFavourites, (toot) => toot.account?.webfingerURI());
     };
 
     async _score(toot: Toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
+        return this.requiredData[toot.account.webfingerURI()] || 0;
     };
 };

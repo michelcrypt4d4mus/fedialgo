@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 import { MediaCategory, CountKey, StringNumberDict, Weights } from "./types";
 
 export const GIFV = "gifv";
-export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
+export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
 export const VIDEO_TYPES = [MediaCategory.VIDEO, GIFV] as mastodon.v1.MediaAttachmentType[];
 export const VIDEO_EXTENSIONS = ["mp4"];
 export const MEDIA_TYPES = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];

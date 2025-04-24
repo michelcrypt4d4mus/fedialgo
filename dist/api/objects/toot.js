@@ -181,9 +181,9 @@ class Toot {
         return this.resolvedToot;
     }
     // URL for the account that posted this toot on the home server isntead of on the poster's server
-    // TODO: account.acct should have the "@" injected at repair time?
+    // TODO: account.webfingerURI() should have the "@" injected already?
     homserverAccountURL() {
-        return `https://${api_1.MastoApi.instance.homeDomain}/@${this.account.acct}`;
+        return `https://${api_1.MastoApi.instance.homeDomain}/@${this.account.webfingerURI()}`;
     }
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
     //          this: https://fosstodon.org/@kate/114360290341300577
@@ -238,7 +238,7 @@ class Toot {
         if (this.account.username == user.username && this.account.id == user.id) {
             return false; // Remove user's own toots
         }
-        if (this.account.acct in mutedAccounts) {
+        if (this.account.webfingerURI() in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.describeAccount()}):`, this);
             return false;
         }
@@ -317,7 +317,7 @@ class Toot {
     }
     // Returns an array of account strings for all accounts that reblogged this toot
     reblogsByAccts() {
-        return this.reblogsBy.map((account) => account.acct);
+        return this.reblogsBy.map((account) => account.webfingerURI());
     }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
@@ -346,14 +346,14 @@ class Toot {
         // this.mentions.forEach(repairAccount);
         if (this.reblog) {
             this.trendingRank ||= this.reblog.trendingRank;
-            if (!this.reblogsByAccts().includes(this.account.acct)) {
+            if (!this.reblogsByAccts().includes(this.account.webfingerURI())) {
                 if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.acct}' in reblogsByAccts (${JSON.stringify(this.reblogsByAccts())}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
+                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(this.reblogsByAccts())}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
             // TODO: we still need to de-dupe because a few dupes sneak through
-            this.reblog.reblogsBy = [...new Map(this.reblog.reblogsBy.map((acct) => [acct.acct, acct])).values()];
+            this.reblog.reblogsBy = [...new Map(this.reblog.reblogsBy.map((acct) => [acct.webfingerURI(), acct])).values()];
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
@@ -392,7 +392,7 @@ class Toot {
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            reblogsBy = [...new Map(reblogsBy.map((account) => [account.acct, account])).values()];
+            reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
             // TODO: this warning is just so we can see if there are any toots with multiple reblogs
             if (reblogsBy.length > 1) {
                 console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);

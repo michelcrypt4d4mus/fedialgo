@@ -216,7 +216,7 @@ export class MastoApi {
             label: StorageKey.FOLLOWED_TAGS
         });
 
-        return followedTags.map(repairTag);
+        return (followedTags || []).map(repairTag);
     }
 
     // Get the user's recent notifications
@@ -228,11 +228,13 @@ export class MastoApi {
     }
 
     // Get an array of Toots the user has recently favourited
-    async fetchRecentFavourites(): Promise<StatusList> {
-        return await this.fetchData<mastodon.v1.Status>({
+    async fetchRecentFavourites(): Promise<Toot[]> {
+        const recentFaves = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: StorageKey.FAVOURITED_ACCOUNTS
         });
+
+        return recentFaves.map(t => new Toot(t));
     };
 
     async fetchBlockedAccounts(): Promise<Account[]> {
@@ -313,7 +315,9 @@ export class MastoApi {
     // TODO: this sucks
     getAccountURL(account: AccountLike): string {
         if (account.url.endsWith(`@${this.homeDomain}`)) {
-            return account.url.substring(0, account.url.lastIndexOf('@'));
+            const url = account.url.substring(0, account.url.lastIndexOf('@'));
+            console.log(`getAccountURL() stripped home domain from URL:\n   '${account.url}'\n-> '${url}`);
+            return url;
         } else {
             return account.url;
         }

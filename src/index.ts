@@ -267,10 +267,11 @@ class TheAlgorithm {
         );
 
         this.feed.forEach(toot => {
-            toot.isFollowed = toot.account.acct in this.followedAccounts;  // Set isFollowed flag
+            // Set toot.isFollowed flag and increment counts
+            toot.isFollowed = toot.account.webfingerURI() in this.followedAccounts;
             incrementCount(tootCounts[PropertyName.APP], toot.application.name);
             incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
-            incrementCount(tootCounts[PropertyName.USER], toot.account.acct);
+            incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI());
 
             // Lowercase and count tags
             toot.tags.forEach((tag) => {

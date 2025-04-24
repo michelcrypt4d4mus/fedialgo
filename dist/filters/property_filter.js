@@ -72,7 +72,7 @@ const TOOT_MATCHERS = {
         });
     },
     [PropertyName.USER]: (toot, validValues) => {
-        return validValues.includes(toot.account.acct);
+        return validValues.includes(toot.account.webfingerURI());
     },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";

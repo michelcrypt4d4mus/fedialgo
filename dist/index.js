@@ -254,10 +254,11 @@ class TheAlgorithm {
             return counts;
         }, {});
         this.feed.forEach(toot => {
-            toot.isFollowed = toot.account.acct in this.followedAccounts; // Set isFollowed flag
+            // Set toot.isFollowed flag and increment counts
+            toot.isFollowed = toot.account.webfingerURI() in this.followedAccounts;
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
             (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.acct);
+            (0, helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());
             // Lowercase and count tags
             toot.tags.forEach((tag) => {
                 toot.followedTags ??= []; // TODO why do i need this to make typescript happy?

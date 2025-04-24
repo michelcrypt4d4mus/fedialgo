@@ -23,9 +23,10 @@ export default class MentionsFollowedScorer extends FeatureScorer {
     // unique across all servers.
     async featureGetter(): Promise<StringNumberDict> {
         this.followedAccounts = await MastoApi.instance.fetchFollowedAccounts();
-        return countValues<Account>(this.followedAccounts, (account) => account.acct);
+        return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI());
     };
 
+    // TODO: Needs equivalent of webfingerURI or won't always work correctly.
     async _score(toot: Toot) {
         return toot.mentions.filter((mention) => mention.acct in this.requiredData).length;
     };

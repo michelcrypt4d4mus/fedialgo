@@ -17,9 +17,10 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     // unique across all servers.
     async featureGetter() {
         this.followedAccounts = await api_1.MastoApi.instance.fetchFollowedAccounts();
-        return (0, helpers_1.countValues)(this.followedAccounts, (account) => account.acct);
+        return (0, helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI());
     }
     ;
+    // TODO: Needs equivalent of webfingerURI or won't always work correctly.
     async _score(toot) {
         return toot.mentions.filter((mention) => mention.acct in this.requiredData).length;
     }

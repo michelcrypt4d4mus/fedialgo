@@ -18,12 +18,12 @@ class MostRetootedUsersScorer extends feature_scorer_1.default {
     async featureGetter() {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        return (0, helpers_1.countValues)(recentRetoots, (toot) => toot?.reblog?.account?.acct);
+        return (0, helpers_1.countValues)(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI());
     }
     ;
     async _score(toot) {
-        const authorScore = this.requiredData[toot.account.acct] || 0;
-        const retootScore = toot.reblog?.account?.acct ? (this.requiredData[toot.reblog.account.acct] || 0) : 0;
+        const authorScore = this.requiredData[toot.account.webfingerURI()] || 0;
+        const retootScore = this.requiredData[toot.reblog?.account?.webfingerURI() || "NONE"] || 0;
         return authorScore + retootScore;
     }
     ;

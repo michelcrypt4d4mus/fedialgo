@@ -78,7 +78,7 @@ const TOOT_MATCHERS: TootMatchers = {
         });
     },
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.account.acct);
+        return validValues.includes(toot.account.webfingerURI());
     },
 };
 

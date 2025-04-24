@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Use `Account.webfingerURI()` instead of `Account.acct`
+* Add `.webp` to `IMAGE_EXTENSIONS`
 
 ### v0.18.4
 * Rename `RetootedUsersScorer` to `MostRetootedUsersScorer`

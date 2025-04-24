@@ -14,11 +14,11 @@ class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     ;
     async featureGetter() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
-        return (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.acct);
+        return (0, helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI());
     }
     ;
     async _score(toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
+        return this.requiredData[toot.account.webfingerURI()] || 0;
     }
     ;
 }

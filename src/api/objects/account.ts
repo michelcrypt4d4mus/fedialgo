@@ -66,24 +66,24 @@ export default class Account implements AccountObj {
         this.followingCount = account.followingCount;
         this.statusesCount = account.statusesCount;
         this.lastStatusAt = account.lastStatusAt;
+        // Arrays and optional fields
+        this.moved = account.moved ? new Account(account.moved) : null;
         this.emojis = account.emojis || [];
         this.fields = account.fields || [];
-
+        // boolean flags
         this.discoverable = account.discoverable || false;
         this.noindex = account.noindex || false;
-        this.moved = account.moved;
         this.limited = account.limited || false;
         this.suspended = account.suspended || false;
         this.roles = account.roles || [];
-
         // Formerly in the repairAccount() method
         this.url = MastoApi.instance.getAccountURL(account);
-        this.acct = this.webfingerURI();
+        // this.acct = this.webfingerURI();
     }
 
     // e.g. "Foobar (@foobar@mastodon.social)"
     describe(): string {
-        return `${this.displayName} (${this.acct})`;
+        return `${this.displayName} (${this.webfingerURI()})`;
     }
 
     displayNameWithEmojis(): string {
@@ -115,7 +115,7 @@ export default class Account implements AccountObj {
     public static buildAccountNames(accounts: Account[]): AccountNames {
         return accounts.reduce(
             (accountNames, account) => {
-                accountNames[account.acct] = account;
+                accountNames[account.webfingerURI()] = account;
                 return accountNames;
             },
             {} as AccountNames

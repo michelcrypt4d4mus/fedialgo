@@ -27,12 +27,12 @@ export default class InteractionsScorer extends FeatureScorer {
                     return "";
                 }
 
-                return new Account(notif.account).acct;
+                return new Account(notif.account).webfingerURI();
             }
         );
     };
 
     async _score(toot: Toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
+        return this.requiredData[toot.account.webfingerURI()] || 0;
     }
 };

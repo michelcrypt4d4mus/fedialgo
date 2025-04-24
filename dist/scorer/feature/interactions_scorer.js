@@ -19,12 +19,12 @@ class InteractionsScorer extends feature_scorer_1.default {
                 console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
                 return "";
             }
-            return new account_1.default(notif.account).acct;
+            return new account_1.default(notif.account).webfingerURI();
         });
     }
     ;
     async _score(toot) {
-        return (toot.account.acct in this.requiredData) ? this.requiredData[toot.account.acct] : 0;
+        return this.requiredData[toot.account.webfingerURI()] || 0;
     }
 }
 exports.default = InteractionsScorer;

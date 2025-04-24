@@ -195,7 +195,7 @@ class MastoApi {
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
-        return followedTags.map(tag_1.repairTag);
+        return (followedTags || []).map(tag_1.repairTag);
     }
     // Get the user's recent notifications
     async getRecentNotifications() {
@@ -206,10 +206,11 @@ class MastoApi {
     }
     // Get an array of Toots the user has recently favourited
     async fetchRecentFavourites() {
-        return await this.fetchData({
+        const recentFaves = await this.fetchData({
             fetch: this.api.v1.favourites.list,
             label: types_1.StorageKey.FAVOURITED_ACCOUNTS
         });
+        return recentFaves.map(t => new toot_1.default(t));
     }
     ;
     async fetchBlockedAccounts() {
@@ -287,7 +288,9 @@ class MastoApi {
     // TODO: this sucks
     getAccountURL(account) {
         if (account.url.endsWith(`@${this.homeDomain}`)) {
-            return account.url.substring(0, account.url.lastIndexOf('@'));
+            const url = account.url.substring(0, account.url.lastIndexOf('@'));
+            console.log(`getAccountURL() stripped home domain from URL:\n   '${account.url}'\n-> '${url}`);
+            return url;
         }
         else {
             return account.url;

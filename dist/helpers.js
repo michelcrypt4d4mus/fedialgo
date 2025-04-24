@@ -7,7 +7,7 @@ exports.createRandomString = exports.sumValues = exports.countInstances = export
 const html_entities_1 = require("html-entities");
 const types_1 = require("./types");
 exports.GIFV = "gifv";
-exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png"];
+exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
 exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
 exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];

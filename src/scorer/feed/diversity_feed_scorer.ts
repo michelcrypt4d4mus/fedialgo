@@ -24,8 +24,8 @@ export default class DiversityFeedScorer extends FeedScorer {
         // Count toots by account (but negative instead of positive count)
         const diversityTootsOrdered = feed.toSorted(sortRandom).reduce(
             (tootCounts, toot) => {
-                incrementCount(tootCounts, toot.account.acct, -1);
-                if (toot.reblog) incrementCount(tootCounts, toot.reblog.account.acct, -1);
+                incrementCount(tootCounts, toot.account.webfingerURI(), -1);
+                if (toot.reblog?.account) incrementCount(tootCounts, toot.reblog.account.webfingerURI(), -1);
                 return tootCounts;
             },
             {} as StringNumberDict
@@ -38,13 +38,13 @@ export default class DiversityFeedScorer extends FeedScorer {
     // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
     //        As a result this.features must be reset anew each time the feed is scored
     async _score(toot: Toot) {
-        incrementCount(this.requiredData, toot.account.acct);
-        if (toot.reblog) incrementCount(this.requiredData, toot.reblog.account.acct);
-        const acct = toot.reblog?.account?.acct ?? toot.account.acct;
+        incrementCount(this.requiredData, toot.account.webfingerURI());
+        if (toot.reblog) incrementCount(this.requiredData, toot.reblog.account.webfingerURI());
+        const acct = toot.reblog?.account?.webfingerURI() ?? toot.account.webfingerURI();
 
         // TODO: this was a hack to avoid wildly overscoring diversity values because of a bug that should be fixed now
         if (this.requiredData[acct] > 0) {
-            let msg = `DiversityFeedScorer for ${toot.account.acct} scored over 0 (${this.requiredData[toot.account.acct]})`;
+            let msg = `DiversityFeedScorer for ${toot.account.webfingerURI()} scored over 0 (${this.requiredData[toot.account.webfingerURI()]})`;
             console.warn(`${msg}, diversity features:\n${JSON.stringify(this.requiredData, null, 4)}`);
             return 0;
         } else {

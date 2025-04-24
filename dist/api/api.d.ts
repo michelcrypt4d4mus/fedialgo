@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
-import { AccountLike, StatusList, StorageKey, TimelineData, UserData, WeightName } from "../types";
+import { AccountLike, StorageKey, TimelineData, UserData, WeightName } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -25,7 +25,7 @@ export declare class MastoApi {
     fetchFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
-    fetchRecentFavourites(): Promise<StatusList>;
+    fetchRecentFavourites(): Promise<Toot[]>;
     fetchBlockedAccounts(): Promise<Account[]>;
     fetchMutedAccounts(): Promise<Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
