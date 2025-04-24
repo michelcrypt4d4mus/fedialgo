@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.2
 * Add `.gif` to `IMAGE_EXTENSIONS`
 * Store `TheAlgorithm.mastodonServers` sooner
 * Unify blocked/muted account handling

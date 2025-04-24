@@ -178,6 +178,7 @@ exports.DEFAULT_CONFIG = {
     ],
     // Servers that don't support trending links
     noTrendingLinksServers: [
+        "chaos.social",
         "fediscience.org",
         "mastodon.cloud",
         "med-mastodon.com",

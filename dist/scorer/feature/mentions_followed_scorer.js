@@ -20,7 +20,7 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
         return (0, collection_helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI());
     }
     ;
-    // TODO: Needs equivalent of webfingerURI or won't always work correctly.
+    // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI()
     async _score(toot) {
         return toot.mentions.filter((mention) => mention.acct in this.requiredData).length;
     }

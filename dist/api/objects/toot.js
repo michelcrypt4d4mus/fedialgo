@@ -322,6 +322,7 @@ class Toot {
     //   - Set toot.language to defaultLanguage if missing
     //   - Lowercase all tags
     //   - Repair mediaAttachment types if reparable based on URL file extension
+    //   - Repair StatusMention objects for users on home server
     repair() {
         this.application ??= { name: UNKNOWN };
         this.application.name ??= UNKNOWN;
@@ -360,8 +361,9 @@ class Toot {
         // Repair StatusMention.acct fields for users on the home server
         this.mentions.forEach((mention) => {
             if (!mention.acct?.includes("@")) {
-                console.warn(`Toot has a StatusMention without an '@': '${mention.acct}'`);
+                const acct = mention.acct;
                 mention.acct += `@${(0, string_helpers_1.extractDomain)(mention.url)}`;
+                console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
             }
             else if (mention.acct.includes(api_1.MastoApi.instance.homeDomain)) {
                 console.warn(`Found a StatusMention with the home domain in toot:`, this);
