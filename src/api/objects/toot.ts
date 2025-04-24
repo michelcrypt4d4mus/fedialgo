@@ -477,7 +477,7 @@ export default class Toot implements TootObj {
 
             // TODO: this warning is just so we can see if there are any toots with multiple reblogs
             if (reblogsBy.length > 1) {
-                console.warn(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
+                console.debug(`${prefix}Found ${reblogsBy.length} reblogs for toot:`, uriToots[0]);
             }
 
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
