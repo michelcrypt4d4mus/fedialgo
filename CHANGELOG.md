@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.1
 * Rename `TheAlgorithm.extractSummaryInfo()` to `TheAlgorithm.initializeFiltersWithSummaryInfo()`
 * Allow things that user has reblogged into the feed
 * `Toot.realAccount()` method
