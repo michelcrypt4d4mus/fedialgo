@@ -255,7 +255,7 @@ class TheAlgorithm {
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 
-    // Compute language, app, etc. counts.
+    // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
     extractSummaryInfo(): void {
         const tootCounts = Object.values(PropertyName).reduce(
             (counts, propertyName) => {
