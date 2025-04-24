@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.18.5
 * Use `Account.webfingerURI()` instead of `Account.acct`
 * Add `.webp` to `IMAGE_EXTENSIONS`
 * Get rid of `Toot.homserverAccountURL()`
