@@ -26,7 +26,6 @@ interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
-    homserverAccountURL: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
@@ -89,7 +88,6 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot | undefined>;
-    homserverAccountURL(): string;
     homeserverURL(): Promise<string>;
     attachmentPrefix(): string;
     attachmentType(): MediaCategory | undefined;

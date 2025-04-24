@@ -63,9 +63,6 @@ class Account {
         this.limited = account.limited || false;
         this.suspended = account.suspended || false;
         this.roles = account.roles || [];
-        // Formerly in the repairAccount() method
-        this.url = api_1.MastoApi.instance.getAccountURL(account);
-        // this.acct = this.webfingerURI();
     }
     // e.g. "Foobar (@foobar@mastodon.social)"
     describe() {
@@ -77,6 +74,14 @@ class Account {
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {
         return (0, helpers_2.extractDomain)(this.url) || "unknown.server";
+    }
+    homserverURL() {
+        if (this.homeserver() == api_1.MastoApi.instance.homeDomain) {
+            return this.url;
+        }
+        else {
+            return `https://${api_1.MastoApi.instance.homeDomain}/@${this.webfingerURI()}`;
+        }
     }
     // Strip functions so it can be serialized to local storage
     serialize() {

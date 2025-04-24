@@ -283,20 +283,6 @@ class MastoApi {
         }
     }
     ;
-    // "https://universeodon.com/@JoParkerBear@universeodon.com" => "https://universeodon.com/@JoParkerBear"
-    // TODO: maybe rename to getLocalAccountURL()?
-    // TODO: this sucks
-    getAccountURL(account) {
-        if (account.url.endsWith(`@${this.homeDomain}`)) {
-            const url = account.url.substring(0, account.url.lastIndexOf('@'));
-            console.log(`getAccountURL() stripped home domain from URL:\n   '${account.url}'\n-> '${url}`);
-            return url;
-        }
-        else {
-            return account.url;
-        }
-    }
-    ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //

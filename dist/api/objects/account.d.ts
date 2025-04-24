@@ -36,6 +36,7 @@ export default class Account implements AccountObj {
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;
+    homserverURL(): string;
     serialize(): mastodon.v1.Account;
     webfingerURI(): string;
     static buildAccountNames(accounts: Account[]): AccountNames;

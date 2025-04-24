@@ -63,7 +63,6 @@ interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
-    homserverAccountURL: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
     popularity: () => number;
@@ -235,19 +234,13 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
-    // URL for the account that posted this toot on the home server isntead of on the poster's server
-    // TODO: account.webfingerURI() should have the "@" injected already?
-    homserverAccountURL(): string {
-        return `https://${MastoApi.instance.homeDomain}/@${this.account.webfingerURI()}`;
-    }
-
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
     //          this: https://fosstodon.org/@kate/114360290341300577
     //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL(): Promise<string> {
         const resolved = await this.resolve();
         if (!resolved) return this.realURL();
-        const homeURL = `${this.homserverAccountURL()}/${resolved.id}`;
+        const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }

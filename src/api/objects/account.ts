@@ -76,9 +76,6 @@ export default class Account implements AccountObj {
         this.limited = account.limited || false;
         this.suspended = account.suspended || false;
         this.roles = account.roles || [];
-        // Formerly in the repairAccount() method
-        this.url = MastoApi.instance.getAccountURL(account);
-        // this.acct = this.webfingerURI();
     }
 
     // e.g. "Foobar (@foobar@mastodon.social)"
@@ -93,6 +90,14 @@ export default class Account implements AccountObj {
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver(): string {
         return extractDomain(this.url) || "unknown.server";
+    }
+
+    homserverURL(): string {
+        if (this.homeserver() == MastoApi.instance.homeDomain) {
+            return this.url;
+        } else {
+            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI()}`;
+        }
     }
 
     // Strip functions so it can be serialized to local storage
