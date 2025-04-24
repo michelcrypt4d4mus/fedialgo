@@ -8,16 +8,18 @@ import { mastodon } from "masto";
 import Account from "./account";
 import Storage from "../../Storage";
 import {
+    groupBy,
+} from "../../helpers";
+import { replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import {
+    isImage,
+    isVideo
+} from "../../helpers/string_helpers";
+import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
-    VIDEO_TYPES,
-    groupBy,
-    htmlToText,
-    isImage,
-    isVideo,
-    replaceEmojiShortcodesWithImageTags,
-    replaceHttpsLinks,
-} from "../../helpers";
+    VIDEO_TYPES, htmlToText, replaceHttpsLinks
+} from '../../helpers/string_helpers';
 import { FeedFilterSettings, StatusList, TootScore, TrendingLink, TrendingTag, WeightName } from "../../types";
 import { MastoApi } from "../api";
 import { MediaCategory } from "../../types";

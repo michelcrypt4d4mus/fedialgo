@@ -1,0 +1,16 @@
+import { mastodon } from 'masto';
+import { MediaCategory } from '../types';
+export declare const GIFV = "gifv";
+export declare const IMAGE_EXTENSIONS: string[];
+export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
+export declare const VIDEO_EXTENSIONS: string[];
+export declare const MEDIA_TYPES: (("audio" | "video" | "image" | "unknown" | "gifv") | MediaCategory)[];
+export declare const DEFAULT_FONT_SIZE = 15;
+export declare function extractDomain(url: string): string;
+export declare function replaceHttpsLinks(input: string): string;
+export declare function htmlToText(html: string): string;
+export declare function isImage(uri: string | null | undefined): boolean;
+export declare function isVideo(uri: string | null | undefined): boolean;
+export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
+export declare function countInstances(str: string, substr: string): number;
+export declare function createRandomString(length: number): string;

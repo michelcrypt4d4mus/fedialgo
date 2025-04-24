@@ -33,7 +33,7 @@ const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
-const helpers_1 = require("../helpers");
+const string_helpers_1 = require("../helpers/string_helpers");
 const tag_1 = require("./objects/tag");
 const types_1 = require("../types");
 exports.INSTANCE = "instance";
@@ -71,7 +71,7 @@ class MastoApi {
     constructor(api, user) {
         this.api = api;
         this.user = user;
-        this.homeDomain = (0, helpers_1.extractDomain)(user.url);
+        this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         // Initialize mutexes for each key in Key and WeightName
         this.mutexes = {};
         for (const key in types_1.StorageKey)
@@ -298,7 +298,7 @@ class MastoApi {
     async resolveToot(toot) {
         console.debug(`resolveToot() called for`, toot);
         const tootURI = toot.realURI();
-        const urlDomain = (0, helpers_1.extractDomain)(tootURI);
+        const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
         if (urlDomain == this.homeDomain)
             return toot;
         const lookupResult = await this.api.v2.search.fetch({ q: tootURI, resolve: true });

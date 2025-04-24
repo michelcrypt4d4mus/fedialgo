@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const helpers_1 = require("../../helpers");
-const helpers_2 = require("../../helpers");
+const string_helpers_1 = require("../../helpers/string_helpers");
+const string_helpers_2 = require("../../helpers/string_helpers");
 const api_1 = require("../api");
 ;
 class Account {
@@ -69,11 +69,11 @@ class Account {
         return `${this.displayName} (${this.webfingerURI()})`;
     }
     displayNameWithEmojis() {
-        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
     }
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {
-        return (0, helpers_2.extractDomain)(this.url) || "unknown.server";
+        return (0, string_helpers_2.extractDomain)(this.url) || "unknown.server";
     }
     homserverURL() {
         if (this.homeserver() == api_1.MastoApi.instance.homeDomain) {

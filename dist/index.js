@@ -62,9 +62,11 @@ const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const weight_presets_1 = require("./scorer/weight_presets");
 const helpers_1 = require("./helpers");
-Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return helpers_1.GIFV; } });
-Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return helpers_1.VIDEO_TYPES; } });
-Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return helpers_1.extractDomain; } });
+const string_helpers_1 = require("./helpers/string_helpers");
+const string_helpers_2 = require("./helpers/string_helpers");
+Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_2.GIFV; } });
+Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_2.VIDEO_TYPES; } });
+Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_2.extractDomain; } });
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
@@ -343,7 +345,7 @@ class TheAlgorithm {
     }
     // Injecting the scoreInfo property to each toot. Sort feed based on toot scores.
     async scoreFeed() {
-        const logPrefix = `scoreFeed() [${(0, helpers_1.createRandomString)(5)}]`;
+        const logPrefix = `scoreFeed() [${(0, string_helpers_1.createRandomString)(5)}]`;
         console.debug(`${logPrefix} called in fedialgo package...`);
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously

@@ -1,48 +1,7 @@
 /*
  * Various small helper methods.
  */
-import { decode } from 'html-entities';
-import { mastodon } from "masto";
-
-import { MediaCategory, CountKey, StringNumberDict, Weights } from "./types";
-
-export const GIFV = "gifv";
-export const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
-export const VIDEO_TYPES = [MediaCategory.VIDEO, GIFV] as mastodon.v1.MediaAttachmentType[];
-export const VIDEO_EXTENSIONS = ["mp4"];
-export const MEDIA_TYPES = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
-export const DEFAULT_FONT_SIZE = 15;
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-
-
-// "http://www.mast.ai/foobar" => "mast.ai"
-export function extractDomain(url: string): string {
-    url ??= "";
-
-    if (countInstances(url, "/") < 2) {
-        console.warn(`extractDomain() found no frontslashes in: ${url}`);
-        return "";
-    }
-
-    const domain = url.split("/")[2].toLowerCase();
-    return domain.startsWith("www.") ? domain.substring(4) : domain;
-};
-
-
-// Replace https links with [link to DOMAIN]
-export function replaceHttpsLinks(input: string): string {
-    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
-};
-
-
-// Remove HTML tags and newlines from a string
-export function htmlToText(html: string): string {
-    let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
-    txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
-    txt = txt.replace(/\n/g, " ");                   // Strip newlines
-    txt = txt.replace(/\s+/g, " ");                  // Collapse multiple spaces
-    return decode(txt).trim();                       // Decode HTML entities lik '&amp;' etc.
-};
+import { CountKey, StringNumberDict, Weights } from "./types";
 
 
 // Take the average of an array of numbers, ignoring undefined values
@@ -50,20 +9,6 @@ export function average(values: number[]): number {
     values = values.filter(v => !!v);
     if (values.length == 0) return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
-};
-
-
-// Return true if uri ends with an image extension like .jpg or .png
-export function isImage(uri: string | null | undefined): boolean {
-    if (!uri) return false;
-    return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
-};
-
-
-// Return true if uri ends with an image extension like .jpg or .png
-export function isVideo(uri: string | null | undefined): boolean {
-    if (!uri) return false;
-    return VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
 };
 
 
@@ -156,46 +101,8 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 };
 
 
-export function replaceEmojiShortcodesWithImageTags(
-    html: string,
-    emojis: mastodon.v1.CustomEmoji[],
-    fontSize: number = DEFAULT_FONT_SIZE
-): string {
-    const fontSizeStr = `${fontSize}px`;
-
-    emojis.forEach((emoji) => {
-        const shortcode = `:${emoji.shortcode}:`;
-
-        html = html.replace(
-            new RegExp(shortcode, 'g'),
-            `<img src="${emoji.url}" alt="${shortcode}" height="${fontSizeStr}" width="${fontSizeStr}">`
-        );
-    });
-
-    return html;
-};
-
-
-// Count occurences of substr within str
-export function countInstances(str: string, substr: string): number {
-    return Math.max(str.split(substr).length - 1, 0);
-};
-
-
 export function sumValues(obj: StringNumberDict | Weights): number {
     return Object.values(obj).reduce((a, b) => a + b, 0);
-};
-
-
-export function createRandomString(length: number): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return result;
 };
 
 

@@ -9,7 +9,7 @@ import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
-import { extractDomain } from "../helpers";
+import { extractDomain } from '../helpers/string_helpers';
 import { repairTag } from "./objects/tag";
 import {
     MastodonServersInfo,

@@ -12,6 +12,9 @@ const capital_case_1 = require("capital-case");
 const account_1 = __importDefault(require("./account"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const helpers_1 = require("../../helpers");
+const string_helpers_1 = require("../../helpers/string_helpers");
+const string_helpers_2 = require("../../helpers/string_helpers");
+const string_helpers_3 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
 const api_1 = require("../api");
 const types_2 = require("../../types");
@@ -212,7 +215,7 @@ class Toot {
         return this.attachmentsOfType(types_2.MediaCategory.IMAGE);
     }
     videoAttachments() {
-        return helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
+        return string_helpers_3.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
@@ -244,9 +247,9 @@ class Toot {
         return true;
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
-    contentWithEmojis(fontSize = helpers_1.DEFAULT_FONT_SIZE) {
+    contentWithEmojis(fontSize = string_helpers_3.DEFAULT_FONT_SIZE) {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return (0, helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis, fontSize);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis, fontSize);
     }
     // Return true if it's a direct message
     isDM() {
@@ -261,8 +264,8 @@ class Toot {
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
         maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
-        let content = (0, helpers_1.htmlToText)(this.reblog?.content || this.content || "");
-        content = (0, helpers_1.replaceHttpsLinks)(content);
+        let content = (0, string_helpers_3.htmlToText)(this.reblog?.content || this.content || "");
+        content = (0, string_helpers_3.replaceHttpsLinks)(content);
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
@@ -346,11 +349,11 @@ class Toot {
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
-                if ((0, helpers_1.isImage)(media.remoteUrl)) {
+                if ((0, string_helpers_2.isImage)(media.remoteUrl)) {
                     console.debug(`Repairing broken image attachment in toot:`, this);
                     media.type = types_2.MediaCategory.IMAGE;
                 }
-                else if ((0, helpers_1.isVideo)(media.remoteUrl)) {
+                else if ((0, string_helpers_2.isVideo)(media.remoteUrl)) {
                     console.debug(`Repairing broken video attachment in toot:`, this);
                     media.type = types_2.MediaCategory.VIDEO;
                 }
@@ -358,7 +361,7 @@ class Toot {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
             }
-            else if (!helpers_1.MEDIA_TYPES.includes(media.type)) {
+            else if (!string_helpers_3.MEDIA_TYPES.includes(media.type)) {
                 console.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });

@@ -21,7 +21,7 @@ import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { GIFV, VIDEO_TYPES, extractDomain } from "./helpers";
+import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { AccountNames, FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 interface AlgorithmArgs {

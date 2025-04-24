@@ -1,46 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.sumValues = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.isVideo = exports.isImage = exports.average = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.DEFAULT_FONT_SIZE = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = exports.GIFV = void 0;
-/*
- * Various small helper methods.
- */
-const html_entities_1 = require("html-entities");
-const types_1 = require("./types");
-exports.GIFV = "gifv";
-exports.IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
-exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
-exports.VIDEO_EXTENSIONS = ["mp4"];
-exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];
-exports.DEFAULT_FONT_SIZE = 15;
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
-// "http://www.mast.ai/foobar" => "mast.ai"
-function extractDomain(url) {
-    url ??= "";
-    if (countInstances(url, "/") < 2) {
-        console.warn(`extractDomain() found no frontslashes in: ${url}`);
-        return "";
-    }
-    const domain = url.split("/")[2].toLowerCase();
-    return domain.startsWith("www.") ? domain.substring(4) : domain;
-}
-exports.extractDomain = extractDomain;
-;
-// Replace https links with [link to DOMAIN]
-function replaceHttpsLinks(input) {
-    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
-}
-exports.replaceHttpsLinks = replaceHttpsLinks;
-;
-// Remove HTML tags and newlines from a string
-function htmlToText(html) {
-    let txt = html.replace(/<\/p>/gi, "\n").trim(); // Turn closed <p> tags into newlines
-    txt = txt.replace(/<[^>]+>/g, ""); // Strip HTML tags
-    txt = txt.replace(/\n/g, " "); // Strip newlines
-    txt = txt.replace(/\s+/g, " "); // Collapse multiple spaces
-    return (0, html_entities_1.decode)(txt).trim(); // Decode HTML entities lik '&amp;' etc.
-}
-exports.htmlToText = htmlToText;
-;
+exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);
@@ -49,22 +9,6 @@ function average(values) {
     return values.reduce((a, b) => a + b, 0) / values.length;
 }
 exports.average = average;
-;
-// Return true if uri ends with an image extension like .jpg or .png
-function isImage(uri) {
-    if (!uri)
-        return false;
-    return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
-}
-exports.isImage = isImage;
-;
-// Return true if uri ends with an image extension like .jpg or .png
-function isVideo(uri) {
-    if (!uri)
-        return false;
-    return exports.VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
-}
-exports.isVideo = isVideo;
 ;
 // TODO: Standard Object.groupBy() would require some tsconfig setting that i don't know about
 function groupBy(array, makeKey) {
@@ -135,36 +79,10 @@ function atLeastValues(obj, minValue) {
 }
 exports.atLeastValues = atLeastValues;
 ;
-function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {
-    const fontSizeStr = `${fontSize}px`;
-    emojis.forEach((emoji) => {
-        const shortcode = `:${emoji.shortcode}:`;
-        html = html.replace(new RegExp(shortcode, 'g'), `<img src="${emoji.url}" alt="${shortcode}" height="${fontSizeStr}" width="${fontSizeStr}">`);
-    });
-    return html;
-}
-exports.replaceEmojiShortcodesWithImageTags = replaceEmojiShortcodesWithImageTags;
-;
-// Count occurences of substr within str
-function countInstances(str, substr) {
-    return Math.max(str.split(substr).length - 1, 0);
-}
-exports.countInstances = countInstances;
-;
 function sumValues(obj) {
     return Object.values(obj).reduce((a, b) => a + b, 0);
 }
 exports.sumValues = sumValues;
-;
-function createRandomString(length) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-exports.createRandomString = createRandomString;
 ;
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x) {

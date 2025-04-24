@@ -1,17 +1,5 @@
-import { mastodon } from "masto";
-import { MediaCategory, CountKey, StringNumberDict, Weights } from "./types";
-export declare const GIFV = "gifv";
-export declare const IMAGE_EXTENSIONS: string[];
-export declare const VIDEO_TYPES: ("audio" | "video" | "image" | "unknown" | "gifv")[];
-export declare const VIDEO_EXTENSIONS: string[];
-export declare const MEDIA_TYPES: (("audio" | "video" | "image" | "unknown" | "gifv") | MediaCategory)[];
-export declare const DEFAULT_FONT_SIZE = 15;
-export declare function extractDomain(url: string): string;
-export declare function replaceHttpsLinks(input: string): string;
-export declare function htmlToText(html: string): string;
+import { CountKey, StringNumberDict, Weights } from "./types";
 export declare function average(values: number[]): number;
-export declare function isImage(uri: string | null | undefined): boolean;
-export declare function isVideo(uri: string | null | undefined): boolean;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
 export declare function incrementCount(counts: StringNumberDict, key?: CountKey | null, increment?: number): StringNumberDict;
@@ -20,7 +8,4 @@ export declare function zipArrays<T>(array1: string[], array2: T[]): Record<stri
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
-export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
-export declare function countInstances(str: string, substr: string): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
-export declare function createRandomString(length: number): string;

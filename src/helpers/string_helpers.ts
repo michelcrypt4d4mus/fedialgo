@@ -1,0 +1,97 @@
+/*
+ * Helpers for dealing with strings.
+ */
+import { decode } from 'html-entities';
+import { mastodon } from 'masto';
+
+import { MediaCategory } from '../types';
+
+export const GIFV = "gifv";
+export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
+export const VIDEO_TYPES = [MediaCategory.VIDEO, GIFV] as mastodon.v1.MediaAttachmentType[];
+export const VIDEO_EXTENSIONS = ["mp4"];
+export const MEDIA_TYPES = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
+export const DEFAULT_FONT_SIZE = 15;
+const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
+
+
+// "http://www.mast.ai/foobar" => "mast.ai"
+export function extractDomain(url: string): string {
+    url ??= "";
+
+    if (countInstances(url, "/") < 2) {
+        console.warn(`extractDomain() found no frontslashes in: ${url}`);
+        return "";
+    }
+
+    const domain = url.split("/")[2].toLowerCase();
+    return domain.startsWith("www.") ? domain.substring(4) : domain;
+};
+
+
+// Replace https links with [link to DOMAIN]
+export function replaceHttpsLinks(input: string): string {
+    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+};
+
+
+// Remove HTML tags and newlines from a string; decode HTML entities
+export function htmlToText(html: string): string {
+    let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
+    txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
+    txt = txt.replace(/\n/g, " ");                   // Strip newlines
+    txt = txt.replace(/\s+/g, " ");                  // Collapse multiple spaces
+    return decode(txt).trim();                       // Decode HTML entities lik '&amp;' etc.
+};
+
+
+// Return true if uri ends with an image extension like .jpg or .png
+export function isImage(uri: string | null | undefined): boolean {
+    if (!uri) return false;
+    return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
+};
+
+
+// Return true if uri ends with an image extension like .jpg or .png
+export function isVideo(uri: string | null | undefined): boolean {
+    if (!uri) return false;
+    return VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
+};
+
+
+export function replaceEmojiShortcodesWithImageTags(
+    html: string,
+    emojis: mastodon.v1.CustomEmoji[],
+    fontSize: number = DEFAULT_FONT_SIZE
+): string {
+    const fontSizeStr = `${fontSize}px`;
+
+    emojis.forEach((emoji) => {
+        const shortcode = `:${emoji.shortcode}:`;
+
+        html = html.replace(
+            new RegExp(shortcode, 'g'),
+            `<img src="${emoji.url}" alt="${shortcode}" height="${fontSizeStr}" width="${fontSizeStr}">`
+        );
+    });
+
+    return html;
+};
+
+
+// Count occurrences of substr within str
+export function countInstances(str: string, substr: string): number {
+    return Math.max(str.split(substr).length - 1, 0);
+};
+
+
+export function createRandomString(length: number): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return result;
+};

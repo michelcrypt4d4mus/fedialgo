@@ -4,8 +4,8 @@
 import { mastodon } from "masto";
 
 import { AccountLike, AccountNames } from "../../types";
-import { replaceEmojiShortcodesWithImageTags } from "../../helpers";
-import { extractDomain } from "../../helpers";
+import { replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { extractDomain } from '../../helpers/string_helpers';
 import { MastoApi } from "../api";
 
 
