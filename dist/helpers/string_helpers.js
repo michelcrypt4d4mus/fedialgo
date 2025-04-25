@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_EXTENSIONS = exports.VIDEO_TYPES = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.DEFAULT_FONT_SIZE = void 0;
+exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -9,8 +9,9 @@ const types_1 = require("../types");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
-exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
 exports.VIDEO_EXTENSIONS = ["mp4"];
+// MEDIA_TYPES contains valid values for mastodon.v1.MediaAttachment.type
+exports.VIDEO_TYPES = [types_1.MediaCategory.VIDEO, exports.GIFV];
 exports.MEDIA_TYPES = [types_1.MediaCategory.AUDIO, types_1.MediaCategory.IMAGE, ...exports.VIDEO_TYPES];
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 // "http://www.mast.ai/foobar" => "mast.ai"

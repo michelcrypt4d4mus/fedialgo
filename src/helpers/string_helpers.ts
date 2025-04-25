@@ -9,9 +9,10 @@ import { MediaCategory } from '../types';
 export const DEFAULT_FONT_SIZE = 15;
 export const GIFV = "gifv";
 export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
-export const VIDEO_TYPES = [MediaCategory.VIDEO, GIFV] as mastodon.v1.MediaAttachmentType[];
 export const VIDEO_EXTENSIONS = ["mp4"];
-export const MEDIA_TYPES = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
+// MEDIA_TYPES contains valid values for mastodon.v1.MediaAttachment.type
+export const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[] = [MediaCategory.VIDEO, GIFV];
+export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
 const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
 
 

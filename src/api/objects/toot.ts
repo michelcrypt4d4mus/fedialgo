@@ -79,44 +79,45 @@ interface TootObj extends SerializableToot {
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
-    audioAttachments: () => Array<mastodon.v1.MediaAttachment>;
-    imageAttachments: () => Array<mastodon.v1.MediaAttachment>;
-    videoAttachments: () => Array<mastodon.v1.MediaAttachment>;
+    audioAttachments: () => mastodon.v1.MediaAttachment[];
+    imageAttachments: () => mastodon.v1.MediaAttachment[];
+    videoAttachments: () => mastodon.v1.MediaAttachment[];
 };
 
 
 export default class Toot implements TootObj {
     id: string;
     uri: string;
-    createdAt: string;
-    editedAt: string | null;
+    application: mastodon.v1.Application;
     account: Account;
     content: string;
-    visibility: mastodon.v1.StatusVisibility;
+    createdAt: string;
+    editedAt: string | null;
+    emojis: mastodon.v1.CustomEmoji[];
+    favouritesCount: number;
+    mediaAttachments: mastodon.v1.MediaAttachment[];
+    mentions: mastodon.v1.StatusMention[];
+    reblogsCount: number;
+    repliesCount: number;
     sensitive: boolean;
     spoilerText: string;
-    mediaAttachments: mastodon.v1.MediaAttachment[];
-    application: mastodon.v1.Application;
-    mentions: mastodon.v1.StatusMention[];
     tags: mastodon.v1.Tag[];
-    emojis: mastodon.v1.CustomEmoji[];
-    reblogsCount: number;
-    favouritesCount: number;
+    visibility: mastodon.v1.StatusVisibility;
+    // Optional fields
+    bookmarked?: boolean | null;
+    card?: mastodon.v1.PreviewCard | null;
+    favourited?: boolean | null;
     filtered?: mastodon.v1.FilterResult[];
-    repliesCount: number;
-    url?: string | null;
+    language?: string | null;
     inReplyToId?: string | null;
     inReplyToAccountId?: string | null;
-    reblog?: Toot | null;
-    poll?: mastodon.v1.Poll | null;
-    card?: mastodon.v1.PreviewCard | null;
-    language?: string | null;
-    text?: string | null;
-    favourited?: boolean | null;
-    reblogged?: boolean | null;
     muted?: boolean | null;
-    bookmarked?: boolean | null;
     pinned?: boolean | null;
+    poll?: mastodon.v1.Poll | null;
+    reblog?: Toot | null;
+    reblogged?: boolean | null;
+    text?: string | null;
+    url?: string | null;
 
     // extensions to mastodon.v1.Status
     followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
@@ -133,34 +134,34 @@ export default class Toot implements TootObj {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
         this.id = toot.id;
         this.uri = toot.uri;
+        this.account = new Account(toot.account);
+        this.application = toot.application;
+        this.bookmarked = toot.bookmarked;
+        this.card = toot.card;
+        this.content = toot.content;
         this.createdAt = toot.createdAt;
         this.editedAt = toot.editedAt;
-        this.account = new Account(toot.account);
-        this.content = toot.content;
-        this.visibility = toot.visibility;
-        this.sensitive = toot.sensitive;
-        this.spoilerText = toot.spoilerText;
-        this.mediaAttachments = toot.mediaAttachments;
-        this.application = toot.application;
-        this.mentions = toot.mentions;
-        this.tags = toot.tags;
         this.emojis = toot.emojis;
-        this.reblogsCount = toot.reblogsCount;
+        this.favourited = toot.favourited;
         this.favouritesCount = toot.favouritesCount;
         this.filtered = toot.filtered;
-        this.repliesCount = toot.repliesCount;
-        this.url = toot.url;
         this.inReplyToId = toot.inReplyToId;
         this.inReplyToAccountId = toot.inReplyToAccountId;
-        this.poll = toot.poll;
-        this.card = toot.card;
         this.language = toot.language;
-        this.text = toot.text;
-        this.favourited = toot.favourited;
-        this.reblogged = toot.reblogged;
+        this.mediaAttachments = toot.mediaAttachments;
+        this.mentions = toot.mentions;
         this.muted = toot.muted;
-        this.bookmarked = toot.bookmarked;
         this.pinned = toot.pinned;
+        this.poll = toot.poll;
+        this.reblogsCount = toot.reblogsCount;
+        this.reblogged = toot.reblogged;
+        this.repliesCount = toot.repliesCount;
+        this.sensitive = toot.sensitive;
+        this.spoilerText = toot.spoilerText;
+        this.tags = toot.tags;
+        this.text = toot.text;
+        this.url = toot.url;
+        this.visibility = toot.visibility;
 
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
@@ -190,6 +191,7 @@ export default class Toot implements TootObj {
     containsUserMention(): boolean {
         if (this.mentions.length > 0) {
             let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
+            // TODO: remove this debug log once we confirm mentions are getting identified correctly
             console.info(`containsUserMention() checking for ${MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
         }
 
@@ -280,15 +282,15 @@ export default class Toot implements TootObj {
         }
     }
 
-    audioAttachments(): Array<mastodon.v1.MediaAttachment> {
+    audioAttachments(): mastodon.v1.MediaAttachment[] {
         return this.attachmentsOfType(MediaCategory.AUDIO);
     }
 
-    imageAttachments(): Array<mastodon.v1.MediaAttachment> {
+    imageAttachments(): mastodon.v1.MediaAttachment[] {
         return this.attachmentsOfType(MediaCategory.IMAGE);
     }
 
-    videoAttachments(): Array<mastodon.v1.MediaAttachment> {
+    videoAttachments(): mastodon.v1.MediaAttachment[] {
         return VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
 

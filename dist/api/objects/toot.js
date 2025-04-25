@@ -38,35 +38,36 @@ const ATTACHMENT_ICONS = {
 class Toot {
     id;
     uri;
-    createdAt;
-    editedAt;
+    application;
     account;
     content;
-    visibility;
+    createdAt;
+    editedAt;
+    emojis;
+    favouritesCount;
+    mediaAttachments;
+    mentions;
+    reblogsCount;
+    repliesCount;
     sensitive;
     spoilerText;
-    mediaAttachments;
-    application;
-    mentions;
     tags;
-    emojis;
-    reblogsCount;
-    favouritesCount;
+    visibility;
+    // Optional fields
+    bookmarked;
+    card;
+    favourited;
     filtered;
-    repliesCount;
-    url;
+    language;
     inReplyToId;
     inReplyToAccountId;
-    reblog;
-    poll;
-    card;
-    language;
-    text;
-    favourited;
-    reblogged;
     muted;
-    bookmarked;
     pinned;
+    poll;
+    reblog;
+    reblogged;
+    text;
+    url;
     // extensions to mastodon.v1.Status
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
@@ -81,34 +82,34 @@ class Toot {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
         this.id = toot.id;
         this.uri = toot.uri;
+        this.account = new account_1.default(toot.account);
+        this.application = toot.application;
+        this.bookmarked = toot.bookmarked;
+        this.card = toot.card;
+        this.content = toot.content;
         this.createdAt = toot.createdAt;
         this.editedAt = toot.editedAt;
-        this.account = new account_1.default(toot.account);
-        this.content = toot.content;
-        this.visibility = toot.visibility;
-        this.sensitive = toot.sensitive;
-        this.spoilerText = toot.spoilerText;
-        this.mediaAttachments = toot.mediaAttachments;
-        this.application = toot.application;
-        this.mentions = toot.mentions;
-        this.tags = toot.tags;
         this.emojis = toot.emojis;
-        this.reblogsCount = toot.reblogsCount;
+        this.favourited = toot.favourited;
         this.favouritesCount = toot.favouritesCount;
         this.filtered = toot.filtered;
-        this.repliesCount = toot.repliesCount;
-        this.url = toot.url;
         this.inReplyToId = toot.inReplyToId;
         this.inReplyToAccountId = toot.inReplyToAccountId;
-        this.poll = toot.poll;
-        this.card = toot.card;
         this.language = toot.language;
-        this.text = toot.text;
-        this.favourited = toot.favourited;
-        this.reblogged = toot.reblogged;
+        this.mediaAttachments = toot.mediaAttachments;
+        this.mentions = toot.mentions;
         this.muted = toot.muted;
-        this.bookmarked = toot.bookmarked;
         this.pinned = toot.pinned;
+        this.poll = toot.poll;
+        this.reblogsCount = toot.reblogsCount;
+        this.reblogged = toot.reblogged;
+        this.repliesCount = toot.repliesCount;
+        this.sensitive = toot.sensitive;
+        this.spoilerText = toot.spoilerText;
+        this.tags = toot.tags;
+        this.text = toot.text;
+        this.url = toot.url;
+        this.visibility = toot.visibility;
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
         this.followedTags = (toot.followedTags ?? []); // TODO: currently this is set in FollowedTagsScorer
@@ -134,6 +135,7 @@ class Toot {
     containsUserMention() {
         if (this.mentions.length > 0) {
             let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
+            // TODO: remove this debug log once we confirm mentions are getting identified correctly
             console.info(`containsUserMention() checking for ${api_1.MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
         }
         const hasMention = this.mentions.some((mention) => mention.acct == api_1.MastoApi.instance.user.webfingerURI());
