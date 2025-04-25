@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set all weights to 0 for CHRONOLOGICAL preset
 
 ### v0.19.6
 * Remove `Toot.attachmentPrefix()` method
