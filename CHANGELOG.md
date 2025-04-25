@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.8
 * Use lowercase when detecting a Toot's trending links
 * Use lowercase when uniquifying trending links & tags
 
