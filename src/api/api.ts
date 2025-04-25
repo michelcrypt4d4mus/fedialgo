@@ -1,5 +1,6 @@
 /*
- * Helper methods for using mastodon API.
+ * Helper methods for using mastodon API methods that require authentication on the user's
+ * home server.
  */
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';

@@ -31,7 +31,6 @@ class MastodonServer {
             if (toot.reblog)
                 toot.trendingRank = toot.trendingRank;
         });
-        console.log(`[fetchTrendingToots] trendingToots for '${this.domain}':`, trendingToots);
         return trendingToots;
     }
     // Get the links that are trending on this server
@@ -88,17 +87,17 @@ class MastodonServer {
         catch (e) {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
         }
-        // console.info(`Retrieved ${list.length} trending ${label} from '${this.domain}':`, list);
         return list;
     }
     ;
     // Get data from a public API endpoint on a Mastodon server.
     async fetch(endpoint, limit) {
-        let url = `https://${this.domain}/${endpoint}`;
+        let urlEndpoint = `${this.domain}/${endpoint}`;
+        let url = `https://${urlEndpoint}`;
         if (limit)
             url += `?limit=${limit}`;
         const json = await axios_1.default.get(url);
-        console.debug(`mastodonFetch() response for '${url}':`, json);
+        console.debug(`[/${urlEndpoint}] mastodonFetch() response:`, json);
         if (json.status === 200 && json.data) {
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
@@ -107,9 +106,9 @@ class MastodonServer {
         }
     }
     ;
-    ////////////////////
-    // Static Methods //
-    ////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
         const trendingTootses = await this.callForAllServers(server => server.fetchTrendingToots());
