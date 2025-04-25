@@ -8,7 +8,7 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
-const capital_case_1 = require("capital-case");
+const change_case_1 = require("change-case");
 const account_1 = __importDefault(require("./account"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
@@ -279,7 +279,7 @@ class Toot {
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${(0, capital_case_1.capitalCase)(mediaType)} post by ${this.realAccount().describe()}>`;
+            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.realAccount().describe()}>`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -412,7 +412,7 @@ class Toot {
         }
         if (!tags.length)
             return;
-        const tagTypeStr = (0, capital_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
+        const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
         return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
     // Remove dupes by uniquifying on the toot's URI
