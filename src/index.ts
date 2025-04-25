@@ -249,7 +249,7 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
+        // console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 

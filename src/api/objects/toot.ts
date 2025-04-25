@@ -183,15 +183,7 @@ export default class Toot implements TootObj {
 
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention(): boolean {
-        if (this.mentions.length > 0) {
-            let mentionsStr = this.mentions.map((mention) => mention.acct).join(", ");
-            // TODO: remove this debug log once we confirm mentions are getting identified correctly
-            console.info(`containsUserMention() checking for ${MastoApi.instance.user.webfingerURI()} in [${mentionsStr}]`);
-        }
-
-        const hasMention = this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
-        if (hasMention) console.log(`Toot contains user mention:`, this);
-        return hasMention;
+        return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
     }
 
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
