@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.6
 * Remove `Toot.attachmentPrefix()` method
 
 ### v0.19.5
