@@ -43,7 +43,7 @@ class FeatureScorer extends scorer_1.default {
     // The numToots & numAccounts props for each trending object are set to the max value encountered.
     static uniquifyTrendingObjs(trendingObjs, uniqueKey) {
         const urlObjs = trendingObjs.reduce((unique, obj) => {
-            const key = uniqueKey(obj);
+            const key = uniqueKey(obj).toLowerCase();
             if (unique[key]) {
                 unique[key].numToots = Math.max(unique[key].numToots || 0, obj.numToots || 0);
                 unique[key].numAccounts = Math.max(unique[key].numAccounts || 0, obj.numAccounts || 0);

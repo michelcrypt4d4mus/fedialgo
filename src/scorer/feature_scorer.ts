@@ -58,7 +58,7 @@ export default abstract class FeatureScorer extends Scorer {
         uniqueKey: (obj: TrendingWithHistory) => string
     ): TrendingWithHistory[] {
         const urlObjs = trendingObjs.reduce((unique, obj) => {
-            const key = uniqueKey(obj);
+            const key = uniqueKey(obj).toLowerCase();
 
             if (unique[key]) {
                 unique[key].numToots = Math.max(unique[key].numToots || 0, obj.numToots || 0);

@@ -119,6 +119,7 @@ class MastodonServer {
     }
     ;
     // TODO: this doesn't fully de-dedupe links by URL yet so there are sometimes TrendingLink objs w/same URL in list
+    // UPDATE: changed it to use lowercase of the key, didn't confirm if it fixed the issue.
     static async fediverseTrendingLinks() {
         const serverLinks = await this.callForAllServers(s => s.fetchTrendingLinks());
         console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
