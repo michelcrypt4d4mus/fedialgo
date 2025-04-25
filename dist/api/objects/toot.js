@@ -351,7 +351,8 @@ class Toot {
                 this.reblog.reblogsBy.push(this.account);
             }
             // TODO: we still need to de-dupe because a few dupes sneak through
-            this.reblog.reblogsBy = [...new Map(this.reblog.reblogsBy.map((acct) => [acct.webfingerURI(), acct])).values()];
+            // TODO: is this still necessary?
+            this.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(this.reblog.reblogsBy, (account) => account.webfingerURI());
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
@@ -409,12 +410,11 @@ class Toot {
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
-            const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+            const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
@@ -424,7 +424,7 @@ class Toot {
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
-                    toot.reblog.reblogsBy = reblogsBy;
+                    toot.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI());
                 }
             });
         });

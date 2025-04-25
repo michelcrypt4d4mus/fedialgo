@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 
 import Account from "./account";
 import Storage from "../../Storage";
-import { groupBy } from "../../helpers/collection_helpers";
+import { groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { TheAlgorithm } from "../..";
@@ -116,7 +116,7 @@ export default class Toot implements TootObj {
     // extensions to mastodon.v1.Status
     followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblogsBy!: Account[];  // The accounts that retooted this toot
+    reblogsBy!: Account[];             // The accounts that retooted this toot
     resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
@@ -434,9 +434,6 @@ export default class Toot implements TootObj {
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
-
-            // TODO: we still need to de-dupe because a few dupes sneak through
-            this.reblog.reblogsBy = [...new Map(this.reblog.reblogsBy.map((acct) => [acct.webfingerURI(), acct])).values()];
         }
 
         // Check for weird media types
@@ -496,12 +493,11 @@ export default class Toot implements TootObj {
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
-            const uniqueTrendingTags = [...new Map(allTrendingTags.map((tag) => [tag.name, tag])).values()];
+            const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            reblogsBy = [...new Map(reblogsBy.map((account) => [account.webfingerURI(), account])).values()];
 
             // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
@@ -513,7 +509,7 @@ export default class Toot implements TootObj {
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
-                    toot.reblog.reblogsBy = reblogsBy;
+                    toot.reblog.reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI());
                 }
             });
         });

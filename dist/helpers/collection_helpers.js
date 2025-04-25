@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shuffle = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.uniquifyByProp = exports.shuffle = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -102,5 +102,11 @@ function shuffle(array) {
     return array.toSorted(sortRandom);
 }
 exports.shuffle = shuffle;
+;
+// Remove elements of an array if they have duplicate values for the given transform function
+function uniquifyByProp(array, transform) {
+    return [...new Map(array.map((element) => [transform(element), element])).values()];
+}
+exports.uniquifyByProp = uniquifyByProp;
 ;
 //# sourceMappingURL=collection_helpers.js.map

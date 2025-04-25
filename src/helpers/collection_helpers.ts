@@ -119,3 +119,9 @@ export function shuffle<T>(array: T[]): T[] {
     const sortRandom = (a: T, b: T) => md5(JSON.stringify(a)).localeCompare(JSON.stringify(b));
     return array.toSorted(sortRandom);
 };
+
+
+// Remove elements of an array if they have duplicate values for the given transform function
+export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[] {
+    return [...new Map(array.map((element) => [transform(element), element])).values()];
+};
