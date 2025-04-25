@@ -28,11 +28,6 @@ var TootVisibility;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
-const ATTACHMENT_ICONS = {
-    [types_1.MediaCategory.AUDIO]: "audio",
-    [types_1.MediaCategory.IMAGE]: "pic",
-    [types_1.MediaCategory.VIDEO]: "vid"
-};
 ;
 ;
 class Toot {
@@ -199,11 +194,6 @@ class Toot {
         const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
-    }
-    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
-    attachmentPrefix() {
-        const attachmentType = this.attachmentType();
-        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
     }
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)

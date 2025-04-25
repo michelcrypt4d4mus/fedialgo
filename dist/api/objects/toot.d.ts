@@ -83,7 +83,6 @@ export default class Toot implements TootObj {
     realURL(): string;
     resolve(): Promise<Toot | undefined>;
     homeserverURL(): Promise<string>;
-    attachmentPrefix(): string;
     attachmentType(): MediaCategory | undefined;
     audioAttachments(): mastodon.v1.MediaAttachment[];
     imageAttachments(): mastodon.v1.MediaAttachment[];

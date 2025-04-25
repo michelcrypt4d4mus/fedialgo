@@ -45,12 +45,6 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
 
-const ATTACHMENT_ICONS: Record<MediaCategory, string> = {
-    [MediaCategory.AUDIO]: "audio",
-    [MediaCategory.IMAGE]: "pic",
-    [MediaCategory.VIDEO]: "vid"
-};
-
 
 // Serialized version of a Toot
 export interface SerializableToot extends mastodon.v1.Status {
@@ -262,12 +256,6 @@ export default class Toot implements TootObj {
         const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
-    }
-
-    // Returns a string like '[PIC]' or '[VID]' depending on the type of attachment
-    attachmentPrefix(): string {
-        const attachmentType = this.attachmentType();
-        return attachmentType ? ATTACHMENT_ICONS[attachmentType] : "";
     }
 
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments

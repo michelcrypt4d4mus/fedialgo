@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove `Toot.attachmentPrefix()` method
 
 ### v0.19.5
 * `Toot.containsTagsMsg()` method
