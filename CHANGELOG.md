@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.19.7
 * Set all weights to 0 for CHRONOLOGICAL preset
 * Remove `Toot.reblogsByAccts()` method
 * Refactor `uniquifyByProp()` collection helper
