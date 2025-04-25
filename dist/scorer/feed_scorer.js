@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const scorer_1 = __importDefault(require("./scorer"));
 class FeedScorer extends scorer_1.default {
     requiredData = {};
+    // Take an array of Toots and extract the requiredData needed to score a toot
     async setFeed(feed) {
         this.requiredData = this.feedExtractor(feed);
         console.debug(`after ${this.constructor.name}.feedExtractor() requiredData = `, this.requiredData);

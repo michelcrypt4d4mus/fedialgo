@@ -30,7 +30,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot): Promise<number> {
-        toot.trendingLinks = this.trendingLinks.filter(link => toot.content.toLowerCase().includes(link.url));
+        toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
     }
 };

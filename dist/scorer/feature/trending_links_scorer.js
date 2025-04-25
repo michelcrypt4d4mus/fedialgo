@@ -25,7 +25,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
         }, {});
     }
     async _score(toot) {
-        toot.trendingLinks = this.trendingLinks.filter(link => toot.content.toLowerCase().includes(link.url));
+        toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
     }
 }

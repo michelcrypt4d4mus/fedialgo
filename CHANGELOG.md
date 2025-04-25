@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use lowercase when detecting a Toot's trending links
 
 ### v0.19.7
 * Set all weights to 0 for CHRONOLOGICAL preset

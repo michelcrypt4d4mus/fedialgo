@@ -49,7 +49,7 @@ export default class NumericFilter extends TootFilter {
         return this.invertSelection ? !isOK : isOK;
     }
 
-    // Add the element to the filters array if it's not already there or remove it if it is
+    // Update the value of the filter
     updateValue(newValue: number): void {
         this.value = newValue;
     }

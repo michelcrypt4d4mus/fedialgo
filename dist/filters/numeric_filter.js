@@ -37,7 +37,7 @@ class NumericFilter extends toot_filter_1.default {
         const isOK = (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
-    // Add the element to the filters array if it's not already there or remove it if it is
+    // Update the value of the filter
     updateValue(newValue) {
         this.value = newValue;
     }

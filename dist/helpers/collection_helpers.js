@@ -86,6 +86,7 @@ function atLeastValues(obj, minValue) {
 }
 exports.atLeastValues = atLeastValues;
 ;
+// Sum the values of a dict
 function sumValues(obj) {
     return Object.values(obj).reduce((a, b) => a + b, 0);
 }

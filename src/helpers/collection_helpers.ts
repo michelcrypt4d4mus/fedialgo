@@ -103,6 +103,7 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 };
 
 
+// Sum the values of a dict
 export function sumValues(obj: StringNumberDict | Weights): number {
     return Object.values(obj).reduce((a, b) => a + b, 0);
 };
