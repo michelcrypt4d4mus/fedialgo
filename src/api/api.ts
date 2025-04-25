@@ -346,9 +346,10 @@ export class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
+        const logPrefix = `[API ${label}]`;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        console.debug(`[API] ${label}: fetchData() called (maxRecords=${maxRecords})`);
+        console.debug(`${logPrefix}: fetchData() called (maxRecords=${maxRecords})`);
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
@@ -359,25 +360,25 @@ export class MastoApi {
 
                 if (cachedData && !(await this.shouldReloadFeatures())) {
                     const rows = cachedData as T[];
-                    console.log(`[API] ${label}: Loaded ${rows.length} cached records:`, cachedData);
+                    console.log(`${logPrefix}: Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
                 };
             }
 
             for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page as T[]);
-                console.debug(`[API] ${label}: Retrieved page ${++pageNumber}`);
+                console.debug(`${logPrefix}: Retrieved page ${++pageNumber}`);
 
                 if (results.length >= maxRecords || breakIf(page, results)) {
-                    console.log(`[API] ${label}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
+                    console.log(`${logPrefix}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
 
-            console.log(`[API] ${label}: Fetched ${results.length} records:`, results);
+            console.log(`${logPrefix}: Fetched ${results.length} records:`, results);
             await Storage.set(label, results as StorableObj);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `fetchData() for ${label} failed`)
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`)
             return results;
         } finally {
             releaseFetchMutex();

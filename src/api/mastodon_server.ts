@@ -111,7 +111,7 @@ export default class MastodonServer {
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
         const json = await axios.get<T>(url);
-        console.debug(`[/${urlEndpoint}] mastodonFetch() response:`, json);
+        console.debug(`[mastodonFetch() ${urlEndpoint}] response:`, json);
 
         if (json.status === 200 && json.data) {
             return transformKeys(json.data, camelCase) as T;

@@ -97,7 +97,7 @@ class MastodonServer {
         if (limit)
             url += `?limit=${limit}`;
         const json = await axios_1.default.get(url);
-        console.debug(`[/${urlEndpoint}] mastodonFetch() response:`, json);
+        console.debug(`[mastodonFetch() ${urlEndpoint}] response:`, json);
         if (json.status === 200 && json.data) {
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
