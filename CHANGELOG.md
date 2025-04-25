@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Limit length of feed to `maxNumCachedToots` only after scoring and sorting
 
 ### v0.19.8
 * Use lowercase when detecting a Toot's trending links

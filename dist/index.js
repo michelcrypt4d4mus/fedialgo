@@ -201,8 +201,7 @@ class TheAlgorithm {
         const cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
-        const cleanFeed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
-        this.feed = cleanFeed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
+        this.feed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         this.initializeFiltersWithSummaryInfo();
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
@@ -346,8 +345,8 @@ class TheAlgorithm {
     }
     // Injecting the scoreInfo property to each toot. Sort feed based on toot scores.
     async scoreFeed() {
-        const logPrefix = `scoreFeed() [${(0, string_helpers_1.createRandomString)(5)}]`;
-        console.debug(`${logPrefix} called in fedialgo package...`);
+        const logPrefix = `scoreFeed()`;
+        console.debug(`${logPrefix} called (${this.feed.length} toots currently in feed)...`);
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             this.scoreMutex.cancel();
@@ -366,6 +365,7 @@ class TheAlgorithm {
                 }
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+                this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
                 this.logFeedInfo(logPrefix);
                 // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage_1.default.setFeed(this.feed);
