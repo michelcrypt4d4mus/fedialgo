@@ -2,7 +2,7 @@
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
-import { capitalCase } from "capital-case";
+import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 
 import Account from "./account";

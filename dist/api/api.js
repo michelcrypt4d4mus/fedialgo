@@ -95,7 +95,7 @@ class MastoApi {
             ]);
         }
         const allResponses = await Promise.all(promises);
-        console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
+        // console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift(); // Pop timeline toots off the array
         let trendingTags, trendingToots, trendingTagToots;
         let otherToots = [];
