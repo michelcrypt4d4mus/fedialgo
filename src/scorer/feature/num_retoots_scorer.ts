@@ -12,6 +12,6 @@ export default class NumRetootsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return toot?.reblogsCount || 0;
+        return toot.reblogsCount || 0;
     }
 };

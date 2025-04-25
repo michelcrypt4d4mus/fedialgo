@@ -17,7 +17,7 @@ class InteractionsScorer extends feature_scorer_1.default {
         return (0, collection_helpers_1.countValues)(notifications, notif => {
             if (!notif.account?.acct) {
                 console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
-                return "";
+                return "NO_ACCOUNT";
             }
             return new account_1.default(notif.account).webfingerURI();
         });

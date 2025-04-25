@@ -13,7 +13,6 @@ export default class TrendingTagsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        const tags = toot.trendingTags || [];
-        return tags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+        return toot.trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
     }
 };

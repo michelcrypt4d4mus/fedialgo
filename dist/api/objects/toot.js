@@ -111,7 +111,7 @@ class Toot {
         this.pinned = toot.pinned;
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = (toot.followedTags ?? []);
+        this.followedTags = (toot.followedTags ?? []); // TODO: currently this is set in FollowedTagsScorer
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new account_1.default(account));
         this.resolveAttempted = toot.resolveAttempted ?? false;

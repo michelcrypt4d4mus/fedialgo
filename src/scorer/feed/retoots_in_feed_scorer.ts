@@ -4,7 +4,7 @@
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
 import { incrementCount } from "../../helpers/collection_helpers";
-import { WeightName } from "../../types";
+import { StringNumberDict, WeightName } from "../../types";
 
 
 export default class RetootsInFeedScorer extends FeedScorer {
@@ -15,12 +15,12 @@ export default class RetootsInFeedScorer extends FeedScorer {
     // For each uri in the feed, count the number of times it appears as a reblogged toot.
     feedExtractor(feed: Toot[]) {
         return feed.reduce(
-            (tootCounts: Record<string, number>, toot: Toot) => {
+            (tootCounts: StringNumberDict, toot: Toot) => {
                 if (!toot.reblog) return tootCounts;
                 incrementCount(tootCounts, toot.reblog.uri)
                 return tootCounts;
             },
-            {}
+            {} as StringNumberDict
         );
     }
 

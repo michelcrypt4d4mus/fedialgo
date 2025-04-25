@@ -164,7 +164,7 @@ export default class Toot implements TootObj {
 
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];
+        this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];  // TODO: currently this is set in FollowedTagsScorer
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
         this.resolveAttempted = toot.resolveAttempted ?? false;

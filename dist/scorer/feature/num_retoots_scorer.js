@@ -13,7 +13,7 @@ class NumRetootsScorer extends feature_scorer_1.default {
         super(types_1.WeightName.NUM_RETOOTS);
     }
     async _score(toot) {
-        return toot?.reblogsCount || 0;
+        return toot.reblogsCount || 0;
     }
 }
 exports.default = NumRetootsScorer;
