@@ -68,8 +68,8 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 
 interface TootObj extends SerializableToot {
-    ageInSeconds: () => number;
     ageInHours: () => number;
+    ageInSeconds: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
