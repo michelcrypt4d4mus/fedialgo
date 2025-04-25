@@ -51,7 +51,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [TypeFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card),
+    [TypeFilterName.LINKS]:             (toot) => !!(toot.card || toot.reblog?.card || toot.trendingLinks?.length),
     // TODO: unclear if the MENTIONS filter works as expected
     [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]:             (toot) => !!toot.poll,
@@ -81,7 +81,7 @@ const TOOT_MATCHERS: TootMatchers = {
         });
     },
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.account.webfingerURI());
+        return validValues.includes(toot.account.webfingerURI());  // TODO maybe doesn't handle reblogs correctly
     },
 };
 

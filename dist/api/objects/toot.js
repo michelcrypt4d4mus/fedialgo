@@ -350,9 +350,6 @@ class Toot {
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
-            // TODO: we still need to de-dupe because a few dupes sneak through
-            // TODO: is this still necessary?
-            this.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(this.reblog.reblogsBy, (account) => account.webfingerURI());
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {

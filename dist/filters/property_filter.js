@@ -46,7 +46,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [TypeFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card),
+    [TypeFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card || toot.trendingLinks?.length),
     // TODO: unclear if the MENTIONS filter works as expected
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.poll,
@@ -75,7 +75,7 @@ const TOOT_MATCHERS = {
         });
     },
     [PropertyName.USER]: (toot, validValues) => {
-        return validValues.includes(toot.account.webfingerURI());
+        return validValues.includes(toot.account.webfingerURI()); // TODO maybe doesn't handle reblogs correctly
     },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";

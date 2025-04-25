@@ -2,6 +2,7 @@
 * Set all weights to 0 for CHRONOLOGICAL preset
 * Remove `Toot.reblogsByAccts()` method
 * Refactor `uniquifyByProp()` collection helper
+* Include toots with trending links in LINKS filter even if they don't have link cards
 
 ### v0.19.6
 * Remove `Toot.attachmentPrefix()` method
