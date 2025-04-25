@@ -94,7 +94,6 @@ export default class Toot implements TootObj {
     isTrending(): boolean;
     contentShortened(maxChars?: number): string;
     condensedStatus(): object;
-    reblogsByAccts(): string[];
     serialize(): SerializableToot;
     containsTagsMsg(): string | undefined;
     tootedAt(): Date;

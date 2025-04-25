@@ -386,11 +386,6 @@ export default class Toot implements TootObj {
             .reduce((obj, k) => ({ ...obj, [k]: infoObj[k as keyof typeof infoObj] }), {});
     }
 
-    // Returns an array of account strings for all accounts that reblogged this toot
-    reblogsByAccts(): string[] {
-        return this.reblogsBy.map((account) => account.webfingerURI());
-    }
-
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
         const toot = {...this} as SerializableToot;
@@ -431,10 +426,11 @@ export default class Toot implements TootObj {
 
         if (this.reblog){
             this.trendingRank ||= this.reblog.trendingRank;
+            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI());
 
-            if (!this.reblogsByAccts().includes(this.account.webfingerURI())) {
+            if (!reblogsByAccts.includes(this.account.webfingerURI())) {
                 if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(this.reblogsByAccts())}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
+                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
@@ -462,9 +458,8 @@ export default class Toot implements TootObj {
 
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
         this.mentions.forEach((mention) => {
-            if (!mention.acct?.includes("@")) {
+            if (mention.acct && !mention.acct.includes("@")) {
                 mention.acct += `@${extractDomain(mention.url)}`;
-                // console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
             }
         })
     }
@@ -488,7 +483,7 @@ export default class Toot implements TootObj {
         }
 
         if (!tags.length) return;
-        const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
+        const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag");
         return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
 

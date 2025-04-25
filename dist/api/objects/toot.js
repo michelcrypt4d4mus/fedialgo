@@ -306,10 +306,6 @@ class Toot {
             .filter((k) => infoObj[k] != null)
             .reduce((obj, k) => ({ ...obj, [k]: infoObj[k] }), {});
     }
-    // Returns an array of account strings for all accounts that reblogged this toot
-    reblogsByAccts() {
-        return this.reblogsBy.map((account) => account.webfingerURI());
-    }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
         const toot = { ...this };
@@ -347,9 +343,10 @@ class Toot {
         this.tags.forEach(tag_1.repairTag); // Repair Tags
         if (this.reblog) {
             this.trendingRank ||= this.reblog.trendingRank;
-            if (!this.reblogsByAccts().includes(this.account.webfingerURI())) {
+            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI());
+            if (!reblogsByAccts.includes(this.account.webfingerURI())) {
                 if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(this.reblogsByAccts())}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
+                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
@@ -377,9 +374,8 @@ class Toot {
         });
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
         this.mentions.forEach((mention) => {
-            if (!mention.acct?.includes("@")) {
+            if (mention.acct && !mention.acct.includes("@")) {
                 mention.acct += `@${(0, string_helpers_1.extractDomain)(mention.url)}`;
-                // console.debug(`Repaired StatusMention.acct (converted '${acct}' to '${mention.acct}')`);
             }
         });
     }
@@ -402,7 +398,7 @@ class Toot {
         }
         if (!tags.length)
             return;
-        const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag") + (tags.length > 1 ? "s" : "");
+        const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
         return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
     // Remove dupes by uniquifying on the toot's URI
