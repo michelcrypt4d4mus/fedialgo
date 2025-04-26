@@ -5,24 +5,18 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
-import NumericFilter from "./filters/numeric_filter";
-import PropertyFilter from "./filters/property_filter";
 import Toot, { SerializableToot } from './api/objects/toot';
-import { FILTERABLE_SCORES } from "./filters/numeric_filter";
-import { DEFAULT_CONFIG, DEFAULT_FILTERS, buildNewFilterSettings } from "./config";
-import { PropertyName } from "./filters/property_filter";
+import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
+import { DEFAULT_CONFIG } from "./config";
 import {
     Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
-    FilterSections,
-    NumericFilters,
     StorageKey,
     StorableObj,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
-    WeightName,
     Weights,
 } from "./types";
 
@@ -48,7 +42,7 @@ export default class Storage {
         let filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
         if (filters) {
-            populateFiltersFromArgs(filters);
+            buildFiltersFromArgs(filters);
         } else {
             filters = buildNewFilterSettings();
             await this.setFilters(DEFAULT_FILTERS);  // DEFAULT_FILTERS not the filters we just built
@@ -162,24 +156,4 @@ export default class Storage {
             throw new Error("No user identity found");
         }
     }
-};
-
-
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
-function populateFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
-    serializedFilterSettings.filterSections ??= {} as FilterSections;
-    serializedFilterSettings.numericFilters ??= {} as NumericFilters;
-
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
-        serializedFilterSettings.filterSections[args.title as PropertyName] = new PropertyFilter(args);
-    });
-
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title as WeightName] = new NumericFilter(args);
-    });
-
-    // Fill in any missing values
-    FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
-    });
 };

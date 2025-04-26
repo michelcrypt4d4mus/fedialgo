@@ -22,17 +22,18 @@ import PropertyFilter, { TYPE_FILTERS, PropertyName, TypeFilterName } from "./fi
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
+import { buildNewFilterSettings } from "./filters/feed_filters";
 import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, VIDEO_TYPES, createRandomString, extractDomain } from './helpers/string_helpers';
+import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { incrementCount } from "./helpers/collection_helpers";
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { SCORERS_CONFIG, buildNewFilterSettings } from "./config";
+import { SCORERS_CONFIG } from "./config";
 import {
     AccountNames,
     FeedFilterSettings,

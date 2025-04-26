@@ -1,9 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import NumericFilter, { FILTERABLE_SCORES} from "./filters/numeric_filter";
-import PropertyFilter, { PropertyName } from "./filters/property_filter";
-import { Config, FeedFilterSettings, FilterSections, NumericFilters, ScorerDict, WeightName } from "./types";
+import { Config, ScorerDict, WeightName } from "./types";
 
 
 export const SCORERS_CONFIG: ScorerDict = {
@@ -73,14 +71,6 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour video attachments",
     },
 };
-
-
-export const DEFAULT_FILTERS = {
-    feedFilterSectionArgs: [],
-    filterSections: {} as FilterSections,
-    numericFilterArgs: [],
-    numericFilters: {} as NumericFilters,
-} as FeedFilterSettings;
 
 
 // App level config that is not user configurable
@@ -169,15 +159,4 @@ export const DEFAULT_CONFIG: Config = {
         "med-mastodon.com",
         "mastodon.gamedev.place",
     ],
-};
-
-
-// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & type filters. Other PropertyFilters depend on what's in the toots.
-export function buildNewFilterSettings(): FeedFilterSettings {
-    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
-    filters.filterSections[PropertyName.TYPE] = new PropertyFilter({title: PropertyName.TYPE});
-    FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
-    // console.debug(`Built new FeedFilterSettings:`, filters);
-    return filters;
 };

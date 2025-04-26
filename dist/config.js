@@ -1,34 +1,9 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildNewFilterSettings = exports.DEFAULT_CONFIG = exports.DEFAULT_FILTERS = exports.SCORERS_CONFIG = void 0;
+exports.DEFAULT_CONFIG = exports.SCORERS_CONFIG = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
-const numeric_filter_1 = __importStar(require("./filters/numeric_filter"));
-const property_filter_1 = __importStar(require("./filters/property_filter"));
 const types_1 = require("./types");
 exports.SCORERS_CONFIG = {
     // Global modifiers that affect all weighted scores
@@ -95,12 +70,6 @@ exports.SCORERS_CONFIG = {
     [types_1.WeightName.VIDEO_ATTACHMENTS]: {
         description: "Favour video attachments",
     },
-};
-exports.DEFAULT_FILTERS = {
-    feedFilterSectionArgs: [],
-    filterSections: {},
-    numericFilterArgs: [],
-    numericFilters: {},
 };
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
@@ -185,15 +154,4 @@ exports.DEFAULT_CONFIG = {
         "mastodon.gamedev.place",
     ],
 };
-// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & type filters. Other PropertyFilters depend on what's in the toots.
-function buildNewFilterSettings() {
-    const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
-    filters.filterSections[property_filter_1.PropertyName.TYPE] = new property_filter_1.default({ title: property_filter_1.PropertyName.TYPE });
-    numeric_filter_1.FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new numeric_filter_1.default({ title: f }));
-    // console.debug(`Built new FeedFilterSettings:`, filters);
-    return filters;
-}
-exports.buildNewFilterSettings = buildNewFilterSettings;
-;
 //# sourceMappingURL=config.js.map

@@ -54,6 +54,7 @@ Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: functi
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
+const feed_filters_1 = require("./filters/feed_filters");
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
 const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
@@ -158,7 +159,7 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
         api_1.MastoApi.init(this.api, this.user);
-        this.filters = (0, config_1.buildNewFilterSettings)();
+        this.filters = (0, feed_filters_1.buildNewFilterSettings)();
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     async getFeed(numTimelineToots, maxId) {

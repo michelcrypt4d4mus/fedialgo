@@ -8,10 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const localforage_1 = __importDefault(require("localforage"));
 const account_1 = __importDefault(require("./api/objects/account"));
-const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
-const property_filter_1 = __importDefault(require("./filters/property_filter"));
 const toot_1 = __importDefault(require("./api/objects/toot"));
-const numeric_filter_2 = require("./filters/numeric_filter");
+const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const types_1 = require("./types");
 class Storage {
@@ -30,11 +28,11 @@ class Storage {
     static async getFilters() {
         let filters = await this.get(types_1.StorageKey.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
-            populateFiltersFromArgs(filters);
+            (0, feed_filters_1.buildFiltersFromArgs)(filters);
         }
         else {
-            filters = (0, config_1.buildNewFilterSettings)();
-            await this.setFilters(config_1.DEFAULT_FILTERS); // DEFAULT_FILTERS not the filters we just built
+            filters = (0, feed_filters_1.buildNewFilterSettings)();
+            await this.setFilters(feed_filters_1.DEFAULT_FILTERS); // DEFAULT_FILTERS not the filters we just built
         }
         return filters;
     }
@@ -127,21 +125,5 @@ class Storage {
     }
 }
 exports.default = Storage;
-;
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
-function populateFiltersFromArgs(serializedFilterSettings) {
-    serializedFilterSettings.filterSections ??= {};
-    serializedFilterSettings.numericFilters ??= {};
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
-        serializedFilterSettings.filterSections[args.title] = new property_filter_1.default(args);
-    });
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
-    });
-    // Fill in any missing values
-    numeric_filter_2.FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
-    });
-}
 ;
 //# sourceMappingURL=Storage.js.map
