@@ -3,12 +3,12 @@
  */
 import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
-import { FeedFilterSettings, FilterSections, NumericFilters, WeightName } from "../types";
+import { FeedFilterSettings, PropertyFilters, NumericFilters, WeightName } from "../types";
 
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
-    filterSections: {} as FilterSections,
+    filterSections: {} as PropertyFilters,
     numericFilterArgs: [],
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
@@ -16,7 +16,7 @@ export const DEFAULT_FILTERS = {
 
 // For building a FeedFilterSettings object from the serialized version. Mutates object.
 export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
-    serializedFilterSettings.filterSections ??= {} as FilterSections;
+    serializedFilterSettings.filterSections ??= {} as PropertyFilters;
     serializedFilterSettings.numericFilters ??= {} as NumericFilters;
 
     serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {

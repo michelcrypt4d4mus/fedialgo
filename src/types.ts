@@ -69,13 +69,12 @@ export enum MediaCategory {
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonServersInfo = Record<string, MastodonServerInfo>;
+export type NumericFilters = Record<WeightName, NumericFilter>;
+export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
-// Filters
-export type FilterSections = Record<PropertyName, PropertyFilter>;
-export type NumericFilters = Record<WeightName, NumericFilter>;
 
 // Misc
 export type CountKey = FilterTitle | string;
@@ -116,7 +115,7 @@ export type Config = {
 };
 
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: FilterSections;
+    filterSections: PropertyFilters;
     numericFilters: NumericFilters;
 };
 
