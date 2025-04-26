@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Add ability to bookmark toots
 * Limit length of feed to `maxNumCachedToots` only after scoring and sorting
 * Refactor filters serialize/deserialize methods to `feed_filters.ts`
 
