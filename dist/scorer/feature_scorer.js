@@ -20,7 +20,8 @@ class FeatureScorer extends scorer_1.default {
             this.requiredData = await this.featureGetter();
         }
         catch (e) {
-            console.warn(`Error in getFeature() for ${this.name}:`, e);
+            console.warn(`Error in featureGetter() for ${this.constructor.name}:`, e);
+            this.requiredData = {};
         }
         console.log(`[${this.constructor.name}] featureGetter() returned:`, this.requiredData);
         this.isReady = true;
@@ -30,7 +31,7 @@ class FeatureScorer extends scorer_1.default {
     static decorateHistoryScores(_obj) {
         const obj = _obj;
         obj.url = obj.url.toLowerCase();
-        if (!obj?.history?.length) {
+        if (!obj.history?.length) {
             console.warn(`decorateHistoryScores() found no history for:`, obj);
             obj.history = [];
         }

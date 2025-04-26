@@ -28,7 +28,8 @@ export default abstract class FeatureScorer extends Scorer {
         try {
             this.requiredData = await this.featureGetter();
         } catch (e) {
-            console.warn(`Error in getFeature() for ${this.name}:`, e);
+            console.warn(`Error in featureGetter() for ${this.constructor.name}:`, e);
+            this.requiredData = {};
         }
 
         console.log(`[${this.constructor.name}] featureGetter() returned:`, this.requiredData);
@@ -41,7 +42,7 @@ export default abstract class FeatureScorer extends Scorer {
         const obj = _obj as TrendingWithHistory;
         obj.url = obj.url.toLowerCase();
 
-        if (!obj?.history?.length) {
+        if (!obj.history?.length) {
             console.warn(`decorateHistoryScores() found no history for:`, obj);
             obj.history = [];
         }

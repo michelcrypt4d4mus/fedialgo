@@ -118,6 +118,7 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     numericFilters: Record<WeightName, NumericFilter>;
 };
 
+// To serialize TootFilters to browser storage we store the arguments required to reconstruct them
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
