@@ -58,7 +58,6 @@ export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
-export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
 export type FilterSections = Record<PropertyName, PropertyFilter>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type CountKey = FilterTitle | string;
@@ -98,7 +97,7 @@ export type FeedFilterSettingsSerialized = {
     numericFilterArgs: NumericFilterArgs[];
 };
 export type FilterArgs = {
-    title: PropertyName | WeightName;
+    title: FilterTitle;
     description?: string;
     invertSelection?: boolean;
     visible?: boolean;
@@ -113,7 +112,7 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettings | FeedFilterSettingsSerialized | MastodonServersInfo | StringNumberDict | SerializableToot[] | TootURIs | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.TrendLink[] | number);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number);
 export type TimelineData = {
     homeToots: Toot[];
     otherToots: Toot[];
