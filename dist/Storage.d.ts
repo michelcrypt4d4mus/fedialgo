@@ -1,6 +1,6 @@
 import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
-import { Config, FeedFilterSettings, StorageKey, StorableObj, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
+import { Config, FeedFilterSettings, StorableObj, StorageKey, TrendingLink, TrendingStorage, TrendingTag, Weights } from "./types";
 export default class Storage {
     static config: Config;
     static getConfig(): Config;
