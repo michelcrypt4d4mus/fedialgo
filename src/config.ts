@@ -3,7 +3,7 @@
  */
 import NumericFilter, { FILTERABLE_SCORES} from "./filters/numeric_filter";
 import PropertyFilter, { PropertyName } from "./filters/property_filter";
-import { Config, FeedFilterSettings, ScorerDict, WeightName } from "./types";
+import { Config, FeedFilterSettings, FilterSections, NumericFilters, ScorerDict, WeightName } from "./types";
 
 
 export const SCORERS_CONFIG: ScorerDict = {
@@ -77,9 +77,9 @@ export const SCORERS_CONFIG: ScorerDict = {
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
-    filterSections: {} as Record<PropertyName, PropertyFilter>,
+    filterSections: {} as FilterSections,
     numericFilterArgs: [],
-    numericFilters: {} as Record<WeightName, NumericFilter>,
+    numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
 
 

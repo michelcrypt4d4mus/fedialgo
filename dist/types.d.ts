@@ -59,6 +59,8 @@ export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
+export type FilterSections = Record<PropertyName, PropertyFilter>;
+export type NumericFilters = Record<WeightName, NumericFilter>;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
@@ -88,8 +90,8 @@ export type Config = {
     noTrendingLinksServers: string[];
 };
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<PropertyName, PropertyFilter>;
-    numericFilters: Record<WeightName, NumericFilter>;
+    filterSections: FilterSections;
+    numericFilters: NumericFilters;
 }
 export type FeedFilterSettingsSerialized = {
     feedFilterSectionArgs: PropertyFilterArgs[];

@@ -15,13 +15,15 @@ import {
     Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
+    FilterSections,
+    NumericFilters,
     StorageKey,
     StorableObj,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
     WeightName,
-    Weights
+    Weights,
 } from "./types";
 
 
@@ -165,8 +167,8 @@ export default class Storage {
 
 // For building a FeedFilterSettings object from the serialized version. Mutates object.
 function populateFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
-    serializedFilterSettings.filterSections ??= {} as Record<PropertyName, PropertyFilter>;
-    serializedFilterSettings.numericFilters ??= {} as Record<WeightName, NumericFilter>;
+    serializedFilterSettings.filterSections ??= {} as FilterSections;
+    serializedFilterSettings.numericFilters ??= {} as NumericFilters;
 
     serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
         serializedFilterSettings.filterSections[args.title as PropertyName] = new PropertyFilter(args);

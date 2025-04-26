@@ -74,6 +74,9 @@ export type StatusList = mastodon.v1.Status[] | Toot[];
 export type StringNumberDict = Record<string, number>;
 export type Weights = Record<WeightName, number>;
 export type TootURIs = Record<mastodon.v1.Status["uri"], mastodon.v1.Status | Toot>;
+// Filters
+export type FilterSections = Record<PropertyName, PropertyFilter>;
+export type NumericFilters = Record<WeightName, NumericFilter>;
 
 // Misc
 export type CountKey = FilterTitle | string;
@@ -114,8 +117,8 @@ export type Config = {
 };
 
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: Record<PropertyName, PropertyFilter>;
-    numericFilters: Record<WeightName, NumericFilter>;
+    filterSections: FilterSections;
+    numericFilters: NumericFilters;
 };
 
 // To serialize TootFilters to browser storage we store the arguments required to reconstruct them
