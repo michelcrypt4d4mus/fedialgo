@@ -66,7 +66,6 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
-const collection_helpers_1 = require("./helpers/collection_helpers");
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
@@ -150,7 +149,7 @@ class TheAlgorithm {
         algo.trendingTags = trendingData.tags;
         algo.trendingToots = trendingData.toots;
         algo.followedAccounts = account_1.default.buildAccountNames((await Storage_1.default.getFollowedAccts()));
-        algo.initializeFiltersWithSummaryInfo();
+        algo.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(algo.filterArgs());
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -203,7 +202,7 @@ class TheAlgorithm {
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         this.feed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
-        this.initializeFiltersWithSummaryInfo();
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.filterArgs());
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
@@ -244,51 +243,6 @@ class TheAlgorithm {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
         // console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
-    }
-    // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-    initializeFiltersWithSummaryInfo() {
-        const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
-            // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-            this.filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
-            counts[propertyName] = {};
-            return counts;
-        }, {});
-        this.feed.forEach(toot => {
-            // Set toot.isFollowed flag and increment counts
-            toot.isFollowed = toot.account.webfingerURI() in this.followedAccounts;
-            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
-            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());
-            // Lowercase and count tags
-            toot.tags.forEach((tag) => {
-                toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
-                if (tag.name in this.followedTags)
-                    toot.followedTags.push(tag);
-                (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
-            });
-            // Aggregate type counts
-            Object.entries(property_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
-                if (typeFilter(toot)) {
-                    (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
-                }
-            });
-            // Aggregate server-side filter counts
-            this.serverSideFilters.forEach((filter) => {
-                filter.keywords.forEach((keyword) => {
-                    if (toot.containsString(keyword.keyword)) {
-                        console.debug(`Matched server filter (${toot.describe()}):`, filter);
-                        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
-                    }
-                });
-            });
-        });
-        // TODO: if there's a validValues element for a filter section that is no longer in the feed
-        //       the user will not be presented with the option to turn it off. This is a bug.
-        Object.entries(tootCounts).forEach(([propertyName, counts]) => {
-            this.filters.filterSections[propertyName].setOptions(counts);
-        });
-        Storage_1.default.setFilters(this.filters);
-        console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
     mostRecentTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed);
@@ -394,6 +348,14 @@ class TheAlgorithm {
             `this.feed has ${this.feed.length} toots`,
         ];
         console.log(msg.join(', '));
+    }
+    filterArgs() {
+        return {
+            toots: this.feed,
+            followedAccounts: Object.values(this.followedAccounts),
+            followedTags: this.followedTags,
+            serverSideFilters: this.serverSideFilters,
+        };
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

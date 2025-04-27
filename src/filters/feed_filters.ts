@@ -1,10 +1,16 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
+import { mastodon } from "masto";
+
+import Account from "../api/objects/account";
 import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
-import { FeedFilterSettings, PropertyFilters, NumericFilters, WeightName } from "../types";
-
+import Storage from "../Storage";
+import Toot from "../api/objects/toot";
+import { FeedFilterSettings, FilterOptionArgs, PropertyFilters, NumericFilters, StringNumberDict, WeightName } from "../types";
+import { incrementCount } from "../helpers/collection_helpers";
+import { TYPE_FILTERS } from "./property_filter";
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -43,5 +49,63 @@ export function buildNewFilterSettings(): FeedFilterSettings {
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
     // console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;
+};
+
+
+// Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
+export function initializeFiltersWithSummaryInfo(args: FilterOptionArgs): FeedFilterSettings {
+    const { toots, followedAccounts, followedTags, serverSideFilters } = args;
+    const filters: FeedFilterSettings = buildNewFilterSettings();
+
+    const tootCounts = Object.values(PropertyName).reduce(
+        (counts, propertyName) => {
+            // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
+            filters.filterSections[propertyName] ??= new PropertyFilter({title: propertyName});
+            counts[propertyName as PropertyName] = {} as StringNumberDict;
+            return counts;
+        },
+        {} as Record<PropertyName, StringNumberDict>
+    );
+
+    toots.forEach(toot => {
+        // Set toot.isFollowed flag and increment counts
+        toot.isFollowed = toot.account.webfingerURI() in followedAccounts;
+        incrementCount(tootCounts[PropertyName.APP], toot.application.name);
+        incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
+        incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI());
+
+        // Lowercase and count tags
+        toot.tags.forEach((tag) => {
+            toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
+            if (tag.name in followedTags) toot.followedTags.push(tag);
+            incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
+        });
+
+        // Aggregate type counts
+        Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
+            if (typeFilter(toot)) {
+                incrementCount(tootCounts[PropertyName.TYPE], name);
+            }
+        });
+
+        // Aggregate server-side filter counts
+        serverSideFilters.forEach((filter) => {
+            filter.keywords.forEach((keyword) => {
+                if (toot.containsString(keyword.keyword)) {
+                    console.debug(`Matched server filter (${toot.describe()}):`, filter);
+                    incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
+                }
+            });
+        });
+    });
+
+    // TODO: if there's a validValues element for a filter section that is no longer in the feed
+    //       the user will not be presented with the option to turn it off. This is a bug.
+    Object.entries(tootCounts).forEach(([propertyName, counts]) => {
+        filters.filterSections[propertyName as PropertyName].setOptions(counts);
+    });
+
+    Storage.setFilters(filters);
+    console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, filters);
+    return filters;
 }
-;

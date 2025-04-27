@@ -102,6 +102,12 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
+export type FilterOptionArgs = {
+    toots: Toot[];
+    followedAccounts: Account[];
+    followedTags: StringNumberDict;
+    serverSideFilters: mastodon.v2.Filter[];
+};
 export type MastodonServerInfo = {
     domain: string;
     followedPctOfMAU: number;

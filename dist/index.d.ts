@@ -61,12 +61,12 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filterFeed(): Toot[];
     logFeedInfo(prefix?: string): void;
-    initializeFiltersWithSummaryInfo(): void;
     mostRecentTootAt(): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
+    private filterArgs;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };

@@ -132,6 +132,13 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
+export type FilterOptionArgs = {
+    toots: Toot[];
+    followedAccounts: Account[];
+    followedTags: StringNumberDict;
+    serverSideFilters: mastodon.v2.Filter[];
+};
+
 // Holds basic info about a given mastodon server
 export type MastodonServerInfo = {
     domain: string;

@@ -18,7 +18,7 @@ import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
-import PropertyFilter, { TYPE_FILTERS, PropertyName, TypeFilterName } from "./filters/property_filter";
+import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
 import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
@@ -27,16 +27,16 @@ import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { buildNewFilterSettings } from "./filters/feed_filters";
+import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { incrementCount } from "./helpers/collection_helpers";
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
 import {
     AccountNames,
     FeedFilterSettings,
+    FilterOptionArgs,
     MastodonServersInfo,
     MediaCategory,
     ScorerDict,
@@ -142,7 +142,7 @@ class TheAlgorithm {
         algo.trendingTags = trendingData.tags;
         algo.trendingToots = trendingData.toots;
         algo.followedAccounts = Account.buildAccountNames((await Storage.getFollowedAccts()));
-        algo.initializeFiltersWithSummaryInfo();
+        algo.filters = initializeFiltersWithSummaryInfo(algo.filterArgs())
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -203,7 +203,7 @@ class TheAlgorithm {
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
 
         this.feed = Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
-        this.initializeFiltersWithSummaryInfo();
+        this.filters = initializeFiltersWithSummaryInfo(this.filterArgs());
         this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
@@ -251,60 +251,6 @@ class TheAlgorithm {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
         // console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
-    }
-
-    // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-    initializeFiltersWithSummaryInfo(): void {
-        const tootCounts = Object.values(PropertyName).reduce(
-            (counts, propertyName) => {
-                // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-                this.filters.filterSections[propertyName] ??= new PropertyFilter({title: propertyName});
-                counts[propertyName as PropertyName] = {} as StringNumberDict;
-                return counts;
-            },
-            {} as Record<PropertyName, StringNumberDict>
-        );
-
-        this.feed.forEach(toot => {
-            // Set toot.isFollowed flag and increment counts
-            toot.isFollowed = toot.account.webfingerURI() in this.followedAccounts;
-            incrementCount(tootCounts[PropertyName.APP], toot.application.name);
-            incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
-            incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI());
-
-            // Lowercase and count tags
-            toot.tags.forEach((tag) => {
-                toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
-                if (tag.name in this.followedTags) toot.followedTags.push(tag);
-                incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
-            });
-
-            // Aggregate type counts
-            Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
-                if (typeFilter(toot)) {
-                    incrementCount(tootCounts[PropertyName.TYPE], name);
-                }
-            });
-
-            // Aggregate server-side filter counts
-            this.serverSideFilters.forEach((filter) => {
-                filter.keywords.forEach((keyword) => {
-                    if (toot.containsString(keyword.keyword)) {
-                        console.debug(`Matched server filter (${toot.describe()}):`, filter);
-                        incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
-                    }
-                });
-            });
-        });
-
-        // TODO: if there's a validValues element for a filter section that is no longer in the feed
-        //       the user will not be presented with the option to turn it off. This is a bug.
-        Object.entries(tootCounts).forEach(([propertyName, counts]) => {
-            this.filters.filterSections[propertyName as PropertyName].setOptions(counts);
-        });
-
-        Storage.setFilters(this.filters);
-        console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, this.filters);
     }
 
     mostRecentTootAt(): Date | null {
@@ -417,7 +363,7 @@ class TheAlgorithm {
     }
 
     // Utility method to log progress of getFeed() calls
-    private logTootCounts(toots: Toot[], newHomeToots: Toot[]) {
+    private logTootCounts(toots: Toot[], newHomeToots: Toot[]): void {
         let msg = [
             `Got ${toots.length} new toots from ${Object.keys(this.followedAccounts).length} followed accts`,
             `${newHomeToots.length} new home toots`,
@@ -426,6 +372,15 @@ class TheAlgorithm {
         ];
 
         console.log(msg.join(', '));
+    }
+
+    private filterArgs(): FilterOptionArgs {
+        return {
+            toots: this.feed,
+            followedAccounts: Object.values(this.followedAccounts),
+            followedTags: this.followedTags,
+            serverSideFilters: this.serverSideFilters,
+        };
     }
 };
 
