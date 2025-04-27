@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Refactor `initializeFiltersWithSummaryInfo()` to `feed_filters.ts`
 
 # v0.20.0
 * (Demo App) Add ability to bookmark toots
