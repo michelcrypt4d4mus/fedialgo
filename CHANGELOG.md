@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Load followed accounts and tags in `getUserData()`, store a `UserData` object on `MastoApi`
 * Refactor `initializeFiltersWithSummaryInfo()` to `feed_filters.ts`
 
 # v0.20.0

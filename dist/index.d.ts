@@ -23,7 +23,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { AccountNames, FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
+import { FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -34,16 +34,10 @@ declare class TheAlgorithm {
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
     feed: Toot[];
-    followedAccounts: AccountNames;
-    followedTags: StringNumberDict;
     loadingStatus?: string;
     mastodonServers: MastodonServersInfo;
-    mutedAccounts: AccountNames;
     scoreMutex: Mutex;
-    serverSideFilters: mastodon.v2.Filter[];
-    trendingLinks: TrendingLink[];
-    trendingTags: TrendingTag[];
-    trendingToots: Toot[];
+    trendingData: TrendingStorage;
     setFeedInApp: (f: Toot[]) => void;
     followedTagsScorer: FollowedTagsScorer;
     mentionsFollowedScorer: MentionsFollowedScorer;
@@ -67,6 +61,5 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
-    private filterArgs;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };

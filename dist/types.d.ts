@@ -118,7 +118,7 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingStorage | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingStorageSerialized | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
 export type TimelineData = {
     homeToots: Toot[];
     otherToots: Toot[];
@@ -147,14 +147,22 @@ export type TrendingTagToots = {
     tags: TrendingTag[];
     toots: Toot[];
 };
-export type TrendingStorage = {
+interface TrendingTagsAndLinks {
     tags: TrendingTag[];
     links: TrendingLink[];
+}
+export interface TrendingStorage extends TrendingTagsAndLinks {
     toots: Toot[];
-};
+}
+export interface TrendingStorageSerialized extends TrendingTagsAndLinks {
+    toots: SerializableToot[];
+}
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 export type UserData = {
+    followedAccounts: AccountNames;
+    followedTags: StringNumberDict;
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
 };
+export {};

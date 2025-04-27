@@ -282,13 +282,15 @@ export default class Toot implements TootObj {
 
     // Return false if Toot should be discarded from feed altogether and permanently
     isValidForFeed(algo: TheAlgorithm): boolean {
+        const mutedAccounts = MastoApi.instance.userData?.mutedAccounts || {};
+
         // Remove user's own toots
         if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
             return false;
         }
 
         // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in algo.mutedAccounts) {
+        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }

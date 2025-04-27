@@ -10,6 +10,7 @@ const localforage_1 = __importDefault(require("localforage"));
 const account_1 = __importDefault(require("./api/objects/account"));
 const toot_1 = __importDefault(require("./api/objects/toot"));
 const feed_filters_1 = require("./filters/feed_filters");
+const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const types_1 = require("./types");
 class Storage {
@@ -50,6 +51,20 @@ class Storage {
         followedAccounts = (followedAccounts ?? []);
         return followedAccounts.map((a) => new account_1.default(a));
     }
+    static async getUserData() {
+        const followedAccounts = await this.getFollowedAccts();
+        const followedTags = await this.get(types_1.StorageKey.FOLLOWED_TAGS);
+        const serverSideFilters = await this.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
+        const blockedAccounts = await this.get(types_1.StorageKey.BLOCKED_ACCOUNTS);
+        const mutedAccounts = await this.get(types_1.StorageKey.MUTED_ACCOUNTS);
+        const allMutedAccounts = (mutedAccounts ?? []).concat(blockedAccounts ?? []).map((a) => new account_1.default(a));
+        return {
+            followedAccounts: account_1.default.buildAccountNames(followedAccounts),
+            followedTags: (0, collection_helpers_1.countValues)(followedTags ?? [], tag => tag.name),
+            mutedAccounts: account_1.default.buildAccountNames(allMutedAccounts),
+            serverSideFilters: serverSideFilters ?? {},
+        };
+    }
     static async logAppOpen() {
         let numAppOpens = (await this.get(types_1.StorageKey.OPENINGS) || 0) + 1;
         await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
@@ -87,9 +102,13 @@ class Storage {
     static async setFeed(timeline) {
         await this.set(types_1.StorageKey.TIMELINE, timeline.map(t => t.serialize()));
     }
-    static async setTrending(links, tags, _toots) {
-        const toots = _toots.map(t => t.serialize());
-        await this.set(types_1.StorageKey.TRENDING, { links, tags, toots });
+    static async setTrending(trendingData) {
+        const data = {
+            links: trendingData.links,
+            tags: trendingData.tags,
+            toots: trendingData.toots.map(t => t.serialize()),
+        };
+        await this.set(types_1.StorageKey.TRENDING, data);
     }
     static async getTrending() {
         const trendingData = await this.get(types_1.StorageKey.TRENDING);

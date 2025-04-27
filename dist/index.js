@@ -81,16 +81,10 @@ class TheAlgorithm {
     filters;
     // Variables with initial values
     feed = [];
-    followedAccounts = {};
-    followedTags = {};
     loadingStatus = undefined; // Status message about what is being loaded
     mastodonServers = {};
-    mutedAccounts = {};
     scoreMutex = new async_mutex_1.Mutex();
-    serverSideFilters = [];
-    trendingLinks = [];
-    trendingTags = [];
-    trendingToots = [];
+    trendingData = { links: [], tags: [], toots: [] };
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
     // Scorers
@@ -142,14 +136,9 @@ class TheAlgorithm {
         await algo.setDefaultWeights();
         algo.feed = await Storage_1.default.getFeed();
         algo.filters = await Storage_1.default.getFilters();
+        algo.trendingData = await Storage_1.default.getTrending();
+        // algo.filters = initializeFiltersWithSummaryInfo(algo.feed, await Storage.getUserData());
         console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
-        // Set trending data and other properties we want to expose to the client
-        const trendingData = await Storage_1.default.getTrending();
-        algo.trendingLinks = trendingData.links;
-        algo.trendingTags = trendingData.tags;
-        algo.trendingToots = trendingData.toots;
-        algo.followedAccounts = account_1.default.buildAccountNames((await Storage_1.default.getFollowedAccts()));
-        algo.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(algo.filterArgs());
         algo.setFeedInApp(algo.feed);
         return algo;
     }
@@ -169,7 +158,7 @@ class TheAlgorithm {
         if (!maxId) {
             this.loadingStatus = "initial data";
             dataFetches = dataFetches.concat([
-                api_1.MastoApi.instance.getStartupData(),
+                api_1.MastoApi.instance.getUserData(),
                 // FeatureScorers return empty arrays; they're just here for load time parallelism
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
@@ -182,19 +171,14 @@ class TheAlgorithm {
         const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // pop getTimelineToots() response
         const newToots = [...homeToots, ...otherToots];
         // Store trending data so it's accessible to client if page is reloaded
-        this.trendingLinks = this.featureScorers[0].trendingLinks;
-        this.trendingTags = trendingTags?.length ? trendingTags : this.trendingTags;
-        this.trendingToots = trendingToots?.length ? trendingToots : this.trendingToots;
-        Storage_1.default.setTrending(this.trendingLinks, this.trendingTags, this.trendingToots);
+        this.trendingData.links = this.featureScorers[0].trendingLinks;
+        this.trendingData.tags = trendingTags?.length ? trendingTags : this.trendingData.tags;
+        this.trendingData.toots = trendingToots?.length ? trendingToots : this.trendingData.toots;
+        Storage_1.default.setTrending(this.trendingData);
         // This if condition should be equivalent to the if (!maxId) above
         if (allResponses.length > 0) {
             const userData = allResponses.shift();
-            this.mutedAccounts = userData.mutedAccounts;
-            this.serverSideFilters = userData.serverSideFilters;
             this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo(); // Should load from storage
-            // Pull followed accounts and tags from the scorers
-            this.followedAccounts = account_1.default.buildAccountNames(this.mentionsFollowedScorer.followedAccounts);
-            this.followedTags = this.followedTagsScorer.requiredData;
         }
         this.logTootCounts(newToots, homeToots);
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
@@ -202,7 +186,7 @@ class TheAlgorithm {
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         this.feed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
-        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.filterArgs());
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, api_1.MastoApi.instance.userData);
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
@@ -342,20 +326,12 @@ class TheAlgorithm {
     // Utility method to log progress of getFeed() calls
     logTootCounts(toots, newHomeToots) {
         let msg = [
-            `Got ${toots.length} new toots from ${Object.keys(this.followedAccounts).length} followed accts`,
+            `Got ${toots.length} new toots from ${Object.keys(api_1.MastoApi.instance.userData?.followedAccounts || []).length} followed accts`,
             `${newHomeToots.length} new home toots`,
             `${toots.length} total new toots`,
             `this.feed has ${this.feed.length} toots`,
         ];
         console.log(msg.join(', '));
-    }
-    filterArgs() {
-        return {
-            toots: this.feed,
-            followedAccounts: Object.values(this.followedAccounts),
-            followedTags: this.followedTags,
-            serverSideFilters: this.serverSideFilters,
-        };
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

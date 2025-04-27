@@ -8,8 +8,9 @@ import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { FeedFilterSettings, FilterOptionArgs, PropertyFilters, NumericFilters, StringNumberDict, WeightName } from "../types";
+import { FeedFilterSettings, FilterOptionArgs, PropertyFilters, NumericFilters, StringNumberDict, WeightName, UserData } from "../types";
 import { incrementCount } from "../helpers/collection_helpers";
+import { MastoApi } from "../api/api";
 import { TYPE_FILTERS } from "./property_filter";
 
 export const DEFAULT_FILTERS = {
@@ -47,14 +48,14 @@ export function buildNewFilterSettings(): FeedFilterSettings {
     const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
     filters.filterSections[PropertyName.TYPE] = new PropertyFilter({title: PropertyName.TYPE});
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
-    // console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;
 };
 
 
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-export function initializeFiltersWithSummaryInfo(args: FilterOptionArgs): FeedFilterSettings {
-    const { toots, followedAccounts, followedTags, serverSideFilters } = args;
+export function initializeFiltersWithSummaryInfo(toots: Toot[], userData?: UserData): FeedFilterSettings {
+    userData ||= MastoApi.instance.userData;
+    const { followedAccounts, followedTags, serverSideFilters } = userData as UserData;
     const filters: FeedFilterSettings = buildNewFilterSettings();
 
     const tootCounts = Object.values(PropertyName).reduce(
@@ -69,7 +70,7 @@ export function initializeFiltersWithSummaryInfo(args: FilterOptionArgs): FeedFi
 
     toots.forEach(toot => {
         // Set toot.isFollowed flag and increment counts
-        toot.isFollowed = toot.account.webfingerURI() in followedAccounts;
+        toot.isFollowed = toot.account.webfingerURI() in followedAccounts; // TODO: this is a bad place for this
         incrementCount(tootCounts[PropertyName.APP], toot.application.name);
         incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
         incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI());

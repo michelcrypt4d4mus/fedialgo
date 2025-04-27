@@ -158,11 +158,12 @@ export type StorableObj = (
     MastodonServersInfo |
     SerializableToot[] |
     StringNumberDict |
-    TrendingStorage |
+    TrendingStorageSerialized |
     Weights |
     mastodon.v1.Account |
     mastodon.v1.Account[] |
     mastodon.v2.Filter[] |
+    mastodon.v1.Tag[] |
     number
 );
 
@@ -199,10 +200,17 @@ export type TrendingTagToots = {
     toots: Toot[];
 };
 
-export type TrendingStorage = {
+interface TrendingTagsAndLinks {
     tags: TrendingTag[];
     links: TrendingLink[];
+};
+
+export interface TrendingStorage extends TrendingTagsAndLinks {
     toots: Toot[];
+};
+
+export interface TrendingStorageSerialized extends TrendingTagsAndLinks {
+    toots: SerializableToot[];
 };
 
 export type TrendingWithHistory = TrendingLink | TrendingTag;
@@ -210,6 +218,8 @@ export type TrendingObj = TrendingWithHistory | Toot;
 
 // Data retrieved at startup and stored in TheAlgorithm
 export type UserData = {
+    followedAccounts: AccountNames,
+    followedTags: StringNumberDict,
     mutedAccounts: AccountNames,
     serverSideFilters: mastodon.v2.Filter[],
 };

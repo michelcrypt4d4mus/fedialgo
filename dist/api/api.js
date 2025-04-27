@@ -33,6 +33,7 @@ const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const tag_1 = require("./objects/tag");
 const types_1 = require("../types");
@@ -52,6 +53,7 @@ class MastoApi {
     user;
     homeDomain;
     mutexes;
+    userData; // Preserve user data for the session in the object to avoid having to go to local storage over and over
     static #instance;
     static init(api, user) {
         if (MastoApi.#instance) {
@@ -88,6 +90,7 @@ class MastoApi {
             this.fetchHomeFeed(numTimelineToots, maxId),
         ];
         // Only fetch trending toots first time this is called (skip when paging through timeline)
+        // TODO: move the trending toots stuff back to getFeed() and remove this
         if (!maxId) {
             promises = promises.concat([
                 mastodon_server_1.default.fediverseTrendingToots(),
@@ -114,17 +117,23 @@ class MastoApi {
     }
     ;
     // Retrieve background data about the user that will be used for scoring etc.
-    async getStartupData() {
-        console.debug(`[MastoApi] getStartupData() fetching blocked users and server side filters...`);
+    async getUserData() {
+        if (this.userData)
+            return this.userData;
+        console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
         const responses = await Promise.all([
-            this.fetchBlockedAccounts(),
+            this.fetchFollowedAccounts(),
             this.fetchMutedAccounts(),
+            this.getFollowedTags(),
             this.getServerSideFilters(),
         ]);
-        return {
-            mutedAccounts: account_1.default.buildAccountNames(responses[0].concat(responses[1])),
-            serverSideFilters: responses[2],
+        this.userData = {
+            followedAccounts: account_1.default.buildAccountNames(responses[0]),
+            followedTags: (0, collection_helpers_1.countValues)(responses[2], tag => tag.name),
+            mutedAccounts: account_1.default.buildAccountNames(responses[1]),
+            serverSideFilters: responses[3],
         };
+        return this.userData;
     }
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
@@ -226,7 +235,8 @@ class MastoApi {
             fetch: this.api.v1.mutes.list,
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
-        return mutedAccounts.map(a => new account_1.default(a));
+        const blockedAccounts = await this.fetchBlockedAccounts();
+        return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
     }
     ;
     // Retrieve content based feed filters the user has set up on the server

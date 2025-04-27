@@ -31,6 +31,7 @@ const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const api_1 = require("../api/api");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -62,14 +63,14 @@ function buildNewFilterSettings() {
     const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
     filters.filterSections[property_filter_1.PropertyName.TYPE] = new property_filter_1.default({ title: property_filter_1.PropertyName.TYPE });
     numeric_filter_1.FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new numeric_filter_1.default({ title: f }));
-    // console.debug(`Built new FeedFilterSettings:`, filters);
     return filters;
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
 ;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-function initializeFiltersWithSummaryInfo(args) {
-    const { toots, followedAccounts, followedTags, serverSideFilters } = args;
+function initializeFiltersWithSummaryInfo(toots, userData) {
+    userData ||= api_1.MastoApi.instance.userData;
+    const { followedAccounts, followedTags, serverSideFilters } = userData;
     const filters = buildNewFilterSettings();
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
@@ -79,7 +80,7 @@ function initializeFiltersWithSummaryInfo(args) {
     }, {});
     toots.forEach(toot => {
         // Set toot.isFollowed flag and increment counts
-        toot.isFollowed = toot.account.webfingerURI() in followedAccounts;
+        toot.isFollowed = toot.account.webfingerURI() in followedAccounts; // TODO: this is a bad place for this
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());

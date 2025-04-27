@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 import Account from "./api/objects/account";
 import Toot, { SerializableToot } from './api/objects/toot';
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
+import { countValues } from "./helpers/collection_helpers";
 import { DEFAULT_CONFIG } from "./config";
 import {
     Config,
@@ -16,7 +17,9 @@ import {
     StorageKey,
     TrendingLink,
     TrendingStorage,
+    TrendingStorageSerialized,
     TrendingTag,
+    UserData,
     Weights,
 } from "./types";
 
@@ -68,6 +71,23 @@ export default class Storage {
         return followedAccounts.map((a) => new Account(a));
     }
 
+    static async getUserData(): Promise<UserData> {
+        const followedAccounts = await this.getFollowedAccts();
+        const followedTags = await this.get(StorageKey.FOLLOWED_TAGS) as mastodon.v1.Tag[];
+        const serverSideFilters = await this.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
+
+        const blockedAccounts = await this.get(StorageKey.BLOCKED_ACCOUNTS) as mastodon.v1.Account[];
+        const mutedAccounts = await this.get(StorageKey.MUTED_ACCOUNTS) as mastodon.v1.Account[];
+        const allMutedAccounts = (mutedAccounts ?? []).concat(blockedAccounts ?? []).map((a) => new Account(a));
+
+        return {
+            followedAccounts: Account.buildAccountNames(followedAccounts),
+            followedTags: countValues<mastodon.v1.Tag>(followedTags ?? [], tag => tag.name),
+            mutedAccounts: Account.buildAccountNames(allMutedAccounts),
+            serverSideFilters: serverSideFilters ?? {},
+        };
+    }
+
     static async logAppOpen(): Promise<void> {
         let numAppOpens = (await this.get(StorageKey.OPENINGS) as number || 0) + 1;
         await this.set(StorageKey.OPENINGS, numAppOpens);
@@ -114,13 +134,18 @@ export default class Storage {
         await this.set(StorageKey.TIMELINE, timeline.map(t => t.serialize()));
     }
 
-    static async setTrending(links: TrendingLink[], tags: TrendingTag[], _toots: Toot[]) {
-        const toots = _toots.map(t => t.serialize());
-        await this.set(StorageKey.TRENDING, {links, tags, toots} as TrendingStorage);
+    static async setTrending(trendingData: TrendingStorage) {
+        const data = {
+            links: trendingData.links,
+            tags: trendingData.tags,
+            toots: trendingData.toots.map(t => t.serialize()),
+        }
+
+        await this.set(StorageKey.TRENDING, data);
     }
 
     static async getTrending(): Promise<TrendingStorage> {
-        const trendingData = await this.get(StorageKey.TRENDING) as TrendingStorage;
+        const trendingData = await this.get(StorageKey.TRENDING) as TrendingStorageSerialized;
 
         return {
             links: (trendingData?.links ?? []) as TrendingLink[],

@@ -14,11 +14,12 @@ export declare class MastoApi {
     user: Account;
     homeDomain: string;
     mutexes: ApiMutex;
+    userData?: UserData;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
     getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
-    getStartupData(): Promise<UserData>;
+    getUserData(): Promise<UserData>;
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
     searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
