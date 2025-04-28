@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.1
 * Add scores for retooted account to `MostFavoritedAccountsScorer` and `MostRepliedAccountsScorer`
 * Load followed accounts and tags in `getUserData()`, store a `UserData` object on `MastoApi`
 * Refactor `initializeFiltersWithSummaryInfo()` to `feed_filters.ts`
