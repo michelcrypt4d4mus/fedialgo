@@ -114,7 +114,7 @@ class Toot {
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = (toot.trendingLinks ?? []);
+        this.trendingLinks = toot.trendingLinks; // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []);
         this.repair();
     }
@@ -411,6 +411,7 @@ class Toot {
                 toot.trendingTags = uniqueTrendingTags || [];
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
+                toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;

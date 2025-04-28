@@ -27,9 +27,9 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     // TODO: this mutates the toot object, which is not ideal
     async _score(toot) {
         toot = toot.reblog || toot;
-        if (!toot.scoreInfo) {
+        if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            console.info(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+            console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
     }

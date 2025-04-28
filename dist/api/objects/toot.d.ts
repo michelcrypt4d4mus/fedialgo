@@ -69,7 +69,7 @@ export default class Toot implements TootObj {
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     trendingRank?: number;
-    trendingLinks: TrendingLink[];
+    trendingLinks?: TrendingLink[];
     trendingTags: TrendingTag[];
     constructor(toot: SerializableToot);
     ageInSeconds(): number;

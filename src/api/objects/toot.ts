@@ -121,7 +121,7 @@ export default class Toot implements TootObj {
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
-    trendingLinks: TrendingLink[];     // Links that are trending in this toot
+    trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags: TrendingTag[];       // Tags that are trending in this toot
 
     constructor(toot: SerializableToot) {
@@ -166,7 +166,7 @@ export default class Toot implements TootObj {
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = (toot.trendingLinks ?? []) as TrendingLink[];
+        this.trendingLinks = toot.trendingLinks;  // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repair();
     }
@@ -499,6 +499,7 @@ export default class Toot implements TootObj {
                 toot.trendingTags = uniqueTrendingTags || [];
                 // Set missing scoreInfo to first scoreInfo we can find (if any)
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
+                toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
 
                 if (toot.reblog) {

@@ -33,9 +33,9 @@ export default class TrendingLinksScorer extends FeatureScorer {
     async _score(toot: Toot): Promise<number> {
         toot = toot.reblog || toot;
 
-        if (!toot.scoreInfo) {
+        if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            console.info(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+            console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
 
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
