@@ -26,6 +26,7 @@ interface TootObj extends SerializableToot {
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
+    wasEdited: () => boolean;
     audioAttachments: () => mastodon.v1.MediaAttachment[];
     imageAttachments: () => mastodon.v1.MediaAttachment[];
     videoAttachments: () => mastodon.v1.MediaAttachment[];
@@ -97,6 +98,7 @@ export default class Toot implements TootObj {
     serialize(): SerializableToot;
     containsTagsMsg(): string | undefined;
     tootedAt(): Date;
+    wasEdited(): boolean;
     private repair;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;

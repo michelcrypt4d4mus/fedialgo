@@ -36,6 +36,7 @@ export default abstract class Scorer {
         return await this._score(toot);
     }
 
+    // Actual implementation of the scoring algorithm should be implemented in subclasses
     abstract _score(_toot: Toot): Promise<number>;
 
     private checkIsReady(): void {

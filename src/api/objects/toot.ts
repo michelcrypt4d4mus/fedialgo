@@ -73,6 +73,7 @@ interface TootObj extends SerializableToot {
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
+    wasEdited: () => boolean;
     audioAttachments: () => mastodon.v1.MediaAttachment[];
     imageAttachments: () => mastodon.v1.MediaAttachment[];
     videoAttachments: () => mastodon.v1.MediaAttachment[];
@@ -199,7 +200,7 @@ export default class Toot implements TootObj {
 
     // String that describes the toot in not so many characters
     describe(): string {
-        let msg = `[${this.createdAt}] (${this.account.describe()}, ID=${this.id})`;
+        let msg = `${this.account.describe()} [${this.createdAt.split('.')[0]}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
 
@@ -404,6 +405,10 @@ export default class Toot implements TootObj {
 
     tootedAt(): Date {
         return new Date(this.createdAt);
+    }
+
+    wasEdited(): boolean {
+        return !!this.editedAt;
     }
 
     // Repair toot properties:

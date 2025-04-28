@@ -12,7 +12,7 @@ export default abstract class FeedScorer extends Scorer {
     // Take an array of Toots and extract the scoreData needed to score a toot
     async setFeed(feed: Toot[]): Promise<void> {
         this.scoreData = this.feedExtractor(feed);
-        console.debug(`after ${this.constructor.name}.feedExtractor() scoreData = `, this.scoreData);
+        console.debug(`[${this.constructor.name}] feedExtractor() set scoreData to`, this.scoreData);
         this.isReady = true;
     }
 

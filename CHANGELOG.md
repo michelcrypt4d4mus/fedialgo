@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Optimize to only scan for and set `Toot.trendingLinks` once if possible
+* Add `Toot.wasEdited()`
 
 ### v0.20.2
 * Repair media attachments with URL arguments in `remoteUrl`

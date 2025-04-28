@@ -25,7 +25,7 @@ import Toot from "../api/objects/toot";
 import { MastoApi } from "../api/api";
 import { TrendingTag, TrendingTagToots } from "../types";
 
-const LOG_PREFIX = "[TrendingTags]";
+const LOG_PREFIX = "TrendingTags";
 
 
 export default async function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots> {

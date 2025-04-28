@@ -142,7 +142,7 @@ class Toot {
     }
     // String that describes the toot in not so many characters
     describe() {
-        let msg = `[${this.createdAt}] (${this.account.describe()}, ID=${this.id})`;
+        let msg = `${this.account.describe()} [${this.createdAt.split('.')[0]}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
     // Sum of the reblogs, replies, and local server favourites
@@ -322,6 +322,9 @@ class Toot {
     }
     tootedAt() {
         return new Date(this.createdAt);
+    }
+    wasEdited() {
+        return !!this.editedAt;
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing

@@ -28,7 +28,7 @@ const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("../api/objects/toot"));
 const api_1 = require("../api/api");
-const LOG_PREFIX = "[TrendingTags]";
+const LOG_PREFIX = "TrendingTags";
 async function fetchRecentTootsForTrendingTags() {
     const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
     const tootTags = await Promise.all(trendingTags.map(getTootsForTag));
