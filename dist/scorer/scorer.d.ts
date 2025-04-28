@@ -5,7 +5,6 @@ export default abstract class Scorer {
     description: string;
     name: WeightName;
     isReady: boolean;
-    scoresRetoots: boolean;
     constructor(name: WeightName);
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;

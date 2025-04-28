@@ -13,7 +13,7 @@ export default class ChaosScorer extends FeatureScorer {
 
     async _score(toot: Toot) {
         try {
-            return this.decimalHash(toot.content);
+            return this.decimalHash(toot.reblog?.content || toot.content);
         } catch (e) {
             console.warn(`Error in _score() for ${this.name}:`, e, `\nToot with error in ChaosScorer:`, toot);
             return 0;

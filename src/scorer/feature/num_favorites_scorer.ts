@@ -14,6 +14,6 @@ export default class NumFavoritesScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return toot.favouritesCount || 0;
+        return (toot.reblog || toot).favouritesCount || 0;
     }
 };

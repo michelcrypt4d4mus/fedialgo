@@ -1,5 +1,9 @@
 # NEXT RELEASE
 * Repair media attachments with URL arguments in `remoteUrl`
+* Lower time between timeline pulls to 1 second
+* Make scorers work with the original toot, not just with the retoot
+* Use time of retoot not just original toot when scoring retoots
+* Bump up `TRENDING` weight to 0.15
 
 ### v0.20.1
 * Add scores for retooted account to `MostFavoritedAccountsScorer` and `MostRepliedAccountsScorer`

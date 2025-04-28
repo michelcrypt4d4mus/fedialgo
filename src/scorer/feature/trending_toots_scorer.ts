@@ -13,6 +13,6 @@ export default class TrendingTootScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return toot.trendingRank || 0;
+        return (toot.reblog || toot).trendingRank || 0;
     }
 };

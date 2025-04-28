@@ -1,8 +1,6 @@
-import FeatureScorer from "../feature_scorer";
-import Toot from '../../api/objects/toot';
+import AccountScorer from "../acccount_scorer";
 import { StringNumberDict } from "../../types";
-export default class MostRetootedUsersScorer extends FeatureScorer {
+export default class MostRetootedUsersScorer extends AccountScorer {
     constructor();
     featureGetter(): Promise<StringNumberDict>;
-    _score(toot: Toot): Promise<number>;
 }

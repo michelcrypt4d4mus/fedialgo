@@ -13,7 +13,7 @@ class ImageAttachmentScorer extends feature_scorer_1.default {
         super(types_1.WeightName.IMAGE_ATTACHMENTS);
     }
     async _score(toot) {
-        return toot.imageAttachments().length;
+        return (toot.reblog || toot).imageAttachments().length;
     }
 }
 exports.default = ImageAttachmentScorer;

@@ -13,7 +13,6 @@ const types_1 = require("../../types");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_REPLIED_ACCOUNTS);
-        this.scoresRetoots = true;
     }
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT

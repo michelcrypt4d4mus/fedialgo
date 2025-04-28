@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
-class InteractionsScorer extends feature_scorer_1.default {
+class InteractionsScorer extends acccount_scorer_1.default {
     constructor() {
         super(types_1.WeightName.INTERACTIONS);
     }
@@ -23,9 +23,6 @@ class InteractionsScorer extends feature_scorer_1.default {
         });
     }
     ;
-    async _score(toot) {
-        return this.requiredData[toot.account.webfingerURI()] || 0;
-    }
 }
 exports.default = InteractionsScorer;
 ;

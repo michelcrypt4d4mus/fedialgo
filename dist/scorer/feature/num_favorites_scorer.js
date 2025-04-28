@@ -15,7 +15,7 @@ class NumFavoritesScorer extends feature_scorer_1.default {
         super(types_1.WeightName.NUM_FAVOURITES);
     }
     async _score(toot) {
-        return toot.favouritesCount || 0;
+        return (toot.reblog || toot).favouritesCount || 0;
     }
 }
 exports.default = NumFavoritesScorer;

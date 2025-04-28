@@ -4,14 +4,13 @@
 import { mastodon } from "masto";
 
 import Account from "../../api/objects/account";
-import FeatureScorer from "../feature_scorer";
-import Toot from '../../api/objects/toot';
+import AccountScorer from "../acccount_scorer";
 import { countValues } from "../../helpers/collection_helpers";
 import { MastoApi } from "../../api/api";
 import { StringNumberDict, WeightName } from "../../types";
 
 
-export default class InteractionsScorer extends FeatureScorer {
+export default class InteractionsScorer extends AccountScorer {
     constructor() {
         super(WeightName.INTERACTIONS);
     }
@@ -31,8 +30,4 @@ export default class InteractionsScorer extends FeatureScorer {
             }
         );
     };
-
-    async _score(toot: Toot) {
-        return this.requiredData[toot.account.webfingerURI()] || 0;
-    }
 };

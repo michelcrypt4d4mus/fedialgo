@@ -14,7 +14,7 @@ class ChaosScorer extends feature_scorer_1.default {
     }
     async _score(toot) {
         try {
-            return this.decimalHash(toot.content);
+            return this.decimalHash(toot.reblog?.content || toot.content);
         }
         catch (e) {
             console.warn(`Error in _score() for ${this.name}:`, e, `\nToot with error in ChaosScorer:`, toot);

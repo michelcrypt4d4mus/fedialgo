@@ -16,7 +16,6 @@ class Scorer {
     description;
     name;
     isReady = false;
-    scoresRetoots = false;
     constructor(name) {
         // TODO: Maybe use this.constructor.name as the name property?
         this.name = name;
@@ -42,31 +41,28 @@ class Scorer {
     }
     // Add all the score into to a toot, including a final score
     static async decorateWithScoreInfo(toot, scorers) {
-        // console.debug(`decorateWithScoreInfo ${describeToot(toot)}: `, toot);
         const rawScores = {};
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeightings();
-        const tootToScore = toot.reblog ?? toot;
-        tootToScore.followedTags ??= [];
-        // If scoresRetoots is true the scorer will handle both the original toot and the retoot
-        const scores = await Promise.all(scorers.map((s) => s.score(s.scoresRetoots ? toot : tootToScore)));
+        const actualToot = toot.reblog ?? toot;
+        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         scorers.forEach((scorer, i) => {
             const scoreValue = scores[i] || 0;
             rawScores[scorer.name] = scoreValue;
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            if (tootToScore.isTrending()) {
+            if (actualToot.isTrending()) {
                 weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
         const timeDecayWeight = userWeights[types_1.WeightName.TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.TIME_DECAY];
         // const timeDecayMultiplier = 1.0 / Math.pow(tootToScore.ageInHours(), timeDecayWeight);
-        const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(tootToScore.ageInHours(), 1.2));
+        const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(toot.ageInHours(), 1.2));
         const weightedScore = this.sumScores(weightedScores);
         // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging
-        tootToScore.scoreInfo = {
+        actualToot.scoreInfo = {
             rawScore: this.sumScores(rawScores),
             rawScores,
             score: weightedScore * timeDecayMultiplier,
@@ -75,7 +71,7 @@ class Scorer {
             weightedScore,
         };
         // Copy the score info to the retoot if need be  // TODO: duping the score for retoots is a hack
-        toot.scoreInfo = tootToScore.scoreInfo;
+        toot.scoreInfo = actualToot.scoreInfo;
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores) {

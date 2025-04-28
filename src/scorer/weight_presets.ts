@@ -20,7 +20,7 @@ export type WeightPresets = Record<PresetWeightLabel, Weights>;
 export const DEFAULT_WEIGHTS: Weights = {
     // Global modifiers that affect all weighted scores
     [WeightName.TIME_DECAY]: 0.05,
-    [WeightName.TRENDING]: 0.06,
+    [WeightName.TRENDING]: 0.15,
     // Weighted scores
     [WeightName.CHAOS]: 1.0,
     [WeightName.DIVERSITY]: 1.0,

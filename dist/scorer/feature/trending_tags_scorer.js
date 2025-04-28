@@ -14,6 +14,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         super(types_1.WeightName.TRENDING_TAGS);
     }
     async _score(toot) {
+        toot = toot.reblog || toot;
         return toot.trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
     }
 }

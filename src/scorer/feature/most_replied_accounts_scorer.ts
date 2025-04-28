@@ -11,7 +11,6 @@ import { StringNumberDict, WeightName } from '../../types';
 export default class MostRepliedAccountsScorer extends FeatureScorer {
     constructor() {
         super(WeightName.MOST_REPLIED_ACCOUNTS);
-        this.scoresRetoots = true;
     }
 
     // Count replied per user. Note that this does NOT pull the Account object because that

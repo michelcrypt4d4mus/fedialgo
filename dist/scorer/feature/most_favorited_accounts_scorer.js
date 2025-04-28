@@ -6,24 +6,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Score how many times the current user has favourited the tooter in the past.
  */
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
-class MostFavoritedAccountsScorer extends feature_scorer_1.default {
+class MostFavoritedAccountsScorer extends acccount_scorer_1.default {
     constructor() {
         super(types_1.WeightName.FAVOURITED_ACCOUNTS);
-        this.scoresRetoots = true;
     }
     ;
     async featureGetter() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
         return (0, collection_helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI());
-    }
-    ;
-    async _score(toot) {
-        const score = this.requiredData[toot.account.webfingerURI()] || 0;
-        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.webfingerURI()] || 0) : 0);
     }
     ;
 }

@@ -83,8 +83,8 @@ export const DEFAULT_CONFIG: Config = {
     enableIncrementalLoad: true,         // Continue loading in background after initial load
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
     // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
-    incrementalLoadDelayMS: 1500,        // Delay between incremental loads of toots
-    maxTimelineTootsToFetch: 1000,       // useful dev options for faster load
+    incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
+    maxTimelineTootsToFetch: 900,        // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
 

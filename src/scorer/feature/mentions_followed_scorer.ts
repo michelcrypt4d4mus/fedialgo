@@ -24,6 +24,6 @@ export default class MentionsFollowedScorer extends FeatureScorer {
 
     // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI()
     async _score(toot: Toot) {
-        return toot.mentions.filter((mention) => mention.acct in this.requiredData).length;
+        return (toot.reblog || toot).mentions.filter((m) => m.acct in this.requiredData).length;
     };
 };
