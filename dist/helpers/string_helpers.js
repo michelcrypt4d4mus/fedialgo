@@ -47,7 +47,7 @@ exports.htmlToText = htmlToText;
 function isImage(uri) {
     if (!uri)
         return false;
-    return exports.IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
+    return exports.IMAGE_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 }
 exports.isImage = isImage;
 ;
@@ -55,7 +55,7 @@ exports.isImage = isImage;
 function isVideo(uri) {
     if (!uri)
         return false;
-    return exports.VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
+    return exports.VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 }
 exports.isVideo = isVideo;
 ;

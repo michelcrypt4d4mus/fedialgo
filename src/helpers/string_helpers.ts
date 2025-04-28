@@ -50,14 +50,14 @@ export function htmlToText(html: string): string {
 // Return true if uri ends with an image extension like .jpg or .png
 export function isImage(uri: string | null | undefined): boolean {
     if (!uri) return false;
-    return IMAGE_EXTENSIONS.some(ext => uri.endsWith(ext));
+    return IMAGE_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 };
 
 
 // Return true if uri ends with an image extension like .jpg or .png
 export function isVideo(uri: string | null | undefined): boolean {
     if (!uri) return false;
-    return VIDEO_EXTENSIONS.some(ext => uri.endsWith(ext));
+    return VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 };
 
 

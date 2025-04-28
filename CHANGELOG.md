@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Repair media attachments with URL arguments in `remoteUrl`
 
 ### v0.20.1
 * Add scores for retooted account to `MostFavoritedAccountsScorer` and `MostRepliedAccountsScorer`
