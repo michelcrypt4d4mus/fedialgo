@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.3
 * Optimize to only scan for and set `Toot.trendingLinks` once if possible
 * Make `Toot.imageAttachments`, `videoAttachments`, etc. computed once in `Toot` constructor instead of methods
 
