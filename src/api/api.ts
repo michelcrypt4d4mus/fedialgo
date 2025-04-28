@@ -340,7 +340,7 @@ export class MastoApi {
         const tootURI = toot.realURI();
         const urlDomain = extractDomain(tootURI);
         if (urlDomain == this.homeDomain) return toot;
-        const lookupResult = await this.api.v2.search.fetch({ q: tootURI, resolve: true });
+        const lookupResult = await this.api.v2.search.fetch({q: tootURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
             const msg = `resolveToot('${tootURI}') got bad result:`;

@@ -7,7 +7,6 @@ export interface SerializableToot extends mastodon.v1.Status {
     isFollowed?: boolean;
     reblog?: SerializableToot | null;
     reblogsBy?: mastodon.v1.Account[];
-    resolveAttempted?: boolean;
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     trendingLinks?: TrendingLink[];
@@ -27,7 +26,7 @@ interface TootObj extends SerializableToot {
     popularity: () => number;
     realAccount: () => Account;
     realURI: () => string;
-    resolve: () => Promise<Toot | undefined>;
+    resolve: () => Promise<Toot>;
     tootedAt: () => Date;
 }
 export default class Toot implements TootObj {
@@ -65,7 +64,6 @@ export default class Toot implements TootObj {
     followedTags: mastodon.v1.Tag[];
     isFollowed?: boolean;
     reblogsBy: Account[];
-    resolveAttempted?: boolean;
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     trendingRank?: number;
@@ -84,7 +82,7 @@ export default class Toot implements TootObj {
     realAccount(): Account;
     realURI(): string;
     realURL(): string;
-    resolve(): Promise<Toot | undefined>;
+    resolve(): Promise<Toot>;
     homeserverURL(): Promise<string>;
     attachmentType(): MediaCategory | undefined;
     isInTimeline(filters: FeedFilterSettings): boolean;

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Get rid of unnecessary `Toot.resolveAttempted` flag
 
 ### v0.20.3
 * Optimize to only scan for and set `Toot.trendingLinks` once if possible

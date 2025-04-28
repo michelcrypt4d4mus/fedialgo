@@ -52,7 +52,6 @@ export interface SerializableToot extends mastodon.v1.Status {
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblog?: SerializableToot | null,  // The toot that was retooted (if any)
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
-    resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
@@ -74,7 +73,7 @@ interface TootObj extends SerializableToot {
     popularity: () => number;
     realAccount: () => Account;
     realURI: () => string;
-    resolve: () => Promise<Toot | undefined>;
+    resolve: () => Promise<Toot>;
     tootedAt: () => Date;
 };
 
@@ -117,7 +116,6 @@ export default class Toot implements TootObj {
     followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblogsBy!: Account[];             // The accounts that retooted this toot
-    resolveAttempted?: boolean;        // Set to true if an attempt at resolving the toot has occurred
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
@@ -165,14 +163,13 @@ export default class Toot implements TootObj {
         this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];  // TODO: currently this is set in FollowedTagsScorer
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
-        this.resolveAttempted = toot.resolveAttempted ?? false;
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = toot.trendingLinks;  // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repair();
-        // Must be called after repair() to ensure mediaAttachments are repaired
+        // Must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(MediaCategory.AUDIO);
         this.imageAttachments = this.attachmentsOfType(MediaCategory.IMAGE);
         this.videoAttachments = VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType))
@@ -231,8 +228,8 @@ export default class Toot implements TootObj {
     }
 
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
-    async resolve(): Promise<Toot | undefined> {
-        if (this.resolveAttempted) return this.resolvedToot;
+    async resolve(): Promise<Toot> {
+        if (this.resolvedToot) return this.resolvedToot as Toot;
 
         try {
             this.resolvedToot = await MastoApi.instance.resolveToot(this);
@@ -242,7 +239,6 @@ export default class Toot implements TootObj {
             this.resolvedToot = this;
         }
 
-        this.resolveAttempted = true;
         return this.resolvedToot;
     }
 

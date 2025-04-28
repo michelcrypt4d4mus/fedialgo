@@ -67,7 +67,6 @@ class Toot {
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
     reblogsBy; // The accounts that retooted this toot
-    resolveAttempted; // Set to true if an attempt at resolving the toot has occurred
     resolvedToot; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
@@ -113,14 +112,13 @@ class Toot {
         this.followedTags = (toot.followedTags ?? []); // TODO: currently this is set in FollowedTagsScorer
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new account_1.default(account));
-        this.resolveAttempted = toot.resolveAttempted ?? false;
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = toot.trendingLinks; // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []);
         this.repair();
-        // Must be called after repair() to ensure mediaAttachments are repaired
+        // Must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(types_1.MediaCategory.AUDIO);
         this.imageAttachments = this.attachmentsOfType(types_1.MediaCategory.IMAGE);
         this.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
@@ -170,7 +168,7 @@ class Toot {
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
-        if (this.resolveAttempted)
+        if (this.resolvedToot)
             return this.resolvedToot;
         try {
             this.resolvedToot = await api_1.MastoApi.instance.resolveToot(this);
@@ -180,7 +178,6 @@ class Toot {
             console.error(`Failed to resolve toot:`, this);
             this.resolvedToot = this;
         }
-        this.resolveAttempted = true;
         return this.resolvedToot;
     }
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
