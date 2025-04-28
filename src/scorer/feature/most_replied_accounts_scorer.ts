@@ -23,7 +23,7 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot) {
-        const score = this.requiredData[toot.account.id] || 0;
-        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.id] || 0) : 0);
+        const score = this.scoreData[toot.account.id] || 0;
+        return score + (toot.reblog ? (this.scoreData[toot.reblog.account.id] || 0) : 0);
     };
 };

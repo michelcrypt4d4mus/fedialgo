@@ -12,8 +12,9 @@ import { sumValues } from "../helpers/collection_helpers";
 export default abstract class Scorer {
     defaultWeight: number;
     description: string;
+    isReady: boolean = false;  // Set to true when the scorer is ready to score
     name: WeightName;
-    isReady: boolean = false;
+    scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: WeightName) {
         // TODO: Maybe use this.constructor.name as the name property?
@@ -22,19 +23,20 @@ export default abstract class Scorer {
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 
-    async score(toot: Toot): Promise<number> {
-        this.checkIsReady();
-        return await this._score(toot);
-    }
-
-    abstract _score(_toot: Toot): Promise<number>;
-
+    // Return a ScorerInfo object with the description and the scorer itself
     getInfo(): ScorerInfo {
         return {
             description: this.description,
             scorer: this,
         };
     }
+
+    async score(toot: Toot): Promise<number> {
+        this.checkIsReady();
+        return await this._score(toot);
+    }
+
+    abstract _score(_toot: Toot): Promise<number>;
 
     private checkIsReady(): void {
         if (!this.isReady) {

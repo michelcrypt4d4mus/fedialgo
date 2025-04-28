@@ -25,6 +25,6 @@ export default class RetootsInFeedScorer extends FeedScorer {
     }
 
     async _score(toot: Toot) {
-        return this.requiredData[toot.realURI()] || 0;
+        return this.scoreData[toot.realURI()] || 0;
     }
 };

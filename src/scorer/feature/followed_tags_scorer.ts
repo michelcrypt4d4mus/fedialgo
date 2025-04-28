@@ -28,7 +28,7 @@ export default class FollowedTagsScorer extends FeatureScorer {
     // TODO: this is less than ideal as it mutates the Toot object. Consider refactoring.
     async _score(toot: Toot) {
         toot = toot.reblog || toot;
-        toot.followedTags = toot.tags.filter((tag) => tag.name in this.requiredData);
+        toot.followedTags = toot.tags.filter((tag) => tag.name in this.scoreData);
         return toot.followedTags.length;
     }
 };
