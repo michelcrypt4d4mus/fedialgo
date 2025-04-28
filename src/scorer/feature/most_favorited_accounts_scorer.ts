@@ -11,6 +11,7 @@ import { StringNumberDict, WeightName } from '../../types';
 export default class MostFavoritedAccountsScorer extends FeatureScorer {
     constructor() {
         super(WeightName.FAVOURITED_ACCOUNTS);
+        this.scoresRetoots = true;
     };
 
     async featureGetter(): Promise<StringNumberDict> {
@@ -19,6 +20,7 @@ export default class MostFavoritedAccountsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot) {
-        return this.requiredData[toot.account.webfingerURI()] || 0;
+        const score = this.requiredData[toot.account.webfingerURI()] || 0;
+        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.webfingerURI()] || 0) : 0);
     };
 };

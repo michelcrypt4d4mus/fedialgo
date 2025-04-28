@@ -14,6 +14,7 @@ export default abstract class Scorer {
     description: string;
     name: WeightName;
     isReady: boolean = false;
+    scoresRetoots: boolean = false;
 
     constructor(name: WeightName) {
         // TODO: Maybe use this.constructor.name as the name property?
@@ -51,8 +52,9 @@ export default abstract class Scorer {
         const weightedScores = {} as StringNumberDict;
         const userWeights = await Storage.getWeightings();
         const tootToScore = toot.reblog ?? toot;
-        const scores = await Promise.all(scorers.map(s => s.score(tootToScore)));
         tootToScore.followedTags ??= [];
+        // If scoresRetoots is true the scorer will handle both the original toot and the retoot
+        const scores = await Promise.all(scorers.map((s) => s.score(s.scoresRetoots ? toot : tootToScore)));
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).

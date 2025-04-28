@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * Score how many times the user has replied to the author of the toot.
+ * Score how many times the user has replied to the creator of the toot.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
@@ -13,6 +13,7 @@ const types_1 = require("../../types");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_REPLIED_ACCOUNTS);
+        this.scoresRetoots = true;
     }
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT
@@ -24,7 +25,8 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
     }
     ;
     async _score(toot) {
-        return this.requiredData[toot.account.id] || 0;
+        const score = this.requiredData[toot.account.id] || 0;
+        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.id] || 0) : 0);
     }
     ;
 }

@@ -14,6 +14,7 @@ const types_1 = require("../../types");
 class MostRetootedUsersScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_RETOOTED_ACCOUNTS);
+        this.scoresRetoots = true;
     }
     async featureGetter() {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();

@@ -12,6 +12,7 @@ import { StringNumberDict, WeightName } from "../../types";
 export default class MostRetootedUsersScorer extends FeatureScorer {
     constructor() {
         super(WeightName.MOST_RETOOTED_ACCOUNTS);
+        this.scoresRetoots = true;
     }
 
     async featureGetter(): Promise<StringNumberDict> {

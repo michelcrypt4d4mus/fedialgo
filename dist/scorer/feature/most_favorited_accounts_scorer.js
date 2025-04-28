@@ -13,6 +13,7 @@ const types_1 = require("../../types");
 class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.FAVOURITED_ACCOUNTS);
+        this.scoresRetoots = true;
     }
     ;
     async featureGetter() {
@@ -21,7 +22,8 @@ class MostFavoritedAccountsScorer extends feature_scorer_1.default {
     }
     ;
     async _score(toot) {
-        return this.requiredData[toot.account.webfingerURI()] || 0;
+        const score = this.requiredData[toot.account.webfingerURI()] || 0;
+        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.webfingerURI()] || 0) : 0);
     }
     ;
 }

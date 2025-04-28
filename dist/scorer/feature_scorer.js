@@ -20,7 +20,7 @@ class FeatureScorer extends scorer_1.default {
             this.requiredData = await this.featureGetter();
         }
         catch (e) {
-            console.warn(`Error in featureGetter() for ${this.constructor.name}:`, e);
+            console.error(`Error in featureGetter() for ${this.constructor.name}:`, e);
             this.requiredData = {};
         }
         console.log(`[${this.constructor.name}] featureGetter() returned:`, this.requiredData);

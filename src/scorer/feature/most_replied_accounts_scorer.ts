@@ -1,5 +1,5 @@
 /*
- * Score how many times the user has replied to the author of the toot.
+ * Score how many times the user has replied to the creator of the toot.
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
@@ -11,6 +11,7 @@ import { StringNumberDict, WeightName } from '../../types';
 export default class MostRepliedAccountsScorer extends FeatureScorer {
     constructor() {
         super(WeightName.MOST_REPLIED_ACCOUNTS);
+        this.scoresRetoots = true;
     }
 
     // Count replied per user. Note that this does NOT pull the Account object because that
@@ -23,6 +24,7 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot) {
-        return this.requiredData[toot.account.id] || 0;
+        const score = this.requiredData[toot.account.id] || 0;
+        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.id] || 0) : 0);
     };
 };
