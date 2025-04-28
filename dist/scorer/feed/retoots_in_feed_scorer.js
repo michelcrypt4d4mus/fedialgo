@@ -23,7 +23,7 @@ class RetootsInFeedScorer extends feed_scorer_1.default {
         }, {});
     }
     async _score(toot) {
-        return this.requiredData[toot.realURI()] || 0;
+        return this.scoreData[toot.realURI()] || 0;
     }
 }
 exports.default = RetootsInFeedScorer;

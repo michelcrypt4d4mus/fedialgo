@@ -14,23 +14,25 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 class Scorer {
     defaultWeight;
     description;
+    isReady = false; // Set to true when the scorer is ready to score
     name;
-    isReady = false;
+    scoreData = {}; // Background data used to score a toot
     constructor(name) {
         // TODO: Maybe use this.constructor.name as the name property?
         this.name = name;
         this.description = config_1.SCORERS_CONFIG[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
-    async score(toot) {
-        this.checkIsReady();
-        return await this._score(toot);
-    }
+    // Return a ScorerInfo object with the description and the scorer itself
     getInfo() {
         return {
             description: this.description,
             scorer: this,
         };
+    }
+    async score(toot) {
+        this.checkIsReady();
+        return await this._score(toot);
     }
     checkIsReady() {
         if (!this.isReady) {

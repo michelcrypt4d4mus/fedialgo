@@ -7,7 +7,6 @@ const scorer_1 = __importDefault(require("./scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
-    requiredData = {};
     constructor(scoreName) {
         super(scoreName);
     }
@@ -17,13 +16,13 @@ class FeatureScorer extends scorer_1.default {
     }
     async fetchRequiredData() {
         try {
-            this.requiredData = await this.featureGetter();
+            this.scoreData = await this.featureGetter();
         }
         catch (e) {
             console.error(`Error in featureGetter() for ${this.constructor.name}:`, e);
-            this.requiredData = {};
+            this.scoreData = {};
         }
-        console.log(`[${this.constructor.name}] featureGetter() returned:`, this.requiredData);
+        console.log(`[${this.constructor.name}] featureGetter() returned:`, this.scoreData);
         this.isReady = true;
         return []; // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }

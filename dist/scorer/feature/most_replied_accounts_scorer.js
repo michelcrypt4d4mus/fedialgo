@@ -24,8 +24,8 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
     }
     ;
     async _score(toot) {
-        const score = this.requiredData[toot.account.id] || 0;
-        return score + (toot.reblog ? (this.requiredData[toot.reblog.account.id] || 0) : 0);
+        const score = this.scoreData[toot.account.id] || 0;
+        return score + (toot.reblog ? (this.scoreData[toot.reblog.account.id] || 0) : 0);
     }
     ;
 }
