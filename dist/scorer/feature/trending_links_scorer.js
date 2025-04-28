@@ -17,7 +17,6 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     }
     async featureGetter() {
         this.trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
-        // TODO: could add numtoots? + (link.numToots || 0);
         // TODO: we don't need to return this, this.trendingLinks is enough
         return this.trendingLinks.reduce((accountsPostingLinkCounts, link) => {
             accountsPostingLinkCounts[link.url] = link.numAccounts || 0;

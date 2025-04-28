@@ -18,7 +18,6 @@ export default class TrendingLinksScorer extends FeatureScorer {
     async featureGetter(): Promise<StringNumberDict> {
         this.trendingLinks = await MastodonServer.fediverseTrendingLinks();
 
-        // TODO: could add numtoots? + (link.numToots || 0);
         // TODO: we don't need to return this, this.trendingLinks is enough
         return this.trendingLinks.reduce(
             (accountsPostingLinkCounts, link) => {
