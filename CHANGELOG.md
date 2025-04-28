@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.2
 * Repair media attachments with URL arguments in `remoteUrl`
 * Lower time between timeline pulls to 1 second
 * Make scorers work with the original toot, not just with the retoot
