@@ -13,6 +13,9 @@ export interface SerializableToot extends mastodon.v1.Status {
     trendingLinks?: TrendingLink[];
     trendingRank?: number;
     trendingTags?: TrendingTag[];
+    audioAttachments?: mastodon.v1.MediaAttachment[];
+    imageAttachments?: mastodon.v1.MediaAttachment[];
+    videoAttachments?: mastodon.v1.MediaAttachment[];
 }
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
@@ -26,9 +29,6 @@ interface TootObj extends SerializableToot {
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
-    audioAttachments: () => mastodon.v1.MediaAttachment[];
-    imageAttachments: () => mastodon.v1.MediaAttachment[];
-    videoAttachments: () => mastodon.v1.MediaAttachment[];
 }
 export default class Toot implements TootObj {
     id: string;
@@ -71,6 +71,9 @@ export default class Toot implements TootObj {
     trendingRank?: number;
     trendingLinks?: TrendingLink[];
     trendingTags: TrendingTag[];
+    audioAttachments: mastodon.v1.MediaAttachment[];
+    imageAttachments: mastodon.v1.MediaAttachment[];
+    videoAttachments: mastodon.v1.MediaAttachment[];
     constructor(toot: SerializableToot);
     ageInSeconds(): number;
     ageInHours(): number;
@@ -84,9 +87,6 @@ export default class Toot implements TootObj {
     resolve(): Promise<Toot | undefined>;
     homeserverURL(): Promise<string>;
     attachmentType(): MediaCategory | undefined;
-    audioAttachments(): mastodon.v1.MediaAttachment[];
-    imageAttachments(): mastodon.v1.MediaAttachment[];
-    videoAttachments(): mastodon.v1.MediaAttachment[];
     isInTimeline(filters: FeedFilterSettings): boolean;
     isValidForFeed(algo: TheAlgorithm): boolean;
     contentWithEmojis(fontSize?: number): string;

@@ -73,6 +73,9 @@ class Toot {
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
     trendingTags; // Tags that are trending in this toot
+    audioAttachments;
+    imageAttachments;
+    videoAttachments;
     constructor(toot) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
         this.id = toot.id;
@@ -117,6 +120,10 @@ class Toot {
         this.trendingLinks = toot.trendingLinks; // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []);
         this.repair();
+        // Must be called after repair() to ensure mediaAttachments are repaired
+        this.audioAttachments = this.attachmentsOfType(types_1.MediaCategory.AUDIO);
+        this.imageAttachments = this.attachmentsOfType(types_1.MediaCategory.IMAGE);
+        this.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
     // Time since this toot was sent in seconds
     ageInSeconds() {
@@ -190,24 +197,15 @@ class Toot {
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
-        if (this.audioAttachments().length > 0) {
-            return types_1.MediaCategory.AUDIO;
-        }
-        else if (this.imageAttachments().length > 0) {
+        if (this.imageAttachments.length > 0) {
             return types_1.MediaCategory.IMAGE;
         }
-        else if (this.videoAttachments().length > 0) {
+        else if (this.videoAttachments.length > 0) {
             return types_1.MediaCategory.VIDEO;
         }
-    }
-    audioAttachments() {
-        return this.attachmentsOfType(types_1.MediaCategory.AUDIO);
-    }
-    imageAttachments() {
-        return this.attachmentsOfType(types_1.MediaCategory.IMAGE);
-    }
-    videoAttachments() {
-        return string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
+        else if (this.audioAttachments.length > 0) {
+            return types_1.MediaCategory.AUDIO;
+        }
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {

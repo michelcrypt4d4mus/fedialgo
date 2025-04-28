@@ -58,6 +58,9 @@ export interface SerializableToot extends mastodon.v1.Status {
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
+    audioAttachments?: mastodon.v1.MediaAttachment[];
+    imageAttachments?: mastodon.v1.MediaAttachment[];
+    videoAttachments?: mastodon.v1.MediaAttachment[];
 };
 
 
@@ -73,9 +76,6 @@ interface TootObj extends SerializableToot {
     realURI: () => string;
     resolve: () => Promise<Toot | undefined>;
     tootedAt: () => Date;
-    audioAttachments: () => mastodon.v1.MediaAttachment[];
-    imageAttachments: () => mastodon.v1.MediaAttachment[];
-    videoAttachments: () => mastodon.v1.MediaAttachment[];
 };
 
 
@@ -123,6 +123,9 @@ export default class Toot implements TootObj {
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags: TrendingTag[];       // Tags that are trending in this toot
+    audioAttachments: mastodon.v1.MediaAttachment[];
+    imageAttachments: mastodon.v1.MediaAttachment[];
+    videoAttachments: mastodon.v1.MediaAttachment[];
 
     constructor(toot: SerializableToot) {
         // TODO is there a less dumb way to do this other than manually copying all the properties?
@@ -169,6 +172,10 @@ export default class Toot implements TootObj {
         this.trendingLinks = toot.trendingLinks;  // TODO: currently set in TrendingLinksScorer (not great)
         this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
         this.repair();
+        // Must be called after repair() to ensure mediaAttachments are repaired
+        this.audioAttachments = this.attachmentsOfType(MediaCategory.AUDIO);
+        this.imageAttachments = this.attachmentsOfType(MediaCategory.IMAGE);
+        this.videoAttachments = VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType))
     }
 
     // Time since this toot was sent in seconds
@@ -253,25 +260,13 @@ export default class Toot implements TootObj {
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType(): MediaCategory | undefined {
-        if (this.audioAttachments().length > 0) {
-            return MediaCategory.AUDIO;
-        } else if (this.imageAttachments().length > 0) {
+        if (this.imageAttachments.length > 0) {
             return MediaCategory.IMAGE;
-        } else if (this.videoAttachments().length > 0) {
+        } else if (this.videoAttachments.length > 0) {
             return MediaCategory.VIDEO;
+        } else if (this.audioAttachments.length > 0) {
+            return MediaCategory.AUDIO;
         }
-    }
-
-    audioAttachments(): mastodon.v1.MediaAttachment[] {
-        return this.attachmentsOfType(MediaCategory.AUDIO);
-    }
-
-    imageAttachments(): mastodon.v1.MediaAttachment[] {
-        return this.attachmentsOfType(MediaCategory.IMAGE);
-    }
-
-    videoAttachments(): mastodon.v1.MediaAttachment[] {
-        return VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
 
     // Return true if the toot has not been filtered out of the feed

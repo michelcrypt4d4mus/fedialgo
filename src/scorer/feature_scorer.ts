@@ -30,7 +30,7 @@ export default abstract class FeatureScorer extends Scorer {
             this.scoreData = {};
         }
 
-        console.log(`[${this.constructor.name}] featureGetter() returned:`, this.scoreData);
+        console.debug(`[${this.constructor.name}] featureGetter() returned:`, this.scoreData);
         this.isReady = true;
         return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
