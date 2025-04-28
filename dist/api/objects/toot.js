@@ -323,9 +323,6 @@ class Toot {
     tootedAt() {
         return new Date(this.createdAt);
     }
-    wasEdited() {
-        return !!this.editedAt;
-    }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
