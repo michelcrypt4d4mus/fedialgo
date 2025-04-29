@@ -83,7 +83,7 @@ class MastoApi {
     ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData() {
-        if (this.userData)
+        if (this.userData && !(await Storage_1.default.isDataStale()))
             return this.userData;
         console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
         const responses = await Promise.all([
@@ -103,6 +103,7 @@ class MastoApi {
     }
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
+    // TODO: this doesn't call Toot.setDependentProperties() which is required to fully build a timeline Toot!
     async fetchHomeFeed(numToots, maxId) {
         numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;

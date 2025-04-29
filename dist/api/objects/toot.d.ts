@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import { TheAlgorithm } from "../..";
-import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -95,6 +95,7 @@ export default class Toot implements TootObj {
     serialize(): SerializableToot;
     containsTagsMsg(): string | undefined;
     tootedAt(): Date;
+    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void;
     private repair;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;

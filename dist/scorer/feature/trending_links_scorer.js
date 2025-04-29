@@ -23,13 +23,6 @@ class TrendingLinksScorer extends feature_scorer_1.default {
             return accountsPostingLinkCounts;
         }, {});
     }
-    // Set the Toot.trendingLinks property
-    populateTrendingLinks(toot) {
-        toot = toot.reblog || toot;
-        if (!toot.trendingLinks) {
-            toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-        }
-    }
     // TODO: this mutates the toot object, which is not ideal
     async _score(toot) {
         toot = toot.reblog || toot;

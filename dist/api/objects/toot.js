@@ -318,6 +318,19 @@ class Toot {
     tootedAt() {
         return new Date(this.createdAt);
     }
+    // Some properties cannot be repaired and/or set until info about the user is available
+    setDependentProperties(userData, trendingLinks) {
+        this.isFollowed = this.account.webfingerURI() in userData.followedAccounts;
+        if (this.reblog)
+            this.reblog.isFollowed = this.reblog.account.webfingerURI() in userData.followedAccounts;
+        const toot = this.reblog || this;
+        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
+        toot.tags.forEach((tag) => {
+            toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
+            if (tag.name in userData.followedTags)
+                toot.followedTags.push(tag);
+        });
+    }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing

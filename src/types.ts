@@ -157,11 +157,6 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-export type TrendingTagToots = {
-    tags: TrendingTag[];
-    toots: Toot[];
-};
-
 interface TrendingTagsAndLinks {
     tags: TrendingTag[];
     links: TrendingLink[];

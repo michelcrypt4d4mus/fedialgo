@@ -39,7 +39,6 @@ declare class TheAlgorithm {
     scoreMutex: Mutex;
     mastodonServers: MastodonServersInfo;
     trendingData: TrendingStorage;
-    trendingLinksScorer: TrendingLinksScorer;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
@@ -56,6 +55,7 @@ declare class TheAlgorithm {
     logFeedInfo(prefix?: string): void;
     mostRecentTootAt(): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
+    private cleanupFeed;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;

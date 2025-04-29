@@ -79,6 +79,7 @@ Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: functio
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
 ;
 class TheAlgorithm {
+    // Variables set in the constructor
     api;
     user;
     filters;
@@ -87,14 +88,10 @@ class TheAlgorithm {
     // Variables with initial values
     feed = [];
     scoreMutex = new async_mutex_1.Mutex();
-    // Make mastodonServers and trendingData available to client apps
     mastodonServers = {};
     trendingData = { links: [], tags: [], toots: [] };
-    // The TrendingLinks Scorer is used to set all Toot.trendingLinks properties
-    trendingLinksScorer = new trending_links_scorer_1.default();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        this.trendingLinksScorer,
         new followed_tags_scorer_1.default(),
         new mentions_followed_scorer_1.default(),
         new chaos_scorer_1.default(),
@@ -106,6 +103,7 @@ class TheAlgorithm {
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
+        new trending_links_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
@@ -154,7 +152,11 @@ class TheAlgorithm {
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
-        let dataFetches = [api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId)];
+        // ORDER MATTERS! The results of these Promises are processed with shift()
+        let dataFetches = [
+            api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId),
+            api_1.MastoApi.instance.getUserData(),
+        ];
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
             this.loadingStatus = "initial data";
@@ -171,25 +173,19 @@ class TheAlgorithm {
         }
         const allResponses = await Promise.all(dataFetches);
         const homeToots = allResponses.shift(); // pop getTimelineToots() response from front of allResponses array
-        let trendingToots, trendingTagToots;
-        let otherToots = [];
-        if (allResponses.length > 0) {
-            trendingToots = allResponses.shift();
-            trendingTagToots = allResponses.shift();
-            otherToots = trendingToots.concat(trendingTagToots.toots);
-        }
-        // Remove stuff already retooted, invalid future timestamps, nulls, etc.
-        const newToots = [...homeToots, ...otherToots];
+        const userData = allResponses.shift();
+        const trendToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
+        const newToots = [...homeToots, ...trendToots];
         this.logTootCounts(newToots, homeToots);
-        const cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
-        const numRemoved = newToots.length - cleanNewToots.length;
-        console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
-        this.feed = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await mastodon_server_1.default.getTrendingData();
         this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
+        // Set userData dependent props on each toot, filter out dupe/invalid toots, build filters
+        newToots.forEach(toot => toot.setDependentProperties(userData, this.trendingData.links));
+        this.feed = this.cleanupFeed(newToots);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.MastoApi.instance.getUserData());
+        // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
@@ -237,6 +233,13 @@ class TheAlgorithm {
     // Return the URL for a given tag on the local server
     buildTagURL(tag) {
         return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
+    }
+    // Remove invalid and duplicate toots
+    cleanupFeed(toots) {
+        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(this));
+        const numRemoved = toots.length - cleanNewToots.length;
+        console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
+        return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
@@ -296,8 +299,6 @@ class TheAlgorithm {
             try {
                 // Feed scorers' data must be refreshed each time the feed changes
                 this.feedScorers.forEach(scorer => scorer.setFeed(this.feed));
-                // TrendingLinksScorer sets the Toot.trendingLinks property  // TODO: this sucks
-                this.feed.forEach(toot => this.trendingLinksScorer.populateTrendingLinks(toot));
                 await (0, collection_helpers_1.processPromisesBatch)(this.feed, Storage_1.default.getConfig().scoringBatchSize, async (toot) => await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers));
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));

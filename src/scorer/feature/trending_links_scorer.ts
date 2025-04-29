@@ -28,15 +28,6 @@ export default class TrendingLinksScorer extends FeatureScorer {
         );
     }
 
-    // Set the Toot.trendingLinks property
-    populateTrendingLinks(toot: Toot): void {
-        toot = toot.reblog || toot;
-
-        if (!toot.trendingLinks) {
-            toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-        }
-    }
-
     // TODO: this mutates the toot object, which is not ideal
     async _score(toot: Toot): Promise<number> {
         toot = toot.reblog || toot;
