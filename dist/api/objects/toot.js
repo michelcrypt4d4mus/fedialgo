@@ -360,11 +360,11 @@ class Toot {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
-                    console.debug(`Repairing broken image attachment in toot:`, this);
+                    console.info(`Repairing broken image attachment in toot:`, this);
                     media.type = types_1.MediaCategory.IMAGE;
                 }
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
-                    console.debug(`Repairing broken video attachment in toot:`, this);
+                    console.info(`Repairing broken video attachment in toot:`, this);
                     media.type = types_1.MediaCategory.VIDEO;
                 }
                 else {

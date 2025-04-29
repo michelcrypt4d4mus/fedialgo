@@ -442,10 +442,10 @@ export default class Toot implements TootObj {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if (isImage(media.remoteUrl)) {
-                    console.debug(`Repairing broken image attachment in toot:`, this);
+                    console.info(`Repairing broken image attachment in toot:`, this);
                     media.type = MediaCategory.IMAGE;
                 } else if (isVideo(media.remoteUrl)) {
-                    console.debug(`Repairing broken video attachment in toot:`, this);
+                    console.info(`Repairing broken video attachment in toot:`, this);
                     media.type = MediaCategory.VIDEO;
                 } else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
