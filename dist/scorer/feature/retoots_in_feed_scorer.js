@@ -12,8 +12,9 @@ class RetootsInFeedScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.RETOOTED_IN_FEED);
     }
+    // TODO: should this subtract one for the retoot that put the toot in the user's feed?
     async _score(toot) {
-        return toot.reblogsBy.length;
+        return toot.reblogsBy.length + (toot.reblog ? toot.reblog.reblogsBy.length : 0);
     }
 }
 exports.default = RetootsInFeedScorer;
