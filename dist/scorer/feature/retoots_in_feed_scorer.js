@@ -14,7 +14,14 @@ class RetootsInFeedScorer extends feature_scorer_1.default {
     }
     // TODO: should this subtract one for the retoot that put the toot in the user's feed?
     async _score(toot) {
-        return toot.reblogsBy.length + (toot.reblog ? toot.reblog.reblogsBy.length : 0);
+        if (toot.reblog) {
+            const reblog = toot.reblog;
+            const nonAuthorRetoots = reblog.reblogsBy.filter((acct) => acct.webfingerURI != reblog.account.webfingerURI);
+            return nonAuthorRetoots.length;
+        }
+        else {
+            return 0;
+        }
     }
 }
 exports.default = RetootsInFeedScorer;

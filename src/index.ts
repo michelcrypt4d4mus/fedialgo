@@ -156,6 +156,7 @@ class TheAlgorithm {
             this.loadingStatus = "initial data";
 
             // ORDER MATTERS! The results of these Promises are processed with shift()
+            // TODO: should we really make the user wait for the initial load to get all trending toots?
             dataFetches = dataFetches.concat([
                 MastodonServer.fediverseTrendingToots(),
                 fetchRecentTootsForTrendingTags(),
