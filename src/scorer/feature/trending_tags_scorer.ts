@@ -4,7 +4,10 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import Storage from '../../Storage';
 import { WeightName } from "../../types";
+
+const EXCESSIVE_TAGS_PENALTY = 0.1;
 
 
 export default class TrendingTagsScorer extends FeatureScorer {
@@ -13,7 +16,13 @@ export default class TrendingTagsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        toot = toot.reblog || toot;
-        return toot.trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+        let score = (toot.reblog || toot).trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+
+        if (toot.tags.length >= Storage.getConfig().excessiveTags) {
+            console.warn(`[${this.constructor.name}] Penalizing excessive tags (${toot.tags.length}) in toot:`, toot);
+            score *= EXCESSIVE_TAGS_PENALTY;
+        }
+
+        return score;
     }
 };

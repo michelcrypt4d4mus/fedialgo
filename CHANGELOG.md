@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Add Config.timelineDecayExponent param
+* Penalize trending tag toots if they have more than Config.excessiveTags total tags
+* Add `Config.timelineDecayExponent` param
 
 ### v0.20.5
 * Use reverse chronological order sort in `DiversityFeedScorer`

@@ -26,6 +26,7 @@ export type Config = {
     minServerMAU: number;
     timeoutMS: number;
     // Trending tags
+    excessiveTags: number;
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingLinksPerServer: number;
@@ -68,6 +69,7 @@ export const DEFAULT_CONFIG: Config = {
     timeoutMS: 5_000,                    // Timeout for API calls
 
     // Trending tags
+    excessiveTags: 25,                   // Toots with more than this many tags will be penalized
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 20,          // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server

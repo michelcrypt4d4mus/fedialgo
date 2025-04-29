@@ -29,6 +29,7 @@ exports.DEFAULT_CONFIG = {
     reloadFeaturesEveryNthOpen: 9,
     timeoutMS: 5000,
     // Trending tags
+    excessiveTags: 25,
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,
     numTrendingLinksPerServer: 20,
