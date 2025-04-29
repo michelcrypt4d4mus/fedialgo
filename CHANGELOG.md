@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Remove trending toot fetching from getTimelineToots() (remove the method, actually). getFeed() now handles that.
+* Remove trending toot fetching from `MastoApi.getTimelineToots()` (remove the method, actually). `TheAlgorithm.getFeed()` now handles trending toot retrieval
 * Penalize trending tag toots if they have more than `Config.excessiveTags` total tags
 * Add `Config.timelineDecayExponent` param
 
