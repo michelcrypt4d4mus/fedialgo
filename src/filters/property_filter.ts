@@ -81,7 +81,7 @@ const TOOT_MATCHERS: TootMatchers = {
         });
     },
     [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.account.webfingerURI());  // TODO maybe doesn't handle reblogs correctly
+        return validValues.includes(toot.account.webfingerURI);  // TODO maybe doesn't handle reblogs correctly
     },
 };
 

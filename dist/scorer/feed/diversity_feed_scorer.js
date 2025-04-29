@@ -22,18 +22,18 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed).reverse();
         // Collate the overall score for each account
         const accountScores = sortedToots.reduce((tootCounts, toot) => {
-            (0, collection_helpers_1.incrementCount)(tootCounts, toot.account.webfingerURI(), -1);
+            (0, collection_helpers_1.incrementCount)(tootCounts, toot.account.webfingerURI, -1);
             if (toot.reblog?.account)
-                (0, collection_helpers_1.incrementCount)(tootCounts, toot.reblog.account.webfingerURI(), -1);
+                (0, collection_helpers_1.incrementCount)(tootCounts, toot.reblog.account.webfingerURI, -1);
             return tootCounts;
         }, {});
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         return sortedToots.reduce((scores, toot) => {
-            (0, collection_helpers_1.incrementCount)(accountScores, toot.account.webfingerURI());
-            scores[toot.uri] = accountScores[toot.account.webfingerURI()] || 0;
+            (0, collection_helpers_1.incrementCount)(accountScores, toot.account.webfingerURI);
+            scores[toot.uri] = accountScores[toot.account.webfingerURI] || 0;
             if (toot.reblog) {
-                (0, collection_helpers_1.incrementCount)(accountScores, toot.reblog.account.webfingerURI());
-                scores[toot.uri] += (accountScores[toot.reblog.account.webfingerURI()] || 0);
+                (0, collection_helpers_1.incrementCount)(accountScores, toot.reblog.account.webfingerURI);
+                scores[toot.uri] += (accountScores[toot.reblog.account.webfingerURI] || 0);
             }
             return scores;
         }, {});

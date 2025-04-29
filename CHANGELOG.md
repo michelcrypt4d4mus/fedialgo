@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Consolidate all `Toot` post processing to `Toot.setDependentProperties()` method
+* Make Account.webfingerURI a string instead of a method that returns a string
 
 ### v0.20.6
 * Remove trending toot fetching from `MastoApi.getTimelineToots()` (remove the method, actually). `TheAlgorithm.getFeed()` now handles trending toot retrieval
@@ -80,7 +81,7 @@
 * Tweak `Toot.describe()` string
 
 ### v0.18.5
-* Use `Account.webfingerURI()` instead of `Account.acct`
+* Use `Account.webfingerURI` instead of `Account.acct`
 * Add `.webp` to `IMAGE_EXTENSIONS`
 * Get rid of `Toot.homserverAccountURL()`
 

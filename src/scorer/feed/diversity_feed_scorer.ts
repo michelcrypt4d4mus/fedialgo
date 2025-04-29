@@ -22,8 +22,8 @@ export default class DiversityFeedScorer extends FeedScorer {
         // Collate the overall score for each account
         const accountScores = sortedToots.reduce(
             (tootCounts, toot) => {
-                incrementCount(tootCounts, toot.account.webfingerURI(), -1);
-                if (toot.reblog?.account) incrementCount(tootCounts, toot.reblog.account.webfingerURI(), -1);
+                incrementCount(tootCounts, toot.account.webfingerURI, -1);
+                if (toot.reblog?.account) incrementCount(tootCounts, toot.reblog.account.webfingerURI, -1);
                 return tootCounts;
             },
             {} as StringNumberDict
@@ -32,12 +32,12 @@ export default class DiversityFeedScorer extends FeedScorer {
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         return sortedToots.reduce(
             (scores, toot) => {
-                incrementCount(accountScores, toot.account.webfingerURI());
-                scores[toot.uri] = accountScores[toot.account.webfingerURI()] || 0;
+                incrementCount(accountScores, toot.account.webfingerURI);
+                scores[toot.uri] = accountScores[toot.account.webfingerURI] || 0;
 
                 if (toot.reblog) {
-                    incrementCount(accountScores, toot.reblog.account.webfingerURI());
-                    scores[toot.uri] += (accountScores[toot.reblog.account.webfingerURI()] || 0);
+                    incrementCount(accountScores, toot.reblog.account.webfingerURI);
+                    scores[toot.uri] += (accountScores[toot.reblog.account.webfingerURI] || 0);
                 }
 
                 return scores;

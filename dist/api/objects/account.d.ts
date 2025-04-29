@@ -3,7 +3,7 @@ import { AccountNames } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
-    webfingerURI?: () => string;
+    webfingerURI: string;
 }
 export default class Account implements AccountObj {
     id: string;
@@ -32,13 +32,14 @@ export default class Account implements AccountObj {
     suspended?: boolean | null | undefined;
     limited?: boolean | null | undefined;
     roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
+    webfingerURI: string;
     constructor(account: mastodon.v1.Account);
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;
     homserverURL(): string;
     serialize(): mastodon.v1.Account;
-    webfingerURI(): string;
+    private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
 }
 export {};

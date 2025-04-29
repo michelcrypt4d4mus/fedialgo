@@ -225,7 +225,7 @@ export default class Toot implements TootObj {
 
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention(): boolean {
-        return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
+        return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI);
     }
 
     // Shortened string of content property stripped of HTML tags
@@ -297,7 +297,7 @@ export default class Toot implements TootObj {
         }
 
         // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in mutedAccounts) {
+        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI in mutedAccounts) {
             console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
@@ -363,8 +363,8 @@ export default class Toot implements TootObj {
 
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void {
-        this.isFollowed = this.account.webfingerURI() in userData.followedAccounts;
-        if (this.reblog) this.reblog.isFollowed = this.reblog.account.webfingerURI() in userData.followedAccounts;
+        this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
+        if (this.reblog) this.reblog.isFollowed = this.reblog.account.webfingerURI in userData.followedAccounts;
 
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
@@ -409,8 +409,8 @@ export default class Toot implements TootObj {
     // Returns true if this toot is by the fedialgo user
     private isUsersOwnToot(): boolean {
         const algoUser = MastoApi.instance.user;
-        if (this.account.webfingerURI() == algoUser.webfingerURI()) return true;
-        if (this.reblog && this.reblog.account.webfingerURI() == algoUser.webfingerURI()) return true;
+        if (this.account.webfingerURI == algoUser.webfingerURI) return true;
+        if (this.reblog && this.reblog.account.webfingerURI == algoUser.webfingerURI) return true;
         return false;
     }
 
@@ -428,11 +428,11 @@ export default class Toot implements TootObj {
 
         if (this.reblog){
             this.trendingRank ||= this.reblog.trendingRank;
-            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI());
+            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
 
-            if (!reblogsByAccts.includes(this.account.webfingerURI())) {
+            if (!reblogsByAccts.includes(this.account.webfingerURI)) {
                 if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.webfingerURI()}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
+                    console.log(`Didn't find '${this.account.webfingerURI}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
                 }
                 this.reblog.reblogsBy.push(this.account);
             }
@@ -493,7 +493,7 @@ export default class Toot implements TootObj {
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
-                    toot.reblog.reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI());
+                    toot.reblog.reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
                 }
             });
         });

@@ -20,10 +20,10 @@ export default class MentionsFollowedScorer extends FeatureScorer {
     // TODO: this could just return followedAccounts if the type of scoreData was extending to include AccountNames
     async featureGetter(): Promise<StringNumberDict> {
         this.followedAccounts = Object.values((await MastoApi.instance.getUserData()).followedAccounts);
-        return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI());
+        return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI);
     };
 
-    // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI()
+    // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI
     async _score(toot: Toot) {
         return (toot.reblog || toot).mentions.filter((m) => m.acct in this.scoreData).length;
     };

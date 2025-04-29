@@ -19,7 +19,7 @@ class InteractionsScorer extends acccount_scorer_1.default {
                 console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
                 return "NO_ACCOUNT";
             }
-            return new account_1.default(notif.account).webfingerURI();
+            return new account_1.default(notif.account).webfingerURI;
         });
     }
     ;

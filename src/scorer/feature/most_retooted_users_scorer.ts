@@ -17,6 +17,6 @@ export default class MostRetootedUsersScorer extends AccountScorer {
     async featureGetter(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getUserRecentToots();
         const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        return countValues<Toot>(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI());
+        return countValues<Toot>(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI);
     };
 };

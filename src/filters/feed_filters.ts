@@ -67,7 +67,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
     toots.forEach(toot => {
         incrementCount(tootCounts[PropertyName.APP], toot.application.name);
         incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
-        incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI());
+        incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI);
 
         // Count tags
         toot.tags.forEach((tag) => incrementCount(tootCounts[PropertyName.HASHTAG], tag.name));

@@ -15,6 +15,6 @@ export default class MostFavoritedAccountsScorer extends AccountScorer {
 
     async featureGetter(): Promise<StringNumberDict> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
-        return countValues<Toot>(recentFavourites, (toot) => toot.account?.webfingerURI());
+        return countValues<Toot>(recentFavourites, (toot) => toot.account?.webfingerURI);
     };
 };

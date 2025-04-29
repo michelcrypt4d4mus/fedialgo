@@ -83,7 +83,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
     toots.forEach(toot => {
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI());
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI);
         // Count tags
         toot.tags.forEach((tag) => (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name));
         // Aggregate type counts

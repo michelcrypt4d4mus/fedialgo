@@ -26,7 +26,7 @@ export default class InteractionsScorer extends AccountScorer {
                     return "NO_ACCOUNT";
                 }
 
-                return new Account(notif.account).webfingerURI();
+                return new Account(notif.account).webfingerURI;
             }
         );
     };

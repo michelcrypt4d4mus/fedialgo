@@ -10,7 +10,7 @@ import { MastoApi } from "../api";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
-    webfingerURI?: () => string;
+    webfingerURI: string;
 };
 
 
@@ -44,6 +44,8 @@ export default class Account implements AccountObj {
     suspended?: boolean | null | undefined;
     limited?: boolean | null | undefined;
     roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
+    // Fedialgo extension fields
+    webfingerURI: string;
 
     constructor(account: mastodon.v1.Account) {
         this.id = account.id;
@@ -74,11 +76,13 @@ export default class Account implements AccountObj {
         this.limited = account.limited || false;
         this.suspended = account.suspended || false;
         this.roles = account.roles || [];
+        // Fedialgo extension fields
+        this.webfingerURI = this.buildWebfingerURI();
     }
 
     // e.g. "Foobar (@foobar@mastodon.social)"
     describe(): string {
-        return `${this.displayName} (${this.webfingerURI()})`;
+        return `${this.displayName} (${this.webfingerURI})`;
     }
 
     displayNameWithEmojis(): string {
@@ -94,7 +98,7 @@ export default class Account implements AccountObj {
         if (this.homeserver() == MastoApi.instance.homeDomain) {
             return this.url;
         } else {
-            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI()}`;
+            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
 
@@ -107,7 +111,7 @@ export default class Account implements AccountObj {
     // Inject the @server info to accounts on the user's home server
     // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
     // TODO: Would require adjusting MentionsFollowedScorer (StatusMention.acct is not preceded with an '@').
-    webfingerURI(): string {
+    private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
             return this.acct;
         } else {
@@ -115,11 +119,11 @@ export default class Account implements AccountObj {
         }
     }
 
-    // Build a dictionary from the Account.webfingerURI() to the Account object for easy lookup
+    // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     public static buildAccountNames(accounts: Account[]): AccountNames {
         return accounts.reduce(
             (accountsDict, account) => {
-                accountsDict[account.webfingerURI()] = account;
+                accountsDict[account.webfingerURI] = account;
                 return accountsDict;
             },
             {} as AccountNames

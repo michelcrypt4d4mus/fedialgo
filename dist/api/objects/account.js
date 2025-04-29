@@ -33,6 +33,8 @@ class Account {
     suspended;
     limited;
     roles;
+    // Fedialgo extension fields
+    webfingerURI;
     constructor(account) {
         this.id = account.id;
         this.username = account.username;
@@ -62,10 +64,12 @@ class Account {
         this.limited = account.limited || false;
         this.suspended = account.suspended || false;
         this.roles = account.roles || [];
+        // Fedialgo extension fields
+        this.webfingerURI = this.buildWebfingerURI();
     }
     // e.g. "Foobar (@foobar@mastodon.social)"
     describe() {
-        return `${this.displayName} (${this.webfingerURI()})`;
+        return `${this.displayName} (${this.webfingerURI})`;
     }
     displayNameWithEmojis() {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
@@ -79,7 +83,7 @@ class Account {
             return this.url;
         }
         else {
-            return `https://${api_1.MastoApi.instance.homeDomain}/@${this.webfingerURI()}`;
+            return `https://${api_1.MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
     // Strip functions so it can be serialized to local storage
@@ -90,7 +94,7 @@ class Account {
     // Inject the @server info to accounts on the user's home server
     // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
     // TODO: Would require adjusting MentionsFollowedScorer (StatusMention.acct is not preceded with an '@').
-    webfingerURI() {
+    buildWebfingerURI() {
         if (this.acct.includes("@")) {
             return this.acct;
         }
@@ -98,10 +102,10 @@ class Account {
             return `${this.acct}@${this.homeserver()}`;
         }
     }
-    // Build a dictionary from the Account.webfingerURI() to the Account object for easy lookup
+    // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     static buildAccountNames(accounts) {
         return accounts.reduce((accountsDict, account) => {
-            accountsDict[account.webfingerURI()] = account;
+            accountsDict[account.webfingerURI] = account;
             return accountsDict;
         }, {});
     }

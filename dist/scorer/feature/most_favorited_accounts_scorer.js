@@ -17,7 +17,7 @@ class MostFavoritedAccountsScorer extends acccount_scorer_1.default {
     ;
     async featureGetter() {
         const recentFavourites = await api_1.MastoApi.instance.fetchRecentFavourites();
-        return (0, collection_helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI());
+        return (0, collection_helpers_1.countValues)(recentFavourites, (toot) => toot.account?.webfingerURI);
     }
     ;
 }

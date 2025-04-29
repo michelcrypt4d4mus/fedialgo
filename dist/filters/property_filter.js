@@ -75,7 +75,7 @@ const TOOT_MATCHERS = {
         });
     },
     [PropertyName.USER]: (toot, validValues) => {
-        return validValues.includes(toot.account.webfingerURI()); // TODO maybe doesn't handle reblogs correctly
+        return validValues.includes(toot.account.webfingerURI); // TODO maybe doesn't handle reblogs correctly
     },
 };
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
