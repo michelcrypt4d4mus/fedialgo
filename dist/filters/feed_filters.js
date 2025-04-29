@@ -27,6 +27,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeFiltersWithSummaryInfo = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+/*
+ * Helpers for building and serializing a complete set of FeedFilterSettings.
+ */
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));

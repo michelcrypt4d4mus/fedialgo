@@ -1,14 +1,11 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
-import { mastodon } from "masto";
-
-import Account from "../api/objects/account";
 import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { FeedFilterSettings, FilterOptionArgs, PropertyFilters, NumericFilters, StringNumberDict, WeightName, UserData } from "../types";
+import { FeedFilterSettings, PropertyFilters, NumericFilters, StringNumberDict, WeightName, UserData } from "../types";
 import { incrementCount } from "../helpers/collection_helpers";
 import { MastoApi } from "../api/api";
 import { TYPE_FILTERS } from "./property_filter";

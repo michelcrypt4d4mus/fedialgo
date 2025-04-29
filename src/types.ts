@@ -102,14 +102,6 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
-// TODO: this is almost the same as UserData type...
-export type FilterOptionArgs = {
-    toots: Toot[];
-    followedAccounts: Account[];
-    followedTags: StringNumberDict;
-    serverSideFilters: mastodon.v2.Filter[];
-};
-
 // Holds basic info about a given mastodon server
 export type MastodonServerInfo = {
     domain: string;
@@ -187,7 +179,6 @@ export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
 // Data retrieved at startup and stored in TheAlgorithm
-// TODO: this is almost the same as FilterOptionArgs type...
 export type UserData = {
     followedAccounts: AccountNames,
     followedTags: StringNumberDict,
