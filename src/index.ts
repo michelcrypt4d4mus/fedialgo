@@ -229,7 +229,6 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        // console.debug(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
         console.debug(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 
@@ -346,8 +345,10 @@ class TheAlgorithm {
 
     // Utility method to log progress of getFeed() calls
     private logTootCounts(toots: Toot[], newHomeToots: Toot[]): void {
+        const numFollowedAccts = Object.keys(MastoApi.instance.userData?.followedAccounts || []).length;
+
         let msg = [
-            `Got ${toots.length} new toots from ${Object.keys(MastoApi.instance.userData?.followedAccounts || []).length} followed accts`,
+            `Got ${toots.length} new toots from ${numFollowedAccts} followed accts`,
             `${newHomeToots.length} new home toots`,
             `${toots.length} total new toots`,
             `this.feed has ${this.feed.length} toots`,

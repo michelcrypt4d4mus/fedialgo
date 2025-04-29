@@ -186,9 +186,16 @@ export default class Toot implements TootObj {
         return this.ageInSeconds() / 3600;
     }
 
-    // Returns true if the fedialgo user is mentioned in the toot
-    containsUserMention(): boolean {
-        return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
+    // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
+    // TODO: can one toot have video and imagess? If so, we should return both (or something)
+    attachmentType(): MediaCategory | undefined {
+        if (this.imageAttachments.length > 0) {
+            return MediaCategory.IMAGE;
+        } else if (this.videoAttachments.length > 0) {
+            return MediaCategory.VIDEO;
+        } else if (this.audioAttachments.length > 0) {
+            return MediaCategory.AUDIO;
+        }
     }
 
     // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
@@ -202,10 +209,114 @@ export default class Toot implements TootObj {
         }
     }
 
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsMsg(): string | undefined {
+        const followedTagsMsg = this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS);
+        const trendingTagsMsg = this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS);
+
+        if (followedTagsMsg && trendingTagsMsg) {
+            return [followedTagsMsg, trendingTagsMsg].join("; ");
+        } else if (followedTagsMsg) {
+            return followedTagsMsg;
+        } else if (trendingTagsMsg) {
+            return trendingTagsMsg;
+        }
+    }
+
+    // Returns true if the fedialgo user is mentioned in the toot
+    containsUserMention(): boolean {
+        return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI());
+    }
+
+    // Shortened string of content property stripped of HTML tags
+    contentShortened(maxChars?: number): string {
+        maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
+        let content = htmlToText(this.reblog?.content || this.content || "");
+        content = replaceHttpsLinks(content);
+
+        // Fill in placeholders if content string is empty, truncate it if it's too long
+        if (content.length == 0) {
+            let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
+            content = `<${capitalCase(mediaType)} post by ${this.realAccount().describe()}>`;
+        } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
+            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
+        }
+
+        return content;
+    }
+
+    // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
+    contentWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
+        const emojis = (this.emojis || []).concat(this.account.emojis || []);
+        return replaceEmojiShortcodesWithImageTags(this.content, emojis, fontSize);
+    }
+
     // String that describes the toot in not so many characters
     describe(): string {
         let msg = `${this.account.describe()} [${this.createdAt.split('.')[0]}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
+    }
+
+    // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
+    //          this: https://fosstodon.org/@kate/114360290341300577
+    //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+    async homeserverURL(): Promise<string> {
+        const resolved = await this.resolve();
+        if (!resolved) return this.realURL();
+        const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
+        console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
+        return homeURL;
+    }
+
+    // Return true if it's a direct message
+    isDM(): boolean {
+        return this.visibility === TootVisibility.DIRECT_MSG;
+    }
+
+    // Return true if the toot has not been filtered out of the feed
+    isInTimeline(filters: FeedFilterSettings): boolean {
+        let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
+        return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
+    }
+
+    // Return true if it's a trending toot or contains any trending hashtags or links
+    isTrending(): boolean {
+        return !!(
+               this.scoreInfo?.rawScores[WeightName.TRENDING_TOOTS]
+            || this.trendingLinks?.length
+            || this.trendingTags?.length
+        );
+    }
+
+    // Return false if Toot should be discarded from feed altogether and permanently
+    isValidForFeed(algo: TheAlgorithm): boolean {
+        const mutedAccounts = MastoApi.instance.userData?.mutedAccounts || {};  // TODO: should we pass UserData as arg?
+
+        // Remove user's own toots
+        if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
+            return false;
+        }
+
+        // Remove muted accounts and toots
+        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in mutedAccounts) {
+            console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+            return false;
+        }
+
+        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
+        if (Date.now() < this.tootedAt().getTime()) {
+            console.warn(`Removed toot with future timestamp:`, this);
+            return false;
+        }
+
+        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
+        if (this.filtered?.length) {
+            const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
+            console.debug(`Removed toot matching server filter (${filterMatchStr}):`, this);
+            return false;
+        }
+
+        return true;
     }
 
     // Sum of the reblogs, replies, and local server favourites
@@ -243,159 +354,12 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
-    // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
-    //          this: https://fosstodon.org/@kate/114360290341300577
-    //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
-    async homeserverURL(): Promise<string> {
-        const resolved = await this.resolve();
-        if (!resolved) return this.realURL();
-        const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
-        console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
-        return homeURL;
-    }
-
-    // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
-    // TODO: can one toot have video and imagess? If so, we should return both (or something)
-    attachmentType(): MediaCategory | undefined {
-        if (this.imageAttachments.length > 0) {
-            return MediaCategory.IMAGE;
-        } else if (this.videoAttachments.length > 0) {
-            return MediaCategory.VIDEO;
-        } else if (this.audioAttachments.length > 0) {
-            return MediaCategory.AUDIO;
-        }
-    }
-
-    // Return true if the toot has not been filtered out of the feed
-    isInTimeline(filters: FeedFilterSettings): boolean {
-        let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
-        return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
-    }
-
-    // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(algo: TheAlgorithm): boolean {
-        const mutedAccounts = MastoApi.instance.userData?.mutedAccounts || {};
-
-        // Remove user's own toots
-        if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
-            return false;
-        }
-
-        // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI() in mutedAccounts) {
-            console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
-            return false;
-        }
-
-        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < this.tootedAt().getTime()) {
-            console.warn(`Removed toot with future timestamp:`, this);
-            return false;
-        }
-
-        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-        if (this.filtered?.length) {
-            const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
-            console.debug(`Removed toot matching server filter (${filterMatchStr}):`, this);
-            return false;
-        }
-
-        return true;
-    }
-
-    // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
-    contentWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
-        const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return replaceEmojiShortcodesWithImageTags(this.content, emojis, fontSize);
-    }
-
-    // Return true if it's a direct message
-    isDM(): boolean {
-        return this.visibility === TootVisibility.DIRECT_MSG;
-    }
-
-    // Return true if it's a trending toot
-    isTrending(): boolean {
-        return !!(
-               this.scoreInfo?.rawScores[WeightName.TRENDING_TOOTS]
-            || this.trendingLinks?.length
-            || this.trendingTags?.length
-        );
-    }
-
-    // Shortened string of content property stripped of HTML tags
-    contentShortened(maxChars?: number): string {
-        maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
-        let content = htmlToText(this.reblog?.content || this.content || "");
-        content = replaceHttpsLinks(content);
-
-        // Fill in placeholders if content string is empty, truncate it if it's too long
-        if (content.length == 0) {
-            let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${capitalCase(mediaType)} post by ${this.realAccount().describe()}>`;
-        } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
-            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
-        }
-
-        return content;
-    }
-
-    // Returns a simplified version of the toot for logging
-    condensedStatus(): object {
-        // Account info for the person who tooted it
-        let accountLabel = this.account.describe();
-        if (this.reblog) accountLabel += ` (⬆ retooting ${this.reblog.account.describe()} ⬆)`;
-        // Attachment info
-        let mediaAttachments = this.mediaAttachments.map(attachment => attachment.type);
-        if (mediaAttachments.length == 0) mediaAttachments = [];
-
-        const infoObj = {
-            content: this.contentShortened(),
-            from: `${accountLabel} [${this.createdAt}]`,
-            inReplyToId: this.inReplyToId,
-            mediaAttachments: mediaAttachments,
-            raw: this,
-            retootOf: this.reblog ? `${this.reblog.account.describe()} (${this.reblog.createdAt})` : null,
-            scoreInfo: this.scoreInfo,
-            url: this.url,
-
-            properties: {
-                favouritesCount: this.favouritesCount,
-                reblogsCount: this.reblogsCount,
-                repliesCount: this.repliesCount,
-                tags: (this.tags || this.reblog?.tags || []).map(t => `#${t.name}`).join(" "),
-            },
-        };
-
-        return Object.keys(infoObj)
-            .filter((k) => infoObj[k as keyof typeof infoObj] != null)
-            .reduce((obj, k) => ({ ...obj, [k]: infoObj[k as keyof typeof infoObj] }), {});
-    }
-
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
         const toot = {...this} as SerializableToot;
         toot.account = this.account.serialize();
         toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
         return toot;
-    }
-
-    // Generate a string describing the followed and trending tags in the toot
-    containsTagsMsg(): string | undefined {
-        const followedTagsMsg = this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS);
-        const trendingTagsMsg = this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS);
-
-        if (followedTagsMsg && trendingTagsMsg) {
-            return [followedTagsMsg, trendingTagsMsg].join("; ");
-        } else if (followedTagsMsg) {
-            return followedTagsMsg;
-        } else if (trendingTagsMsg) {
-            return trendingTagsMsg;
-        }
-    }
-
-    tootedAt(): Date {
-        return new Date(this.createdAt);
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available
@@ -410,6 +374,10 @@ export default class Toot implements TootObj {
             toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
             if (tag.name in userData.followedTags) toot.followedTags.push(tag);
         });
+    }
+
+    tootedAt(): Date {
+        return new Date(this.createdAt);
     }
 
     // Repair toot properties:
