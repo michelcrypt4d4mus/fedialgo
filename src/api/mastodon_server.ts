@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import Toot, { SerializableToot } from "./objects/toot";
 import { ageInSeconds } from "../helpers/time_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { MastodonServersInfo, StorageKey, TrendingLink, TrendingTag } from "../types";
+import { MastodonServersInfo, StorageKey, TrendingLink, TrendingStorage, TrendingTag } from "../types";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -141,6 +141,14 @@ export default class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
+
+    static async getTrendingData(): Promise<TrendingStorage> {
+        return {
+            links: await this.fediverseTrendingLinks(),
+            tags: await this.fediverseTrendingTags(),
+            toots: await this.fediverseTrendingToots(),
+        };
+    }
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {

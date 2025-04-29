@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove trending toot fetching from getTimelineToots() (remove the method, actually). getFeed() now handles that.
 * Penalize trending tag toots if they have more than `Config.excessiveTags` total tags
 * Add `Config.timelineDecayExponent` param
 

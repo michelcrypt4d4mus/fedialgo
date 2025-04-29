@@ -29,7 +29,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
-const trending_tags_1 = __importDefault(require("../feeds/trending_tags"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
@@ -82,34 +81,6 @@ class MastoApi {
             this.mutexes[types_1.WeightName[key]] = new async_mutex_1.Mutex();
     }
     ;
-    // Get the toots that make up the user's home timeline feed
-    async getTimelineToots(numTimelineToots, maxId) {
-        console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        numTimelineToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
-        let promises = [
-            this.fetchHomeFeed(numTimelineToots, maxId),
-        ];
-        // Only fetch trending toots first time this is called (skip when paging through timeline)
-        // TODO: move the trending toots stuff back to getFeed() and remove this
-        if (!maxId) {
-            promises = promises.concat([
-                mastodon_server_1.default.fediverseTrendingToots(),
-                (0, trending_tags_1.default)(), // ORDER MATTERS! must be 2nd for handling below
-            ]);
-        }
-        const allResponses = await Promise.all(promises);
-        // console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
-        const homeToots = allResponses.shift(); // Pop timeline toots off the array
-        let trendingToots, trendingTagToots;
-        let otherToots = [];
-        if (allResponses.length > 0) {
-            trendingToots = allResponses.shift();
-            trendingTagToots = allResponses.shift();
-            otherToots = trendingToots.concat(trendingTagToots.toots);
-        }
-        return { homeToots, otherToots };
-    }
-    ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData() {
         if (this.userData)
@@ -132,6 +103,7 @@ class MastoApi {
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
+        numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const statuses = await this.fetchData({

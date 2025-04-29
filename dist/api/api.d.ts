@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
-import { MastodonServersInfo, StorageKey, TimelineData, UserData, WeightName } from "../types";
+import { MastodonServersInfo, StorageKey, UserData, WeightName } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -18,7 +18,6 @@ export declare class MastoApi {
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
-    getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData>;
     getUserData(): Promise<UserData>;
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
     searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]>;

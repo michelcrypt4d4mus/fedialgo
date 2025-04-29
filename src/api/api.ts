@@ -88,39 +88,6 @@ export class MastoApi {
         for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
     };
 
-    // Get the toots that make up the user's home timeline feed
-    async getTimelineToots(numTimelineToots?: number, maxId?: string): Promise<TimelineData> {
-        console.debug(`[MastoApi] getFeed(numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        numTimelineToots ||= Storage.getConfig().numTootsInFirstFetch;
-
-        let promises: Promise<any>[] = [
-            this.fetchHomeFeed(numTimelineToots, maxId),
-        ];
-
-        // Only fetch trending toots first time this is called (skip when paging through timeline)
-        // TODO: move the trending toots stuff back to getFeed() and remove this
-        if (!maxId) {
-            promises = promises.concat([
-                MastodonServer.fediverseTrendingToots(),
-                fetchRecentTootsForTrendingTags(),  // ORDER MATTERS! must be 2nd for handling below
-            ]);
-        }
-
-        const allResponses = await Promise.all(promises);
-        // console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
-        const homeToots = allResponses.shift();  // Pop timeline toots off the array
-        let trendingToots, trendingTagToots;
-        let otherToots = [];
-
-        if (allResponses.length > 0) {
-            trendingToots = allResponses.shift();
-            trendingTagToots = allResponses.shift();
-            otherToots = trendingToots.concat(trendingTagToots.toots);
-        }
-
-        return { homeToots, otherToots } as TimelineData;
-    };
-
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData(): Promise<UserData> {
         if (this.userData) return this.userData;
@@ -145,6 +112,7 @@ export class MastoApi {
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
+        numToots ||= Storage.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
 

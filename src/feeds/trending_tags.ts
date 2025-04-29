@@ -28,6 +28,8 @@ import { TrendingTag, TrendingTagToots } from "../types";
 const LOG_PREFIX = "TrendingTags";
 
 
+// TODO: Move this to mastodon_server.ts or api.ts
+// TODO: cache results?
 export default async function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots> {
     const trendingTags = await MastodonServer.fediverseTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));

@@ -128,6 +128,13 @@ class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
+    static async getTrendingData() {
+        return {
+            links: await this.fediverseTrendingLinks(),
+            tags: await this.fediverseTrendingTags(),
+            toots: await this.fediverseTrendingToots(),
+        };
+    }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
         const releaseMutex = await trendingMutexes[types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS].acquire();

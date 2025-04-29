@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
+import fetchRecentTootsForTrendingTags from './feeds/trending_tags';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
@@ -146,15 +147,18 @@ class TheAlgorithm {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-        let dataFetches: Promise<any>[] = [MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
+        let dataFetches: Promise<any>[] = [MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId)];
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
             this.loadingStatus = "initial data";
 
+            // FeatureScorers return empty arrays; they're just here for load time parallelism
+            // ORDER MATTERS! The results of these Promises are processed with shift()
             dataFetches = dataFetches.concat([
                 MastoApi.instance.getUserData(),
-                // FeatureScorers return empty arrays; they're just here for load time parallelism
+                MastodonServer.fediverseTrendingToots(),
+                fetchRecentTootsForTrendingTags(),
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         } else {
@@ -162,24 +166,29 @@ class TheAlgorithm {
         }
 
         const allResponses = await Promise.all(dataFetches);
-        // pop getTimelineToots() response from front of allResponses array
-        const { homeToots, otherToots } = allResponses.shift();
-        const newToots = [...homeToots, ...otherToots];
-        this.logTootCounts(newToots, homeToots);
+        const homeToots = allResponses.shift();  // pop getTimelineToots() response from front of allResponses array
+        let trendingToots, trendingTagToots;
+        let otherToots = [];
 
-        // All these should be loading from local storage as the initial fetch happened in the
-        // course of getting the trending data.
-        this.trendingData.links = await MastodonServer.fediverseTrendingLinks();
-        this.trendingData.tags = await MastodonServer.fediverseTrendingTags();
-        this.trendingData.toots = await MastodonServer.fediverseTrendingToots();
-        this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
+        if (allResponses.length > 0) {
+            const _userData = allResponses.shift();  // pop getUserData() response from front of allResponses array
+            trendingToots = allResponses.shift();
+            trendingTagToots = allResponses.shift();
+            otherToots = trendingToots.concat(trendingTagToots.toots);
+        }
 
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
+        const newToots = [...homeToots, ...otherToots];
+        this.logTootCounts(newToots, homeToots);
         const cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         this.feed = Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
 
+        // trendingData and mastodonServers should be getting loaded from cached data in local storage
+        // as the initial fetch happened in the course of getting the trending toots.
+        this.trendingData = await MastodonServer.getTrendingData();
+        this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
         this.filters = initializeFiltersWithSummaryInfo(this.feed, MastoApi.instance.userData);
         this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
         return this.scoreFeed.bind(this)();
