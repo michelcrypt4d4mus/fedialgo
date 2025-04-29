@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.7
 * Consolidate all `Toot` post processing to `Toot.setDependentProperties()` method
 * (Optimization) Make Account.webfingerURI a string instead of a method that returns a string
 
