@@ -212,7 +212,7 @@ class MastodonServer {
     static async mastodonServersInfo() {
         console.debug(`[mastodonServersInfo] fetching remote server info...`);
         const config = Storage_1.default.getConfig();
-        const follows = await api_1.MastoApi.instance.fetchFollowedAccounts(); // TODO: this is a major bottleneck
+        const follows = await api_1.MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
         const mostFollowedServers = (0, collection_helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);

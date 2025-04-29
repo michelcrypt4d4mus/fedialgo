@@ -34,7 +34,6 @@ const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const api_1 = require("../api/api");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -73,7 +72,6 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // TODO: just pull from instance, no need for userData arg
 function initializeFiltersWithSummaryInfo(toots, userData) {
-    userData ||= api_1.MastoApi.instance.userData;
     const { followedAccounts, followedTags, serverSideFilters } = userData;
     const filters = buildNewFilterSettings();
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {

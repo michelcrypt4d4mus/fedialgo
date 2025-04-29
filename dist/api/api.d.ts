@@ -22,12 +22,12 @@ export declare class MastoApi {
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
     searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
-    fetchFollowedAccounts(): Promise<Account[]>;
+    getFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getRecentNotifications(): Promise<mastodon.v1.Notification[]>;
     fetchRecentFavourites(): Promise<Toot[]>;
     fetchBlockedAccounts(): Promise<Account[]>;
-    fetchMutedAccounts(): Promise<Account[]>;
+    getMutedAccounts(): Promise<Account[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getMastodonServersInfo(): Promise<MastodonServersInfo>;
     getTopServerDomains(): Promise<string[]>;

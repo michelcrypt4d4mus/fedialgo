@@ -7,7 +7,6 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class FollowedTagsScorer extends feature_scorer_1.default {
-    followedTags = [];
     constructor() {
         super(types_1.WeightName.FOLLOWED_TAGS);
     }

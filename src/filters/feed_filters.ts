@@ -51,9 +51,8 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // TODO: just pull from instance, no need for userData arg
-export function initializeFiltersWithSummaryInfo(toots: Toot[], userData?: UserData): FeedFilterSettings {
-    userData ||= MastoApi.instance.userData;
-    const { followedAccounts, followedTags, serverSideFilters } = userData as UserData;
+export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserData): FeedFilterSettings {
+    const { followedAccounts, followedTags, serverSideFilters } = userData;
     const filters: FeedFilterSettings = buildNewFilterSettings();
 
     const tootCounts = Object.values(PropertyName).reduce(
@@ -76,7 +75,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData?: UserD
         // Lowercase and count tags
         toot.tags.forEach((tag) => {
             toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
-            if (tag.name in followedTags) toot.followedTags.push(tag);
+            if (tag.name in followedTags) toot.followedTags.push(tag);  // TODO: this is a bad place for this
             incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
         });
 

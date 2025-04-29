@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchRecentTootsForTrendingTags = void 0;
 /*
  * Pull top trending tags on mastodon servers and get a set of toots for each.
  * Example trending tag:
@@ -41,7 +42,7 @@ async function fetchRecentTootsForTrendingTags() {
         toots: toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots),
     };
 }
-exports.default = fetchRecentTootsForTrendingTags;
+exports.fetchRecentTootsForTrendingTags = fetchRecentTootsForTrendingTags;
 ;
 // Get latest toots for a given tag and populate trendingToots property
 // TODO: there's an endpoint for getting recent tags but this is using the search endpoint.

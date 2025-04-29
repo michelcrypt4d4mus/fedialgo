@@ -92,6 +92,23 @@ const [feed, setFeed] = useState<Toot[]>([]);
 const algorithm = await TheAlgorithm.create({api: api, user: currentUser, setFeedInApp: setFeed})
 ```
 
+### Fediverse Trending Data
+`TheAlgorithm` also has properties that can be accessed to get at the current "trending" fediverse data.
+
+```typescript
+// Trending links
+algorithm.trendingData.links.foreach((link) => console.log(`Link '${link.uri}' tooted by ${link.numAccounts} accounts`));
+
+// Trending tags
+algorithm.trendingData.links.foreach((tag) => console.log(`Tag '${tag.name}' tooted by ${tag.numAccounts} accounts`));
+
+// Trending toots
+algorithm.trendingData.toots.foreach((toot) => console.log(`Trending toot w/rank ${toot.trendingRank}: '${toot.describe()}'`));
+
+// Popular servers
+algorithm.mastodonServers.foreach((server) => console.log(`Server used to determine trending data:`, server);
+```
+
 ### `Toot` API
 The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
 

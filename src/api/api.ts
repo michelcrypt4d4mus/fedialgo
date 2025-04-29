@@ -6,21 +6,13 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
-import fetchRecentTootsForTrendingTags from "../feeds/trending_tags";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { countValues } from "../helpers/collection_helpers";
 import { extractDomain } from '../helpers/string_helpers';
+import { MastodonServersInfo, StorableObj, StorageKey, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import {
-    MastodonServersInfo,
-    StorableObj,
-    StorageKey,
-    TimelineData,
-    UserData,
-    WeightName
-} from "../types";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -94,16 +86,17 @@ export class MastoApi {
         console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
 
         const responses = await Promise.all([
-            this.fetchFollowedAccounts(),
-            this.fetchMutedAccounts(),
+            this.getFollowedAccounts(),
             this.getFollowedTags(),
+            this.getMutedAccounts(),
             this.getServerSideFilters(),
         ]);
 
+        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: Account.buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[2], tag => tag.name),
-            mutedAccounts: Account.buildAccountNames(responses[1]),
+            followedTags: countValues<mastodon.v1.Tag>(responses[1], tag => tag.name),
+            mutedAccounts: Account.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };
 
@@ -169,7 +162,7 @@ export class MastoApi {
     };
 
     // Get accounts the user is following
-    async fetchFollowedAccounts(): Promise<Account[]> {
+    async getFollowedAccounts(): Promise<Account[]> {
         const followedAccounts = await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: StorageKey.FOLLOWED_ACCOUNTS,
@@ -216,7 +209,7 @@ export class MastoApi {
         return blockedAccounts.map(a => new Account(a));
     };
 
-    async fetchMutedAccounts(): Promise<Account[]> {
+    async getMutedAccounts(): Promise<Account[]> {
         const mutedAccounts = await this.fetchData<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
             label: StorageKey.MUTED_ACCOUNTS
@@ -318,6 +311,8 @@ export class MastoApi {
     };
 
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
+    // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
+    // See comment above on FetchParams object for more info about arguments
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
         const logPrefix = `[API ${label}]`;

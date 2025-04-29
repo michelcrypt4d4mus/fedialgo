@@ -35,7 +35,6 @@ const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const trending_tags_1 = __importDefault(require("./feeds/trending_tags"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
@@ -64,6 +63,7 @@ const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const feed_filters_1 = require("./filters/feed_filters");
 const weight_presets_1 = require("./scorer/weight_presets");
+const trending_tags_1 = require("./feeds/trending_tags");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
@@ -83,14 +83,14 @@ class TheAlgorithm {
     user;
     filters;
     loadingStatus; // Status message about what is being loaded
+    setFeedInApp; // Optional callback to set the feed in the app using this package
     // Variables with initial values
     feed = [];
-    mastodonServers = {};
     scoreMutex = new async_mutex_1.Mutex();
+    // Make mastodonServers and trendingData available to client apps
+    mastodonServers = {};
     trendingData = { links: [], tags: [], toots: [] };
-    // Optional callback to set the feed in the code using this package
-    setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
-    // Scorers
+    // The TrendingLinks Scorer is used to set all Toot.trendingLinks properties
     trendingLinksScorer = new trending_links_scorer_1.default();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
@@ -146,7 +146,7 @@ class TheAlgorithm {
     constructor(params) {
         this.api = params.api;
         this.user = params.user;
-        this.setFeedInApp = params.setFeedInApp ?? this.setFeedInApp;
+        this.setFeedInApp = params.setFeedInApp ?? ((f) => console.debug(`Default setFeedInApp() called`));
         api_1.MastoApi.init(this.api, this.user);
         this.filters = (0, feed_filters_1.buildNewFilterSettings)();
     }
@@ -158,12 +158,11 @@ class TheAlgorithm {
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
             this.loadingStatus = "initial data";
-            // FeatureScorers return empty arrays; they're just here for load time parallelism
             // ORDER MATTERS! The results of these Promises are processed with shift()
             dataFetches = dataFetches.concat([
-                api_1.MastoApi.instance.getUserData(),
                 mastodon_server_1.default.fediverseTrendingToots(),
-                (0, trending_tags_1.default)(),
+                (0, trending_tags_1.fetchRecentTootsForTrendingTags)(),
+                // FeatureScorers return empty arrays; they're just here for initial load parallelization
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
@@ -175,7 +174,6 @@ class TheAlgorithm {
         let trendingToots, trendingTagToots;
         let otherToots = [];
         if (allResponses.length > 0) {
-            const _userData = allResponses.shift(); // pop getUserData() response from front of allResponses array
             trendingToots = allResponses.shift();
             trendingTagToots = allResponses.shift();
             otherToots = trendingToots.concat(trendingTagToots.toots);
@@ -191,7 +189,7 @@ class TheAlgorithm {
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await mastodon_server_1.default.getTrendingData();
         this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
-        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, api_1.MastoApi.instance.userData);
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.MastoApi.instance.getUserData());
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
     }

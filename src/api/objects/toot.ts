@@ -397,6 +397,16 @@ export default class Toot implements TootObj {
         return new Date(this.createdAt);
     }
 
+    // // Some properties cannot be repaired and/or set until info about the user is available
+    // setDependentProperties(userData: UserData): void {
+    //     this.followedTags = this.followedTags || [];
+    //     this.isFollowed = this.isFollowed || false;
+    //     this.reblogsBy = this.reblogsBy || [];
+    //     this.trendingTags = this.trendingTags || [];
+    //     this.trendingLinks = this.trendingLinks || [];
+    //     this.reblogged = this.reblogged || false;
+    // }
+
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing

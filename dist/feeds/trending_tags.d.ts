@@ -1,2 +1,2 @@
 import { TrendingTagToots } from "../types";
-export default function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots>;
+export declare function fetchRecentTootsForTrendingTags(): Promise<TrendingTagToots>;

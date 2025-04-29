@@ -34,8 +34,8 @@ const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
-const tag_1 = require("./objects/tag");
 const types_1 = require("../types");
+const tag_1 = require("./objects/tag");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -87,15 +87,16 @@ class MastoApi {
             return this.userData;
         console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
         const responses = await Promise.all([
-            this.fetchFollowedAccounts(),
-            this.fetchMutedAccounts(),
+            this.getFollowedAccounts(),
             this.getFollowedTags(),
+            this.getMutedAccounts(),
             this.getServerSideFilters(),
         ]);
+        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: account_1.default.buildAccountNames(responses[0]),
-            followedTags: (0, collection_helpers_1.countValues)(responses[2], tag => tag.name),
-            mutedAccounts: account_1.default.buildAccountNames(responses[1]),
+            followedTags: (0, collection_helpers_1.countValues)(responses[1], tag => tag.name),
+            mutedAccounts: account_1.default.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };
         return this.userData;
@@ -155,7 +156,7 @@ class MastoApi {
     }
     ;
     // Get accounts the user is following
-    async fetchFollowedAccounts() {
+    async getFollowedAccounts() {
         const followedAccounts = await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
@@ -196,7 +197,7 @@ class MastoApi {
         return blockedAccounts.map(a => new account_1.default(a));
     }
     ;
-    async fetchMutedAccounts() {
+    async getMutedAccounts() {
         const mutedAccounts = await this.fetchData({
             fetch: this.api.v1.mutes.list,
             label: types_1.StorageKey.MUTED_ACCOUNTS
@@ -290,6 +291,8 @@ class MastoApi {
     }
     ;
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
+    // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
+    // See comment above on FetchParams object for more info about arguments
     async fetchData(fetchParams) {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
         const logPrefix = `[API ${label}]`;

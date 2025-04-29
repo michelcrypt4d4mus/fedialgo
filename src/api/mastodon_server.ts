@@ -228,7 +228,7 @@ export default class MastodonServer {
     static async mastodonServersInfo(): Promise<MastodonServersInfo> {
         console.debug(`[mastodonServersInfo] fetching remote server info...`);
         const config = Storage.getConfig();
-        const follows = await MastoApi.instance.fetchFollowedAccounts(); // TODO: this is a major bottleneck
+        const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
 
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());
