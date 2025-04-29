@@ -14,11 +14,12 @@ class RetootsInFeedScorer extends feed_scorer_1.default {
         super(types_1.WeightName.RETOOTED_IN_FEED);
     }
     // For each uri in the feed, count the number of times it appears as a reblogged toot.
+    // TODO: somehow toots that are retooted multiple times by followed accounts only get a score of 1
     feedExtractor(feed) {
         return feed.reduce((tootCounts, toot) => {
             if (!toot.reblog)
                 return tootCounts;
-            (0, collection_helpers_1.incrementCount)(tootCounts, toot.reblog.uri);
+            (0, collection_helpers_1.incrementCount)(tootCounts, toot.realURI());
             return tootCounts;
         }, {});
     }

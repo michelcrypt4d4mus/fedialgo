@@ -42,6 +42,7 @@ export default async function fetchRecentTootsForTrendingTags(): Promise<Trendin
 
 
 // Get latest toots for a given tag and populate trendingToots property
+// TODO: there's an endpoint for getting recent tags but this is using the search endpoint.
 async function getTootsForTag(tag: TrendingTag): Promise<Toot[]> {
     // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
     const numToots = Storage.getConfig().numTootsPerTrendingTag;
