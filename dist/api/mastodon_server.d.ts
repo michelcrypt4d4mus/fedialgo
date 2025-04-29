@@ -19,7 +19,7 @@ export default class MastodonServer {
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TrendingTag[]>;
     static mastodonServersInfo(): Promise<MastodonServersInfo>;
-    static callForAllServers<T>(fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;
-    static callForServers<T>(domains: string[], fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;
+    private static callForAllServers;
+    private static callForServers;
     static shouldReloadRemoteData(): Promise<boolean>;
 }

@@ -13,6 +13,7 @@ const async_mutex_1 = require("async-mutex");
 const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
+const time_helpers_1 = require("../helpers/time_helpers");
 const api_1 = require("./api");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
@@ -108,12 +109,13 @@ class MastodonServer {
     ;
     // Get data from a public API endpoint on a Mastodon server.
     async fetch(endpoint, limit) {
+        const startTime = new Date();
         let urlEndpoint = `${this.domain}/${endpoint}`;
         let url = `https://${urlEndpoint}`;
         if (limit)
             url += `?limit=${limit}`;
-        const json = await axios_1.default.get(url);
-        console.debug(`[mastodonFetch() ${urlEndpoint}] response:`, json);
+        const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
+        console.debug(`[fetch() ${urlEndpoint}] response (${(0, time_helpers_1.ageInSeconds)(startTime)} seconds):`, json);
         if (json.status === 200 && json.data) {
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
@@ -241,14 +243,18 @@ class MastodonServer {
         return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
     }
     ;
+    // Return true if SECONDS_UNTIL_RELOAD_TRENDING has passed since the latest toot in our timeline
     static async shouldReloadRemoteData() {
         const seconds = await Storage_1.default.secondsSinceMostRecentToot();
-        if (seconds && seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
-            console.debug(`[shouldReloadRemoteData] Reloading trending data after ${seconds} seconds...`);
+        if (!seconds) {
+            return true;
+        }
+        else if (seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
+            console.debug(`[shouldReloadRemoteData] Reloading data after ${seconds} seconds...`);
             return true;
         }
         else {
-            console.debug(`[shouldReloadRemoteData] Trending data is still fresh (value: '${seconds}'), no need to reload.`);
+            console.debug(`[shouldReloadRemoteData] Remote data is still fresh (${seconds} seconds old), no need to reload.`);
             return false;
         }
     }

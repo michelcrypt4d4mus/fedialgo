@@ -90,6 +90,7 @@ exports.DEFAULT_CONFIG = {
     minServerMAU: 100,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
+    timeoutMS: 5000,
     // Trending tags
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,

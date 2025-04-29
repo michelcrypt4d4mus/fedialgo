@@ -80,6 +80,7 @@ export type Config = {
     reloadFeaturesEveryNthOpen: number;
     numServersToCheck: number;
     minServerMAU: number;
+    timeoutMS: number;
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingLinksPerServer: number;
