@@ -28,12 +28,12 @@ export default class TrendingLinksScorer extends FeatureScorer {
         );
     }
 
+    // Set the Toot.trendingLinks property
     populateTrendingLinks(toot: Toot): void {
         toot = toot.reblog || toot;
 
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
     }
 

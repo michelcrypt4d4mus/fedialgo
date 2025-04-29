@@ -66,34 +66,6 @@ export type Weights = Record<WeightName, number>;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
-export type Config = {
-    defaultLanguage: string;
-    defaultRecordsPerPage: number;
-    maxNumCachedToots: number;
-    enableIncrementalLoad: boolean;
-    incrementalLoadDelayMS: number;
-    maxTimelineHoursToFetch: number;
-    maxTimelineTootsToFetch: number;
-    numTootsInFirstFetch: number;
-    scoringBatchSize: number;
-    staleDataSeconds: number;
-    minRecordsForFeatureScoring: number;
-    maxFollowingAccountsToPull: number;
-    reloadFeaturesEveryNthOpen: number;
-    numServersToCheck: number;
-    minServerMAU: number;
-    timeoutMS: number;
-    numTootsPerTrendingTag: number;
-    numDaysToCountTrendingTagData: number;
-    numTrendingLinksPerServer: number;
-    numTrendingTags: number;
-    numTrendingTagsPerServer: number;
-    numTrendingTagsToots: number;
-    numTrendingTootsPerServer: number;
-    defaultServers: string[];
-    noMauServers: string[];
-    noTrendingLinksServers: string[];
-};
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     filterSections: PropertyFilters;
     numericFilters: NumericFilters;
@@ -124,7 +96,7 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingLink[] | TrendingStorageSerialized | TrendingTag[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingLink[] | TrendingTag[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
 export type TimelineData = {
     homeToots: Toot[];
     otherToots: Toot[];

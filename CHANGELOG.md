@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add Config.timelineDecayExponent param
 
 ### v0.20.5
 * Use reverse chronological order sort in `DiversityFeedScorer`

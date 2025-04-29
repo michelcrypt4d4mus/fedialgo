@@ -8,17 +8,15 @@ import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import { ageOfTimestampInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
+import { Config, DEFAULT_CONFIG } from "./config";
 import { countValues } from "./helpers/collection_helpers";
-import { DEFAULT_CONFIG } from "./config";
 import {
-    Config,
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
     StorableObj,
     StorageKey,
     TrendingLink,
     TrendingStorage,
-    TrendingStorageSerialized,
     TrendingTag,
     UserData,
     Weights,
@@ -28,7 +26,7 @@ import {
 export default class Storage {
     static config: Config = Object.assign({}, DEFAULT_CONFIG);
 
-    // TODO: consider actually storing the config in browser storage.
+    // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
     static getConfig(): Config {
         return this.config;
     }
@@ -103,12 +101,6 @@ export default class Storage {
         await localForage.setItem(StorageKey.USER, user.serialize());
     }
 
-    // Generic method for serializing toots to storage
-    static async storeToots(key: StorageKey, toots: Toot[]) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
-    }
-
     // Get the timeline toots
     static async getFeed(): Promise<Toot[]> {
         return await this.getToots(StorageKey.TIMELINE);
@@ -119,7 +111,13 @@ export default class Storage {
         await this.storeToots(StorageKey.TIMELINE, timeline);
     }
 
-    // Get trending tags, toots, and links
+    // Generic method for serializing toots to storage
+    static async storeToots(key: StorageKey, toots: Toot[]) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
+    }
+
+    // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending(): Promise<TrendingStorage> {
         return {
             links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],

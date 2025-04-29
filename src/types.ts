@@ -84,42 +84,6 @@ export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
 
-
-// See DEFAULT_CONFIG for comments explaining these values
-export type Config = {
-    defaultLanguage: string;
-    defaultRecordsPerPage: number;
-    maxNumCachedToots: number;
-    // Timeline
-    enableIncrementalLoad: boolean;
-    incrementalLoadDelayMS: number;
-    maxTimelineHoursToFetch: number;
-    maxTimelineTootsToFetch: number;
-    numTootsInFirstFetch: number;
-    scoringBatchSize: number;
-    staleDataSeconds: number;
-    // API stuff
-    minRecordsForFeatureScoring: number;
-    maxFollowingAccountsToPull: number;
-    reloadFeaturesEveryNthOpen: number;
-    numServersToCheck: number;
-    minServerMAU: number;
-    timeoutMS: number;
-    // Trending tags
-    numTootsPerTrendingTag: number;
-    numDaysToCountTrendingTagData: number;
-    numTrendingLinksPerServer: number;
-    numTrendingTags: number;
-    numTrendingTagsPerServer: number;
-    numTrendingTagsToots: number;
-    // Trending toots
-    numTrendingTootsPerServer: number;
-    // MAU and other server properties
-    defaultServers: string[];
-    noMauServers: string[];
-    noTrendingLinksServers: string[];
-};
-
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     filterSections: PropertyFilters;
     numericFilters: NumericFilters;
@@ -166,7 +130,6 @@ export type StorableObj = (
     SerializableToot[] |
     StringNumberDict |
     TrendingLink[] |
-    TrendingStorageSerialized |
     TrendingTag [] |
     Weights |
     mastodon.v1.Account |

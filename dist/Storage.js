@@ -34,12 +34,12 @@ const account_1 = __importDefault(require("./api/objects/account"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
-const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
+const collection_helpers_1 = require("./helpers/collection_helpers");
 const types_1 = require("./types");
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
-    // TODO: consider actually storing the config in browser storage.
+    // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
     static getConfig() {
         return this.config;
     }
@@ -101,11 +101,6 @@ class Storage {
         console.debug(`Setting fedialgo user identity to:`, user);
         await localforage_1.default.setItem(types_1.StorageKey.USER, user.serialize());
     }
-    // Generic method for serializing toots to storage
-    static async storeToots(key, toots) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
-    }
     // Get the timeline toots
     static async getFeed() {
         return await this.getToots(types_1.StorageKey.TIMELINE);
@@ -114,7 +109,12 @@ class Storage {
     static async setFeed(timeline) {
         await this.storeToots(types_1.StorageKey.TIMELINE, timeline);
     }
-    // Get trending tags, toots, and links
+    // Generic method for serializing toots to storage
+    static async storeToots(key, toots) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
+    }
+    // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending() {
         return {
             links: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []),

@@ -1,6 +1,7 @@
 import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
-import { Config, FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserData, Weights } from "./types";
+import { Config } from "./config";
+import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserData, Weights } from "./types";
 export default class Storage {
     static config: Config;
     static getConfig(): Config;
@@ -12,9 +13,9 @@ export default class Storage {
     static logAppOpen(): Promise<void>;
     static getIdentity(): Promise<Account | null>;
     static setIdentity(user: Account): Promise<void>;
-    static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
+    static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(): Promise<boolean>;
     static secondsSinceLastOpened(): Promise<number | undefined>;

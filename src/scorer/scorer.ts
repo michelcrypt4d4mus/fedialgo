@@ -70,7 +70,8 @@ export default abstract class Scorer {
         // Multiple weighted score by time decay penalty to get a final weightedScore
         const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
         // const timeDecayMultiplier = 1.0 / Math.pow(tootToScore.ageInHours(), timeDecayWeight);
-        const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, -1 * Math.pow(toot.ageInHours(), 1.2));
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), Storage.getConfig().timelineDecayExponent);
+        const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
 
         // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging

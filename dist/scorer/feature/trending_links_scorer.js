@@ -23,11 +23,11 @@ class TrendingLinksScorer extends feature_scorer_1.default {
             return accountsPostingLinkCounts;
         }, {});
     }
+    // Set the Toot.trendingLinks property
     populateTrendingLinks(toot) {
         toot = toot.reblog || toot;
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
     }
     // TODO: this mutates the toot object, which is not ideal
