@@ -20,7 +20,7 @@ import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
-import RetootsInFeedScorer from "./scorer/feed/retoots_in_feed_scorer";
+import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
 import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
@@ -86,6 +86,7 @@ class TheAlgorithm {
         new NumFavoritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),
+        new RetootsInFeedScorer(),
         new TrendingLinksScorer(),
         new TrendingTagsScorer(),
         new TrendingTootScorer(),
@@ -95,7 +96,6 @@ class TheAlgorithm {
     // These scorers require the complete feed to work properly
     feedScorers = [
         new DiversityFeedScorer(),
-        new RetootsInFeedScorer(),
     ];
 
     weightedScorers = [

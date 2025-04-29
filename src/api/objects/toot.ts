@@ -482,7 +482,6 @@ export default class Toot implements TootObj {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
 
-            // TODO: properly handle merging ScoreInfo when retooted by multiple accounts
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
@@ -499,7 +498,8 @@ export default class Toot implements TootObj {
         });
 
         const deduped: Toot[] = Object.values(tootsByURI).map(toots => toots[0]);
-        console.log(`${prefix}Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}:`, deduped);
+        const logMsg = `Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}`;
+        console.log(`${prefix}${logMsg}:`, deduped);
         return deduped;
     };
 };

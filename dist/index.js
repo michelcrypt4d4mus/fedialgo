@@ -52,7 +52,7 @@ const property_filter_1 = __importStar(require("./filters/property_filter"));
 exports.PropertyFilter = property_filter_1.default;
 Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function () { return property_filter_1.PropertyName; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return property_filter_1.TypeFilterName; } });
-const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feed/retoots_in_feed_scorer"));
+const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
@@ -103,6 +103,7 @@ class TheAlgorithm {
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
+        new retoots_in_feed_scorer_1.default(),
         new trending_links_scorer_1.default(),
         new trending_tags_scorer_1.default(),
         new trending_toots_scorer_1.default(),
@@ -111,7 +112,6 @@ class TheAlgorithm {
     // These scorers require the complete feed to work properly
     feedScorers = [
         new diversity_feed_scorer_1.default(),
-        new retoots_in_feed_scorer_1.default(),
     ];
     weightedScorers = [
         ...this.featureScorers,
