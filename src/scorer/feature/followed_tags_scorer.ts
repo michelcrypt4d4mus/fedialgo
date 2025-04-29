@@ -20,8 +20,7 @@ export default class FollowedTagsScorer extends FeatureScorer {
 
     // Return a dict keyed by tag name (values should be all 1)
     async featureGetter(): Promise<StringNumberDict> {
-        this.followedTags = await MastoApi.instance.getFollowedTags();
-        return countValues<mastodon.v1.Tag>(this.followedTags, tag => tag.name);
+        return (await MastoApi.instance.getUserData()).followedTags;
     }
 
     // Sets the followedTags property on the Toot object before returning the score

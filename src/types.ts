@@ -96,6 +96,7 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
+    staleDataSeconds: number;
     // API stuff
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
@@ -136,6 +137,7 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
+// TODO: this is almost the same as UserData type...
 export type FilterOptionArgs = {
     toots: Toot[];
     followedAccounts: Account[];
@@ -221,6 +223,7 @@ export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
 // Data retrieved at startup and stored in TheAlgorithm
+// TODO: this is almost the same as FilterOptionArgs type...
 export type UserData = {
     followedAccounts: AccountNames,
     followedTags: StringNumberDict,

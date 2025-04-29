@@ -87,6 +87,7 @@ export const DEFAULT_CONFIG: Config = {
     maxTimelineTootsToFetch: 900,        // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
+    staleDataSeconds: 10 * 60,           // How long to wait before considering data stale
 
     // API stuff
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
@@ -157,7 +158,8 @@ export const DEFAULT_CONFIG: Config = {
         "chaos.social",
         "fediscience.org",
         "mastodon.cloud",
-        "med-mastodon.com",
         "mastodon.gamedev.place",
+        "mastodon.sdf.org",
+        "med-mastodon.com",
     ],
 };

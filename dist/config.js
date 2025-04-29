@@ -84,6 +84,7 @@ exports.DEFAULT_CONFIG = {
     maxTimelineTootsToFetch: 900,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
+    staleDataSeconds: 10 * 60,
     // API stuff
     maxFollowingAccountsToPull: 5000,
     minRecordsForFeatureScoring: 400,
@@ -151,8 +152,9 @@ exports.DEFAULT_CONFIG = {
         "chaos.social",
         "fediscience.org",
         "mastodon.cloud",
-        "med-mastodon.com",
         "mastodon.gamedev.place",
+        "mastodon.sdf.org",
+        "med-mastodon.com",
     ],
 };
 //# sourceMappingURL=config.js.map

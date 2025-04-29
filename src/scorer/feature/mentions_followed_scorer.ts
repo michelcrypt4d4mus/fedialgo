@@ -17,8 +17,9 @@ export default class MentionsFollowedScorer extends FeatureScorer {
     }
 
     // Build simple dictionary of followed accounts (key is webfingerURI(), value is 1)
+    // TODO: this could just return followedAccounts if the type of scoreData was extending to include AccountNames
     async featureGetter(): Promise<StringNumberDict> {
-        this.followedAccounts = await MastoApi.instance.fetchFollowedAccounts();
+        this.followedAccounts = Object.values((await MastoApi.instance.getUserData()).followedAccounts);
         return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI());
     };
 

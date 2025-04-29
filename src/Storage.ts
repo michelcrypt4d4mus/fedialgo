@@ -159,6 +159,27 @@ export default class Storage {
         };
     }
 
+    // Return true if the timeline and user data is stale and should be reloaded
+    static async isDataStale(): Promise<boolean> {
+        const seconds = await this.secondsSinceMostRecentToot();
+        const numAppOpens = await this.getNumAppOpens();
+        // const isTenthAppOpen = (await this.getNumAppOpens()) % this.getConfig().reloadFeaturesEveryNthOpen === 0;
+
+        if (numAppOpens <= 1) {
+            console.debug(`[isDataStale] numAppOpens is ${JSON.stringify(numAppOpens)} (initial load; data not stale)`);
+            return false;
+        } if (!seconds) {
+            console.debug(`[isDataStale] secondsSinceMostRecentToot() returned ${JSON.stringify(seconds)} (data is stale)`);
+            return true;
+        } else if (seconds > this.getConfig().staleDataSeconds) {
+            console.debug(`[isDataStale] Reloading data after ${seconds} seconds...`);
+            return true;
+        } else {
+            console.debug(`[isDataStale] Remote data is still fresh (${seconds} seconds old), no need to reload.`);
+            return false;
+        }
+    }
+
     // Seconds since the app was last opened
     static async secondsSinceLastOpened(): Promise<number | undefined> {
         const lastOpened = await this.getLastOpenedTimestamp();

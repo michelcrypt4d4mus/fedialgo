@@ -53,6 +53,7 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 
 
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
+// TODO: just pull from instance, no need for userData arg
 export function initializeFiltersWithSummaryInfo(toots: Toot[], userData?: UserData): FeedFilterSettings {
     userData ||= MastoApi.instance.userData;
     const { followedAccounts, followedTags, serverSideFilters } = userData as UserData;

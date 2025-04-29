@@ -34,7 +34,6 @@ export declare class MastoApi {
     getTopServerDomains(): Promise<string[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     private fetchData;
-    private shouldReloadFeatures;
     private throwIfAccessTokenRevoked;
     static buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams;
     static v1Url: (path: string) => string;

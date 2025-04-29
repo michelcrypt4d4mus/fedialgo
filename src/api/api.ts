@@ -263,10 +263,11 @@ export class MastoApi {
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         console.debug(`getServerSideFilters() called...`);
         const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
-        let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS);
 
         try {
-            if (!filters || (await this.shouldReloadFeatures())) {
+            let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS);
+
+            if (!filters || (await Storage.isDataStale())) {
                 filters = await this.api.v2.filters.list();
 
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -283,11 +284,11 @@ export class MastoApi {
                 filters = filters as mastodon.v2.Filter[];
                 console.debug(`Loaded server side filters from cache:`, filters);
             }
+
+            return filters;
         } finally {
             releaseMutex();
         }
-
-        return filters;
     };
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
@@ -298,7 +299,7 @@ export class MastoApi {
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS);
 
-            if (!servers || (await this.shouldReloadFeatures())) {
+            if (!servers || (await Storage.isDataStale())) {
                 servers = await MastodonServer.mastodonServersInfo();
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
@@ -363,7 +364,7 @@ export class MastoApi {
             if (!skipCache) {
                 const cachedData = await Storage.get(label);
 
-                if (cachedData && !(await this.shouldReloadFeatures())) {
+                if (cachedData && !(await Storage.isDataStale())) {
                     const rows = cachedData as T[];
                     console.log(`${logPrefix}: Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
@@ -391,14 +392,6 @@ export class MastoApi {
 
         return results;
     };
-
-    // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
-    // starting at the 9th one. Also bc of the way it was implemented it won't work the same
-    // way for any number other than 9.
-    private async shouldReloadFeatures() {
-        return (await MastodonServer.shouldReloadRemoteData()) ||
-               (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
-    }
 
     // Re-raise access revoked errors so they can trigger a logout() call
     private throwIfAccessTokenRevoked(e: unknown, msg: string): void {

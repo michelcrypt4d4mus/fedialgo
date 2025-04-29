@@ -127,8 +127,9 @@ export default class MastodonServer {
         let urlEndpoint = `${this.domain}/${endpoint}`
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
+        console.debug(`[${urlEndpoint}] fetching at ${startTime}...`);
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
-        console.debug(`[fetch() ${urlEndpoint}] response (${ageInSeconds(startTime)} seconds):`, json);
+        console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json);
 
         if (json.status === 200 && json.data) {
             return transformKeys(json.data, camelCase) as T;
@@ -148,7 +149,7 @@ export default class MastodonServer {
         try {
             const storageToots = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TOOTS);
 
-            if (storageToots && !(await this.shouldReloadRemoteData())) {
+            if (storageToots && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
                 return (storageToots as SerializableToot[]).map(t => new Toot(t));
             } else {
@@ -156,7 +157,7 @@ export default class MastodonServer {
                 let trendingToots = Object.values(trendingTootses).flat();
                 setTrendingRankToAvg(trendingToots);
                 trendingToots = Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
-                Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, trendingToots);
+                await Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, trendingToots);
                 console.log(`[fediverseTrendingToots] fetched trending toots:`, trendingToots);
                 return trendingToots;
             }
@@ -173,7 +174,7 @@ export default class MastodonServer {
         try {
             const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS);
 
-            if (storageLinks && !(await this.shouldReloadRemoteData())) {
+            if (storageLinks && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
                 return storageLinks as TrendingLink[];
             } else {
@@ -181,7 +182,7 @@ export default class MastodonServer {
                 console.debug(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
                 let links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
                 console.info(`[fediverseTrendingLinks] unique links:`, links);
-                Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links as TrendingLink[]);
+                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links as TrendingLink[]);
                 return links as TrendingLink[];
             }
         } finally {
@@ -196,7 +197,7 @@ export default class MastodonServer {
         try {
             const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS);
 
-            if (storageTags && !(await this.shouldReloadRemoteData())) {
+            if (storageTags && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
                 return storageTags as TrendingTag[];
             } else {
@@ -206,7 +207,7 @@ export default class MastodonServer {
                 const tags = FeatureScorer.uniquifyTrendingObjs(allTags, tag => (tag as TrendingTag).name);
                 console.info(`[fediverseTrendingTags] fetched unique tags:`, tags);
                 let returnTags = tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
-                Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, returnTags);
+                await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, returnTags);
                 return returnTags;
             }
         } finally {
@@ -217,8 +218,9 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async mastodonServersInfo(): Promise<MastodonServersInfo> {
+        console.debug(`[mastodonServersInfo] fetching remote server info...`);
         const config = Storage.getConfig();
-        const follows = await MastoApi.instance.fetchFollowedAccounts();
+        const follows = await MastoApi.instance.fetchFollowedAccounts(); // TODO: this is a major bottleneck
 
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());

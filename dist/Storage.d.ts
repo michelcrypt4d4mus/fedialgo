@@ -20,6 +20,7 @@ export default class Storage {
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
+    static isDataStale(): Promise<boolean>;
     static secondsSinceLastOpened(): Promise<number | undefined>;
     static getLastOpenedTimestamp(): Promise<number | undefined>;
     static get(key: StorageKey): Promise<StorableObj | null>;

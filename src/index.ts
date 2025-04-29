@@ -79,9 +79,9 @@ class TheAlgorithm {
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new TrendingLinksScorer(),    // Must come first for trendingLinks extraction!
-        this.followedTagsScorer,
-        this.mentionsFollowedScorer,  // pulls followed accounts
+        new TrendingLinksScorer(),  // Must come first for trendingLinks extraction!  // TODO: must it still come first?
+        new FollowedTagsScorer(),
+        new MentionsFollowedScorer(),
         new ChaosScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
@@ -129,11 +129,10 @@ class TheAlgorithm {
         const algo = new TheAlgorithm({api: params.api, user: user, setFeedInApp: params.setFeedInApp});
         await algo.setDefaultWeights();
         algo.feed = await Storage.getFeed();
+        algo.setFeedInApp(algo.feed);
         algo.filters = await Storage.getFilters();
         algo.trendingData = await Storage.getTrending();
-        // algo.filters = initializeFiltersWithSummaryInfo(algo.feed, await Storage.getUserData());
-        console.log(`[fedialgo] create() loaded feed with ${algo.feed.length} toots`, algo.feed.slice(0, 100));
-        algo.setFeedInApp(algo.feed);
+        console.log(`[fedialgo] create() loaded ${algo.feed.length} timeline toots from storage`);
         return algo;
     }
 
@@ -151,7 +150,7 @@ class TheAlgorithm {
         numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
         let dataFetches: Promise<any>[] = [MastoApi.instance.getTimelineToots(numTimelineToots, maxId)];
 
-        // If this is the first call to getFeed() also fetch the user's followed accounts and tags
+        // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
             this.loadingStatus = "initial data";
 

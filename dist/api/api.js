@@ -238,9 +238,9 @@ class MastoApi {
     async getServerSideFilters() {
         console.debug(`getServerSideFilters() called...`);
         const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
-        let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
         try {
-            if (!filters || (await this.shouldReloadFeatures())) {
+            let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
+            if (!filters || (await Storage_1.default.isDataStale())) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
@@ -258,11 +258,11 @@ class MastoApi {
                 filters = filters;
                 console.debug(`Loaded server side filters from cache:`, filters);
             }
+            return filters;
         }
         finally {
             releaseMutex();
         }
-        return filters;
     }
     ;
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
@@ -271,7 +271,7 @@ class MastoApi {
         const releaseMutex = await this.mutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            if (!servers || (await this.shouldReloadFeatures())) {
+            if (!servers || (await Storage_1.default.isDataStale())) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
@@ -330,7 +330,7 @@ class MastoApi {
         try {
             if (!skipCache) {
                 const cachedData = await Storage_1.default.get(label);
-                if (cachedData && !(await this.shouldReloadFeatures())) {
+                if (cachedData && !(await Storage_1.default.isDataStale())) {
                     const rows = cachedData;
                     console.log(`${logPrefix}: Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
@@ -358,13 +358,6 @@ class MastoApi {
         return results;
     }
     ;
-    // This doesn't quite work as advertised. It actually forces a reload every 10 app opens
-    // starting at the 9th one. Also bc of the way it was implemented it won't work the same
-    // way for any number other than 9.
-    async shouldReloadFeatures() {
-        return (await mastodon_server_1.default.shouldReloadRemoteData()) ||
-            (await Storage_1.default.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
-    }
     // Re-raise access revoked errors so they can trigger a logout() call
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
