@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Penalize trending tag toots if they have more than Config.excessiveTags total tags
+* Penalize trending tag toots if they have more than `Config.excessiveTags` total tags
 * Add `Config.timelineDecayExponent` param
 
 ### v0.20.5
