@@ -93,7 +93,7 @@ export default class Storage {
     }
 
     static async logAppOpen(): Promise<void> {
-        let numAppOpens = (await this.get(StorageKey.OPENINGS) as number || 0) + 1;
+        let numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(StorageKey.OPENINGS, numAppOpens);
         await this.set(StorageKey.LAST_OPENED, new Date().getTime());
     }

@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.4
 * Add `Config.staleDataSeconds` param, consolidate `Storage.isStaleData()` method
 * Add a 5 second timeout to public API calls via new `Config.timeoutMS` param
 * Implement a reload based on time of most recent toot in timeline (10 minutes is the trigger)
