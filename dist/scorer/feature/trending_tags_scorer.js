@@ -17,7 +17,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
     }
     async _score(toot) {
         let score = (toot.reblog || toot).trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
-        if (toot.tags.length >= Storage_1.default.getConfig().excessiveTags) {
+        if (score > 0 && toot.tags.length >= Storage_1.default.getConfig().excessiveTags) {
             console.info(`[${this.constructor.name}] Penalizing excessive tags (${toot.tags.length}) in toot:`, toot);
             score *= EXCESSIVE_TAGS_PENALTY;
         }
