@@ -510,6 +510,7 @@ export const tootedAt = (toot: mastodon.v1.Status): Date => new Date(toot.create
 export const earliestToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots)[0];
 export const mostRecentToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots).slice(-1)[0];
 
+// Returns array with oldest toot first
 export const sortByCreatedAt = (toots: StatusList): StatusList => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };

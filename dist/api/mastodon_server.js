@@ -30,7 +30,6 @@ const trendingMutexes = {
     [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: new async_mutex_1.Mutex(),
 };
-const SECONDS_UNTIL_RELOAD_TRENDING = 10 * 60; // 10 minutes
 class MastodonServer {
     domain;
     constructor(domain) {

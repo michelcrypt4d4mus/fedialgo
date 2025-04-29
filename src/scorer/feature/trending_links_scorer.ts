@@ -5,21 +5,19 @@
 import FeatureScorer from '../feature_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict, TrendingLink, WeightName } from "../../types";
+import { StringNumberDict, WeightName } from "../../types";
+import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class TrendingLinksScorer extends FeatureScorer {
-    trendingLinks: TrendingLink[] = [];
-
     constructor() {
         super(WeightName.TRENDING_LINKS);
     }
 
     async featureGetter(): Promise<StringNumberDict> {
-        this.trendingLinks = await MastodonServer.fediverseTrendingLinks();
+        const trendingLinks = await MastodonServer.fediverseTrendingLinks();
 
-        // TODO: we don't technically need to return this, this.trendingLinks is enough
-        return this.trendingLinks.reduce(
+        return trendingLinks.reduce(
             (accountsPostingLinkCounts, link) => {
                 accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
                 return accountsPostingLinkCounts;
@@ -28,7 +26,6 @@ export default class TrendingLinksScorer extends FeatureScorer {
         );
     }
 
-    // TODO: this mutates the toot object, which is not ideal
     async _score(toot: Toot): Promise<number> {
         toot = toot.reblog || toot;
 
@@ -37,6 +34,6 @@ export default class TrendingLinksScorer extends FeatureScorer {
             return 0;
         }
 
-        return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
+        return sumArray(toot.trendingLinks.map(link => this.scoreData[link.url] || 0));
     }
 };

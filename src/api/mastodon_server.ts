@@ -36,8 +36,6 @@ const trendingMutexes: Record<string, Mutex> = {
     [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
 };
 
-const SECONDS_UNTIL_RELOAD_TRENDING = 10 * 60;  // 10 minutes
-
 
 export default class MastodonServer {
     domain: string;

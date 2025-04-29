@@ -8,15 +8,14 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../../api/api");
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
-    followedAccounts = [];
     constructor() {
         super(types_1.WeightName.MENTIONS_FOLLOWED);
     }
-    // Build simple dictionary of followed accounts (key is webfingerURI(), value is 1)
+    // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     // TODO: this could just return followedAccounts if the type of scoreData was extending to include AccountNames
     async featureGetter() {
-        this.followedAccounts = Object.values((await api_1.MastoApi.instance.getUserData()).followedAccounts);
-        return (0, collection_helpers_1.countValues)(this.followedAccounts, (account) => account.webfingerURI);
+        let followedAccounts = Object.values((await api_1.MastoApi.instance.getUserData()).followedAccounts);
+        return (0, collection_helpers_1.countValues)(followedAccounts, (account) => account.webfingerURI);
     }
     ;
     // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI

@@ -38,7 +38,7 @@ export default abstract class FeatureScorer extends Scorer {
     // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
     static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void {
         const obj = _obj as TrendingWithHistory;
-        obj.url = obj.url.toLowerCase();
+        obj.url = obj.url.toLowerCase();  // TODO: not ideal for this to happen here
 
         if (!obj.history?.length) {
             console.warn(`decorateHistoryScores() found no history for:`, obj);

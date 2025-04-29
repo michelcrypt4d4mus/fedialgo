@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -88,10 +88,15 @@ exports.atLeastValues = atLeastValues;
 ;
 // Sum the values of a dict
 function sumValues(obj) {
-    return Object.values(obj).reduce((a, b) => a + b, 0);
+    return sumArray(Object.values(obj));
 }
 exports.sumValues = sumValues;
 ;
+// Sum the elements of an array
+function sumArray(arr) {
+    return arr.reduce((a, b) => a + b, 0);
+}
+exports.sumArray = sumArray;
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x) {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";

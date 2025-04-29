@@ -427,6 +427,7 @@ const earliestToot = (toots) => (0, exports.sortByCreatedAt)(toots)[0];
 exports.earliestToot = earliestToot;
 const mostRecentToot = (toots) => (0, exports.sortByCreatedAt)(toots).slice(-1)[0];
 exports.mostRecentToot = mostRecentToot;
+// Returns array with oldest toot first
 const sortByCreatedAt = (toots) => {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 };

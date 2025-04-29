@@ -10,17 +10,15 @@ import { StringNumberDict, WeightName } from '../../types';
 
 
 export default class MentionsFollowedScorer extends FeatureScorer {
-    followedAccounts: Account[] = [];
-
     constructor() {
         super(WeightName.MENTIONS_FOLLOWED);
     }
 
-    // Build simple dictionary of followed accounts (key is webfingerURI(), value is 1)
+    // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     // TODO: this could just return followedAccounts if the type of scoreData was extending to include AccountNames
     async featureGetter(): Promise<StringNumberDict> {
-        this.followedAccounts = Object.values((await MastoApi.instance.getUserData()).followedAccounts);
-        return countValues<Account>(this.followedAccounts, (account) => account.webfingerURI);
+        let followedAccounts = Object.values((await MastoApi.instance.getUserData()).followedAccounts);
+        return countValues<Account>(followedAccounts, (account) => account.webfingerURI);
     };
 
     // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI

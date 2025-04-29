@@ -29,7 +29,7 @@ class FeatureScorer extends scorer_1.default {
     // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
     static decorateHistoryScores(_obj) {
         const obj = _obj;
-        obj.url = obj.url.toLowerCase();
+        obj.url = obj.url.toLowerCase(); // TODO: not ideal for this to happen here
         if (!obj.history?.length) {
             console.warn(`decorateHistoryScores() found no history for:`, obj);
             obj.history = [];

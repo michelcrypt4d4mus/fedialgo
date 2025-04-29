@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * RetootsInFeedScorer can use Toot.reblogsBy.length to score (and therefore doesn't need to be a FeedScorer)
+* Remove TrendingLinksScorer.trendingLinks property
 
 ### v0.20.7
 * Consolidate all `Toot` post processing to `Toot.setDependentProperties()` method

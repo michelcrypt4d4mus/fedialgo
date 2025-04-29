@@ -106,8 +106,14 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 
 // Sum the values of a dict
 export function sumValues(obj: StringNumberDict | Weights): number {
-    return Object.values(obj).reduce((a, b) => a + b, 0);
+    return sumArray(Object.values(obj));
 };
+
+
+// Sum the elements of an array
+export function sumArray(arr: number[]): number {
+    return arr.reduce((a, b) => a + b, 0);
+}
 
 
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
