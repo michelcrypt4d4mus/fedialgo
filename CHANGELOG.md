@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.5
 * Use reverse chronological order sort in `DiversityFeedScorer`
 * Stop mutating `DiversityFeedScorer.scoreData` during scoring
 * Score toots with parallelized Promises instead of serially, add `Config.scoringBatchSize` param
