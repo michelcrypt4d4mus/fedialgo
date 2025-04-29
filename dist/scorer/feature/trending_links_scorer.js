@@ -23,12 +23,19 @@ class TrendingLinksScorer extends feature_scorer_1.default {
             return accountsPostingLinkCounts;
         }, {});
     }
-    // TODO: this mutates the toot object, which is not ideal
-    async _score(toot) {
+    populateTrendingLinks(toot) {
         toot = toot.reblog || toot;
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
             // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+        }
+    }
+    // TODO: this mutates the toot object, which is not ideal
+    async _score(toot) {
+        toot = toot.reblog || toot;
+        if (!toot.trendingLinks) {
+            console.warn(`[${this.constructor.name}] No trendingLinks found for toot:`, toot);
+            return 0;
         }
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
     }

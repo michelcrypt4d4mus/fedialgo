@@ -28,13 +28,22 @@ export default class TrendingLinksScorer extends FeatureScorer {
         );
     }
 
-    // TODO: this mutates the toot object, which is not ideal
-    async _score(toot: Toot): Promise<number> {
+    populateTrendingLinks(toot: Toot): void {
         toot = toot.reblog || toot;
 
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
             // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+        }
+    }
+
+    // TODO: this mutates the toot object, which is not ideal
+    async _score(toot: Toot): Promise<number> {
+        toot = toot.reblog || toot;
+
+        if (!toot.trendingLinks) {
+            console.warn(`[${this.constructor.name}] No trendingLinks found for toot:`, toot);
+            return 0;
         }
 
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);

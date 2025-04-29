@@ -87,6 +87,7 @@ export const DEFAULT_CONFIG: Config = {
     maxTimelineTootsToFetch: 900,        // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
+    scoringBatchSize: 100,               // How many toots to score at once
     staleDataSeconds: 10 * 60,           // How long to wait before considering data stale
 
     // API stuff
@@ -149,6 +150,7 @@ export const DEFAULT_CONFIG: Config = {
         "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",
+        "mastodon.sdf.org",
         'mathstodon.xyz',
         "mstdn.social",    // blocked by CORS
         "threads.net",

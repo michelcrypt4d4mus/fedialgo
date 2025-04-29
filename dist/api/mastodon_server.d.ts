@@ -21,5 +21,4 @@ export default class MastodonServer {
     static mastodonServersInfo(): Promise<MastodonServersInfo>;
     private static callForAllServers;
     private static callForServers;
-    static shouldReloadRemoteData(): Promise<boolean>;
 }

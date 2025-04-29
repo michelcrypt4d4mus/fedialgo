@@ -37,7 +37,7 @@ class Scorer {
     checkIsReady() {
         if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;
-            console.warn(msg);
+            console.error(msg);
             throw new Error(msg);
         }
     }

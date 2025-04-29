@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uniquifyByProp = exports.shuffle = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -109,5 +109,19 @@ function uniquifyByProp(array, transform) {
     return [...new Map(array.map((element) => [transform(element), element])).values()];
 }
 exports.uniquifyByProp = uniquifyByProp;
+;
+// From https://dev.to/woovi/processing-promises-in-batch-2le6
+async function processPromisesBatch(items, batchSize, fn) {
+    // const startTime = new Date();
+    let results = [];
+    for (let start = 0; start < items.length; start += batchSize) {
+        const end = start + batchSize > items.length ? items.length : start + batchSize;
+        const slicedResults = await Promise.all(items.slice(start, end).map(fn));
+        results = [...results, ...slicedResults];
+        // console.debug(`Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+    }
+    return results;
+}
+exports.processPromisesBatch = processPromisesBatch;
 ;
 //# sourceMappingURL=collection_helpers.js.map

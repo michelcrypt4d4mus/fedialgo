@@ -33,11 +33,10 @@ import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import { processPromisesBatch } from './helpers/collection_helpers';
 import { SCORERS_CONFIG } from "./config";
 import {
-    AccountNames,
     FeedFilterSettings,
-    FilterOptionArgs,
     MastodonServersInfo,
     MediaCategory,
     ScorerDict,
@@ -63,10 +62,10 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
+    loadingStatus?: string;  // Status message about what is being loaded
 
     // Variables with initial values
     feed: Toot[] = [];
-    loadingStatus?: string = undefined;  // Status message about what is being loaded
     mastodonServers: MastodonServersInfo = {};
     scoreMutex = new Mutex();
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
@@ -74,12 +73,11 @@ class TheAlgorithm {
     setFeedInApp: (f: Toot[]) => void = (f) => console.debug(`Default setFeedInApp() called...`);
 
     // Scorers
-    followedTagsScorer = new FollowedTagsScorer();
-    mentionsFollowedScorer = new MentionsFollowedScorer();
+    trendingLinksScorer = new TrendingLinksScorer();
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new TrendingLinksScorer(),  // Must come first for trendingLinks extraction!  // TODO: must it still come first?
+        this.trendingLinksScorer,  // Must come first for trendingLinks extraction!  // TODO: must it still come first?
         new FollowedTagsScorer(),
         new MentionsFollowedScorer(),
         new ChaosScorer(),
@@ -228,8 +226,8 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix: string = ""): void {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        // console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
-        console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
+        // console.debug(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
+        console.debug(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
 
     mostRecentTootAt(): Date | null {
@@ -306,20 +304,16 @@ class TheAlgorithm {
             const releaseMutex = await this.scoreMutex.acquire();
 
             try {
-                // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
-                let promises: any[] = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
+                // Feed scorers' data must be refreshed each time the feed changes
+                this.feedScorers.forEach(scorer => scorer.setFeed(this.feed));
+                // TrendingLinksScorer sets the Toot.trendingLinks property  // TODO: this sucks
+                this.feed.forEach(toot => this.trendingLinksScorer.populateTrendingLinks(toot));
 
-                if (!this.featureScorers.every(scorer => scorer.isReady)) {
-                    console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                }
-
-                await Promise.all(promises);
-
-                // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
-                for (const toot of this.feed) {
-                    await Scorer.decorateWithScoreInfo(toot, this.weightedScorers);
-                }
+                await processPromisesBatch(
+                    this.feed,
+                    Storage.getConfig().scoringBatchSize,
+                    async (toot: Toot) => await Scorer.decorateWithScoreInfo(toot, this.weightedScorers)
+                );
 
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));

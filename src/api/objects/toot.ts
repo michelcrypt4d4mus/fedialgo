@@ -507,6 +507,7 @@ export default class Toot implements TootObj {
 };
 
 
+// Methods for dealing with toot timestamps
 export const tootedAt = (toot: mastodon.v1.Status): Date => new Date(toot.createdAt);
 export const earliestToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots)[0];
 export const mostRecentToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots).slice(-1)[0];

@@ -42,7 +42,7 @@ export default abstract class Scorer {
     private checkIsReady(): void {
         if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;
-            console.warn(msg);
+            console.error(msg);
             throw new Error(msg);
         }
     }

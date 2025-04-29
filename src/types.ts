@@ -96,6 +96,7 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
+    scoringBatchSize: number;
     staleDataSeconds: number;
     // API stuff
     minRecordsForFeatureScoring: number;

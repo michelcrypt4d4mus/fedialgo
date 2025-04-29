@@ -273,21 +273,6 @@ export default class MastodonServer {
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
     };
-
-    // Return true if SECONDS_UNTIL_RELOAD_TRENDING has passed since the latest toot in our timeline
-    static async shouldReloadRemoteData(): Promise<boolean> {
-        const seconds = await Storage.secondsSinceMostRecentToot();
-
-        if (!seconds) {
-            return true;
-        } else if (seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
-            console.debug(`[shouldReloadRemoteData] Reloading data after ${seconds} seconds...`);
-            return true;
-        } else {
-            console.debug(`[shouldReloadRemoteData] Remote data is still fresh (${seconds} seconds old), no need to reload.`);
-            return false;
-        }
-    }
 };
 
 

@@ -84,6 +84,7 @@ exports.DEFAULT_CONFIG = {
     maxTimelineTootsToFetch: 900,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
+    scoringBatchSize: 100,
     staleDataSeconds: 10 * 60,
     // API stuff
     maxFollowingAccountsToPull: 5000,
@@ -143,6 +144,7 @@ exports.DEFAULT_CONFIG = {
         "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",
+        "mastodon.sdf.org",
         'mathstodon.xyz',
         "mstdn.social",
         "threads.net",

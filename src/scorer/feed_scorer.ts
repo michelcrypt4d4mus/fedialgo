@@ -10,7 +10,7 @@ import { StringNumberDict } from "../types";
 
 export default abstract class FeedScorer extends Scorer {
     // Take an array of Toots and extract the scoreData needed to score a toot
-    async setFeed(feed: Toot[]): Promise<void> {
+    setFeed(feed: Toot[]): void {
         this.scoreData = this.feedExtractor(feed);
         console.debug(`[${this.constructor.name}] feedExtractor() set scoreData to`, this.scoreData);
         this.isReady = true;

@@ -8,23 +8,22 @@ export default class Storage {
     static setWeightings(userWeightings: Weights): Promise<void>;
     static getFilters(): Promise<FeedFilterSettings>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
-    static getFollowedAccts(): Promise<Account[]>;
     static getUserData(): Promise<UserData>;
     static logAppOpen(): Promise<void>;
-    static secondsSinceMostRecentToot(): Promise<number | null | undefined>;
-    static getNumAppOpens(): Promise<number>;
     static getIdentity(): Promise<Account | null>;
     static setIdentity(user: Account): Promise<void>;
-    static getToots(key: StorageKey): Promise<Toot[]>;
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(): Promise<boolean>;
     static secondsSinceLastOpened(): Promise<number | undefined>;
-    static getLastOpenedTimestamp(): Promise<number | undefined>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static remove(key: StorageKey): Promise<void>;
+    private static getLastOpenedTimestamp;
+    private static getNumAppOpens;
+    private static getToots;
+    private static secondsSinceMostRecentToot;
     private static buildKey;
 }

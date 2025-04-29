@@ -5,5 +5,6 @@ export default class TrendingLinksScorer extends FeatureScorer {
     trendingLinks: TrendingLink[];
     constructor();
     featureGetter(): Promise<StringNumberDict>;
+    populateTrendingLinks(toot: Toot): void;
     _score(toot: Toot): Promise<number>;
 }

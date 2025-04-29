@@ -11,3 +11,4 @@ export declare function atLeastValues(obj: StringNumberDict, minValue: number): 
 export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function shuffle<T>(array: T[]): T[];
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
+export declare function processPromisesBatch(items: Array<any>, batchSize: number, fn: (item: any) => Promise<any>): Promise<any>;

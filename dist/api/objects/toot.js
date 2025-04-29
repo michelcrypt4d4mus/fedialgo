@@ -422,6 +422,7 @@ class Toot {
 }
 exports.default = Toot;
 ;
+// Methods for dealing with toot timestamps
 const tootedAt = (toot) => new Date(toot.createdAt);
 exports.tootedAt = tootedAt;
 const earliestToot = (toots) => (0, exports.sortByCreatedAt)(toots)[0];

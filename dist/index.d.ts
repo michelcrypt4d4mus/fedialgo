@@ -33,14 +33,13 @@ declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    feed: Toot[];
     loadingStatus?: string;
+    feed: Toot[];
     mastodonServers: MastodonServersInfo;
     scoreMutex: Mutex;
     trendingData: TrendingStorage;
     setFeedInApp: (f: Toot[]) => void;
-    followedTagsScorer: FollowedTagsScorer;
-    mentionsFollowedScorer: MentionsFollowedScorer;
+    trendingLinksScorer: TrendingLinksScorer;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: (DiversityFeedScorer | RetootsInFeedScorer)[];
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];

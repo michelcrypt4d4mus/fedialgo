@@ -3,6 +3,7 @@
  */
 import md5 from "blueimp-md5";
 
+import { ageInSeconds } from "./time_helpers";
 import { CountKey, StringNumberDict, Weights } from "../types";
 
 
@@ -125,4 +126,24 @@ export function shuffle<T>(array: T[]): T[] {
 // Remove elements of an array if they have duplicate values for the given transform function
 export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[] {
     return [...new Map(array.map((element) => [transform(element), element])).values()];
+};
+
+
+// From https://dev.to/woovi/processing-promises-in-batch-2le6
+export async function processPromisesBatch(
+        items: Array<any>,
+        batchSize: number,
+        fn: (item: any) => Promise<any>,
+    ): Promise<any> {
+    // const startTime = new Date();
+    let results: any[] = [];
+
+    for (let start = 0; start < items.length; start += batchSize) {
+        const end = start + batchSize > items.length ? items.length : start + batchSize;
+        const slicedResults = await Promise.all(items.slice(start, end).map(fn));
+        results = [...results, ...slicedResults]
+        // console.debug(`Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+    }
+
+    return results;
 };

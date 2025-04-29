@@ -75,6 +75,7 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
+    scoringBatchSize: number;
     staleDataSeconds: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;

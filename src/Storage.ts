@@ -67,16 +67,9 @@ export default class Storage {
         await this.set(StorageKey.FILTERS, filterSettings);
     }
 
-    // TODO: this name is too close to the overridden method in MastodonApiCache
-    static async getFollowedAccts(): Promise<Account[]> {
-        let followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS);
-        followedAccounts = (followedAccounts ?? []) as mastodon.v1.Account[];
-        return followedAccounts.map((a) => new Account(a));
-    }
-
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData(): Promise<UserData> {
-        const followedAccounts = await this.getFollowedAccts();
+        const followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS) as mastodon.v1.Account[];
         const followedTags = await this.get(StorageKey.FOLLOWED_TAGS) as mastodon.v1.Tag[];
         const serverSideFilters = await this.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
 
@@ -85,7 +78,7 @@ export default class Storage {
         const allMutedAccounts = (mutedAccounts ?? []).concat(blockedAccounts ?? []).map((a) => new Account(a));
 
         return {
-            followedAccounts: Account.buildAccountNames(followedAccounts),
+            followedAccounts: Account.buildAccountNames((followedAccounts ?? []).map(a => new Account(a))),
             followedTags: countValues<mastodon.v1.Tag>(followedTags ?? [], tag => tag.name),
             mutedAccounts: Account.buildAccountNames(allMutedAccounts),
             serverSideFilters: serverSideFilters ?? {},
@@ -98,24 +91,6 @@ export default class Storage {
         await this.set(StorageKey.LAST_OPENED, new Date().getTime());
     }
 
-    // Return the numebr of seconds since the most recent toot in the stored timeline
-    static async secondsSinceMostRecentToot(): Promise<number | null | undefined> {
-        const timelineToots = await this.getToots(StorageKey.TIMELINE);
-        const mostRecent = mostRecentTootedAt(timelineToots);
-
-        if (mostRecent) {
-            return ageOfTimestampInSeconds(mostRecent.getTime());
-        } else {
-            console.debug(`No most recent toot found`);
-        }
-    }
-
-    static async getNumAppOpens(): Promise<number> {
-        let numAppOpens = await this.get(StorageKey.OPENINGS) as number || 0;
-        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens;
-    }
-
     // Get the user identity from storage
     static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(StorageKey.USER);
@@ -126,12 +101,6 @@ export default class Storage {
     static async setIdentity(user: Account) {
         console.debug(`Setting fedialgo user identity to:`, user);
         await localForage.setItem(StorageKey.USER, user.serialize());
-    }
-
-    // Generic method for deserializing stored toots
-    static async getToots(key: StorageKey): Promise<Toot[]> {
-        let toots = await this.get(key) as SerializableToot[];
-        return (toots ?? []).map(t => new Toot(t));
     }
 
     // Generic method for serializing toots to storage
@@ -186,19 +155,6 @@ export default class Storage {
         return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
     }
 
-    static async getLastOpenedTimestamp(): Promise<number | undefined> {
-        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
-
-        if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
-            return;
-        }
-
-        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
-        return lastOpenedInt;
-    }
-
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         return await localForage.getItem(await this.buildKey(key));
@@ -215,6 +171,43 @@ export default class Storage {
         const storageKey = await this.buildKey(key);
         console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
+    }
+
+    private static async getLastOpenedTimestamp(): Promise<number | undefined> {
+        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
+        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
+
+        if (!lastOpenedInt || numAppOpens <= 1) {
+            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
+            return;
+        }
+
+        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
+        return lastOpenedInt;
+    }
+
+    private static async getNumAppOpens(): Promise<number> {
+        let numAppOpens = await this.get(StorageKey.OPENINGS) as number || 0;
+        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
+        return numAppOpens;
+    }
+
+    // Generic method for deserializing stored toots
+    private static async getToots(key: StorageKey): Promise<Toot[]> {
+        let toots = await this.get(key) as SerializableToot[];
+        return (toots ?? []).map(t => new Toot(t));
+    }
+
+    // Return the number of seconds since the most recent toot in the stored timeline
+    private static async secondsSinceMostRecentToot(): Promise<number | null | undefined> {
+        const timelineToots = await this.getToots(StorageKey.TIMELINE);
+        const mostRecent = mostRecentTootedAt(timelineToots);
+
+        if (mostRecent) {
+            return ageOfTimestampInSeconds(mostRecent.getTime());
+        } else {
+            console.debug(`No most recent toot found`);
+        }
     }
 
     private static async buildKey(key: StorageKey): Promise<string> {

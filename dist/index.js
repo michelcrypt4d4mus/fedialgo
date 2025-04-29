@@ -71,6 +71,7 @@ const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
 Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_2.PresetWeights; } });
+const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
@@ -80,20 +81,19 @@ class TheAlgorithm {
     api;
     user;
     filters;
+    loadingStatus; // Status message about what is being loaded
     // Variables with initial values
     feed = [];
-    loadingStatus = undefined; // Status message about what is being loaded
     mastodonServers = {};
     scoreMutex = new async_mutex_1.Mutex();
     trendingData = { links: [], tags: [], toots: [] };
     // Optional callback to set the feed in the code using this package
     setFeedInApp = (f) => console.debug(`Default setFeedInApp() called...`);
     // Scorers
-    followedTagsScorer = new followed_tags_scorer_1.default();
-    mentionsFollowedScorer = new mentions_followed_scorer_1.default();
+    trendingLinksScorer = new trending_links_scorer_1.default();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
-        new trending_links_scorer_1.default(),
+        this.trendingLinksScorer,
         new followed_tags_scorer_1.default(),
         new mentions_followed_scorer_1.default(),
         new chaos_scorer_1.default(),
@@ -221,8 +221,8 @@ class TheAlgorithm {
     // Debugging method to log info about the timeline toots
     logFeedInfo(prefix = "") {
         prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        // console.log(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
-        console.log(`${prefix}timeline toots filters, including counts:`, this.filters);
+        // console.debug(`${prefix}timeline toots (condensed):`, this.feed.map(t => t.condensedStatus()));
+        console.debug(`${prefix}timeline toots filters, including counts:`, this.filters);
     }
     mostRecentTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed);
@@ -287,17 +287,11 @@ class TheAlgorithm {
             this.scoreMutex.cancel();
             const releaseMutex = await this.scoreMutex.acquire();
             try {
-                // TODO: DiversityFeedScorer mutates its state as it scores so setFeed() must be reset
-                let promises = this.feedScorers.map(scorer => scorer.setFeed(this.feed));
-                if (!this.featureScorers.every(scorer => scorer.isReady)) {
-                    console.warn(`For some reasons FeaturesScorers are not ready. Making it so...`);
-                    promises = promises.concat(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                }
-                await Promise.all(promises);
-                // TODO: DiversityFeedScorer mutations are problematic when used with Promise.all() so use a loop
-                for (const toot of this.feed) {
-                    await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers);
-                }
+                // Feed scorers' data must be refreshed each time the feed changes
+                this.feedScorers.forEach(scorer => scorer.setFeed(this.feed));
+                // TrendingLinksScorer sets the Toot.trendingLinks property  // TODO: this sucks
+                this.feed.forEach(toot => this.trendingLinksScorer.populateTrendingLinks(toot));
+                await (0, collection_helpers_1.processPromisesBatch)(this.feed, Storage_1.default.getConfig().scoringBatchSize, async (toot) => await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers));
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);

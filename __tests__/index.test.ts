@@ -29,7 +29,7 @@ describe('TheAlgorithm', () => {
         const user = await api.v1.accounts.verifyCredentials();
         expect(algo).toBeDefined();
         expect(await Storage.getIdentity()).toEqual(user);
-        expect(await Storage.getLastOpenedTimestamp()).toBeDefined();
+        expect(await Storage.secondsSinceLastOpened()).toBeDefined();
         expect(await Storage.getNumAppOpens()).toBeGreaterThan(0);
         const weights = await algo.getUserWeights();
         expect(weights).toBeDefined();
