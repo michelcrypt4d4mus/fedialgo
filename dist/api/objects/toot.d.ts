@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { TheAlgorithm } from "../..";
-import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
+import { AccountNames, FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -86,7 +85,7 @@ export default class Toot implements TootObj {
     isDM(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isTrending(): boolean;
-    isValidForFeed(algo: TheAlgorithm): boolean;
+    isValidForFeed(mutedAccounts: AccountNames): boolean;
     popularity(): number;
     realAccount(): Account;
     realURI(): string;
@@ -95,9 +94,10 @@ export default class Toot implements TootObj {
     serialize(): SerializableToot;
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void;
     tootedAt(): Date;
-    private repair;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;
+    private isUsersOwnToot;
+    private repair;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
 }
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;

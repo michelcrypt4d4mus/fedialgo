@@ -180,7 +180,7 @@ class TheAlgorithm {
 
         // Set userData dependent props on each toot, filter out dupe/invalid toots, build filters
         newToots.forEach(toot => toot.setDependentProperties(userData, this.trendingData.links));
-        this.feed = this.cleanupFeed(newToots);
+        this.feed = await this.cleanupFeed(newToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, await MastoApi.instance.getUserData());
 
         // Potentially fetch more toots if we haven't reached the desired number
@@ -242,8 +242,9 @@ class TheAlgorithm {
     }
 
     // Remove invalid and duplicate toots
-    private cleanupFeed(toots: Toot[]): Toot[] {
-        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(this));
+    private async cleanupFeed(toots: Toot[]): Promise<Toot[]> {
+        const mutedAccounts = (await MastoApi.instance.getUserData()).mutedAccounts || [];
+        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(mutedAccounts));
         const numRemoved = toots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");

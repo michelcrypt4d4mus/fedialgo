@@ -10,7 +10,6 @@ import Storage from "../../Storage";
 import { groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
-import { TheAlgorithm } from "../..";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
@@ -23,6 +22,7 @@ import {
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
 import {
+    AccountNames,
     FeedFilterSettings,
     MediaCategory,
     StatusList,
@@ -289,11 +289,10 @@ export default class Toot implements TootObj {
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(algo: TheAlgorithm): boolean {
-        const mutedAccounts = MastoApi.instance.userData?.mutedAccounts || {};  // TODO: should we pass UserData as arg?
-
+    isValidForFeed(mutedAccounts: AccountNames): boolean {
         // Remove user's own toots
-        if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
+        if (this.isUsersOwnToot()) {
+            console.debug(`Removing fedialgo user's own toot:`, this);
             return false;
         }
 
@@ -380,6 +379,41 @@ export default class Toot implements TootObj {
         return new Date(this.createdAt);
     }
 
+    //////////////////////////////
+    //     Private methods      //
+    //////////////////////////////
+
+    // return MediaAttachmentType objects with type == attachmentType
+    private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): mastodon.v1.MediaAttachment[] {
+        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
+        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
+    }
+
+    // Generate a string describing the followed and trending tags in the toot
+    private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
+        let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
+
+        if (tagType == WeightName.FOLLOWED_TAGS) {
+            tags = this.followedTags;
+        } else if (tagType == WeightName.TRENDING_TAGS) {
+            tags = this.trendingTags;
+        } else {
+            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
+        }
+
+        if (!tags.length) return;
+        const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag");
+        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+    }
+
+    // Returns true if this toot is by the fedialgo user
+    private isUsersOwnToot(): boolean {
+        const algoUser = MastoApi.instance.user;
+        if (this.account.webfingerURI() == algoUser.webfingerURI()) return true;
+        if (this.reblog && this.reblog.account.webfingerURI() == algoUser.webfingerURI()) return true;
+        return false;
+    }
+
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
@@ -429,28 +463,9 @@ export default class Toot implements TootObj {
         })
     }
 
-    // return MediaAttachmentType objects with type == attachmentType
-    private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): mastodon.v1.MediaAttachment[] {
-        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
-    }
-
-    // Generate a string describing the followed and trending tags in the toot
-    private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
-        let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
-
-        if (tagType == WeightName.FOLLOWED_TAGS) {
-            tags = this.followedTags;
-        } else if (tagType == WeightName.TRENDING_TAGS) {
-            tags = this.trendingTags;
-        } else {
-            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
-        }
-
-        if (!tags.length) return;
-        const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag");
-        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
-    }
+    ///////////////////////////////
+    //       Class methods       //
+    ///////////////////////////////
 
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {

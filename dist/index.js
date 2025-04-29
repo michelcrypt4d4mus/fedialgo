@@ -183,7 +183,7 @@ class TheAlgorithm {
         this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
         // Set userData dependent props on each toot, filter out dupe/invalid toots, build filters
         newToots.forEach(toot => toot.setDependentProperties(userData, this.trendingData.links));
-        this.feed = this.cleanupFeed(newToots);
+        this.feed = await this.cleanupFeed(newToots);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.MastoApi.instance.getUserData());
         // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
@@ -234,8 +234,9 @@ class TheAlgorithm {
         return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
     // Remove invalid and duplicate toots
-    cleanupFeed(toots) {
-        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(this));
+    async cleanupFeed(toots) {
+        const mutedAccounts = (await api_1.MastoApi.instance.getUserData()).mutedAccounts || [];
+        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(mutedAccounts));
         const numRemoved = toots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");

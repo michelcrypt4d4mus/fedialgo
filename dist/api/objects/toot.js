@@ -224,10 +224,10 @@ class Toot {
             || this.trendingTags?.length);
     }
     // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(algo) {
-        const mutedAccounts = api_1.MastoApi.instance.userData?.mutedAccounts || {}; // TODO: should we pass UserData as arg?
+    isValidForFeed(mutedAccounts) {
         // Remove user's own toots
-        if (this.account.username == algo.user.username && this.account.id == algo.user.id) {
+        if (this.isUsersOwnToot()) {
+            console.debug(`Removing fedialgo user's own toot:`, this);
             return false;
         }
         // Remove muted accounts and toots
@@ -301,6 +301,40 @@ class Toot {
     tootedAt() {
         return new Date(this.createdAt);
     }
+    //////////////////////////////
+    //     Private methods      //
+    //////////////////////////////
+    // return MediaAttachmentType objects with type == attachmentType
+    attachmentsOfType(attachmentType) {
+        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
+        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
+    }
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsOfTypeMsg(tagType) {
+        let tags = [];
+        if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
+            tags = this.followedTags;
+        }
+        else if (tagType == types_1.WeightName.TRENDING_TAGS) {
+            tags = this.trendingTags;
+        }
+        else {
+            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
+        }
+        if (!tags.length)
+            return;
+        const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
+        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+    }
+    // Returns true if this toot is by the fedialgo user
+    isUsersOwnToot() {
+        const algoUser = api_1.MastoApi.instance.user;
+        if (this.account.webfingerURI() == algoUser.webfingerURI())
+            return true;
+        if (this.reblog && this.reblog.account.webfingerURI() == algoUser.webfingerURI())
+            return true;
+        return false;
+    }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing
     //   - Set toot.language to defaultLanguage if missing
@@ -348,28 +382,9 @@ class Toot {
             }
         });
     }
-    // return MediaAttachmentType objects with type == attachmentType
-    attachmentsOfType(attachmentType) {
-        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
-    }
-    // Generate a string describing the followed and trending tags in the toot
-    containsTagsOfTypeMsg(tagType) {
-        let tags = [];
-        if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
-            tags = this.followedTags;
-        }
-        else if (tagType == types_1.WeightName.TRENDING_TAGS) {
-            tags = this.trendingTags;
-        }
-        else {
-            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
-        }
-        if (!tags.length)
-            return;
-        const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
-        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
-    }
+    ///////////////////////////////
+    //       Class methods       //
+    ///////////////////////////////
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
         const prefix = logLabel ? `[${logLabel}] ` : '';
