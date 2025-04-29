@@ -1,6 +1,7 @@
 # NEXT RELEASE
-* Use reverse chronological order sort in DiversityFeedScorer; stop mutating DiversityFeedScorer.scoreData during scoring
-* Score toots with Promises instead of serially, add `Config.scoringBatchSize` param
+* Use reverse chronological order sort in `DiversityFeedScorer`
+* Stop mutating `DiversityFeedScorer.scoreData` during scoring
+* Score toots with parallelized Promises instead of serially, add `Config.scoringBatchSize` param
 
 ### v0.20.4
 * Add `Config.staleDataSeconds` param, consolidate `Storage.isStaleData()` method
