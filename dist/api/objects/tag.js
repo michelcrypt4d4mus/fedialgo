@@ -4,7 +4,13 @@ exports.repairTag = void 0;
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name and URL
 function repairTag(tag) {
-    tag.name = tag.name?.length ? tag.name.toLowerCase() : BROKEN_TAG;
+    if (!tag.name?.length) {
+        console.warn(`Broken tag object:`, tag);
+        tag.name = BROKEN_TAG;
+    }
+    else {
+        tag.name = tag.name.toLowerCase();
+    }
     tag.url = tag.url.toLowerCase();
     return tag;
 }
