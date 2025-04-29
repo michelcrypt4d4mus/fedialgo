@@ -94,6 +94,7 @@ export const DEFAULT_CONFIG: Config = {
     minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
     numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
     reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
+    timeoutMS: 5_000,                    // Timeout for API calls
 
     // Trending tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags

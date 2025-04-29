@@ -10,7 +10,8 @@ import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot, { SerializableToot } from "./objects/toot";
-import { INSTANCE, LINKS, STATUSES, TAGS, ApiMutex, MastoApi } from "./api";
+import { ageInSeconds } from "../helpers/time_helpers";
+import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { MastodonServersInfo, StorageKey, TrendingLink, TrendingTag } from "../types";
 import { repairTag } from "./objects/tag";
 import {
@@ -122,11 +123,12 @@ export default class MastodonServer {
 
     // Get data from a public API endpoint on a Mastodon server.
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
+        const startTime = new Date();
         let urlEndpoint = `${this.domain}/${endpoint}`
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
-        const json = await axios.get<T>(url);
-        console.debug(`[mastodonFetch() ${urlEndpoint}] response:`, json);
+        const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
+        console.debug(`[fetch() ${urlEndpoint}] response (${ageInSeconds(startTime)} seconds):`, json);
 
         if (json.status === 200 && json.data) {
             return transformKeys(json.data, camelCase) as T;
@@ -255,7 +257,7 @@ export default class MastodonServer {
     };
 
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
-    static async callForAllServers<T>(
+    private static async callForAllServers<T>(
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
         const domains = await MastoApi.instance.getTopServerDomains();
@@ -263,21 +265,24 @@ export default class MastodonServer {
     };
 
     // Call 'fxn' for a list of domains and return a dict keyed by domain
-    static async callForServers<T>(
+    private static async callForServers<T>(
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
     };
 
+    // Return true if SECONDS_UNTIL_RELOAD_TRENDING has passed since the latest toot in our timeline
     static async shouldReloadRemoteData(): Promise<boolean> {
         const seconds = await Storage.secondsSinceMostRecentToot();
 
-        if (seconds && seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
-            console.debug(`[shouldReloadRemoteData] Reloading trending data after ${seconds} seconds...`);
+        if (!seconds) {
+            return true;
+        } else if (seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
+            console.debug(`[shouldReloadRemoteData] Reloading data after ${seconds} seconds...`);
             return true;
         } else {
-            console.debug(`[shouldReloadRemoteData] Trending data is still fresh (value: '${seconds}'), no need to reload.`);
+            console.debug(`[shouldReloadRemoteData] Remote data is still fresh (${seconds} seconds old), no need to reload.`);
             return false;
         }
     }
