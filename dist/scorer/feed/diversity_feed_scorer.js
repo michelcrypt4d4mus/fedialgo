@@ -20,7 +20,6 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     //        As a result this.scoreData must be reset anew each time the feed is updated
     feedExtractor(feed) {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed).reverse();
-        console.info(`DiversityFeedScorer: ${sortedToots.length} toots in sorted feed:`, sortedToots.slice(0, 10));
         // Collate the overall score for each account
         const accountScores = sortedToots.reduce((tootCounts, toot) => {
             (0, collection_helpers_1.incrementCount)(tootCounts, toot.account.webfingerURI(), -1);
@@ -28,7 +27,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 (0, collection_helpers_1.incrementCount)(tootCounts, toot.reblog.account.webfingerURI(), -1);
             return tootCounts;
         }, {});
-        // Create a dict with a score for each toot, keyed by uri (mutates userScores)
+        // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         return sortedToots.reduce((scores, toot) => {
             (0, collection_helpers_1.incrementCount)(accountScores, toot.account.webfingerURI());
             scores[toot.uri] = accountScores[toot.account.webfingerURI()] || 0;

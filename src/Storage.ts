@@ -149,7 +149,7 @@ export default class Storage {
         }
     }
 
-    // Seconds since the app was last opened
+    // Seconds since the app was last opened  // TODO: currently unused
     static async secondsSinceLastOpened(): Promise<number | undefined> {
         const lastOpened = await this.getLastOpenedTimestamp();
         return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
@@ -187,9 +187,8 @@ export default class Storage {
     }
 
     private static async getNumAppOpens(): Promise<number> {
-        let numAppOpens = await this.get(StorageKey.OPENINGS) as number || 0;
-        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens;
+        const numAppOpens = await this.get(StorageKey.OPENINGS) as number;
+        return numAppOpens || 0;
     }
 
     // Generic method for deserializing stored toots

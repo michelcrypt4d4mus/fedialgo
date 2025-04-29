@@ -144,7 +144,7 @@ class Storage {
             return false;
         }
     }
-    // Seconds since the app was last opened
+    // Seconds since the app was last opened  // TODO: currently unused
     static async secondsSinceLastOpened() {
         const lastOpened = await this.getLastOpenedTimestamp();
         return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
@@ -175,9 +175,8 @@ class Storage {
         return lastOpenedInt;
     }
     static async getNumAppOpens() {
-        let numAppOpens = await this.get(types_1.StorageKey.OPENINGS) || 0;
-        console.debug(`getNumAppOpens() returning ${numAppOpens}`);
-        return numAppOpens;
+        const numAppOpens = await this.get(types_1.StorageKey.OPENINGS);
+        return numAppOpens || 0;
     }
     // Generic method for deserializing stored toots
     static async getToots(key) {
