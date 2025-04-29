@@ -28,6 +28,9 @@ export declare enum WeightName {
 export declare enum StorageKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_ACCOUNTS = "FavouritedAccounts",
+    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
+    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
+    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
     FILTERS = "Filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
@@ -118,12 +121,10 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingStorageSerialized | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingLink[] | TrendingStorageSerialized | TrendingTag[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
 export type TimelineData = {
     homeToots: Toot[];
     otherToots: Toot[];
-    trendingLinks?: TrendingLink[];
-    trendingTags?: TrendingTag[];
     trendingToots?: Toot[];
 };
 export type TootScore = {

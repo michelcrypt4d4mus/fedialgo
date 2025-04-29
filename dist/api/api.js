@@ -100,20 +100,14 @@ class MastoApi {
         const allResponses = await Promise.all(promises);
         // console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift(); // Pop timeline toots off the array
-        let trendingTags, trendingToots, trendingTagToots;
+        let trendingToots, trendingTagToots;
         let otherToots = [];
         if (allResponses.length > 0) {
             trendingToots = allResponses.shift();
             trendingTagToots = allResponses.shift();
-            trendingTags = trendingTagToots.tags;
             otherToots = trendingToots.concat(trendingTagToots.toots);
         }
-        return {
-            homeToots,
-            otherToots,
-            trendingTags,
-            trendingToots,
-        };
+        return { homeToots, otherToots };
     }
     ;
     // Retrieve background data about the user that will be used for scoring etc.
@@ -272,6 +266,7 @@ class MastoApi {
     }
     ;
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    // TODO: move this to mastodon_server.ts
     async getMastodonServersInfo() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
@@ -367,7 +362,8 @@ class MastoApi {
     // starting at the 9th one. Also bc of the way it was implemented it won't work the same
     // way for any number other than 9.
     async shouldReloadFeatures() {
-        return (await Storage_1.default.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
+        return (await mastodon_server_1.default.shouldReloadRemoteData()) ||
+            (await Storage_1.default.getNumAppOpens()) % 10 == Storage_1.default.getConfig().reloadFeaturesEveryNthOpen;
     }
     // Re-raise access revoked errors so they can trigger a logout() call
     throwIfAccessTokenRevoked(e, msg) {

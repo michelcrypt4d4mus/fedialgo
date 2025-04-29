@@ -5,7 +5,8 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
-import Toot, { SerializableToot } from './api/objects/toot';
+import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
+import { ageOfTimestampInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { countValues } from "./helpers/collection_helpers";
 import { DEFAULT_CONFIG } from "./config";
@@ -32,6 +33,7 @@ export default class Storage {
         return this.config;
     }
 
+    // Return the user's stored timeline weightings
     static async getWeightings(): Promise<Weights> {
         const weightings = await this.get(StorageKey.WEIGHTS);
         return (weightings ?? {}) as Weights;
@@ -41,6 +43,7 @@ export default class Storage {
         await this.set(StorageKey.WEIGHTS, userWeightings);
     }
 
+    // Get the user's saved timeline filter settings
     static async getFilters(): Promise<FeedFilterSettings> {
         let filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
 
@@ -71,6 +74,7 @@ export default class Storage {
         return followedAccounts.map((a) => new Account(a));
     }
 
+    // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData(): Promise<UserData> {
         const followedAccounts = await this.getFollowedAccts();
         const followedTags = await this.get(StorageKey.FOLLOWED_TAGS) as mastodon.v1.Tag[];
@@ -94,17 +98,16 @@ export default class Storage {
         await this.set(StorageKey.LAST_OPENED, new Date().getTime());
     }
 
-    static async getLastOpenedTimestamp(): Promise<number> {
-        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
+    // Return the numebr of seconds since the most recent toot in the stored timeline
+    static async secondsSinceMostRecentToot(): Promise<number | null | undefined> {
+        const timelineToots = await this.getToots(StorageKey.TIMELINE);
+        const mostRecent = mostRecentTootedAt(timelineToots);
 
-        if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
-            return 0;
+        if (mostRecent) {
+            return ageOfTimestampInSeconds(mostRecent.getTime());
+        } else {
+            console.debug(`No most recent toot found`);
         }
-
-        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
-        return lastOpenedInt;
     }
 
     static async getNumAppOpens(): Promise<number> {
@@ -113,6 +116,7 @@ export default class Storage {
         return numAppOpens;
     }
 
+    // Get the user identity from storage
     static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(StorageKey.USER);
         return user ? new Account(user as mastodon.v1.Account) : null;
@@ -124,34 +128,54 @@ export default class Storage {
         await localForage.setItem(StorageKey.USER, user.serialize());
     }
 
+    // Generic method for deserializing stored toots
+    static async getToots(key: StorageKey): Promise<Toot[]> {
+        let toots = await this.get(key) as SerializableToot[];
+        return (toots ?? []).map(t => new Toot(t));
+    }
+
+    // Generic method for serializing toots to storage
+    static async storeToots(key: StorageKey, toots: Toot[]) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
+    }
+
+    // Get the timeline toots
     static async getFeed(): Promise<Toot[]> {
-        let cachedToots = await this.get(StorageKey.TIMELINE);
-        let toots = (cachedToots ?? []) as SerializableToot[];  // Status doesn't include all our Toot props but it should be OK?
-        return toots.map(t => new Toot(t));
+        return await this.getToots(StorageKey.TIMELINE);
     }
 
+    // Store the current timeline toots
     static async setFeed(timeline: Toot[]) {
-        await this.set(StorageKey.TIMELINE, timeline.map(t => t.serialize()));
+        await this.storeToots(StorageKey.TIMELINE, timeline);
     }
 
-    static async setTrending(trendingData: TrendingStorage) {
-        const data = {
-            links: trendingData.links,
-            tags: trendingData.tags,
-            toots: trendingData.toots.map(t => t.serialize()),
+    // Get trending tags, toots, and links
+    static async getTrending(): Promise<TrendingStorage> {
+        return {
+            links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],
+            tags: ((await this.get(StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []) as TrendingTag[],
+            toots: await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS),
+        };
+    }
+
+    // Seconds since the app was last opened
+    static async secondsSinceLastOpened(): Promise<number | undefined> {
+        const lastOpened = await this.getLastOpenedTimestamp();
+        return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
+    }
+
+    static async getLastOpenedTimestamp(): Promise<number | undefined> {
+        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
+        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
+
+        if (!lastOpenedInt || numAppOpens <= 1) {
+            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
+            return;
         }
 
-        await this.set(StorageKey.TRENDING, data);
-    }
-
-    static async getTrending(): Promise<TrendingStorage> {
-        const trendingData = await this.get(StorageKey.TRENDING) as TrendingStorageSerialized;
-
-        return {
-            links: (trendingData?.links ?? []) as TrendingLink[],
-            tags: (trendingData?.tags ?? []) as TrendingTag[],
-            toots: (trendingData?.toots ?? []).map((t) => new Toot(t)),
-        };
+        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
+        return lastOpenedInt;
     }
 
     // Get the value at the given key (with the user ID as a prefix)

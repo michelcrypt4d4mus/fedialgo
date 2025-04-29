@@ -7,7 +7,7 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-type ApiMutex = Record<StorageKey | WeightName, Mutex>;
+export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
@@ -41,4 +41,3 @@ export declare class MastoApi {
     static v2Url: (path: string) => string;
     static trendUrl: (path: string) => string;
 }
-export {};

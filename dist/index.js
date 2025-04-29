@@ -38,6 +38,7 @@ const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
+const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
@@ -167,20 +168,16 @@ class TheAlgorithm {
             this.loadingStatus = `more toots (retrieved ${this.feed.length} so far)`;
         }
         const allResponses = await Promise.all(dataFetches);
-        // console.debug(`getFeed() allResponses:`, allResponses);
-        const { homeToots, otherToots, trendingTags, trendingToots } = allResponses.shift(); // pop getTimelineToots() response
+        // pop getTimelineToots() response from front of allResponses array
+        const { homeToots, otherToots } = allResponses.shift();
         const newToots = [...homeToots, ...otherToots];
-        // Store trending data so it's accessible to client if page is reloaded
-        this.trendingData.links = this.featureScorers[0].trendingLinks;
-        this.trendingData.tags = trendingTags?.length ? trendingTags : this.trendingData.tags;
-        this.trendingData.toots = trendingToots?.length ? trendingToots : this.trendingData.toots;
-        Storage_1.default.setTrending(this.trendingData);
-        // This if condition should be equivalent to the if (!maxId) above
-        if (allResponses.length > 0) {
-            const userData = allResponses.shift();
-            this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo(); // Should load from storage
-        }
         this.logTootCounts(newToots, homeToots);
+        // All these should be loading from local storage as the initial fetch happened in the
+        // course of getting the trending data.
+        this.trendingData.links = await mastodon_server_1.default.fediverseTrendingLinks();
+        this.trendingData.tags = await mastodon_server_1.default.fediverseTrendingTags();
+        this.trendingData.toots = await mastodon_server_1.default.fediverseTrendingToots();
+        this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
         // Remove stuff already retooted, invalid future timestamps, nulls, etc.
         const cleanNewToots = newToots.filter(toot => toot.isValidForFeed(this));
         const numRemoved = newToots.length - cleanNewToots.length;

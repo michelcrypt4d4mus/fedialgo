@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Implement a reload based on time of most recent toot in timeline (10 minutes is the trigger)
 * Get rid of unnecessary `Toot.resolveAttempted` flag
 
 ### v0.20.3

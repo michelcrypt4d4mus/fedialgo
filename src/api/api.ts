@@ -33,7 +33,7 @@ const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 
-type ApiMutex = Record<StorageKey | WeightName, Mutex>;
+export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -109,22 +109,16 @@ export class MastoApi {
         const allResponses = await Promise.all(promises);
         // console.debug(`[MastoApi] getFeed() allResponses: ${JSON.stringify(allResponses, null, 4)}`);
         const homeToots = allResponses.shift();  // Pop timeline toots off the array
-        let trendingTags, trendingToots, trendingTagToots;
+        let trendingToots, trendingTagToots;
         let otherToots = [];
 
         if (allResponses.length > 0) {
             trendingToots = allResponses.shift();
             trendingTagToots = allResponses.shift();
-            trendingTags = trendingTagToots.tags;
             otherToots = trendingToots.concat(trendingTagToots.toots);
         }
 
-        return {
-            homeToots,
-            otherToots,
-            trendingTags,
-            trendingToots,
-        } as TimelineData;
+        return { homeToots, otherToots } as TimelineData;
     };
 
     // Retrieve background data about the user that will be used for scoring etc.
@@ -297,6 +291,7 @@ export class MastoApi {
     };
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    // TODO: move this to mastodon_server.ts
     async getMastodonServersInfo(): Promise<MastodonServersInfo> {
         const releaseMutex = await this.mutexes[StorageKey.POPULAR_SERVERS].acquire()
 
@@ -401,7 +396,8 @@ export class MastoApi {
     // starting at the 9th one. Also bc of the way it was implemented it won't work the same
     // way for any number other than 9.
     private async shouldReloadFeatures() {
-        return (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
+        return (await MastodonServer.shouldReloadRemoteData()) ||
+               (await Storage.getNumAppOpens()) % 10 == Storage.getConfig().reloadFeaturesEveryNthOpen;
     }
 
     // Re-raise access revoked errors so they can trigger a logout() call

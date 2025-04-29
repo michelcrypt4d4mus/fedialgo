@@ -18,7 +18,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
     async featureGetter(): Promise<StringNumberDict> {
         this.trendingLinks = await MastodonServer.fediverseTrendingLinks();
 
-        // TODO: we don't need to return this, this.trendingLinks is enough
+        // TODO: we don't technically need to return this, this.trendingLinks is enough
         return this.trendingLinks.reduce(
             (accountsPostingLinkCounts, link) => {
                 accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
@@ -34,7 +34,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
 
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+            // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
 
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);

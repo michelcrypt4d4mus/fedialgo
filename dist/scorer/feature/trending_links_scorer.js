@@ -17,7 +17,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     }
     async featureGetter() {
         this.trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
-        // TODO: we don't need to return this, this.trendingLinks is enough
+        // TODO: we don't technically need to return this, this.trendingLinks is enough
         return this.trendingLinks.reduce((accountsPostingLinkCounts, link) => {
             accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
             return accountsPostingLinkCounts;
@@ -28,7 +28,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
         toot = toot.reblog || toot;
         if (!toot.trendingLinks) {
             toot.trendingLinks = this.trendingLinks.filter(link => toot.containsString(link.url));
-            console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
+            // console.debug(`[${this.constructor.name}] Found ${toot.trendingLinks.length} trendingLinks for ${toot.describe()}`);
         }
         return toot.trendingLinks.map(link => link.numToots || 0).reduce((total, x) => total + x, 0);
     }

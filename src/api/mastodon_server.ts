@@ -4,13 +4,14 @@
 import axios from "axios";
 import { camelCase } from "change-case";
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
-import Toot from "./objects/toot";
-import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { MastodonServersInfo, TrendingLink, TrendingTag } from "../types";
+import Toot, { SerializableToot } from "./objects/toot";
+import { INSTANCE, LINKS, STATUSES, TAGS, ApiMutex, MastoApi } from "./api";
+import { MastodonServersInfo, StorageKey, TrendingLink, TrendingTag } from "../types";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -21,6 +22,20 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
+
+export enum FediverseTrendingType {
+    STATUSES = "statuses",
+    LINKS = "links",
+    TAGS = "tags",
+};
+
+const trendingMutexes: Record<string, Mutex> = {
+    [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
+    [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
+    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
+};
+
+const SECONDS_UNTIL_RELOAD_TRENDING = 10 * 60;  // 10 minutes
 
 
 export default class MastodonServer {
@@ -126,30 +141,75 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        const trendingTootses = await this.callForAllServers<Toot[]>(server => server.fetchTrendingToots());
-        const trendingToots = Object.values(trendingTootses).flat();
-        setTrendingRankToAvg(trendingToots);
-        return Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
+        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TOOTS].acquire();
+
+        try {
+            const storageToots = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TOOTS);
+
+            if (storageToots && !(await this.shouldReloadRemoteData())) {
+                console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
+                return (storageToots as SerializableToot[]).map(t => new Toot(t));
+            } else {
+                const trendingTootses = await this.callForAllServers<Toot[]>(s => s.fetchTrendingToots());
+                let trendingToots = Object.values(trendingTootses).flat();
+                setTrendingRankToAvg(trendingToots);
+                trendingToots = Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
+                Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, trendingToots);
+                console.log(`[fediverseTrendingToots] fetched trending toots:`, trendingToots);
+                return trendingToots;
+            }
+        } finally {
+            releaseMutex();
+        }
     };
 
     // TODO: this doesn't fully de-dedupe links by URL yet so there are sometimes TrendingLink objs w/same URL in list
     // UPDATE: changed it to use lowercase of the key, didn't confirm if it fixed the issue.
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
-        const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
-        console.info(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
-        const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
-        console.info(`[fediverseTrendingLinks] unique links:`, links);
-        return links as TrendingLink[];
+        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
+
+        try {
+            const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS);
+
+            if (storageLinks && !(await this.shouldReloadRemoteData())) {
+                console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
+                return storageLinks as TrendingLink[];
+            } else {
+                const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
+                console.debug(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
+                let links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
+                console.info(`[fediverseTrendingLinks] unique links:`, links);
+                Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links as TrendingLink[]);
+                return links as TrendingLink[];
+            }
+        } finally {
+            releaseMutex();
+        }
     };
 
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
-        const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
-        console.info(`[fediverseTrendingTags] tags from all servers:`, serverTags);
-        const allTags = Object.values(serverTags).flat();
-        const tags = FeatureScorer.uniquifyTrendingObjs(allTags, tag => (tag as TrendingTag).name);
-        console.info(`[fediverseTrendingTags] unique tags:`, tags);
-        return tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
+        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TAGS].acquire();
+
+        try {
+            const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS);
+
+            if (storageTags && !(await this.shouldReloadRemoteData())) {
+                console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
+                return storageTags as TrendingTag[];
+            } else {
+                const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
+                console.debug(`[fediverseTrendingTags] tags from all servers:`, serverTags);
+                const allTags = Object.values(serverTags).flat();
+                const tags = FeatureScorer.uniquifyTrendingObjs(allTags, tag => (tag as TrendingTag).name);
+                console.info(`[fediverseTrendingTags] fetched unique tags:`, tags);
+                let returnTags = tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
+                Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, returnTags);
+                return returnTags;
+            }
+        } finally {
+            releaseMutex();
+        }
     }
 
     // Returns a dict of servers with MAU over the minServerMAU threshold
@@ -209,6 +269,18 @@ export default class MastodonServer {
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
     };
+
+    static async shouldReloadRemoteData(): Promise<boolean> {
+        const seconds = await Storage.secondsSinceMostRecentToot();
+
+        if (seconds && seconds > SECONDS_UNTIL_RELOAD_TRENDING) {
+            console.debug(`[shouldReloadRemoteData] Reloading trending data after ${seconds} seconds...`);
+            return true;
+        } else {
+            console.debug(`[shouldReloadRemoteData] Trending data is still fresh (value: '${seconds}'), no need to reload.`);
+            return false;
+        }
+    }
 };
 
 

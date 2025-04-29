@@ -31,6 +31,9 @@ var StorageKey;
 (function (StorageKey) {
     StorageKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     StorageKey["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
+    StorageKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
+    StorageKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
+    StorageKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
     StorageKey["FILTERS"] = "Filters";
     StorageKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     StorageKey["FOLLOWED_TAGS"] = "FollowedTags";

@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -8,7 +31,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const localforage_1 = __importDefault(require("localforage"));
 const account_1 = __importDefault(require("./api/objects/account"));
-const toot_1 = __importDefault(require("./api/objects/toot"));
+const toot_1 = __importStar(require("./api/objects/toot"));
+const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
@@ -19,6 +43,7 @@ class Storage {
     static getConfig() {
         return this.config;
     }
+    // Return the user's stored timeline weightings
     static async getWeightings() {
         const weightings = await this.get(types_1.StorageKey.WEIGHTS);
         return (weightings ?? {});
@@ -26,6 +51,7 @@ class Storage {
     static async setWeightings(userWeightings) {
         await this.set(types_1.StorageKey.WEIGHTS, userWeightings);
     }
+    // Get the user's saved timeline filter settings
     static async getFilters() {
         let filters = await this.get(types_1.StorageKey.FILTERS); // Returns serialized FeedFilterSettings
         if (filters) {
@@ -51,6 +77,7 @@ class Storage {
         followedAccounts = (followedAccounts ?? []);
         return followedAccounts.map((a) => new account_1.default(a));
     }
+    // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData() {
         const followedAccounts = await this.getFollowedAccts();
         const followedTags = await this.get(types_1.StorageKey.FOLLOWED_TAGS);
@@ -70,21 +97,23 @@ class Storage {
         await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
         await this.set(types_1.StorageKey.LAST_OPENED, new Date().getTime());
     }
-    static async getLastOpenedTimestamp() {
-        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(types_1.StorageKey.LAST_OPENED);
-        if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
-            return 0;
+    // Return the numebr of seconds since the most recent toot in the stored timeline
+    static async secondsSinceMostRecentToot() {
+        const timelineToots = await this.getToots(types_1.StorageKey.TIMELINE);
+        const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
+        if (mostRecent) {
+            return (0, time_helpers_1.ageOfTimestampInSeconds)(mostRecent.getTime());
         }
-        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
-        return lastOpenedInt;
+        else {
+            console.debug(`No most recent toot found`);
+        }
     }
     static async getNumAppOpens() {
         let numAppOpens = await this.get(types_1.StorageKey.OPENINGS) || 0;
         console.debug(`getNumAppOpens() returning ${numAppOpens}`);
         return numAppOpens;
     }
+    // Get the user identity from storage
     static async getIdentity() {
         const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
         return user ? new account_1.default(user) : null;
@@ -94,29 +123,46 @@ class Storage {
         console.debug(`Setting fedialgo user identity to:`, user);
         await localforage_1.default.setItem(types_1.StorageKey.USER, user.serialize());
     }
+    // Generic method for deserializing stored toots
+    static async getToots(key) {
+        let toots = await this.get(key);
+        return (toots ?? []).map(t => new toot_1.default(t));
+    }
+    // Generic method for serializing toots to storage
+    static async storeToots(key, toots) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
+    }
+    // Get the timeline toots
     static async getFeed() {
-        let cachedToots = await this.get(types_1.StorageKey.TIMELINE);
-        let toots = (cachedToots ?? []); // Status doesn't include all our Toot props but it should be OK?
-        return toots.map(t => new toot_1.default(t));
+        return await this.getToots(types_1.StorageKey.TIMELINE);
     }
+    // Store the current timeline toots
     static async setFeed(timeline) {
-        await this.set(types_1.StorageKey.TIMELINE, timeline.map(t => t.serialize()));
+        await this.storeToots(types_1.StorageKey.TIMELINE, timeline);
     }
-    static async setTrending(trendingData) {
-        const data = {
-            links: trendingData.links,
-            tags: trendingData.tags,
-            toots: trendingData.toots.map(t => t.serialize()),
-        };
-        await this.set(types_1.StorageKey.TRENDING, data);
-    }
+    // Get trending tags, toots, and links
     static async getTrending() {
-        const trendingData = await this.get(types_1.StorageKey.TRENDING);
         return {
-            links: (trendingData?.links ?? []),
-            tags: (trendingData?.tags ?? []),
-            toots: (trendingData?.toots ?? []).map((t) => new toot_1.default(t)),
+            links: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []),
+            tags: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []),
+            toots: await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
+    }
+    // Seconds since the app was last opened
+    static async secondsSinceLastOpened() {
+        const lastOpened = await this.getLastOpenedTimestamp();
+        return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
+    }
+    static async getLastOpenedTimestamp() {
+        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
+        const lastOpenedInt = await this.get(types_1.StorageKey.LAST_OPENED);
+        if (!lastOpenedInt || numAppOpens <= 1) {
+            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
+            return;
+        }
+        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
+        return lastOpenedInt;
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {

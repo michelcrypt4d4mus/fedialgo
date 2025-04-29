@@ -38,6 +38,9 @@ export enum WeightName {
 export enum StorageKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_ACCOUNTS = WeightName.FAVOURITED_ACCOUNTS,
+    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
+    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
+    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FILTERS = 'Filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
@@ -158,7 +161,9 @@ export type StorableObj = (
     MastodonServersInfo |
     SerializableToot[] |
     StringNumberDict |
+    TrendingLink[] |
     TrendingStorageSerialized |
+    TrendingTag [] |
     Weights |
     mastodon.v1.Account |
     mastodon.v1.Account[] |
@@ -170,8 +175,6 @@ export type StorableObj = (
 export type TimelineData = {
     homeToots: Toot[],
     otherToots: Toot[],
-    trendingLinks?: TrendingLink[],
-    trendingTags?: TrendingTag[],
     trendingToots?: Toot[],
 };
 

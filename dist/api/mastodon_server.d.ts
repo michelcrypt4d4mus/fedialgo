@@ -1,5 +1,10 @@
 import Toot from "./objects/toot";
 import { MastodonServersInfo, TrendingLink, TrendingTag } from "../types";
+export declare enum FediverseTrendingType {
+    STATUSES = "statuses",
+    LINKS = "links",
+    TAGS = "tags"
+}
 export default class MastodonServer {
     domain: string;
     constructor(domain: string);
@@ -16,4 +21,5 @@ export default class MastodonServer {
     static mastodonServersInfo(): Promise<MastodonServersInfo>;
     static callForAllServers<T>(fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;
     static callForServers<T>(domains: string[], fxn: (server: MastodonServer) => Promise<T>): Promise<Record<string, T>>;
+    static shouldReloadRemoteData(): Promise<boolean>;
 }
