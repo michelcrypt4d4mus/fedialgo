@@ -224,7 +224,7 @@ class TheAlgorithm {
     mostRecentHomeTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed.filter(toot => toot.isFollowed));
     }
-    // Return the URL for a given tag on the local server
+    // Helper method to return the URL for a given tag on the local server
     buildTagURL(tag) {
         return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
