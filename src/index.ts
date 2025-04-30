@@ -156,11 +156,14 @@ class TheAlgorithm {
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
-            this.loadingStatus = "initial data";
-
-            if (this.feed.length) {
+            // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
+            // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
+            if (!this.feed.length) {
+                this.loadingStatus = "initial data";
+            } else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentTootAt(true);
                 console.log(`Set catchupCheckpoint to ${toISOFormat(this.catchupCheckpoint)} (${this.feed.length} in feed)`);
+                this.loadingStatus = `any new toots back to ${toISOFormat(this.catchupCheckpoint)}`;
             }
 
             // ORDER MATTERS! The results of these Promises are processed with shift()
@@ -232,6 +235,8 @@ class TheAlgorithm {
         return filteredFeed;
     }
 
+    // If followedUsersOnly is true, return the most recent toot from followed accounts
+    // Otherwise return the most recent toot from all toots in the feed
     mostRecentTootAt(followedUsersOnly?: boolean): Date | null {
         const toots = followedUsersOnly ? this.feed.filter(toot => toot.isFollowed) : this.feed;
         return mostRecentTootedAt(toots);
