@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.13
 * Move `fetchRecentTootsForTrendingTags()` to `MastoApi`
 * Move `getMastodonServersInfo()` from `MastoApi` class to `MastodonServer` class
 
