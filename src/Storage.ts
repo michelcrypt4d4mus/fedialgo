@@ -136,25 +136,27 @@ export default class Storage {
     // Return true if the timeline and user data is stale and should be reloaded
     static async isDataStale(key: StorageKey): Promise<boolean> {
         const staleDataConfig = Storage.getConfig().staleDataSeconds;
-        const numAppOpens = await this.getNumAppOpens();
-        const numAppOpensStr = `numAppOpens is ${numAppOpens}`;
-        const logPrefix = `[isDataStale ${key}]`;
-
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
-        const secondsLogMsg = `dataAgeInSeconds: ${dataAgeInSeconds}, staleAfterSeconds: ${staleAfterSeconds}`;
+        const numAppOpens = await this.getNumAppOpens();
+
+        const logPrefix = `[isDataStale ${key}]`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0)}`;
+        secondsLogMsg += `, staleAfterSeconds: ${staleAfterSeconds.toLocaleString()}`;
+        secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
 
         if (numAppOpens <= 1) {
-            console.debug(`${logPrefix} ${numAppOpensStr} means initial load, data not stale (${secondsLogMsg})`);
+            // TODO: this feels like a very janky work around to the initial load issue
+            console.debug(`${logPrefix} numAppOpens=${numAppOpens} means initial load, data not stale ${secondsLogMsg}`);
             return false;
-        } if (!dataAgeInSeconds) {
-            console.log(`${logPrefix} no value for dataAgeInSeconds so data is stale (${secondsLogMsg}, ${numAppOpensStr})`);
+        } if (dataAgeInSeconds == null) {
+            console.log(`${logPrefix} no value for dataAgeInSeconds so data is stale ${secondsLogMsg}`);
             return true;
         } else if (dataAgeInSeconds > staleAfterSeconds) {
-            console.log(`${logPrefix} Data is stale (${secondsLogMsg}, ${numAppOpensStr})`);
+            console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return true;
         } else {
-            console.debug(`${logPrefix} Remote data is still fresh no need to reload (${secondsLogMsg}, ${numAppOpensStr})`);
+            console.debug(`${logPrefix} Remote data is still fresh no need to reload ${secondsLogMsg}`);
             return false;
         }
     }

@@ -117,9 +117,10 @@ class PropertyFilter extends toot_filter_1.default {
     }
     setOptions(optionInfo) {
         this.optionInfo = optionInfo;
-        // Server side filters get all the options immediately set to filter out toots
+        // Server side filters get all the options immediately set to filter out toots that come from trending
+        // and other sources where the user's server configuration is not applied.
         if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
-            console.log(`Setting options for ${this.title} to:`, optionInfo);
+            // console.log(`Setting options for ${this.title} to:`, optionInfo);
             this.validValues = Object.keys(optionInfo);
         }
     }

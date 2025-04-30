@@ -256,7 +256,7 @@ class MastodonServer {
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} using cached data with ${storageObjs.length} elements`);
+                console.log(`${logPrefix} using cached data with ${storageObjs.length} elements`);
                 return storageObjs;
             }
             else {
