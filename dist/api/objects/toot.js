@@ -120,7 +120,7 @@ class Toot {
         this.trendingLinks = toot.trendingLinks;
         this.trendingTags = toot.trendingTags;
         this.repair();
-        // Must be set after repair() has a chance to fix any broken media types
+        // These must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(types_1.MediaCategory.AUDIO);
         this.imageAttachments = this.attachmentsOfType(types_1.MediaCategory.IMAGE);
         this.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));

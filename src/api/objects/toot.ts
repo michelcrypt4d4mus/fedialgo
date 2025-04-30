@@ -172,7 +172,7 @@ export default class Toot implements TootObj {
         this.trendingLinks = toot.trendingLinks;
         this.trendingTags = toot.trendingTags;
         this.repair();
-        // Must be set after repair() has a chance to fix any broken media types
+        // These must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(MediaCategory.AUDIO);
         this.imageAttachments = this.attachmentsOfType(MediaCategory.IMAGE);
         this.videoAttachments = VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType))
