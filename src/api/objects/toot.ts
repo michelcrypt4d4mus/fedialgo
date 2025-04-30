@@ -289,7 +289,7 @@ export default class Toot implements TootObj {
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(mutedAccounts: AccountNames): boolean {
+    isValidForFeed(): boolean {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
             console.debug(`Removing fedialgo user's own toot:`, this);
@@ -297,7 +297,7 @@ export default class Toot implements TootObj {
         }
 
         // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI in mutedAccounts) {
+        if (this.reblog?.muted || this.muted) {
             console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
@@ -364,7 +364,7 @@ export default class Toot implements TootObj {
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
-        if (this.reblog) this.reblog.isFollowed = this.reblog.account.webfingerURI in userData.followedAccounts;
+        if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
 
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
@@ -373,6 +373,11 @@ export default class Toot implements TootObj {
             toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
             if (tag.name in userData.followedTags) toot.followedTags.push(tag);
         });
+
+        if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
+            console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            toot.muted = true;
+        }
     }
 
     tootedAt(): Date {

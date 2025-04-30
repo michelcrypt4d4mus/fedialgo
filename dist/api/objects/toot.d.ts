@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { AccountNames, FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
+import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -85,7 +85,7 @@ export default class Toot implements TootObj {
     isDM(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isTrending(): boolean;
-    isValidForFeed(mutedAccounts: AccountNames): boolean;
+    isValidForFeed(): boolean;
     popularity(): number;
     realAccount(): Account;
     realURI(): string;

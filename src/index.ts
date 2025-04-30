@@ -246,9 +246,7 @@ class TheAlgorithm {
 
     // Remove invalid and duplicate toots
     private async cleanupFeed(toots: Toot[]): Promise<Toot[]> {
-        // TODO: could just retrieve mutedAccounts here...
-        const mutedAccounts = (await MastoApi.instance.getUserData()).mutedAccounts || [];
-        const cleanNewToots = toots.filter(toot => toot.isValidForFeed(mutedAccounts));
+        const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         const numRemoved = toots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");

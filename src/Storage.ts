@@ -111,6 +111,12 @@ export default class Storage {
         await this.storeToots(StorageKey.TIMELINE, timeline);
     }
 
+    // Generic method for deserializing stored toots
+    static async getToots(key: StorageKey): Promise<Toot[]> {
+        const toots = await this.get(key) as SerializableToot[];
+        return (toots ?? []).map(t => new Toot(t));
+    }
+
     // Generic method for serializing toots to storage
     static async storeToots(key: StorageKey, toots: Toot[]) {
         const serializedToots = toots.map(t => t.serialize());
@@ -187,12 +193,6 @@ export default class Storage {
     private static async getNumAppOpens(): Promise<number> {
         const numAppOpens = await this.get(StorageKey.OPENINGS) as number;
         return numAppOpens || 0;
-    }
-
-    // Generic method for deserializing stored toots
-    private static async getToots(key: StorageKey): Promise<Toot[]> {
-        let toots = await this.get(key) as SerializableToot[];
-        return (toots ?? []).map(t => new Toot(t));
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline

@@ -15,6 +15,7 @@ export default class Storage {
     static setIdentity(user: Account): Promise<void>;
     static getFeed(): Promise<Toot[]>;
     static setFeed(timeline: Toot[]): Promise<void>;
+    static getToots(key: StorageKey): Promise<Toot[]>;
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(): Promise<boolean>;
@@ -24,7 +25,6 @@ export default class Storage {
     static remove(key: StorageKey): Promise<void>;
     private static getLastOpenedTimestamp;
     private static getNumAppOpens;
-    private static getToots;
     private static secondsSinceMostRecentToot;
     private static buildKey;
 }

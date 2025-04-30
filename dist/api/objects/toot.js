@@ -224,14 +224,14 @@ class Toot {
             || this.trendingTags?.length);
     }
     // Return false if Toot should be discarded from feed altogether and permanently
-    isValidForFeed(mutedAccounts) {
+    isValidForFeed() {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
             console.debug(`Removing fedialgo user's own toot:`, this);
             return false;
         }
         // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted || this.realAccount().webfingerURI in mutedAccounts) {
+        if (this.reblog?.muted || this.muted) {
             console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
@@ -289,7 +289,7 @@ class Toot {
     setDependentProperties(userData, trendingLinks) {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
-            this.reblog.isFollowed = this.reblog.account.webfingerURI in userData.followedAccounts;
+            this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         toot.tags.forEach((tag) => {
@@ -297,6 +297,10 @@ class Toot {
             if (tag.name in userData.followedTags)
                 toot.followedTags.push(tag);
         });
+        if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
+            console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            toot.muted = true;
+        }
     }
     tootedAt() {
         return new Date(this.createdAt);

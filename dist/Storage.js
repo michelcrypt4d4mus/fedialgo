@@ -109,6 +109,11 @@ class Storage {
     static async setFeed(timeline) {
         await this.storeToots(types_1.StorageKey.TIMELINE, timeline);
     }
+    // Generic method for deserializing stored toots
+    static async getToots(key) {
+        const toots = await this.get(key);
+        return (toots ?? []).map(t => new toot_1.default(t));
+    }
     // Generic method for serializing toots to storage
     static async storeToots(key, toots) {
         const serializedToots = toots.map(t => t.serialize());
@@ -177,11 +182,6 @@ class Storage {
     static async getNumAppOpens() {
         const numAppOpens = await this.get(types_1.StorageKey.OPENINGS);
         return numAppOpens || 0;
-    }
-    // Generic method for deserializing stored toots
-    static async getToots(key) {
-        let toots = await this.get(key);
-        return (toots ?? []).map(t => new toot_1.default(t));
     }
     // Return the number of seconds since the most recent toot in the stored timeline
     static async secondsSinceMostRecentToot() {

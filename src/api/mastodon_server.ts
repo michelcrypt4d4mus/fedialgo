@@ -153,11 +153,11 @@ export default class MastodonServer {
         const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TOOTS].acquire();
 
         try {
-            const storageToots = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TOOTS);
+            const storageToots = await Storage.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS);
 
             if (storageToots && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
-                return (storageToots as SerializableToot[]).map(t => new Toot(t));
+                return storageToots;
             } else {
                 const trendingTootses = await this.callForAllServers<Toot[]>(s => s.fetchTrendingToots());
                 let trendingToots = Object.values(trendingTootses).flat();
