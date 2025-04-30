@@ -158,8 +158,7 @@ class MastodonServer {
         }
     }
     ;
-    // TODO: this doesn't fully de-dedupe links by URL yet so there are sometimes TrendingLink objs w/same URL in list
-    // UPDATE: changed it to use lowercase of the key, didn't confirm if it fixed the issue.
+    // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
         const releaseMutex = await trendingMutexes[types_1.StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
         try {
@@ -170,9 +169,9 @@ class MastodonServer {
             }
             else {
                 const serverLinks = await this.callForAllServers(s => s.fetchTrendingLinks());
-                console.debug(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
-                let links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
-                console.info(`[fediverseTrendingLinks] unique links:`, links);
+                console.debug(`[fediverseTrendingLinks] Links from all servers:`, serverLinks);
+                const links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
+                console.info(`[fediverseTrendingLinks] Found ${links.length} unique trending links`);
                 await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS, links);
                 return links;
             }

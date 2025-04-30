@@ -125,6 +125,7 @@ class MastoApi {
             }
         });
         const toots = statuses.map((status) => new toot_1.default(status));
+        await toot_1.default.setDependentProps(toots);
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootedAt)(toots)}'):`, toots);
         return toots;
     }

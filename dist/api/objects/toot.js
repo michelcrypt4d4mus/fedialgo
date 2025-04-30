@@ -16,6 +16,7 @@ const api_1 = require("../api");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
+const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -420,6 +421,12 @@ class Toot {
         return deduped;
     }
     ;
+    // Set the dependent properties for all of a list of Toot objects
+    static async setDependentProps(toots) {
+        const userData = await api_1.MastoApi.instance.getUserData();
+        const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks));
+    }
 }
 exports.default = Toot;
 ;

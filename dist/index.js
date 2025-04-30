@@ -182,10 +182,7 @@ class TheAlgorithm {
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await mastodon_server_1.default.getTrendingData();
         this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
-        // Set userData dependent props on each toot, filter out dupe/invalid toots, build filters
-        // TODO: this should probably be done in the methods that fetch timeline and trending toots
-        //       so those Toot objects are completely built before we get here.
-        newToots.forEach(toot => toot.setDependentProperties(userData, this.trendingData.links));
+        // Filter out dupe/invalid toots, build filters
         this.feed = await this.cleanupFeed(newToots);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, userData);
         // Potentially fetch more toots if we haven't reached the desired number

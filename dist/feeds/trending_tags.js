@@ -33,13 +33,14 @@ const LOG_PREFIX = "TrendingTags";
 // Get toots for the top trending tags via the search endpoint. Results are not cached explicity
 // though they are implicitly cached as part of the main timeline cache.
 // TODO: Move this to mastodon_server.ts or api.ts
-// TODO: this doesn't call Toot.setDependentProperties() which is required to fully build a timeline Toot!
 async function fetchRecentTootsForTrendingTags() {
     const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
     const tootTags = await Promise.all(trendingTags.map(getTootsForTag));
-    const toots = toot_1.default.dedupeToots(tootTags.flat(), LOG_PREFIX);
+    let toots = toot_1.default.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
-    return toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+    toots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+    await toot_1.default.setDependentProps(toots);
+    return toots;
 }
 exports.fetchRecentTootsForTrendingTags = fetchRecentTootsForTrendingTags;
 ;

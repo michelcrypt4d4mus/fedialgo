@@ -99,6 +99,7 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     private repair;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
+    static setDependentProps(toots: Toot[]): Promise<void>;
 }
 export declare const tootedAt: (toot: mastodon.v1.Status) => Date;
 export declare const earliestToot: (toots: StatusList) => mastodon.v1.Status | null;
