@@ -355,10 +355,10 @@ export default class Toot implements TootObj {
 
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
-        const toot = {...this} as SerializableToot;
-        toot.account = this.account.serialize();
-        toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
-        return toot;
+        const serializableToot = {...this} as SerializableToot;
+        serializableToot.account = this.account.serialize();
+        serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
+        return serializableToot;
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available

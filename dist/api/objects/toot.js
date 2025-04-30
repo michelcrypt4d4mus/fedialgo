@@ -280,10 +280,10 @@ class Toot {
     }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
-        const toot = { ...this };
-        toot.account = this.account.serialize();
-        toot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
-        return toot;
+        const serializableToot = { ...this };
+        serializableToot.account = this.account.serialize();
+        serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
+        return serializableToot;
     }
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData, trendingLinks) {
