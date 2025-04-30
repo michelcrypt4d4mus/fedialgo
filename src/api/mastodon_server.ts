@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageInSeconds } from "../helpers/time_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { MastodonServersInfo, StorageKey, TrendingLink, TrendingStorage, TrendingTag } from "../types";
+import { MastodonServersInfo, StorableObj, StorageKey, TrendingLink, TrendingStorage, TrendingTag, TrendingWithHistory } from "../types";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -158,76 +158,54 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TOOTS].acquire();
-
-        try {
-            const storageToots = await Storage.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS);
-
-            if (storageToots?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_TOOTS))) {
-                console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
-                return storageToots;
-            } else {
-                const trendingTootses = await this.callForAllServers<Toot[]>(s => s.fetchTrendingToots());
-                let trendingToots = Object.values(trendingTootses).flat();
-                setTrendingRankToAvg(trendingToots);
-                await Toot.setDependentProps(trendingToots);
-                trendingToots = Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
-                await Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, trendingToots);
-                console.log(`[fediverseTrendingToots] fetched trending toots:`, trendingToots);
-                return trendingToots;
-            }
-        } finally {
-            releaseMutex();
-        }
+        return await this.fetchTrendingFromAllServers<Toot>(
+            StorageKey.FEDIVERSE_TRENDING_TOOTS,
+            (server) => server.fetchTrendingToots(),
+            async (toots) => {
+                setTrendingRankToAvg(toots);
+                await Toot.setDependentProps(toots);
+                let uniqueToots = Toot.dedupeToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                uniqueToots = uniqueToots.sort((a, b) => b.popularity() - a.popularity());
+                Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, uniqueToots);
+                return uniqueToots;
+            },
+            Storage.getToots.bind(Storage),
+        );
     };
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
-        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
+        return await this.fetchTrendingFromAllServers<TrendingLink>(
+            StorageKey.FEDIVERSE_TRENDING_LINKS,
+            (server) => server.fetchTrendingLinks(),
+            async (links) => {
+                const uniqueLinks = FeatureScorer.uniquifyTrendingObjs<TrendingLink>(
+                    links as TrendingWithHistory[],
+                    obj => obj.url
+                );
 
-        try {
-            const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS) as TrendingLink[];
-
-            if (storageLinks?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_LINKS))) {
-                console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
-                return storageLinks;
-            } else {
-                const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
-                console.debug(`[fediverseTrendingLinks] Links from all servers:`, serverLinks);
-                const flatLinks = Object.values(serverLinks).flat();
-                const links = FeatureScorer.uniquifyTrendingObjs<TrendingLink>(flatLinks, link => link.url);
-                console.info(`[fediverseTrendingLinks] Found ${links.length} unique trending links`);
-                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links);
-                return links;
-            }
-        } finally {
-            releaseMutex();
-        }
+                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
+                return uniqueLinks;
+            },
+        );
     };
 
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
-        const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TAGS].acquire();
+        return await this.fetchTrendingFromAllServers<TrendingTag>(
+            StorageKey.FEDIVERSE_TRENDING_TAGS,
+            (server) => server.fetchTrendingTags(),
+            async (tags) => {
+                let uniqueTags = FeatureScorer.uniquifyTrendingObjs<TrendingTag>(
+                    tags as TrendingWithHistory[],
+                    obj => (obj as TrendingTag).name
+                );
 
-        try {
-            const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS) as TrendingTag[];
-
-            if (storageTags?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_TAGS))) {
-                console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
-                return storageTags as TrendingTag[];
-            } else {
-                const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
-                console.debug(`[fediverseTrendingTags] tags from all servers:`, serverTags);
-                const allTags = Object.values(serverTags).flat();
-                const tags = FeatureScorer.uniquifyTrendingObjs<TrendingTag>(allTags, tag => (tag as TrendingTag).name);
-                console.info(`[fediverseTrendingTags] fetched unique tags:`, tags);
-                let returnTags = tags.slice(0, Storage.getConfig().numTrendingTags);
-                await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, returnTags);
-                return returnTags;
-            }
-        } finally {
-            releaseMutex();
-        }
+                uniqueTags = uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
+                await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
+                return uniqueTags;
+            },
+        );
     }
 
     // Returns a dict of servers with MAU over the minServerMAU threshold
@@ -271,7 +249,38 @@ export default class MastodonServer {
 
         console.log(`Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
-    };
+    }
+
+    // Common wrapper method to fetch trending data from all servers and process it into
+    // an array of unique objects.
+    private static async fetchTrendingFromAllServers<T>(
+        key: StorageKey,
+        serverFxn: (server: MastodonServer) => Promise<T[]>,
+        processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify, send to Storage, and anything else needed
+        loadingFxn?: (key: StorageKey) => Promise<StorableObj | null>,  // optional, defaults to Storage.get
+    ): Promise<T[]> {
+        loadingFxn ||= Storage.get.bind(Storage);
+        const releaseMutex = await trendingMutexes[key].acquire();
+        const logPrefix = `[${key}]`;
+
+        try {
+            const storageObjs = await loadingFxn(key) as T[];
+
+            if (storageObjs?.length && !(await Storage.isDataStale(key))) {
+                console.debug(`${logPrefix} using cached data:`, storageObjs);
+                return storageObjs;
+            } else {
+                const serverObjs = await this.callForAllServers<T[]>(serverFxn);
+                console.debug(`${logPrefix} from all servers:`, serverObjs);
+                const flatObjs = Object.values(serverObjs).flat();
+                const uniqueObjs = await processingFxn(flatObjs);
+                console.info(`${logPrefix} fetched ${uniqueObjs.length} unique objs:`, uniqueObjs);
+                return uniqueObjs;
+            }
+        } finally {
+            releaseMutex();
+        }
+    }
 
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     private static async callForAllServers<T>(
@@ -279,7 +288,7 @@ export default class MastodonServer {
     ): Promise<Record<string, T>> {
         const domains = await MastoApi.instance.getTopServerDomains();
         return await this.callForServers(domains, fxn);
-    };
+    }
 
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     private static async callForServers<T>(
@@ -287,7 +296,7 @@ export default class MastodonServer {
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
-    };
+    }
 };
 
 

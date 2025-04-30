@@ -35,7 +35,7 @@ export async function fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
     const trendingTags = await MastodonServer.fediverseTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));
     let toots = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
-    toots.sort((a, b) => b.popularity() - a.popularity())
+    toots.sort((a, b) => b.popularity() - a.popularity());
     toots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
     await Toot.setDependentProps(toots);
     return toots;

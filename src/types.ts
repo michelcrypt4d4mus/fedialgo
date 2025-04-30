@@ -122,7 +122,7 @@ export type StorableObj = (
     SerializableToot[] |
     StringNumberDict |
     TrendingLink[] |
-    TrendingTag [] |
+    TrendingTag[] |
     Weights |
     mastodon.v1.Account |
     mastodon.v1.Account[] |

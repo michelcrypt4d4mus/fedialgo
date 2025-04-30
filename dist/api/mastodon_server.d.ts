@@ -20,6 +20,7 @@ export default class MastodonServer {
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TrendingTag[]>;
     static mastodonServersInfo(): Promise<MastodonServersInfo>;
+    private static fetchTrendingFromAllServers;
     private static callForAllServers;
     private static callForServers;
 }
