@@ -6,6 +6,7 @@ import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 
 import Account from "./account";
+import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
 import { countValues, groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
@@ -33,7 +34,6 @@ import {
     UserData,
     WeightName
 } from "../../types";
-import MastodonServer from "../mastodon_server";
 
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
