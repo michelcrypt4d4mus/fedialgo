@@ -36,7 +36,7 @@ declare class TheAlgorithm {
     setFeedInApp: (feed: Toot[]) => void;
     feed: Toot[];
     catchupCheckpoint: Date | null;
-    loadingStatus?: string;
+    loadingStatus: string | null;
     mastodonServers: MastodonServersInfo;
     scoreMutex: Mutex;
     trendingData: TrendingStorage;
@@ -59,5 +59,6 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
+    private statusMsg;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };

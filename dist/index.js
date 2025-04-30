@@ -77,6 +77,8 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
+const CLEANUP_FEED = "cleanupFeed()";
+const GET_FEED = "getFeed()";
 ;
 class TheAlgorithm {
     // Variables set in the constructor
@@ -152,7 +154,8 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
-        console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        const logPrefix = `[${GET_FEED}]`;
+        console.log(`${logPrefix} called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
         // ORDER MATTERS! The results of these Promises are processed with shift()
         let dataFetches = [
@@ -168,8 +171,8 @@ class TheAlgorithm {
             }
             else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                console.log(`Set catchupCheckpoint to ${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)} (${this.feed.length} in feed)`);
-                this.loadingStatus = `any new toots back to ${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}`;
+                console.log(`${logPrefix} Just set catchupCheckpoint value, current state is ${this.statusMsg()}`);
+                this.loadingStatus = `new toots since '${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}'`;
             }
             // ORDER MATTERS! The results of these Promises are processed with shift()
             // TODO: should we really make the user wait for the initial load to get all trending toots?
@@ -187,7 +190,7 @@ class TheAlgorithm {
         const userData = allResponses.shift();
         const trendingToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
         const retrievedToots = [...newHomeToots, ...trendingToots];
-        this.logTootCounts(retrievedToots, newHomeToots);
+        this.logTootCounts(logPrefix, retrievedToots, newHomeToots);
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
         this.mastodonServers = await mastodon_server_1.default.getMastodonServersInfo();
@@ -222,6 +225,7 @@ class TheAlgorithm {
         return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
     // Helper method to return the URL for a given tag on the local server
+    // TODO: should probably be a static method?
     buildTagURL(tag) {
         return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
@@ -232,13 +236,13 @@ class TheAlgorithm {
     // Remove invalid and duplicate toots
     cleanupFeed(toots) {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
-        (0, string_helpers_1.logTootRemoval)("cleanupFeed()", "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
-        return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
+        (0, string_helpers_1.logTootRemoval)(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
+        return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
     filterFeed() {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        console.debug(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
+        console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
@@ -250,7 +254,7 @@ class TheAlgorithm {
         let logPrefix = `[maybeGetMoreToots()]`;
         let checkpointStr = `catchupCheckpoint='${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}`;
         checkpointStr += `, earliestNewHomeTootAt='${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}'`;
-        console.log(`${logPrefix} feed has ${this.feed.length} toots (want ${maxTimelineTootsToFetch}, ${checkpointStr})`);
+        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots, current state: ${this.statusMsg()}`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
@@ -265,32 +269,33 @@ class TheAlgorithm {
                 // It's important that we *only* look at home timeline toots here. Toots from other servers
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
-                let msg = `calling getFeed() recursively, current: '${checkpointStr}'`;
-                console.log(`${msg}, current newHomeToots var has ${newHomeToots.length} toots`);
+                let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
+                console.log(`${logPrefix} ${msg} (${this.statusMsg()})`);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
         else {
-            logPrefix += ` halting getFeed()`;
+            logPrefix += ` halting ${GET_FEED}`;
             if (!Storage_1.default.getConfig().enableIncrementalLoad) {
-                console.log(`${logPrefix} incremental loading disabled`);
+                console.log(`${logPrefix} Incremental loading is fully disabled`);
             }
             else if (this.catchupCheckpoint) {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefix} because caught up to catchupCheckpoint (${checkpointStr})`);
+                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint (${this.statusMsg()})`);
                     this.catchupCheckpoint = null;
                 }
                 else {
-                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint (${checkpointStr})`);
+                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! (${this.statusMsg()})`);
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefix} we have enbough toots (${this.feed.length}, want ${maxTimelineTootsToFetch})`);
+                console.log(`${logPrefix} Have enough toots. Want ${maxTimelineTootsToFetch}, ${this.statusMsg()}`);
             }
             else {
-                console.log(`${logPrefix} fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots}, ${checkpointStr})`);
+                let msg = `${logPrefix} Fetch only got ${newHomeToots.length} toots`;
+                console.log(`${msg}, expected ${numTimelineToots} (${this.statusMsg()})`);
             }
-            this.loadingStatus = undefined;
+            this.loadingStatus = null;
         }
     }
     // Load weightings from storage. Set defaults for any missing weightings.
@@ -340,7 +345,7 @@ class TheAlgorithm {
         return this.filterFeed();
     }
     // Utility method to log progress of getFeed() calls
-    logTootCounts(toots, newHomeToots) {
+    logTootCounts(logPrefix, toots, newHomeToots) {
         const numFollowedAccts = Object.keys(api_1.MastoApi.instance.userData?.followedAccounts || []).length;
         let msg = [
             `Got ${toots.length} new toots from ${numFollowedAccts} followed accts`,
@@ -348,7 +353,17 @@ class TheAlgorithm {
             `${toots.length} total new toots`,
             `this.feed has ${this.feed.length} toots`,
         ];
-        console.log(msg.join(', '));
+        console.log(`${logPrefix} ${msg.join(', ')} (${this.statusMsg()})`);
+    }
+    // Simple string with important feed status information
+    statusMsg() {
+        let msgPieces = [
+            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : `<NULL>`),
+            `feed.length=${this.feed?.length}`,
+            `catchupCheckpoint=${this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : "null"}`,
+            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : "null"}`,
+        ];
+        return msgPieces.join(`, `);
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

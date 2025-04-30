@@ -1,6 +1,7 @@
 /*
  * Helpers for time-related operations
  */
+import { NULL } from "./string_helpers";
 
 export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = 3600;
@@ -26,7 +27,7 @@ export function toISOFormat(date: Date | string | null | undefined, withMillisec
     let isoString: string;
 
     if (!date) {
-        return "<<NULL_TIME>>";
+        return NULL;
     } else if (typeof date === "string") {
         isoString = new Date(date).toISOString();
     } else {

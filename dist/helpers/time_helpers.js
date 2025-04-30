@@ -1,9 +1,10 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.toISOFormat = exports.ageOfTimestampInSeconds = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Helpers for time-related operations
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormat = exports.ageOfTimestampInSeconds = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+const string_helpers_1 = require("./string_helpers");
 exports.SECONDS_IN_MINUTE = 60;
 exports.SECONDS_IN_HOUR = 3600;
 exports.SECONDS_IN_DAY = 86400;
@@ -24,7 +25,7 @@ exports.ageOfTimestampInSeconds = ageOfTimestampInSeconds;
 function toISOFormat(date, withMilliseconds) {
     let isoString;
     if (!date) {
-        return "<<NULL_TIME>>";
+        return string_helpers_1.NULL;
     }
     else if (typeof date === "string") {
         isoString = new Date(date).toISOString();

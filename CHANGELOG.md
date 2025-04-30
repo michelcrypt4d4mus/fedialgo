@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add `Toot.realToot()` helper to find reblogs
+* Add `TheAlgorithm.statusMsg()` helper
 
 ### v0.20.14
 * Rename `TheAlgorithm.mostRecentTootAt()` to `TheAlgorithm.mostRecentHomeTootAt()`
