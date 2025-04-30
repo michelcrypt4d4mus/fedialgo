@@ -163,7 +163,7 @@ export default class MastodonServer {
         try {
             const storageToots = await Storage.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS);
 
-            if (storageToots?.length && !(await Storage.isDataStale())) {
+            if (storageToots?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_TOOTS))) {
                 console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
                 return storageToots;
             } else {
@@ -188,7 +188,7 @@ export default class MastodonServer {
         try {
             const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS) as TrendingLink[];
 
-            if (storageLinks?.length && !(await Storage.isDataStale())) {
+            if (storageLinks?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_LINKS))) {
                 console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
                 return storageLinks as TrendingLink[];
             } else {
@@ -211,7 +211,7 @@ export default class MastodonServer {
         try {
             const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS) as TrendingTag[];
 
-            if (storageTags?.length && !(await Storage.isDataStale())) {
+            if (storageTags?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_TAGS))) {
                 console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
                 return storageTags as TrendingTag[];
             } else {

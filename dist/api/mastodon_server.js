@@ -146,7 +146,7 @@ class MastodonServer {
         const releaseMutex = await trendingMutexes[types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS].acquire();
         try {
             const storageToots = await Storage_1.default.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
-            if (storageToots?.length && !(await Storage_1.default.isDataStale())) {
+            if (storageToots?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS))) {
                 console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
                 return storageToots;
             }
@@ -171,7 +171,7 @@ class MastodonServer {
         const releaseMutex = await trendingMutexes[types_1.StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
         try {
             const storageLinks = await Storage_1.default.get(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS);
-            if (storageLinks?.length && !(await Storage_1.default.isDataStale())) {
+            if (storageLinks?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS))) {
                 console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
                 return storageLinks;
             }
@@ -194,7 +194,7 @@ class MastodonServer {
         const releaseMutex = await trendingMutexes[types_1.StorageKey.FEDIVERSE_TRENDING_TAGS].acquire();
         try {
             const storageTags = await Storage_1.default.get(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS);
-            if (storageTags?.length && !(await Storage_1.default.isDataStale())) {
+            if (storageTags?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS))) {
                 console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
                 return storageTags;
             }

@@ -18,7 +18,7 @@ export default class Storage {
     static getToots(key: StorageKey): Promise<Toot[]>;
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
-    static isDataStale(): Promise<boolean>;
+    static isDataStale(dataDescriptor?: string | StorageKey): Promise<boolean>;
     static secondsSinceLastOpened(): Promise<number | undefined>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;

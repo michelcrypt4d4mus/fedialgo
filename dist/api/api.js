@@ -83,7 +83,7 @@ class MastoApi {
     ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData() {
-        if (this.userData && !(await Storage_1.default.isDataStale()))
+        if (this.userData && !(await Storage_1.default.isDataStale("getUserData()")))
             return this.userData;
         console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
         const responses = await Promise.all([
@@ -214,7 +214,7 @@ class MastoApi {
         const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
-            if (!filters || (await Storage_1.default.isDataStale())) {
+            if (!filters || (await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
@@ -245,7 +245,7 @@ class MastoApi {
         const releaseMutex = await this.mutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            if (!servers || (await Storage_1.default.isDataStale())) {
+            if (!servers || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
                 servers = await mastodon_server_1.default.mastodonServersInfo();
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
@@ -306,7 +306,7 @@ class MastoApi {
         try {
             if (!skipCache) {
                 const cachedData = await Storage_1.default.get(label);
-                if (cachedData && !(await Storage_1.default.isDataStale())) {
+                if (cachedData && !(await Storage_1.default.isDataStale(label))) {
                     const rows = cachedData;
                     console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
                     return rows;

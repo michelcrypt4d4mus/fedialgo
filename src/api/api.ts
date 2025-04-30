@@ -82,7 +82,7 @@ export class MastoApi {
 
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData(): Promise<UserData> {
-        if (this.userData && !(await Storage.isDataStale())) return this.userData;
+        if (this.userData && !(await Storage.isDataStale("getUserData()"))) return this.userData;
         console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
 
         const responses = await Promise.all([
@@ -229,7 +229,7 @@ export class MastoApi {
         try {
             let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS);
 
-            if (!filters || (await Storage.isDataStale())) {
+            if (!filters || (await Storage.isDataStale(StorageKey.SERVER_SIDE_FILTERS))) {
                 filters = await this.api.v2.filters.list();
 
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -261,7 +261,7 @@ export class MastoApi {
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS);
 
-            if (!servers || (await Storage.isDataStale())) {
+            if (!servers || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
                 servers = await MastodonServer.mastodonServersInfo();
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
@@ -328,7 +328,7 @@ export class MastoApi {
             if (!skipCache) {
                 const cachedData = await Storage.get(label);
 
-                if (cachedData && !(await Storage.isDataStale())) {
+                if (cachedData && !(await Storage.isDataStale(label))) {
                     const rows = cachedData as T[];
                     console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
