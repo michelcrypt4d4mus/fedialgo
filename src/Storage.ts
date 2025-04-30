@@ -114,7 +114,7 @@ export default class Storage {
         const numAppOpens = await this.getNumAppOpens();
 
         const logPrefix = `[isDataStale ${key}]`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0)?.toLocaleString()}`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0).toLocaleString()}`;
         secondsLogMsg += `, staleAfterSeconds: ${staleAfterSeconds.toLocaleString()}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
 
@@ -129,7 +129,7 @@ export default class Storage {
             console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return true;
         } else {
-            console.debug(`${logPrefix} Remote data is still fresh no need to reload ${secondsLogMsg}`);
+            console.debug(`${logPrefix} Cached data is still fresh, no need to refetch ${secondsLogMsg}`);
             return false;
         }
     }
