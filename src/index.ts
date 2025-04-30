@@ -160,7 +160,7 @@ class TheAlgorithm {
                 this.loadingStatus = "initial data";
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             } else if (this.feed.length) {
-                this.catchupCheckpoint = this.mostRecentTootAt(true);
+                this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 console.log(`Set catchupCheckpoint to ${toISOFormat(this.catchupCheckpoint)} (${this.feed.length} in feed)`);
                 this.loadingStatus = `any new toots back to ${toISOFormat(this.catchupCheckpoint)}`;
             }
@@ -221,11 +221,9 @@ class TheAlgorithm {
         return this.filterFeed();
     }
 
-    // If followedUsersOnly is true, return the most recent toot from followed accounts
-    // Otherwise return the most recent toot from all toots in the feed
-    mostRecentTootAt(followedUsersOnly?: boolean): Date | null {
-        const toots = followedUsersOnly ? this.feed.filter(toot => toot.isFollowed) : this.feed;
-        return mostRecentTootedAt(toots);
+    // Return the timestamp of the most recent toot from followed accounts ONLY
+    mostRecentHomeTootAt(): Date | null {
+        return mostRecentTootedAt(this.feed.filter(toot => toot.isFollowed));
     }
 
     // Return the URL for a given tag on the local server

@@ -106,7 +106,7 @@ class Storage {
             serverSideFilters: serverSideFilters ?? {},
         };
     }
-    // Return true if the timeline and user data is stale and should be reloaded
+    // Return true if the data stored at 'key' is stale and should be refetched
     static async isDataStale(key) {
         const staleDataConfig = Storage.getConfig().staleDataSeconds;
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
