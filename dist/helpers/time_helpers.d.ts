@@ -4,3 +4,4 @@ export declare const SECONDS_IN_DAY = 86400;
 export declare function ageInSeconds(date: Date | string): number;
 export declare function ageOfTimestampInSeconds(timestamp: number): number;
 export declare function toISOFormat(date: Date | string | null | undefined, withMilliseconds?: boolean): string;
+export declare const timeString: (timestamp: Date | string | null) => string;

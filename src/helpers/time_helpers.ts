@@ -6,6 +6,7 @@ import { NULL } from "./string_helpers";
 export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = 3600;
 export const SECONDS_IN_DAY = 86400;
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 
 export function ageInSeconds(date: Date | string): number {
@@ -35,4 +36,17 @@ export function toISOFormat(date: Date | string | null | undefined, withMillisec
     }
 
     return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
+};
+
+
+// Generate a string representing a timestamp.
+export const timeString = (timestamp: Date | string | null): string => {
+    if (timestamp == null) return NULL;
+    timestamp = typeof timestamp == 'string' ? new Date(timestamp) : timestamp;
+
+    if (timestamp.getDate() === new Date().getDate()) {
+        return `Today ${timestamp.toLocaleTimeString()}`;
+    } else {
+        return `${DAY_NAMES[timestamp.getDay()]} ${timestamp.toLocaleTimeString()}`;
+    }
 };

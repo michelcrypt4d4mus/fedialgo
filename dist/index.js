@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
+exports.timeString = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -74,6 +74,7 @@ Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: functio
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const time_helpers_1 = require("./helpers/time_helpers");
+Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
@@ -137,11 +138,7 @@ class TheAlgorithm {
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ api: params.api, user: user, setFeedInApp: params.setFeedInApp });
         await algo.setDefaultWeights();
-        algo.feed = (await Storage_1.default.getFeed()) ?? [];
-        algo.setFeedInApp(algo.feed);
-        algo.filters = await Storage_1.default.getFilters();
-        algo.trendingData = await Storage_1.default.getTrending();
-        console.log(`[fedialgo] loaded ${algo.feed.length} timeline toots from cache, trendingData=`, algo.trendingData);
+        await algo.loadCachedData();
         return algo;
     }
     constructor(params) {
@@ -171,8 +168,8 @@ class TheAlgorithm {
             }
             else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                console.log(`${logPrefix} Just set catchupCheckpoint value, current state is ${this.statusMsg()}`);
-                this.loadingStatus = `new toots since '${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}'`;
+                console.log(`${logPrefix} Just set catchupCheckpoint value, current state: ${this.statusMsg()}`);
+                this.loadingStatus = `new toots since '${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}'`;
             }
             // ORDER MATTERS! The results of these Promises are processed with shift()
             // TODO: should we really make the user wait for the initial load to get all trending toots?
@@ -224,6 +221,11 @@ class TheAlgorithm {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
+    // Clear everything from browser storage except the user's identity and weightings
+    async reset() {
+        await Storage_1.default.clearAll();
+        await this.loadCachedData();
+    }
     // Helper method to return the URL for a given tag on the local server
     // TODO: should probably be a static method?
     buildTagURL(tag) {
@@ -245,6 +247,13 @@ class TheAlgorithm {
         console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
+    }
+    async loadCachedData() {
+        this.feed = (await Storage_1.default.getFeed()) ?? [];
+        this.setFeedInApp(this.feed);
+        this.filters = await Storage_1.default.getFilters();
+        this.trendingData = await Storage_1.default.getTrending();
+        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData=`, this.trendingData);
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
@@ -270,7 +279,7 @@ class TheAlgorithm {
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
                 let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                console.log(`${logPrefix} ${msg} (${this.statusMsg()})`);
+                console.log(`${logPrefix} ${msg} ${this.statusMsg()}`);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
@@ -281,11 +290,11 @@ class TheAlgorithm {
             }
             else if (this.catchupCheckpoint) {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint (${this.statusMsg()})`);
+                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint ${this.statusMsg()}`);
                     this.catchupCheckpoint = null;
                 }
                 else {
-                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! (${this.statusMsg()})`);
+                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! ${this.statusMsg()}`);
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {
@@ -293,7 +302,7 @@ class TheAlgorithm {
             }
             else {
                 let msg = `${logPrefix} Fetch only got ${newHomeToots.length} toots`;
-                console.log(`${msg}, expected ${numTimelineToots} (${this.statusMsg()})`);
+                console.log(`${msg}, expected ${numTimelineToots} ${this.statusMsg()}`);
             }
             this.loadingStatus = null;
         }
@@ -351,19 +360,20 @@ class TheAlgorithm {
         const numFollowedTags = Object.keys(userData.followedTags).length;
         let msg = [
             `Retrieved ${retrievedToots.length} toots (following ${numFollowedAccts} accts, ${numFollowedTags} hashtags)`,
-            `${newHomeToots.length} newHomeToots (${retrievedToots.length - newHomeToots.length} trending toots)`,
+            `${newHomeToots.length} newHomeToots`,
+            `${retrievedToots.length - newHomeToots.length} other potentially cached or trending toots`,
         ];
-        console.log(`${logPrefix} ${msg.join(', ')} (${this.statusMsg()})`);
+        console.log(`${logPrefix} ${msg.join(', ')} ${this.statusMsg()}`);
     }
     // Simple string with important feed status information
     statusMsg() {
         let msgPieces = [
-            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : `<NULL>`),
+            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : string_helpers_1.NULL),
             `feed.length=${this.feed?.length}`,
-            `catchupCheckpoint=${this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : "null"}`,
-            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : "null"}`,
+            `catchupCheckpoint=${this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : string_helpers_1.NULL}`,
+            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : string_helpers_1.NULL}`,
         ];
-        return msgPieces.join(`, `);
+        return `[${msgPieces.join(`, `)}]`;
     }
 }
 exports.TheAlgorithm = TheAlgorithm;

@@ -4,6 +4,7 @@ import { Config } from "./config";
 import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserData, Weights } from "./types";
 export default class Storage {
     static config: Config;
+    static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;

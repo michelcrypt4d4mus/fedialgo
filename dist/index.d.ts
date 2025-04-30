@@ -23,6 +23,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import { timeString } from './helpers/time_helpers';
 import { FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -51,14 +52,16 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
+    reset(): Promise<void>;
     buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
     private cleanupFeed;
     private filterFeed;
+    private loadCachedData;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
     private logTootCounts;
     private statusMsg;
 }
-export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, };
+export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

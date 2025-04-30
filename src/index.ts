@@ -35,7 +35,7 @@ import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { processPromisesBatch } from './helpers/collection_helpers';
 import { SCORERS_CONFIG } from "./config";
-import { toISOFormat } from './helpers/time_helpers';
+import { timeString, toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonServersInfo,
@@ -128,11 +128,7 @@ class TheAlgorithm {
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setFeedInApp: params.setFeedInApp});
         await algo.setDefaultWeights();
-        algo.feed = (await Storage.getFeed()) ?? [];
-        algo.setFeedInApp(algo.feed);
-        algo.filters = await Storage.getFilters();
-        algo.trendingData = await Storage.getTrending();
-        console.log(`[fedialgo] loaded ${algo.feed.length} timeline toots from cache, trendingData=`, algo.trendingData);
+        await algo.loadCachedData();
         return algo;
     }
 
@@ -165,8 +161,8 @@ class TheAlgorithm {
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             } else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                console.log(`${logPrefix} Just set catchupCheckpoint value, current state is ${this.statusMsg()}`);
-                this.loadingStatus = `new toots since '${toISOFormat(this.catchupCheckpoint)}'`;
+                console.log(`${logPrefix} Just set catchupCheckpoint value, current state: ${this.statusMsg()}`);
+                this.loadingStatus = `new toots since '${timeString(this.catchupCheckpoint)}'`;
             }
 
             // ORDER MATTERS! The results of these Promises are processed with shift()
@@ -226,6 +222,12 @@ class TheAlgorithm {
         return await this.updateUserWeights(PresetWeights[presetName]);
     }
 
+    // Clear everything from browser storage except the user's identity and weightings
+    async reset(): Promise<void> {
+        await Storage.clearAll();
+        await this.loadCachedData();
+    }
+
     // Helper method to return the URL for a given tag on the local server
     // TODO: should probably be a static method?
     buildTagURL(tag: mastodon.v1.Tag): string {
@@ -250,6 +252,14 @@ class TheAlgorithm {
         console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
+    }
+
+    private async loadCachedData(): Promise<void> {
+        this.feed = (await Storage.getFeed()) ?? [];
+        this.setFeedInApp(this.feed);
+        this.filters = await Storage.getFilters();
+        this.trendingData = await Storage.getTrending();
+        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData=`, this.trendingData);
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots
@@ -282,7 +292,7 @@ class TheAlgorithm {
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
                     let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                    console.log(`${logPrefix} ${msg} (${this.statusMsg()})`);
+                    console.log(`${logPrefix} ${msg} ${this.statusMsg()}`);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS
@@ -294,16 +304,16 @@ class TheAlgorithm {
                 console.log(`${logPrefix} Incremental loading is fully disabled`);
             } else if (this.catchupCheckpoint) {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint (${this.statusMsg()})`);
+                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint ${this.statusMsg()}`);
                     this.catchupCheckpoint = null;
                 } else {
-                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! (${this.statusMsg()})`);
+                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! ${this.statusMsg()}`);
                 }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
                 console.log(`${logPrefix} Have enough toots. Want ${maxTimelineTootsToFetch}, ${this.statusMsg()}`);
             } else {
                 let msg = `${logPrefix} Fetch only got ${newHomeToots.length} toots`;
-                console.log(`${msg}, expected ${numTimelineToots} (${this.statusMsg()})`);
+                console.log(`${msg}, expected ${numTimelineToots} ${this.statusMsg()}`);
             }
 
             this.loadingStatus = null;
@@ -374,22 +384,23 @@ class TheAlgorithm {
 
         let msg = [
             `Retrieved ${retrievedToots.length} toots (following ${numFollowedAccts} accts, ${numFollowedTags} hashtags)`,
-            `${newHomeToots.length} newHomeToots (${retrievedToots.length - newHomeToots.length} trending toots)`,
+            `${newHomeToots.length} newHomeToots`,
+            `${retrievedToots.length - newHomeToots.length} other potentially cached or trending toots`,
         ];
 
-        console.log(`${logPrefix} ${msg.join(', ')} (${this.statusMsg()})`);
+        console.log(`${logPrefix} ${msg.join(', ')} ${this.statusMsg()}`);
     }
 
     // Simple string with important feed status information
     private statusMsg(): string {
         let msgPieces = [
-            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : `<NULL>`),
+            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : NULL),
             `feed.length=${this.feed?.length}`,
-            `catchupCheckpoint=${this.catchupCheckpoint ? toISOFormat(this.catchupCheckpoint) : "null"}`,
-            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? toISOFormat(this.mostRecentHomeTootAt()) : "null"}`,
+            `catchupCheckpoint=${this.catchupCheckpoint ? toISOFormat(this.catchupCheckpoint) : NULL}`,
+            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? toISOFormat(this.mostRecentHomeTootAt()) : NULL}`,
         ]
 
-        return msgPieces.join(`, `);
+        return `[${msgPieces.join(`, `)}]`;
     }
 };
 
@@ -417,5 +428,7 @@ export {
     TypeFilterName,
     WeightName,
     Weights,
+    // Helpers we also export
     extractDomain,
+    timeString,
 };

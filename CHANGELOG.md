@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Add TheAlgorithm.reset() method to completely clear browser storage
+* Export timeString() helper method
 * Add `Toot.realToot()` helper to find reblogs
 * Add `TheAlgorithm.statusMsg()` helper
 

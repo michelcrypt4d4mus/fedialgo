@@ -40,6 +40,22 @@ const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
+    // Clear everything but preserve the user's identity and weightings
+    static async clearAll() {
+        console.log(`[STORAGE] Clearing all storage`);
+        const user = await this.getIdentity();
+        const weights = await this.getWeightings();
+        await localforage_1.default.clear();
+        if (user) {
+            console.log(`[STORAGE] Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+            await this.setIdentity(user);
+            if (weights)
+                await this.setWeightings(weights);
+        }
+        else {
+            console.warn(`[STORAGE] No user identity found, cleared storage anyways`);
+        }
+    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
         const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));

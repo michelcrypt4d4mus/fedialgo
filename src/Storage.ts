@@ -28,6 +28,22 @@ import {
 export default class Storage {
     static config: Config = Object.assign({}, DEFAULT_CONFIG);
 
+    // Clear everything but preserve the user's identity and weightings
+    static async clearAll(): Promise<void> {
+        console.log(`[STORAGE] Clearing all storage`);
+        const user = await this.getIdentity();
+        const weights = await this.getWeightings();
+        await localForage.clear();
+
+        if (user) {
+            console.log(`[STORAGE] Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+            await this.setIdentity(user);
+            if (weights) await this.setWeightings(weights);
+        } else {
+            console.warn(`[STORAGE] No user identity found, cleared storage anyways`);
+        }
+    }
+
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
