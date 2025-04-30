@@ -13,6 +13,7 @@ import { countValues } from "../helpers/collection_helpers";
 import { extractDomain } from '../helpers/string_helpers';
 import { MastodonServersInfo, StorableObj, StorageKey, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
+import { toISOFormat } from "../helpers/time_helpers";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -117,10 +118,11 @@ export class MastoApi {
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
-                console.debug(`oldest in page: ${earliestTootedAt(pageOfResults)}, oldest: ${oldestTootAt})`);
+                const oldestTootAtStr = toISOFormat(oldestTootAt);
+                console.debug(`oldest in page: ${toISOFormat(earliestTootedAt(pageOfResults))}, oldest: ${oldestTootAtStr})`);
 
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAt}' is too old`);
+                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAtStr}' is too old`);
                     return true;
                 }
 
@@ -130,7 +132,7 @@ export class MastoApi {
 
         const toots = statuses.map((status) => new Toot(status));
         await Toot.setDependentProps(toots);
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${earliestTootedAt(toots)}'):`, toots);
+        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${toISOFormat(earliestTootedAt(toots))}'):`, toots);
         return toots;
     };
 

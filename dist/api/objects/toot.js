@@ -14,6 +14,7 @@ const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../api");
 const tag_1 = require("./tag");
+const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
@@ -195,7 +196,7 @@ class Toot {
     }
     // String that describes the toot in not so many characters
     describe() {
-        let msg = `${this.account.describe()} [${this.createdAt.split('.')[0]}, ID=${this.id}]`;
+        let msg = `${this.account.describe()} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.

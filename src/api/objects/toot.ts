@@ -10,6 +10,7 @@ import Storage from "../../Storage";
 import { countValues, groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
+import { toISOFormat } from "../../helpers/time_helpers";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
@@ -22,7 +23,6 @@ import {
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
 import {
-    AccountNames,
     FeedFilterSettings,
     MediaCategory,
     StatusList,
@@ -255,7 +255,7 @@ export default class Toot implements TootObj {
 
     // String that describes the toot in not so many characters
     describe(): string {
-        let msg = `${this.account.describe()} [${this.createdAt.split('.')[0]}, ID=${this.id}]`;
+        let msg = `${this.account.describe()} [${toISOFormat(this.createdAt)}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
 

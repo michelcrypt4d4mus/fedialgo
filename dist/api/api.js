@@ -36,6 +36,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
+const time_helpers_1 = require("../helpers/time_helpers");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -115,9 +116,10 @@ class MastoApi {
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
-                console.debug(`oldest in page: ${(0, toot_1.earliestTootedAt)(pageOfResults)}, oldest: ${oldestTootAt})`);
+                const oldestTootAtStr = (0, time_helpers_1.toISOFormat)(oldestTootAt);
+                console.debug(`oldest in page: ${(0, time_helpers_1.toISOFormat)((0, toot_1.earliestTootedAt)(pageOfResults))}, oldest: ${oldestTootAtStr})`);
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAt}' is too old`);
+                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAtStr}' is too old`);
                     return true;
                 }
                 return false;
@@ -125,7 +127,7 @@ class MastoApi {
         });
         const toots = statuses.map((status) => new toot_1.default(status));
         await toot_1.default.setDependentProps(toots);
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, toot_1.earliestTootedAt)(toots)}'):`, toots);
+        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, time_helpers_1.toISOFormat)((0, toot_1.earliestTootedAt)(toots))}'):`, toots);
         return toots;
     }
     ;

@@ -197,7 +197,7 @@ export default class Storage {
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline
-    private static async secondsSinceMostRecentToot(): Promise<number | null | undefined> {
+    private static async secondsSinceMostRecentToot(): Promise<number | null> {
         const timelineToots = await this.getToots(StorageKey.TIMELINE);
         const mostRecent = mostRecentTootedAt(timelineToots);
 
@@ -205,6 +205,7 @@ export default class Storage {
             return ageOfTimestampInSeconds(mostRecent.getTime());
         } else {
             console.debug(`No most recent toot found`);
+            return null;
         }
     }
 

@@ -193,6 +193,7 @@ class Storage {
         }
         else {
             console.debug(`No most recent toot found`);
+            return null;
         }
     }
     static async buildKey(key) {
