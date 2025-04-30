@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Implement `catchupCheckpoint` logic so that refocusing the app will always poll new toots back to the last home timeline toot we already have
+* Refactor trending history methods to `trending_with_history.ts`
 
 ### v0.20.11
 * `Toot.buildToots()` helper method
