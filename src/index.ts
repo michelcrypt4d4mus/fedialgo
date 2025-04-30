@@ -261,7 +261,7 @@ class TheAlgorithm {
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
-               Storage.getConfig().enableIncrementalLoad
+               Storage.getConfig().enableIncrementalLoad  // TODO: we don't need this config option any more
             && (
                    // Check newHomeToots is bigger than (numTimelineToots - 3) bc sometimes we get e.g. 39 records instead of 40
                    // but if we got like, 5 toots, that means we've exhausted the user's timeline and there's nothing more to fetch
@@ -284,22 +284,24 @@ class TheAlgorithm {
                 Storage.getConfig().incrementalLoadDelayMS
             );
         } else {
+            const logPrefx = `[maybeGetMoreToots() - halting getFeed()]`;
+
             if (!Storage.getConfig().enableIncrementalLoad) {
-                console.log(`halting getFeed(): incremental loading disabled`);
+                console.log(`${logPrefx} incremental loading disabled`);
             } else if (this.catchupCheckpoint) {
                 const checkpointStr = toISOFormat(this.catchupCheckpoint);
-                const earliestNewHomeTootAtStr = toISOFormat(earliestNewHomeTootAt);
+                const earliestAtStr = toISOFormat(earliestNewHomeTootAt);
 
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`halting getFeed(): caught up to catchupCheckpoint '${checkpointStr}' (earliestNewHomeTootAt '${earliestNewHomeTootAtStr}')`);
+                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' (earliestNewHomeTootAt '${earliestAtStr}')`);
                     this.catchupCheckpoint = null;
                 } else {
-                    console.log(`Not caught up to catchupCheckpoint '${checkpointStr}' w/ earliestNewHomeTootAt '${earliestNewHomeTootAtStr}'`);
+                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' w/ earliestNewHomeTootAt '${earliestAtStr}'`);
                 }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`halting getFeed(): we have ${this.feed.length} toots`);
+                console.log(`${logPrefx} we have ${this.feed.length} toots`);
             } else {
-                console.log(`halting getFeed(): fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
+                console.log(`${logPrefx} fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
             }
 
             this.loadingStatus = undefined;
