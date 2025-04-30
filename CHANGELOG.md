@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.9
 * (Demo App) Make the refresh handling actually work by moving required vars and code into `useEffect()` blocks
 * Force repull of trending data if the cache returns an empty array
 * Call setDependentProperties() on result of fediverseTrendingToots()
