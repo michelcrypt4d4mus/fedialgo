@@ -117,15 +117,10 @@ export interface TrendingTag extends mastodon.v1.Tag {
     numToots?: number;
     trendingRank?: number;
 }
-interface TrendingTagsAndLinks {
-    tags: TrendingTag[];
+export interface TrendingStorage {
     links: TrendingLink[];
-}
-export interface TrendingStorage extends TrendingTagsAndLinks {
     toots: Toot[];
-}
-export interface TrendingStorageSerialized extends TrendingTagsAndLinks {
-    toots: SerializableToot[];
+    tags: TrendingTag[];
 }
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
@@ -135,4 +130,3 @@ export type UserData = {
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
 };
-export {};

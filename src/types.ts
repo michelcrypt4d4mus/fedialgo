@@ -162,17 +162,10 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 };
 
-interface TrendingTagsAndLinks {
-    tags: TrendingTag[];
+export interface TrendingStorage {
     links: TrendingLink[];
-};
-
-export interface TrendingStorage extends TrendingTagsAndLinks {
     toots: Toot[];
-};
-
-export interface TrendingStorageSerialized extends TrendingTagsAndLinks {
-    toots: SerializableToot[];
+    tags: TrendingTag[];
 };
 
 export type TrendingWithHistory = TrendingLink | TrendingTag;
