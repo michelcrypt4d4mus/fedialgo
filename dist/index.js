@@ -182,14 +182,14 @@ class TheAlgorithm {
         const newHomeToots = allResponses.shift(); // pop getTimelineToots() response from front of allResponses array
         const userData = allResponses.shift();
         const trendingToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
-        const newToots = [...newHomeToots, ...trendingToots];
-        this.logTootCounts(newToots, newHomeToots);
+        const retrievedToots = [...newHomeToots, ...trendingToots];
+        this.logTootCounts(retrievedToots, newHomeToots);
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await mastodon_server_1.default.getTrendingData();
         this.mastodonServers = await api_1.MastoApi.instance.getMastodonServersInfo();
         // Filter out dupe/invalid toots, build filters
-        this.feed = this.cleanupFeed(newToots);
+        this.feed = this.cleanupFeed(retrievedToots);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, userData);
         // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(newHomeToots, numTimelineToots); // Called asynchronously
