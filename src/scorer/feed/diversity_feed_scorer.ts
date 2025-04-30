@@ -14,12 +14,10 @@ export default class DiversityFeedScorer extends FeedScorer {
     }
 
     // Count toots by account (but negative instead of positive count)
-    // *NOTE: The penalty for frequent tooters decreases by 1 each time a toot is scored*
-    //        As a result this.scoreData must be reset anew each time the feed is updated
     feedExtractor(feed: Toot[]): StringNumberDict {
         const sortedToots = sortByCreatedAt(feed).reverse() as Toot[];
 
-        // Collate the overall score for each account
+        // Collate the overall score for each account. The penalty for frequent tooters decreases by 1 per toot.
         const accountScores = sortedToots.reduce(
             (tootCounts, toot) => {
                 incrementCount(tootCounts, toot.account.webfingerURI, -1);
