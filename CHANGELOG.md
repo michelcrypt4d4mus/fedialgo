@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Move fetchRecentTootsForTrendingTags() to MastoApi
+* Move `fetchRecentTootsForTrendingTags()` to `MastoApi`
 
 ### v0.20.12
 * Add `Config.staleDataSeconds` dictionary to enable customized data refresh rates (rename old `Config.staleDataSeconds` to `Config.staleDataDefaultSeconds`)
