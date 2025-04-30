@@ -290,7 +290,7 @@ class TheAlgorithm {
                     console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                     this.catchupCheckpoint = null;
                 } else {
-                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
+                    console.warn(`${logPrefx} Not caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                 }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
                 console.log(`${logPrefx} we have ${this.feed.length} toots`);
