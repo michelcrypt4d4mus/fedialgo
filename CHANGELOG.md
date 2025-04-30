@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.8
 * `RetootsInFeedScorer` can use `Toot.reblogsBy.length` to score (and therefore doesn't need to be a `FeedScorer`)
 * `RetootsInFeedScorer` scores with the square of the number of retooting accounts the user follows
 * Remove `TrendingLinksScorer.trendingLinks` property
