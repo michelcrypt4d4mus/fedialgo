@@ -4,6 +4,7 @@
 * Remove `TrendingLinksScorer.trendingLinks` property
 * Stop mutating the `Toot` objects in `FollowedTagsScorer` (now happens in `Toot.setDependentProperties()`)
 * Set `Toot.muted` in Toot.setDependentProperties()
+* Add Toot.setDependentProps() static method to set props for array of Toots. move the setting of those props to the calls like MastoApi.fetchHomeFeed() that do the initial Toot object building
 
 ### v0.20.7
 * Consolidate all `Toot` post processing to `Toot.setDependentProperties()` method

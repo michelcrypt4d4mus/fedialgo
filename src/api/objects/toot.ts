@@ -32,6 +32,7 @@ import {
     UserData,
     WeightName
 } from "../../types";
+import MastodonServer from "../mastodon_server";
 
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -505,6 +506,13 @@ export default class Toot implements TootObj {
         console.log(`${prefix}${logMsg}:`, deduped);
         return deduped;
     };
+
+    // Set the dependent properties for all of a list of Toot objects
+    static async setDependentProps(toots: Toot[]): Promise<void> {
+        const userData = await MastoApi.instance.getUserData();
+        const trendingLinks = await MastodonServer.fediverseTrendingLinks();
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks));
+    }
 };
 
 

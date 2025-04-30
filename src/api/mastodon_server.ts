@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
-import Toot, { SerializableToot } from "./objects/toot";
+import Toot from "./objects/toot";
 import { ageInSeconds } from "../helpers/time_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { MastodonServersInfo, StorageKey, TrendingLink, TrendingStorage, TrendingTag } from "../types";
@@ -172,8 +172,7 @@ export default class MastodonServer {
         }
     };
 
-    // TODO: this doesn't fully de-dedupe links by URL yet so there are sometimes TrendingLink objs w/same URL in list
-    // UPDATE: changed it to use lowercase of the key, didn't confirm if it fixed the issue.
+    // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
         const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
 
@@ -185,9 +184,9 @@ export default class MastodonServer {
                 return storageLinks as TrendingLink[];
             } else {
                 const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
-                console.debug(`[fediverseTrendingLinks] links from all servers:`, serverLinks);
-                let links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
-                console.info(`[fediverseTrendingLinks] unique links:`, links);
+                console.debug(`[fediverseTrendingLinks] Links from all servers:`, serverLinks);
+                const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
+                console.info(`[fediverseTrendingLinks] Found ${links.length} unique trending links`);
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links as TrendingLink[]);
                 return links as TrendingLink[];
             }
