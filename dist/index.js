@@ -234,7 +234,8 @@ class TheAlgorithm {
     cleanupFeed(toots) {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         const numRemoved = toots.length - cleanNewToots.length;
-        console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
+        if (numRemoved > 0)
+            console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.

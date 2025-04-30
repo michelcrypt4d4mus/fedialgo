@@ -237,7 +237,7 @@ class TheAlgorithm {
     private cleanupFeed(toots: Toot[]): Toot[] {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         const numRemoved = toots.length - cleanNewToots.length;
-        console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
+        if (numRemoved > 0) console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
     }
 
