@@ -215,24 +215,11 @@ class TheAlgorithm {
         return await this.updateUserWeights(PresetWeights[presetName]);
     }
 
-    // TODO: maybe this should be a copy so edits don't happen in place?
-    getFilters(): FeedFilterSettings {
-        return this.filters;
-    }
-
     updateFilters(newFilters: FeedFilterSettings): Toot[] {
         console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
         return this.filterFeed();
-    }
-
-    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
-    filterFeed(): Toot[] {
-        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        console.debug(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
-        this.setFeedInApp(filteredFeed);
-        return filteredFeed;
     }
 
     // If followedUsersOnly is true, return the most recent toot from followed accounts
@@ -253,6 +240,14 @@ class TheAlgorithm {
         const numRemoved = toots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
         return Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
+    }
+
+    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
+    private filterFeed(): Toot[] {
+        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
+        console.debug(`filteredFeed() found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
+        this.setFeedInApp(filteredFeed);
+        return filteredFeed;
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots

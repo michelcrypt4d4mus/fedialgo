@@ -50,12 +50,11 @@ declare class TheAlgorithm {
     getUserWeights(): Promise<Weights>;
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
-    getFilters(): FeedFilterSettings;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
-    filterFeed(): Toot[];
     mostRecentTootAt(followedUsersOnly?: boolean): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
     private cleanupFeed;
+    private filterFeed;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private scoreFeed;
