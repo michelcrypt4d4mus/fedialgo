@@ -135,6 +135,7 @@ class TheAlgorithm {
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
         this.user = params.user;
+        this.loadingStatus = "(ready to load)";
         this.setFeedInApp = params.setFeedInApp ?? ((f: Toot[]) => console.debug(`Default setFeedInApp() called`));
         MastoApi.init(this.api, this.user as Account);
         this.filters = buildNewFilterSettings();
@@ -180,7 +181,7 @@ class TheAlgorithm {
         this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
 
         // Filter out dupe/invalid toots, build filters
-        this.feed = await this.cleanupFeed(newToots);
+        this.feed = this.cleanupFeed(newToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);
 
         // Potentially fetch more toots if we haven't reached the desired number
@@ -242,7 +243,7 @@ class TheAlgorithm {
     }
 
     // Remove invalid and duplicate toots
-    private async cleanupFeed(toots: Toot[]): Promise<Toot[]> {
+    private cleanupFeed(toots: Toot[]): Toot[] {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         const numRemoved = toots.length - cleanNewToots.length;
         console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Init `TheAlgorithm.loadingStatus` with `"(ready to load)"` during construction so it isn't empty until load is complete
 
 ### v0.20.9
 * (Demo App) Make the refresh handling actually work by moving required vars and code into `useEffect()` blocks
