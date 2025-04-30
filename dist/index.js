@@ -269,8 +269,8 @@ class TheAlgorithm {
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
         else {
-            const logPrefx = `[maybeGetMoreToots() - halting getFeed()]`;
             const earliestAtStr = `(earliestNewHomeTootAt '${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}')`;
+            const logPrefx = `[maybeGetMoreToots()] halting getFeed()`;
             if (!Storage_1.default.getConfig().enableIncrementalLoad) {
                 console.log(`${logPrefx} incremental loading disabled`);
             }
