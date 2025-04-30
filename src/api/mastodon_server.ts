@@ -45,6 +45,7 @@ export default class MastodonServer {
     };
 
     // Fetch toots that are trending on this server
+    // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     async fetchTrendingToots(): Promise<Toot[]> {
         const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
         const trendingToots = toots.map(t => new Toot(t)).filter(t => t.popularity() > 0);
@@ -162,13 +163,14 @@ export default class MastodonServer {
         try {
             const storageToots = await Storage.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS);
 
-            if (storageToots && !(await Storage.isDataStale())) {
+            if (storageToots?.length && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingToots] using cached trending toots:`, storageToots);
                 return storageToots;
             } else {
                 const trendingTootses = await this.callForAllServers<Toot[]>(s => s.fetchTrendingToots());
                 let trendingToots = Object.values(trendingTootses).flat();
                 setTrendingRankToAvg(trendingToots);
+                await Toot.setDependentProps(trendingToots);
                 trendingToots = Toot.dedupeToots(trendingToots, "fediverseTrendingToots");
                 await Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, trendingToots);
                 console.log(`[fediverseTrendingToots] fetched trending toots:`, trendingToots);
@@ -184,9 +186,9 @@ export default class MastodonServer {
         const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_LINKS].acquire();
 
         try {
-            const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS);
+            const storageLinks = await Storage.get(StorageKey.FEDIVERSE_TRENDING_LINKS) as TrendingLink[];
 
-            if (storageLinks && !(await Storage.isDataStale())) {
+            if (storageLinks?.length && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
                 return storageLinks as TrendingLink[];
             } else {
@@ -207,9 +209,9 @@ export default class MastodonServer {
         const releaseMutex = await trendingMutexes[StorageKey.FEDIVERSE_TRENDING_TAGS].acquire();
 
         try {
-            const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS);
+            const storageTags = await Storage.get(StorageKey.FEDIVERSE_TRENDING_TAGS) as TrendingTag[];
 
-            if (storageTags && !(await Storage.isDataStale())) {
+            if (storageTags?.length && !(await Storage.isDataStale())) {
                 console.debug(`[fediverseTrendingLinks] using cached trending tags:`, storageTags);
                 return storageTags as TrendingTag[];
             } else {
@@ -298,6 +300,7 @@ function setTrendingRankToAvg(rankedToots: Toot[]): void {
 
         toots.forEach((toot) => {
             toot.trendingRank = avgScore;
+
             if (toot.reblog) {
                 toot.reblog.trendingRank = avgScore;
                 console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);

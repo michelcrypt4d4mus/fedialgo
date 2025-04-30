@@ -363,7 +363,11 @@ export default class Toot implements TootObj {
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: StringNumberDict): void {
+    setDependentProperties(
+        userData: UserData,
+        trendingLinks: TrendingLink[],
+        trendingTags: StringNumberDict
+    ): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;

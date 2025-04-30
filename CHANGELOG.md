@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Force repull of trending data if the cache returns an empty array
+* Call setDependentProperties() on result of fediverseTrendingToots()
 * Set `Toot.trendingTags` property more accurately in setDependentProperties()
 * Add `Config.excessiveTagsPenalty` param
 
