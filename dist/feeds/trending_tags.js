@@ -50,8 +50,6 @@ async function getTootsForTag(tag) {
     // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
     const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
     const toots = await api_1.MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
-    // Inject the tag into each toot as a trendingTag element
-    toots.forEach((toot) => toot.trendingTags.push(tag));
     return toots;
 }
 ;

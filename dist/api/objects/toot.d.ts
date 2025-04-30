@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { FeedFilterSettings, MediaCategory, StatusList, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
+import { FeedFilterSettings, MediaCategory, StatusList, StringNumberDict, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -60,14 +60,14 @@ export default class Toot implements TootObj {
     reblogged?: boolean | null;
     text?: string | null;
     url?: string | null;
-    followedTags: mastodon.v1.Tag[];
+    followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
     reblogsBy: Account[];
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     trendingRank?: number;
     trendingLinks?: TrendingLink[];
-    trendingTags: TrendingTag[];
+    trendingTags?: TrendingTag[];
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
@@ -92,7 +92,7 @@ export default class Toot implements TootObj {
     realURL(): string;
     resolve(): Promise<Toot>;
     serialize(): SerializableToot;
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void;
+    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: StringNumberDict): void;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;

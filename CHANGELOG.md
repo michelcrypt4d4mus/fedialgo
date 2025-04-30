@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set `Toot.trendingTags` property more accurately in setDependentProperties()
 * Add `Config.excessiveTagsPenalty` param
 
 ### v0.20.8

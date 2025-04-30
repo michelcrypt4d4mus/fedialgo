@@ -104,7 +104,6 @@ export class MastoApi {
     };
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
-    // TODO: this doesn't call Toot.setDependentProperties() which is required to fully build a timeline Toot!
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         numToots ||= Storage.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;

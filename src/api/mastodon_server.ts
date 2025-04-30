@@ -140,6 +140,7 @@ export default class MastodonServer {
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData(): Promise<TrendingStorage> {
         const responses = await Promise.all([
             this.fediverseTrendingLinks(),

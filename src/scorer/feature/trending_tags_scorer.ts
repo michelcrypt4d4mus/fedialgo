@@ -15,7 +15,8 @@ export default class TrendingTagsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        const tagScores = (toot.reblog || toot).trendingTags.map(tag => tag.numAccounts || 0);
+        const tags = (toot.reblog || toot).trendingTags || [];
+        const tagScores = tags.map(tag => tag.numAccounts || 0);
         let score = sumArray(tagScores);
 
         // If the toot is tag spam reduce the score

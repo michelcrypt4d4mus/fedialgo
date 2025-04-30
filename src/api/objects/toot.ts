@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 
 import Account from "./account";
 import Storage from "../../Storage";
-import { groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
+import { countValues, groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import {
@@ -26,6 +26,7 @@ import {
     FeedFilterSettings,
     MediaCategory,
     StatusList,
+    StringNumberDict,
     TootScore,
     TrendingLink,
     TrendingTag,
@@ -114,15 +115,15 @@ export default class Toot implements TootObj {
     text?: string | null;
     url?: string | null;
 
-    // extensions to mastodon.v1.Status
-    followedTags: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
+    // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
+    followedTags?: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblogsBy!: Account[];             // The accounts that retooted this toot
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
-    trendingTags: TrendingTag[];       // Tags that are trending in this toot
+    trendingTags?: TrendingTag[];      // Tags that are trending that appear in this toot
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
@@ -162,14 +163,14 @@ export default class Toot implements TootObj {
 
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = (toot.followedTags ?? []) as mastodon.v1.Tag[];  // TODO: currently this is set in FollowedTagsScorer
+        this.followedTags = toot.followedTags;
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks;  // TODO: currently set in TrendingLinksScorer (not great)
-        this.trendingTags = (toot.trendingTags ?? []) as TrendingTag[];
+        this.trendingLinks = toot.trendingLinks;
+        this.trendingTags = toot.trendingTags;
         this.repair();
         // Must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(MediaCategory.AUDIO);
@@ -362,16 +363,24 @@ export default class Toot implements TootObj {
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void {
+    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: StringNumberDict): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 
-        toot.tags.forEach((tag) => {
-            toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
-            if (tag.name in userData.followedTags) toot.followedTags.push(tag);
-        });
+        // Set trendingTags and followedTags properties
+        if (!toot.trendingTags || !toot.followedTags) {
+            toot.followedTags ??= [];
+            toot.trendingTags ??= [];
+
+            toot.tags.forEach((tag) => {
+                toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
+                toot.trendingTags ??= [];  // TODO why do i need this to make typescript happy?
+                if (tag.name in userData.followedTags) toot.followedTags.push(tag);
+                if (tag.name in trendingTags) toot.trendingTags.push(tag);
+            });
+        }
 
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
@@ -398,9 +407,9 @@ export default class Toot implements TootObj {
         let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
 
         if (tagType == WeightName.FOLLOWED_TAGS) {
-            tags = this.followedTags;
+            tags = this.followedTags || [];
         } else if (tagType == WeightName.TRENDING_TAGS) {
-            tags = this.trendingTags;
+            tags = this.trendingTags || [];
         } else {
             console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
         }
@@ -511,7 +520,9 @@ export default class Toot implements TootObj {
     static async setDependentProps(toots: Toot[]): Promise<void> {
         const userData = await MastoApi.instance.getUserData();
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks));
+        const trendingTags = await MastodonServer.fediverseTrendingTags();
+        const trendingTagsByName = countValues<TrendingTag>(trendingTags, (tag) => tag.name);
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
     }
 };
 

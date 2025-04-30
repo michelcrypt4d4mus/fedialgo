@@ -64,7 +64,7 @@ class Toot {
     reblogged;
     text;
     url;
-    // extensions to mastodon.v1.Status
+    // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
     reblogsBy; // The accounts that retooted this toot
@@ -72,7 +72,7 @@ class Toot {
     scoreInfo; // Scoring info for weighting/sorting this toot
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
-    trendingTags; // Tags that are trending in this toot
+    trendingTags; // Tags that are trending that appear in this toot
     audioAttachments;
     imageAttachments;
     videoAttachments;
@@ -110,14 +110,14 @@ class Toot {
         this.visibility = toot.visibility;
         // Unique to fedialgo
         this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = (toot.followedTags ?? []); // TODO: currently this is set in FollowedTagsScorer
+        this.followedTags = toot.followedTags;
         this.isFollowed = toot.isFollowed;
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new account_1.default(account));
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
         this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks; // TODO: currently set in TrendingLinksScorer (not great)
-        this.trendingTags = (toot.trendingTags ?? []);
+        this.trendingLinks = toot.trendingLinks;
+        this.trendingTags = toot.trendingTags;
         this.repair();
         // Must be set after repair() has a chance to fix any broken media types
         this.audioAttachments = this.attachmentsOfType(types_1.MediaCategory.AUDIO);
@@ -286,17 +286,25 @@ class Toot {
         return serializableToot;
     }
     // Some properties cannot be repaired and/or set until info about the user is available
-    setDependentProperties(userData, trendingLinks) {
+    setDependentProperties(userData, trendingLinks, trendingTags) {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
-        toot.tags.forEach((tag) => {
-            toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
-            if (tag.name in userData.followedTags)
-                toot.followedTags.push(tag);
-        });
+        // Set trendingTags and followedTags properties
+        if (!toot.trendingTags || !toot.followedTags) {
+            toot.followedTags ??= [];
+            toot.trendingTags ??= [];
+            toot.tags.forEach((tag) => {
+                toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
+                toot.trendingTags ??= []; // TODO why do i need this to make typescript happy?
+                if (tag.name in userData.followedTags)
+                    toot.followedTags.push(tag);
+                if (tag.name in trendingTags)
+                    toot.trendingTags.push(tag);
+            });
+        }
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
@@ -317,10 +325,10 @@ class Toot {
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
         if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
-            tags = this.followedTags;
+            tags = this.followedTags || [];
         }
         else if (tagType == types_1.WeightName.TRENDING_TAGS) {
-            tags = this.trendingTags;
+            tags = this.trendingTags || [];
         }
         else {
             console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
@@ -425,7 +433,9 @@ class Toot {
     static async setDependentProps(toots) {
         const userData = await api_1.MastoApi.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks));
+        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+        const trendingTagsByName = (0, collection_helpers_1.countValues)(trendingTags, (tag) => tag.name);
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
     }
 }
 exports.default = Toot;
