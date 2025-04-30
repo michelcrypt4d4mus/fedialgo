@@ -88,7 +88,7 @@ class MastoApi {
         const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.BLOCKED_ACCOUNTS);
         if (this.userData && !isDataStale)
             return this.userData;
-        console.debug(`[MastoApi] getUserData() getting blocked users and server side filters...`);
+        console.debug(`[MastoApi] getUserData() called...`);
         const responses = await Promise.all([
             this.getFollowedAccounts(),
             this.getFollowedTags(),
