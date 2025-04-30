@@ -1,6 +1,8 @@
 /*
- * Helper methods for using mastodon API methods that require authentication on the user's
- * home server.
+ * Class to wrap authenticated mastodon API calls to the user's home server (unauthenticated
+ * calls are handled by MastodonServer).
+ *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
+ *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
@@ -11,7 +13,7 @@ import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { countValues } from "../helpers/collection_helpers";
 import { extractDomain } from '../helpers/string_helpers';
-import { MastodonServersInfo, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
+import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { toISOFormat } from "../helpers/time_helpers";
 
@@ -20,9 +22,6 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-const API_URI = "api"
-const API_V1 = `${API_URI}/v1`;
-const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 
@@ -81,31 +80,6 @@ export class MastoApi {
         for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
     };
 
-    // Retrieve background data about the user that will be used for scoring etc.
-    async getUserData(): Promise<UserData> {
-        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
-        const isDataStale = await Storage.isDataStale(StorageKey.BLOCKED_ACCOUNTS);
-        if (this.userData && !isDataStale) return this.userData;
-        console.debug(`[MastoApi] getUserData() called...`);
-
-        const responses = await Promise.all([
-            this.getFollowedAccounts(),
-            this.getFollowedTags(),
-            this.getMutedAccounts(),
-            this.getServerSideFilters(),
-        ]);
-
-        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
-        this.userData = {
-            followedAccounts: Account.buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[1], tag => tag.name),
-            mutedAccounts: Account.buildAccountNames(responses[2]),
-            serverSideFilters: responses[3],
-        };
-
-        return this.userData;
-    };
-
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         numToots ||= Storage.getConfig().numTootsInFirstFetch;
@@ -137,8 +111,17 @@ export class MastoApi {
         return toots;
     };
 
+    async getBlockedAccounts(): Promise<Account[]> {
+        const blockedAccounts = await this.fetchData<mastodon.v1.Account>({
+            fetch: this.api.v1.blocks.list,
+            label: StorageKey.BLOCKED_ACCOUNTS
+        });
+
+        return blockedAccounts.map(a => new Account(a));
+    };
+
     // Get toots for the top trending tags via the search endpoint.
-    async fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
+    async getRecentTootsForTrendingTags(): Promise<Toot[]> {
         const releaseMutex = await this.mutexes[StorageKey.TRENDING_TAG_TOOTS].acquire()
 
         try {
@@ -162,34 +145,6 @@ export class MastoApi {
         }
     };
 
-    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    async searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]> {
-        limit = limit || Storage.getConfig().defaultRecordsPerPage;
-        logMsg = logMsg ? ` ${logMsg}` : "";
-        console.debug(`[searchForToots] getting${logMsg} toots for query '${searchQuery}'`);
-        const mastoQuery: mastodon.rest.v1.SearchParams = {limit: limit, q: searchQuery, type: STATUSES};
-
-        try {
-            const searchResult = await this.api.v2.search.fetch(mastoQuery);
-            const toots = await Toot.buildToots(searchResult.statuses);
-            console.debug(`[searchForToots] Found ${toots.length}${logMsg} toots for query`, mastoQuery);
-            return toots;
-        } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `Failed to get${logMsg} toots for query '${searchQuery}'`);
-            return [];
-        }
-    };
-
-    // Get the user's recent toots
-    async getUserRecentToots(): Promise<Toot[]> {
-        const recentToots = await this.fetchData<mastodon.v1.Status>({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: StorageKey.RECENT_USER_TOOTS
-        });
-
-        return recentToots.map(t => new Toot(t));
-    };
-
     // Get accounts the user is following
     async getFollowedAccounts(): Promise<Account[]> {
         const followedAccounts = await this.fetchData<mastodon.v1.Account>({
@@ -211,16 +166,19 @@ export class MastoApi {
         return (followedTags || []).map(repairTag);
     }
 
-    // Get the user's recent notifications
-    async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
-        return await this.fetchData<mastodon.v1.Notification>({
-            fetch: this.api.v1.notifications.list,
-            label: StorageKey.RECENT_NOTIFICATIONS
+    // Get all muted accounts (including accounts that are fully blocked)
+    async getMutedAccounts(): Promise<Account[]> {
+        const mutedAccounts = await this.fetchData<mastodon.v1.Account>({
+            fetch: this.api.v1.mutes.list,
+            label: StorageKey.MUTED_ACCOUNTS
         });
-    }
+
+        const blockedAccounts = await this.getBlockedAccounts();
+        return mutedAccounts.map(a => new Account(a)).concat(blockedAccounts);
+    };
 
     // Get an array of Toots the user has recently favourited
-    async fetchRecentFavourites(): Promise<Toot[]> {
+    async getRecentFavourites(): Promise<Toot[]> {
         const recentFaves = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: StorageKey.FAVOURITED_ACCOUNTS
@@ -229,24 +187,13 @@ export class MastoApi {
         return recentFaves.map(t => new Toot(t));
     };
 
-    async fetchBlockedAccounts(): Promise<Account[]> {
-        const blockedAccounts = await this.fetchData<mastodon.v1.Account>({
-            fetch: this.api.v1.blocks.list,
-            label: StorageKey.BLOCKED_ACCOUNTS
+    // Get the user's recent notifications
+    async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
+        return await this.fetchData<mastodon.v1.Notification>({
+            fetch: this.api.v1.notifications.list,
+            label: StorageKey.RECENT_NOTIFICATIONS
         });
-
-        return blockedAccounts.map(a => new Account(a));
-    };
-
-    async getMutedAccounts(): Promise<Account[]> {
-        const mutedAccounts = await this.fetchData<mastodon.v1.Account>({
-            fetch: this.api.v1.mutes.list,
-            label: StorageKey.MUTED_ACCOUNTS
-        });
-
-        const blockedAccounts = await this.fetchBlockedAccounts();
-        return mutedAccounts.map(a => new Account(a)).concat(blockedAccounts);
-    };
+    }
 
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
@@ -280,6 +227,41 @@ export class MastoApi {
         }
     };
 
+    // Retrieve background data about the user that will be used for scoring etc.
+    async getUserData(): Promise<UserData> {
+        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
+        const isDataStale = await Storage.isDataStale(StorageKey.BLOCKED_ACCOUNTS);
+        if (this.userData && !isDataStale) return this.userData;
+
+        const responses = await Promise.all([
+            this.getFollowedAccounts(),
+            this.getFollowedTags(),
+            this.getMutedAccounts(),
+            this.getServerSideFilters(),
+        ]);
+
+        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
+        this.userData = {
+            followedAccounts: Account.buildAccountNames(responses[0]),
+            followedTags: countValues<mastodon.v1.Tag>(responses[1], tag => tag.name),
+            mutedAccounts: Account.buildAccountNames(responses[2]),
+            serverSideFilters: responses[3],
+        };
+
+        return this.userData;
+    };
+
+    // Get the user's recent toots
+    async getUserRecentToots(): Promise<Toot[]> {
+        const recentToots = await this.fetchData<mastodon.v1.Status>({
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
+            label: StorageKey.RECENT_USER_TOOTS
+        });
+
+        return recentToots.map(t => new Toot(t));
+    };
+
+
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -301,6 +283,38 @@ export class MastoApi {
         const resolvedStatus = lookupResult.statuses[0];
         console.debug(`resolveToot('${tootURI}') found resolvedStatus:`, resolvedStatus);
         return new Toot(resolvedStatus as Toot);
+    };
+
+    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
+    //   - searchString: the string to search for
+    //   - maxRecords: the maximum number of records to fetch
+    //   - logMsg: optional description of why the search is being run (for logging only)
+    async searchForToots(searchString: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
+        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchString, type: STATUSES};
+        const logPrefix = `[searchForToots` + (logMsg ? ` (${logMsg})` : "") + `]`;
+        const tootsForQueryMsg = `toots for query '${searchString}'`;
+        console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
+
+        try {
+            const searchResult = await this.api.v2.search.fetch(query);
+            const toots = await Toot.buildToots(searchResult.statuses);
+            console.debug(`${logPrefix} Found ${toots.length} ${tootsForQueryMsg}`);
+            return toots;
+        } catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQueryMsg}`);
+            return [];
+        }
+    };
+
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    private buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
+        let params: mastodon.DefaultPaginationParams = {
+            limit: limit || Storage.getConfig().defaultRecordsPerPage
+        };
+
+        if (maxId) params = {...params, maxId: `${maxId}`};
+        return params as mastodon.DefaultPaginationParams;
     };
 
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
@@ -327,7 +341,7 @@ export class MastoApi {
                 };
             }
 
-            for await (const page of fetch(MastoApi.buildParams(maxId))) {
+            for await (const page of fetch(this.buildParams(maxId))) {
                 results = results.concat(page as T[]);
                 console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
 
@@ -366,18 +380,4 @@ export class MastoApi {
             throw e;
         }
     }
-
-    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    static buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
-        let params: mastodon.DefaultPaginationParams = {
-            limit: limit || Storage.getConfig().defaultRecordsPerPage
-        };
-
-        if (maxId) params = {...params, maxId: `${maxId}`};
-        return params as mastodon.DefaultPaginationParams;
-    };
-
-    public static v1Url = (path: string) => `${API_V1}/${path}`;
-    public static v2Url = (path: string) => `${API_V2}/${path}`;
-    public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
 };

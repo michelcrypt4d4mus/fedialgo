@@ -139,7 +139,7 @@ class TheAlgorithm {
         algo.setFeedInApp(algo.feed);
         algo.filters = await Storage_1.default.getFilters();
         algo.trendingData = await Storage_1.default.getTrending();
-        console.log(`[fedialgo] create() loaded ${algo.feed.length} timeline toots from storage...`);
+        console.log(`[fedialgo] loaded ${algo.feed.length} timeline toots from cache, trendingData=`, algo.trendingData);
         return algo;
     }
     constructor(params) {
@@ -175,7 +175,7 @@ class TheAlgorithm {
             // TODO: should we really make the user wait for the initial load to get all trending toots?
             dataFetches = dataFetches.concat([
                 mastodon_server_1.default.fediverseTrendingToots(),
-                api_1.MastoApi.instance.fetchRecentTootsForTrendingTags(),
+                api_1.MastoApi.instance.getRecentTootsForTrendingTags(),
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }

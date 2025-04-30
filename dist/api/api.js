@@ -41,9 +41,6 @@ exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-const API_URI = "api";
-const API_V1 = `${API_URI}/v1`;
-const API_V2 = `${API_URI}/v2`;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 ;
@@ -82,29 +79,6 @@ class MastoApi {
             this.mutexes[types_1.WeightName[key]] = new async_mutex_1.Mutex();
     }
     ;
-    // Retrieve background data about the user that will be used for scoring etc.
-    async getUserData() {
-        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
-        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.BLOCKED_ACCOUNTS);
-        if (this.userData && !isDataStale)
-            return this.userData;
-        console.debug(`[MastoApi] getUserData() called...`);
-        const responses = await Promise.all([
-            this.getFollowedAccounts(),
-            this.getFollowedTags(),
-            this.getMutedAccounts(),
-            this.getServerSideFilters(),
-        ]);
-        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
-        this.userData = {
-            followedAccounts: account_1.default.buildAccountNames(responses[0]),
-            followedTags: (0, collection_helpers_1.countValues)(responses[1], tag => tag.name),
-            mutedAccounts: account_1.default.buildAccountNames(responses[2]),
-            serverSideFilters: responses[3],
-        };
-        return this.userData;
-    }
-    ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
         numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
@@ -132,8 +106,16 @@ class MastoApi {
         return toots;
     }
     ;
+    async getBlockedAccounts() {
+        const blockedAccounts = await this.fetchData({
+            fetch: this.api.v1.blocks.list,
+            label: types_1.StorageKey.BLOCKED_ACCOUNTS
+        });
+        return blockedAccounts.map(a => new account_1.default(a));
+    }
+    ;
     // Get toots for the top trending tags via the search endpoint.
-    async fetchRecentTootsForTrendingTags() {
+    async getRecentTootsForTrendingTags() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
         try {
             let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
@@ -156,33 +138,6 @@ class MastoApi {
         }
     }
     ;
-    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    async searchForToots(searchQuery, limit, logMsg) {
-        limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
-        logMsg = logMsg ? ` ${logMsg}` : "";
-        console.debug(`[searchForToots] getting${logMsg} toots for query '${searchQuery}'`);
-        const mastoQuery = { limit: limit, q: searchQuery, type: exports.STATUSES };
-        try {
-            const searchResult = await this.api.v2.search.fetch(mastoQuery);
-            const toots = await toot_1.default.buildToots(searchResult.statuses);
-            console.debug(`[searchForToots] Found ${toots.length}${logMsg} toots for query`, mastoQuery);
-            return toots;
-        }
-        catch (e) {
-            this.throwIfAccessTokenRevoked(e, `Failed to get${logMsg} toots for query '${searchQuery}'`);
-            return [];
-        }
-    }
-    ;
-    // Get the user's recent toots
-    async getUserRecentToots() {
-        const recentToots = await this.fetchData({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: types_1.StorageKey.RECENT_USER_TOOTS
-        });
-        return recentToots.map(t => new toot_1.default(t));
-    }
-    ;
     // Get accounts the user is following
     async getFollowedAccounts() {
         const followedAccounts = await this.fetchData({
@@ -201,15 +156,18 @@ class MastoApi {
         });
         return (followedTags || []).map(tag_1.repairTag);
     }
-    // Get the user's recent notifications
-    async getRecentNotifications() {
-        return await this.fetchData({
-            fetch: this.api.v1.notifications.list,
-            label: types_1.StorageKey.RECENT_NOTIFICATIONS
+    // Get all muted accounts (including accounts that are fully blocked)
+    async getMutedAccounts() {
+        const mutedAccounts = await this.fetchData({
+            fetch: this.api.v1.mutes.list,
+            label: types_1.StorageKey.MUTED_ACCOUNTS
         });
+        const blockedAccounts = await this.getBlockedAccounts();
+        return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
     }
+    ;
     // Get an array of Toots the user has recently favourited
-    async fetchRecentFavourites() {
+    async getRecentFavourites() {
         const recentFaves = await this.fetchData({
             fetch: this.api.v1.favourites.list,
             label: types_1.StorageKey.FAVOURITED_ACCOUNTS
@@ -217,23 +175,13 @@ class MastoApi {
         return recentFaves.map(t => new toot_1.default(t));
     }
     ;
-    async fetchBlockedAccounts() {
-        const blockedAccounts = await this.fetchData({
-            fetch: this.api.v1.blocks.list,
-            label: types_1.StorageKey.BLOCKED_ACCOUNTS
+    // Get the user's recent notifications
+    async getRecentNotifications() {
+        return await this.fetchData({
+            fetch: this.api.v1.notifications.list,
+            label: types_1.StorageKey.RECENT_NOTIFICATIONS
         });
-        return blockedAccounts.map(a => new account_1.default(a));
     }
-    ;
-    async getMutedAccounts() {
-        const mutedAccounts = await this.fetchData({
-            fetch: this.api.v1.mutes.list,
-            label: types_1.StorageKey.MUTED_ACCOUNTS
-        });
-        const blockedAccounts = await this.fetchBlockedAccounts();
-        return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
-    }
-    ;
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
@@ -265,6 +213,37 @@ class MastoApi {
         }
     }
     ;
+    // Retrieve background data about the user that will be used for scoring etc.
+    async getUserData() {
+        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
+        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.BLOCKED_ACCOUNTS);
+        if (this.userData && !isDataStale)
+            return this.userData;
+        const responses = await Promise.all([
+            this.getFollowedAccounts(),
+            this.getFollowedTags(),
+            this.getMutedAccounts(),
+            this.getServerSideFilters(),
+        ]);
+        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
+        this.userData = {
+            followedAccounts: account_1.default.buildAccountNames(responses[0]),
+            followedTags: (0, collection_helpers_1.countValues)(responses[1], tag => tag.name),
+            mutedAccounts: account_1.default.buildAccountNames(responses[2]),
+            serverSideFilters: responses[3],
+        };
+        return this.userData;
+    }
+    ;
+    // Get the user's recent toots
+    async getUserRecentToots() {
+        const recentToots = await this.fetchData({
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
+            label: types_1.StorageKey.RECENT_USER_TOOTS
+        });
+        return recentToots.map(t => new toot_1.default(t));
+    }
+    ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -285,6 +264,38 @@ class MastoApi {
         const resolvedStatus = lookupResult.statuses[0];
         console.debug(`resolveToot('${tootURI}') found resolvedStatus:`, resolvedStatus);
         return new toot_1.default(resolvedStatus);
+    }
+    ;
+    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
+    //   - searchString: the string to search for
+    //   - maxRecords: the maximum number of records to fetch
+    //   - logMsg: optional description of why the search is being run (for logging only)
+    async searchForToots(searchString, maxRecords, logMsg) {
+        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        const query = { limit: maxRecords, q: searchString, type: exports.STATUSES };
+        const logPrefix = `[searchForToots` + (logMsg ? ` (${logMsg})` : "") + `]`;
+        const tootsForQueryMsg = `toots for query '${searchString}'`;
+        console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
+        try {
+            const searchResult = await this.api.v2.search.fetch(query);
+            const toots = await toot_1.default.buildToots(searchResult.statuses);
+            console.debug(`${logPrefix} Found ${toots.length} ${tootsForQueryMsg}`);
+            return toots;
+        }
+        catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQueryMsg}`);
+            return [];
+        }
+    }
+    ;
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    buildParams(maxId, limit) {
+        let params = {
+            limit: limit || Storage_1.default.getConfig().defaultRecordsPerPage
+        };
+        if (maxId)
+            params = { ...params, maxId: `${maxId}` };
+        return params;
     }
     ;
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
@@ -309,7 +320,7 @@ class MastoApi {
                 }
                 ;
             }
-            for await (const page of fetch(MastoApi.buildParams(maxId))) {
+            for await (const page of fetch(this.buildParams(maxId))) {
                 results = results.concat(page);
                 console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
                 if (results.length >= maxRecords || breakIf(page, results)) {
@@ -347,19 +358,6 @@ class MastoApi {
             throw e;
         }
     }
-    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    static buildParams(maxId, limit) {
-        let params = {
-            limit: limit || Storage_1.default.getConfig().defaultRecordsPerPage
-        };
-        if (maxId)
-            params = { ...params, maxId: `${maxId}` };
-        return params;
-    }
-    ;
-    static v1Url = (path) => `${API_V1}/${path}`;
-    static v2Url = (path) => `${API_V2}/${path}`;
-    static trendUrl = (path) => this.v1Url(`trends/${path}`);
 }
 exports.MastoApi = MastoApi;
 ;

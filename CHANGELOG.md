@@ -5,7 +5,7 @@
 * `Storage.getToots()` returns `null` instead of `[]` if there's nothing in local storage
 
 ### v0.20.13
-* Move `fetchRecentTootsForTrendingTags()` to `MastoApi`
+* Move `getRecentTootsForTrendingTags()` to `MastoApi`
 * Move `getMastodonServersInfo()` from `MastoApi` class to `MastodonServer` class
 
 ### v0.20.12

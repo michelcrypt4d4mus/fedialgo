@@ -7,6 +7,9 @@ export declare enum FediverseTrendingType {
 }
 export default class MastodonServer {
     domain: string;
+    static v1Url: (path: string) => string;
+    static v2Url: (path: string) => string;
+    static trendUrl: (path: string) => string;
     constructor(domain: string);
     fetchTrendingToots(): Promise<Toot[]>;
     fetchTrendingLinks(): Promise<TrendingLink[]>;

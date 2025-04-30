@@ -18,7 +18,6 @@ export default abstract class Scorer {
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: WeightName) {
-        // TODO: Maybe use this.constructor.name as the name property?
         this.name = name;
         this.description = SCORERS_CONFIG[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;

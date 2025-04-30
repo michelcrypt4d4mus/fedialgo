@@ -24,6 +24,8 @@ import { mastodon } from "masto";
 
 import Storage from "../../Storage";
 import { TrendingWithHistory } from "../../types";
+import { groupBy, average } from "../../helpers/collection_helpers";
+import Toot from "./toot";
 
 
 // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
@@ -63,4 +65,25 @@ export function uniquifyTrendingObjs<T>(
 
     const sortedObjs = Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
     return sortedObjs as T[];
-}
+};
+
+
+// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
+// TODO: maybe we should add the # of servers to the avg?
+// TODO: maybe rename this file 'trending_helpers.ts' or similar since Toots don't have a trending history
+export function setTrendingRankToAvg(rankedToots: Toot[]): void {
+    const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, toot => toot.uri);
+
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
+        const avgScore = average(toots.map(t => t.reblog?.trendingRank || t.trendingRank) as number[]);
+
+        toots.forEach((toot) => {
+            toot.trendingRank = avgScore;
+
+            if (toot.reblog) {
+                toot.reblog.trendingRank = avgScore;
+                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
+            }
+        });
+    });
+};

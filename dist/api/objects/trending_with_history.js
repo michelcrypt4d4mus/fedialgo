@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uniquifyTrendingObjs = exports.decorateHistoryScores = void 0;
+exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateHistoryScores = void 0;
 const Storage_1 = __importDefault(require("../../Storage"));
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
 function decorateHistoryScores(_obj) {
     const obj = _obj;
@@ -37,4 +38,23 @@ function uniquifyTrendingObjs(trendingObjs, uniqueKey) {
     return sortedObjs;
 }
 exports.uniquifyTrendingObjs = uniquifyTrendingObjs;
+;
+// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
+// TODO: maybe we should add the # of servers to the avg?
+// TODO: maybe rename this file 'trending_helpers.ts' or similar since Toots don't have a trending history
+function setTrendingRankToAvg(rankedToots) {
+    const tootsTrendingOnMultipleServers = (0, collection_helpers_1.groupBy)(rankedToots, toot => toot.uri);
+    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
+        const avgScore = (0, collection_helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
+        toots.forEach((toot) => {
+            toot.trendingRank = avgScore;
+            if (toot.reblog) {
+                toot.reblog.trendingRank = avgScore;
+                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
+            }
+        });
+    });
+}
+exports.setTrendingRankToAvg = setTrendingRankToAvg;
+;
 //# sourceMappingURL=trending_with_history.js.map

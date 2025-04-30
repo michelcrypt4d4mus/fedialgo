@@ -10,15 +10,13 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
-import { decorateHistoryScores, uniquifyTrendingObjs } from "./objects/trending_with_history";
+import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { logAndThrowError } from "../helpers/string_helpers";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
-    average,
     countValues,
-    groupBy,
     sortKeysByValue,
     transformKeys,
     zipPromises
@@ -38,6 +36,17 @@ export enum FediverseTrendingType {
     TAGS = "tags",
 };
 
+const API_URI = "api";
+const API_V1 = `${API_URI}/v1`;
+const API_V2 = `${API_URI}/v2`;
+
+const TRENDING_MUTEXES: Record<string, Mutex> = {
+    [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
+    [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
+    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
+    [StorageKey.POPULAR_SERVERS]: new Mutex(),
+};
+
 interface FetchTrendingProps<T> {
     key: StorageKey;
     serverFxn: (server: MastodonServer) => Promise<T[]>;
@@ -45,16 +54,14 @@ interface FetchTrendingProps<T> {
     loadingFxn?: (key: StorageKey) => Promise<StorableObj | null>
 };
 
-const trendingMutexes: Record<string, Mutex> = {
-    [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
-    [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
-    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
-    [StorageKey.POPULAR_SERVERS]: new Mutex(),
-};
-
 
 export default class MastodonServer {
     domain: string;
+
+    // Static helper methods for building URLs
+    public static v1Url = (path: string) => `${API_V1}/${path}`;
+    public static v2Url = (path: string) => `${API_V2}/${path}`;
+    public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
 
     constructor(domain: string) {
         this.domain = domain;
@@ -104,7 +111,7 @@ export default class MastodonServer {
         }
 
         try {
-            const instance = await this.fetch<mastodon.v2.Instance>(MastoApi.v2Url(INSTANCE));
+            const instance = await this.fetch<mastodon.v2.Instance>(MastodonServer.v2Url(INSTANCE));
             return instance?.usage?.users?.activeMonth || 0;
         } catch (error) {
             console.warn(`Error in getMonthlyUsers() for server ${this.domain}`, error);
@@ -114,7 +121,7 @@ export default class MastodonServer {
 
     // Fetch a list of objects of type T from a public API endpoint
     private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
-        return this.fetchList<T>(MastoApi.trendUrl(typeStr), limit);
+        return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
     };
 
     // Fetch a list of objects of type T from a public API endpoint
@@ -217,7 +224,7 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonServersInfo(): Promise<MastodonServersInfo> {
-        const releaseMutex = await trendingMutexes[StorageKey.POPULAR_SERVERS].acquire()
+        const releaseMutex = await TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS].acquire()
 
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
@@ -297,7 +304,7 @@ export default class MastodonServer {
     private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
-        const releaseMutex = await trendingMutexes[key].acquire();
+        const releaseMutex = await TRENDING_MUTEXES[key].acquire();
         const logPrefix = `[${key}]`;
 
         try {
@@ -334,24 +341,4 @@ export default class MastodonServer {
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
     }
-};
-
-
-// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
-// TODO: maybe we should add the # of servers to the avg?
-function setTrendingRankToAvg(rankedToots: Toot[]): void {
-    const tootsTrendingOnMultipleServers = groupBy<Toot>(rankedToots, toot => toot.uri);
-
-    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = average(toots.map(t => t.reblog?.trendingRank || t.trendingRank) as number[]);
-
-        toots.forEach((toot) => {
-            toot.trendingRank = avgScore;
-
-            if (toot.reblog) {
-                toot.reblog.trendingRank = avgScore;
-                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
-            }
-        });
-    });
 };

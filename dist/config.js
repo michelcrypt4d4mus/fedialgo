@@ -33,7 +33,7 @@ exports.DEFAULT_CONFIG = {
         [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.POPULAR_SERVERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 15 * time_helpers_1.SECONDS_IN_MINUTE,
+        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
     },
     timelineDecayExponent: 1.2,
     // API stuff

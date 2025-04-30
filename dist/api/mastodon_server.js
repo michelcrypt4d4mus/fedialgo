@@ -26,15 +26,22 @@ var FediverseTrendingType;
     FediverseTrendingType["TAGS"] = "tags";
 })(FediverseTrendingType || (exports.FediverseTrendingType = FediverseTrendingType = {}));
 ;
-;
-const trendingMutexes = {
+const API_URI = "api";
+const API_V1 = `${API_URI}/v1`;
+const API_V2 = `${API_URI}/v2`;
+const TRENDING_MUTEXES = {
     [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.POPULAR_SERVERS]: new async_mutex_1.Mutex(),
 };
+;
 class MastodonServer {
     domain;
+    // Static helper methods for building URLs
+    static v1Url = (path) => `${API_V1}/${path}`;
+    static v2Url = (path) => `${API_V2}/${path}`;
+    static trendUrl = (path) => this.v1Url(`trends/${path}`);
     constructor(domain) {
         this.domain = domain;
     }
@@ -78,7 +85,7 @@ class MastodonServer {
             return 0;
         }
         try {
-            const instance = await this.fetch(api_1.MastoApi.v2Url(api_1.INSTANCE));
+            const instance = await this.fetch(MastodonServer.v2Url(api_1.INSTANCE));
             return instance?.usage?.users?.activeMonth || 0;
         }
         catch (error) {
@@ -89,7 +96,7 @@ class MastodonServer {
     ;
     // Fetch a list of objects of type T from a public API endpoint
     async fetchTrending(typeStr, limit) {
-        return this.fetchList(api_1.MastoApi.trendUrl(typeStr), limit);
+        return this.fetchList(MastodonServer.trendUrl(typeStr), limit);
     }
     ;
     // Fetch a list of objects of type T from a public API endpoint
@@ -149,7 +156,7 @@ class MastodonServer {
             loadingFxn: Storage_1.default.getToots.bind(Storage_1.default),
             serverFxn: (server) => server.fetchTrendingToots(),
             processingFxn: async (toots) => {
-                setTrendingRankToAvg(toots);
+                (0, trending_with_history_1.setTrendingRankToAvg)(toots);
                 await toot_1.default.setDependentProps(toots);
                 let uniqueToots = toot_1.default.dedupeToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
                 uniqueToots = uniqueToots.sort((a, b) => b.popularity() - a.popularity());
@@ -187,7 +194,7 @@ class MastodonServer {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonServersInfo() {
-        const releaseMutex = await trendingMutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
+        const releaseMutex = await TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS].acquire();
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers || Object.keys(servers).length == 0 || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
@@ -252,7 +259,7 @@ class MastodonServer {
     static async fetchTrendingFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
-        const releaseMutex = await trendingMutexes[key].acquire();
+        const releaseMutex = await TRENDING_MUTEXES[key].acquire();
         const logPrefix = `[${key}]`;
         try {
             const storageObjs = await loadingFxn(key);
@@ -284,21 +291,5 @@ class MastodonServer {
     }
 }
 exports.default = MastodonServer;
-;
-// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
-// TODO: maybe we should add the # of servers to the avg?
-function setTrendingRankToAvg(rankedToots) {
-    const tootsTrendingOnMultipleServers = (0, collection_helpers_1.groupBy)(rankedToots, toot => toot.uri);
-    Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = (0, collection_helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
-        toots.forEach((toot) => {
-            toot.trendingRank = avgScore;
-            if (toot.reblog) {
-                toot.reblog.trendingRank = avgScore;
-                console.log(`[setTrendingRankToAvg] for reblog to ${avgScore}:`, toot);
-            }
-        });
-    });
-}
 ;
 //# sourceMappingURL=mastodon_server.js.map
