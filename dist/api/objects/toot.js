@@ -292,12 +292,15 @@ class Toot {
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;
+        // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties
         if (!toot.trendingTags || !toot.followedTags) {
             toot.followedTags ??= [];
             toot.trendingTags ??= [];
             toot.tags.forEach((tag) => {
+                // TODO why do i need these to make typescript happy even when toot.followedTags/toot.trendingTags
+                // were initialized before this loop starts?
                 toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
                 toot.trendingTags ??= []; // TODO why do i need this to make typescript happy?
                 if (tag.name in userData.followedTags)
@@ -398,6 +401,11 @@ class Toot {
     ///////////////////////////////
     //       Class methods       //
     ///////////////////////////////
+    // Build array of new Toot objects from an array of Status objects.
+    // Toots returned by this method should have all their properties set correctly.
+    static async buildToots(toots) {
+        return await this.setDependentProps(toots.map(t => new Toot(t)));
+    }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
         const prefix = logLabel ? `[${logLabel}] ` : '';
@@ -437,6 +445,7 @@ class Toot {
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         const trendingTagsByName = (0, collection_helpers_1.countValues)(trendingTags, (tag) => tag.name);
         toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
+        return toots;
     }
 }
 exports.default = Toot;

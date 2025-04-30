@@ -127,8 +127,7 @@ class MastoApi {
                 return false;
             }
         });
-        const toots = statuses.map((status) => new toot_1.default(status));
-        await toot_1.default.setDependentProps(toots);
+        const toots = await toot_1.default.buildToots(statuses);
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, time_helpers_1.toISOFormat)((0, toot_1.earliestTootedAt)(toots))}'):`, toots);
         return toots;
     }
@@ -141,7 +140,7 @@ class MastoApi {
         const mastoQuery = { limit: limit, q: searchQuery, type: exports.STATUSES };
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
-            const toots = searchResult.statuses.map(t => new toot_1.default(t));
+            const toots = await toot_1.default.buildToots(searchResult.statuses);
             console.debug(`[searchForToots] Found ${toots.length}${logMsg} toots for query`, mastoQuery);
             return toots;
         }

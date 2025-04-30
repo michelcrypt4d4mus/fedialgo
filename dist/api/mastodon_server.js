@@ -46,8 +46,6 @@ class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            if (toot.reblog)
-                toot.trendingRank = toot.trendingRank;
         });
         return trendingToots;
     }
@@ -115,7 +113,7 @@ class MastodonServer {
         let url = `https://${urlEndpoint}`;
         if (limit)
             url += `?limit=${limit}`;
-        console.debug(`[${urlEndpoint}] fetching at ${startTime}...`);
+        console.debug(`[${urlEndpoint}] fetching at ${(0, time_helpers_1.toISOFormat)(startTime)}...`);
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
         if (json.status === 200 && json.data) {
             console.debug(`[${urlEndpoint}] fetch response (${(0, time_helpers_1.ageInSeconds)(startTime)} seconds):`, json.data);

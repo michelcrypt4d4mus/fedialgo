@@ -371,6 +371,8 @@ export default class Toot implements TootObj {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.reblog || this;
+
+        // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 
         // Set trendingTags and followedTags properties
@@ -379,6 +381,8 @@ export default class Toot implements TootObj {
             toot.trendingTags ??= [];
 
             toot.tags.forEach((tag) => {
+                // TODO why do i need these to make typescript happy even when toot.followedTags/toot.trendingTags
+                // were initialized before this loop starts?
                 toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
                 toot.trendingTags ??= [];  // TODO why do i need this to make typescript happy?
                 if (tag.name in userData.followedTags) toot.followedTags.push(tag);
@@ -484,6 +488,12 @@ export default class Toot implements TootObj {
     //       Class methods       //
     ///////////////////////////////
 
+    // Build array of new Toot objects from an array of Status objects.
+    // Toots returned by this method should have all their properties set correctly.
+    static async buildToots(toots: mastodon.v1.Status[]): Promise<Toot[]> {
+        return await this.setDependentProps(toots.map(t => new Toot(t)));
+    }
+
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
         const prefix = logLabel ? `[${logLabel}] ` : '';
@@ -521,18 +531,19 @@ export default class Toot implements TootObj {
     };
 
     // Set the dependent properties for all of a list of Toot objects
-    static async setDependentProps(toots: Toot[]): Promise<void> {
+    static async setDependentProps(toots: Toot[]): Promise<Toot[]> {
         const userData = await MastoApi.instance.getUserData();
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
         const trendingTagsByName = countValues<TrendingTag>(trendingTags, (tag) => tag.name);
         toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
+        return toots;
     }
 };
 
 
 // Methods for dealing with toot timestamps
-export const tootedAt = (toot: mastodon.v1.Status): Date => new Date(toot.createdAt);
+export const tootedAt = (toot: mastodon.v1.Status | Toot): Date => new Date(toot.createdAt);
 export const earliestToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots)[0];
 export const mostRecentToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots).slice(-1)[0];
 

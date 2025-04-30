@@ -132,8 +132,7 @@ export class MastoApi {
             }
         });
 
-        const toots = statuses.map((status) => new Toot(status));
-        await Toot.setDependentProps(toots);
+        const toots = await Toot.buildToots(statuses);
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${toISOFormat(earliestTootedAt(toots))}'):`, toots);
         return toots;
     };
@@ -147,7 +146,7 @@ export class MastoApi {
 
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
-            const toots = searchResult.statuses.map(t => new Toot(t));
+            const toots = await Toot.buildToots(searchResult.statuses);
             console.debug(`[searchForToots] Found ${toots.length}${logMsg} toots for query`, mastoQuery);
             return toots;
         } catch (e) {

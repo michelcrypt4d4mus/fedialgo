@@ -10,7 +10,7 @@ import Account from "./objects/account";
 import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { ageInSeconds } from "../helpers/time_helpers";
+import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { MastodonServersInfo, StorableObj, StorageKey, TrendingLink, TrendingStorage, TrendingTag, TrendingWithHistory } from "../types";
 import { repairTag } from "./objects/tag";
@@ -61,7 +61,6 @@ export default class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            if (toot.reblog) toot.trendingRank = toot.trendingRank;
         });
 
         return trendingToots;
@@ -133,7 +132,7 @@ export default class MastodonServer {
         let urlEndpoint = `${this.domain}/${endpoint}`
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
-        console.debug(`[${urlEndpoint}] fetching at ${startTime}...`);
+        console.debug(`[${urlEndpoint}] fetching at ${toISOFormat(startTime)}...`);
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {

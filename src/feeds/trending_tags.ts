@@ -34,19 +34,16 @@ const LOG_PREFIX = "TrendingTags";
 export async function fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
     const trendingTags = await MastodonServer.fediverseTrendingTags();
     const tootTags: Toot[][] = await Promise.all(trendingTags.map(getTootsForTag));
-    let toots = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
+    const toots = Toot.dedupeToots(tootTags.flat(), LOG_PREFIX);
     toots.sort((a, b) => b.popularity() - a.popularity());
-    toots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
-    await Toot.setDependentProps(toots);
-    return toots;
+    return toots.slice(0, Storage.getConfig().numTrendingTagsToots);
 };
 
 
 // Get latest toots for a given tag and populate trendingToots property
 // TODO: there's an endpoint for getting recent tags but this is using the search endpoint.
+// TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
 async function getTootsForTag(tag: TrendingTag): Promise<Toot[]> {
-    // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
     const numToots = Storage.getConfig().numTootsPerTrendingTag;
-    const toots = await MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
-    return toots;
+    return await MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
 };
