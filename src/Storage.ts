@@ -163,20 +163,6 @@ export default class Storage {
         }
     }
 
-    // Return the seconds from the updatedAt stored at 'key' and now
-    static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
-        const withTimestamp = await localForage.getItem(await this.buildKey(key));
-
-        if (withTimestamp) {
-            const age = ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
-            console.debug(`[${key}] secondsSinceLastUpdated(): ${age}`);
-            return age;
-        } else {
-            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
-            return null;
-        }
-    }
-
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
@@ -230,6 +216,20 @@ export default class Storage {
     private static async secondsSinceLastOpened(): Promise<number | undefined> {
         const lastOpened = await this.getLastOpenedTimestamp();
         return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
+    }
+
+    // Return the seconds from the updatedAt stored at 'key' and now
+    private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
+        const withTimestamp = await localForage.getItem(await this.buildKey(key));
+
+        if (withTimestamp) {
+            const age = ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
+            console.debug(`[${key}] secondsSinceLastUpdated(): ${age}`);
+            return age;
+        } else {
+            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
+            return null;
+        }
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline
