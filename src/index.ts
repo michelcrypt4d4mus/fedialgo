@@ -319,7 +319,7 @@ class TheAlgorithm {
 
             try {
                 // Feed scorers' data must be refreshed each time the feed changes
-                this.feedScorers.forEach(scorer => scorer.setFeed(this.feed));
+                this.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(this.feed));
 
                 await processPromisesBatch(
                     this.feed,

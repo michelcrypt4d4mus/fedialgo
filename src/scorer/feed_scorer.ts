@@ -10,9 +10,9 @@ import { StringNumberDict } from "../types";
 
 export default abstract class FeedScorer extends Scorer {
     // Take an array of Toots and extract the scoreData needed to score a toot
-    setFeed(feed: Toot[]): void {
+    extractScoreDataFromFeed(feed: Toot[]): void {
         this.scoreData = this.feedExtractor(feed);
-        console.debug(`[${this.constructor.name}] feedExtractor() set scoreData to`, this.scoreData);
+        console.debug(`[${this.constructor.name}] feedExtractor() scoreData:`, this.scoreData);
         this.isReady = true;
     }
 

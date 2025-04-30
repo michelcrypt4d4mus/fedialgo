@@ -49,9 +49,7 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 
 
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-// TODO: just pull from instance, no need for userData arg
 export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserData): FeedFilterSettings {
-    const { serverSideFilters } = userData;
     const filters: FeedFilterSettings = buildNewFilterSettings();
 
     const tootCounts = Object.values(PropertyName).reduce(
@@ -80,7 +78,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
         });
 
         // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
-        serverSideFilters.forEach((filter) => {
+        userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
                 if (toot.containsString(keyword.keyword)) {
                     console.debug(`Matched server filter (${toot.describe()}):`, filter);

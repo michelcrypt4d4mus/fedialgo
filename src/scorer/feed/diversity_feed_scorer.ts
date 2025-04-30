@@ -4,7 +4,7 @@
  */
 import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
-import { incrementCount, shuffle } from "../../helpers/collection_helpers";
+import { incrementCount } from "../../helpers/collection_helpers";
 import { StringNumberDict, WeightName } from "../../types";
 
 

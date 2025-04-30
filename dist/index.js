@@ -301,7 +301,7 @@ class TheAlgorithm {
             const releaseMutex = await this.scoreMutex.acquire();
             try {
                 // Feed scorers' data must be refreshed each time the feed changes
-                this.feedScorers.forEach(scorer => scorer.setFeed(this.feed));
+                this.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(this.feed));
                 await (0, collection_helpers_1.processPromisesBatch)(this.feed, Storage_1.default.getConfig().scoringBatchSize, async (toot) => await scorer_1.default.decorateWithScoreInfo(toot, this.weightedScorers));
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
