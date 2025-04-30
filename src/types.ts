@@ -131,6 +131,11 @@ export type StorableObj = (
     number
 );
 
+export type StorableWithTimestamp = {
+    updatedAt: string;
+    value: StorableObj;
+}
+
 export type TimelineData = {
     homeToots: Toot[],
     otherToots: Toot[],

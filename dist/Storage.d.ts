@@ -20,6 +20,7 @@ export default class Storage {
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(dataDescriptor?: string | StorageKey): Promise<boolean>;
     static secondsSinceLastOpened(): Promise<number | undefined>;
+    static secondsSinceLastUpdated(key: StorageKey): Promise<number | null>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static remove(key: StorageKey): Promise<void>;

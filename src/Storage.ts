@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
-import { ageOfTimestampInSeconds } from "./helpers/time_helpers";
+import { ageInSeconds, ageOfTimestampInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { countValues } from "./helpers/collection_helpers";
@@ -14,6 +14,7 @@ import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
     StorableObj,
+    StorableWithTimestamp,
     StorageKey,
     TrendingLink,
     TrendingStorage,
@@ -134,9 +135,18 @@ export default class Storage {
 
     // Return true if the timeline and user data is stale and should be reloaded
     static async isDataStale(dataDescriptor?: string | StorageKey): Promise<boolean> {
-        const seconds = await this.secondsSinceMostRecentToot();
+        let seconds;
+        let logPrefix = `[isDataStale`;
+
+        if (dataDescriptor) {
+            logPrefix += ` ${dataDescriptor}`;
+            seconds = await this.secondsSinceLastUpdated(dataDescriptor as StorageKey);
+        } else {
+            seconds = await this.secondsSinceMostRecentToot();
+        }
+
+        logPrefix += `]`;
         const numAppOpens = await this.getNumAppOpens();
-        const logPrefix = `[isDataStale${dataDescriptor ? " " + dataDescriptor : ""}]`;
         // const isTenthAppOpen = (await this.getNumAppOpens()) % this.getConfig().reloadFeaturesEveryNthOpen === 0;
 
         if (numAppOpens <= 1) {
@@ -160,21 +170,46 @@ export default class Storage {
         return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
     }
 
+    static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
+        const withTimestamp = await localForage.getItem(await this.buildKey(key));
+
+        if (withTimestamp) {
+            const age = ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
+            console.debug(`[${key}] secondsSinceLastUpdated(): ${age}`);
+            return age;
+        } else {
+            return null;
+        }
+    }
+
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
-        return await localForage.getItem(await this.buildKey(key));
+        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+
+        if (!withTimestamp) {
+            return null;
+        } else if (!withTimestamp.updatedAt) {
+            // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
+            console.warn(`[STORAGE] No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
+            await this.remove(key);
+            return null;
+        }
+
+        return withTimestamp.value;
     }
 
     // Set the value at the given key (with the user ID as a prefix)
     static async set(key: StorageKey, value: StorableObj): Promise<void> {
         const storageKey = await this.buildKey(key);
-        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
-        await localForage.setItem(storageKey, value);
+        const updatedAt = new Date().toISOString();
+        const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
+        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, withTimestamp);
+        await localForage.setItem(storageKey, withTimestamp);
     }
 
     static async remove(key: StorageKey): Promise<void> {
         const storageKey = await this.buildKey(key);
-        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
+        console.log(`[STORAGE] Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 

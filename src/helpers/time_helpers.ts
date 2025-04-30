@@ -2,7 +2,12 @@
  * Helpers for time-related operations
  */
 
-export function ageInSeconds(date: Date): number {
+export function ageInSeconds(date: Date | string): number {
+    if (!date) {
+        return -1;
+    }
+
+    date = typeof date === "string" ? new Date(date) : date;
     return (Date.now() - date.getTime()) / 1000;
 };
 

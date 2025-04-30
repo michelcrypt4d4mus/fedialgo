@@ -129,9 +129,17 @@ class Storage {
     }
     // Return true if the timeline and user data is stale and should be reloaded
     static async isDataStale(dataDescriptor) {
-        const seconds = await this.secondsSinceMostRecentToot();
+        let seconds;
+        let logPrefix = `[isDataStale`;
+        if (dataDescriptor) {
+            logPrefix += ` ${dataDescriptor}`;
+            seconds = await this.secondsSinceLastUpdated(dataDescriptor);
+        }
+        else {
+            seconds = await this.secondsSinceMostRecentToot();
+        }
+        logPrefix += `]`;
         const numAppOpens = await this.getNumAppOpens();
-        const logPrefix = `[isDataStale${dataDescriptor ? " " + dataDescriptor : ""}]`;
         // const isTenthAppOpen = (await this.getNumAppOpens()) % this.getConfig().reloadFeaturesEveryNthOpen === 0;
         if (numAppOpens <= 1) {
             console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} (initial load; data not stale)`);
@@ -155,19 +163,42 @@ class Storage {
         const lastOpened = await this.getLastOpenedTimestamp();
         return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
     }
+    static async secondsSinceLastUpdated(key) {
+        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
+        if (withTimestamp) {
+            const age = (0, time_helpers_1.ageInSeconds)(withTimestamp.updatedAt);
+            console.debug(`[${key}] secondsSinceLastUpdated(): ${age}`);
+            return age;
+        }
+        else {
+            return null;
+        }
+    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
-        return await localforage_1.default.getItem(await this.buildKey(key));
+        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
+        if (!withTimestamp) {
+            return null;
+        }
+        else if (!withTimestamp.updatedAt) {
+            // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
+            console.warn(`[STORAGE] No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
+            await this.remove(key);
+            return null;
+        }
+        return withTimestamp.value;
     }
     // Set the value at the given key (with the user ID as a prefix)
     static async set(key, value) {
         const storageKey = await this.buildKey(key);
-        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, value);
-        await localforage_1.default.setItem(storageKey, value);
+        const updatedAt = new Date().toISOString();
+        const withTimestamp = { updatedAt, value };
+        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, withTimestamp);
+        await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     static async remove(key) {
         const storageKey = await this.buildKey(key);
-        console.debug(`[STORAGE] Removing value at key: ${storageKey}`);
+        console.log(`[STORAGE] Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }
     static async getLastOpenedTimestamp() {

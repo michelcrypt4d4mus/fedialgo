@@ -5,6 +5,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toISOFormat = exports.ageOfTimestampInSeconds = exports.ageInSeconds = void 0;
 function ageInSeconds(date) {
+    if (!date) {
+        return -1;
+    }
+    date = typeof date === "string" ? new Date(date) : date;
     return (Date.now() - date.getTime()) / 1000;
 }
 exports.ageInSeconds = ageInSeconds;
