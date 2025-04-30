@@ -51,10 +51,10 @@ export default abstract class FeatureScorer extends Scorer {
 
     // Return one of each unique trending object sorted by the number of accounts tooting that object.
     // The numToots & numAccounts props for each trending object are set to the max value encountered.
-    static uniquifyTrendingObjs(
+    static uniquifyTrendingObjs<T>(
         trendingObjs: TrendingWithHistory[],
         uniqueKey: (obj: TrendingWithHistory) => string
-    ): TrendingWithHistory[] {
+    ): T[] {
         const urlObjs = trendingObjs.reduce((unique, obj) => {
             const key = uniqueKey(obj).toLowerCase();
 
@@ -68,6 +68,7 @@ export default abstract class FeatureScorer extends Scorer {
             return unique;
         }, {} as Record<string, TrendingWithHistory>);
 
-        return Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+        const sortedObjs = Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+        return sortedObjs as T[];
     }
 };

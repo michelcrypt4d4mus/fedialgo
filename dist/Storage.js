@@ -128,21 +128,25 @@ class Storage {
         };
     }
     // Return true if the timeline and user data is stale and should be reloaded
-    static async isDataStale(dataDescriptor) {
-        let seconds;
-        let logPrefix = `[isDataStale`;
-        if (dataDescriptor) {
-            logPrefix += ` ${dataDescriptor}`;
-            seconds = await this.secondsSinceLastUpdated(dataDescriptor);
-        }
-        else {
-            seconds = await this.secondsSinceMostRecentToot();
-        }
-        logPrefix += `]`;
+    static async isDataStale(key) {
         const numAppOpens = await this.getNumAppOpens();
         // const isTenthAppOpen = (await this.getNumAppOpens()) % this.getConfig().reloadFeaturesEveryNthOpen === 0;
+        let logPrefix = `[isDataStale`;
+        let seconds;
+        if (key) {
+            logPrefix += ` ${key}]`;
+            seconds = await this.secondsSinceLastUpdated(key);
+            if (seconds)
+                console.debug(`${logPrefix} Found updatedAt that's ${seconds} seconds old`);
+        }
+        else {
+            logPrefix += `]`;
+            seconds = await this.secondsSinceMostRecentToot();
+            if (seconds)
+                console.log(`${logPrefix} Using secondsSinceMostRecentToot(): ${seconds} seconds old`);
+        }
         if (numAppOpens <= 1) {
-            console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} (initial load; data not stale)`);
+            console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} so initial load; data not stale (${seconds} seconds)`);
             return false;
         }
         if (!seconds) {
@@ -171,6 +175,7 @@ class Storage {
             return age;
         }
         else {
+            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
             return null;
         }
     }

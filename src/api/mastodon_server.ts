@@ -190,14 +190,15 @@ export default class MastodonServer {
 
             if (storageLinks?.length && !(await Storage.isDataStale(StorageKey.FEDIVERSE_TRENDING_LINKS))) {
                 console.debug(`[fediverseTrendingLinks] using cached trending links:`, storageLinks);
-                return storageLinks as TrendingLink[];
+                return storageLinks;
             } else {
                 const serverLinks = await this.callForAllServers<TrendingLink[]>(s => s.fetchTrendingLinks());
                 console.debug(`[fediverseTrendingLinks] Links from all servers:`, serverLinks);
-                const links = FeatureScorer.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
+                const flatLinks = Object.values(serverLinks).flat();
+                const links = FeatureScorer.uniquifyTrendingObjs<TrendingLink>(flatLinks, link => link.url);
                 console.info(`[fediverseTrendingLinks] Found ${links.length} unique trending links`);
-                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links as TrendingLink[]);
-                return links as TrendingLink[];
+                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, links);
+                return links;
             }
         } finally {
             releaseMutex();
@@ -218,9 +219,9 @@ export default class MastodonServer {
                 const serverTags = await this.callForAllServers<TrendingTag[]>(s => s.fetchTrendingTags());
                 console.debug(`[fediverseTrendingTags] tags from all servers:`, serverTags);
                 const allTags = Object.values(serverTags).flat();
-                const tags = FeatureScorer.uniquifyTrendingObjs(allTags, tag => (tag as TrendingTag).name);
+                const tags = FeatureScorer.uniquifyTrendingObjs<TrendingTag>(allTags, tag => (tag as TrendingTag).name);
                 console.info(`[fediverseTrendingTags] fetched unique tags:`, tags);
-                let returnTags = tags.slice(0, Storage.getConfig().numTrendingTags) as TrendingTag[];
+                let returnTags = tags.slice(0, Storage.getConfig().numTrendingTags);
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, returnTags);
                 return returnTags;
             }

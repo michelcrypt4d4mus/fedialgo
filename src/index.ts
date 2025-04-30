@@ -64,7 +64,7 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    loadingStatus?: string;  // Status message about what is being loaded
+    loadingStatus?: string;  // Status message load activity. When it becomes undefined the load is complete.
     setFeedInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
 
     // Variables with initial values

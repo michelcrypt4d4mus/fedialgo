@@ -6,5 +6,5 @@ export default abstract class FeatureScorer extends Scorer {
     featureGetter(): Promise<StringNumberDict>;
     fetchRequiredData(): Promise<void>;
     static decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void;
-    static uniquifyTrendingObjs(trendingObjs: TrendingWithHistory[], uniqueKey: (obj: TrendingWithHistory) => string): TrendingWithHistory[];
+    static uniquifyTrendingObjs<T>(trendingObjs: TrendingWithHistory[], uniqueKey: (obj: TrendingWithHistory) => string): T[];
 }

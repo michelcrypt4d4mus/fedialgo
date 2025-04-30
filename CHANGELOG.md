@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Store an updatedAt value with each data object in the browser storage
+* Store an `updatedAt` value with each data object in the browser storage
 * Init `TheAlgorithm.loadingStatus` with `"(ready to load)"` during construction so it isn't empty until load is complete
 
 ### v0.20.9

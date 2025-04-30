@@ -84,9 +84,11 @@ class MastoApi {
     ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData() {
-        if (this.userData && !(await Storage_1.default.isDataStale("getUserData()")))
+        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
+        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.BLOCKED_ACCOUNTS);
+        if (this.userData && !isDataStale)
             return this.userData;
-        console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
+        console.debug(`[MastoApi] getUserData() getting blocked users and server side filters...`);
         const responses = await Promise.all([
             this.getFollowedAccounts(),
             this.getFollowedTags(),
@@ -228,11 +230,10 @@ class MastoApi {
                     return true;
                 });
                 await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`Retrieved remote server side filters:`, filters);
+                console.log(`Retrieved remote ${types_1.StorageKey.SERVER_SIDE_FILTERS}:`, filters);
             }
             else {
-                filters = filters;
-                console.debug(`Loaded server side filters from cache:`, filters);
+                console.debug(`Loaded ${types_1.StorageKey.SERVER_SIDE_FILTERS} from cache:`, filters);
             }
             return filters;
         }
@@ -252,8 +253,7 @@ class MastoApi {
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             else {
-                servers = servers;
-                console.log(`Loaded MastodonServersInfo from cache:`, servers);
+                console.log(`Loaded ${types_1.StorageKey.POPULAR_SERVERS} from cache:`, servers);
             }
             return servers;
         }

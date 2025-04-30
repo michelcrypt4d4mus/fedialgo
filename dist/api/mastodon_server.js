@@ -178,7 +178,8 @@ class MastodonServer {
             else {
                 const serverLinks = await this.callForAllServers(s => s.fetchTrendingLinks());
                 console.debug(`[fediverseTrendingLinks] Links from all servers:`, serverLinks);
-                const links = feature_scorer_1.default.uniquifyTrendingObjs(Object.values(serverLinks).flat(), link => link.url);
+                const flatLinks = Object.values(serverLinks).flat();
+                const links = feature_scorer_1.default.uniquifyTrendingObjs(flatLinks, link => link.url);
                 console.info(`[fediverseTrendingLinks] Found ${links.length} unique trending links`);
                 await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS, links);
                 return links;

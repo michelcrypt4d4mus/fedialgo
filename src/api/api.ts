@@ -83,8 +83,10 @@ export class MastoApi {
 
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData(): Promise<UserData> {
-        if (this.userData && !(await Storage.isDataStale("getUserData()"))) return this.userData;
-        console.debug(`[MastoApi] getUserData() fetching blocked users and server side filters...`);
+        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
+        const isDataStale = await Storage.isDataStale(StorageKey.BLOCKED_ACCOUNTS);
+        if (this.userData && !isDataStale) return this.userData;
+        console.debug(`[MastoApi] getUserData() getting blocked users and server side filters...`);
 
         const responses = await Promise.all([
             this.getFollowedAccounts(),
@@ -229,7 +231,7 @@ export class MastoApi {
         const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
 
         try {
-            let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS);
+            let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
 
             if (!filters || (await Storage.isDataStale(StorageKey.SERVER_SIDE_FILTERS))) {
                 filters = await this.api.v2.filters.list();
@@ -243,10 +245,9 @@ export class MastoApi {
                 });
 
                 await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`Retrieved remote server side filters:`, filters);
+                console.log(`Retrieved remote ${StorageKey.SERVER_SIDE_FILTERS}:`, filters);
             } else {
-                filters = filters as mastodon.v2.Filter[];
-                console.debug(`Loaded server side filters from cache:`, filters);
+                console.debug(`Loaded ${StorageKey.SERVER_SIDE_FILTERS} from cache:`, filters);
             }
 
             return filters;
@@ -261,14 +262,13 @@ export class MastoApi {
         const releaseMutex = await this.mutexes[StorageKey.POPULAR_SERVERS].acquire()
 
         try {
-            let servers = await Storage.get(StorageKey.POPULAR_SERVERS);
+            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
 
             if (!servers || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
                 servers = await MastodonServer.mastodonServersInfo();
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
-                servers = servers as MastodonServersInfo;
-                console.log(`Loaded MastodonServersInfo from cache:`, servers);
+                console.log(`Loaded ${StorageKey.POPULAR_SERVERS} from cache:`, servers);
             }
 
             return servers;

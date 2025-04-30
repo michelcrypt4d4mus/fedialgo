@@ -52,7 +52,8 @@ class FeatureScorer extends scorer_1.default {
             }
             return unique;
         }, {});
-        return Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+        const sortedObjs = Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
+        return sortedObjs;
     }
 }
 exports.default = FeatureScorer;

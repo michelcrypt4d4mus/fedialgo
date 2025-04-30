@@ -83,7 +83,7 @@ class TheAlgorithm {
     api;
     user;
     filters;
-    loadingStatus; // Status message about what is being loaded
+    loadingStatus; // Status message load activity. When it becomes undefined the load is complete.
     setFeedInApp; // Optional callback to set the feed in the app using this package
     // Variables with initial values
     feed = [];
