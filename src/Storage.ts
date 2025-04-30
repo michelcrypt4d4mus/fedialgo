@@ -106,7 +106,7 @@ export default class Storage {
         };
     }
 
-    // Return true if the timeline and user data is stale and should be reloaded
+    // Return true if the data stored at 'key' is stale and should be refetched
     static async isDataStale(key: StorageKey): Promise<boolean> {
         const staleDataConfig = Storage.getConfig().staleDataSeconds;
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
