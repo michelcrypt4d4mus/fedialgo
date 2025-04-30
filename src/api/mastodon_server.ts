@@ -225,16 +225,17 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonServersInfo(): Promise<MastodonServersInfo> {
         const releaseMutex = await TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS].acquire()
+        const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
 
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
 
             if (!servers || Object.keys(servers).length == 0 || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
                 servers = await this.fetchMastodonServersInfo();
-                console.debug(`[${StorageKey.POPULAR_SERVERS}] retrieved mastodon server infos`, servers);
+                console.log(`${logPrefix} retrieved mastodon server infos`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             } else {
-                console.log(`[${StorageKey.POPULAR_SERVERS}] Loaded ${Object.keys(servers).length} from cache...`);
+                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
             }
 
             return servers;

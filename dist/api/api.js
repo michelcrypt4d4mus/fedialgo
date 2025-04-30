@@ -117,6 +117,7 @@ class MastoApi {
     // Get toots for the top trending tags via the search endpoint.
     async getRecentTootsForTrendingTags() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
+        const logPrefix = `[API ${types_1.StorageKey.TRENDING_TAG_TOOTS}]`;
         try {
             let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
             if (!trendingTagToots?.length || (await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
@@ -126,10 +127,10 @@ class MastoApi {
                 toots.sort((a, b) => b.popularity() - a.popularity());
                 trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
                 await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`Retrieved ${trendingTagToots.length} ${types_1.StorageKey.TRENDING_TAG_TOOTS}`, trendingTagToots);
+                console.log(`${logPrefix} Retrieved ${trendingTagToots.length} toots`, trendingTagToots);
             }
             else {
-                console.log(`Loaded ${trendingTagToots.length} ${types_1.StorageKey.TRENDING_TAG_TOOTS} from cache`);
+                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
             }
             return trendingTagToots;
         }
@@ -185,8 +186,8 @@ class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
-        console.debug(`getServerSideFilters() called...`);
         const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
+        const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
             if (!filters || (await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
@@ -201,10 +202,10 @@ class MastoApi {
                     return true;
                 });
                 await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`Retrieved remote ${types_1.StorageKey.SERVER_SIDE_FILTERS}:`, filters);
+                console.log(`${logPrefix} Retrieved records:`, filters);
             }
             else {
-                console.debug(`Loaded ${types_1.StorageKey.SERVER_SIDE_FILTERS} from cache:`, filters);
+                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
             }
             return filters;
         }
@@ -232,6 +233,7 @@ class MastoApi {
             mutedAccounts: account_1.default.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };
+        console.debug(`[MastoApi] Constructed UserData object:`, this.userData);
         return this.userData;
     }
     ;
@@ -250,26 +252,25 @@ class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot) {
-        console.debug(`resolveToot() called for`, toot);
         const tootURI = toot.realURI();
         const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
+        const logPrefix = `[resolveToot()]`;
+        console.debug(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain)
             return toot;
         const lookupResult = await this.api.v2.search.fetch({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            const msg = `resolveToot('${tootURI}') got bad result:`;
-            console.warn(msg, lookupResult);
-            throw new Error(`${msg}\n${JSON.stringify(lookupResult)}`);
+            (0, string_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`);
         }
         const resolvedStatus = lookupResult.statuses[0];
-        console.debug(`resolveToot('${tootURI}') found resolvedStatus:`, resolvedStatus);
+        console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
         return new toot_1.default(resolvedStatus);
     }
     ;
-    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    //   - searchString: the string to search for
-    //   - maxRecords: the maximum number of records to fetch
-    //   - logMsg: optional description of why the search is being run (for logging only)
+    // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
+    //   - searchString:  the string to search for
+    //   - maxRecords:    the maximum number of records to fetch
+    //   - logMsg:        optional description of why the search is being run (for logging only)
     async searchForToots(searchString, maxRecords, logMsg) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const query = { limit: maxRecords, q: searchString, type: exports.STATUSES };

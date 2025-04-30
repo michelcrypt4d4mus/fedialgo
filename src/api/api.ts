@@ -12,7 +12,7 @@ import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { countValues } from "../helpers/collection_helpers";
-import { extractDomain } from '../helpers/string_helpers';
+import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { toISOFormat } from "../helpers/time_helpers";
@@ -123,6 +123,7 @@ export class MastoApi {
     // Get toots for the top trending tags via the search endpoint.
     async getRecentTootsForTrendingTags(): Promise<Toot[]> {
         const releaseMutex = await this.mutexes[StorageKey.TRENDING_TAG_TOOTS].acquire()
+        const logPrefix = `[API ${StorageKey.TRENDING_TAG_TOOTS}]`;
 
         try {
             let trendingTagToots = await Storage.getToots(StorageKey.TRENDING_TAG_TOOTS);
@@ -134,9 +135,9 @@ export class MastoApi {
                 toots.sort((a, b) => b.popularity() - a.popularity());
                 trendingTagToots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
                 await Storage.storeToots(StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`Retrieved ${trendingTagToots.length} ${StorageKey.TRENDING_TAG_TOOTS}`, trendingTagToots);
+                console.log(`${logPrefix} Retrieved ${trendingTagToots.length} toots`, trendingTagToots);
             } else {
-                console.log(`Loaded ${trendingTagToots.length} ${StorageKey.TRENDING_TAG_TOOTS} from cache`);
+                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
             }
 
             return trendingTagToots;
@@ -198,8 +199,8 @@ export class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
-        console.debug(`getServerSideFilters() called...`);
         const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
+        const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
 
         try {
             let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
@@ -216,9 +217,9 @@ export class MastoApi {
                 });
 
                 await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`Retrieved remote ${StorageKey.SERVER_SIDE_FILTERS}:`, filters);
+                console.log(`${logPrefix} Retrieved records:`, filters);
             } else {
-                console.debug(`Loaded ${StorageKey.SERVER_SIDE_FILTERS} from cache:`, filters);
+                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
             }
 
             return filters;
@@ -248,6 +249,7 @@ export class MastoApi {
             serverSideFilters: responses[3],
         };
 
+        console.debug(`[MastoApi] Constructed UserData object:`, this.userData);
         return this.userData;
     };
 
@@ -268,27 +270,26 @@ export class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot: Toot): Promise<Toot> {
-        console.debug(`resolveToot() called for`, toot);
         const tootURI = toot.realURI();
         const urlDomain = extractDomain(tootURI);
+        const logPrefix = `[resolveToot()]`;
+        console.debug(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain) return toot;
         const lookupResult = await this.api.v2.search.fetch({q: tootURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
-            const msg = `resolveToot('${tootURI}') got bad result:`;
-            console.warn(msg, lookupResult);
-            throw new Error(`${msg}\n${JSON.stringify(lookupResult)}`);
+            logAndThrowError(`${logPrefix} got bad result for '${tootURI}'`);
         }
 
         const resolvedStatus = lookupResult.statuses[0];
-        console.debug(`resolveToot('${tootURI}') found resolvedStatus:`, resolvedStatus);
-        return new Toot(resolvedStatus as Toot);
+        console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
+        return new Toot(resolvedStatus as mastodon.v1.Status);
     };
 
-    // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
-    //   - searchString: the string to search for
-    //   - maxRecords: the maximum number of records to fetch
-    //   - logMsg: optional description of why the search is being run (for logging only)
+    // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
+    //   - searchString:  the string to search for
+    //   - maxRecords:    the maximum number of records to fetch
+    //   - logMsg:        optional description of why the search is being run (for logging only)
     async searchForToots(searchString: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchString, type: STATUSES};

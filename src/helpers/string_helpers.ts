@@ -116,7 +116,13 @@ export function logTootRemoval(prefix: string, tootType: string, numRemoved: num
 
 
 // Log an error message and throw an Error
-export function logAndThrowError(message: string): never {
-    console.error(message);
+export function logAndThrowError(message: string, obj?: any): never {
+    if (obj) {
+        console.error(message, obj);
+        message += `\n${JSON.stringify(obj, null, 4)}`;
+    } else {
+        console.error(message);
+    }
+
     throw new Error(message);
 };

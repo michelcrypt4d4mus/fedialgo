@@ -101,8 +101,14 @@ function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
 exports.logTootRemoval = logTootRemoval;
 ;
 // Log an error message and throw an Error
-function logAndThrowError(message) {
-    console.error(message);
+function logAndThrowError(message, obj) {
+    if (obj) {
+        console.error(message, obj);
+        message += `\n${JSON.stringify(obj, null, 4)}`;
+    }
+    else {
+        console.error(message);
+    }
     throw new Error(message);
 }
 exports.logAndThrowError = logAndThrowError;
