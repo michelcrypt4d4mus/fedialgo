@@ -27,19 +27,30 @@ import {
 export default class Storage {
     static config: Config = Object.assign({}, DEFAULT_CONFIG);
 
+    // Get the value at the given key (with the user ID as a prefix)
+    static async get(key: StorageKey): Promise<StorableObj | null> {
+        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+
+        if (!withTimestamp) {
+            return null;
+        } else if (!withTimestamp.updatedAt) {
+            // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
+            console.warn(`[STORAGE] No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
+            await this.remove(key);
+            return null;
+        }
+
+        return withTimestamp.value;
+    }
+
     // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
     static getConfig(): Config {
         return this.config;
     }
 
-    // Return the user's stored timeline weightings
-    static async getWeightings(): Promise<Weights> {
-        const weightings = await this.get(StorageKey.WEIGHTS);
-        return (weightings ?? {}) as Weights;
-    }
-
-    static async setWeightings(userWeightings: Weights): Promise<void> {
-        await this.set(StorageKey.WEIGHTS, userWeightings);
+    // Get the timeline toots
+    static async getFeed(): Promise<Toot[] | null> {
+        return await this.getToots(StorageKey.TIMELINE);
     }
 
     // Get the user's saved timeline filter settings
@@ -56,14 +67,25 @@ export default class Storage {
         return filters;
     }
 
-    // Serialize the FeedFilterSettings object
-    static async setFilters(filters: FeedFilterSettings): Promise<void> {
-        const filterSettings = {
-            feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
-            numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
-        } as FeedFilterSettingsSerialized;
+    // Get the user identity from storage
+    static async getIdentity(): Promise<Account | null> {
+        const user = await localForage.getItem(StorageKey.USER);
+        return user ? new Account(user as mastodon.v1.Account) : null;
+    }
 
-        await this.set(StorageKey.FILTERS, filterSettings);
+    // Generic method for deserializing stored toots
+    static async getToots(key: StorageKey): Promise<Toot[] | null> {
+        const toots = await this.get(key) as SerializableToot[];
+        return toots ? toots.map(t => new Toot(t)) : null;
+    }
+
+    // Get trending tags, toots, and links as a single TrendingStorage object
+    static async getTrending(): Promise<TrendingStorage> {
+        return {
+            links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],
+            tags: ((await this.get(StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []) as TrendingTag[],
+            toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
+        };
     }
 
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
@@ -81,55 +103,6 @@ export default class Storage {
             followedTags: countValues<mastodon.v1.Tag>(followedTags ?? [], tag => tag.name),
             mutedAccounts: Account.buildAccountNames(allMutedAccounts),
             serverSideFilters: serverSideFilters ?? {},
-        };
-    }
-
-    static async logAppOpen(): Promise<void> {
-        let numAppOpens = (await this.getNumAppOpens()) + 1;
-        await this.set(StorageKey.OPENINGS, numAppOpens);
-        await this.set(StorageKey.LAST_OPENED, new Date().getTime());
-    }
-
-    // Get the user identity from storage
-    static async getIdentity(): Promise<Account | null> {
-        const user = await localForage.getItem(StorageKey.USER);
-        return user ? new Account(user as mastodon.v1.Account) : null;
-    }
-
-    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
-    static async setIdentity(user: Account) {
-        console.debug(`Setting fedialgo user identity to:`, user);
-        await localForage.setItem(StorageKey.USER, user.serialize());
-    }
-
-    // Get the timeline toots
-    static async getFeed(): Promise<Toot[] | null> {
-        return await this.getToots(StorageKey.TIMELINE);
-    }
-
-    // Store the current timeline toots
-    static async setFeed(timeline: Toot[]) {
-        await this.storeToots(StorageKey.TIMELINE, timeline);
-    }
-
-    // Generic method for deserializing stored toots
-    static async getToots(key: StorageKey): Promise<Toot[] | null> {
-        const toots = await this.get(key) as SerializableToot[];
-        return toots ? toots.map(t => new Toot(t)) : null;
-    }
-
-    // Generic method for serializing toots to storage
-    static async storeToots(key: StorageKey, toots: Toot[]) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
-    }
-
-    // Get trending tags, toots, and links as a single TrendingStorage object
-    static async getTrending(): Promise<TrendingStorage> {
-        return {
-            links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],
-            tags: ((await this.get(StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []) as TrendingTag[],
-            toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
         };
     }
 
@@ -161,20 +134,23 @@ export default class Storage {
         }
     }
 
-    // Get the value at the given key (with the user ID as a prefix)
-    static async get(key: StorageKey): Promise<StorableObj | null> {
-        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+    static async logAppOpen(): Promise<void> {
+        let numAppOpens = (await this.getNumAppOpens()) + 1;
+        await this.set(StorageKey.OPENINGS, numAppOpens);
+        await this.set(StorageKey.LAST_OPENED, new Date().getTime());
+    }
 
-        if (!withTimestamp) {
-            return null;
-        } else if (!withTimestamp.updatedAt) {
-            // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
-            console.warn(`[STORAGE] No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
-            await this.remove(key);
-            return null;
-        }
+    // Return the user's stored timeline weightings
+    static async getWeightings(): Promise<Weights> {
+        const weightings = await this.get(StorageKey.WEIGHTS);
+        return (weightings ?? {}) as Weights;
+    }
 
-        return withTimestamp.value;
+    // Delete the value at the given key (with the user ID as a prefix)
+    static async remove(key: StorageKey): Promise<void> {
+        const storageKey = await this.buildKey(key);
+        console.log(`[STORAGE] Removing value at key: ${storageKey}`);
+        await localForage.removeItem(storageKey);
     }
 
     // Set the value at the given key (with the user ID as a prefix)
@@ -186,12 +162,54 @@ export default class Storage {
         await localForage.setItem(storageKey, withTimestamp);
     }
 
-    static async remove(key: StorageKey): Promise<void> {
-        const storageKey = await this.buildKey(key);
-        console.log(`[STORAGE] Removing value at key: ${storageKey}`);
-        await localForage.removeItem(storageKey);
+    // Store the current timeline toots
+    static async setFeed(timeline: Toot[]) {
+        await this.storeToots(StorageKey.TIMELINE, timeline);
     }
 
+    // Serialize the FeedFilterSettings object
+    static async setFilters(filters: FeedFilterSettings): Promise<void> {
+        const filterSettings = {
+            feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
+        } as FeedFilterSettingsSerialized;
+
+        await this.set(StorageKey.FILTERS, filterSettings);
+    }
+
+    // Store the fedialgo user's Account object
+    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
+    static async setIdentity(user: Account) {
+        console.debug(`Setting fedialgo user identity to:`, user);
+        await localForage.setItem(StorageKey.USER, user.serialize());
+    }
+
+    static async setWeightings(userWeightings: Weights): Promise<void> {
+        await this.set(StorageKey.WEIGHTS, userWeightings);
+    }
+
+    // Generic method for serializing toots to storage
+    static async storeToots(key: StorageKey, toots: Toot[]) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
+    }
+
+    //////////////////////////////
+    //     Private methods      //
+    //////////////////////////////
+
+    // Build a string that prepends the user ID to the key
+    private static async buildKey(key: StorageKey): Promise<string> {
+        const user = await this.getIdentity();
+
+        if (user) {
+            return `${user.id}_${key}`;
+        } else {
+            throw new Error("No user identity found");
+        }
+    }
+
+    // Get the timestamp the app was last opened // TODO: currently unused
     private static async getLastOpenedTimestamp(): Promise<number | undefined> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
@@ -205,6 +223,7 @@ export default class Storage {
         return lastOpenedInt;
     }
 
+    // Get the number of times the app has been opened by this user
     private static async getNumAppOpens(): Promise<number> {
         const numAppOpens = await this.get(StorageKey.OPENINGS) as number;
         return numAppOpens || 0;
@@ -228,8 +247,7 @@ export default class Storage {
         }
     }
 
-    // Return the number of seconds since the most recent toot in the stored timeline
-    // TODO: unused
+    // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     private static async secondsSinceMostRecentToot(): Promise<number | null> {
         const timelineToots = await this.getToots(StorageKey.TIMELINE);
         if (!timelineToots) return null;
@@ -240,16 +258,6 @@ export default class Storage {
         } else {
             console.debug(`No most recent toot found`);
             return null;
-        }
-    }
-
-    private static async buildKey(key: StorageKey): Promise<string> {
-        const user = await this.getIdentity();
-
-        if (user) {
-            return `${user.id}_${key}`;
-        } else {
-            throw new Error("No user identity found");
         }
     }
 };
