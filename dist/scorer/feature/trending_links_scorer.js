@@ -16,8 +16,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
         super(types_1.WeightName.TRENDING_LINKS);
     }
     async featureGetter() {
-        const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
-        return trendingLinks.reduce((accountsPostingLinkCounts, link) => {
+        return (await mastodon_server_1.default.fediverseTrendingLinks()).reduce((accountsPostingLinkCounts, link) => {
             accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
             return accountsPostingLinkCounts;
         }, {});
@@ -25,7 +24,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     async _score(toot) {
         toot = toot.reblog || toot;
         if (!toot.trendingLinks) {
-            console.warn(`[${this.constructor.name}] No trendingLinks found for toot:`, toot);
+            console.warn(`${this.logPrefix()} No trendingLinks found for toot:`, toot);
             return 0;
         }
         return (0, collection_helpers_1.sumArray)(toot.trendingLinks.map(link => this.scoreData[link.url] || 0));

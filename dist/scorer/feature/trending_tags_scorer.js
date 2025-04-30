@@ -9,17 +9,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const Storage_1 = __importDefault(require("../../Storage"));
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
-const EXCESSIVE_TAGS_PENALTY = 0.1;
 class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.TRENDING_TAGS);
     }
     async _score(toot) {
-        let score = (toot.reblog || toot).trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+        const tagScores = (toot.reblog || toot).trendingTags.map(tag => tag.numAccounts || 0);
+        let score = (0, collection_helpers_1.sumArray)(tagScores);
+        // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= Storage_1.default.getConfig().excessiveTags) {
-            console.info(`[${this.constructor.name}] Penalizing excessive tags (${toot.tags.length}) in:`, toot);
-            score *= EXCESSIVE_TAGS_PENALTY;
+            console.info(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in:`, toot);
+            score *= Storage_1.default.getConfig().excessiveTagsPenalty;
         }
         return score;
     }

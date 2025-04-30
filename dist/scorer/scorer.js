@@ -30,10 +30,16 @@ class Scorer {
             scorer: this,
         };
     }
+    // This is the public API for scoring a toot
     async score(toot) {
         this.checkIsReady();
         return await this._score(toot);
     }
+    // Logging helper
+    logPrefix() {
+        return `[${this.constructor.name}]`;
+    }
+    // Throw an error if the scorer is not ready to score
     checkIsReady() {
         if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;

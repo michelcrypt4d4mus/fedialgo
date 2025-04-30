@@ -30,6 +30,7 @@ exports.DEFAULT_CONFIG = {
     timeoutMS: 5000,
     // Trending tags
     excessiveTags: 25,
+    excessiveTagsPenalty: 0.1,
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 20,
     numTrendingLinksPerServer: 20,

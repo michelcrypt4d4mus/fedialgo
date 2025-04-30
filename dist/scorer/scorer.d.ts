@@ -10,6 +10,7 @@ export default abstract class Scorer {
     getInfo(): ScorerInfo;
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;
+    protected logPrefix(): string;
     private checkIsReady;
     static decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void>;
     private static sumScores;

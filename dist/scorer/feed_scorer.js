@@ -13,7 +13,7 @@ class FeedScorer extends scorer_1.default {
     // Take an array of Toots and extract the scoreData needed to score a toot
     extractScoreDataFromFeed(feed) {
         this.scoreData = this.feedExtractor(feed);
-        console.debug(`[${this.constructor.name}] feedExtractor() scoreData:`, this.scoreData);
+        console.debug(`${this.logPrefix()} feedExtractor() scoreData:`, this.scoreData);
         this.isReady = true;
     }
 }
