@@ -30,7 +30,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
+import { GIFV, VIDEO_TYPES, extractDomain, logTootRemoval } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { processPromisesBatch } from './helpers/collection_helpers';
@@ -185,8 +185,8 @@ class TheAlgorithm {
 
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
-        this.trendingData = await MastodonServer.getTrendingData();
         this.mastodonServers = await MastodonServer.getMastodonServersInfo();
+        this.trendingData = await MastodonServer.getTrendingData();
         // Filter out dupe/invalid toots, build filters
         this.feed = this.cleanupFeed(retrievedToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);
@@ -235,8 +235,7 @@ class TheAlgorithm {
     // Remove invalid and duplicate toots
     private cleanupFeed(toots: Toot[]): Toot[] {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
-        const numRemoved = toots.length - cleanNewToots.length;
-        if (numRemoved > 0) console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
+        logTootRemoval("cleanupFeed()", "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
         return Toot.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
     }
 

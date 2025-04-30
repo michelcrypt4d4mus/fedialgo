@@ -20,6 +20,7 @@ import {
     htmlToText,
     isImage,
     isVideo,
+    logTootRemoval,
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
@@ -496,7 +497,7 @@ export default class Toot implements TootObj {
 
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
-        const prefix = logLabel ? `[${logLabel}] ` : '';
+        const logPrefix = logLabel ? `[${logLabel}]` : '[dedupeToots]';
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can
@@ -524,9 +525,8 @@ export default class Toot implements TootObj {
             });
         });
 
-        const deduped: Toot[] = Object.values(tootsByURI).map(toots => toots[0]);
-        const logMsg = `Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}`;
-        console.log(`${prefix}${logMsg}:`, deduped);
+        const deduped = Object.values(tootsByURI).map(toots => toots[0]);
+        logTootRemoval(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     };
 

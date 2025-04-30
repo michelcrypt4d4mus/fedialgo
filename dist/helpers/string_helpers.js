@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.DEFAULT_FONT_SIZE = void 0;
+exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -86,4 +86,10 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
+function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
+    if (numRemoved == 0)
+        return;
+    console.log(`${prefix} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+}
+exports.logTootRemoval = logTootRemoval;
 //# sourceMappingURL=string_helpers.js.map

@@ -98,3 +98,9 @@ export function createRandomString(length: number): string {
 
     return result;
 };
+
+
+export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
+    if (numRemoved == 0) return;
+    console.log(`${prefix} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+}

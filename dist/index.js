@@ -190,8 +190,8 @@ class TheAlgorithm {
         this.logTootCounts(retrievedToots, newHomeToots);
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
-        this.trendingData = await mastodon_server_1.default.getTrendingData();
         this.mastodonServers = await mastodon_server_1.default.getMastodonServersInfo();
+        this.trendingData = await mastodon_server_1.default.getTrendingData();
         // Filter out dupe/invalid toots, build filters
         this.feed = this.cleanupFeed(retrievedToots);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, userData);
@@ -232,9 +232,7 @@ class TheAlgorithm {
     // Remove invalid and duplicate toots
     cleanupFeed(toots) {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
-        const numRemoved = toots.length - cleanNewToots.length;
-        if (numRemoved > 0)
-            console.log(`Removed ${numRemoved} invalid toots leaving ${cleanNewToots.length}`);
+        (0, string_helpers_1.logTootRemoval)("cleanupFeed()", "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
         return toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], "getFeed");
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.

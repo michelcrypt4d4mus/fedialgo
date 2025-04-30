@@ -408,7 +408,7 @@ class Toot {
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
-        const prefix = logLabel ? `[${logLabel}] ` : '';
+        const logPrefix = logLabel ? `[${logLabel}]` : '[dedupeToots]';
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
@@ -433,8 +433,7 @@ class Toot {
             });
         });
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
-        const logMsg = `Removed ${toots.length - deduped.length} duplicate toots leaving ${deduped.length}`;
-        console.log(`${prefix}${logMsg}:`, deduped);
+        (0, string_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     }
     ;
