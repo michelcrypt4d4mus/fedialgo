@@ -113,7 +113,7 @@ class Storage {
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
         const numAppOpens = await this.getNumAppOpens();
         const logPrefix = `[isDataStale ${key}]`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0)}`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0)?.toLocaleString()}`;
         secondsLogMsg += `, staleAfterSeconds: ${staleAfterSeconds.toLocaleString()}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
         if (numAppOpens <= 1) {
