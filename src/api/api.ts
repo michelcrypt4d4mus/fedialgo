@@ -11,7 +11,7 @@ import Storage from "../Storage";
 import Toot, { earliestTootedAt } from './objects/toot';
 import { countValues } from "../helpers/collection_helpers";
 import { extractDomain } from '../helpers/string_helpers';
-import { MastodonServersInfo, StorableObj, StorageKey, UserData, WeightName} from "../types";
+import { MastodonServersInfo, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { toISOFormat } from "../helpers/time_helpers";
 
@@ -135,6 +135,31 @@ export class MastoApi {
         const toots = await Toot.buildToots(statuses);
         console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${toISOFormat(earliestTootedAt(toots))}'):`, toots);
         return toots;
+    };
+
+    // Get toots for the top trending tags via the search endpoint.
+    async fetchRecentTootsForTrendingTags(): Promise<Toot[]> {
+        const releaseMutex = await this.mutexes[StorageKey.TRENDING_TAG_TOOTS].acquire()
+
+        try {
+            let trendingTagToots = await Storage.getToots(StorageKey.TRENDING_TAG_TOOTS);
+
+            if (!trendingTagToots.length || (await Storage.isDataStale(StorageKey.TRENDING_TAG_TOOTS))) {
+                const trendingTags = await MastodonServer.fediverseTrendingTags();
+                const tootTags: Toot[][] = await Promise.all(trendingTags.map(this.getTootsForTag));
+                const toots = Toot.dedupeToots(tootTags.flat(), StorageKey.TRENDING_TAG_TOOTS);
+                toots.sort((a, b) => b.popularity() - a.popularity());
+                trendingTagToots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
+                await Storage.storeToots(StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
+                console.log(`Retrieved ${trendingTagToots.length} ${StorageKey.TRENDING_TAG_TOOTS}`, trendingTagToots);
+            } else {
+                console.log(`Loaded ${trendingTagToots.length} ${StorageKey.TRENDING_TAG_TOOTS} from cache`);
+            }
+
+            return trendingTagToots;
+        } finally {
+            releaseMutex();
+        }
     };
 
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
@@ -356,6 +381,14 @@ export class MastoApi {
         }
 
         return results;
+    };
+
+    // Get latest toots for a given tag and populate trendingToots property
+    // TODO: there's an endpoint for getting recent tags but this is using the search endpoint.
+    // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
+    private async getTootsForTag(tag: TrendingTag): Promise<Toot[]> {
+        const numToots = Storage.getConfig().numTootsPerTrendingTag;
+        return await MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
     };
 
     // Re-raise access revoked errors so they can trigger a logout() call

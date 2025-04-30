@@ -2,7 +2,7 @@
  * Centralized location for non-user configurable settings.
  */
 import { ScorerDict, StorageKey, WeightName } from "./types";
-import { SECONDS_IN_HOUR } from "./helpers/time_helpers";
+import { SECONDS_IN_HOUR, SECONDS_IN_MINUTE } from "./helpers/time_helpers";
 
 
 type StaleDataConfig = {
@@ -78,6 +78,7 @@ export const DEFAULT_CONFIG: Config = {
         [StorageKey.RECENT_USER_TOOTS]:        2 * SECONDS_IN_HOUR,
         [StorageKey.POPULAR_SERVERS]:         24 * SECONDS_IN_HOUR,
         [StorageKey.SERVER_SIDE_FILTERS]:     24 * SECONDS_IN_HOUR,
+        [StorageKey.TRENDING_TAG_TOOTS]:    15 * SECONDS_IN_MINUTE,
     },
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 

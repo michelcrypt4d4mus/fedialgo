@@ -46,7 +46,7 @@ var StorageKey;
     StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     StorageKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
     StorageKey["TIMELINE"] = "Timeline";
-    StorageKey["TRENDING"] = "Trending";
+    StorageKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
     StorageKey["USER"] = "FedialgoUser";
     StorageKey["WEIGHTS"] = "Weights";
 })(StorageKey || (exports.StorageKey = StorageKey = {}));

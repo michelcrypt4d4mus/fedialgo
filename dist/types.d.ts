@@ -43,7 +43,7 @@ export declare enum StorageKey {
     RECENT_USER_TOOTS = "RecentUserToots",
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE = "Timeline",
-    TRENDING = "Trending",
+    TRENDING_TAG_TOOTS = "TrendingTagToots",
     USER = "FedialgoUser",
     WEIGHTS = "Weights"
 }

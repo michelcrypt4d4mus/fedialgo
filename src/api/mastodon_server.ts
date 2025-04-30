@@ -7,7 +7,6 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
-import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
@@ -30,7 +29,6 @@ import {
     TrendingLink,
     TrendingStorage,
     TrendingTag,
-    TrendingWithHistory
 } from "../types";
 
 export enum FediverseTrendingType {

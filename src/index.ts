@@ -30,7 +30,6 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { fetchRecentTootsForTrendingTags } from './feeds/trending_tags';
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -170,7 +169,7 @@ class TheAlgorithm {
             // TODO: should we really make the user wait for the initial load to get all trending toots?
             dataFetches = dataFetches.concat([
                 MastodonServer.fediverseTrendingToots(),
-                fetchRecentTootsForTrendingTags(),
+                MastoApi.instance.fetchRecentTootsForTrendingTags(),
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         } else {

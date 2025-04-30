@@ -63,7 +63,6 @@ const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const feed_filters_1 = require("./filters/feed_filters");
 const weight_presets_1 = require("./scorer/weight_presets");
-const trending_tags_1 = require("./feeds/trending_tags");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
@@ -176,7 +175,7 @@ class TheAlgorithm {
             // TODO: should we really make the user wait for the initial load to get all trending toots?
             dataFetches = dataFetches.concat([
                 mastodon_server_1.default.fediverseTrendingToots(),
-                (0, trending_tags_1.fetchRecentTootsForTrendingTags)(),
+                api_1.MastoApi.instance.fetchRecentTootsForTrendingTags(),
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }

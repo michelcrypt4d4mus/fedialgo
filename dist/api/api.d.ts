@@ -20,6 +20,7 @@ export declare class MastoApi {
     private constructor();
     getUserData(): Promise<UserData>;
     fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
+    fetchRecentTootsForTrendingTags(): Promise<Toot[]>;
     searchForToots(searchQuery: string, limit?: number, logMsg?: string): Promise<Toot[]>;
     getUserRecentToots(): Promise<Toot[]>;
     getFollowedAccounts(): Promise<Account[]>;
@@ -33,6 +34,7 @@ export declare class MastoApi {
     getTopServerDomains(): Promise<string[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     private fetchData;
+    private getTootsForTag;
     private throwIfAccessTokenRevoked;
     static buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams;
     static v1Url: (path: string) => string;

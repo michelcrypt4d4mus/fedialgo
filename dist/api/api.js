@@ -132,6 +132,30 @@ class MastoApi {
         return toots;
     }
     ;
+    // Get toots for the top trending tags via the search endpoint.
+    async fetchRecentTootsForTrendingTags() {
+        const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
+        try {
+            let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
+            if (!trendingTagToots.length || (await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
+                const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+                const tootTags = await Promise.all(trendingTags.map(this.getTootsForTag));
+                const toots = toot_1.default.dedupeToots(tootTags.flat(), types_1.StorageKey.TRENDING_TAG_TOOTS);
+                toots.sort((a, b) => b.popularity() - a.popularity());
+                trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
+                await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
+                console.log(`Retrieved ${trendingTagToots.length} ${types_1.StorageKey.TRENDING_TAG_TOOTS}`, trendingTagToots);
+            }
+            else {
+                console.log(`Loaded ${trendingTagToots.length} ${types_1.StorageKey.TRENDING_TAG_TOOTS} from cache`);
+            }
+            return trendingTagToots;
+        }
+        finally {
+            releaseMutex();
+        }
+    }
+    ;
     // the search API can be used to search for toots, profiles, or hashtags. this is for toots.
     async searchForToots(searchQuery, limit, logMsg) {
         limit = limit || Storage_1.default.getConfig().defaultRecordsPerPage;
@@ -333,6 +357,14 @@ class MastoApi {
             releaseFetchMutex();
         }
         return results;
+    }
+    ;
+    // Get latest toots for a given tag and populate trendingToots property
+    // TODO: there's an endpoint for getting recent tags but this is using the search endpoint.
+    // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
+    async getTootsForTag(tag) {
+        const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
+        return await MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
     }
     ;
     // Re-raise access revoked errors so they can trigger a logout() call

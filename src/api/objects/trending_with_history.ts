@@ -1,5 +1,24 @@
 /*
  * Methods for dealing with trending link and tag objects and the history data they come with.
+ *
+ * Example mastodon.v1.TrendLink:
+ *   {
+ *       "name": "southkorea",
+ *       "url": "https://journa.host/tags/southkorea",
+ *       "history": [
+ *           {
+ *               "day": "1733184000",
+ *               "accounts": "125",
+ *               "uses": "374"
+ *           },
+ *           {
+ *               "day": "1733097600",
+ *               "accounts": "4",
+ *               "uses": "146"
+ *           },
+ *           <...snip, usually 7 days of info...>
+ *       ]
+ *   }
  */
 import { mastodon } from "masto";
 
