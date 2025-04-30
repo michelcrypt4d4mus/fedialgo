@@ -22,7 +22,7 @@ export default abstract class FeatureScorer extends Scorer {
         return {};
     }
 
-    async fetchRequiredData(): Promise<Toot[]> {
+    async fetchRequiredData(): Promise<void> {
         try {
             this.scoreData = await this.featureGetter();
         } catch (e) {
@@ -32,7 +32,6 @@ export default abstract class FeatureScorer extends Scorer {
 
         console.debug(`[${this.constructor.name}] featureGetter() returned:`, this.scoreData);
         this.isReady = true;
-        return [];  // this is a hack so we can safely use Promise.all().flat() to pull startup data
     }
 
     // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'

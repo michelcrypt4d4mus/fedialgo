@@ -7,11 +7,12 @@ exports.TYPE_FILTERS = exports.TypeFilterName = exports.PropertyName = void 0;
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language).
+ * (e.g. language, hashtag, type of toot).
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
 var PropertyName;
 (function (PropertyName) {
@@ -78,7 +79,6 @@ const TOOT_MATCHERS = {
         return validValues.includes(toot.account.webfingerURI); // TODO maybe doesn't handle reblogs correctly
     },
 };
-const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 class PropertyFilter extends toot_filter_1.default {
     title;
     optionInfo;

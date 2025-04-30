@@ -364,7 +364,6 @@ export default class Toot implements TootObj {
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[]): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-
         const toot = this.reblog || this;
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 

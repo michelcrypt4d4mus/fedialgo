@@ -1,7 +1,7 @@
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language).
+ * (e.g. language, hashtag, type of toot).
  */
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
@@ -13,6 +13,8 @@ type TypeFilter = (toot: Toot) => boolean;
 type TypeFilters = Record<TypeFilterName, TypeFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
 type TootMatchers = Record<PropertyName, TootMatcher>;
+
+const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 // This is the order the filters will appear in the UI in the demo app
 export enum PropertyName {
@@ -62,6 +64,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.trendingRank,
 };
 
+
 const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.APP]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.application?.name);
@@ -84,8 +87,6 @@ const TOOT_MATCHERS: TootMatchers = {
         return validValues.includes(toot.account.webfingerURI);  // TODO maybe doesn't handle reblogs correctly
     },
 };
-
-const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 
 export default class PropertyFilter extends TootFilter {
