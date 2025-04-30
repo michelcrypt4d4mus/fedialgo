@@ -30,6 +30,13 @@ export enum FediverseTrendingType {
     TAGS = "tags",
 };
 
+interface FetchTrendingProps<T> {
+    key: StorageKey;
+    serverFxn: (server: MastodonServer) => Promise<T[]>;
+    processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify, send to Storage, and anything else needed
+    loadingFxn?: (key: StorageKey) => Promise<StorableObj | null>
+};
+
 const trendingMutexes: Record<string, Mutex> = {
     [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
     [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
@@ -158,10 +165,11 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        return await this.fetchTrendingFromAllServers<Toot>(
-            StorageKey.FEDIVERSE_TRENDING_TOOTS,
-            (server) => server.fetchTrendingToots(),
-            async (toots) => {
+        return await this.fetchTrendingFromAllServers<Toot>({
+            key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
+            loadingFxn: Storage.getToots.bind(Storage),
+            serverFxn: (server) => server.fetchTrendingToots(),
+            processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
                 await Toot.setDependentProps(toots);
                 let uniqueToots = Toot.dedupeToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
@@ -169,16 +177,15 @@ export default class MastodonServer {
                 Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, uniqueToots);
                 return uniqueToots;
             },
-            Storage.getToots.bind(Storage),
-        );
+        });
     };
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
-        return await this.fetchTrendingFromAllServers<TrendingLink>(
-            StorageKey.FEDIVERSE_TRENDING_LINKS,
-            (server) => server.fetchTrendingLinks(),
-            async (links) => {
+        return await this.fetchTrendingFromAllServers<TrendingLink>({
+            key: StorageKey.FEDIVERSE_TRENDING_LINKS,
+            serverFxn: (server) => server.fetchTrendingLinks(),
+            processingFxn: async (links) => {
                 const uniqueLinks = FeatureScorer.uniquifyTrendingObjs<TrendingLink>(
                     links as TrendingWithHistory[],
                     obj => obj.url
@@ -186,16 +193,16 @@ export default class MastodonServer {
 
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
                 return uniqueLinks;
-            },
-        );
+            }
+        });
     };
 
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
-        return await this.fetchTrendingFromAllServers<TrendingTag>(
-            StorageKey.FEDIVERSE_TRENDING_TAGS,
-            (server) => server.fetchTrendingTags(),
-            async (tags) => {
+        return await this.fetchTrendingFromAllServers<TrendingTag>({
+            key: StorageKey.FEDIVERSE_TRENDING_TAGS,
+            serverFxn: (server) => server.fetchTrendingTags(),
+            processingFxn: async (tags) => {
                 let uniqueTags = FeatureScorer.uniquifyTrendingObjs<TrendingTag>(
                     tags as TrendingWithHistory[],
                     obj => (obj as TrendingTag).name
@@ -204,8 +211,8 @@ export default class MastodonServer {
                 uniqueTags = uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
                 return uniqueTags;
-            },
-        );
+            }
+        });
     }
 
     // Returns a dict of servers with MAU over the minServerMAU threshold
@@ -253,13 +260,9 @@ export default class MastodonServer {
 
     // Common wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
-    private static async fetchTrendingFromAllServers<T>(
-        key: StorageKey,
-        serverFxn: (server: MastodonServer) => Promise<T[]>,
-        processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify, send to Storage, and anything else needed
-        loadingFxn?: (key: StorageKey) => Promise<StorableObj | null>,  // optional, defaults to Storage.get
-    ): Promise<T[]> {
-        loadingFxn ||= Storage.get.bind(Storage);
+    private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
+        const { key, processingFxn, serverFxn } = props;
+        const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
         const releaseMutex = await trendingMutexes[key].acquire();
         const logPrefix = `[${key}]`;
 

@@ -130,31 +130,28 @@ class Storage {
     // Return true if the timeline and user data is stale and should be reloaded
     static async isDataStale(key) {
         const numAppOpens = await this.getNumAppOpens();
-        // const isTenthAppOpen = (await this.getNumAppOpens()) % this.getConfig().reloadFeaturesEveryNthOpen === 0;
         let logPrefix = `[isDataStale`;
         let seconds;
         if (key) {
             logPrefix += ` ${key}]`;
             seconds = await this.secondsSinceLastUpdated(key);
-            if (seconds)
-                console.debug(`${logPrefix} Found updatedAt that's ${seconds} seconds old`);
         }
         else {
             logPrefix += `]`;
             seconds = await this.secondsSinceMostRecentToot();
             if (seconds)
-                console.log(`${logPrefix} Using secondsSinceMostRecentToot(): ${seconds} seconds old`);
+                console.log(`${logPrefix} No StorageKey so using secondsSinceMostRecentToot(): ${seconds} seconds`);
         }
         if (numAppOpens <= 1) {
             console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} so initial load; data not stale (${seconds} seconds)`);
             return false;
         }
         if (!seconds) {
-            console.debug(`${logPrefix} secondsSinceMostRecentToot() returned ${JSON.stringify(seconds)} (data is stale)`);
+            console.debug(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
             return true;
         }
         else if (seconds > this.getConfig().staleDataSeconds) {
-            console.debug(`${logPrefix} Reloading data after ${seconds} seconds...`);
+            console.debug(`${logPrefix} Data is stale data after ${seconds} seconds...`);
             return true;
         }
         else {

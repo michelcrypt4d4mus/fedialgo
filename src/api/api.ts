@@ -148,7 +148,7 @@ export class MastoApi {
         try {
             const searchResult = await this.api.v2.search.fetch(mastoQuery);
             const toots = searchResult.statuses.map(t => new Toot(t));
-            console.debug(`[searchForToots] Found${logMsg} toots for query`, mastoQuery);
+            console.debug(`[searchForToots] Found ${toots.length}${logMsg} toots for query`, mastoQuery);
             return toots;
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `Failed to get${logMsg} toots for query '${searchQuery}'`);
