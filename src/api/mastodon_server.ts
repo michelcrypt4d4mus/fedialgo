@@ -12,7 +12,6 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { MastodonServersInfo, StorableObj, StorageKey, TrendingLink, TrendingStorage, TrendingTag, TrendingWithHistory } from "../types";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -23,6 +22,15 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
+import {
+    MastodonServersInfo,
+    StorableObj,
+    StorageKey,
+    TrendingLink,
+    TrendingStorage,
+    TrendingTag,
+    TrendingWithHistory
+} from "../types";
 
 export enum FediverseTrendingType {
     STATUSES = "statuses",

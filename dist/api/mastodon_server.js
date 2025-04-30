@@ -15,9 +15,9 @@ const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const api_1 = require("./api");
-const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const types_1 = require("../types");
 var FediverseTrendingType;
 (function (FediverseTrendingType) {
     FediverseTrendingType["STATUSES"] = "statuses";
