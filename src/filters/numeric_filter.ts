@@ -5,13 +5,11 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs, WeightName } from "../types";
 
-
 export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_REPLIES,
     WeightName.NUM_RETOOTS,
     WeightName.NUM_FAVOURITES,
 ];
-
 
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
