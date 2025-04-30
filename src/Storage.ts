@@ -163,12 +163,7 @@ export default class Storage {
         }
     }
 
-    // Seconds since the app was last opened  // TODO: currently unused
-    static async secondsSinceLastOpened(): Promise<number | undefined> {
-        const lastOpened = await this.getLastOpenedTimestamp();
-        return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
-    }
-
+    // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
         const withTimestamp = await localForage.getItem(await this.buildKey(key));
 
@@ -229,6 +224,12 @@ export default class Storage {
     private static async getNumAppOpens(): Promise<number> {
         const numAppOpens = await this.get(StorageKey.OPENINGS) as number;
         return numAppOpens || 0;
+    }
+
+    // Seconds since the app was last opened  // TODO: currently unused
+    private static async secondsSinceLastOpened(): Promise<number | undefined> {
+        const lastOpened = await this.getLastOpenedTimestamp();
+        return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline

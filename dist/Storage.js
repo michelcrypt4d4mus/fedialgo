@@ -159,11 +159,7 @@ class Storage {
             return false;
         }
     }
-    // Seconds since the app was last opened  // TODO: currently unused
-    static async secondsSinceLastOpened() {
-        const lastOpened = await this.getLastOpenedTimestamp();
-        return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
-    }
+    // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {
         const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
         if (withTimestamp) {
@@ -216,6 +212,11 @@ class Storage {
     static async getNumAppOpens() {
         const numAppOpens = await this.get(types_1.StorageKey.OPENINGS);
         return numAppOpens || 0;
+    }
+    // Seconds since the app was last opened  // TODO: currently unused
+    static async secondsSinceLastOpened() {
+        const lastOpened = await this.getLastOpenedTimestamp();
+        return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
     }
     // Return the number of seconds since the most recent toot in the stored timeline
     static async secondsSinceMostRecentToot() {

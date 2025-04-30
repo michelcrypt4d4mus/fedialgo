@@ -19,13 +19,13 @@ export default class Storage {
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(key?: StorageKey): Promise<boolean>;
-    static secondsSinceLastOpened(): Promise<number | undefined>;
     static secondsSinceLastUpdated(key: StorageKey): Promise<number | null>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static remove(key: StorageKey): Promise<void>;
     private static getLastOpenedTimestamp;
     private static getNumAppOpens;
+    private static secondsSinceLastOpened;
     private static secondsSinceMostRecentToot;
     private static buildKey;
 }
