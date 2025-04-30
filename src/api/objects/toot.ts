@@ -497,7 +497,6 @@ export default class Toot implements TootObj {
 
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
-        const logPrefix = logLabel ? `[${logLabel}]` : '[dedupeToots]';
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can
@@ -526,7 +525,7 @@ export default class Toot implements TootObj {
         });
 
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
-        logTootRemoval(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
+        logTootRemoval(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     };
 

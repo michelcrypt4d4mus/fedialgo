@@ -10,10 +10,18 @@ export const DEFAULT_FONT_SIZE = 15;
 export const GIFV = "gifv";
 export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 export const VIDEO_EXTENSIONS = ["mp4"];
-// MEDIA_TYPES contains valid values for mastodon.v1.MediaAttachment.type
-export const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[] = [MediaCategory.VIDEO, GIFV];
-export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [MediaCategory.AUDIO, MediaCategory.IMAGE, ...VIDEO_TYPES];
-const EARLIEST_TIMESTAMP = new Date("1970-01-01T00:00:00.000Z");
+
+export const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[] = [
+    GIFV,
+    MediaCategory.VIDEO,
+];
+
+// MEDIA_TYPES contains all valid values for mastodon.v1.MediaAttachment.type
+export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
+    ...VIDEO_TYPES,
+    MediaCategory.AUDIO,
+    MediaCategory.IMAGE,
+];
 
 
 // "http://www.mast.ai/foobar" => "mast.ai"
@@ -100,12 +108,14 @@ export function createRandomString(length: number): string {
 };
 
 
+// Simple log helper that only fires if numRemoved > 0
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
-    console.log(`${prefix} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.log(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 };
 
 
+// Log an error message and throw an Error
 export function logAndThrowError(message: string): never {
     console.error(message);
     throw new Error(message);

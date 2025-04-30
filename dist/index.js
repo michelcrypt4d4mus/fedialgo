@@ -246,9 +246,11 @@ class TheAlgorithm {
     // and the last request returned the full requested count
     async maybeGetMoreToots(newHomeToots, numTimelineToots) {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
-        const checkpointStr = (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint);
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
-        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${checkpointStr}')`);
+        let logPrefix = `[maybeGetMoreToots()]`;
+        let checkpointStr = `catchupCheckpoint='${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}`;
+        checkpointStr += `, earliestNewHomeTootAt='${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}'`;
+        console.log(`${logPrefix} TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (${checkpointStr})`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
@@ -263,31 +265,30 @@ class TheAlgorithm {
                 // It's important that we *only* look at home timeline toots here. Toots from other servers
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
-                let msg = `calling getFeed() recursively, current catchupCheckpoint: '${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}'`;
+                let msg = `calling getFeed() recursively, current: '${checkpointStr}'`;
                 console.debug(`${msg}, current newHomeToots:`, newHomeToots);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
         else {
-            const earliestAtStr = `(earliestNewHomeTootAt '${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}')`;
-            const logPrefx = `[maybeGetMoreToots()] halting getFeed()`;
+            logPrefix += ` halting getFeed()`;
             if (!Storage_1.default.getConfig().enableIncrementalLoad) {
-                console.log(`${logPrefx} incremental loading disabled`);
+                console.log(`${logPrefix} incremental loading disabled`);
             }
             else if (this.catchupCheckpoint) {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
+                    console.log(`${logPrefix} because caught up to catchupCheckpoint (${checkpointStr})`);
                     this.catchupCheckpoint = null;
                 }
                 else {
-                    console.warn(`${logPrefx} Not caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
+                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint (${checkpointStr})`);
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefx} we have ${this.feed.length} toots`);
+                console.log(`${logPrefix} we have enbough toots (${this.feed.length}, want ${maxTimelineTootsToFetch})`);
             }
             else {
-                console.log(`${logPrefx} fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots})`);
+                console.log(`${logPrefix} fetch only got ${newHomeToots.length} toots (expected ${numTimelineToots}, ${checkpointStr})`);
             }
             this.loadingStatus = undefined;
         }
