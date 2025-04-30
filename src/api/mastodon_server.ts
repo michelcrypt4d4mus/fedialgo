@@ -113,7 +113,7 @@ export default class MastodonServer {
                 throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
         } catch (e) {
-            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
+            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}! Response:`, e);
         }
 
         return list as T[];
@@ -127,9 +127,9 @@ export default class MastodonServer {
         if (limit) url += `?limit=${limit}`;
         console.debug(`[${urlEndpoint}] fetching at ${startTime}...`);
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
-        console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json);
 
         if (json.status === 200 && json.data) {
+            console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;
@@ -141,10 +141,16 @@ export default class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     static async getTrendingData(): Promise<TrendingStorage> {
+        const responses = await Promise.all([
+            this.fediverseTrendingLinks(),
+            this.fediverseTrendingTags(),
+            this.fediverseTrendingToots(),
+        ]);
+
         return {
-            links: await this.fediverseTrendingLinks(),
-            tags: await this.fediverseTrendingTags(),
-            toots: await this.fediverseTrendingToots(),
+            links: responses[0],
+            tags: responses[1],
+            toots: responses[2],
         };
     }
 
