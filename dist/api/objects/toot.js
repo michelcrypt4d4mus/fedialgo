@@ -272,8 +272,7 @@ class Toot {
             this.resolvedToot = await api_1.MastoApi.instance.resolveToot(this);
         }
         catch (error) {
-            console.error(`Error resolving toot:`, error);
-            console.error(`Failed to resolve toot:`, this);
+            console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             this.resolvedToot = this;
         }
         return this.resolvedToot;
