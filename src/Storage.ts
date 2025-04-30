@@ -134,31 +134,27 @@ export default class Storage {
     }
 
     // Return true if the timeline and user data is stale and should be reloaded
-    static async isDataStale(key?: StorageKey): Promise<boolean> {
+    static async isDataStale(key: StorageKey): Promise<boolean> {
+        const staleDataConfig = Storage.getConfig().staleDataSeconds;
         const numAppOpens = await this.getNumAppOpens();
-        let logPrefix = `[isDataStale`;
-        let seconds;
+        const numAppOpensStr = `numAppOpens is ${numAppOpens}`;
+        const logPrefix = `[isDataStale ${key}]`;
 
-        if (key) {
-            logPrefix += ` ${key}]`;
-            seconds = await this.secondsSinceLastUpdated(key);
-        } else {
-            logPrefix += `]`;
-            seconds = await this.secondsSinceMostRecentToot();
-            if (seconds) console.log(`${logPrefix} No StorageKey so using secondsSinceMostRecentToot(): ${seconds} seconds`);
-        }
+        const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
+        const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
+        const secondsLogMsg = `dataAgeInSeconds: ${dataAgeInSeconds}, staleAfterSeconds: ${staleAfterSeconds}`;
 
         if (numAppOpens <= 1) {
-            console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} so initial load; data not stale (${seconds} seconds)`);
+            console.debug(`${logPrefix} ${numAppOpensStr} means initial load, data not stale (${secondsLogMsg})`);
             return false;
-        } if (!seconds) {
-            console.log(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
+        } if (!dataAgeInSeconds) {
+            console.log(`${logPrefix} no value for dataAgeInSeconds so data is stale (${secondsLogMsg}, ${numAppOpensStr})`);
             return true;
-        } else if (seconds > this.getConfig().staleDataSeconds) {
-            console.log(`${logPrefix} Data is stale data after ${seconds} seconds...`);
+        } else if (dataAgeInSeconds > staleAfterSeconds) {
+            console.log(`${logPrefix} Data is stale (${secondsLogMsg}, ${numAppOpensStr})`);
             return true;
         } else {
-            console.debug(`${logPrefix} Remote data is still fresh (${seconds} seconds old), no need to reload.`);
+            console.debug(`${logPrefix} Remote data is still fresh no need to reload (${secondsLogMsg}, ${numAppOpensStr})`);
             return false;
         }
     }
@@ -223,9 +219,7 @@ export default class Storage {
         const withTimestamp = await localForage.getItem(await this.buildKey(key));
 
         if (withTimestamp) {
-            const age = ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
-            console.debug(`[${key}] secondsSinceLastUpdated(): ${age}`);
-            return age;
+            return ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
         } else {
             console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
             return null;

@@ -12,8 +12,8 @@ const scorer_1 = __importDefault(require("./scorer"));
 class FeedScorer extends scorer_1.default {
     // Take an array of Toots and extract the scoreData needed to score a toot
     extractScoreDataFromFeed(feed) {
-        this.scoreData = this.feedExtractor(feed);
-        console.debug(`${this.logPrefix()} feedExtractor() returned scoreData:`, this.scoreData);
+        this.scoreData = this.extractScoringData(feed);
+        console.debug(`${this.logPrefix()} extractScoringData() returned scoreData:`, this.scoreData);
         this.isReady = true;
     }
 }

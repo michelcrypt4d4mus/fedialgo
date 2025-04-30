@@ -3,5 +3,5 @@ import Toot from '../api/objects/toot';
 import { StringNumberDict } from "../types";
 export default abstract class FeedScorer extends Scorer {
     extractScoreDataFromFeed(feed: Toot[]): void;
-    abstract feedExtractor(feed: Toot[]): StringNumberDict;
+    abstract extractScoringData(feed: Toot[]): StringNumberDict;
 }

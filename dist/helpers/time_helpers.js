@@ -3,7 +3,10 @@
  * Helpers for time-related operations
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormat = exports.ageOfTimestampInSeconds = exports.ageInSeconds = void 0;
+exports.toISOFormat = exports.ageOfTimestampInSeconds = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.SECONDS_IN_MINUTE = 60;
+exports.SECONDS_IN_HOUR = 3600;
+exports.SECONDS_IN_DAY = 86400;
 function ageInSeconds(date) {
     if (!date) {
         return -1;

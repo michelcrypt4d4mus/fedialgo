@@ -16,7 +16,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         super(types_1.WeightName.DIVERSITY);
     }
     // Count toots by account (but negative instead of positive count)
-    feedExtractor(feed) {
+    extractScoringData(feed) {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed).reverse();
         // Collate the overall score for each account. The penalty for frequent tooters decreases by 1 per toot.
         const accountScores = sortedToots.reduce((tootCounts, toot) => {

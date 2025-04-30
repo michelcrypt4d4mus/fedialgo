@@ -1,4 +1,7 @@
-import { ScorerDict } from "./types";
+import { ScorerDict, StorageKey } from "./types";
+type StaleDataConfig = {
+    [key in StorageKey]?: number;
+};
 export type Config = {
     defaultLanguage: string;
     defaultRecordsPerPage: number;
@@ -9,13 +12,14 @@ export type Config = {
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
     scoringBatchSize: number;
-    staleDataSeconds: number;
+    staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
     reloadFeaturesEveryNthOpen: number;
     numServersToCheck: number;
     minServerMAU: number;
+    staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
     excessiveTags: number;
     excessiveTagsPenalty: number;
@@ -33,3 +37,4 @@ export type Config = {
 };
 export declare const DEFAULT_CONFIG: Config;
 export declare const SCORERS_CONFIG: ScorerDict;
+export {};

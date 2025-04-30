@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add `Config.staleDataSeconds` dictionary to enable customized data refresh rates (rename old `Config.staleDataSeconds` to `Config.staleDataDefaultSeconds`)
 * Implement `catchupCheckpoint` logic so that refocusing the app will always poll new toots back to the last home timeline toot we already have
 * Refactor trending history methods to `trending_with_history.ts`
 
@@ -41,7 +42,7 @@
 * Score toots with parallelized Promises instead of serially, add `Config.scoringBatchSize` param
 
 ### v0.20.4
-* Add `Config.staleDataSeconds` param, consolidate `Storage.isStaleData()` method
+* Add `Config.staleDataDefaultSeconds` param, consolidate `Storage.isStaleData()` method
 * Add a 5 second timeout to public API calls via new `Config.timeoutMS` param
 * Implement a reload based on time of most recent toot in timeline (10 minutes is the trigger)
 * Get rid of unnecessary `Toot.resolveAttempted` flag

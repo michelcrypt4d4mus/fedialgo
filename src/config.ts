@@ -1,8 +1,13 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { ScorerDict, WeightName } from "./types";
+import { ScorerDict, StorageKey, WeightName } from "./types";
+import { SECONDS_IN_HOUR } from "./helpers/time_helpers";
 
+
+type StaleDataConfig = {
+    [key in StorageKey]?: number
+}
 
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
@@ -16,7 +21,7 @@ export type Config = {
     maxTimelineTootsToFetch: number;
     numTootsInFirstFetch: number;
     scoringBatchSize: number;
-    staleDataSeconds: number;
+    staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
     // API stuff
     minRecordsForFeatureScoring: number;
@@ -24,6 +29,7 @@ export type Config = {
     reloadFeaturesEveryNthOpen: number;
     numServersToCheck: number;
     minServerMAU: number;
+    staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
     // Trending tags
     excessiveTags: number;
@@ -59,7 +65,20 @@ export const DEFAULT_CONFIG: Config = {
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
     scoringBatchSize: 100,               // How many toots to score at once
-    staleDataSeconds: 10 * 60,           // How long to wait before considering data stale
+    staleDataDefaultSeconds: 10 * 60,    // Default how long to wait before considering data stale
+    staleDataSeconds: {                  // Dictionary to configure customized timeouts for different kinds of data
+        [StorageKey.BLOCKED_ACCOUNTS]:        12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
+        [StorageKey.FAVOURITED_ACCOUNTS]:     12 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TAGS]:  4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_ACCOUNTS]:        4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_TAGS]:            4 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_NOTIFICATIONS]:     6 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_USER_TOOTS]:        2 * SECONDS_IN_HOUR,
+        [StorageKey.POPULAR_SERVERS]:         24 * SECONDS_IN_HOUR,
+        [StorageKey.SERVER_SIDE_FILTERS]:     24 * SECONDS_IN_HOUR,
+    },
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff

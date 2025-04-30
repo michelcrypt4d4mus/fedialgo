@@ -5,6 +5,7 @@ exports.SCORERS_CONFIG = exports.DEFAULT_CONFIG = void 0;
  * Centralized location for non-user configurable settings.
  */
 const types_1 = require("./types");
+const time_helpers_1 = require("./helpers/time_helpers");
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
@@ -19,7 +20,20 @@ exports.DEFAULT_CONFIG = {
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     scoringBatchSize: 100,
-    staleDataSeconds: 10 * 60,
+    staleDataDefaultSeconds: 10 * 60,
+    staleDataSeconds: {
+        [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FAVOURITED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FOLLOWED_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.POPULAR_SERVERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
+    },
     timelineDecayExponent: 1.2,
     // API stuff
     maxFollowingAccountsToPull: 5000,
