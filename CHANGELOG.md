@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `Storage.getToots()` returns `null` instead of `[]` if there's nothing in local storage
 
 ### v0.20.13
 * Move `fetchRecentTootsForTrendingTags()` to `MastoApi`
