@@ -11,6 +11,7 @@ import FeatureScorer from "../scorer/feature_scorer";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
+import { decorateHistoryScores, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { repairTag } from "./objects/tag";
 import {
@@ -83,7 +84,7 @@ export default class MastodonServer {
 
         const numLinks = Storage.getConfig().numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
-        trendingLinks.forEach(FeatureScorer.decorateHistoryScores);
+        trendingLinks.forEach(decorateHistoryScores);
         return trendingLinks;
     };
 
@@ -91,7 +92,7 @@ export default class MastodonServer {
     async fetchTrendingTags(): Promise<TrendingTag[]> {
         const numTags = Storage.getConfig().numTrendingTagsPerServer;
         const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
-        trendingTags.forEach(tag => FeatureScorer.decorateHistoryScores(repairTag(tag)));
+        trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
         return trendingTags;
     };
 
@@ -193,11 +194,7 @@ export default class MastodonServer {
             key: StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
-                const uniqueLinks = FeatureScorer.uniquifyTrendingObjs<TrendingLink>(
-                    links as TrendingWithHistory[],
-                    obj => obj.url
-                );
-
+                const uniqueLinks = uniquifyTrendingObjs<TrendingLink>(links, obj => obj.url);
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
                 return uniqueLinks;
             }
@@ -210,11 +207,7 @@ export default class MastodonServer {
             key: StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = FeatureScorer.uniquifyTrendingObjs<TrendingTag>(
-                    tags as TrendingWithHistory[],
-                    obj => (obj as TrendingTag).name
-                );
-
+                let uniqueTags = uniquifyTrendingObjs<TrendingTag>(tags, obj => (obj as TrendingTag).name);
                 uniqueTags = uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
                 await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
                 return uniqueTags;

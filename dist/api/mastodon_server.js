@@ -10,10 +10,10 @@ exports.FediverseTrendingType = void 0;
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
-const feature_scorer_1 = __importDefault(require("../scorer/feature_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const trending_with_history_1 = require("./objects/trending_with_history");
 const api_1 = require("./api");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -57,7 +57,7 @@ class MastodonServer {
         }
         const numLinks = Storage_1.default.getConfig().numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(api_1.LINKS, numLinks);
-        trendingLinks.forEach(feature_scorer_1.default.decorateHistoryScores);
+        trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
         return trendingLinks;
     }
     ;
@@ -65,7 +65,7 @@ class MastodonServer {
     async fetchTrendingTags() {
         const numTags = Storage_1.default.getConfig().numTrendingTagsPerServer;
         const trendingTags = await this.fetchTrending(api_1.TAGS, numTags);
-        trendingTags.forEach(tag => feature_scorer_1.default.decorateHistoryScores((0, tag_1.repairTag)(tag)));
+        trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
         return trendingTags;
     }
     ;
@@ -163,7 +163,7 @@ class MastodonServer {
             key: types_1.StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
-                const uniqueLinks = feature_scorer_1.default.uniquifyTrendingObjs(links, obj => obj.url);
+                const uniqueLinks = (0, trending_with_history_1.uniquifyTrendingObjs)(links, obj => obj.url);
                 await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
                 return uniqueLinks;
             }
@@ -176,7 +176,7 @@ class MastodonServer {
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = feature_scorer_1.default.uniquifyTrendingObjs(tags, obj => obj.name);
+                let uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, obj => obj.name);
                 uniqueTags = uniqueTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
                 await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
                 return uniqueTags;
