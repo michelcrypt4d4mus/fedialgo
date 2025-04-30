@@ -52,8 +52,7 @@ declare class TheAlgorithm {
     getFilters(): FeedFilterSettings;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     filterFeed(): Toot[];
-    logFeedInfo(prefix?: string): void;
-    mostRecentTootAt(): Date | null;
+    mostRecentTootAt(followedUsersOnly?: boolean): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
     private cleanupFeed;
     private maybeGetMoreToots;

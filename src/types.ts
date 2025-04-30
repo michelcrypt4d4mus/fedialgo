@@ -69,7 +69,7 @@ export enum MediaCategory {
 
 
 // Records
-export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
+export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;  // TODO: unused
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonServersInfo = Record<string, MastodonServerInfo>;
 export type NumericFilters = Record<WeightName, NumericFilter>;

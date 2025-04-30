@@ -138,7 +138,7 @@ class TheAlgorithm {
         algo.setFeedInApp(algo.feed);
         algo.filters = await Storage_1.default.getFilters();
         algo.trendingData = await Storage_1.default.getTrending();
-        console.log(`[fedialgo] create() loaded ${algo.feed.length} timeline toots from storage`);
+        console.log(`[fedialgo] create() loaded ${algo.feed.length} timeline toots from storage...`);
         return algo;
     }
     constructor(params) {
@@ -150,6 +150,7 @@ class TheAlgorithm {
         this.filters = (0, feed_filters_1.buildNewFilterSettings)();
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
+    // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
         console.debug(`[fedialgo] getFeed() called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
         numTimelineToots = numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch;
@@ -222,13 +223,9 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         return filteredFeed;
     }
-    // Debugging method to log info about the timeline toots
-    logFeedInfo(prefix = "") {
-        prefix = prefix.length == 0 ? prefix : `${prefix} `;
-        console.debug(`${prefix}timeline toots filters, including counts:`, this.filters);
-    }
-    mostRecentTootAt() {
-        return (0, toot_1.mostRecentTootedAt)(this.feed);
+    mostRecentTootAt(followedUsersOnly) {
+        const toots = followedUsersOnly ? this.feed.filter(toot => toot.isFollowed) : this.feed;
+        return (0, toot_1.mostRecentTootedAt)(toots);
     }
     // Return the URL for a given tag on the local server
     buildTagURL(tag) {
@@ -288,7 +285,7 @@ class TheAlgorithm {
         if (shouldSetWeights)
             await Storage_1.default.setWeightings(weightings);
     }
-    // Injecting the scoreInfo property to each toot. Sort feed based on toot scores.
+    // Inject scoreInfo property to each Toot, sort feed based on scores, and save feed to browser storage.
     async scoreFeed() {
         const logPrefix = `scoreFeed()`;
         console.debug(`${logPrefix} called (${this.feed.length} toots currently in feed)...`);
@@ -303,8 +300,6 @@ class TheAlgorithm {
                 // Sort feed based on score from high to low.
                 this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
                 this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-                this.logFeedInfo(logPrefix);
-                // TODO: Saving to local storage here amounts to kind of an unexpected side effect
                 Storage_1.default.setFeed(this.feed);
             }
             finally {
