@@ -12,21 +12,15 @@ export default class RetootsInFeedScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        if (toot.reblog) {
-            const reblog = toot.reblog;
-            const nonAuthorRetoots = reblog.reblogsBy.filter((acct) => acct.webfingerURI != reblog.account.webfingerURI);
-            let retootCount = nonAuthorRetoots.length;
-            if (toot.reblog.isFollowed) retootCount += 1;  // add 1 if both reblog & toot are followed accounts
-            retootCount -= 1;  // Subtract 1 so that normal retoots aren't boosted unnecessarily
+        if (!toot.reblog) return 0;
 
-            if (retootCount < 0) {
-                console.warn(`[${this.constructor.name}] Negative retoot count ${retootCount} for toot:`, toot);
-                return 0;
-            }
+        // add 1 if both reblog & toot are followed accounts
+        const reblog = toot.reblog;
+        let retootCount = reblog.isFollowed ? 1 : 0;
+        const nonAuthorRetoots = reblog.reblogsBy.filter((acct) => acct.webfingerURI != reblog.account.webfingerURI);
+        retootCount += nonAuthorRetoots.length;
 
-            return Math.pow(retootCount, 2);
-        } else {
-            return 0;
-        }
+        // If retootsCount is 1 that's a normal retoot so we score it zero, otherwise return the square of retootCount
+        return retootCount <= 1 ? 0 : Math.pow(retootCount, 2);
     }
 };
