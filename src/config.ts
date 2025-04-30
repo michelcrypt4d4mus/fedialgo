@@ -38,6 +38,7 @@ export type Config = {
     numTrendingTootsPerServer: number;
     // MAU and other server properties
     defaultServers: string[];
+    foreignLanguageServers: Record<string, string[]>;
     noMauServers: string[];
     noTrendingLinksServers: string[];
 };
@@ -86,37 +87,83 @@ export const DEFAULT_CONFIG: Config = {
     // Culled from https://mastodonservers.net and https://joinmastodon.org/
     defaultServers: [
         "mastodon.social",
-        // "pawoo.net",       // Japanese (and maybe NSFW?)
-        // "baraag.net",      // very NSFW
-        // "mstdn.jp",        // Japanese
         "mastodon.cloud",
-        // "pravda.me"        // Russian
-        // "mstdn.social",    // Slow, blocked by CORS
         "mastodon.online",
         "mas.to",
         "mastodon.world",
-        // "mastodon.lol",               // Doesn't return MAU data
         "c.im",
         "hachyderm.io",
-        // "fosstodon.org",              // Doesn't support trending links/toots
-        "universeodon.com",
         "infosec.exchange",
+        "universeodon.com",
+        "kolektiva.social",
         "mastodon.gamedev.place",
         "mastodonapp.uk",
-        // "mastodon.technology",        // Doesn't return MAU data
         "ioc.exchange",
+        "tech.lgbt",
         "mastodon.art",
         "techhub.social",
-        // "mathstodon.xyz",             // Doesn't return MAU data
         "mastodon.sdf.org",
+        "indieweb.social",
+        "mastodon.green",
         "defcon.social",
         "mstdn.party",
         "sfba.social",
         "toot.community",
         "ravenation.club",
+        "metalhead.club",
         "sciences.social",
         "toot.io",
+        // Servers that are no bueno for various reasons
+        // "baraag.net",                 // very NSFW (anime porn)
+        // "mstdn.social",               // Slow, blocked by CORS
+        // "mastodon.lol",               // Doesn't return MAU data
+        // "fosstodon.org",              // Doesn't support trending links/toots
+        // "mastodon.technology",        // Doesn't return MAU data
+        // "mathstodon.xyz",             // Doesn't return MAU data
     ],
+    // Currently unused. Theoretically for non english users we would prefer these servers
+    foreignLanguageServers: {
+        "de": [
+            "troet.cafe",
+            "nrw.social",
+            "hessen.social",
+            "ruhr.social",
+            "muenchen.social",
+            "social.cologne",
+        ],
+        "es": [
+            "tkz.one",
+            "mast.lat",
+            "mastorol.es",
+        ],
+        "fr": [
+            "piaille.fr",
+            "pouet.chapril.org",
+            "mastoot.fr",
+        ],
+        "ja": [
+            "mstdn.jp",
+            "mastodon-japan.net",
+            "famichiki.jp",
+            // "pawoo.net",                  // (Maybe NSFW?)
+        ],
+        "pt": [
+            "masto.pt",
+        ],
+        "it": [
+            "mastodon.uno",
+            "mastodon.bida.im",
+            "sociale.network",
+        ],
+        "ru": [
+            "pravda.me",
+        ],
+        "zh-cn": [
+            "m.cmx.im",
+            "m.otter.homes",
+            "mast.dragon-fly.club",
+        ],
+    },
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "agora.echelon.pl",

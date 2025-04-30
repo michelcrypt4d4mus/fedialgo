@@ -27,6 +27,7 @@ export type Config = {
     numTrendingTagsToots: number;
     numTrendingTootsPerServer: number;
     defaultServers: string[];
+    foreignLanguageServers: Record<string, string[]>;
     noMauServers: string[];
     noTrendingLinksServers: string[];
 };
