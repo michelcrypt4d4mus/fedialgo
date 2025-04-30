@@ -12,7 +12,7 @@ export default abstract class FeedScorer extends Scorer {
     // Take an array of Toots and extract the scoreData needed to score a toot
     extractScoreDataFromFeed(feed: Toot[]): void {
         this.scoreData = this.feedExtractor(feed);
-        console.debug(`${this.logPrefix()} feedExtractor() scoreData:`, this.scoreData);
+        console.debug(`${this.logPrefix()} feedExtractor() returned scoreData:`, this.scoreData);
         this.isReady = true;
     }
 
