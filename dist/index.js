@@ -247,8 +247,9 @@ class TheAlgorithm {
     // and the last request returned the full requested count
     async maybeGetMoreToots(newHomeToots, numTimelineToots) {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
-        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${this.catchupCheckpoint}')`);
+        const checkpointStr = (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint);
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
+        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${checkpointStr}')`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
@@ -264,24 +265,23 @@ class TheAlgorithm {
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
                 let msg = `calling getFeed() recursively, current catchupCheckpoint: '${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}'`;
-                console.log(`${msg}, current newHomeToots:`, newHomeToots);
+                console.debug(`${msg}, current newHomeToots:`, newHomeToots);
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
         else {
             const logPrefx = `[maybeGetMoreToots() - halting getFeed()]`;
+            const earliestAtStr = `(earliestNewHomeTootAt '${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}')`;
             if (!Storage_1.default.getConfig().enableIncrementalLoad) {
                 console.log(`${logPrefx} incremental loading disabled`);
             }
             else if (this.catchupCheckpoint) {
-                const checkpointStr = (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint);
-                const earliestAtStr = (0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt);
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' (earliestNewHomeTootAt '${earliestAtStr}')`);
+                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                     this.catchupCheckpoint = null;
                 }
                 else {
-                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' w/ earliestNewHomeTootAt '${earliestAtStr}'`);
+                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {

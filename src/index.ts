@@ -256,8 +256,9 @@ class TheAlgorithm {
     // and the last request returned the full requested count
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
         const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
-        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${this.catchupCheckpoint}')`);
+        const checkpointStr = toISOFormat(this.catchupCheckpoint);
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
+        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${checkpointStr}')`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
@@ -278,25 +279,23 @@ class TheAlgorithm {
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
                     let msg = `calling getFeed() recursively, current catchupCheckpoint: '${toISOFormat(this.catchupCheckpoint)}'`;
-                    console.log(`${msg}, current newHomeToots:`, newHomeToots);
+                    console.debug(`${msg}, current newHomeToots:`, newHomeToots);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS
             );
         } else {
             const logPrefx = `[maybeGetMoreToots() - halting getFeed()]`;
+            const earliestAtStr = `(earliestNewHomeTootAt '${toISOFormat(earliestNewHomeTootAt)}')`;
 
             if (!Storage.getConfig().enableIncrementalLoad) {
                 console.log(`${logPrefx} incremental loading disabled`);
             } else if (this.catchupCheckpoint) {
-                const checkpointStr = toISOFormat(this.catchupCheckpoint);
-                const earliestAtStr = toISOFormat(earliestNewHomeTootAt);
-
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' (earliestNewHomeTootAt '${earliestAtStr}')`);
+                    console.log(`${logPrefx} caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                     this.catchupCheckpoint = null;
                 } else {
-                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' w/ earliestNewHomeTootAt '${earliestAtStr}'`);
+                    console.warn(`Not caught up to catchupCheckpoint '${checkpointStr}' ${earliestAtStr}`);
                 }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
                 console.log(`${logPrefx} we have ${this.feed.length} toots`);
