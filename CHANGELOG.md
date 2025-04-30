@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename `TheAlgorithm.mostRecentTootAt()` to `TheAlgorithm.mostRecentHomeTootAt()`
 * `Storage.getToots()` returns `null` instead of `[]` if there's nothing in local storage
 
 ### v0.20.13
