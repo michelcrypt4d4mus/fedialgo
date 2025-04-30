@@ -14,7 +14,7 @@ class TrendingTootScorer extends feature_scorer_1.default {
         super(types_1.WeightName.TRENDING_TOOTS);
     }
     async _score(toot) {
-        return (toot.reblog || toot).trendingRank || 0;
+        return toot.realToot().trendingRank || 0;
     }
 }
 exports.default = TrendingTootScorer;

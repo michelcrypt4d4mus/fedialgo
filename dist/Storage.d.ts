@@ -26,7 +26,6 @@ export default class Storage {
     private static getIdentity;
     private static getLastOpenedTimestamp;
     private static getNumAppOpens;
-    private static secondsSinceLastOpened;
     private static secondsSinceLastUpdated;
     private static secondsSinceMostRecentToot;
 }

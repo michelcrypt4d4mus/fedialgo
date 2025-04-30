@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
-import { ageInSeconds, ageOfTimestampInSeconds } from "./helpers/time_helpers";
+import { ageInSeconds, ageOfTimestampInSeconds, toISOFormat } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { countValues } from "./helpers/collection_helpers";
@@ -56,7 +56,7 @@ export default class Storage {
         if (!value) {
             value = [];
         } else if (!Array.isArray(value)) {
-            logAndThrowError(`[Storage] Expected array at '${key}' but got\n${JSON.stringify(value, null, 4)}`);
+            logAndThrowError(`[Storage] Expected array at '${key}' but got`, value);
         }
 
         return value as T[];
@@ -209,12 +209,8 @@ export default class Storage {
     // Build a string that prepends the user ID to the key
     private static async buildKey(key: StorageKey): Promise<string> {
         const user = await this.getIdentity();
-
-        if (user) {
-            return `${user.id}_${key}`;
-        } else {
-            logAndThrowError(`[STORAGE] No user identity found`);
-        }
+        if (!user) logAndThrowError(`[Storage] No user identity found`);
+        return `${user.id}_${key}`;
     }
 
     // Get the user identity from storage
@@ -227,26 +223,20 @@ export default class Storage {
     private static async getLastOpenedTimestamp(): Promise<number | undefined> {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
+        const logPrefix = `[getLastOpenedTimestamp()]`;
 
         if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
+            console.log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
             return;
         }
 
-        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
+        console.log(`${logPrefix} last opened at '${toISOFormat(new Date(lastOpenedInt))}', ${numAppOpens} appOpens`);
         return lastOpenedInt;
     }
 
     // Get the number of times the app has been opened by this user
     private static async getNumAppOpens(): Promise<number> {
-        const numAppOpens = await this.get(StorageKey.OPENINGS) as number;
-        return numAppOpens || 0;
-    }
-
-    // Seconds since the app was last opened  // TODO: currently unused
-    private static async secondsSinceLastOpened(): Promise<number | undefined> {
-        const lastOpened = await this.getLastOpenedTimestamp();
-        return lastOpened ? ageOfTimestampInSeconds(lastOpened) : undefined;
+        return (await this.get(StorageKey.OPENINGS) as number) ?? 0;
     }
 
     // Return the seconds from the updatedAt stored at 'key' and now

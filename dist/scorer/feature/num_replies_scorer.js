@@ -13,7 +13,7 @@ class NumRepliesScorer extends feature_scorer_1.default {
         super(types_1.WeightName.NUM_REPLIES);
     }
     async _score(toot) {
-        return (toot.reblog || toot).repliesCount || 0;
+        return toot.realToot().repliesCount || 0;
     }
 }
 exports.default = NumRepliesScorer;

@@ -312,14 +312,14 @@ export default class MastodonServer {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.log(`${logPrefix} using cached data with ${storageObjs.length} elements`);
+                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records...`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
-                console.debug(`${logPrefix} from all servers:`, serverObjs);
+                console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                console.info(`${logPrefix} fetched ${uniqueObjs.length} unique objs:`, uniqueObjs);
+                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique objs:`, uniqueObjs);
                 return uniqueObjs;
             }
         } finally {

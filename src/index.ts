@@ -256,7 +256,7 @@ class TheAlgorithm {
         let logPrefix = `[maybeGetMoreToots()]`;
         let checkpointStr = `catchupCheckpoint='${toISOFormat(this.catchupCheckpoint)}`;
         checkpointStr += `, earliestNewHomeTootAt='${toISOFormat(earliestNewHomeTootAt)}'`;
-        console.log(`${logPrefix} TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (${checkpointStr})`);
+        console.log(`${logPrefix} feed has ${this.feed.length} toots (want ${maxTimelineTootsToFetch}, ${checkpointStr})`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
@@ -277,7 +277,7 @@ class TheAlgorithm {
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
                     let msg = `calling getFeed() recursively, current: '${checkpointStr}'`;
-                    console.debug(`${msg}, current newHomeToots:`, newHomeToots);
+                    console.log(`${msg}, current newHomeToots var has ${newHomeToots.length} toots`);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS

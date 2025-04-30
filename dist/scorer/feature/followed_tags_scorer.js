@@ -15,7 +15,7 @@ class FollowedTagsScorer extends feature_scorer_1.default {
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {
-        return (toot.reblog || toot).followedTags?.length || 0;
+        return toot.realToot().followedTags?.length || 0;
     }
 }
 exports.default = FollowedTagsScorer;

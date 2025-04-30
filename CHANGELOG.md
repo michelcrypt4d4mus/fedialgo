@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add `Toot.realToot()` helper to find reblogs
 
 ### v0.20.14
 * Rename `TheAlgorithm.mostRecentTootAt()` to `TheAlgorithm.mostRecentHomeTootAt()`

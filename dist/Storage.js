@@ -65,7 +65,7 @@ class Storage {
             value = [];
         }
         else if (!Array.isArray(value)) {
-            (0, string_helpers_1.logAndThrowError)(`[Storage] Expected array at '${key}' but got\n${JSON.stringify(value, null, 4)}`);
+            (0, string_helpers_1.logAndThrowError)(`[Storage] Expected array at '${key}' but got`, value);
         }
         return value;
     }
@@ -198,12 +198,9 @@ class Storage {
     // Build a string that prepends the user ID to the key
     static async buildKey(key) {
         const user = await this.getIdentity();
-        if (user) {
-            return `${user.id}_${key}`;
-        }
-        else {
-            (0, string_helpers_1.logAndThrowError)(`[STORAGE] No user identity found`);
-        }
+        if (!user)
+            (0, string_helpers_1.logAndThrowError)(`[Storage] No user identity found`);
+        return `${user.id}_${key}`;
     }
     // Get the user identity from storage
     static async getIdentity() {
@@ -214,22 +211,17 @@ class Storage {
     static async getLastOpenedTimestamp() {
         const numAppOpens = (await this.getNumAppOpens()) ?? 0;
         const lastOpenedInt = await this.get(types_1.StorageKey.LAST_OPENED);
+        const logPrefix = `[getLastOpenedTimestamp()]`;
         if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`Only ${numAppOpens} app opens; returning 0 for getLastOpenedTimestamp() instead of ${lastOpenedInt}`);
+            console.log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
             return;
         }
-        console.log(`lastOpenedTimestamp (${numAppOpens} appOpens): ${lastOpenedInt} (${new Date(lastOpenedInt)})`);
+        console.log(`${logPrefix} last opened at '${(0, time_helpers_1.toISOFormat)(new Date(lastOpenedInt))}', ${numAppOpens} appOpens`);
         return lastOpenedInt;
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
-        const numAppOpens = await this.get(types_1.StorageKey.OPENINGS);
-        return numAppOpens || 0;
-    }
-    // Seconds since the app was last opened  // TODO: currently unused
-    static async secondsSinceLastOpened() {
-        const lastOpened = await this.getLastOpenedTimestamp();
-        return lastOpened ? (0, time_helpers_1.ageOfTimestampInSeconds)(lastOpened) : undefined;
+        return await this.get(types_1.StorageKey.OPENINGS) ?? 0;
     }
     // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {

@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { FeedFilterSettings, MediaCategory, StatusList, StringNumberDict, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
+import { FeedFilterSettings, MediaCategory, StatusList, StringNumberDict, TootLike, TootScore, TrendingLink, TrendingTag, UserData } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -24,6 +24,7 @@ interface TootObj extends SerializableToot {
     isDM: () => boolean;
     popularity: () => number;
     realAccount: () => Account;
+    realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
     tootedAt: () => Date;
@@ -88,6 +89,7 @@ export default class Toot implements TootObj {
     isValidForFeed(): boolean;
     popularity(): number;
     realAccount(): Account;
+    realToot(): Toot;
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
@@ -102,9 +104,9 @@ export default class Toot implements TootObj {
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
     static setDependentProps(toots: Toot[]): Promise<Toot[]>;
 }
-export declare const tootedAt: (toot: mastodon.v1.Status | Toot) => Date;
-export declare const earliestToot: (toots: StatusList) => mastodon.v1.Status | null;
-export declare const mostRecentToot: (toots: StatusList) => mastodon.v1.Status | null;
+export declare const tootedAt: (toot: TootLike) => Date;
+export declare const earliestToot: (toots: StatusList) => TootLike | null;
+export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
 export declare const sortByCreatedAt: (toots: StatusList) => StatusList;
 export declare const earliestTootedAt: (toots: StatusList) => Date | null;
 export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;

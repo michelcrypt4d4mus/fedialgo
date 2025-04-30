@@ -43,9 +43,9 @@ exports.uniquifyTrendingObjs = uniquifyTrendingObjs;
 // TODO: maybe we should add the # of servers to the avg?
 // TODO: maybe rename this file 'trending_helpers.ts' or similar since Toots don't have a trending history
 function setTrendingRankToAvg(rankedToots) {
-    const tootsTrendingOnMultipleServers = (0, collection_helpers_1.groupBy)(rankedToots, toot => toot.uri);
+    const tootsTrendingOnMultipleServers = (0, collection_helpers_1.groupBy)(rankedToots, toot => toot.realURI());
     Object.entries(tootsTrendingOnMultipleServers).forEach(([_uri, toots]) => {
-        const avgScore = (0, collection_helpers_1.average)(toots.map(t => t.reblog?.trendingRank || t.trendingRank));
+        const avgScore = (0, collection_helpers_1.average)(toots.map(t => t.realToot().trendingRank));
         toots.forEach((toot) => {
             toot.trendingRank = avgScore;
             if (toot.reblog) {

@@ -29,6 +29,7 @@ import {
     MediaCategory,
     StatusList,
     StringNumberDict,
+    TootLike,
     TootScore,
     TrendingLink,
     TrendingTag,
@@ -76,6 +77,7 @@ interface TootObj extends SerializableToot {
     isDM: () => boolean;
     popularity: () => number;
     realAccount: () => Account;
+    realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
     tootedAt: () => Date;
@@ -328,17 +330,22 @@ export default class Toot implements TootObj {
 
     // Return the account that posted this toot, not the account that reblogged it
     realAccount(): Account {
-        return this.reblog?.account || this.account;
+        return this.realToot().account;
+    }
+
+    // Return the toot that was reblogged if it's a reblog, otherwise return this toot
+    realToot(): Toot {
+        return this.reblog ?? this;
     }
 
     // URI for the toot
     realURI(): string {
-        return this.reblog?.uri || this.uri;
+        return this.realToot().uri;
     }
 
     // Default to this.realURI() if url property is empty
     realURL(): string {
-        return this.reblog?.url || this.url || this.realURI();
+        return this.realToot().url || this.realURI();
     }
 
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
@@ -371,7 +378,7 @@ export default class Toot implements TootObj {
     ): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-        const toot = this.reblog || this;
+        const toot = this.realToot();
 
         // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
@@ -542,9 +549,9 @@ export default class Toot implements TootObj {
 
 
 // Methods for dealing with toot timestamps
-export const tootedAt = (toot: mastodon.v1.Status | Toot): Date => new Date(toot.createdAt);
-export const earliestToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots)[0];
-export const mostRecentToot = (toots: StatusList): mastodon.v1.Status | null => sortByCreatedAt(toots).slice(-1)[0];
+export const tootedAt = (toot: TootLike): Date => new Date(toot.createdAt);
+export const earliestToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots)[0];
+export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
 
 // Returns array with oldest toot first
 export const sortByCreatedAt = (toots: StatusList): StatusList => {

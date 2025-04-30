@@ -256,15 +256,19 @@ class Toot {
     }
     // Return the account that posted this toot, not the account that reblogged it
     realAccount() {
-        return this.reblog?.account || this.account;
+        return this.realToot().account;
+    }
+    // Return the toot that was reblogged if it's a reblog, otherwise return this toot
+    realToot() {
+        return this.reblog ?? this;
     }
     // URI for the toot
     realURI() {
-        return this.reblog?.uri || this.uri;
+        return this.realToot().uri;
     }
     // Default to this.realURI() if url property is empty
     realURL() {
-        return this.reblog?.url || this.url || this.realURI();
+        return this.realToot().url || this.realURI();
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
@@ -291,7 +295,7 @@ class Toot {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-        const toot = this.reblog || this;
+        const toot = this.realToot();
         // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties

@@ -12,6 +12,6 @@ export default class NumRepliesScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return (toot.reblog || toot).repliesCount || 0;
+        return toot.realToot().repliesCount || 0;
     }
 };

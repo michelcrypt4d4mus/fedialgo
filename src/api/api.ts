@@ -337,7 +337,7 @@ export class MastoApi {
 
                 if (cachedData && !(await Storage.isDataStale(label))) {
                     const rows = cachedData as T[];
-                    console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
+                    console.debug(`${logPrefix} Loaded ${rows.length} cached records`);
                     return rows;
                 };
             }

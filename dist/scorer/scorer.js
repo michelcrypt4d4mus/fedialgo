@@ -49,7 +49,6 @@ class Scorer {
         const rawScores = {};
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeightings();
-        const actualToot = toot.reblog ?? toot;
         const scores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
@@ -57,7 +56,7 @@ class Scorer {
             const scoreValue = scores[i] || 0;
             rawScores[scorer.name] = scoreValue;
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            if (actualToot.isTrending()) {
+            if (toot.realToot().isTrending()) {
                 weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
             }
         });
@@ -67,7 +66,8 @@ class Scorer {
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging
-        actualToot.scoreInfo = {
+        // TODO: duping the score to realToot() is a hack that sucks
+        toot.realToot().scoreInfo = toot.scoreInfo = {
             rawScore: this.sumScores(rawScores),
             rawScores,
             score: weightedScore * timeDecayMultiplier,
@@ -75,8 +75,6 @@ class Scorer {
             weightedScores,
             weightedScore,
         };
-        // Copy the score info to the retoot if need be  // TODO: duping the score for retoots is a hack
-        toot.scoreInfo = actualToot.scoreInfo;
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores) {

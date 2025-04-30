@@ -316,7 +316,7 @@ class MastoApi {
                 const cachedData = await Storage_1.default.get(label);
                 if (cachedData && !(await Storage_1.default.isDataStale(label))) {
                     const rows = cachedData;
-                    console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
+                    console.debug(`${logPrefix} Loaded ${rows.length} cached records`);
                     return rows;
                 }
                 ;
