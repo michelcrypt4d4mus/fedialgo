@@ -15,7 +15,7 @@ export default class InteractionsScorer extends AccountScorer {
         super(WeightName.INTERACTIONS);
     }
 
-    async featureGetter(): Promise<StringNumberDict> {
+    async prepareScoreData(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getRecentNotifications();
 
         return countValues<mastodon.v1.Notification>(

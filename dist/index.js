@@ -163,9 +163,9 @@ class TheAlgorithm {
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
-            // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             if (!this.feed.length) {
                 this.loadingStatus = "initial data";
+                // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             }
             else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentTootAt(true);

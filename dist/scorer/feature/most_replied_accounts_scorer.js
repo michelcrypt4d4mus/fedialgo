@@ -17,7 +17,7 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT
     // unique across all servers.
-    async featureGetter() {
+    async prepareScoreData() {
         const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         return (0, collection_helpers_1.countValues)(recentReplies, (toot) => toot?.inReplyToAccountId);

@@ -14,7 +14,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
         super(WeightName.TRENDING_LINKS);
     }
 
-    async featureGetter(): Promise<StringNumberDict> {
+    async prepareScoreData(): Promise<StringNumberDict> {
         return (await MastodonServer.fediverseTrendingLinks()).reduce(
             (accountsPostingLinkCounts, link) => {
                 accountsPostingLinkCounts[link.url] = link.numAccounts || 0;

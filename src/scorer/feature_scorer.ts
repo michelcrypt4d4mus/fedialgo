@@ -17,20 +17,23 @@ export default abstract class FeatureScorer extends Scorer {
         super(scoreName);
     }
 
-    // Can be overloaded in subclasses to retrieve feature data from the server
-    async featureGetter(): Promise<StringNumberDict> {
+    // Can be overloaded in subclasses to set up any data required for scoring Toots
+    async prepareScoreData(): Promise<StringNumberDict> {
         return {};
     }
 
     async fetchRequiredData(): Promise<void> {
         try {
-            this.scoreData = await this.featureGetter();
+            this.scoreData = await this.prepareScoreData();
         } catch (e) {
-            console.error(`${this.logPrefix()} Error in featureGetter():`, e);
+            console.error(`${this.logPrefix()} Error in prepareScoreData():`, e);
             this.scoreData = {};
         }
 
-        console.debug(`${this.logPrefix()} featureGetter() returned:`, this.scoreData);
+        if (Object.values(this.scoreData).length > 0) {
+            console.debug(`${this.logPrefix()} prepareScoreData() returned:`, this.scoreData);
+        }
+
         this.isReady = true;
     }
 

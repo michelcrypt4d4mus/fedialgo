@@ -3,6 +3,6 @@ import Toot from '../../api/objects/toot';
 import { StringNumberDict } from "../../types";
 export default class TrendingLinksScorer extends FeatureScorer {
     constructor();
-    featureGetter(): Promise<StringNumberDict>;
+    prepareScoreData(): Promise<StringNumberDict>;
     _score(toot: Toot): Promise<number>;
 }

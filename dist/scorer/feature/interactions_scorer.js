@@ -12,7 +12,7 @@ class InteractionsScorer extends acccount_scorer_1.default {
     constructor() {
         super(types_1.WeightName.INTERACTIONS);
     }
-    async featureGetter() {
+    async prepareScoreData() {
         const notifications = await api_1.MastoApi.instance.getRecentNotifications();
         return (0, collection_helpers_1.countValues)(notifications, notif => {
             if (!notif.account?.acct) {

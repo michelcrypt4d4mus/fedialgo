@@ -13,7 +13,7 @@ export default class MostFavoritedAccountsScorer extends AccountScorer {
         super(WeightName.FAVOURITED_ACCOUNTS);
     };
 
-    async featureGetter(): Promise<StringNumberDict> {
+    async prepareScoreData(): Promise<StringNumberDict> {
         const recentFavourites = await MastoApi.instance.fetchRecentFavourites();
         return countValues<Toot>(recentFavourites, (toot) => toot.account?.webfingerURI);
     };

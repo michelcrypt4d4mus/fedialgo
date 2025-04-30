@@ -277,7 +277,7 @@ export default class MastodonServer {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.debug(`${logPrefix} using cached data:`, storageObjs);
+                console.debug(`${logPrefix} using cached data with ${storageObjs.length} elements`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
