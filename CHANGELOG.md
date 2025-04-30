@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.20.10
 * Store an `updatedAt` value with each data object in the browser storage and use that to determine what data is actually stale
 * Init `TheAlgorithm.loadingStatus` with `"(ready to load)"` during construction so it isn't empty until load is complete
 * Refactor a common fetchTrendingFromAllServers() method wrapper
