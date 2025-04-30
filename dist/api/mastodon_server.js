@@ -101,7 +101,7 @@ class MastodonServer {
             }
         }
         catch (e) {
-            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}!`, e);
+            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}! Response:`, e);
         }
         return list;
     }
@@ -115,8 +115,8 @@ class MastodonServer {
             url += `?limit=${limit}`;
         console.debug(`[${urlEndpoint}] fetching at ${startTime}...`);
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
-        console.debug(`[${urlEndpoint}] fetch response (${(0, time_helpers_1.ageInSeconds)(startTime)} seconds):`, json);
         if (json.status === 200 && json.data) {
+            console.debug(`[${urlEndpoint}] fetch response (${(0, time_helpers_1.ageInSeconds)(startTime)} seconds):`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
@@ -128,10 +128,15 @@ class MastodonServer {
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
     static async getTrendingData() {
+        const responses = await Promise.all([
+            this.fediverseTrendingLinks(),
+            this.fediverseTrendingTags(),
+            this.fediverseTrendingToots(),
+        ]);
         return {
-            links: await this.fediverseTrendingLinks(),
-            tags: await this.fediverseTrendingTags(),
-            toots: await this.fediverseTrendingToots(),
+            links: responses[0],
+            tags: responses[1],
+            toots: responses[2],
         };
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
