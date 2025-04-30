@@ -226,7 +226,7 @@ class TheAlgorithm {
         return mostRecentTootedAt(this.feed.filter(toot => toot.isFollowed));
     }
 
-    // Return the URL for a given tag on the local server
+    // Helper method to return the URL for a given tag on the local server
     buildTagURL(tag: mastodon.v1.Tag): string {
         return `https://${MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
