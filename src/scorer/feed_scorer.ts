@@ -11,11 +11,11 @@ import { StringNumberDict } from "../types";
 export default abstract class FeedScorer extends Scorer {
     // Take an array of Toots and extract the scoreData needed to score a toot
     extractScoreDataFromFeed(feed: Toot[]): void {
-        this.scoreData = this.feedExtractor(feed);
-        console.debug(`${this.logPrefix()} feedExtractor() returned scoreData:`, this.scoreData);
+        this.scoreData = this.extractScoringData(feed);
+        console.debug(`${this.logPrefix()} extractScoringData() returned scoreData:`, this.scoreData);
         this.isReady = true;
     }
 
     // Required implementation of the feed extractor function called in setFeed()
-    abstract feedExtractor(feed: Toot[]): StringNumberDict;
+    abstract extractScoringData(feed: Toot[]): StringNumberDict;
 };

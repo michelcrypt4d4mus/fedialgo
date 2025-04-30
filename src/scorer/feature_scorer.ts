@@ -3,11 +3,8 @@
  * a toot based solely on the properties of that toot, optionally coupled with other
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
-import { mastodon } from "masto";
-
 import Scorer from "./scorer";
-import Storage from "../Storage";
-import { StringNumberDict, TrendingWithHistory, WeightName } from "../types";
+import { StringNumberDict, WeightName } from "../types";
 
 
 // TODO: Find a better name than "Feature" for this class
@@ -16,11 +13,8 @@ export default abstract class FeatureScorer extends Scorer {
         super(scoreName);
     }
 
-    // Can be overloaded in subclasses to set up any data required for scoring Toots
-    async prepareScoreData(): Promise<StringNumberDict> {
-        return {};
-    }
-
+    // Calls this.prepareScoreData() to get any data required for scoring Toots later.
+    // Don't overload this - overload prepareScoreData() instead.
     async fetchRequiredData(): Promise<void> {
         try {
             this.scoreData = await this.prepareScoreData();
@@ -34,5 +28,10 @@ export default abstract class FeatureScorer extends Scorer {
         }
 
         this.isReady = true;
+    }
+
+    // Can be overloaded in subclasses to set up any data required for scoring Toots
+    async prepareScoreData(): Promise<StringNumberDict> {
+        return {};
     }
 };
