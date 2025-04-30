@@ -60,6 +60,9 @@ timelineFeed = await algorithm.updateUserWeights(weights);
 // Choose a preset weight configuration
 timelineFeed = await algorithm.updateUserWeightsToPreset(PresetWeightLabel.FRIENDS);
 
+// The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.scorersDict.
+for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.scorersDict[key]}`);
+
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
 filters.filterSections[PropertyName.LANGUAGE].updateValidOptions("de", true);
@@ -69,6 +72,7 @@ const filteredFeed = algorithm.updateFilters(filters);
 filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
 const filteredFeed = algorithm.updateFilters(filters);
 ```
+
 
 ### Timeline Callback
 You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of toots in the background and integrating them into the timeline.
