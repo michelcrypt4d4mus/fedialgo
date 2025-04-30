@@ -168,7 +168,6 @@ class TheAlgorithm {
             dataFetches = dataFetches.concat([
                 MastodonServer.fediverseTrendingToots(),
                 fetchRecentTootsForTrendingTags(),
-                // FeatureScorers return empty arrays; they're just here for initial load parallelization
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         } else {
@@ -186,7 +185,6 @@ class TheAlgorithm {
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await MastodonServer.getTrendingData();
         this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
-
         // Filter out dupe/invalid toots, build filters
         this.feed = this.cleanupFeed(newToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);

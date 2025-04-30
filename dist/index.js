@@ -172,7 +172,6 @@ class TheAlgorithm {
             dataFetches = dataFetches.concat([
                 mastodon_server_1.default.fediverseTrendingToots(),
                 (0, trending_tags_1.fetchRecentTootsForTrendingTags)(),
-                // FeatureScorers return empty arrays; they're just here for initial load parallelization
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         }
