@@ -26,11 +26,11 @@ export default abstract class FeatureScorer extends Scorer {
         try {
             this.scoreData = await this.featureGetter();
         } catch (e) {
-            console.error(`Error in featureGetter() for ${this.constructor.name}:`, e);
+            console.error(`${this.logPrefix()} Error in featureGetter():`, e);
             this.scoreData = {};
         }
 
-        console.debug(`[${this.constructor.name}] featureGetter() returned:`, this.scoreData);
+        console.debug(`${this.logPrefix()} featureGetter() returned:`, this.scoreData);
         this.isReady = true;
     }
 

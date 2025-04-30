@@ -5,9 +5,8 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import Storage from '../../Storage';
+import { sumArray } from '../../helpers/collection_helpers';
 import { WeightName } from "../../types";
-
-const EXCESSIVE_TAGS_PENALTY = 0.1;
 
 
 export default class TrendingTagsScorer extends FeatureScorer {
@@ -16,11 +15,13 @@ export default class TrendingTagsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        let score = (toot.reblog || toot).trendingTags.reduce((sum, tag) => sum + (tag.numAccounts || 0), 0);
+        const tagScores = (toot.reblog || toot).trendingTags.map(tag => tag.numAccounts || 0);
+        let score = sumArray(tagScores);
 
+        // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= Storage.getConfig().excessiveTags) {
-            console.info(`[${this.constructor.name}] Penalizing excessive tags (${toot.tags.length}) in:`, toot);
-            score *= EXCESSIVE_TAGS_PENALTY;
+            console.info(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in:`, toot);
+            score *= Storage.getConfig().excessiveTagsPenalty;
         }
 
         return score;

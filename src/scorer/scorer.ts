@@ -31,6 +31,7 @@ export default abstract class Scorer {
         };
     }
 
+    // This is the public API for scoring a toot
     async score(toot: Toot): Promise<number> {
         this.checkIsReady();
         return await this._score(toot);
@@ -39,6 +40,12 @@ export default abstract class Scorer {
     // Actual implementation of the scoring algorithm should be implemented in subclasses
     abstract _score(_toot: Toot): Promise<number>;
 
+    // Logging helper
+    protected logPrefix(): string {
+        return `[${this.constructor.name}]`;
+    }
+
+    // Throw an error if the scorer is not ready to score
     private checkIsReady(): void {
         if (!this.isReady) {
             const msg = `${this.name} scorer not ready!`;

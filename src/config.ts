@@ -27,6 +27,7 @@ export type Config = {
     timeoutMS: number;
     // Trending tags
     excessiveTags: number;
+    excessiveTagsPenalty: number;
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingLinksPerServer: number;
@@ -70,6 +71,7 @@ export const DEFAULT_CONFIG: Config = {
 
     // Trending tags
     excessiveTags: 25,                   // Toots with more than this many tags will be penalized
+    excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 20,          // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server

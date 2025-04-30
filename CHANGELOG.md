@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add Config.excessiveTagsPenalty param
 
 ### v0.20.8
 * `RetootsInFeedScorer` can use `Toot.reblogsBy.length` to score (and therefore doesn't need to be a `FeedScorer`)
