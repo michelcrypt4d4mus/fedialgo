@@ -30,6 +30,7 @@ const trendingMutexes = {
     [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: new async_mutex_1.Mutex(),
     [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: new async_mutex_1.Mutex(),
+    [types_1.StorageKey.POPULAR_SERVERS]: new async_mutex_1.Mutex(),
 };
 class MastodonServer {
     domain;
@@ -183,10 +184,30 @@ class MastodonServer {
             }
         });
     }
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    static async getMastodonServersInfo() {
+        const releaseMutex = await trendingMutexes[types_1.StorageKey.POPULAR_SERVERS].acquire();
+        try {
+            let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
+            if (!servers || Object.keys(servers).length == 0 || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
+                servers = await this.fetchMastodonServersInfo();
+                console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] retrieved mastodon server infos`, servers);
+                await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
+            }
+            else {
+                console.log(`[${types_1.StorageKey.POPULAR_SERVERS}] Loaded ${Object.keys(servers).length} from cache...`);
+            }
+            return servers;
+        }
+        finally {
+            releaseMutex();
+        }
+    }
+    ;
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
-    static async mastodonServersInfo() {
-        console.debug(`[mastodonServersInfo] fetching remote server info...`);
+    static async fetchMastodonServersInfo() {
+        console.debug(`[fetchMastodonServersInfo] fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
@@ -216,6 +237,15 @@ class MastodonServer {
         console.log(`Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
     }
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    static async getTopServerDomains() {
+        const servers = await this.getMastodonServersInfo();
+        // Sort the servers by the number of users on each server
+        const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
+        console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        return topServerDomains;
+    }
+    ;
     // Common wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
     static async fetchTrendingFromAllServers(props) {
@@ -244,7 +274,7 @@ class MastodonServer {
     }
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     static async callForAllServers(fxn) {
-        const domains = await api_1.MastoApi.instance.getTopServerDomains();
+        const domains = await this.getTopServerDomains();
         return await this.callForServers(domains, fxn);
     }
     // Call 'fxn' for a list of domains and return a dict keyed by domain

@@ -186,7 +186,7 @@ class TheAlgorithm {
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
         this.trendingData = await MastodonServer.getTrendingData();
-        this.mastodonServers = await MastoApi.instance.getMastodonServersInfo();
+        this.mastodonServers = await MastodonServer.getMastodonServersInfo();
         // Filter out dupe/invalid toots, build filters
         this.feed = this.cleanupFeed(retrievedToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);

@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Move `fetchRecentTootsForTrendingTags()` to `MastoApi`
+* Move `getMastodonServersInfo()` from `MastoApi` class to `MastodonServer` class
 
 ### v0.20.12
 * Add `Config.staleDataSeconds` dictionary to enable customized data refresh rates (rename old `Config.staleDataSeconds` to `Config.staleDataDefaultSeconds`)

@@ -19,7 +19,9 @@ export default class MastodonServer {
     static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TrendingTag[]>;
-    static mastodonServersInfo(): Promise<MastodonServersInfo>;
+    static getMastodonServersInfo(): Promise<MastodonServersInfo>;
+    private static fetchMastodonServersInfo;
+    private static getTopServerDomains;
     private static fetchTrendingFromAllServers;
     private static callForAllServers;
     private static callForServers;
