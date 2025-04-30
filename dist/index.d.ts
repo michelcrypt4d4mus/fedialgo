@@ -48,11 +48,11 @@ declare class TheAlgorithm {
     private constructor();
     getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]>;
     getUserWeights(): Promise<Weights>;
+    updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
-    updateFilters(newFilters: FeedFilterSettings): Toot[];
-    mostRecentHomeTootAt(): Date | null;
     buildTagURL(tag: mastodon.v1.Tag): string;
+    mostRecentHomeTootAt(): Date | null;
     private cleanupFeed;
     private filterFeed;
     private maybeGetMoreToots;

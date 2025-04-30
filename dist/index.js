@@ -203,6 +203,13 @@ class TheAlgorithm {
     async getUserWeights() {
         return await Storage_1.default.getWeightings();
     }
+    // Update the feed filters and return the newly filtered feed
+    updateFilters(newFilters) {
+        console.log(`updateFilters() called with newFilters:`, newFilters);
+        this.filters = newFilters;
+        Storage_1.default.setFilters(newFilters);
+        return this.filterFeed();
+    }
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
         console.log("updateUserWeights() called with weights:", userWeights);
@@ -214,19 +221,13 @@ class TheAlgorithm {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
-    updateFilters(newFilters) {
-        console.log(`updateFilters() called with newFilters:`, newFilters);
-        this.filters = newFilters;
-        Storage_1.default.setFilters(newFilters);
-        return this.filterFeed();
+    // Helper method to return the URL for a given tag on the local server
+    buildTagURL(tag) {
+        return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed.filter(toot => toot.isFollowed));
-    }
-    // Helper method to return the URL for a given tag on the local server
-    buildTagURL(tag) {
-        return `https://${api_1.MastoApi.instance.homeDomain}/tags/${tag.name}`;
     }
     // Remove invalid and duplicate toots
     cleanupFeed(toots) {
