@@ -36,6 +36,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const collection_helpers_1 = require("./helpers/collection_helpers");
+const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
@@ -57,6 +58,17 @@ class Storage {
     static getConfig() {
         return this.config;
     }
+    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
+    static async getCoerced(key) {
+        let value = await this.get(key);
+        if (!value) {
+            value = [];
+        }
+        else if (!Array.isArray(value)) {
+            (0, string_helpers_1.logAndThrowError)(`[Storage] Expected array at '${key}' but got\n${JSON.stringify(value, null, 4)}`);
+        }
+        return value;
+    }
     // Get the timeline toots
     static async getFeed() {
         return await this.getToots(types_1.StorageKey.TIMELINE);
@@ -73,11 +85,6 @@ class Storage {
         }
         return filters;
     }
-    // Get the user identity from storage
-    static async getIdentity() {
-        const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
-        return user ? new account_1.default(user) : null;
-    }
     // Generic method for deserializing stored toots
     static async getToots(key) {
         const toots = await this.get(key);
@@ -86,24 +93,25 @@ class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending() {
         return {
-            links: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []),
-            tags: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []),
+            links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
+            tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: (await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
         };
     }
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData() {
-        const followedAccounts = await this.get(types_1.StorageKey.FOLLOWED_ACCOUNTS);
-        const followedTags = await this.get(types_1.StorageKey.FOLLOWED_TAGS);
-        const serverSideFilters = await this.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
-        const blockedAccounts = await this.get(types_1.StorageKey.BLOCKED_ACCOUNTS);
-        const mutedAccounts = await this.get(types_1.StorageKey.MUTED_ACCOUNTS);
-        const allMutedAccounts = (mutedAccounts ?? []).concat(blockedAccounts ?? []).map((a) => new account_1.default(a));
+        const followedAccounts = await this.getCoerced(types_1.StorageKey.FOLLOWED_ACCOUNTS);
+        const followedTags = await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS);
+        const serverSideFilters = await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS);
+        // TODO: unify blocked and muted account logic?
+        const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
+        const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
+        const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a));
         return {
-            followedAccounts: account_1.default.buildAccountNames((followedAccounts ?? []).map(a => new account_1.default(a))),
-            followedTags: (0, collection_helpers_1.countValues)(followedTags ?? [], tag => tag.name),
-            mutedAccounts: account_1.default.buildAccountNames(allMutedAccounts),
-            serverSideFilters: serverSideFilters ?? {},
+            followedAccounts: account_1.default.buildAccountNames(followedAccounts.map(a => new account_1.default(a))),
+            followedTags: (0, collection_helpers_1.countValues)(followedTags, tag => tag.name),
+            mutedAccounts: account_1.default.buildAccountNames(silencedAccounts),
+            serverSideFilters: serverSideFilters,
         };
     }
     // Return true if the data stored at 'key' is stale and should be refetched
@@ -194,8 +202,13 @@ class Storage {
             return `${user.id}_${key}`;
         }
         else {
-            throw new Error("No user identity found");
+            (0, string_helpers_1.logAndThrowError)(`[STORAGE] No user identity found`);
         }
+    }
+    // Get the user identity from storage
+    static async getIdentity() {
+        const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
+        return user ? new account_1.default(user) : null;
     }
     // Get the timestamp the app was last opened // TODO: currently unused
     static async getLastOpenedTimestamp() {
@@ -225,7 +238,7 @@ class Storage {
             return (0, time_helpers_1.ageInSeconds)(withTimestamp.updatedAt);
         }
         else {
-            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
+            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at '${key}'`);
             return null;
         }
     }

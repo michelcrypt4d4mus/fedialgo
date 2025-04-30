@@ -14,3 +14,4 @@ export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis
 export declare function countInstances(str: string, substr: string): number;
 export declare function createRandomString(length: number): string;
 export declare function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void;
+export declare function logAndThrowError(message: string): never;

@@ -10,6 +10,7 @@ import { ageInSeconds, ageOfTimestampInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { countValues } from "./helpers/collection_helpers";
+import { logAndThrowError } from "./helpers/string_helpers";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
@@ -48,6 +49,19 @@ export default class Storage {
         return this.config;
     }
 
+    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
+    static async getCoerced<T>(key: StorageKey): Promise<T[]> {
+        let value = await this.get(key);
+
+        if (!value) {
+            value = [];
+        } else if (!Array.isArray(value)) {
+            logAndThrowError(`[Storage] Expected array at '${key}' but got\n${JSON.stringify(value, null, 4)}`);
+        }
+
+        return value as T[];
+    }
+
     // Get the timeline toots
     static async getFeed(): Promise<Toot[] | null> {
         return await this.getToots(StorageKey.TIMELINE);
@@ -67,12 +81,6 @@ export default class Storage {
         return filters;
     }
 
-    // Get the user identity from storage
-    static async getIdentity(): Promise<Account | null> {
-        const user = await localForage.getItem(StorageKey.USER);
-        return user ? new Account(user as mastodon.v1.Account) : null;
-    }
-
     // Generic method for deserializing stored toots
     static async getToots(key: StorageKey): Promise<Toot[] | null> {
         const toots = await this.get(key) as SerializableToot[];
@@ -82,27 +90,27 @@ export default class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending(): Promise<TrendingStorage> {
         return {
-            links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],
-            tags: ((await this.get(StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []) as TrendingTag[],
+            links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
+            tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
         };
     }
 
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData(): Promise<UserData> {
-        const followedAccounts = await this.get(StorageKey.FOLLOWED_ACCOUNTS) as mastodon.v1.Account[];
-        const followedTags = await this.get(StorageKey.FOLLOWED_TAGS) as mastodon.v1.Tag[];
-        const serverSideFilters = await this.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
-
-        const blockedAccounts = await this.get(StorageKey.BLOCKED_ACCOUNTS) as mastodon.v1.Account[];
-        const mutedAccounts = await this.get(StorageKey.MUTED_ACCOUNTS) as mastodon.v1.Account[];
-        const allMutedAccounts = (mutedAccounts ?? []).concat(blockedAccounts ?? []).map((a) => new Account(a));
+        const followedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.FOLLOWED_ACCOUNTS);
+        const followedTags = await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS);
+        const serverSideFilters = await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS);
+        // TODO: unify blocked and muted account logic?
+        const blockedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.BLOCKED_ACCOUNTS);
+        const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.MUTED_ACCOUNTS);
+        const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new Account(a));
 
         return {
-            followedAccounts: Account.buildAccountNames((followedAccounts ?? []).map(a => new Account(a))),
-            followedTags: countValues<mastodon.v1.Tag>(followedTags ?? [], tag => tag.name),
-            mutedAccounts: Account.buildAccountNames(allMutedAccounts),
-            serverSideFilters: serverSideFilters ?? {},
+            followedAccounts: Account.buildAccountNames(followedAccounts.map(a => new Account(a))),
+            followedTags: countValues<mastodon.v1.Tag>(followedTags, tag => tag.name),
+            mutedAccounts: Account.buildAccountNames(silencedAccounts),
+            serverSideFilters: serverSideFilters,
         };
     }
 
@@ -205,8 +213,14 @@ export default class Storage {
         if (user) {
             return `${user.id}_${key}`;
         } else {
-            throw new Error("No user identity found");
+            logAndThrowError(`[STORAGE] No user identity found`);
         }
+    }
+
+    // Get the user identity from storage
+    private static async getIdentity(): Promise<Account | null> {
+        const user = await localForage.getItem(StorageKey.USER);
+        return user ? new Account(user as mastodon.v1.Account) : null;
     }
 
     // Get the timestamp the app was last opened // TODO: currently unused
@@ -242,7 +256,7 @@ export default class Storage {
         if (withTimestamp) {
             return ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
         } else {
-            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at key '${key}'`);
+            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at '${key}'`);
             return null;
         }
     }

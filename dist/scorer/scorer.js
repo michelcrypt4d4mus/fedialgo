@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
+const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -41,11 +42,8 @@ class Scorer {
     }
     // Throw an error if the scorer is not ready to score
     checkIsReady() {
-        if (!this.isReady) {
-            const msg = `${this.name} scorer not ready!`;
-            console.error(msg);
-            throw new Error(msg);
-        }
+        if (!this.isReady)
+            (0, string_helpers_1.logAndThrowError)(`${this.name} scorer not ready!`);
     }
     // Add all the score into to a toot, including a final score
     static async decorateWithScoreInfo(toot, scorers) {

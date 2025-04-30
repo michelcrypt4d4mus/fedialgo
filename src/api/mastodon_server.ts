@@ -12,6 +12,7 @@ import Toot from "./objects/toot";
 import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
 import { decorateHistoryScores, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
+import { logAndThrowError } from "../helpers/string_helpers";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -125,7 +126,7 @@ export default class MastodonServer {
             list = await this.fetch<T[]>(endpoint, limit);
 
             if (!list?.length) {
-                throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
+                logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
         } catch (e) {
             console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}! Response:`, e);

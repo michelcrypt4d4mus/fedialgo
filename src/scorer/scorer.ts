@@ -4,6 +4,7 @@
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
+import { logAndThrowError } from "../helpers/string_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
 import { sumValues } from "../helpers/collection_helpers";
@@ -47,11 +48,7 @@ export default abstract class Scorer {
 
     // Throw an error if the scorer is not ready to score
     private checkIsReady(): void {
-        if (!this.isReady) {
-            const msg = `${this.name} scorer not ready!`;
-            console.error(msg);
-            throw new Error(msg);
-        }
+        if (!this.isReady) logAndThrowError(`${this.name} scorer not ready!`);
     }
 
     // Add all the score into to a toot, including a final score

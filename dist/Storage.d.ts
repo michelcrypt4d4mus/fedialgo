@@ -6,9 +6,9 @@ export default class Storage {
     static config: Config;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getConfig(): Config;
+    static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFeed(): Promise<Toot[] | null>;
     static getFilters(): Promise<FeedFilterSettings>;
-    static getIdentity(): Promise<Account | null>;
     static getToots(key: StorageKey): Promise<Toot[] | null>;
     static getTrending(): Promise<TrendingStorage>;
     static getUserData(): Promise<UserData>;
@@ -23,6 +23,7 @@ export default class Storage {
     static setWeightings(userWeightings: Weights): Promise<void>;
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     private static buildKey;
+    private static getIdentity;
     private static getLastOpenedTimestamp;
     private static getNumAppOpens;
     private static secondsSinceLastOpened;

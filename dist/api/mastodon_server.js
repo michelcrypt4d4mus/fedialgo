@@ -15,6 +15,7 @@ const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const api_1 = require("./api");
+const string_helpers_1 = require("../helpers/string_helpers");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
@@ -98,7 +99,7 @@ class MastodonServer {
         try {
             list = await this.fetch(endpoint, limit);
             if (!list?.length) {
-                throw new Error(`No ${label} found! list: ${JSON.stringify(list)}`);
+                (0, string_helpers_1.logAndThrowError)(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
         }
         catch (e) {

@@ -103,4 +103,10 @@ export function createRandomString(length: number): string {
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
     console.log(`${prefix} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-}
+};
+
+
+export function logAndThrowError(message: string): never {
+    console.error(message);
+    throw new Error(message);
+};
