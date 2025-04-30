@@ -190,7 +190,7 @@ class TheAlgorithm {
         const userData = allResponses.shift();
         const trendingToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
         const retrievedToots = [...newHomeToots, ...trendingToots];
-        this.logTootCounts(logPrefix, retrievedToots, newHomeToots);
+        await this.logTootCounts(logPrefix, retrievedToots, newHomeToots);
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
         this.mastodonServers = await mastodon_server_1.default.getMastodonServersInfo();
@@ -345,13 +345,13 @@ class TheAlgorithm {
         return this.filterFeed();
     }
     // Utility method to log progress of getFeed() calls
-    logTootCounts(logPrefix, toots, newHomeToots) {
-        const numFollowedAccts = Object.keys(api_1.MastoApi.instance.userData?.followedAccounts || []).length;
+    async logTootCounts(logPrefix, retrievedToots, newHomeToots) {
+        const userData = await api_1.MastoApi.instance.getUserData();
+        const numFollowedAccts = Object.keys(userData.followedAccounts).length;
+        const numFollowedTags = Object.keys(userData.followedTags).length;
         let msg = [
-            `Got ${toots.length} new toots from ${numFollowedAccts} followed accts`,
-            `${newHomeToots.length} new home toots`,
-            `${toots.length} total new toots`,
-            `this.feed has ${this.feed.length} toots`,
+            `Retrieved ${retrievedToots.length} toots (following ${numFollowedAccts} accts, ${numFollowedTags} hashtags)`,
+            `${newHomeToots.length} newHomeToots (${retrievedToots.length - newHomeToots.length} trending toots)`,
         ];
         console.log(`${logPrefix} ${msg.join(', ')} (${this.statusMsg()})`);
     }
