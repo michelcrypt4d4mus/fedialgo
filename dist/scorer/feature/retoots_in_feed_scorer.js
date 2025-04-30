@@ -17,7 +17,7 @@ class RetootsInFeedScorer extends feature_scorer_1.default {
         if (toot.reblog) {
             const reblog = toot.reblog;
             const nonAuthorRetoots = reblog.reblogsBy.filter((acct) => acct.webfingerURI != reblog.account.webfingerURI);
-            return nonAuthorRetoots.length;
+            return Math.pow(nonAuthorRetoots.length, 2);
         }
         else {
             return 0;

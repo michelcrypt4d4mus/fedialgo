@@ -299,7 +299,7 @@ class MastoApi {
         const logPrefix = `[API ${label}]`;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        console.debug(`${logPrefix}: fetchData() called (maxRecords=${maxRecords})`);
+        console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
@@ -308,20 +308,20 @@ class MastoApi {
                 const cachedData = await Storage_1.default.get(label);
                 if (cachedData && !(await Storage_1.default.isDataStale())) {
                     const rows = cachedData;
-                    console.log(`${logPrefix}: Loaded ${rows.length} cached records:`, cachedData);
+                    console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
                 }
                 ;
             }
             for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page);
-                console.debug(`${logPrefix}: Retrieved page ${++pageNumber}`);
+                console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
                 if (results.length >= maxRecords || breakIf(page, results)) {
-                    console.log(`${logPrefix}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
+                    console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
-            console.log(`${logPrefix}: Fetched ${results.length} records:`, results);
+            console.log(`${logPrefix} Retrieved ${results.length} records:`, results);
             await Storage_1.default.set(label, results);
         }
         catch (e) {

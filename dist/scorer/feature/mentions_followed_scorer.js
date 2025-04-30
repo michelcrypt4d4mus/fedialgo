@@ -12,9 +12,8 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
         super(types_1.WeightName.MENTIONS_FOLLOWED);
     }
     // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
-    // TODO: this could just return followedAccounts if the type of scoreData was extending to include AccountNames
     async featureGetter() {
-        let followedAccounts = Object.values((await api_1.MastoApi.instance.getUserData()).followedAccounts);
+        const followedAccounts = await api_1.MastoApi.instance.getFollowedAccounts();
         return (0, collection_helpers_1.countValues)(followedAccounts, (account) => account.webfingerURI);
     }
     ;

@@ -187,7 +187,7 @@ class TheAlgorithm {
         //       so those Toot objects are completely built before we get here.
         newToots.forEach(toot => toot.setDependentProperties(userData, this.trendingData.links));
         this.feed = await this.cleanupFeed(newToots);
-        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.MastoApi.instance.getUserData());
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, userData);
         // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(homeToots, numTimelineToots); // Called asynchronously
         return this.scoreFeed.bind(this)();
@@ -238,6 +238,7 @@ class TheAlgorithm {
     }
     // Remove invalid and duplicate toots
     async cleanupFeed(toots) {
+        // TODO: could just retrieve mutedAccounts here...
         const mutedAccounts = (await api_1.MastoApi.instance.getUserData()).mutedAccounts || [];
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed(mutedAccounts));
         const numRemoved = toots.length - cleanNewToots.length;

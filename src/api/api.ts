@@ -112,7 +112,7 @@ export class MastoApi {
 
         const statuses = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
-            label: StorageKey.HOME_TIMELINE,
+            label: StorageKey.HOME_TIMELINE,  // TODO: this shouldn't actually cache anything
             maxId: maxId,
             maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
             skipCache: true,  // always skip the cache for the home timeline
@@ -319,7 +319,7 @@ export class MastoApi {
         const logPrefix = `[API ${label}]`;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        console.debug(`${logPrefix}: fetchData() called (maxRecords=${maxRecords})`);
+        console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
@@ -330,22 +330,22 @@ export class MastoApi {
 
                 if (cachedData && !(await Storage.isDataStale())) {
                     const rows = cachedData as T[];
-                    console.log(`${logPrefix}: Loaded ${rows.length} cached records:`, cachedData);
+                    console.log(`${logPrefix} Loaded ${rows.length} cached records:`, cachedData);
                     return rows;
                 };
             }
 
             for await (const page of fetch(MastoApi.buildParams(maxId))) {
                 results = results.concat(page as T[]);
-                console.debug(`${logPrefix}: Retrieved page ${++pageNumber}`);
+                console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
 
                 if (results.length >= maxRecords || breakIf(page, results)) {
-                    console.log(`${logPrefix}: Halting fetch at page ${pageNumber} w/ ${results.length} records`);
+                    console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
             }
 
-            console.log(`${logPrefix}: Fetched ${results.length} records:`, results);
+            console.log(`${logPrefix} Retrieved ${results.length} records:`, results);
             await Storage.set(label, results as StorableObj);
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`)
