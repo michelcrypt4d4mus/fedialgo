@@ -125,7 +125,7 @@ class TheAlgorithm {
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setFeedInApp: params.setFeedInApp});
         await algo.setDefaultWeights();
-        algo.feed = await Storage.getFeed();
+        algo.feed = (await Storage.getFeed()) ?? [];
         algo.setFeedInApp(algo.feed);
         algo.filters = await Storage.getFilters();
         algo.trendingData = await Storage.getTrending();

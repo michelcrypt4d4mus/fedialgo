@@ -103,7 +103,7 @@ export default class Storage {
     }
 
     // Get the timeline toots
-    static async getFeed(): Promise<Toot[]> {
+    static async getFeed(): Promise<Toot[] | null> {
         return await this.getToots(StorageKey.TIMELINE);
     }
 
@@ -113,9 +113,9 @@ export default class Storage {
     }
 
     // Generic method for deserializing stored toots
-    static async getToots(key: StorageKey): Promise<Toot[]> {
+    static async getToots(key: StorageKey): Promise<Toot[] | null> {
         const toots = await this.get(key) as SerializableToot[];
-        return (toots ?? []).map(t => new Toot(t));
+        return toots ? toots.map(t => new Toot(t)) : null;
     }
 
     // Generic method for serializing toots to storage
@@ -129,7 +129,7 @@ export default class Storage {
         return {
             links: ((await this.get(StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []) as TrendingLink[],
             tags: ((await this.get(StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []) as TrendingTag[],
-            toots: await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS),
+            toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
         };
     }
 
@@ -229,8 +229,10 @@ export default class Storage {
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline
+    // TODO: unused
     private static async secondsSinceMostRecentToot(): Promise<number | null> {
         const timelineToots = await this.getToots(StorageKey.TIMELINE);
+        if (!timelineToots) return null;
         const mostRecent = mostRecentTootedAt(timelineToots);
 
         if (mostRecent) {

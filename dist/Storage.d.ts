@@ -13,9 +13,9 @@ export default class Storage {
     static logAppOpen(): Promise<void>;
     static getIdentity(): Promise<Account | null>;
     static setIdentity(user: Account): Promise<void>;
-    static getFeed(): Promise<Toot[]>;
+    static getFeed(): Promise<Toot[] | null>;
     static setFeed(timeline: Toot[]): Promise<void>;
-    static getToots(key: StorageKey): Promise<Toot[]>;
+    static getToots(key: StorageKey): Promise<Toot[] | null>;
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     static getTrending(): Promise<TrendingStorage>;
     static isDataStale(key: StorageKey): Promise<boolean>;

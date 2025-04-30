@@ -112,7 +112,7 @@ class Storage {
     // Generic method for deserializing stored toots
     static async getToots(key) {
         const toots = await this.get(key);
-        return (toots ?? []).map(t => new toot_1.default(t));
+        return toots ? toots.map(t => new toot_1.default(t)) : null;
     }
     // Generic method for serializing toots to storage
     static async storeToots(key, toots) {
@@ -124,7 +124,7 @@ class Storage {
         return {
             links: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS)) ?? []),
             tags: ((await this.get(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS)) ?? []),
-            toots: await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
+            toots: (await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
         };
     }
     // Return true if the timeline and user data is stale and should be reloaded
@@ -213,8 +213,11 @@ class Storage {
         }
     }
     // Return the number of seconds since the most recent toot in the stored timeline
+    // TODO: unused
     static async secondsSinceMostRecentToot() {
         const timelineToots = await this.getToots(types_1.StorageKey.TIMELINE);
+        if (!timelineToots)
+            return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
         if (mostRecent) {
             return (0, time_helpers_1.ageOfTimestampInSeconds)(mostRecent.getTime());

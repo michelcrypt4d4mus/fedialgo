@@ -144,7 +144,7 @@ export class MastoApi {
         try {
             let trendingTagToots = await Storage.getToots(StorageKey.TRENDING_TAG_TOOTS);
 
-            if (!trendingTagToots.length || (await Storage.isDataStale(StorageKey.TRENDING_TAG_TOOTS))) {
+            if (!trendingTagToots?.length || (await Storage.isDataStale(StorageKey.TRENDING_TAG_TOOTS))) {
                 const trendingTags = await MastodonServer.fediverseTrendingTags();
                 const tootTags: Toot[][] = await Promise.all(trendingTags.map(this.getTootsForTag));
                 const toots = Toot.dedupeToots(tootTags.flat(), StorageKey.TRENDING_TAG_TOOTS);

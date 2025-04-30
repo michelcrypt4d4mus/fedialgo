@@ -137,7 +137,7 @@ class MastoApi {
         const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
         try {
             let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
-            if (!trendingTagToots.length || (await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
+            if (!trendingTagToots?.length || (await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
                 const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
                 const tootTags = await Promise.all(trendingTags.map(this.getTootsForTag));
                 const toots = toot_1.default.dedupeToots(tootTags.flat(), types_1.StorageKey.TRENDING_TAG_TOOTS);
