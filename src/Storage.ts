@@ -152,10 +152,10 @@ export default class Storage {
             console.debug(`${logPrefix} numAppOpens is ${JSON.stringify(numAppOpens)} so initial load; data not stale (${seconds} seconds)`);
             return false;
         } if (!seconds) {
-            console.debug(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
+            console.log(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
             return true;
         } else if (seconds > this.getConfig().staleDataSeconds) {
-            console.debug(`${logPrefix} Data is stale data after ${seconds} seconds...`);
+            console.log(`${logPrefix} Data is stale data after ${seconds} seconds...`);
             return true;
         } else {
             console.debug(`${logPrefix} Remote data is still fresh (${seconds} seconds old), no need to reload.`);

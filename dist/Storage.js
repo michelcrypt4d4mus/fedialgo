@@ -147,11 +147,11 @@ class Storage {
             return false;
         }
         if (!seconds) {
-            console.debug(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
+            console.log(`${logPrefix} No existing updatedAt so data is stale (returned '${JSON.stringify(seconds)}')`);
             return true;
         }
         else if (seconds > this.getConfig().staleDataSeconds) {
-            console.debug(`${logPrefix} Data is stale data after ${seconds} seconds...`);
+            console.log(`${logPrefix} Data is stale data after ${seconds} seconds...`);
             return true;
         }
         else {
