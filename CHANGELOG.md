@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Implement catchupCheckpoint logic so that refocusing the app will always poll new toots back to the last home timeline toot we already have
 
 ### v0.20.11
 * `Toot.buildToots()` helper method

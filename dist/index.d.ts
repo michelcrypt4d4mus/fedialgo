@@ -33,11 +33,12 @@ declare class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    loadingStatus?: string;
     setFeedInApp: (feed: Toot[]) => void;
     feed: Toot[];
-    scoreMutex: Mutex;
+    catchupCheckpoint: Date | null;
+    loadingStatus?: string;
     mastodonServers: MastodonServersInfo;
+    scoreMutex: Mutex;
     trendingData: TrendingStorage;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: DiversityFeedScorer[];

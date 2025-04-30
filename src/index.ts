@@ -23,7 +23,7 @@ import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
-import Toot, { mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
@@ -36,6 +36,7 @@ import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { processPromisesBatch } from './helpers/collection_helpers';
 import { SCORERS_CONFIG } from "./config";
+import { toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonServersInfo,
@@ -64,20 +65,21 @@ class TheAlgorithm {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     filters: FeedFilterSettings;
-    loadingStatus?: string;  // Status message load activity. When it becomes undefined the load is complete.
     setFeedInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
 
     // Variables with initial values
     feed: Toot[] = [];
-    scoreMutex = new Mutex();
+    catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
+    loadingStatus?: string = "(ready to load)";  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonServersInfo = {};
+    scoreMutex = new Mutex();
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        new ChaosScorer(),
         new FollowedTagsScorer(),
         new MentionsFollowedScorer(),
-        new ChaosScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
         new MostFavoritedAccountsScorer(),
@@ -135,7 +137,6 @@ class TheAlgorithm {
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
         this.user = params.user;
-        this.loadingStatus = "(ready to load)";
         this.setFeedInApp = params.setFeedInApp ?? ((f: Toot[]) => console.debug(`Default setFeedInApp() called`));
         MastoApi.init(this.api, this.user as Account);
         this.filters = buildNewFilterSettings();
@@ -157,6 +158,11 @@ class TheAlgorithm {
         if (!maxId) {
             this.loadingStatus = "initial data";
 
+            if (this.feed.length) {
+                this.catchupCheckpoint = this.mostRecentTootAt(true);
+                console.log(`Set catchupCheckpoint to ${toISOFormat(this.catchupCheckpoint)} (${this.feed.length} in feed)`);
+            }
+
             // ORDER MATTERS! The results of these Promises are processed with shift()
             // TODO: should we really make the user wait for the initial load to get all trending toots?
             dataFetches = dataFetches.concat([
@@ -170,11 +176,11 @@ class TheAlgorithm {
         }
 
         const allResponses = await Promise.all(dataFetches);
-        const homeToots = allResponses.shift();  // pop getTimelineToots() response from front of allResponses array
+        const newHomeToots = allResponses.shift();  // pop getTimelineToots() response from front of allResponses array
         const userData = allResponses.shift();
-        const trendToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
-        const newToots = [...homeToots, ...trendToots];
-        this.logTootCounts(newToots, homeToots);
+        const trendingToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
+        const newToots = [...newHomeToots, ...trendingToots];
+        this.logTootCounts(newToots, newHomeToots);
 
         // trendingData and mastodonServers should be getting loaded from cached data in local storage
         // as the initial fetch happened in the course of getting the trending toots.
@@ -186,7 +192,7 @@ class TheAlgorithm {
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);
 
         // Potentially fetch more toots if we haven't reached the desired number
-        this.maybeGetMoreToots(homeToots, numTimelineToots);  // Called asynchronously
+        this.maybeGetMoreToots(newHomeToots, numTimelineToots);  // Called asynchronously
         return this.scoreFeed.bind(this)();
     }
 
@@ -250,21 +256,29 @@ class TheAlgorithm {
     // and the last request returned the full requested count
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
         const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
-        console.log(`Have ${this.feed.length} toots in timeline, want ${maxTimelineTootsToFetch}...`);
+        console.log(`[maybeGetMoreToots] TL has ${this.feed.length} toots, want ${maxTimelineTootsToFetch} (catchupCheckpoint='${this.catchupCheckpoint}')`);
+        const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
                Storage.getConfig().enableIncrementalLoad
-            && this.feed.length < maxTimelineTootsToFetch
-            && newHomeToots.length >= (numTimelineToots - 3)  // Sometimes we get 39 records instead of 40 at a time
+            && (
+                   // Check newHomeToots is bigger than (numTimelineToots - 3) bc sometimes we get e.g. 39 records instead of 40
+                   // but if we got like, 5 toots, that means we've exhausted the user's timeline and there's nothing more to fetch
+                   (this.feed.length < maxTimelineTootsToFetch && newHomeToots.length >= (numTimelineToots - 3))
+                   // Alternatively check if the earliest new home toot is newer than the catchup checkpoint. If it is
+                   // we should continue fetching more toots.
+                || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
+            )
         ) {
             setTimeout(
                 () => {
-                    // Use the 5th toot bc sometimes there are weird outliers. Dupes will be removed later.
+                    // Use the 4th toot bc sometimes there are weird outliers. Dupes will be removed later.
                     // It's important that we *only* look at home timeline toots here. Toots from other servers
                     // will have different ID schemes and we can't rely on them to be in order.
-                    const tootWithMaxId = sortByCreatedAt(newHomeToots)[5];
-                    console.log(`calling getFeed() recursively, current newHomeToots:`, newHomeToots);
+                    const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
+                    let msg = `calling getFeed() recursively, current catchupCheckpoint: '${toISOFormat(this.catchupCheckpoint)}'`;
+                    console.log(`${msg}, current newHomeToots:`, newHomeToots);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS
@@ -272,6 +286,16 @@ class TheAlgorithm {
         } else {
             if (!Storage.getConfig().enableIncrementalLoad) {
                 console.log(`halting getFeed(): incremental loading disabled`);
+            } else if (this.catchupCheckpoint) {
+                const checkpointStr = toISOFormat(this.catchupCheckpoint);
+                const earliestNewHomeTootAtStr = toISOFormat(earliestNewHomeTootAt);
+
+                if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
+                    console.log(`halting getFeed(): caught up to catchupCheckpoint '${checkpointStr}' (earliestNewHomeTootAt '${earliestNewHomeTootAtStr}')`);
+                    this.catchupCheckpoint = null;
+                } else {
+                    console.log(`Not caught up to catchupCheckpoint '${checkpointStr}' w/ earliestNewHomeTootAt '${earliestNewHomeTootAtStr}'`);
+                }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
                 console.log(`halting getFeed(): we have ${this.feed.length} toots`);
             } else {
