@@ -347,7 +347,7 @@ class TheAlgorithm {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, string_helpers_1.logInfo)(logPrefix, `ASYNC Scorers prepared ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                (0, string_helpers_1.logInfo)(logPrefix, `TELEMETRY Scorers prepared ${(0, time_helpers_1.inSeconds)(startTime)}`);
             }
             else {
                 // console.debug(`${(new Date().toISOString())} [prepareScorers()]  FeatureScorers already ready`);
