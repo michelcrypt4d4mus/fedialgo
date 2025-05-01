@@ -17,7 +17,8 @@ export const DEFAULT_FILTERS = {
 } as FeedFilterSettings;
 
 
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
+// For building a FeedFilterSettings object from the serialized version.
+// NOTE: Mutates object.
 export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
     serializedFilterSettings.filterSections ??= {} as PropertyFilters;
     serializedFilterSettings.numericFilters ??= {} as NumericFilters;

@@ -247,10 +247,10 @@ class TheAlgorithm {
     }
     async loadCachedData() {
         this.feed = (await Storage_1.default.getFeed()) ?? [];
-        this.setFeedInApp(this.feed);
         this.filters = await Storage_1.default.getFilters();
         this.trendingData = await Storage_1.default.getTrending();
-        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData=`, this.trendingData);
+        this.setFeedInApp(this.feed);
+        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData:`, this.trendingData);
     }
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count

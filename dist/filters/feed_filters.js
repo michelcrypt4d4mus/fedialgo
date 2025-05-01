@@ -41,7 +41,8 @@ exports.DEFAULT_FILTERS = {
     numericFilterArgs: [],
     numericFilters: {},
 };
-// For building a FeedFilterSettings object from the serialized version. Mutates object.
+// For building a FeedFilterSettings object from the serialized version.
+// NOTE: Mutates object.
 function buildFiltersFromArgs(serializedFilterSettings) {
     serializedFilterSettings.filterSections ??= {};
     serializedFilterSettings.numericFilters ??= {};

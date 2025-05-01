@@ -255,10 +255,10 @@ class TheAlgorithm {
 
     private async loadCachedData(): Promise<void> {
         this.feed = (await Storage.getFeed()) ?? [];
-        this.setFeedInApp(this.feed);
         this.filters = await Storage.getFilters();
         this.trendingData = await Storage.getTrending();
-        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData=`, this.trendingData);
+        this.setFeedInApp(this.feed);
+        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData:`, this.trendingData);
     }
 
     // Asynchronously fetch more toots if we have not reached the requred # of toots
