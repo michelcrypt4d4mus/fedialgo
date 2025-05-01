@@ -153,9 +153,9 @@ export async function batchPromises<T>(
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults]
 
-        if (label) {
-            console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
-        }
+        // if (label) {
+        //     console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+        // }
     }
 
     return results;

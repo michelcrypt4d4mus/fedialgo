@@ -9,7 +9,6 @@ exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const Storage_1 = __importDefault(require("../Storage"));
-const time_helpers_1 = require("./time_helpers");
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);
@@ -127,9 +126,9 @@ async function batchPromises(items, fn, label, batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults];
-        if (label) {
-            console.debug(`[${label}] Processed ${end} batch promises in ${(0, time_helpers_1.ageInSeconds)(startTime)} seconds...`);
-        }
+        // if (label) {
+        //     console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+        // }
     }
     return results;
 }
