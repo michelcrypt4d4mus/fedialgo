@@ -248,7 +248,7 @@ export class MastoApi {
         // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: Account.buildAccountNames(responses[0]),
-            followedTags: keyByProperty<mastodon.v1.Tag>(responses[1], (tag) => tag.name),
+            followedTags: responses[1],
             mutedAccounts: Account.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };

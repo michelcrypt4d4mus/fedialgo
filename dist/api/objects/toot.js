@@ -300,9 +300,10 @@ class Toot {
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties
         if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
+            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         }
+        // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
@@ -435,8 +436,7 @@ class Toot {
         const userData = await api_1.MastoApi.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
-        const trendingTagsByName = (0, collection_helpers_1.countValues)(trendingTags, (tag) => tag.name);
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTags));
+        await (0, collection_helpers_1.processPromisesBatch)(toots, Storage_1.default.getConfig().scoringBatchSize, async (toot) => toot.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
         return toots;
     }
 }

@@ -35,7 +35,6 @@ const toot_1 = __importStar(require("./api/objects/toot"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
-const collection_helpers_1 = require("./helpers/collection_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 class Storage {
@@ -125,7 +124,7 @@ class Storage {
         const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a));
         return {
             followedAccounts: account_1.default.buildAccountNames(followedAccounts.map(a => new account_1.default(a))),
-            followedTags: (0, collection_helpers_1.keyByProperty)(followedTags, (tag) => tag.name),
+            followedTags: followedTags,
             mutedAccounts: account_1.default.buildAccountNames(silencedAccounts),
             serverSideFilters: serverSideFilters,
         };

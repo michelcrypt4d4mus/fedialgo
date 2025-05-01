@@ -8,6 +8,7 @@ exports.keyByProperty = exports.processPromisesBatch = exports.uniquifyByProp = 
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
+const time_helpers_1 = require("./time_helpers");
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
     values = values.filter(v => !!v);
@@ -116,14 +117,16 @@ function uniquifyByProp(array, transform) {
 exports.uniquifyByProp = uniquifyByProp;
 ;
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-async function processPromisesBatch(items, batchSize, fn) {
-    // const startTime = new Date();
+async function processPromisesBatch(items, batchSize, fn, label) {
+    const startTime = new Date();
     let results = [];
     for (let start = 0; start < items.length; start += batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults];
-        // console.debug(`Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+        if (label) {
+            console.debug(`[${label}] Processed ${end} batch promises in ${(0, time_helpers_1.ageInSeconds)(startTime)} seconds...`);
+        }
     }
     return results;
 }

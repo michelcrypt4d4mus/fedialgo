@@ -129,16 +129,20 @@ export default class MastodonServer {
     // Fetch a list of objects of type T from a public API endpoint
     private async fetchList<T>(endpoint: string, limit?: number): Promise<T[]> {
         const label = endpoint.split("/").pop();
+        const endpointURI = `'${this.domain}/${endpoint}`;
         let list: T[] = [];
 
         try {
             list = await this.fetch<T[]>(endpoint, limit);
 
-            if (!list?.length) {
+            if (!list) {
                 logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
+            } else if (list.length === 0) {
+                console.warn(`[${endpointURI}] Empty array of ${label} found (but no actual error)`);
             }
         } catch (e) {
-            console.warn(`[fetchList] Failed to get data from '${this.domain}/${endpoint}! Response:`, e);
+            console.warn(`[${endpointURI}] Failed to get ${label} data! Error:`, e);
+            list = [];
         }
 
         return list as T[];

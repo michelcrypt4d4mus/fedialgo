@@ -8,7 +8,7 @@ import { mastodon } from "masto";
 import Account from "./account";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
-import { countValues, groupBy, uniquifyByProp } from "../../helpers/collection_helpers";
+import { groupBy, processPromisesBatch, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { quotedISOFmt, toISOFormat } from "../../helpers/time_helpers";
@@ -385,10 +385,11 @@ export default class Toot implements TootObj {
 
         // Set trendingTags and followedTags properties
         if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
+            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         }
 
+        // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
@@ -532,8 +533,14 @@ export default class Toot implements TootObj {
         const userData = await MastoApi.instance.getUserData();
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
-        const trendingTagsByName = countValues<TrendingTag>(trendingTags, (tag) => tag.name);
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTags));
+
+        await processPromisesBatch(
+            toots,
+            Storage.getConfig().scoringBatchSize,
+            async (toot: Toot) => toot.setDependentProperties(userData, trendingLinks, trendingTags),
+            "Toot.setDependentProperties()"
+        );
+
         return toots;
     }
 };

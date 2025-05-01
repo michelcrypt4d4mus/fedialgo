@@ -174,7 +174,7 @@ export type TrendingObj = TrendingWithHistory | Toot;
 // Data retrieved at startup and stored in TheAlgorithm
 export type UserData = {
     followedAccounts: AccountNames,
-    followedTags: Record<string, mastodon.v1.Tag>,
+    followedTags: mastodon.v1.Tag[],
     mutedAccounts: AccountNames,
     serverSideFilters: mastodon.v2.Filter[],
 };

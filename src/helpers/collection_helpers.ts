@@ -137,18 +137,22 @@ export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): 
 
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
 export async function processPromisesBatch(
-        items: Array<any>,
-        batchSize: number,
-        fn: (item: any) => Promise<any>,
-    ): Promise<any> {
-    // const startTime = new Date();
+    items: Array<any>,
+    batchSize: number,
+    fn: (item: any) => Promise<any>,
+    label?: string
+): Promise<any> {
+    const startTime = new Date();
     let results: any[] = [];
 
     for (let start = 0; start < items.length; start += batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults]
-        // console.debug(`Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+
+        if (label) {
+            console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
+        }
     }
 
     return results;

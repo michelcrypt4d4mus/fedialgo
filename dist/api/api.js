@@ -32,7 +32,6 @@ const account_1 = __importDefault(require("./objects/account"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
@@ -233,7 +232,7 @@ class MastoApi {
         // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: account_1.default.buildAccountNames(responses[0]),
-            followedTags: (0, collection_helpers_1.keyByProperty)(responses[1], (tag) => tag.name),
+            followedTags: responses[1],
             mutedAccounts: account_1.default.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };
