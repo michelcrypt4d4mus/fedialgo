@@ -128,7 +128,8 @@ class MastodonServer {
         // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
         if (json.status === 200 && json.data) {
-            console.debug(`[${urlEndpoint}] fetch response (${(0, time_helpers_1.ageInSeconds)(startTime)} seconds):`, json.data);
+            // TODO: this is useful sometimes but incredibly verbose
+            // console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {

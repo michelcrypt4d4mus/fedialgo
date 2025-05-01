@@ -158,7 +158,8 @@ export default class MastodonServer {
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {
-            console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
+            // TODO: this is useful sometimes but incredibly verbose
+            // console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;
