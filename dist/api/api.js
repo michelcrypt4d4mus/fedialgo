@@ -377,18 +377,21 @@ class MastoApi {
     // Get latest toots for a given tag and populate trendingToots property
     // Currently uses both the Search API as well as the tag timeline API which have
     // surprising little overlap (~80% of toots are unique)
-    async getTootsForTag(tag) {
-        const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
-        const searchToots = await this.searchForToots(tag.name, numToots, 'trending tag');
-        const tagTimelineToots = await this.hashtagTimelineToots(tag.name, numToots);
+    //   - shouldDedupe: if true, dedupe the toots before returning them
+    async getTootsForTag(tag, shouldDedupe) {
         const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS}] getTootsForTag("${tag.name}"):`;
+        const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
+        const [searchToots, tagTimelineToots] = await Promise.all([
+            this.searchForToots(tag.name, numToots, 'trending tag'),
+            this.hashtagTimelineToots(tag.name, numToots),
+        ]);
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
         // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
         // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
-        logTrendingTagResults(logPrefix, "SEARCH", searchToots);
-        logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
-        const allTagToots = [...searchToots, ...tagTimelineToots];
-        return toot_1.default.dedupeToots(allTagToots, types_1.StorageKey.TRENDING_TAG_TOOTS_V2);
+        // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
+        // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
+        const tagToots = [...searchToots, ...tagTimelineToots];
+        return shouldDedupe ? toot_1.default.dedupeToots(tagToots, types_1.StorageKey.TRENDING_TAG_TOOTS) : tagToots;
     }
     ;
     // Re-raise access revoked errors so they can trigger a logout() call

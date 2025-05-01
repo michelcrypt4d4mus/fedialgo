@@ -31,7 +31,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, VIDEO_TYPES, extractDomain, logInfo, logTootRemoval, quote } from './helpers/string_helpers';
+import { GIFV, VIDEO_TYPES, extractDomain, logDebug, logInfo, logTootRemoval } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
@@ -150,11 +150,10 @@ class TheAlgorithm {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
         let newToots: Toot[] = [];
-        logInfo(logPrefix, `Called ${logPrefix}, state:`, this.statusDict())
+        logDebug(logPrefix, `Called ${logPrefix}, state:`, this.statusDict())
 
         try {
             newToots = await tootFetcher;
-            logInfo(logPrefix, `Found ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
         } catch (e) {
             console.error(`${logPrefix} Error fetching toots:`, e);
         }
@@ -165,7 +164,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            logInfo(logPrefix, `Finished loading + merging ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
+            logInfo(logPrefix, `Merged ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
             return newToots;
         } finally {
             releaseMutex();
@@ -200,8 +199,8 @@ class TheAlgorithm {
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         } else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length} toots so far`;
-            this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch})`;
+            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
+            this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch.toLocaleString()})`;
         }
 
         this.mergeTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
@@ -240,12 +239,13 @@ class TheAlgorithm {
 
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
-        await Storage.clearAll();
+        console.warn(`reset() called, clearing all storage...`);
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = INITIAL_STATUS_MSG;
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.catchupCheckpoint = null;
+        await Storage.clearAll();
         await this.loadCachedData();
     }
 
@@ -260,7 +260,8 @@ class TheAlgorithm {
         return mostRecentTootedAt(this.feed.filter(toot => toot.isFollowed));
     }
 
-    // Remove invalid and duplicate toots
+    // Remove invalid and duplicate toots, merge them with the feed, and update the filters
+    // Does NOT mutate this.feed in place (though it does modify this.filters).
     private async mergeTootsWithFeed(toots: Toot[]): Promise<Toot[]> {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         logTootRemoval(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
@@ -397,6 +398,7 @@ class TheAlgorithm {
     }
 
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
+    // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.logDebug = exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -129,4 +129,9 @@ const logInfo = (logPrefix, message, ...args) => {
     console.info(`[${logPrefix}] ${message}`, ...args);
 };
 exports.logInfo = logInfo;
+// console.info() with a timestamp
+const logDebug = (logPrefix, message, ...args) => {
+    console.debug(`[${logPrefix}] ${message}`, ...args);
+};
+exports.logDebug = logDebug;
 //# sourceMappingURL=string_helpers.js.map

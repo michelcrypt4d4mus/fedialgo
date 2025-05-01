@@ -154,10 +154,9 @@ class TheAlgorithm {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
         let newToots = [];
-        (0, string_helpers_1.logInfo)(logPrefix, `Called ${logPrefix}, state:`, this.statusDict());
+        (0, string_helpers_1.logDebug)(logPrefix, `Called ${logPrefix}, state:`, this.statusDict());
         try {
             newToots = await tootFetcher;
-            (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
         }
         catch (e) {
             console.error(`${logPrefix} Error fetching toots:`, e);
@@ -167,7 +166,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
+            (0, string_helpers_1.logInfo)(logPrefix, `Merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -201,8 +200,8 @@ class TheAlgorithm {
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         }
         else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length} toots so far`;
-            this.loadingStatus += `, want ${Storage_1.default.getConfig().maxTimelineTootsToFetch})`;
+            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
+            this.loadingStatus += `, want ${Storage_1.default.getConfig().maxTimelineTootsToFetch.toLocaleString()})`;
         }
         this.mergeTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
             (0, string_helpers_1.logInfo)(logPrefix, `fetchHomeFeed returned ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}, now maybeGetMoreToots()`);
@@ -234,12 +233,13 @@ class TheAlgorithm {
     }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
-        await Storage_1.default.clearAll();
+        console.warn(`reset() called, clearing all storage...`);
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = INITIAL_STATUS_MSG;
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.catchupCheckpoint = null;
+        await Storage_1.default.clearAll();
         await this.loadCachedData();
     }
     // Helper method to return the URL for a given tag on the local server
@@ -251,7 +251,8 @@ class TheAlgorithm {
     mostRecentHomeTootAt() {
         return (0, toot_1.mostRecentTootedAt)(this.feed.filter(toot => toot.isFollowed));
     }
-    // Remove invalid and duplicate toots
+    // Remove invalid and duplicate toots, merge them with the feed, and update the filters
+    // Does NOT mutate this.feed in place (though it does modify this.filters).
     async mergeTootsWithFeed(toots) {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         (0, string_helpers_1.logTootRemoval)(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
@@ -375,6 +376,7 @@ class TheAlgorithm {
             await Storage_1.default.setWeightings(weightings);
     }
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
+    // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
         await this.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);

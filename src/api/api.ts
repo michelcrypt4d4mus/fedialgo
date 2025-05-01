@@ -401,19 +401,23 @@ export class MastoApi {
     // Get latest toots for a given tag and populate trendingToots property
     // Currently uses both the Search API as well as the tag timeline API which have
     // surprising little overlap (~80% of toots are unique)
-    private async getTootsForTag(tag: TrendingTag): Promise<Toot[]> {
-        const numToots = Storage.getConfig().numTootsPerTrendingTag;
-        const searchToots = await this.searchForToots(tag.name, numToots, 'trending tag');
-        const tagTimelineToots = await this.hashtagTimelineToots(tag.name, numToots);
+    //   - shouldDedupe: if true, dedupe the toots before returning them
+    private async getTootsForTag(tag: TrendingTag, shouldDedupe?: boolean): Promise<Toot[]> {
         const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS}] getTootsForTag("${tag.name}"):`;
+        const numToots = Storage.getConfig().numTootsPerTrendingTag;
+
+        const [searchToots, tagTimelineToots] = await Promise.all([
+            this.searchForToots(tag.name, numToots, 'trending tag'),
+            this.hashtagTimelineToots(tag.name, numToots),
+        ]);
 
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
         // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
         // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
-        logTrendingTagResults(logPrefix, "SEARCH", searchToots);
-        logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
-        const allTagToots = [...searchToots, ...tagTimelineToots];
-        return Toot.dedupeToots(allTagToots, StorageKey.TRENDING_TAG_TOOTS_V2);
+        // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
+        // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
+        const tagToots = [...searchToots, ...tagTimelineToots];
+        return shouldDedupe ? Toot.dedupeToots(tagToots, StorageKey.TRENDING_TAG_TOOTS) : tagToots;
     };
 
     // Re-raise access revoked errors so they can trigger a logout() call

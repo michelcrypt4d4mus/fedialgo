@@ -19,3 +19,4 @@ export declare function logAndThrowError(message: string, obj?: any): never;
 export declare const quote: (text: string | null) => string;
 export declare const toFixedLocale: (num: number | null) => string;
 export declare const logInfo: (logPrefix: string, message: string, ...args: any[]) => void;
+export declare const logDebug: (logPrefix: string, message: string, ...args: any[]) => void;

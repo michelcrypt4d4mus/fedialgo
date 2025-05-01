@@ -144,3 +144,8 @@ export const toFixedLocale = (num: number | null): string => {
 export const logInfo = (logPrefix: string, message: string, ...args: any[]): void => {
     console.info(`[${logPrefix}] ${message}`, ...args);
 };
+
+// console.info() with a timestamp
+export const logDebug = (logPrefix: string, message: string, ...args: any[]): void => {
+    console.debug(`[${logPrefix}] ${message}`, ...args);
+};

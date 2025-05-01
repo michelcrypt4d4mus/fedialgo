@@ -60,6 +60,7 @@ export default abstract class Scorer {
     //   Static class methods  ////
     ///////////////////////////////
 
+    // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     static async scoreToots(
         toots: Toot[],
         featureScorers: FeatureScorer[],
@@ -84,7 +85,7 @@ export default abstract class Scorer {
                 // Score the toots asynchronously in batches
                 await batchPromises<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
                 // Sort feed based on score from high to low.
-                toots.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+                toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             } finally {
                 releaseMutex();
             }
