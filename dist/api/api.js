@@ -265,7 +265,7 @@ class MastoApi {
             return toot;
         const lookupResult = await this.api.v2.search.fetch({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            (0, string_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`);
+            (0, string_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
         console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
