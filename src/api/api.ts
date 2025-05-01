@@ -281,7 +281,7 @@ export class MastoApi {
         const logPrefix = `[resolveToot()]`;
         console.debug(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain) return toot;
-        const lookupResult = await this.api.v2.search.fetch({q: tootURI, resolve: true});
+        const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
             logAndThrowError(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
@@ -304,7 +304,7 @@ export class MastoApi {
         // console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
 
         try {
-            const searchResult = await this.api.v2.search.fetch(query);
+            const searchResult = await this.api.v2.search.list(query);
             const toots = await Toot.buildToots(searchResult.statuses);
             console.log(`${logPrefix} Retrieved ${toots.length} ${tootsForQueryMsg}`);
             return toots;
