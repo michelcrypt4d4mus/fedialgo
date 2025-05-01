@@ -243,7 +243,7 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, string_helpers_1.logInfo)(`TELEMETRY`, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+            (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
         }
         return filteredFeed;
     }
@@ -305,12 +305,12 @@ class TheAlgorithm {
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {
-                (0, string_helpers_1.logInfo)(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished loading ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
                 this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
                 this.loadStartedAt = null;
             }
             else {
-                console.warn(`[TELEMETRY] FINISHED LOAD... but loadStartedAt is null!`);
+                console.warn(`[${string_helpers_1.TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             }
             this.loadingStatus = null;
         }
@@ -332,7 +332,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(logPrefix, `Merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
+            (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -356,7 +356,7 @@ class TheAlgorithm {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, string_helpers_1.logInfo)(logPrefix, `TELEMETRY Scorers prepared ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
             }
             else {
                 // console.debug(`${(new Date().toISOString())} [prepareScorers()]  FeatureScorers already ready`);

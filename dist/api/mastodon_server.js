@@ -277,15 +277,16 @@ class MastodonServer {
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.inSeconds)(startTime)}`);
                 return storageObjs;
             }
             else {
                 const serverObjs = await this.callForAllServers(serverFxn);
-                console.debug(`${logPrefix} result from all servers:`, serverObjs);
+                // console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startTime)}`, uniqueObjs);
+                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startTime)}`;
+                console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }
         }

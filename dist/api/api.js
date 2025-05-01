@@ -121,10 +121,11 @@ class MastoApi {
     async getRecentTootsForTrendingTags() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
         const logPrefix = `[API ${types_1.StorageKey.TRENDING_TAG_TOOTS}]`;
+        const startTime = new Date();
         try {
             let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
             if (trendingTagToots?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
-                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
+                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache ${(0, time_helpers_1.inSeconds)(startTime)}`);
             }
             else {
                 const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
@@ -135,7 +136,7 @@ class MastoApi {
                 const numToots = toots.length;
                 trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
                 await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots`, trendingTagToots);
+                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots (${(0, time_helpers_1.inSeconds)(startTime)})`, trendingTagToots);
             }
             return trendingTagToots;
         }
@@ -193,6 +194,7 @@ class MastoApi {
     async getServerSideFilters() {
         const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
         const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
+        const startTime = new Date();
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
             if (filters && !(await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
@@ -210,7 +212,7 @@ class MastoApi {
                     return true;
                 });
                 await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`${logPrefix} Retrieved records:`, filters);
+                console.log(`${logPrefix} Retrieved ${filters.length} records ${(0, time_helpers_1.inSeconds)(startTime)}:`, filters);
             }
             return filters;
         }
@@ -280,16 +282,17 @@ class MastoApi {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
         const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS}] searchForToots` + (logMsg ? ` (${logMsg})` : "") + `:`;
-        const tootsForQueryMsg = `toots for query '${searchStr}'`;
+        const startTime = new Date();
+        const tootsForQryMsg = `toots for query '${searchStr}'`;
         // console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
         try {
             const searchResult = await this.api.v2.search.list(query);
             const toots = await toot_1.default.buildToots(searchResult.statuses);
-            console.log(`${logPrefix} Retrieved ${toots.length} ${tootsForQueryMsg}`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
             return toots;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQueryMsg}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
             return [];
         }
     }
@@ -308,7 +311,7 @@ class MastoApi {
                 maxRecords: maxRecords,
                 skipCache: true,
             });
-            console.log(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
             return await toot_1.default.buildToots(toots);
         }
         catch (e) {

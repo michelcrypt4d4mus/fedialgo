@@ -9,10 +9,10 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { ageInSeconds, inSeconds } from "../helpers/time_helpers";
+import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { logAndThrowError } from "../helpers/string_helpers";
+import { logAndThrowError, TELEMETRY } from "../helpers/string_helpers";
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -328,14 +328,15 @@ export default class MastodonServer {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records ${inSeconds(startTime)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${inSeconds(startTime)}`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
-                console.debug(`${logPrefix} result from all servers:`, serverObjs);
+                // console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique records ${inSeconds(startTime)}`, uniqueObjs);
+                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${inSeconds(startTime)}`;
+                console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }
         } finally {

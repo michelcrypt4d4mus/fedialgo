@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logDebug = exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.logDebug = exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -8,6 +8,7 @@ const html_entities_1 = require("html-entities");
 const types_1 = require("../types");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.NULL = "<<NULL>>";
+exports.TELEMETRY = 'TELEMETRY';
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 exports.VIDEO_EXTENSIONS = ["mp4"];

@@ -127,12 +127,13 @@ export class MastoApi {
     async getRecentTootsForTrendingTags(): Promise<Toot[]> {
         const releaseMutex = await this.mutexes[StorageKey.TRENDING_TAG_TOOTS].acquire()
         const logPrefix = `[API ${StorageKey.TRENDING_TAG_TOOTS}]`;
+        const startTime = new Date();
 
         try {
             let trendingTagToots = await Storage.getToots(StorageKey.TRENDING_TAG_TOOTS);
 
             if (trendingTagToots?.length && !(await Storage.isDataStale(StorageKey.TRENDING_TAG_TOOTS))) {
-                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
+                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache ${inSeconds(startTime)}`);
             } else {
                 const trendingTags = await MastodonServer.fediverseTrendingTags();
                 const tootTags: Toot[][] = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
@@ -143,7 +144,7 @@ export class MastoApi {
                 const numToots = toots.length;
                 trendingTagToots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
                 await Storage.storeToots(StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots`, trendingTagToots);
+                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots (${inSeconds(startTime)})`, trendingTagToots);
             }
 
             return trendingTagToots;
@@ -207,6 +208,7 @@ export class MastoApi {
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
         const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
+        const startTime = new Date();
 
         try {
             let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
@@ -225,7 +227,7 @@ export class MastoApi {
                 });
 
                 await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`${logPrefix} Retrieved records:`, filters);
+                console.log(`${logPrefix} Retrieved ${filters.length} records ${inSeconds(startTime)}:`, filters);
             }
 
             return filters;
@@ -300,16 +302,17 @@ export class MastoApi {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
         const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS}] searchForToots` + (logMsg ? ` (${logMsg})` : "") + `:`;
-        const tootsForQueryMsg = `toots for query '${searchStr}'`;
+        const startTime = new Date();
+        const tootsForQryMsg = `toots for query '${searchStr}'`;
         // console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
 
         try {
             const searchResult = await this.api.v2.search.list(query);
             const toots = await Toot.buildToots(searchResult.statuses);
-            console.log(`${logPrefix} Retrieved ${toots.length} ${tootsForQueryMsg}`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} ${tootsForQryMsg} ${inSeconds(startTime)}`);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQueryMsg}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQryMsg} ${inSeconds(startTime)}`);
             return [];
         }
     };
@@ -330,7 +333,7 @@ export class MastoApi {
                 skipCache: true,
             });
 
-            console.log(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
             return await Toot.buildToots(toots);
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);

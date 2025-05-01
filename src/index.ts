@@ -32,7 +32,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog } from "./helpers/collection_helpers";
-import { GIFV, VIDEO_TYPES, extractDomain, logDebug, logInfo, logTootRemoval } from './helpers/string_helpers';
+import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
@@ -252,7 +252,7 @@ class TheAlgorithm {
 
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            logInfo(`TELEMETRY`, `First ${filteredFeed.length} toots sent to client ${inSeconds(this.loadStartedAt)}`);
+            logInfo(TELEMETRY, `First ${filteredFeed.length} toots sent to client ${inSeconds(this.loadStartedAt)}`);
         }
 
         return filteredFeed;
@@ -321,11 +321,11 @@ class TheAlgorithm {
             }
 
             if (this.loadStartedAt) {
-                logInfo(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
+                logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
                 this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
                 this.loadStartedAt = null;
             } else {
-                console.warn(`[TELEMETRY] FINISHED LOAD... but loadStartedAt is null!`);
+                console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             }
 
             this.loadingStatus = null;
@@ -351,7 +351,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            logInfo(logPrefix, `Merged ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
+            logInfo(TELEMETRY, `${label} merged ${newToots.length} toots ${inSeconds(startTime)}:`, this.statusDict());
             return newToots;
         } finally {
             releaseMutex();
@@ -377,7 +377,7 @@ class TheAlgorithm {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(logPrefix, `TELEMETRY Scorers prepared ${inSeconds(startTime)}`);
+                logInfo(TELEMETRY, `${logPrefix} ready in ${inSeconds(startTime)}`);
             } else {
                 // console.debug(`${(new Date().toISOString())} [prepareScorers()]  FeatureScorers already ready`);
             }
