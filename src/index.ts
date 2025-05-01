@@ -148,9 +148,16 @@ class TheAlgorithm {
     async mergeTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]> {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
-        logInfo(logPrefix, `Launching (${this.statusMsg()}`)
-        const newToots = await tootFetcher;
-        logInfo(logPrefix, `Found ${newToots.length} toots ${inSeconds(startTime)} (${this.statusMsg()})`);
+        let newToots: Toot[] = [];
+        logInfo(logPrefix, `Called ${logPrefix} (${this.statusMsg()}`)
+
+        try {
+            newToots = await tootFetcher;
+            logInfo(logPrefix, `Found ${newToots.length} toots ${inSeconds(startTime)} (${this.statusMsg()})`);
+        } catch (e) {
+            console.error(`${logPrefix} Error fetching toots:`, e);
+        }
+
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const releaseMutex = await this.mergeMutex.acquire();
 
@@ -185,16 +192,10 @@ class TheAlgorithm {
                 console.info(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
 
-            // All called asynchronously from here down
-            this.mergeTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots").then((newToots) => {
-                logInfo(logPrefix, `ASYNC fediverseTrendingToots merged ${newToots.length} into feed\n${this.statusMsg()}`);
-            });
-
-            this.mergeTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags").then((newToots) => {
-                logInfo(logPrefix, `ASYNC getRecentTootsForTrendingTags merged ${newToots.length} into feed\n${this.statusMsg()}`);
-            });
-
+            // These are all calls we should only make in the initial load (all called asynchronously)
             this.prepareScorers();
+            this.mergeTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
+            this.mergeTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         } else {
@@ -203,7 +204,7 @@ class TheAlgorithm {
         }
 
         this.mergeTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
-            logInfo(logPrefix, `ASYNC fetchHomeFeed merged ${newToots.length} into feed\n${this.statusMsg()}`);
+            logInfo(logPrefix, `fetchHomeFeed returned ${newToots.length} toots ${inSeconds(this.loadStartedAt)}, now maybeGetMoreToots()`);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
         });
 

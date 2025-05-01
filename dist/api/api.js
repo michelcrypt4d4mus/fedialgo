@@ -292,7 +292,9 @@ class MastoApi {
         }
     }
     ;
+    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
+    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS_V2} hashtagTimelineToots()]`;

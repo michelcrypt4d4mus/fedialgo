@@ -152,9 +152,15 @@ class TheAlgorithm {
     async mergeTootsIntoFeed(tootFetcher, label) {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
-        (0, string_helpers_1.logInfo)(logPrefix, `Launching (${this.statusMsg()}`);
-        const newToots = await tootFetcher;
-        (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()})`);
+        let newToots = [];
+        (0, string_helpers_1.logInfo)(logPrefix, `Called ${logPrefix} (${this.statusMsg()}`);
+        try {
+            newToots = await tootFetcher;
+            (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()})`);
+        }
+        catch (e) {
+            console.error(`${logPrefix} Error fetching toots:`, e);
+        }
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const releaseMutex = await this.mergeMutex.acquire();
         try {
@@ -186,14 +192,10 @@ class TheAlgorithm {
                 this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
                 console.info(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
-            // All called asynchronously from here down
-            this.mergeTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots").then((newToots) => {
-                (0, string_helpers_1.logInfo)(logPrefix, `ASYNC fediverseTrendingToots merged ${newToots.length} into feed\n${this.statusMsg()}`);
-            });
-            this.mergeTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags").then((newToots) => {
-                (0, string_helpers_1.logInfo)(logPrefix, `ASYNC getRecentTootsForTrendingTags merged ${newToots.length} into feed\n${this.statusMsg()}`);
-            });
+            // These are all calls we should only make in the initial load (all called asynchronously)
             this.prepareScorers();
+            this.mergeTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
+            this.mergeTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
             mastodon_server_1.default.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         }
@@ -202,7 +204,7 @@ class TheAlgorithm {
             this.loadingStatus += `, want ${Storage_1.default.getConfig().maxTimelineTootsToFetch})`;
         }
         this.mergeTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
-            (0, string_helpers_1.logInfo)(logPrefix, `ASYNC fetchHomeFeed merged ${newToots.length} into feed\n${this.statusMsg()}`);
+            (0, string_helpers_1.logInfo)(logPrefix, `fetchHomeFeed returned ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}, now maybeGetMoreToots()`);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
         return this.feed; // TODO: This should be unnecessary
