@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.22.2
 * Add lastLoadTimeInSeconds prop to TheAlgorithm
 
 ### v0.22.1
