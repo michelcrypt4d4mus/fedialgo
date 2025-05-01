@@ -14,7 +14,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import { quotedISOFmt } from "../helpers/time_helpers";
+import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
 
 export const INSTANCE = "instance";
@@ -355,11 +355,12 @@ export class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-
+        breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPrefix = `[API ${label}]`;
         console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
+
+        const startTime = new Date();;
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
         let pageNumber = 0;
@@ -370,7 +371,7 @@ export class MastoApi {
 
                 if (cachedData && !(await Storage.isDataStale(label))) {
                     const rows = cachedData as T[];
-                    console.debug(`${logPrefix} Loaded ${rows.length} cached records`);
+                    console.debug(`${logPrefix} Loaded ${rows.length} cached records ${inSeconds(startTime)}`);
                     return rows;
                 };
             }
@@ -380,16 +381,17 @@ export class MastoApi {
                 pageNumber += 1;
 
                 if (results.length >= maxRecords || breakIf(page, results)) {
-                    console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
+                    let msg = `${logPrefix} Completing fetch at page ${pageNumber}`;
+                    console.debug(`${msg}, got ${results.length} records ${inSeconds(startTime)}`);
                     break;
                 } else {
-                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far)`);
+                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far ${inSeconds(startTime)})`);
                 }
             }
 
             if (!skipCache) await Storage.set(label, results as StorableObj);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`)
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed ${inSeconds(startTime)}`);
             return results;
         } finally {
             releaseFetchMutex();

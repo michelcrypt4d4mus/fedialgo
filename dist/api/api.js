@@ -333,10 +333,12 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async fetchData(fetchParams) {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPrefix = `[API ${label}]`;
         console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
+        const startTime = new Date();
+        ;
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results = [];
         let pageNumber = 0;
@@ -345,7 +347,7 @@ class MastoApi {
                 const cachedData = await Storage_1.default.get(label);
                 if (cachedData && !(await Storage_1.default.isDataStale(label))) {
                     const rows = cachedData;
-                    console.debug(`${logPrefix} Loaded ${rows.length} cached records`);
+                    console.debug(`${logPrefix} Loaded ${rows.length} cached records ${(0, time_helpers_1.inSeconds)(startTime)}`);
                     return rows;
                 }
                 ;
@@ -354,18 +356,19 @@ class MastoApi {
                 results = results.concat(page);
                 pageNumber += 1;
                 if (results.length >= maxRecords || breakIf(page, results)) {
-                    console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
+                    let msg = `${logPrefix} Completing fetch at page ${pageNumber}`;
+                    console.debug(`${msg}, got ${results.length} records ${(0, time_helpers_1.inSeconds)(startTime)}`);
                     break;
                 }
                 else {
-                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far)`);
+                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far ${(0, time_helpers_1.inSeconds)(startTime)})`);
                 }
             }
             if (!skipCache)
                 await Storage_1.default.set(label, results);
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed ${(0, time_helpers_1.inSeconds)(startTime)}`);
             return results;
         }
         finally {
