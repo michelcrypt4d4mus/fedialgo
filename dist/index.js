@@ -180,8 +180,11 @@ class TheAlgorithm {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
             this.loadingStatus += `, want ${Storage_1.default.getConfig().maxTimelineTootsToFetch.toLocaleString()})`;
         }
-        this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
-            (0, string_helpers_1.logInfo)(logPrefix, `fetchHomeFeed returned ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}, now maybeGetMoreToots()`);
+        this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
+            .then((newToots) => {
+            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
+            msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+            (0, string_helpers_1.logInfo)(logPrefix, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
         return this.feed; // TODO: This should be unnecessary
@@ -226,7 +229,10 @@ class TheAlgorithm {
     }
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt() {
-        return (0, toot_1.mostRecentTootedAt)(this.feed.filter(toot => toot.isFollowed));
+        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
+    }
+    homeTimelineToots() {
+        return this.feed.filter(toot => toot.isFollowed);
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain

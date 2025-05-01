@@ -163,6 +163,7 @@ Not 100% sure if these are slow because the actual fetch needs to be slow or if 
 * [API RecentUserToots] Completing fetch at page 10, got 400 records in 28.2 seconds
 * [API FavouritedAccounts] Completing fetch at page 10, got 400 records in 28.6 seconds
 * [API RecentNotifications] Completing fetch at page 10, got 400 records in 29.1 seconds
+* [FediverseTrendingToots] fetched 80 unique records in 25.5 seconds (**Much slower than the otehr fediverse fetches!)
 
 Not on the critical path so maybe fine:
 

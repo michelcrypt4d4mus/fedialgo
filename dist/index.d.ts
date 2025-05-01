@@ -59,6 +59,7 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
+    homeTimelineToots(): Toot[];
     private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
