@@ -299,7 +299,6 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
@@ -313,6 +312,8 @@ class TheAlgorithm {
                 || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
             )
         ) {
+            console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
+
             setTimeout(
                 () => {
                     // Use the 4th toot bc sometimes there are weird outliers. Dupes will be removed later.

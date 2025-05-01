@@ -352,13 +352,15 @@ class MastoApi {
             }
             for await (const page of fetch(this.buildParams(maxId, maxRecords))) {
                 results = results.concat(page);
-                console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
+                pageNumber += 1;
                 if (results.length >= maxRecords || breakIf(page, results)) {
                     console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
                 }
+                else {
+                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far)`);
+                }
             }
-            console.log(`${logPrefix} Retrieved ${results.length} records:`, results);
             if (!skipCache)
                 await Storage_1.default.set(label, results);
         }

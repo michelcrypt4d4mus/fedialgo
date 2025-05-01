@@ -285,7 +285,6 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
@@ -295,6 +294,7 @@ class TheAlgorithm {
                 // Alternatively check if the earliest new home toot is newer than the catchup checkpoint. If it is
                 // we should continue fetching more toots.
                 || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint))) {
+            console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
             setTimeout(() => {
                 // Use the 4th toot bc sometimes there are weird outliers. Dupes will be removed later.
                 // It's important that we *only* look at home timeline toots here. Toots from other servers

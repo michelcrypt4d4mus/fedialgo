@@ -377,15 +377,16 @@ export class MastoApi {
 
             for await (const page of fetch(this.buildParams(maxId, maxRecords))) {
                 results = results.concat(page as T[]);
-                console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
+                pageNumber += 1;
 
                 if (results.length >= maxRecords || breakIf(page, results)) {
                     console.debug(`${logPrefix} Halting fetch at page ${pageNumber} w/ ${results.length} records`);
                     break;
+                } else {
+                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far)`);
                 }
             }
 
-            console.log(`${logPrefix} Retrieved ${results.length} records:`, results);
             if (!skipCache) await Storage.set(label, results as StorableObj);
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`)
