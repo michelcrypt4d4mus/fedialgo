@@ -128,9 +128,11 @@ class MastoApi {
                 const tootTags = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
                 const toots = toot_1.default.dedupeToots(tootTags.flat(), types_1.StorageKey.TRENDING_TAG_TOOTS);
                 toots.sort((a, b) => b.popularity() - a.popularity());
+                // Take only the first Config.numTrendingTagsToots of the toots we've assumebled
+                const numToots = toots.length;
                 trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
                 await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`${logPrefix} Retrieved ${trendingTagToots.length} toots`, trendingTagToots);
+                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots`, trendingTagToots);
             }
             else {
                 console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
