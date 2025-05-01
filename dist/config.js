@@ -29,6 +29,7 @@ exports.DEFAULT_CONFIG = {
         [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.FOLLOWED_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.POPULAR_SERVERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,

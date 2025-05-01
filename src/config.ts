@@ -74,6 +74,7 @@ export const DEFAULT_CONFIG: Config = {
         [StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
         [StorageKey.FOLLOWED_ACCOUNTS]:        4 * SECONDS_IN_HOUR,
         [StorageKey.FOLLOWED_TAGS]:            4 * SECONDS_IN_HOUR,
+        [StorageKey.MUTED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
         [StorageKey.RECENT_NOTIFICATIONS]:     6 * SECONDS_IN_HOUR,
         [StorageKey.RECENT_USER_TOOTS]:        2 * SECONDS_IN_HOUR,
         [StorageKey.POPULAR_SERVERS]:         24 * SECONDS_IN_HOUR,
