@@ -55,6 +55,8 @@ class Scorer {
         console.debug(`${logPrefix} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
+            // If the mutex is already locked just cancel the current scoring loop and start over
+            // (scoring is idempotent, so this is safe).
             SCORE_MUTEX.cancel();
             const releaseMutex = await SCORE_MUTEX.acquire();
             try {

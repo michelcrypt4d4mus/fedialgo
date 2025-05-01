@@ -161,8 +161,8 @@ class TheAlgorithm {
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             } else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                console.log(`${logPrefix} Just set catchupCheckpoint value, current state: ${this.statusMsg()}`);
                 this.loadingStatus = `new toots since '${timeString(this.catchupCheckpoint)}'`;
+                console.log(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
 
             // ORDER MATTERS! The results of these Promises are processed with shift()
@@ -190,10 +190,9 @@ class TheAlgorithm {
         // Filter out dupe/invalid toots, build filters
         this.feed = this.cleanupFeed(retrievedToots);
         this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);
-
         // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(newHomeToots, numTimelineToots);  // Called asynchronously
-        return this.scoreFeed();
+        return this.scoreAndFilterFeed();
     }
 
     // Return the user's current weightings for each score category
@@ -213,7 +212,7 @@ class TheAlgorithm {
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
-        return this.scoreFeed();
+        return this.scoreAndFilterFeed();
     }
 
     // Update user weightings to one of the preset values and rescore / resort the feed.
@@ -271,7 +270,7 @@ class TheAlgorithm {
         let logPrefix = `[maybeGetMoreToots()]`;
         let checkpointStr = `catchupCheckpoint=${quotedISOFmt(this.catchupCheckpoint)}`;
         checkpointStr += `, earliestNewHomeTootAt=${quotedISOFmt(earliestNewHomeTootAt)}`;
-        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots, current state: ${this.statusMsg()}`);
+        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots\n${this.statusMsg()}`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
@@ -292,7 +291,7 @@ class TheAlgorithm {
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
                     let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                    console.log(`${logPrefix} ${msg} ${this.statusMsg()}`);
+                    console.log(`${logPrefix} ${msg}\n${this.statusMsg()}`);
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
                 Storage.getConfig().incrementalLoadDelayMS
@@ -304,16 +303,18 @@ class TheAlgorithm {
                 console.log(`${logPrefix} Incremental loading is fully disabled`);
             } else if (this.catchupCheckpoint) {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    console.log(`${logPrefix} because caught up, removing catchupCheckpoint ${this.statusMsg()}`);
+                    let tmpCheckpoint = this.catchupCheckpoint;
                     this.catchupCheckpoint = null;
+                    let msg = `${logPrefix} All caught up: oldest new toot ${quotedISOFmt(earliestNewHomeTootAt)}`;
+                    console.log(`${msg} older than checkpoint ${quotedISOFmt(tmpCheckpoint)}\n${this.statusMsg()}`);
                 } else {
                     console.warn(`${logPrefix} Not caught up to catchupCheckpoint! ${this.statusMsg()}`);
                 }
             } else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefix} Have enough toots. Want ${maxTimelineTootsToFetch}, ${this.statusMsg()}`);
+                console.log(`${logPrefix} Have enough toots (wanted ${maxTimelineTootsToFetch})\n${this.statusMsg()}`);
             } else {
-                let msg = `${logPrefix} Fetch only got ${newHomeToots.length} toots`;
-                console.log(`${msg}, expected ${numTimelineToots} ${this.statusMsg()}`);
+                let msg = `${logPrefix} Stopping because fetch only got ${newHomeToots.length} toots`;
+                console.log(`${msg}, expected ${numTimelineToots}\n${this.statusMsg()}`);
             }
 
             this.loadingStatus = null;
@@ -350,11 +351,11 @@ class TheAlgorithm {
             `${retrievedToots.length - newHomeToots.length} other potentially cached or trending toots`,
         ];
 
-        console.log(`${logPrefix} ${msg.join(', ')} ${this.statusMsg()}`);
+        console.log(`${logPrefix} ${msg.join(', ')}\n${this.statusMsg()}`);
     }
 
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
-    private async scoreFeed(): Promise<Toot[]> {
+    private async scoreAndFilterFeed(): Promise<Toot[]> {
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
         await Storage.setFeed(this.feed);
@@ -370,7 +371,7 @@ class TheAlgorithm {
             `mostRecentHomeTootAt=${quotedISOFmt(this.mostRecentHomeTootAt())}`,
         ]
 
-        return `[${msgPieces.join(`, `)}]`;
+        return `[TheAlgorithm state: ${msgPieces.join(`, `)}]`;
     }
 };
 

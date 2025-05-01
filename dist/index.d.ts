@@ -61,7 +61,7 @@ declare class TheAlgorithm {
     private maybeGetMoreToots;
     private setDefaultWeights;
     private logTootCounts;
-    private scoreFeed;
+    private scoreAndFilterFeed;
     private statusMsg;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

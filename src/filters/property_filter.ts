@@ -48,7 +48,6 @@ export interface PropertyFilterArgs extends FilterArgs {
     validValues?: string[];
 };
 
-
 export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
