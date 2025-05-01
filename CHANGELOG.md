@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Move the bulk of the scoring code to Scorer.scoreToots() method
 
 ## v0.21.0
 * Add `TheAlgorithm.reset()` method to completely clear browser storage

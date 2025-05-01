@@ -94,7 +94,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
                 if (toot.containsString(keyword.keyword)) {
-                    console.debug(`Matched server filter (${toot.describe()}):`, filter);
+                    // console.debug(`Matched server filter (${toot.describe()}):`, filter);
                     (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }
             });
@@ -106,7 +106,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         filters.filterSections[propertyName].setOptions(counts);
     });
     Storage_1.default.setFilters(filters);
-    console.debug(`repairFeedAndExtractSummaryInfo() completed, built filters:`, filters);
+    console.debug(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
     return filters;
 }
 exports.initializeFiltersWithSummaryInfo = initializeFiltersWithSummaryInfo;

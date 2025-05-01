@@ -193,7 +193,7 @@ class TheAlgorithm {
 
         // Potentially fetch more toots if we haven't reached the desired number
         this.maybeGetMoreToots(newHomeToots, numTimelineToots);  // Called asynchronously
-        return this.scoreFeed.bind(this)();
+        return this.scoreFeed();
     }
 
     // Return the user's current weightings for each score category
@@ -213,7 +213,7 @@ class TheAlgorithm {
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
         console.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
-        return this.scoreFeed.bind(this)();
+        return this.scoreFeed();
     }
 
     // Update user weightings to one of the preset values and rescore / resort the feed.
@@ -338,44 +338,6 @@ class TheAlgorithm {
         if (shouldSetWeights) await Storage.setWeightings(weightings);
     }
 
-    // Inject scoreInfo property to each Toot, sort feed based on scores, and save feed to browser storage.
-    private async scoreFeed(): Promise<Toot[]> {
-        const logPrefix = `scoreFeed()`;
-        console.debug(`${logPrefix} called (${this.feed.length} toots currently in feed)...`);
-
-        try {
-            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
-            this.scoreMutex.cancel()
-            const releaseMutex = await this.scoreMutex.acquire();
-
-            try {
-                // Feed scorers' data must be refreshed each time the feed changes
-                this.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(this.feed));
-
-                await processPromisesBatch(
-                    this.feed,
-                    Storage.getConfig().scoringBatchSize,
-                    async (toot: Toot) => await Scorer.decorateWithScoreInfo(toot, this.weightedScorers)
-                );
-
-                // Sort feed based on score from high to low.
-                this.feed.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
-                this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
-                Storage.setFeed(this.feed);
-            } finally {
-                releaseMutex();
-            }
-        } catch (e) {
-            if (e == E_CANCELED) {
-                console.debug(`${logPrefix} mutex cancellation`);
-            } else {
-                console.warn(`${logPrefix} caught error:`, e);
-            }
-        }
-
-        return this.filterFeed();
-    }
-
     // Utility method to log progress of getFeed() calls
     private async logTootCounts(logPrefix: string, retrievedToots: Toot[], newHomeToots: Toot[]): Promise<void> {
         const userData = await MastoApi.instance.getUserData();
@@ -389,6 +351,14 @@ class TheAlgorithm {
         ];
 
         console.log(`${logPrefix} ${msg.join(', ')} ${this.statusMsg()}`);
+    }
+
+    // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
+    private async scoreFeed(): Promise<Toot[]> {
+        this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
+        this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
+        await Storage.setFeed(this.feed);
+        return this.filterFeed();
     }
 
     // Simple string with important feed status information

@@ -6,12 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Base class for Toot scorers.
  */
+const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
 const string_helpers_1 = require("../helpers/string_helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 const config_1 = require("../config");
-const collection_helpers_1 = require("../helpers/collection_helpers");
+const SCORE_MUTEX = new async_mutex_1.Mutex();
 class Scorer {
     defaultWeight;
     description;
@@ -44,7 +46,40 @@ class Scorer {
         if (!this.isReady)
             (0, string_helpers_1.logAndThrowError)(`${this.name} scorer not ready!`);
     }
-    // Add all the score into to a toot, including a final score
+    ///////////////////////////////
+    //   Static class methods  ////
+    ///////////////////////////////
+    static async scoreToots(toots, featureScorers, feedScorers) {
+        const scorers = [...featureScorers, ...feedScorers];
+        const logPrefix = `[scoreFeed()]`;
+        console.debug(`${logPrefix} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+        try {
+            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
+            SCORE_MUTEX.cancel();
+            const releaseMutex = await SCORE_MUTEX.acquire();
+            try {
+                // Feed scorers' data must be refreshed each time the feed changes
+                feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+                // Score the toots asynchronously in batches
+                await (0, collection_helpers_1.processPromisesBatch)(toots, Storage_1.default.getConfig().scoringBatchSize, async (toot) => await this.decorateWithScoreInfo(toot, scorers));
+                // Sort feed based on score from high to low.
+                toots.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+            }
+            finally {
+                releaseMutex();
+            }
+        }
+        catch (e) {
+            if (e == async_mutex_1.E_CANCELED) {
+                console.debug(`${logPrefix} mutex cancellation`);
+            }
+            else {
+                console.warn(`${logPrefix} caught error:`, e);
+            }
+        }
+        return toots;
+    }
+    // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
         const rawScores = {};
         const weightedScores = {};

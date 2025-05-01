@@ -1,13 +1,19 @@
 /*
  * Base class for Toot scorers.
  */
+import { E_CANCELED, Mutex } from 'async-mutex';
+
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError } from "../helpers/string_helpers";
+import { processPromisesBatch, sumValues } from "../helpers/collection_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
-import { sumValues } from "../helpers/collection_helpers";
+import FeatureScorer from './feature_scorer';
+import FeedScorer from './feed_scorer';
+
+const SCORE_MUTEX = new Mutex();
 
 
 export default abstract class Scorer {
@@ -50,8 +56,55 @@ export default abstract class Scorer {
         if (!this.isReady) logAndThrowError(`${this.name} scorer not ready!`);
     }
 
-    // Add all the score into to a toot, including a final score
-    static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
+    ///////////////////////////////
+    //   Static class methods  ////
+    ///////////////////////////////
+
+    static async scoreToots(
+        toots: Toot[],
+        featureScorers: FeatureScorer[],
+        feedScorers: FeedScorer[]
+    ): Promise<Toot[]> {
+        const scorers = [...featureScorers, ...feedScorers];
+        const logPrefix = `[scoreFeed()]`;
+        console.debug(`${logPrefix} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+
+        try {
+            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
+            // If the mutex is already locked just cancel the current scoring loop and start over
+            // (scoring is idempotent, so this is safe).
+            SCORE_MUTEX.cancel()
+            const releaseMutex = await SCORE_MUTEX.acquire();
+
+            try {
+                // Feed scorers' data must be refreshed each time the feed changes
+                feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+
+                // Score the toots asynchronously in batches
+                await processPromisesBatch(
+                    toots,
+                    Storage.getConfig().scoringBatchSize,
+                    async (toot: Toot) => await this.decorateWithScoreInfo(toot, scorers)
+                );
+
+                // Sort feed based on score from high to low.
+                toots.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+            } finally {
+                releaseMutex();
+            }
+        } catch (e) {
+            if (e == E_CANCELED) {
+                console.debug(`${logPrefix} mutex cancellation`);
+            } else {
+                console.warn(`${logPrefix} caught error:`, e);
+            }
+        }
+
+        return toots;
+    }
+
+    // Add all the score info to a Toot's scoreInfo property
+    private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;
         const userWeights = await Storage.getWeightings();
