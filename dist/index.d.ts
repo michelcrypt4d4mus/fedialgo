@@ -38,6 +38,7 @@ declare class TheAlgorithm {
     feed: Toot[];
     catchupCheckpoint: Date | null;
     hasProvidedAnyTootsToClient: boolean;
+    lastLoadTimeInSeconds: number | null;
     loadStartedAt: Date | null;
     loadingStatus: string | null;
     mastodonServers: MastodonServersInfo;

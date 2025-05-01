@@ -88,6 +88,7 @@ class TheAlgorithm {
     feed = [];
     catchupCheckpoint = null; // If doing a catch up refresh load we need to get back to this timestamp
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
+    lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadStartedAt = null; // Timestamp of when the feed started loading
     loadingStatus = INITIAL_STATUS_MSG; // String describing load activity (undefined means load complete)
     mastodonServers = {};
@@ -330,6 +331,7 @@ class TheAlgorithm {
             }
             if (this.loadStartedAt) {
                 (0, string_helpers_1.logInfo)(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+                this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
                 this.loadStartedAt = null;
             }
             else {

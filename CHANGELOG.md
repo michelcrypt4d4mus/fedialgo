@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add lastLoadTimeInSeconds prop to TheAlgorithm
 
 ### v0.22.1
 * Upgrade `masto.js` to v7.0.0

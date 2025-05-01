@@ -35,7 +35,7 @@ import { GIFV, VIDEO_TYPES, extractDomain, logInfo, logTootRemoval, quote } from
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
-import { timeString, quotedISOFmt, ageInMinutes, inSeconds, toISOFormat } from './helpers/time_helpers';
+import { timeString, quotedISOFmt, ageInSeconds, inSeconds, toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonServersInfo,
@@ -74,6 +74,7 @@ class TheAlgorithm {
     feed: Toot[] = [];
     catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
     hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
+    lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
     loadingStatus: string | null = INITIAL_STATUS_MSG;  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonServersInfo = {};
@@ -348,6 +349,7 @@ class TheAlgorithm {
 
             if (this.loadStartedAt) {
                 logInfo(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
+                this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
                 this.loadStartedAt = null;
             } else {
                 console.warn(`[TELEMETRY] FINISHED LOAD... but loadStartedAt is null!`);
