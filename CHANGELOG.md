@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.22.1
 * Upgrade `masto.js` to v7.0.0
 * Decrease `Config.numTootsPerTrendingTag` to 15, increase `Config.numTrendingTagToots` to 250
 
