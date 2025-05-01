@@ -4,6 +4,7 @@
  */
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";
+const escape = require('regexp.escape');
 
 import Account from "./account";
 import MastodonServer from "../mastodon_server";
@@ -210,7 +211,8 @@ export default class Toot implements TootObj {
         if (str.startsWith("#")) {
             return this.tags.some((tag) => str.slice(1) == tag.name);
         } else {
-            return this.content.toLowerCase().includes(str);
+            const regex = new RegExp(`\\b${escape(str)}\\b`);
+            return regex.test(this.content.toLowerCase());
         }
     }
 
@@ -384,6 +386,9 @@ export default class Toot implements TootObj {
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 
         // Set trendingTags and followedTags properties
+        // TODO: this has an unfortunate side effect that the filters don't work
+        // correctly on toots that contain the name of a hashtag without actually
+        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
         if (!toot.trendingTags || !toot.followedTags) {
             toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));

@@ -9,6 +9,7 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
  * for dealing with Toot objects.
  */
 const change_case_1 = require("change-case");
+const escape = require('regexp.escape');
 const account_1 = __importDefault(require("./account"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const Storage_1 = __importDefault(require("../../Storage"));
@@ -153,7 +154,8 @@ class Toot {
             return this.tags.some((tag) => str.slice(1) == tag.name);
         }
         else {
-            return this.content.toLowerCase().includes(str);
+            const regex = new RegExp(`\\b${escape(str)}\\b`);
+            return regex.test(this.content.toLowerCase());
         }
     }
     // Generate a string describing the followed and trending tags in the toot
@@ -299,6 +301,9 @@ class Toot {
         // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties
+        // TODO: this has an unfortunate side effect that the filters don't work
+        // correctly on toots that contain the name of a hashtag without actually
+        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
         if (!toot.trendingTags || !toot.followedTags) {
             toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));

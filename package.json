@@ -49,6 +49,7 @@
         "change-case": "^5.4.4",
         "html-entities": "^2.6.0",
         "localforage": "^1.10.0",
-        "masto": "^6.1.0"
+        "masto": "^6.10.4",
+        "regexp.escape": "^2.0.1"
     }
 }
