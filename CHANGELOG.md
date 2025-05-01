@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Standardize boolean logic around cache hits and misses
+* Add mastodon.art to list of no MAU servers
 
 ### v0.22.2
 * Add lastLoadTimeInSeconds prop to TheAlgorithm

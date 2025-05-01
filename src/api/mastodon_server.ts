@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { ageInSeconds } from "../helpers/time_helpers";
+import { ageInSeconds, inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { logAndThrowError } from "../helpers/string_helpers";
@@ -236,12 +236,13 @@ export default class MastodonServer {
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
 
-            if (!servers || Object.keys(servers).length == 0 || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
+            // TODO: we should store the whole Instance object not just the MAU computation etc
+            if (servers && Object.keys(servers).length && !(await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
+                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
+            } else {
                 servers = await this.fetchMastodonServersInfo();
                 console.log(`${logPrefix} retrieved mastodon server infos`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
-            } else {
-                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
             }
 
             return servers;
@@ -256,6 +257,8 @@ export default class MastodonServer {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         console.debug(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage.getConfig();
+        const startTime = new Date();
+
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());
@@ -294,7 +297,7 @@ export default class MastodonServer {
         );
 
 
-        console.log(`${logPrefix} Constructed MastodonServersInfo object:`, mastodonServers);
+        console.log(`${logPrefix} Constructed MastodonServersInfo object ${inSeconds(startTime)}:`, mastodonServers);
         return mastodonServers;
     }
 
@@ -317,20 +320,21 @@ export default class MastodonServer {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
         const releaseMutex = await TRENDING_MUTEXES[key].acquire();
+        const startTime = new Date();
         const logPrefix = `[${key}]`;
 
         try {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records...`);
+                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records ${inSeconds(startTime)}`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
                 console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique objs:`, uniqueObjs);
+                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique records ${inSeconds(startTime)}`, uniqueObjs);
                 return uniqueObjs;
             }
         } finally {

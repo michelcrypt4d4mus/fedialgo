@@ -123,7 +123,10 @@ class MastoApi {
         const logPrefix = `[API ${types_1.StorageKey.TRENDING_TAG_TOOTS}]`;
         try {
             let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
-            if (!trendingTagToots?.length || (await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
+            if (trendingTagToots?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
+                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
+            }
+            else {
                 const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
                 const tootTags = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
                 const toots = toot_1.default.dedupeToots(tootTags.flat(), types_1.StorageKey.TRENDING_TAG_TOOTS);
@@ -133,9 +136,6 @@ class MastoApi {
                 trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
                 await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
                 console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots`, trendingTagToots);
-            }
-            else {
-                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache`);
             }
             return trendingTagToots;
         }
@@ -195,7 +195,10 @@ class MastoApi {
         const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
-            if (!filters || (await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
+            if (filters && !(await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
+                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
+            }
+            else {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
@@ -209,9 +212,6 @@ class MastoApi {
                 await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`${logPrefix} Retrieved records:`, filters);
             }
-            else {
-                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
-            }
             return filters;
         }
         finally {
@@ -221,8 +221,8 @@ class MastoApi {
     ;
     // Retrieve background data about the user that will be used for scoring etc.
     async getUserData() {
-        // Use BLOCKED_ACCOUNTS as a stand in for all user data freshness
-        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.BLOCKED_ACCOUNTS);
+        // Use MUTED_ACCOUNTS as a stand in for all user data freshness
+        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.MUTED_ACCOUNTS);
         if (this.userData && !isDataStale)
             return this.userData;
         const responses = await Promise.all([

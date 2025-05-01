@@ -191,6 +191,7 @@ export const DEFAULT_CONFIG: Config = {
         "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",
+        "mastodon.art",
         "mastodon.sdf.org",
         'mathstodon.xyz',
         "mstdn.social",    // blocked by CORS

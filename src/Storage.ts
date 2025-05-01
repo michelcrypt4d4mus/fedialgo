@@ -136,6 +136,13 @@ export default class Storage {
     }
 
     // Return true if the data stored at 'key' is stale and should be refetched
+    // Preferred boolean is like this:
+    //
+    //       if (cachedData && !(await Storage.isDataStale(label))) {
+    //            useCache()
+    //       } else {
+    //             fetchData()
+    //       }
     static async isDataStale(key: StorageKey): Promise<boolean> {
         const staleDataConfig = Storage.getConfig().staleDataSeconds;
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;

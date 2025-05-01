@@ -201,13 +201,14 @@ class MastodonServer {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            if (!servers || Object.keys(servers).length == 0 || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
+            // TODO: we should store the whole Instance object not just the MAU computation etc
+            if (servers && Object.keys(servers).length && !(await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
+                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
+            }
+            else {
                 servers = await this.fetchMastodonServersInfo();
                 console.log(`${logPrefix} retrieved mastodon server infos`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
-            }
-            else {
-                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
             }
             return servers;
         }
@@ -222,6 +223,7 @@ class MastodonServer {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         console.debug(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage_1.default.getConfig();
+        const startTime = new Date();
         const follows = await api_1.MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
@@ -251,7 +253,7 @@ class MastodonServer {
             };
             return serverInfo;
         }, {});
-        console.log(`${logPrefix} Constructed MastodonServersInfo object:`, mastodonServers);
+        console.log(`${logPrefix} Constructed MastodonServersInfo object ${(0, time_helpers_1.inSeconds)(startTime)}:`, mastodonServers);
         return mastodonServers;
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
@@ -269,11 +271,12 @@ class MastodonServer {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
         const releaseMutex = await TRENDING_MUTEXES[key].acquire();
+        const startTime = new Date();
         const logPrefix = `[${key}]`;
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records...`);
+                console.debug(`${logPrefix} Loaded cached data with ${storageObjs.length} records ${(0, time_helpers_1.inSeconds)(startTime)}`);
                 return storageObjs;
             }
             else {
@@ -281,7 +284,7 @@ class MastodonServer {
                 console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique objs:`, uniqueObjs);
+                console.log(`${logPrefix} fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startTime)}`, uniqueObjs);
                 return uniqueObjs;
             }
         }

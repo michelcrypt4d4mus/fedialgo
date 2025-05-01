@@ -143,6 +143,7 @@ exports.DEFAULT_CONFIG = {
         "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",
+        "mastodon.art",
         "mastodon.sdf.org",
         'mathstodon.xyz',
         "mstdn.social",
