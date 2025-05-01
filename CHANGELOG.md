@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.21.4
 * Use the `/api/v1/timelines/tag/:hashtag` endpoint to pull trending tag toots in addition to search endpoint
 * Log the `Instance` server info dict all at once
 * Increase Config.numTrendingTagToots from 100 to 150
