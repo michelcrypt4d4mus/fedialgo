@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use a looser definition 'containing' a hashtag: a toot contains a hashtag even if it just has the name of the hashtag as a substring (without the leading `#`)
 * `UserData.followedTags` is just an array of Tags
 
 ### v0.21.4
