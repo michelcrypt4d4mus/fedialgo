@@ -95,11 +95,11 @@ export const DEFAULT_CONFIG: Config = {
     excessiveTags: 25,                   // Toots with more than this many tags will be penalized
     excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
-    numTootsPerTrendingTag: 20,          // How many toots to pull for each trending tag
+    numTootsPerTrendingTag: 15,          // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server
     numTrendingTags: 18,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
     numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
-    numTrendingTagsToots: 150,           // Maximum number of toots with trending tags to push into the user's feed
+    numTrendingTagsToots: 250,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
 
