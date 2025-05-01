@@ -157,6 +157,16 @@ There's a pre-commit git hook that runs `npm run build`.
 # TODO
 1. Add scoring for links similar to `onlyLinks` filter
 
+### What's slow:
+Not 100% sure if these are slow because the actual fetch needs to be slow or if there is some mutex situation keeping them from running but either way right now these are the outliers:
+
+* [API RecentUserToots] Completing fetch at page 10, got 400 records in 28.2 seconds
+* [API FavouritedAccounts] Completing fetch at page 10, got 400 records in 28.6 seconds
+* [API RecentNotifications] Completing fetch at page 10, got 400 records in 29.1 seconds
+
+Not on the critical path so maybe fine:
+
+* [API TrendingTagTootsV2] Completing fetch at page 1, got 15 records in 31.8 seconds
 
 # Resources
 * [`masto.js` documentation](https://neet.github.io/masto.js)

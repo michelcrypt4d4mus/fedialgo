@@ -39,7 +39,7 @@ exports.DEFAULT_CONFIG = {
     timelineDecayExponent: 1.2,
     // API stuff
     maxFollowingAccountsToPull: 5000,
-    minRecordsForFeatureScoring: 400,
+    minRecordsForFeatureScoring: 240,
     minServerMAU: 100,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,

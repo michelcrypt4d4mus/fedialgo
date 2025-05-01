@@ -85,7 +85,7 @@ export const DEFAULT_CONFIG: Config = {
 
     // API stuff
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
-    minRecordsForFeatureScoring: 400,    // number of notifications, replies, etc. to pull
+    minRecordsForFeatureScoring: 240,    // number of notifications, replies, etc. to pull
     minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
     numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
     reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN

@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Standardize boolean logic around cache hits and misses
 * Add mastodon.art to list of no MAU servers
+* Reduce minRecordsForFeatureScoring to 240 in the hopes of improving startup speed (see TODO section of README)
 
 ### v0.22.2
 * Add lastLoadTimeInSeconds prop to TheAlgorithm
