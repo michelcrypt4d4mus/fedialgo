@@ -17,3 +17,4 @@ export declare function createRandomString(length: number): string;
 export declare function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void;
 export declare function logAndThrowError(message: string, obj?: any): never;
 export declare const quote: (text: string | null) => string;
+export declare const toFixedLocale: (num: number | null) => string;

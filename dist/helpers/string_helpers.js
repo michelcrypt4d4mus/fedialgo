@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -117,4 +117,11 @@ exports.logAndThrowError = logAndThrowError;
 // Doublequotes
 const quote = (text) => text == null ? exports.NULL : `"${text}"`;
 exports.quote = quote;
+// Number to string (could also be done with Math.floor(num).toLocaleString())
+const toFixedLocale = (num) => {
+    if (num == null)
+        return exports.NULL;
+    return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+};
+exports.toFixedLocale = toFixedLocale;
 //# sourceMappingURL=string_helpers.js.map

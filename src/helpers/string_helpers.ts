@@ -131,3 +131,10 @@ export function logAndThrowError(message: string, obj?: any): never {
 
 // Doublequotes
 export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
+
+
+// Number to string (could also be done with Math.floor(num).toLocaleString())
+export const toFixedLocale = (num: number | null): string => {
+    if (num == null) return NULL;
+    return num.toLocaleString(undefined, {maximumFractionDigits: 0});
+};

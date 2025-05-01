@@ -9,8 +9,7 @@ import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
-import { keyByProperty } from "./helpers/collection_helpers";
-import { logAndThrowError } from "./helpers/string_helpers";
+import { logAndThrowError, toFixedLocale } from "./helpers/string_helpers";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
@@ -138,8 +137,8 @@ export default class Storage {
         const numAppOpens = await this.getNumAppOpens();
 
         const logPrefix = `[isDataStale ${key}]`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${dataAgeInSeconds?.toFixed(0).toLocaleString()}`;
-        secondsLogMsg += `, staleAfterSeconds: ${staleAfterSeconds.toLocaleString()}`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${toFixedLocale(dataAgeInSeconds)}`;
+        secondsLogMsg += `, staleAfterSeconds: ${toFixedLocale(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
 
         if (numAppOpens <= 1) {
