@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* timeString() method accepts locale argument
 * Move the bulk of the scoring code to Scorer.scoreToots() method
 
 ## v0.21.0
