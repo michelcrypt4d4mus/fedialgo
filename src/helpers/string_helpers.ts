@@ -143,5 +143,5 @@ export const toFixedLocale = (num: number | null): string => {
 
 // console.info() with a timestamp
 export const logInfo = (logPrefix: string, message: string, ...args: any[]): void => {
-    console.info(`[${nowString()} ${logPrefix}] ${message}`, ...args);
+    console.info(`[[${nowString()} ${logPrefix}]] ${message}`, ...args);
 };
