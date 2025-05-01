@@ -95,7 +95,7 @@ class MastoApi {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
                 const oldestTootAtStr = (0, time_helpers_1.quotedISOFmt)(oldestTootAt);
                 const oldestInPageStr = (0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(pageOfResults));
-                console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
+                // console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
                     const cutoffStr = (0, time_helpers_1.quotedISOFmt)(cutoffTimelineAt);
                     console.log(`${logPrefix} Halting (oldestToot ${oldestTootAtStr} is before cutoff ${cutoffStr})`);

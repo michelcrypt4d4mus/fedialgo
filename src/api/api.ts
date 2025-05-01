@@ -97,7 +97,7 @@ export class MastoApi {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
                 const oldestTootAtStr = quotedISOFmt(oldestTootAt);
                 const oldestInPageStr = quotedISOFmt(earliestTootedAt(pageOfResults));
-                console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
+                // console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
 
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
                     const cutoffStr = quotedISOFmt(cutoffTimelineAt);
