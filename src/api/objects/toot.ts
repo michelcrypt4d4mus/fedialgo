@@ -374,7 +374,7 @@ export default class Toot implements TootObj {
     setDependentProperties(
         userData: UserData,
         trendingLinks: TrendingLink[],
-        trendingTags: StringNumberDict
+        trendingTags: TrendingTag[]
     ): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
@@ -385,18 +385,8 @@ export default class Toot implements TootObj {
 
         // Set trendingTags and followedTags properties
         if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags ??= [];
-            toot.trendingTags ??= [];
-
-            // TODO: should check Toot.containsString() instead of just checking if the tag is in the list
-            toot.tags.forEach((tag) => {
-                // TODO why do i need these to make typescript happy even when toot.followedTags/toot.trendingTags
-                // were initialized before this loop starts?
-                toot.followedTags ??= [];  // TODO why do i need this to make typescript happy?
-                toot.trendingTags ??= [];  // TODO why do i need this to make typescript happy?
-                if (tag.name in userData.followedTags) toot.followedTags.push(tag);
-                if (tag.name in trendingTags) toot.trendingTags.push(tag);
-            });
+            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         }
 
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
@@ -543,7 +533,7 @@ export default class Toot implements TootObj {
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
         const trendingTagsByName = countValues<TrendingTag>(trendingTags, (tag) => tag.name);
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTags));
         return toots;
     }
 };

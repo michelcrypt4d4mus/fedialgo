@@ -125,7 +125,7 @@ class Storage {
         const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a));
         return {
             followedAccounts: account_1.default.buildAccountNames(followedAccounts.map(a => new account_1.default(a))),
-            followedTags: (0, collection_helpers_1.countValues)(followedTags, tag => tag.name),
+            followedTags: (0, collection_helpers_1.keyByProperty)(followedTags, (tag) => tag.name),
             mutedAccounts: account_1.default.buildAccountNames(silencedAccounts),
             serverSideFilters: serverSideFilters,
         };

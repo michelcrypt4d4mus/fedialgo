@@ -11,7 +11,7 @@ import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
-import { countValues } from "../helpers/collection_helpers";
+import { countValues, keyByProperty } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
@@ -248,7 +248,7 @@ export class MastoApi {
         // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: Account.buildAccountNames(responses[0]),
-            followedTags: countValues<mastodon.v1.Tag>(responses[1], tag => tag.name),
+            followedTags: keyByProperty<mastodon.v1.Tag>(responses[1], (tag) => tag.name),
             mutedAccounts: Account.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };

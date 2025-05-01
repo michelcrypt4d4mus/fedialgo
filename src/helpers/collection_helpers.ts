@@ -153,3 +153,15 @@ export async function processPromisesBatch(
 
     return results;
 };
+
+
+// Build a dictionary from the result of keyFxn() for each object in the array
+export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T> {
+    return array.reduce(
+        (keyedDict, obj) => {
+            keyedDict[keyFxn(obj)] = obj;
+            return keyedDict;
+        },
+        {} as Record<string, T>
+    );
+};

@@ -9,7 +9,7 @@ import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
-import { countValues } from "./helpers/collection_helpers";
+import { countValues, keyByProperty } from "./helpers/collection_helpers";
 import { logAndThrowError } from "./helpers/string_helpers";
 import {
     FeedFilterSettings,
@@ -124,7 +124,7 @@ export default class Storage {
 
         return {
             followedAccounts: Account.buildAccountNames(followedAccounts.map(a => new Account(a))),
-            followedTags: countValues<mastodon.v1.Tag>(followedTags, tag => tag.name),
+            followedTags: keyByProperty<mastodon.v1.Tag>(followedTags, (tag) => tag.name),
             mutedAccounts: Account.buildAccountNames(silencedAccounts),
             serverSideFilters: serverSideFilters,
         };

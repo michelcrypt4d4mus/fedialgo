@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_helpers_1 = require("../../helpers/string_helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../api");
 ;
 class Account {
@@ -104,10 +105,7 @@ class Account {
     }
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     static buildAccountNames(accounts) {
-        return accounts.reduce((accountsDict, account) => {
-            accountsDict[account.webfingerURI] = account;
-            return accountsDict;
-        }, {});
+        return (0, collection_helpers_1.keyByProperty)(accounts, acct => acct.webfingerURI);
     }
 }
 exports.default = Account;

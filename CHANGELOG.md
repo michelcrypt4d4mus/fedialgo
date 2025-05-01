@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Use the `/api/v1/timelines/tag/:hashtag` endpoint to pull trending tag toots in addition to search endpoint
-* Log the Instance server info dict all at once
+* Log the `Instance` server info dict all at once
+* Increase Config.numTrendingTagToots from 100 to 150
 
 ### v0.21.3
 * Add MastodonServer.fetchServerInfo() method to fetch all the available mastodon.v2.Instance data about the server instead of just MAU data

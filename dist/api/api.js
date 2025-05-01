@@ -233,7 +233,7 @@ class MastoApi {
         // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
         this.userData = {
             followedAccounts: account_1.default.buildAccountNames(responses[0]),
-            followedTags: (0, collection_helpers_1.countValues)(responses[1], tag => tag.name),
+            followedTags: (0, collection_helpers_1.keyByProperty)(responses[1], (tag) => tag.name),
             mutedAccounts: account_1.default.buildAccountNames(responses[2]),
             serverSideFilters: responses[3],
         };

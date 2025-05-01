@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.keyByProperty = exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -128,5 +128,14 @@ async function processPromisesBatch(items, batchSize, fn) {
     return results;
 }
 exports.processPromisesBatch = processPromisesBatch;
+;
+// Build a dictionary from the result of keyFxn() for each object in the array
+function keyByProperty(array, keyFxn) {
+    return array.reduce((keyedDict, obj) => {
+        keyedDict[keyFxn(obj)] = obj;
+        return keyedDict;
+    }, {});
+}
+exports.keyByProperty = keyByProperty;
 ;
 //# sourceMappingURL=collection_helpers.js.map

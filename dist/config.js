@@ -51,7 +51,7 @@ exports.DEFAULT_CONFIG = {
     numTrendingLinksPerServer: 20,
     numTrendingTags: 18,
     numTrendingTagsPerServer: 30,
-    numTrendingTagsToots: 100,
+    numTrendingTagsToots: 150,
     // Trending toots
     numTrendingTootsPerServer: 30,
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough

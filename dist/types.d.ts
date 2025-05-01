@@ -126,7 +126,7 @@ export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 export type UserData = {
     followedAccounts: AccountNames;
-    followedTags: StringNumberDict;
+    followedTags: Record<string, mastodon.v1.Tag>;
     mutedAccounts: AccountNames;
     serverSideFilters: mastodon.v2.Filter[];
 };

@@ -5,7 +5,9 @@ import { mastodon } from "masto";
 
 import { AccountNames } from "../../types";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { keyByProperty } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
+import { key } from "localforage";
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -121,12 +123,6 @@ export default class Account implements AccountObj {
 
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     public static buildAccountNames(accounts: Account[]): AccountNames {
-        return accounts.reduce(
-            (accountsDict, account) => {
-                accountsDict[account.webfingerURI] = account;
-                return accountsDict;
-            },
-            {} as AccountNames
-        );
+        return keyByProperty<Account>(accounts, acct => acct.webfingerURI);
     }
 };

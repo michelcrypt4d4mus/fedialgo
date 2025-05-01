@@ -98,7 +98,7 @@ export const DEFAULT_CONFIG: Config = {
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server
     numTrendingTags: 18,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
     numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
-    numTrendingTagsToots: 100,           // Maximum number of toots with trending tags to push into the user's feed
+    numTrendingTagsToots: 150,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
 

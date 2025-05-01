@@ -13,3 +13,4 @@ export declare function sumArray(arr: number[]): number;
 export declare function shuffle<T>(array: T[]): T[];
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
 export declare function processPromisesBatch(items: Array<any>, batchSize: number, fn: (item: any) => Promise<any>): Promise<any>;
+export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;

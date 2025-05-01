@@ -300,18 +300,8 @@ class Toot {
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties
         if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags ??= [];
-            toot.trendingTags ??= [];
-            toot.tags.forEach((tag) => {
-                // TODO why do i need these to make typescript happy even when toot.followedTags/toot.trendingTags
-                // were initialized before this loop starts?
-                toot.followedTags ??= []; // TODO why do i need this to make typescript happy?
-                toot.trendingTags ??= []; // TODO why do i need this to make typescript happy?
-                if (tag.name in userData.followedTags)
-                    toot.followedTags.push(tag);
-                if (tag.name in trendingTags)
-                    toot.trendingTags.push(tag);
-            });
+            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         }
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
@@ -446,7 +436,7 @@ class Toot {
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         const trendingTagsByName = (0, collection_helpers_1.countValues)(trendingTags, (tag) => tag.name);
-        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTagsByName));
+        toots.forEach(toot => toot.setDependentProperties(userData, trendingLinks, trendingTags));
         return toots;
     }
 }
