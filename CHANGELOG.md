@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Checkin missing dist/ files from last release
 
 ### v0.21.1
 * `timeString()` method accepts locale argument
