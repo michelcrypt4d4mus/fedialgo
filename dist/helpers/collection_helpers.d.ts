@@ -9,7 +9,7 @@ export declare function zipPromises<T>(args: string[], promiser: (s: string) => 
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
-export declare function sumArray(arr: number[]): number;
+export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function shuffle<T>(array: T[]): T[];
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
 export declare function batchPromises<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number): Promise<any[]>;

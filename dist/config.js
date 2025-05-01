@@ -44,7 +44,7 @@ exports.DEFAULT_CONFIG = {
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
     timeoutMS: 5000,
-    // Trending tags
+    // Trending tags and links
     excessiveTags: 25,
     excessiveTagsPenalty: 0.1,
     numDaysToCountTrendingTagData: 3,

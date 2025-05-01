@@ -91,7 +91,7 @@ export const DEFAULT_CONFIG: Config = {
     reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
     timeoutMS: 5_000,                    // Timeout for API calls
 
-    // Trending tags
+    // Trending tags and links
     excessiveTags: 25,                   // Toots with more than this many tags will be penalized
     excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags

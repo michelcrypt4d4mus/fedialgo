@@ -95,7 +95,8 @@ exports.sumValues = sumValues;
 ;
 // Sum the elements of an array
 function sumArray(arr) {
-    return arr.reduce((a, b) => a + b, 0);
+    const numArray = arr.map((x) => (x ?? 0));
+    return numArray.reduce((a, b) => a + b, 0);
 }
 exports.sumArray = sumArray;
 // Mastodon does not support top posts from foreign servers, so we have to do it manually

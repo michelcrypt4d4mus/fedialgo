@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add trendingRank to Toot.popularity()
 * Standardize boolean logic around cache hits and misses
 * Add mastodon.art to list of no MAU servers
 * Reduce minRecordsForFeatureScoring to 240 in the hopes of improving startup speed (see TODO section of README)

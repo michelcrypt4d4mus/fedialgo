@@ -64,7 +64,7 @@ class MastodonServer {
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     async fetchTrendingToots() {
         const toots = await this.fetchTrending(api_1.STATUSES);
-        const trendingToots = toots.map(t => new toot_1.default(t)).filter(t => t.popularity() > 0);
+        const trendingToots = toots.map(t => new toot_1.default(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {

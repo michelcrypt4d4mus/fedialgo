@@ -9,7 +9,7 @@ const escape = require('regexp.escape');
 import Account from "./account";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
-import { groupBy, batchPromises, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
@@ -323,9 +323,9 @@ export default class Toot implements TootObj {
         return true;
     }
 
-    // Sum of the reblogs, replies, and local server favourites
+    // Sum of the trendingRank, numReblogs, replies, and local server favourites
     popularity(): number {
-        return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
+        return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
     }
 
     // Return the account that posted this toot, not the account that reblogged it

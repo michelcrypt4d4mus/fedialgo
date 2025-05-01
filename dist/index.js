@@ -305,7 +305,7 @@ class TheAlgorithm {
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {
-                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished loading ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
                 this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
                 this.loadStartedAt = null;
             }

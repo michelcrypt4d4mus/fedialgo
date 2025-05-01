@@ -112,8 +112,9 @@ export function sumValues(obj: StringNumberDict | Weights): number {
 
 
 // Sum the elements of an array
-export function sumArray(arr: number[]): number {
-    return arr.reduce((a, b) => a + b, 0);
+export function sumArray(arr: (number | null | undefined)[]): number {
+    const numArray: number[] = arr.map((x) => (x ?? 0));
+    return numArray.reduce((a, b) => a + b, 0);
 }
 
 

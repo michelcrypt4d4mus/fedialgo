@@ -252,9 +252,9 @@ class Toot {
         }
         return true;
     }
-    // Sum of the reblogs, replies, and local server favourites
+    // Sum of the trendingRank, numReblogs, replies, and local server favourites
     popularity() {
-        return (this.favouritesCount || 0) + (this.reblogsCount || 0) + (this.repliesCount || 0);
+        return (0, collection_helpers_1.sumArray)([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
     }
     // Return the account that posted this toot, not the account that reblogged it
     realAccount() {
