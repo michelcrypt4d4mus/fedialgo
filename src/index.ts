@@ -155,7 +155,7 @@ class TheAlgorithm {
         const releaseMutex = await this.mergeMutex.acquire();
 
         try {
-            this.feed = await this.cleanupFeed(newToots);
+            this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
             logInfo(logPrefix, `Finished loading + merging ${newToots.length} toots ${inSeconds(startTime)} ${this.statusMsg()}`);
             return newToots;
@@ -259,7 +259,7 @@ class TheAlgorithm {
     }
 
     // Remove invalid and duplicate toots
-    private async cleanupFeed(toots: Toot[]): Promise<Toot[]> {
+    private async mergeTootsWithFeed(toots: Toot[]): Promise<Toot[]> {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         logTootRemoval(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
         toots = Toot.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
@@ -267,7 +267,9 @@ class TheAlgorithm {
         return toots;
     }
 
-    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
+    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
+    // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
+    // the master timeline).
     private filterFeedAndSetInApp(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
@@ -281,6 +283,7 @@ class TheAlgorithm {
         return filteredFeed;
     }
 
+    // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.feed = (await Storage.getFeed()) ?? [];
         this.filters = await Storage.getFilters();
@@ -353,6 +356,24 @@ class TheAlgorithm {
         }
     }
 
+    // Prepare the scorers for scoring.
+    private async prepareScorers(): Promise<void> {
+        const releaseMutex = await this.scoreMutex.acquire();
+        const logPrefix = `prepareScorers()`;
+
+        try {
+            if (this.featureScorers.some(scorer => !scorer.isReady)) {
+                logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
+                await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
+                logInfo(logPrefix, `ASYNC Scorers ready!`);
+            } else {
+                console.debug(`${(new Date().toISOString())} [prepareScorers()] ASYNC FeatureScorers already ready`);
+            }
+        } finally {
+            releaseMutex();
+        }
+    }
+
     // Load weightings from storage. Set defaults for any missing weightings.
     private async setDefaultWeights(): Promise<void> {
         let weightings = await Storage.getWeightings();
@@ -371,21 +392,6 @@ class TheAlgorithm {
         if (shouldSetWeights) await Storage.setWeightings(weightings);
     }
 
-    // Utility method to log progress of getFeed() calls
-    private async logTootCounts(logPrefix: string, retrievedToots: Toot[], newHomeToots: Toot[]): Promise<void> {
-        const userData = await MastoApi.instance.getUserData();
-        const numFollowedAccts = Object.keys(userData.followedAccounts).length;
-        const numFollowedTags = Object.keys(userData.followedTags).length;
-
-        let msg = [
-            `Retrieved ${retrievedToots.length} toots (following ${numFollowedAccts} accts, ${numFollowedTags} hashtags)`,
-            `${newHomeToots.length} newHomeToots`,
-            `${retrievedToots.length - newHomeToots.length} other potentially cached or trending toots`,
-        ];
-
-        console.log(`${logPrefix} ${msg.join(', ')}\n${this.statusMsg()}`);
-    }
-
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();
@@ -393,23 +399,6 @@ class TheAlgorithm {
         this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
         await Storage.setFeed(this.feed);
         return this.filterFeedAndSetInApp();
-    }
-
-    private async prepareScorers(): Promise<void> {
-        const releaseMutex = await this.scoreMutex.acquire();
-        const logPrefix = `prepareScorers()`;
-
-        try {
-            if (this.featureScorers.some(scorer => !scorer.isReady)) {
-                logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
-                await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(logPrefix, `ASYNC Scorers ready!`);
-            } else {
-                console.debug(`${(new Date().toISOString())} [prepareScorers()] ASYNC FeatureScorers already ready`);
-            }
-        } finally {
-            releaseMutex();
-        }
     }
 
     // Simple string with important feed status information

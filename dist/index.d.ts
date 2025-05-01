@@ -59,14 +59,13 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
-    private cleanupFeed;
+    private mergeTootsWithFeed;
     private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
-    private setDefaultWeights;
-    private logTootCounts;
-    private scoreAndFilterFeed;
     private prepareScorers;
+    private setDefaultWeights;
+    private scoreAndFilterFeed;
     private statusMsg;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

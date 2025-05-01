@@ -158,7 +158,7 @@ class TheAlgorithm {
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const releaseMutex = await this.mergeMutex.acquire();
         try {
-            this.feed = await this.cleanupFeed(newToots);
+            this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
             (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} ${this.statusMsg()}`);
             return newToots;
@@ -249,14 +249,16 @@ class TheAlgorithm {
         return (0, toot_1.mostRecentTootedAt)(this.feed.filter(toot => toot.isFollowed));
     }
     // Remove invalid and duplicate toots
-    async cleanupFeed(toots) {
+    async mergeTootsWithFeed(toots) {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         (0, string_helpers_1.logTootRemoval)(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
         toots = toot_1.default.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(toots, await api_1.MastoApi.instance.getUserData());
         return toots;
     }
-    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
+    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
+    // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
+    // the master timeline).
     filterFeedAndSetInApp() {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
@@ -267,6 +269,7 @@ class TheAlgorithm {
         }
         return filteredFeed;
     }
+    // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
         this.feed = (await Storage_1.default.getFeed()) ?? [];
         this.filters = await Storage_1.default.getFilters();
@@ -333,41 +336,7 @@ class TheAlgorithm {
             this.loadingStatus = null;
         }
     }
-    // Load weightings from storage. Set defaults for any missing weightings.
-    async setDefaultWeights() {
-        let weightings = await Storage_1.default.getWeightings();
-        let shouldSetWeights = false;
-        Object.keys(this.scorersDict).forEach((key) => {
-            const value = weightings[key];
-            if (!value && value !== 0) {
-                weightings[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
-                shouldSetWeights = true;
-            }
-        });
-        // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSetWeights)
-            await Storage_1.default.setWeightings(weightings);
-    }
-    // Utility method to log progress of getFeed() calls
-    async logTootCounts(logPrefix, retrievedToots, newHomeToots) {
-        const userData = await api_1.MastoApi.instance.getUserData();
-        const numFollowedAccts = Object.keys(userData.followedAccounts).length;
-        const numFollowedTags = Object.keys(userData.followedTags).length;
-        let msg = [
-            `Retrieved ${retrievedToots.length} toots (following ${numFollowedAccts} accts, ${numFollowedTags} hashtags)`,
-            `${newHomeToots.length} newHomeToots`,
-            `${retrievedToots.length - newHomeToots.length} other potentially cached or trending toots`,
-        ];
-        console.log(`${logPrefix} ${msg.join(', ')}\n${this.statusMsg()}`);
-    }
-    // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
-    async scoreAndFilterFeed() {
-        await this.prepareScorers();
-        this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
-        this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
-        await Storage_1.default.setFeed(this.feed);
-        return this.filterFeedAndSetInApp();
-    }
+    // Prepare the scorers for scoring.
     async prepareScorers() {
         const releaseMutex = await this.scoreMutex.acquire();
         const logPrefix = `prepareScorers()`;
@@ -384,6 +353,29 @@ class TheAlgorithm {
         finally {
             releaseMutex();
         }
+    }
+    // Load weightings from storage. Set defaults for any missing weightings.
+    async setDefaultWeights() {
+        let weightings = await Storage_1.default.getWeightings();
+        let shouldSetWeights = false;
+        Object.keys(this.scorersDict).forEach((key) => {
+            const value = weightings[key];
+            if (!value && value !== 0) {
+                weightings[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
+                shouldSetWeights = true;
+            }
+        });
+        // If any changes were made to the Storage weightings, save them back to storage
+        if (shouldSetWeights)
+            await Storage_1.default.setWeightings(weightings);
+    }
+    // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
+    async scoreAndFilterFeed() {
+        await this.prepareScorers();
+        this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
+        this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxNumCachedToots);
+        await Storage_1.default.setFeed(this.feed);
+        return this.filterFeedAndSetInApp();
     }
     // Simple string with important feed status information
     statusMsg() {
