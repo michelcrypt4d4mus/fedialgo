@@ -153,10 +153,10 @@ class TheAlgorithm {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
         let newToots = [];
-        (0, string_helpers_1.logInfo)(logPrefix, `Called ${logPrefix} (${this.statusMsg()}`);
+        (0, string_helpers_1.logInfo)(logPrefix, `Called ${logPrefix}, state:`, this.statusDict());
         try {
             newToots = await tootFetcher;
-            (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()})`);
+            (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
         }
         catch (e) {
             console.error(`${logPrefix} Error fetching toots:`, e);
@@ -166,7 +166,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} ${this.statusMsg()}`);
+            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}, state:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -190,7 +190,7 @@ class TheAlgorithm {
             else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
-                console.info(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
+                console.info(`${logPrefix} Set catchupCheckpoint marker. Current state:`, this.statusDict());
             }
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.prepareScorers();
@@ -285,7 +285,7 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots ${this.statusMsg()}`);
+        console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
@@ -301,7 +301,7 @@ class TheAlgorithm {
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
                 let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                console.log(`${logPrefix} ${msg}\n${this.statusMsg()}`);
+                console.log(`${logPrefix} ${msg}. state:`, this.statusDict());
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
@@ -315,18 +315,18 @@ class TheAlgorithm {
                     let tmpCheckpoint = this.catchupCheckpoint;
                     this.catchupCheckpoint = null;
                     let msg = `${logPrefix} All caught up: oldest new toot ${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
-                    console.log(`${msg} older than checkpoint ${(0, time_helpers_1.quotedISOFmt)(tmpCheckpoint)}\n${this.statusMsg()}`);
+                    console.log(`${msg} older than checkpoint ${(0, time_helpers_1.quotedISOFmt)(tmpCheckpoint)}. state:`, this.statusDict());
                 }
                 else {
-                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! ${this.statusMsg()}`);
+                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! state:`, this.statusDict());
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefix} Have enough toots (wanted ${maxTimelineTootsToFetch})\n${this.statusMsg()}`);
+                console.log(`${logPrefix} Have enough toots (wanted ${maxTimelineTootsToFetch}), state:`, this.statusDict());
             }
             else {
                 let msg = `${logPrefix} Stopping because fetch only got ${newHomeToots.length} toots`;
-                console.log(`${msg}, expected ${numTimelineToots}\n${this.statusMsg()}`);
+                console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {
                 (0, string_helpers_1.logInfo)(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
@@ -382,13 +382,15 @@ class TheAlgorithm {
     }
     // Simple string with important feed status information
     statusMsg() {
-        let msgPieces = [
-            `feed.length=${this.feed?.length}`,
-            `loadingStatus=${(0, string_helpers_1.quote)(this.loadingStatus)}`,
-            `catchupCheckpoint=${(0, time_helpers_1.quotedISOFmt)(this.catchupCheckpoint)}`,
-            `mostRecentHomeTootAt=${(0, time_helpers_1.quotedISOFmt)(this.mostRecentHomeTootAt())}`,
-        ];
-        return `[TheAlgorithm state: ${msgPieces.join(`, `)}]`;
+        return Object.entries(this.statusDict()).map((k, v) => `${k}=${v}`).join(", ");
+    }
+    statusDict() {
+        return {
+            tootsInFeed: this.feed?.length,
+            loadingStatus: this.loadingStatus,
+            catchupCheckpoint: (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint),
+            mostRecentHomeTootAt: (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()),
+        };
     }
 }
 exports.TheAlgorithm = TheAlgorithm;
