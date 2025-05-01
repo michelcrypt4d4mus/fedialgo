@@ -8,7 +8,7 @@ import { ageInSeconds } from "./time_helpers";
 import { CountKey, StringNumberDict, Weights } from "../types";
 
 
-// Take the average of an array of numbers, ignoring undefined values
+// Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 export function average(values: number[]): number {
     values = values.filter(v => !!v);
     if (values.length == 0) return NaN;

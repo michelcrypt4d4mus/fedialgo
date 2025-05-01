@@ -9,7 +9,7 @@ exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const Storage_1 = __importDefault(require("../Storage"));
-// Take the average of an array of numbers, ignoring undefined values
+// Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
     values = values.filter(v => !!v);
     if (values.length == 0)
