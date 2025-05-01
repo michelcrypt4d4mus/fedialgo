@@ -44,6 +44,7 @@ export declare enum StorageKey {
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE = "Timeline",
     TRENDING_TAG_TOOTS = "TrendingTagToots",
+    TRENDING_TAG_TOOTS_V2 = "TrendingTagTootsV2",
     USER = "FedialgoUser",
     WEIGHTS = "Weights"
 }

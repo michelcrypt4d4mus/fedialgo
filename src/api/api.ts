@@ -10,12 +10,13 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
-import Toot, { earliestTootedAt } from './objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import { countValues } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { quotedISOFmt } from "../helpers/time_helpers";
+import { capitalCase } from "change-case";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -133,7 +134,7 @@ export class MastoApi {
 
             if (!trendingTagToots?.length || (await Storage.isDataStale(StorageKey.TRENDING_TAG_TOOTS))) {
                 const trendingTags = await MastodonServer.fediverseTrendingTags();
-                const tootTags: Toot[][] = await Promise.all(trendingTags.map(this.getTootsForTag));
+                const tootTags: Toot[][] = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
                 const toots = Toot.dedupeToots(tootTags.flat(), StorageKey.TRENDING_TAG_TOOTS);
                 toots.sort((a, b) => b.popularity() - a.popularity());
                 trendingTagToots = toots.slice(0, Storage.getConfig().numTrendingTagsToots);
@@ -293,11 +294,11 @@ export class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     //   - logMsg:        optional description of why the search is being run (for logging only)
-    async searchForToots(searchString: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
+    async searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
-        const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchString, type: STATUSES};
+        const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
         const logPrefix = `[searchForToots` + (logMsg ? ` (${logMsg})` : "") + `]`;
-        const tootsForQueryMsg = `toots for query '${searchString}'`;
+        const tootsForQueryMsg = `toots for query '${searchStr}'`;
         console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
 
         try {
@@ -311,10 +312,34 @@ export class MastoApi {
         }
     };
 
+    // See https://docs.joinmastodon.org/methods/timelines/#tag
+    async searchForTootsByTag(searchStr: string, maxRecords?: number): Promise<Toot[]> {
+        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        const logPrefix = `[searchForTootsByTag]`;
+        console.log(`${logPrefix} searchForTootsByTag("${searchStr}", maxRecords=${maxRecords}) called`);
+
+        try {
+            const toots = await this.fetchData<mastodon.v1.Status>({
+                fetch: this.api.v1.timelines.tag.$select(searchStr).list,
+                label: StorageKey.TRENDING_TAG_TOOTS_V2,
+                maxRecords: maxRecords,
+                skipCache: true,
+            });
+
+            console.log(`${logPrefix} retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
+            return await Toot.buildToots(toots);
+        } catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
+            return [];
+        }
+    };
+
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
+        limit ||= Storage.getConfig().defaultRecordsPerPage;
+
         let params: mastodon.DefaultPaginationParams = {
-            limit: limit || Storage.getConfig().defaultRecordsPerPage
+            limit: Math.min(limit, Storage.getConfig().defaultRecordsPerPage),
         };
 
         if (maxId) params = {...params, maxId: `${maxId}`};
@@ -326,9 +351,10 @@ export class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        const logPrefix = `[API ${label}]`;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+
+        const logPrefix = `[API ${label}]`;
         console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
         const releaseFetchMutex = await this.mutexes[label].acquire();
         let results: T[] = [];
@@ -345,7 +371,7 @@ export class MastoApi {
                 };
             }
 
-            for await (const page of fetch(this.buildParams(maxId))) {
+            for await (const page of fetch(this.buildParams(maxId, maxRecords))) {
                 results = results.concat(page as T[]);
                 console.debug(`${logPrefix} Retrieved page ${++pageNumber}`);
 
@@ -356,7 +382,7 @@ export class MastoApi {
             }
 
             console.log(`${logPrefix} Retrieved ${results.length} records:`, results);
-            await Storage.set(label, results as StorableObj);
+            if (!skipCache) await Storage.set(label, results as StorableObj);
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed`)
             return results;
@@ -368,11 +394,22 @@ export class MastoApi {
     };
 
     // Get latest toots for a given tag and populate trendingToots property
-    // TODO: there's an endpoint for getting recent tags but this is using the search endpoint.
-    // TODO: this doesn't append a an octothorpe to the tag name when searching. Should it?
+    // Currently uses both the Search API as well as the tag timeline API which have
+    // surprising little overlap (~80% of toots are unique)
     private async getTootsForTag(tag: TrendingTag): Promise<Toot[]> {
         const numToots = Storage.getConfig().numTootsPerTrendingTag;
-        return await MastoApi.instance.searchForToots(tag.name, numToots, 'trending tag');
+        const searchToots = await this.searchForToots(tag.name, numToots, 'trending tag');
+        const tagTimelineToots = await this.searchForTootsByTag(tag.name, numToots);
+        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS} getTootsForTag("${tag.name}")]`;
+
+        // TODO: this is excessive logging, remove it once we've had a chance to inspect results
+        searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
+        tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
+        logTrendingTagResults(logPrefix, "SEARCH", searchToots);
+        logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
+
+        const allTagToots = [...searchToots, ...tagTimelineToots];
+        return Toot.dedupeToots(allTagToots, StorageKey.TRENDING_TAG_TOOTS_V2);
     };
 
     // Re-raise access revoked errors so they can trigger a logout() call
@@ -384,4 +421,12 @@ export class MastoApi {
             throw e;
         }
     }
+};
+
+
+// TODO: get rid of this eventually
+const logTrendingTagResults = (logPrefix: string, searchMethod: string, toots: Toot[]): void => {
+    let msg = `${logPrefix} ${capitalCase(searchMethod)} found ${toots.length} toots`;
+    msg += ` (oldest=${quotedISOFmt(earliestTootedAt(toots))}, newest=${quotedISOFmt(mostRecentTootedAt(toots))}):`
+    console.info(msg);
 };

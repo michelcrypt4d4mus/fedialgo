@@ -150,7 +150,7 @@ export default class MastodonServer {
         let urlEndpoint = `${this.domain}/${endpoint}`
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
-        console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
+        // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {
@@ -307,7 +307,7 @@ export default class MastodonServer {
         return topServerDomains;
     };
 
-    // Common wrapper method to fetch trending data from all servers and process it into
+    // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
     private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;

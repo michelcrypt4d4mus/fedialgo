@@ -54,6 +54,7 @@ export enum StorageKey {
     SERVER_SIDE_FILTERS = 'ServerFilters',
     TIMELINE = 'Timeline',
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
+    TRENDING_TAG_TOOTS_V2 = 'TrendingTagTootsV2',  // Uses timelines/tag endpoint: https://docs.joinmastodon.org/methods/timelines/#tag
     USER = 'FedialgoUser',
     WEIGHTS = 'Weights',
 };
