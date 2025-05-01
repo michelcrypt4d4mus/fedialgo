@@ -1,8 +1,8 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
-import { E_CANCELED, Mutex } from 'async-mutex';
 import { mastodon } from "masto";
+import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
