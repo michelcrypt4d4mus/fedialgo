@@ -152,15 +152,15 @@ class TheAlgorithm {
     async mergeTootsIntoFeed(tootFetcher, label) {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
-        (0, string_helpers_1.logInfo)(logPrefix, `launching (${this.statusMsg()}`);
+        (0, string_helpers_1.logInfo)(logPrefix, `Launching (${this.statusMsg()}`);
         const newToots = await tootFetcher;
-        (0, string_helpers_1.logInfo)(logPrefix, `fetched ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()})`);
+        (0, string_helpers_1.logInfo)(logPrefix, `Found ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()})`);
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const releaseMutex = await this.mergeMutex.acquire();
         try {
             this.feed = await this.cleanupFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()}`);
+            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} ${this.statusMsg()}`);
             return newToots;
         }
         finally {
