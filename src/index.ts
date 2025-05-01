@@ -295,7 +295,7 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots\n${this.statusMsg()}`);
+        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots ${this.statusMsg()}`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (

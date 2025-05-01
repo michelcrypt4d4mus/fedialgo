@@ -280,7 +280,7 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots\n${this.statusMsg()}`);
+        console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots ${this.statusMsg()}`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
             && (
