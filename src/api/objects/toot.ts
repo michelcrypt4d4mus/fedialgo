@@ -9,7 +9,7 @@ const escape = require('regexp.escape');
 import Account from "./account";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
-import { groupBy, processPromisesBatch, uniquifyByProp } from "../../helpers/collection_helpers";
+import { groupBy, batchPromises, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
@@ -537,10 +537,9 @@ export default class Toot implements TootObj {
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
 
-        await processPromisesBatch(
+        await batchPromises(
             toots,
-            Storage.getConfig().scoringBatchSize,
-            async (toot: Toot) => toot.setDependentProperties(userData, trendingLinks, trendingTags),
+            async (t: Toot) => t.setDependentProperties(userData, trendingLinks, trendingTags),
             "Toot.setDependentProperties()"
         );
 

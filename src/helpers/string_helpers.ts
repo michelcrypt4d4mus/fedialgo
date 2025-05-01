@@ -5,6 +5,7 @@ import { decode } from 'html-entities';
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../types';
+import { nowString } from './time_helpers';
 
 export const DEFAULT_FONT_SIZE = 15;
 export const NULL = "<<NULL>>";
@@ -137,4 +138,10 @@ export const quote = (text: string | null): string => text == null ? NULL : `"${
 export const toFixedLocale = (num: number | null): string => {
     if (num == null) return NULL;
     return num.toLocaleString(undefined, {maximumFractionDigits: 0});
+};
+
+
+// console.info() with a timestamp
+export const logInfo = (logPrefix: string, message: string, ...args: any[]): void => {
+    console.info(`[${nowString()} ${logPrefix}] ${message}`, ...args);
 };

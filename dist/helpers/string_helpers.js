@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
 const html_entities_1 = require("html-entities");
 const types_1 = require("../types");
+const time_helpers_1 = require("./time_helpers");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.NULL = "<<NULL>>";
 exports.GIFV = "gifv";
@@ -124,4 +125,9 @@ const toFixedLocale = (num) => {
     return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
 };
 exports.toFixedLocale = toFixedLocale;
+// console.info() with a timestamp
+const logInfo = (logPrefix, message, ...args) => {
+    console.info(`[${(0, time_helpers_1.nowString)()} ${logPrefix}] ${message}`, ...args);
+};
+exports.logInfo = logInfo;
 //# sourceMappingURL=string_helpers.js.map

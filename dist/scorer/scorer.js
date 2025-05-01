@@ -57,13 +57,15 @@ class Scorer {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             // If the mutex is already locked just cancel the current scoring loop and start over
             // (scoring is idempotent, so this is safe).
+            // Tnis done to make the feed more immediately responsive to the user adjusting the weights -
+            // rather than waiting for a rescore to finish we just cancel it and start over.
             SCORE_MUTEX.cancel();
             const releaseMutex = await SCORE_MUTEX.acquire();
             try {
                 // Feed scorers' data must be refreshed each time the feed changes
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
-                await (0, collection_helpers_1.processPromisesBatch)(toots, Storage_1.default.getConfig().scoringBatchSize, async (toot) => await this.decorateWithScoreInfo(toot, scorers));
+                await (0, collection_helpers_1.batchPromises)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
                 // Sort feed based on score from high to low.
                 toots.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             }

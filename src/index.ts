@@ -1,6 +1,7 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
+import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
@@ -30,11 +31,11 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, VIDEO_TYPES, extractDomain, logTootRemoval, quote } from './helpers/string_helpers';
+import { GIFV, VIDEO_TYPES, extractDomain, logInfo, logTootRemoval, quote } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
-import { timeString, quotedISOFmt } from './helpers/time_helpers';
+import { timeString, quotedISOFmt, ageInMinutes, inSeconds } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonServersInfo,
@@ -51,6 +52,7 @@ import {
     Weights,
 } from "./types";
 
+const INITIAL_STATUS_MSG = "(ready to load)"
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
 
@@ -71,8 +73,11 @@ class TheAlgorithm {
     // Variables with initial values
     feed: Toot[] = [];
     catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
-    loadingStatus: string | null = "(ready to load)";  // String describing load activity (undefined means load complete)
+    hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
+    loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
+    loadingStatus: string | null = INITIAL_STATUS_MSG;  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonServersInfo = {};
+    mergeMutex = new Mutex();
     scoreMutex = new Mutex();
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
 
@@ -139,21 +144,37 @@ class TheAlgorithm {
         this.filters = buildNewFilterSettings();
     }
 
+    // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
+    async mergeTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]> {
+        const logPrefix = `mergeTootsIntoFeed() ${label}`;
+        const startTime = new Date();
+        logInfo(logPrefix, `launching (${this.statusMsg()}`)
+        const newToots = await tootFetcher;
+        logInfo(logPrefix, `fetched ${newToots.length} toots ${inSeconds(startTime)} (${this.statusMsg()})`);
+        // Only need to lock the mutex when we start modifying common variables like this.feed
+        const releaseMutex = await this.mergeMutex.acquire();
+
+        try {
+            this.feed = await this.cleanupFeed(newToots);
+            await this.scoreAndFilterFeed();
+            logInfo(logPrefix, `Finished merging ${newToots.length} toots to feed ${inSeconds(startTime)} (${this.statusMsg()}`);
+            return newToots;
+        } finally {
+            releaseMutex();
+        }
+    }
+
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
-        const logPrefix = `[${GET_FEED}]`;
-        console.log(`${logPrefix} called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
-        numTimelineToots = numTimelineToots || Storage.getConfig().numTootsInFirstFetch;
-
-        // ORDER MATTERS! The results of these Promises are processed with shift()
-        let dataFetches: Promise<any>[] = [
-            MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId),
-            MastoApi.instance.getUserData(),
-        ];
+        const logPrefix = `${GET_FEED}`;
+        logInfo(logPrefix, `called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
+            this.loadStartedAt = new Date();
+
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = "initial data";
@@ -161,38 +182,32 @@ class TheAlgorithm {
             } else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
-                console.log(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
+                console.info(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
 
-            // ORDER MATTERS! The results of these Promises are processed with shift()
-            // TODO: should we really make the user wait for the initial load to get all trending toots?
-            dataFetches = dataFetches.concat([
-                MastodonServer.fediverseTrendingToots(),
-                MastoApi.instance.getRecentTootsForTrendingTags(),
-                ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
-            ]);
+            // All called asynchronously from here down
+            this.mergeTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots").then((newToots) => {
+                logInfo(logPrefix, `ASYNC fediverseTrendingToots merged ${newToots.length} into feed\n${this.statusMsg()}`);
+            });
+
+            this.mergeTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags").then((newToots) => {
+                logInfo(logPrefix, `ASYNC getRecentTootsForTrendingTags merged ${newToots.length} into feed\n${this.statusMsg()}`);
+            });
+
+            this.prepareScorers();
+            MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
+            MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         } else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length} toots so far`;
             this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch})`;
         }
 
-        const allResponses = await Promise.all(dataFetches);
-        const newHomeToots = allResponses.shift();  // pop getTimelineToots() response from front of allResponses array
-        const userData = allResponses.shift();
-        const trendingToots = allResponses.length ? allResponses.shift().concat(allResponses.shift()) : [];
-        const retrievedToots = [...newHomeToots, ...trendingToots];
-        await this.logTootCounts(logPrefix, retrievedToots, newHomeToots);
+        this.mergeTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
+            logInfo(logPrefix, `ASYNC fetchHomeFeed merged ${newToots.length} into feed\n${this.statusMsg()}`);
+            this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
+        });
 
-        // trendingData and mastodonServers should be getting loaded from cached data in local storage
-        // as the initial fetch happened in the course of getting the trending toots.
-        this.mastodonServers = await MastodonServer.getMastodonServersInfo();
-        this.trendingData = await MastodonServer.getTrendingData();
-        // Filter out dupe/invalid toots, build filters
-        this.feed = this.cleanupFeed(retrievedToots);
-        this.filters = initializeFiltersWithSummaryInfo(this.feed, userData);
-        // Potentially fetch more toots if we haven't reached the desired number
-        this.maybeGetMoreToots(newHomeToots, numTimelineToots);  // Called asynchronously
-        return this.scoreAndFilterFeed();
+        return this.feed; // TODO: This should be unnecessary
     }
 
     // Return the user's current weightings for each score category
@@ -205,7 +220,7 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
-        return this.filterFeed();
+        return this.filterFeedAndSetInApp();
     }
 
     // Update user weightings and rescore / resort the feed.
@@ -224,6 +239,11 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         await Storage.clearAll();
+        this.hasProvidedAnyTootsToClient = false;
+        this.loadingStatus = INITIAL_STATUS_MSG;
+        this.loadStartedAt = null;
+        this.mastodonServers = {};
+        this.catchupCheckpoint = null;
         await this.loadCachedData();
     }
 
@@ -239,17 +259,25 @@ class TheAlgorithm {
     }
 
     // Remove invalid and duplicate toots
-    private cleanupFeed(toots: Toot[]): Toot[] {
+    private async cleanupFeed(toots: Toot[]): Promise<Toot[]> {
         const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
         logTootRemoval(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
-        return Toot.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
+        toots = Toot.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
+        this.filters = initializeFiltersWithSummaryInfo(toots, await MastoApi.instance.getUserData());
+        return toots;
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback.
-    private filterFeed(): Toot[] {
+    private filterFeedAndSetInApp(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
         this.setFeedInApp(filteredFeed);
+
+        if (!this.hasProvidedAnyTootsToClient) {
+            this.hasProvidedAnyTootsToClient = true;
+            logInfo(`TELEMETRY`, `First ${filteredFeed.length} toots sent to client ${inSeconds(this.loadStartedAt)}`);
+        }
+
         return filteredFeed;
     }
 
@@ -314,6 +342,13 @@ class TheAlgorithm {
                 console.log(`${msg}, expected ${numTimelineToots}\n${this.statusMsg()}`);
             }
 
+            if (this.loadStartedAt) {
+                logInfo(`TELEMETRY`, `Finished loading ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
+                this.loadStartedAt = null;
+            } else {
+                console.warn(`[TELEMETRY] FINISHED LOAD... but loadStartedAt is null!`);
+            }
+
             this.loadingStatus = null;
         }
     }
@@ -353,10 +388,28 @@ class TheAlgorithm {
 
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     private async scoreAndFilterFeed(): Promise<Toot[]> {
+        await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
         await Storage.setFeed(this.feed);
-        return this.filterFeed();
+        return this.filterFeedAndSetInApp();
+    }
+
+    private async prepareScorers(): Promise<void> {
+        const releaseMutex = await this.scoreMutex.acquire();
+        const logPrefix = `prepareScorers()`;
+
+        try {
+            if (this.featureScorers.some(scorer => !scorer.isReady)) {
+                logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
+                await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
+                logInfo(logPrefix, `ASYNC Scorers ready!`);
+            } else {
+                console.debug(`${(new Date().toISOString())} [prepareScorers()] ASYNC FeatureScorers already ready`);
+            }
+        } finally {
+            releaseMutex();
+        }
     }
 
     // Simple string with important feed status information

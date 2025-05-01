@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.inSeconds = exports.inMinutes = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -14,14 +14,33 @@ const DEFAULT_LOCALE = "en-US";
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date) {
-    if (!date) {
-        console.warn("Invalid date passed to ageInSeconds:", date);
+    if (date == null) {
+        console.warn("Invalid date passed to ageInSeconds():", date);
         return -1;
     }
     let _date = PARSEABLE_DATE_TYPES.includes(typeof date) ? new Date(date) : date;
     return (Date.now() - _date.getTime()) / 1000;
 }
 exports.ageInSeconds = ageInSeconds;
+;
+function ageInMinutes(date) {
+    return ageInSeconds(date) / exports.SECONDS_IN_MINUTE;
+}
+exports.ageInMinutes = ageInMinutes;
+;
+// Make a nice string like "in 2.5 minutes"
+function inMinutes(date) {
+    const minutes = ageInMinutes(date);
+    return `in ${minutes.toFixed(2)} minutes`;
+}
+exports.inMinutes = inMinutes;
+;
+// Make a nice string like "in 2.5 minutes"
+function inSeconds(date) {
+    const seconds = ageInSeconds(date);
+    return `in ${seconds.toFixed(1)} seconds`;
+}
+exports.inSeconds = inSeconds;
 ;
 // To the format YYYY-MM-DDTHH:MM:SSZ
 function toISOFormat(date, withMilliseconds) {
@@ -59,4 +78,10 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
+function nowString() {
+    const now = new Date();
+    return `${now.toLocaleTimeString().split(".")[0]}`;
+}
+exports.nowString = nowString;
+;
 //# sourceMappingURL=time_helpers.js.map

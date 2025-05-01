@@ -37,8 +37,11 @@ declare class TheAlgorithm {
     setFeedInApp: (feed: Toot[]) => void;
     feed: Toot[];
     catchupCheckpoint: Date | null;
+    hasProvidedAnyTootsToClient: boolean;
+    loadStartedAt: Date | null;
     loadingStatus: string | null;
     mastodonServers: MastodonServersInfo;
+    mergeMutex: Mutex;
     scoreMutex: Mutex;
     trendingData: TrendingStorage;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
@@ -47,6 +50,7 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
+    mergeTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]>;
     getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]>;
     getUserWeights(): Promise<Weights>;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
@@ -56,12 +60,13 @@ declare class TheAlgorithm {
     buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
     private cleanupFeed;
-    private filterFeed;
+    private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
     private setDefaultWeights;
     private logTootCounts;
     private scoreAndFilterFeed;
+    private prepareScorers;
     private statusMsg;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

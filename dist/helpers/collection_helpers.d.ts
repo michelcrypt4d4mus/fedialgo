@@ -12,5 +12,5 @@ export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function sumArray(arr: number[]): number;
 export declare function shuffle<T>(array: T[]): T[];
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
-export declare function processPromisesBatch(items: Array<any>, batchSize: number, fn: (item: any) => Promise<any>, label?: string): Promise<any>;
+export declare function batchPromises<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number): Promise<any[]>;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;

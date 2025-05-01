@@ -13,14 +13,33 @@ const DEFAULT_LOCALE = "en-US";
 
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
-export function ageInSeconds(date: Date | number | string): number {
-    if (!date) {
-        console.warn("Invalid date passed to ageInSeconds:", date);
+export function ageInSeconds(date: Date | number | string | null): number {
+    if (date == null) {
+        console.warn("Invalid date passed to ageInSeconds():", date);
         return -1;
     }
 
     let _date = PARSEABLE_DATE_TYPES.includes(typeof date) ? new Date(date) : date as Date;
     return (Date.now() - _date.getTime()) / 1000;
+};
+
+
+export function ageInMinutes(date: Date | number | string | null): number {
+    return ageInSeconds(date) / SECONDS_IN_MINUTE;
+};
+
+
+// Make a nice string like "in 2.5 minutes"
+export function inMinutes(date: Date | number | string | null): string {
+    const minutes = ageInMinutes(date);
+    return `in ${minutes.toFixed(2)} minutes`;
+};
+
+
+// Make a nice string like "in 2.5 minutes"
+export function inSeconds(date: Date | number | string | null): string {
+    const seconds = ageInSeconds(date);
+    return `in ${seconds.toFixed(1)} seconds`;
 };
 
 
@@ -56,4 +75,10 @@ export const timeString = (_timestamp: Date | string | null, locale?: string): s
     str += ` ${timestamp.toLocaleTimeString(locale)}`;
     // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
+};
+
+
+export function nowString(): string {
+    const now = new Date();
+    return `${now.toLocaleTimeString().split(".")[0]}`;
 };

@@ -7,7 +7,7 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError } from "../helpers/string_helpers";
-import { processPromisesBatch, sumValues } from "../helpers/collection_helpers";
+import { batchPromises, sumValues } from "../helpers/collection_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
 import FeatureScorer from './feature_scorer';
@@ -73,20 +73,16 @@ export default abstract class Scorer {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             // If the mutex is already locked just cancel the current scoring loop and start over
             // (scoring is idempotent, so this is safe).
+            // Tnis done to make the feed more immediately responsive to the user adjusting the weights -
+            // rather than waiting for a rescore to finish we just cancel it and start over.
             SCORE_MUTEX.cancel()
             const releaseMutex = await SCORE_MUTEX.acquire();
 
             try {
                 // Feed scorers' data must be refreshed each time the feed changes
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
-
                 // Score the toots asynchronously in batches
-                await processPromisesBatch(
-                    toots,
-                    Storage.getConfig().scoringBatchSize,
-                    async (toot: Toot) => await this.decorateWithScoreInfo(toot, scorers)
-                );
-
+                await batchPromises<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
                 // Sort feed based on score from high to low.
                 toots.sort((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             } finally {

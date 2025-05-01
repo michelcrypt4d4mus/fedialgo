@@ -441,7 +441,7 @@ class Toot {
         const userData = await api_1.MastoApi.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
-        await (0, collection_helpers_1.processPromisesBatch)(toots, Storage_1.default.getConfig().scoringBatchSize, async (toot) => toot.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
+        await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
         return toots;
     }
 }

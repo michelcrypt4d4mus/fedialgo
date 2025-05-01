@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.keyByProperty = exports.processPromisesBatch = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
+const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("./time_helpers");
 // Take the average of an array of numbers, ignoring undefined values
 function average(values) {
@@ -116,8 +117,10 @@ function uniquifyByProp(array, transform) {
 }
 exports.uniquifyByProp = uniquifyByProp;
 ;
+// Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-async function processPromisesBatch(items, batchSize, fn, label) {
+async function batchPromises(items, fn, label, batchSize) {
+    batchSize ||= Storage_1.default.getConfig().scoringBatchSize;
     const startTime = new Date();
     let results = [];
     for (let start = 0; start < items.length; start += batchSize) {
@@ -130,7 +133,7 @@ async function processPromisesBatch(items, batchSize, fn, label) {
     }
     return results;
 }
-exports.processPromisesBatch = processPromisesBatch;
+exports.batchPromises = batchPromises;
 ;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {

@@ -3,6 +3,7 @@
  */
 import md5 from "blueimp-md5";
 
+import Storage from "../Storage";
 import { ageInSeconds } from "./time_helpers";
 import { CountKey, StringNumberDict, Weights } from "../types";
 
@@ -135,13 +136,15 @@ export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): 
 };
 
 
+// Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-export async function processPromisesBatch(
-    items: Array<any>,
-    batchSize: number,
-    fn: (item: any) => Promise<any>,
-    label?: string
-): Promise<any> {
+export async function batchPromises<T>(
+    items: Array<T>,
+    fn: (item: T) => Promise<any>,
+    label?: string,
+    batchSize?: number,
+): Promise<any[]> {
+    batchSize ||= Storage.getConfig().scoringBatchSize;
     const startTime = new Date();
     let results: any[] = [];
 
