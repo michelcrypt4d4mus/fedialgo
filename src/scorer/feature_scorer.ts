@@ -4,6 +4,7 @@
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
 import Scorer from "./scorer";
+import { inSeconds } from "../helpers/time_helpers";
 import { StringNumberDict, WeightName } from "../types";
 
 
@@ -16,6 +17,8 @@ export default abstract class FeatureScorer extends Scorer {
     // Calls this.prepareScoreData() to get any data required for scoring Toots later.
     // Don't overload this - overload prepareScoreData() instead.
     async fetchRequiredData(): Promise<void> {
+        const startTime = Date.now();
+
         try {
             this.scoreData = await this.prepareScoreData();
         } catch (e) {
@@ -23,11 +26,14 @@ export default abstract class FeatureScorer extends Scorer {
             this.scoreData = {};
         }
 
-        if (Object.values(this.scoreData).length > 0) {
-            console.debug(`${this.logPrefix()} prepareScoreData() returned:`, this.scoreData);
-        }
-
         this.isReady = true;
+        let msg = `${this.logPrefix()} prepareScoreData() finished ${inSeconds(startTime)}`;
+
+        if (Object.values(this.scoreData).length > 0) {
+            console.debug(`${msg}, returned:`, this.scoreData);
+        } else {
+            console.debug(`${msg}, no data returned`);
+        }
     }
 
     // Can be overloaded in subclasses to set up any data required for scoring Toots

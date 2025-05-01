@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
 const scorer_1 = __importDefault(require("./scorer"));
+const time_helpers_1 = require("../helpers/time_helpers");
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
     constructor(scoreName) {
@@ -17,6 +18,7 @@ class FeatureScorer extends scorer_1.default {
     // Calls this.prepareScoreData() to get any data required for scoring Toots later.
     // Don't overload this - overload prepareScoreData() instead.
     async fetchRequiredData() {
+        const startTime = Date.now();
         try {
             this.scoreData = await this.prepareScoreData();
         }
@@ -24,10 +26,14 @@ class FeatureScorer extends scorer_1.default {
             console.error(`${this.logPrefix()} Error in prepareScoreData():`, e);
             this.scoreData = {};
         }
-        if (Object.values(this.scoreData).length > 0) {
-            console.debug(`${this.logPrefix()} prepareScoreData() returned:`, this.scoreData);
-        }
         this.isReady = true;
+        let msg = `${this.logPrefix()} prepareScoreData() finished ${(0, time_helpers_1.inSeconds)(startTime)}`;
+        if (Object.values(this.scoreData).length > 0) {
+            console.debug(`${msg}, returned:`, this.scoreData);
+        }
+        else {
+            console.debug(`${msg}, no data returned`);
+        }
     }
     // Can be overloaded in subclasses to set up any data required for scoring Toots
     async prepareScoreData() {
