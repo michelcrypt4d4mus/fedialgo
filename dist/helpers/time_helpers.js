@@ -78,6 +78,7 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
+// Timestamp string for the current time
 function nowString() {
     const now = new Date();
     return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;

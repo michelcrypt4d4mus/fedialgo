@@ -158,7 +158,7 @@ class Storage {
             return true;
         }
         else {
-            console.debug(`${logPrefix} Cached data is still fresh, no need to refetch ${secondsLogMsg}`);
+            console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }
