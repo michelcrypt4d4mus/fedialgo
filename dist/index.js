@@ -261,8 +261,8 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        let checkpointStr = `catchupCheckpoint='${(0, time_helpers_1.toISOFormat)(this.catchupCheckpoint)}`;
-        checkpointStr += `, earliestNewHomeTootAt='${(0, time_helpers_1.toISOFormat)(earliestNewHomeTootAt)}'`;
+        let checkpointStr = `catchupCheckpoint=${(0, time_helpers_1.quotedISOFmt)(this.catchupCheckpoint)}`;
+        checkpointStr += `, earliestNewHomeTootAt=${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
         console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots, current state: ${this.statusMsg()}`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
@@ -368,10 +368,10 @@ class TheAlgorithm {
     // Simple string with important feed status information
     statusMsg() {
         let msgPieces = [
-            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : string_helpers_1.NULL),
             `feed.length=${this.feed?.length}`,
-            `catchupCheckpoint=${this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : string_helpers_1.NULL}`,
-            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : string_helpers_1.NULL}`,
+            `loadingStatus=${(0, string_helpers_1.quote)(this.loadingStatus)}`,
+            `catchupCheckpoint=${(0, time_helpers_1.quotedISOFmt)(this.catchupCheckpoint)}`,
+            `mostRecentHomeTootAt=${(0, time_helpers_1.quotedISOFmt)(this.mostRecentHomeTootAt())}`,
         ];
         return `[${msgPieces.join(`, `)}]`;
     }

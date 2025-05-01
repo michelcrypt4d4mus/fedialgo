@@ -84,6 +84,7 @@ class MastoApi {
         numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
+        const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         const statuses = await this.fetchData({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
@@ -92,17 +93,19 @@ class MastoApi {
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
-                const oldestTootAtStr = (0, time_helpers_1.toISOFormat)(oldestTootAt);
-                console.debug(`oldest in page: ${(0, time_helpers_1.toISOFormat)((0, toot_1.earliestTootedAt)(pageOfResults))}, oldest: ${oldestTootAtStr})`);
+                const oldestTootAtStr = (0, time_helpers_1.quotedISOFmt)(oldestTootAt);
+                const oldestInPageStr = (0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(pageOfResults));
+                console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAtStr}' is too old`);
+                    const cutoffStr = (0, time_helpers_1.quotedISOFmt)(cutoffTimelineAt);
+                    console.log(`${logPrefix} Halting (oldestToot ${oldestTootAtStr} is before cutoff ${cutoffStr})`);
                     return true;
                 }
                 return false;
             }
         });
         const toots = await toot_1.default.buildToots(statuses);
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${(0, time_helpers_1.toISOFormat)((0, toot_1.earliestTootedAt)(toots))}'):`, toots);
+        console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))})`);
         return toots;
     }
     ;

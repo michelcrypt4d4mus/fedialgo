@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -114,4 +114,7 @@ function logAndThrowError(message, obj) {
 }
 exports.logAndThrowError = logAndThrowError;
 ;
+// Doublequotes
+const quote = (text) => text == null ? exports.NULL : `"${text}"`;
+exports.quote = quote;
 //# sourceMappingURL=string_helpers.js.map

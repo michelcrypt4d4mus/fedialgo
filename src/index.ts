@@ -30,12 +30,12 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, NULL, VIDEO_TYPES, extractDomain, logTootRemoval } from './helpers/string_helpers';
+import { GIFV, NULL, VIDEO_TYPES, extractDomain, logTootRemoval, quote } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { processPromisesBatch } from './helpers/collection_helpers';
 import { SCORERS_CONFIG } from "./config";
-import { timeString, toISOFormat } from './helpers/time_helpers';
+import { timeString, quotedISOFmt } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonServersInfo,
@@ -269,8 +269,8 @@ class TheAlgorithm {
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
 
         let logPrefix = `[maybeGetMoreToots()]`;
-        let checkpointStr = `catchupCheckpoint='${toISOFormat(this.catchupCheckpoint)}`;
-        checkpointStr += `, earliestNewHomeTootAt='${toISOFormat(earliestNewHomeTootAt)}'`;
+        let checkpointStr = `catchupCheckpoint=${quotedISOFmt(this.catchupCheckpoint)}`;
+        checkpointStr += `, earliestNewHomeTootAt=${quotedISOFmt(earliestNewHomeTootAt)}`;
         console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots, current state: ${this.statusMsg()}`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
@@ -394,10 +394,10 @@ class TheAlgorithm {
     // Simple string with important feed status information
     private statusMsg(): string {
         let msgPieces = [
-            `loadingStatus=` + (this.loadingStatus ? `"${this.loadingStatus}"` : NULL),
             `feed.length=${this.feed?.length}`,
-            `catchupCheckpoint=${this.catchupCheckpoint ? toISOFormat(this.catchupCheckpoint) : NULL}`,
-            `mostRecentHomeTootAt=${this.mostRecentHomeTootAt() ? toISOFormat(this.mostRecentHomeTootAt()) : NULL}`,
+            `loadingStatus=${quote(this.loadingStatus)}`,
+            `catchupCheckpoint=${quotedISOFmt(this.catchupCheckpoint)}`,
+            `mostRecentHomeTootAt=${quotedISOFmt(this.mostRecentHomeTootAt())}`,
         ]
 
         return `[${msgPieces.join(`, `)}]`;

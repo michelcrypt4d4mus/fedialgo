@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { ageInSeconds, toISOFormat } from "../helpers/time_helpers";
+import { ageInSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { logAndThrowError } from "../helpers/string_helpers";
@@ -148,7 +148,7 @@ export default class MastodonServer {
         let urlEndpoint = `${this.domain}/${endpoint}`
         let url = `https://${urlEndpoint}`;
         if (limit) url += `?limit=${limit}`;
-        console.debug(`[${urlEndpoint}] fetching at ${toISOFormat(startTime)}...`);
+        console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {

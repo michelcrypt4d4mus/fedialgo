@@ -127,3 +127,7 @@ export function logAndThrowError(message: string, obj?: any): never {
 
     throw new Error(message);
 };
+
+
+// Doublequotes
+export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;

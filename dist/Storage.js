@@ -232,7 +232,7 @@ class Storage {
             console.log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
             return;
         }
-        console.log(`${logPrefix} last opened at '${(0, time_helpers_1.toISOFormat)(new Date(lastOpenedInt))}', ${numAppOpens} appOpens`);
+        console.log(`${logPrefix} last opened ${(0, time_helpers_1.quotedISOFmt)(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
         return lastOpenedInt;
     }
     // Get the number of times the app has been opened by this user
@@ -257,7 +257,7 @@ class Storage {
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
         if (mostRecent) {
-            return (0, time_helpers_1.ageOfTimestampInSeconds)(mostRecent.getTime());
+            return (0, time_helpers_1.ageInSeconds)(mostRecent.getTime());
         }
         else {
             console.debug(`No most recent toot found`);

@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
-import { ageInSeconds, ageOfTimestampInSeconds, toISOFormat } from "./helpers/time_helpers";
+import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { countValues } from "./helpers/collection_helpers";
@@ -246,7 +246,7 @@ export default class Storage {
             return;
         }
 
-        console.log(`${logPrefix} last opened at '${toISOFormat(new Date(lastOpenedInt))}', ${numAppOpens} appOpens`);
+        console.log(`${logPrefix} last opened ${quotedISOFmt(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
         return lastOpenedInt;
     }
 
@@ -274,7 +274,7 @@ export default class Storage {
         const mostRecent = mostRecentTootedAt(timelineToots);
 
         if (mostRecent) {
-            return ageOfTimestampInSeconds(mostRecent.getTime());
+            return ageInSeconds(mostRecent.getTime());
         } else {
             console.debug(`No most recent toot found`);
             return null;

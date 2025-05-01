@@ -15,7 +15,7 @@ import { countValues } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import { toISOFormat } from "../helpers/time_helpers";
+import { quotedISOFmt } from "../helpers/time_helpers";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -85,6 +85,7 @@ export class MastoApi {
         numToots ||= Storage.getConfig().numTootsInFirstFetch;
         const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
+        const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
 
         const statuses = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
@@ -94,11 +95,13 @@ export class MastoApi {
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
-                const oldestTootAtStr = toISOFormat(oldestTootAt);
-                console.debug(`oldest in page: ${toISOFormat(earliestTootedAt(pageOfResults))}, oldest: ${oldestTootAtStr})`);
+                const oldestTootAtStr = quotedISOFmt(oldestTootAt);
+                const oldestInPageStr = quotedISOFmt(earliestTootedAt(pageOfResults));
+                console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
 
                 if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    console.log(`Halting fetchHomeFeed() because oldestTootAt '${oldestTootAtStr}' is too old`);
+                    const cutoffStr = quotedISOFmt(cutoffTimelineAt);
+                    console.log(`${logPrefix} Halting (oldestToot ${oldestTootAtStr} is before cutoff ${cutoffStr})`);
                     return true;
                 }
 
@@ -107,7 +110,7 @@ export class MastoApi {
         });
 
         const toots = await Toot.buildToots(statuses);
-        console.debug(`fetchHomeFeed() found ${toots.length} toots (oldest: '${toISOFormat(earliestTootedAt(toots))}'):`, toots);
+        console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
         return toots;
     };
 
