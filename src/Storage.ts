@@ -23,23 +23,29 @@ import {
     Weights,
 } from "./types";
 
+const PREFIX = '[STORAGE]';
+const logMsg = (s: string) => `${PREFIX} ${s}`;
+const log = (s: string, ...args: any[]) => console.log(logMsg(s), ...args);
+const warn = (s: string, ...args: any[]) => console.warn(logMsg(s), ...args);
+const debug = (s: string, ...args: any[]) => console.debug(logMsg(s), ...args);
+
 
 export default class Storage {
     static config: Config = Object.assign({}, DEFAULT_CONFIG);
 
     // Clear everything but preserve the user's identity and weightings
     static async clearAll(): Promise<void> {
-        console.log(`[STORAGE] Clearing all storage`);
+        log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeightings();
         await localForage.clear();
 
         if (user) {
-            console.log(`[STORAGE] Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+            log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
             await this.setIdentity(user);
             if (weights) await this.setWeightings(weights);
         } else {
-            console.warn(`[STORAGE] No user identity found, cleared storage anyways`);
+            warn(`No user identity found, cleared storage anyways`);
         }
     }
 
@@ -51,7 +57,7 @@ export default class Storage {
             return null;
         } else if (!withTimestamp.updatedAt) {
             // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
-            console.warn(`[STORAGE] No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
+            warn(`No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
             await this.remove(key);
             return null;
         }
@@ -71,7 +77,7 @@ export default class Storage {
         if (!value) {
             value = [];
         } else if (!Array.isArray(value)) {
-            logAndThrowError(`[Storage] Expected array at '${key}' but got`, value);
+            logAndThrowError(`${PREFIX} Expected array at '${key}' but got`, value);
         }
 
         return value as T[];
@@ -136,7 +142,7 @@ export default class Storage {
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
         const numAppOpens = await this.getNumAppOpens();
 
-        const logPrefix = `[isDataStale ${key}]`;
+        const logPrefix = `${PREFIX} isDataStale("${key}"):`;
         let secondsLogMsg = `(dataAgeInSeconds: ${toFixedLocale(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${toFixedLocale(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
@@ -172,7 +178,7 @@ export default class Storage {
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key: StorageKey): Promise<void> {
         const storageKey = await this.buildKey(key);
-        console.log(`[STORAGE] Removing value at key: ${storageKey}`);
+        log(`Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 
@@ -181,7 +187,7 @@ export default class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
-        console.debug(`[STORAGE] Setting value at key: ${storageKey} to value:`, withTimestamp);
+        debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localForage.setItem(storageKey, withTimestamp);
     }
 
@@ -203,7 +209,7 @@ export default class Storage {
     // Store the fedialgo user's Account object
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user: Account) {
-        console.debug(`Setting fedialgo user identity to:`, user);
+        debug(`Setting fedialgo user identity to:`, user);
         await localForage.setItem(StorageKey.USER, user.serialize());
     }
 
@@ -241,11 +247,11 @@ export default class Storage {
         const logPrefix = `[getLastOpenedTimestamp()]`;
 
         if (!lastOpenedInt || numAppOpens <= 1) {
-            console.log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
+            log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
             return;
         }
 
-        console.log(`${logPrefix} last opened ${quotedISOFmt(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
+        log(`${logPrefix} last opened ${quotedISOFmt(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
         return lastOpenedInt;
     }
 
@@ -261,7 +267,7 @@ export default class Storage {
         if (withTimestamp) {
             return ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
         } else {
-            console.debug(`[${key}] secondsSinceLastUpdated(): No stored object found at '${key}'`);
+            debug(`secondsSinceLastUpdated("${key}): No stored object found at '${key}'`);
             return null;
         }
     }
@@ -275,7 +281,7 @@ export default class Storage {
         if (mostRecent) {
             return ageInSeconds(mostRecent.getTime());
         } else {
-            console.debug(`No most recent toot found`);
+            debug(`No most recent toot found`);
             return null;
         }
     }
