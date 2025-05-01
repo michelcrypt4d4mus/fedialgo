@@ -294,13 +294,13 @@ class TheAlgorithm {
                 // Alternatively check if the earliest new home toot is newer than the catchup checkpoint. If it is
                 // we should continue fetching more toots.
                 || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint))) {
-            console.debug(`${logPrefix} want ${maxTimelineTootsToFetch} toots, state:`, this.statusDict());
             setTimeout(() => {
                 // Use the 4th toot bc sometimes there are weird outliers. Dupes will be removed later.
                 // It's important that we *only* look at home timeline toots here. Toots from other servers
                 // will have different ID schemes and we can't rely on them to be in order.
                 const tootWithMaxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[4];
                 let msg = `calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
+                msg += `(want ${maxTimelineTootsToFetch})`;
                 console.log(`${logPrefix} ${msg}. state:`, this.statusDict());
                 this.getFeed(numTimelineToots, tootWithMaxId.id);
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
