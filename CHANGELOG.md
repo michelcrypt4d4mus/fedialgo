@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Decreate numTootsPerTrendingTag to 15, increase numTrendingTagToots to 250
+* Decreate `Config.numTootsPerTrendingTag` to 15, increase `Config.numTrendingTagToots` to 250
 
 # v0.22.0
 * Parallelize the initial load as much as possible
