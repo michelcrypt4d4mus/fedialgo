@@ -80,7 +80,7 @@ const timeString = (_timestamp, locale) => {
 exports.timeString = timeString;
 function nowString() {
     const now = new Date();
-    return `${now.toLocaleTimeString().split(".")[0]}`;
+    return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
 }
 exports.nowString = nowString;
 ;

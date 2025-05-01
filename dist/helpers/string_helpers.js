@@ -6,7 +6,6 @@ exports.logInfo = exports.toFixedLocale = exports.quote = exports.logAndThrowErr
  */
 const html_entities_1 = require("html-entities");
 const types_1 = require("../types");
-const time_helpers_1 = require("./time_helpers");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.NULL = "<<NULL>>";
 exports.GIFV = "gifv";
@@ -127,7 +126,7 @@ const toFixedLocale = (num) => {
 exports.toFixedLocale = toFixedLocale;
 // console.info() with a timestamp
 const logInfo = (logPrefix, message, ...args) => {
-    console.info(`[${(0, time_helpers_1.nowString)()}] ${logPrefix}: ${message}`, ...args);
+    console.info(`[${logPrefix}] ${message}`, ...args);
 };
 exports.logInfo = logInfo;
 //# sourceMappingURL=string_helpers.js.map
