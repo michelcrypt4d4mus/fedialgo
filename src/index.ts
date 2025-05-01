@@ -364,11 +364,12 @@ class TheAlgorithm {
 
         try {
             if (this.featureScorers.some(scorer => !scorer.isReady)) {
-                logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
+                const startTime = new Date();
+                // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(logPrefix, `ASYNC Scorers ready!`);
+                logInfo(logPrefix, `ASYNC Scorers prepared ${inSeconds(startTime)}`);
             } else {
-                console.debug(`${(new Date().toISOString())} [prepareScorers()] ASYNC FeatureScorers already ready`);
+                // console.debug(`${(new Date().toISOString())} [prepareScorers()]  FeatureScorers already ready`);
             }
         } finally {
             releaseMutex();
