@@ -4,6 +4,7 @@
 
 import { WeightName, Weights } from "../types";
 
+export type WeightPresets = Record<PresetWeightLabel, Weights>;
 
 export enum PresetWeightLabel {
     CHRONOLOGICAL = 'Chronological',
@@ -13,8 +14,6 @@ export enum PresetWeightLabel {
     PICTURES = 'Pictures',
     TRENDING = 'Trending',
 };
-
-export type WeightPresets = Record<PresetWeightLabel, Weights>;
 
 
 export const DEFAULT_WEIGHTS: Weights = {
@@ -40,6 +39,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [WeightName.TRENDING_TOOTS]: 1.0,
     [WeightName.VIDEO_ATTACHMENTS]: 0,
 };
+
 
 export const PresetWeights: WeightPresets = {
     [PresetWeightLabel.CHRONOLOGICAL]: {

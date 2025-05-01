@@ -307,7 +307,7 @@ class TheAlgorithm {
             }, Storage_1.default.getConfig().incrementalLoadDelayMS);
         }
         else {
-            logPrefix += ` halting ${GET_FEED}`;
+            logPrefix += ` Halting ${GET_FEED}:`;
             if (!Storage_1.default.getConfig().enableIncrementalLoad) {
                 console.log(`${logPrefix} Incremental loading is fully disabled`);
             }
@@ -315,18 +315,18 @@ class TheAlgorithm {
                 if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
                     let tmpCheckpoint = this.catchupCheckpoint;
                     this.catchupCheckpoint = null;
-                    let msg = `${logPrefix} All caught up: oldest new toot ${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
+                    let msg = `${logPrefix} all caught up: oldest new toot ${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
                     console.log(`${msg} older than checkpoint ${(0, time_helpers_1.quotedISOFmt)(tmpCheckpoint)}. state:`, this.statusDict());
                 }
                 else {
-                    console.warn(`${logPrefix} Not caught up to catchupCheckpoint! state:`, this.statusDict());
+                    console.warn(`${logPrefix} but NOT caught up to catchupCheckpoint! state:`, this.statusDict());
                 }
             }
             else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefix} Have enough toots (wanted ${maxTimelineTootsToFetch}), state:`, this.statusDict());
+                console.log(`${logPrefix} have enough toots (wanted ${maxTimelineTootsToFetch}), state:`, this.statusDict());
             }
             else {
-                let msg = `${logPrefix} Stopping because fetch only got ${newHomeToots.length} toots`;
+                let msg = `${logPrefix} stopping because fetch only got ${newHomeToots.length} toots`;
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {

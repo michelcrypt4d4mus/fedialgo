@@ -57,7 +57,7 @@ export default class Storage {
             return null;
         } else if (!withTimestamp.updatedAt) {
             // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
-            warn(`No updatedAt timestamp found for ${key}, likely due to a fedialgo upgrade. Clearing cache.`);
+            warn(`No updatedAt found for "${key}", likely due to a fedialgo upgrade. Clearing cache.`);
             await this.remove(key);
             return null;
         }
