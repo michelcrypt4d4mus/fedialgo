@@ -30,10 +30,9 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { GIFV, NULL, VIDEO_TYPES, extractDomain, logTootRemoval, quote } from './helpers/string_helpers';
+import { GIFV, VIDEO_TYPES, extractDomain, logTootRemoval, quote } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { processPromisesBatch } from './helpers/collection_helpers';
 import { SCORERS_CONFIG } from "./config";
 import { timeString, quotedISOFmt } from './helpers/time_helpers';
 import {
@@ -161,7 +160,7 @@ class TheAlgorithm {
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             } else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                this.loadingStatus = `new toots since '${timeString(this.catchupCheckpoint)}'`;
+                this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
                 console.log(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
 
@@ -173,7 +172,8 @@ class TheAlgorithm {
                 ...this.featureScorers.map(scorer => scorer.fetchRequiredData()),
             ]);
         } else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length} so far)`;
+            this.loadingStatus = `more toots (retrieved ${this.feed.length} toots so far`;
+            this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch})`;
         }
 
         const allResponses = await Promise.all(dataFetches);
@@ -266,10 +266,7 @@ class TheAlgorithm {
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
         const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
-
         let logPrefix = `[maybeGetMoreToots()]`;
-        let checkpointStr = `catchupCheckpoint=${quotedISOFmt(this.catchupCheckpoint)}`;
-        checkpointStr += `, earliestNewHomeTootAt=${quotedISOFmt(earliestNewHomeTootAt)}`;
         console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots\n${this.statusMsg()}`);
 
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)

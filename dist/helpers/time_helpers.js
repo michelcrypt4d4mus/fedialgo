@@ -52,7 +52,7 @@ const timeString = (timestamp) => {
         return string_helpers_1.NULL;
     timestamp = typeof timestamp == 'string' ? new Date(timestamp) : timestamp;
     if (timestamp.getDate() === new Date().getDate()) {
-        return `Today ${timestamp.toLocaleTimeString()}`;
+        return `today ${timestamp.toLocaleTimeString()}`;
     }
     else {
         return `${DAY_NAMES[timestamp.getDay()]} ${timestamp.toLocaleTimeString()}`;

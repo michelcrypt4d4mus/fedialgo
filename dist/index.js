@@ -167,7 +167,7 @@ class TheAlgorithm {
             }
             else if (this.feed.length) {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                this.loadingStatus = `new toots since '${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}'`;
+                this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
                 console.log(`${logPrefix} Set catchupCheckpoint marker\n${this.statusMsg()}`);
             }
             // ORDER MATTERS! The results of these Promises are processed with shift()
@@ -179,7 +179,8 @@ class TheAlgorithm {
             ]);
         }
         else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length} so far)`;
+            this.loadingStatus = `more toots (retrieved ${this.feed.length} toots so far`;
+            this.loadingStatus += `, want ${Storage_1.default.getConfig().maxTimelineTootsToFetch})`;
         }
         const allResponses = await Promise.all(dataFetches);
         const newHomeToots = allResponses.shift(); // pop getTimelineToots() response from front of allResponses array
@@ -260,8 +261,6 @@ class TheAlgorithm {
         const maxTimelineTootsToFetch = Storage_1.default.getConfig().maxTimelineTootsToFetch;
         const earliestNewHomeTootAt = (0, toot_1.earliestTootedAt)(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
-        let checkpointStr = `catchupCheckpoint=${(0, time_helpers_1.quotedISOFmt)(this.catchupCheckpoint)}`;
-        checkpointStr += `, earliestNewHomeTootAt=${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
         console.log(`${logPrefix} want ${maxTimelineTootsToFetch} toots\n${this.statusMsg()}`);
         // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (Storage_1.default.getConfig().enableIncrementalLoad // TODO: we don't need this config option any more
