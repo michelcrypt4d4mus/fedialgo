@@ -157,7 +157,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.cleanupFeed(newToots);
             await this.scoreAndFilterFeed();
-            logInfo(logPrefix, `Finished merging ${newToots.length} toots to feed ${inSeconds(startTime)} (${this.statusMsg()}`);
+            logInfo(logPrefix, `Finished loading + merging ${newToots.length} toots ${inSeconds(startTime)} (${this.statusMsg()}`);
             return newToots;
         } finally {
             releaseMutex();

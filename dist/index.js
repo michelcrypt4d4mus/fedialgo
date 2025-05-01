@@ -160,7 +160,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.cleanupFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(logPrefix, `Finished merging ${newToots.length} toots to feed ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()}`);
+            (0, string_helpers_1.logInfo)(logPrefix, `Finished loading + merging ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)} (${this.statusMsg()}`);
             return newToots;
         }
         finally {
