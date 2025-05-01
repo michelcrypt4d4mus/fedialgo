@@ -9,6 +9,7 @@ export const SECONDS_IN_DAY = 86400;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const PARSEABLE_DATE_TYPES = ["string", "number"];
+const DEFAULT_LOCALE = "en-US";
 
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
@@ -47,13 +48,12 @@ export function quotedISOFmt(date: Date | string | null, withMilliseconds?: bool
 
 
 // Generate a string representing a timestamp.
-export const timeString = (timestamp: Date | string | null): string => {
-    if (timestamp == null) return NULL;
-    timestamp = typeof timestamp == 'string' ? new Date(timestamp) : timestamp;
-
-    if (timestamp.getDate() === new Date().getDate()) {
-        return `today ${timestamp.toLocaleTimeString()}`;
-    } else {
-        return `${DAY_NAMES[timestamp.getDay()]} ${timestamp.toLocaleTimeString()}`;
-    }
+export const timeString = (_timestamp: Date | string | null, locale?: string): string => {
+    if (_timestamp == null) return NULL;
+    locale ||= DEFAULT_LOCALE;
+    const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
+    let str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    str += ` ${timestamp.toLocaleTimeString(locale)}`;
+    // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
+    return str;
 };

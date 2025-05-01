@@ -10,6 +10,7 @@ exports.SECONDS_IN_HOUR = 3600;
 exports.SECONDS_IN_DAY = 86400;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
+const DEFAULT_LOCALE = "en-US";
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date) {
@@ -47,16 +48,15 @@ function quotedISOFmt(date, withMilliseconds) {
 exports.quotedISOFmt = quotedISOFmt;
 ;
 // Generate a string representing a timestamp.
-const timeString = (timestamp) => {
-    if (timestamp == null)
+const timeString = (_timestamp, locale) => {
+    if (_timestamp == null)
         return string_helpers_1.NULL;
-    timestamp = typeof timestamp == 'string' ? new Date(timestamp) : timestamp;
-    if (timestamp.getDate() === new Date().getDate()) {
-        return `today ${timestamp.toLocaleTimeString()}`;
-    }
-    else {
-        return `${DAY_NAMES[timestamp.getDay()]} ${timestamp.toLocaleTimeString()}`;
-    }
+    locale ||= DEFAULT_LOCALE;
+    const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
+    let str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    str += ` ${timestamp.toLocaleTimeString(locale)}`;
+    console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
+    return str;
 };
 exports.timeString = timeString;
 //# sourceMappingURL=time_helpers.js.map

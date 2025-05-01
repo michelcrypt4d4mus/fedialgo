@@ -316,7 +316,7 @@ export default class Toot implements TootObj {
         // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
         if (this.filtered?.length) {
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
-            console.debug(`Removed toot matching server filter (${filterMatchStr}):`, this);
+            // console.debug(`Removed toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
 
