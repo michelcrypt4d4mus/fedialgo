@@ -127,7 +127,7 @@ const toFixedLocale = (num) => {
 exports.toFixedLocale = toFixedLocale;
 // console.info() with a timestamp
 const logInfo = (logPrefix, message, ...args) => {
-    console.info(`[${(0, time_helpers_1.nowString)()} ${logPrefix}]  ${message}`, ...args);
+    console.info(`[${(0, time_helpers_1.nowString)()}] ${logPrefix}: ${message}`, ...args);
 };
 exports.logInfo = logInfo;
 //# sourceMappingURL=string_helpers.js.map
