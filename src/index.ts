@@ -412,7 +412,7 @@ class TheAlgorithm {
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            catchupCheckpoint: toISOFormat(this.catchupCheckpoint),
+            catchupCheckpoint: this.catchupCheckpoint ? toISOFormat(this.catchupCheckpoint) : null,
             mostRecentHomeTootAt: toISOFormat(this.mostRecentHomeTootAt()),
         }
     }

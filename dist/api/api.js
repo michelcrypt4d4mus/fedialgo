@@ -279,7 +279,7 @@ class MastoApi {
     async searchForToots(searchStr, maxRecords, logMsg) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
-        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS} searchForToots` + (logMsg ? ` (${logMsg})` : "") + `]`;
+        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS}] searchForToots` + (logMsg ? ` (${logMsg})` : "") + `:`;
         const tootsForQueryMsg = `toots for query '${searchStr}'`;
         // console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
         try {
@@ -299,7 +299,7 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
-        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS_V2} hashtagTimelineToots()]`;
+        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS_V2}] hashtagTimelineToots():`;
         // console.log(`${logPrefix} hashtagTimelineToots("${searchStr}", maxRecords=${maxRecords}) called`);
         try {
             const toots = await this.fetchData({
@@ -379,7 +379,7 @@ class MastoApi {
         const numToots = Storage_1.default.getConfig().numTootsPerTrendingTag;
         const searchToots = await this.searchForToots(tag.name, numToots, 'trending tag');
         const tagTimelineToots = await this.hashtagTimelineToots(tag.name, numToots);
-        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS} getTootsForTag("${tag.name}")]`;
+        const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS}] getTootsForTag("${tag.name}"):`;
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
         // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
         // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));

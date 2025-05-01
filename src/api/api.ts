@@ -299,7 +299,7 @@ export class MastoApi {
     async searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
-        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS} searchForToots` + (logMsg ? ` (${logMsg})` : "") + `]`;
+        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS}] searchForToots` + (logMsg ? ` (${logMsg})` : "") + `:`;
         const tootsForQueryMsg = `toots for query '${searchStr}'`;
         // console.debug(`${logPrefix} fetching ${tootsForQueryMsg}...`);
 
@@ -319,7 +319,7 @@ export class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
-        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS_V2} hashtagTimelineToots()]`;
+        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS_V2}] hashtagTimelineToots():`;
         // console.log(`${logPrefix} hashtagTimelineToots("${searchStr}", maxRecords=${maxRecords}) called`);
 
         try {
@@ -404,7 +404,7 @@ export class MastoApi {
         const numToots = Storage.getConfig().numTootsPerTrendingTag;
         const searchToots = await this.searchForToots(tag.name, numToots, 'trending tag');
         const tagTimelineToots = await this.hashtagTimelineToots(tag.name, numToots);
-        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS} getTootsForTag("${tag.name}")]`;
+        const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS}] getTootsForTag("${tag.name}"):`;
 
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
         // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));

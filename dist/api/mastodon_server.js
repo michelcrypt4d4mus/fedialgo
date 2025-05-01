@@ -219,7 +219,7 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonServersInfo() {
-        const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS} fetchMastodonServersInfo()]`;
+        const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         console.debug(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck

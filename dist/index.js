@@ -388,7 +388,7 @@ class TheAlgorithm {
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            catchupCheckpoint: (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint),
+            catchupCheckpoint: this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : null,
             mostRecentHomeTootAt: (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()),
         };
     }
