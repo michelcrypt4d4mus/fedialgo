@@ -98,7 +98,7 @@ exports.createRandomString = createRandomString;
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)
         return;
-    console.log(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 }
 exports.logTootRemoval = logTootRemoval;
 ;

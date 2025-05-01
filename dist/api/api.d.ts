@@ -31,7 +31,7 @@ export declare class MastoApi {
     getUserRecentToots(): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]>;
-    searchForTootsByTag(searchStr: string, maxRecords?: number): Promise<Toot[]>;
+    hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]>;
     private buildParams;
     private fetchData;
     private getTootsForTag;

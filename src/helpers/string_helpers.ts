@@ -113,7 +113,7 @@ export function createRandomString(length: number): string {
 // Simple log helper that only fires if numRemoved > 0
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
-    console.log(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 };
 
 
