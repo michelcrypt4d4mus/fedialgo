@@ -1,6 +1,5 @@
 # NEXT RELEASE
-* UserData.followedTags is just an array of Tags
-* add some error handling in fetchList
+* `UserData.followedTags` is just an array of Tags
 
 ### v0.21.4
 * Use the `/api/v1/timelines/tag/:hashtag` endpoint to pull trending tag toots in addition to search endpoint
