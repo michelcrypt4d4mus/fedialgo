@@ -378,8 +378,8 @@ class MastoApi {
         const tagTimelineToots = await this.searchForTootsByTag(tag.name, numToots);
         const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS} getTootsForTag("${tag.name}")]`;
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
-        searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
-        tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
+        // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
+        // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
         logTrendingTagResults(logPrefix, "SEARCH", searchToots);
         logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
         const allTagToots = [...searchToots, ...tagTimelineToots];
