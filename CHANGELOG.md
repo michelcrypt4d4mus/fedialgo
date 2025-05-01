@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.22.3
 * Add trendingRank to Toot.popularity()
 * Standardize boolean logic around cache hits and misses
 * Add mastodon.art to list of no MAU servers
