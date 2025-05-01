@@ -55,7 +55,7 @@ const timeString = (_timestamp, locale) => {
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
     let str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
     str += ` ${timestamp.toLocaleTimeString(locale)}`;
-    console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
+    // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
 };
 exports.timeString = timeString;

@@ -1,8 +1,8 @@
 # NEXT RELEASE
 
 ### v0.21.1
-* timeString() method accepts locale argument
-* Move the bulk of the scoring code to Scorer.scoreToots() method
+* `timeString()` method accepts locale argument
+* Move the bulk of the scoring code to `Scorer.scoreToots()` method
 
 ## v0.21.0
 * Add `TheAlgorithm.reset()` method to completely clear browser storage
