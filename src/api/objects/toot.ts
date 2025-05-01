@@ -12,7 +12,7 @@ import Storage from "../../Storage";
 import { groupBy, processPromisesBatch, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi } from "../api";
 import { repairTag } from "./tag";
-import { quotedISOFmt, toISOFormat } from "../../helpers/time_helpers";
+import { toISOFormat } from "../../helpers/time_helpers";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
@@ -29,7 +29,6 @@ import {
     FeedFilterSettings,
     MediaCategory,
     StatusList,
-    StringNumberDict,
     TootLike,
     TootScore,
     TrendingLink,
@@ -37,7 +36,6 @@ import {
     UserData,
     WeightName
 } from "../../types";
-
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {

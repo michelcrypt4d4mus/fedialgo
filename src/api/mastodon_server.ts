@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { ageInSeconds, quotedISOFmt } from "../helpers/time_helpers";
+import { ageInSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { logAndThrowError } from "../helpers/string_helpers";
