@@ -388,6 +388,7 @@ export default class Toot implements TootObj {
             toot.followedTags ??= [];
             toot.trendingTags ??= [];
 
+            // TODO: should check Toot.containsString() instead of just checking if the tag is in the list
             toot.tags.forEach((tag) => {
                 // TODO why do i need these to make typescript happy even when toot.followedTags/toot.trendingTags
                 // were initialized before this loop starts?
