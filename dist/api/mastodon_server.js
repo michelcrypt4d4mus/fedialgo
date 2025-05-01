@@ -46,6 +46,20 @@ class MastodonServer {
         this.domain = domain;
     }
     ;
+    // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server
+    async fetchServerInfo() {
+        if (Storage_1.default.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
+            console.debug(`[fetchServerInfo()] Instance info for '${this.domain}' is not available...`);
+            return null;
+        }
+        try {
+            return await this.fetch(MastodonServer.v2Url(api_1.INSTANCE));
+        }
+        catch (error) {
+            console.warn(`[fetchServerInfo()] Error for server '${this.domain}'`, error);
+            return null;
+        }
+    }
     // Fetch toots that are trending on this server
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     async fetchTrendingToots() {
@@ -76,22 +90,6 @@ class MastodonServer {
         const trendingTags = await this.fetchTrending(api_1.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
         return trendingTags;
-    }
-    ;
-    // Get publicly available MAU information for this server.
-    async fetchMonthlyUsers() {
-        if (Storage_1.default.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
-            console.debug(`monthlyUsers() for '${this.domain}' is not available...`);
-            return 0;
-        }
-        try {
-            const instance = await this.fetch(MastodonServer.v2Url(api_1.INSTANCE));
-            return instance?.usage?.users?.activeMonth || 0;
-        }
-        catch (error) {
-            console.warn(`Error in getMonthlyUsers() for server ${this.domain}`, error);
-            return 0;
-        }
     }
     ;
     // Fetch a list of objects of type T from a public API endpoint
@@ -216,22 +214,25 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonServersInfo() {
-        console.debug(`[fetchMastodonServersInfo] fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
+        const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS} fetchMastodonServersInfo()]`;
+        console.debug(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage_1.default.getConfig();
         const follows = await api_1.MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
         const mostFollowedServers = (0, collection_helpers_1.sortKeysByValue)(followedServerUserCounts).slice(0, config.numServersToCheck);
-        let serverMAUs = await this.callForServers(mostFollowedServers, (s) => s.fetchMonthlyUsers());
+        // Fetch Instance objects for the most followed servers
+        let serverInfos = await this.callForServers(mostFollowedServers, (s) => s.fetchServerInfo());
+        let serverMAUs = instancesToServerMAUs(serverInfos);
         const validServers = (0, collection_helpers_1.atLeastValues)(serverMAUs, config.minServerMAU);
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
-        console.debug(`followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
+        console.debug(`${logPrefix} followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
         if (numDefaultServers > 0) {
-            console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
+            console.warn(`${logPrefix} Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
             const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
-            const extraServerMAUs = await this.callForServers(extraServers, (s) => s.fetchMonthlyUsers());
-            console.log(`Extra default server MAUs:`, extraServerMAUs);
+            const extraServerInfos = await this.callForServers(extraServers, (s) => s.fetchServerInfo());
+            const extraServerMAUs = instancesToServerMAUs(extraServerInfos);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
@@ -243,7 +244,7 @@ class MastodonServer {
             };
             return serverInfo;
         }, {});
-        console.log(`Constructed MastodonServersInfo object:`, mastodonServers);
+        console.log(`${logPrefix} Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
@@ -293,4 +294,13 @@ class MastodonServer {
 }
 exports.default = MastodonServer;
 ;
+const instancesToServerMAUs = (instances) => {
+    console.log(`[${types_1.StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() instances:`, instances);
+    const serverMAUs = Object.entries(instances).reduce((maus, [server, instance]) => {
+        maus[server] = instance?.usage?.users?.activeMonth || 0;
+        return maus;
+    }, {});
+    console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() Computed server MAUs:`, serverMAUs);
+    return serverMAUs;
+};
 //# sourceMappingURL=mastodon_server.js.map

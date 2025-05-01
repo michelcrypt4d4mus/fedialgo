@@ -39,6 +39,7 @@ export enum FediverseTrendingType {
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
+type InstanceResponse = mastodon.v2.Instance | null;
 
 const TRENDING_MUTEXES: Record<string, Mutex> = {
     [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
@@ -66,6 +67,21 @@ export default class MastodonServer {
     constructor(domain: string) {
         this.domain = domain;
     };
+
+    // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server
+    async fetchServerInfo(): Promise<InstanceResponse> {
+        if (Storage.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
+            console.debug(`[fetchServerInfo()] Instance info for '${this.domain}' is not available...`);
+            return null;
+        }
+
+        try {
+            return await this.fetch<mastodon.v2.Instance>(MastodonServer.v2Url(INSTANCE));
+        } catch (error) {
+            console.warn(`[fetchServerInfo()] Error for server '${this.domain}'`, error);
+            return null;
+        }
+    }
 
     // Fetch toots that are trending on this server
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
@@ -103,21 +119,6 @@ export default class MastodonServer {
         return trendingTags;
     };
 
-    // Get publicly available MAU information for this server.
-    async fetchMonthlyUsers(): Promise<number> {
-        if (Storage.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
-            console.debug(`monthlyUsers() for '${this.domain}' is not available...`);
-            return 0;
-        }
-
-        try {
-            const instance = await this.fetch<mastodon.v2.Instance>(MastodonServer.v2Url(INSTANCE));
-            return instance?.usage?.users?.activeMonth || 0;
-        } catch (error) {
-            console.warn(`Error in getMonthlyUsers() for server ${this.domain}`, error);
-            return 0;
-        }
-    };
 
     // Fetch a list of objects of type T from a public API endpoint
     private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
@@ -247,25 +248,27 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonServersInfo(): Promise<MastodonServersInfo> {
-        console.debug(`[fetchMastodonServersInfo] fetching ${StorageKey.POPULAR_SERVERS} info...`);
+        const logPrefix = `[${StorageKey.POPULAR_SERVERS} fetchMastodonServersInfo()]`;
+        console.debug(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage.getConfig();
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
-
         // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
         const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());
         const mostFollowedServers = sortKeysByValue(followedServerUserCounts).slice(0, config.numServersToCheck);
-        let serverMAUs = await this.callForServers<number>(mostFollowedServers, (s) => s.fetchMonthlyUsers());
 
+        // Fetch Instance objects for the most followed servers
+        let serverInfos = await this.callForServers<InstanceResponse>(mostFollowedServers, (s) => s.fetchServerInfo());
+        let serverMAUs = instancesToServerMAUs(serverInfos);
         const validServers = atLeastValues(serverMAUs, config.minServerMAU);
         const numValidServers = Object.keys(validServers).length;
         const numDefaultServers = config.numServersToCheck - numValidServers;
-        console.debug(`followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
+        console.debug(`${logPrefix} followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
 
         if (numDefaultServers > 0) {
-            console.warn(`Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
+            console.warn(`${logPrefix} Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
             const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
-            const extraServerMAUs = await this.callForServers<number>(extraServers, (s) => s.fetchMonthlyUsers());
-            console.log(`Extra default server MAUs:`, extraServerMAUs);
+            const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
+            const extraServerMAUs = instancesToServerMAUs(extraServerInfos);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
 
@@ -283,7 +286,7 @@ export default class MastodonServer {
             {} as MastodonServersInfo
         );
 
-        console.log(`Constructed MastodonServersInfo object:`, mastodonServers);
+        console.log(`${logPrefix} Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
     }
 
@@ -343,3 +346,19 @@ export default class MastodonServer {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
     }
 };
+
+
+const instancesToServerMAUs = (instances: Record<string, InstanceResponse>): Record<string, number> => {
+    console.log(`[${StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() instances:`, instances);
+
+    const serverMAUs = Object.entries(instances).reduce(
+        (maus, [server, instance]) => {
+            maus[server] = instance?.usage?.users?.activeMonth || 0;
+            return maus;
+        },
+        {} as Record<string, number>
+    );
+
+    console.debug(`[${StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() Computed server MAUs:`, serverMAUs);
+    return serverMAUs;
+}

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add MastodonServer.fetchServerInfo() method to fetch all the available mastodon.v2.Instance data about the server instead of just MAU data
 
 ### v0.21.2
 * Checkin missing `dist/` changes from last release
