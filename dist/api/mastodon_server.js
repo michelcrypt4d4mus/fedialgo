@@ -230,9 +230,11 @@ class MastodonServer {
         console.debug(`${logPrefix} followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
         if (numDefaultServers > 0) {
             console.warn(`${logPrefix} Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
-            const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
+            const extraServers = config.defaultServers.filter(s => !(s in serverMAUs)).slice(0, numDefaultServers);
             const extraServerInfos = await this.callForServers(extraServers, (s) => s.fetchServerInfo());
             const extraServerMAUs = instancesToServerMAUs(extraServerInfos);
+            const allServerInfos = { ...serverInfos, ...extraServerInfos };
+            console.log(`${logPrefix} mastodon.v2.Instance objs for all servers:`, allServerInfos);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
@@ -295,12 +297,9 @@ class MastodonServer {
 exports.default = MastodonServer;
 ;
 const instancesToServerMAUs = (instances) => {
-    console.log(`[${types_1.StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() instances:`, instances);
-    const serverMAUs = Object.entries(instances).reduce((maus, [server, instance]) => {
+    return Object.entries(instances).reduce((maus, [server, instance]) => {
         maus[server] = instance?.usage?.users?.activeMonth || 0;
         return maus;
     }, {});
-    console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() Computed server MAUs:`, serverMAUs);
-    return serverMAUs;
 };
 //# sourceMappingURL=mastodon_server.js.map

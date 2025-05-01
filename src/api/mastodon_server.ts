@@ -25,6 +25,7 @@ import {
     MastodonServersInfo,
     StorableObj,
     StorageKey,
+    StringNumberDict,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
@@ -266,9 +267,11 @@ export default class MastodonServer {
 
         if (numDefaultServers > 0) {
             console.warn(`${logPrefix} Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
-            const extraServers = config.defaultServers.filter(s => !serverMAUs[s]).slice(0, numDefaultServers);
+            const extraServers = config.defaultServers.filter(s => !(s in serverMAUs)).slice(0, numDefaultServers);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
             const extraServerMAUs = instancesToServerMAUs(extraServerInfos);
+            const allServerInfos = {...serverInfos, ...extraServerInfos};
+            console.log(`${logPrefix} mastodon.v2.Instance objs for all servers:`, allServerInfos);
             serverMAUs = { ...validServers, ...extraServerMAUs };
         }
 
@@ -285,6 +288,7 @@ export default class MastodonServer {
             },
             {} as MastodonServersInfo
         );
+
 
         console.log(`${logPrefix} Constructed MastodonServersInfo object:`, mastodonServers);
         return mastodonServers;
@@ -348,17 +352,12 @@ export default class MastodonServer {
 };
 
 
-const instancesToServerMAUs = (instances: Record<string, InstanceResponse>): Record<string, number> => {
-    console.log(`[${StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() instances:`, instances);
-
-    const serverMAUs = Object.entries(instances).reduce(
+const instancesToServerMAUs = (instances: Record<string, InstanceResponse>): StringNumberDict => {
+    return Object.entries(instances).reduce(
         (maus, [server, instance]) => {
             maus[server] = instance?.usage?.users?.activeMonth || 0;
             return maus;
         },
-        {} as Record<string, number>
+        {} as StringNumberDict
     );
-
-    console.debug(`[${StorageKey.POPULAR_SERVERS}] instancesToServerMAUs() Computed server MAUs:`, serverMAUs);
-    return serverMAUs;
-}
+};
