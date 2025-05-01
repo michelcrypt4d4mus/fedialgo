@@ -172,3 +172,24 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
         {} as Record<string, T>
     );
 };
+
+
+// Basic collection filter but logs the numebr of elements removed
+export function filterWithLog<T>(
+    array: T[],
+    filterFxn: (value: T) => boolean,
+    logPrefix: string,
+    reason: string,    // Describe why things were filtered
+    objType?: string,
+): T[] {
+    objType ||= 'obj'
+    const startingLength = array.length;
+    const filtered = array.filter(filterFxn);
+    const numRemoved = startingLength - filtered.length;
+
+    if (numRemoved > 0) {
+        console.debug(`[${logPrefix}] Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+    }
+
+    return filtered;
+};

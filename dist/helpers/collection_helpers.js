@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -142,5 +142,19 @@ function keyByProperty(array, keyFxn) {
     }, {});
 }
 exports.keyByProperty = keyByProperty;
+;
+// Basic collection filter but logs the numebr of elements removed
+function filterWithLog(array, filterFxn, logPrefix, reason, // Describe why things were filtered
+objType) {
+    objType ||= 'obj';
+    const startingLength = array.length;
+    const filtered = array.filter(filterFxn);
+    const numRemoved = startingLength - filtered.length;
+    if (numRemoved > 0) {
+        console.debug(`[${logPrefix}] Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+    }
+    return filtered;
+}
+exports.filterWithLog = filterWithLog;
 ;
 //# sourceMappingURL=collection_helpers.js.map

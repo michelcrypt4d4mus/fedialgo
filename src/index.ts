@@ -31,6 +31,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
+import { filterWithLog } from "./helpers/collection_helpers";
 import { GIFV, VIDEO_TYPES, extractDomain, logDebug, logInfo, logTootRemoval } from './helpers/string_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -145,32 +146,6 @@ class TheAlgorithm {
         this.filters = buildNewFilterSettings();
     }
 
-    // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
-    async mergeTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]> {
-        const logPrefix = `mergeTootsIntoFeed() ${label}`;
-        const startTime = new Date();
-        let newToots: Toot[] = [];
-        logDebug(logPrefix, `Called ${logPrefix}, state:`, this.statusDict())
-
-        try {
-            newToots = await tootFetcher;
-        } catch (e) {
-            console.error(`${logPrefix} Error fetching toots:`, e);
-        }
-
-        // Only need to lock the mutex when we start modifying common variables like this.feed
-        const releaseMutex = await this.mergeMutex.acquire();
-
-        try {
-            this.feed = await this.mergeTootsWithFeed(newToots);
-            await this.scoreAndFilterFeed();
-            logInfo(logPrefix, `Merged ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
-            return newToots;
-        } finally {
-            releaseMutex();
-        }
-    }
-
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
@@ -194,8 +169,8 @@ class TheAlgorithm {
 
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.prepareScorers();
-            this.mergeTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
-            this.mergeTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
+            this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
+            this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         } else {
@@ -203,7 +178,7 @@ class TheAlgorithm {
             this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch.toLocaleString()})`;
         }
 
-        this.mergeTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
+        this.mergePromisedTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed").then((newToots) => {
             logInfo(logPrefix, `fetchHomeFeed returned ${newToots.length} toots ${inSeconds(this.loadStartedAt)}, now maybeGetMoreToots()`);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
         });
@@ -258,16 +233,6 @@ class TheAlgorithm {
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt(): Date | null {
         return mostRecentTootedAt(this.feed.filter(toot => toot.isFollowed));
-    }
-
-    // Remove invalid and duplicate toots, merge them with the feed, and update the filters
-    // Does NOT mutate this.feed in place (though it does modify this.filters).
-    private async mergeTootsWithFeed(toots: Toot[]): Promise<Toot[]> {
-        const cleanNewToots = toots.filter(toot => toot.isValidForFeed());
-        logTootRemoval(CLEANUP_FEED, "invalid", toots.length - cleanNewToots.length, cleanNewToots.length);
-        toots = Toot.dedupeToots([...this.feed, ...cleanNewToots], CLEANUP_FEED);
-        this.filters = initializeFiltersWithSummaryInfo(toots, await MastoApi.instance.getUserData());
-        return toots;
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
@@ -358,6 +323,41 @@ class TheAlgorithm {
 
             this.loadingStatus = null;
         }
+    }
+
+    // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
+    private async mergePromisedTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]> {
+        const logPrefix = `mergeTootsIntoFeed() ${label}`;
+        const startTime = new Date();
+        let newToots: Toot[] = [];
+        logDebug(logPrefix, `Called ${logPrefix}, state:`, this.statusDict())
+
+        try {
+            newToots = await tootFetcher;
+        } catch (e) {
+            console.error(`${logPrefix} Error fetching toots:`, e);
+        }
+
+        // Only need to lock the mutex when we start modifying common variables like this.feed
+        const releaseMutex = await this.mergeMutex.acquire();
+
+        try {
+            this.feed = await this.mergeTootsWithFeed(newToots);
+            await this.scoreAndFilterFeed();
+            logInfo(logPrefix, `Merged ${newToots.length} toots ${inSeconds(startTime)}, state:`, this.statusDict());
+            return newToots;
+        } finally {
+            releaseMutex();
+        }
+    }
+
+    // Remove invalid and duplicate toots, merge them with the feed, and update the filters
+    // Does NOT mutate this.feed in place (though it does modify this.filters).
+    private async mergeTootsWithFeed(toots: Toot[]): Promise<Toot[]> {
+        toots = filterWithLog<Toot>(toots, t => t.isValidForFeed(), CLEANUP_FEED, 'invalid', 'Toot');
+        toots = Toot.dedupeToots([...this.feed, ...toots], CLEANUP_FEED);
+        this.filters = initializeFiltersWithSummaryInfo(toots, await MastoApi.instance.getUserData());
+        return toots;
     }
 
     // Prepare the scorers for scoring.

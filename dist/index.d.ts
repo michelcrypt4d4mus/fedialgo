@@ -51,7 +51,6 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
-    mergeTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]>;
     getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]>;
     getUserWeights(): Promise<Weights>;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
@@ -60,10 +59,11 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
-    private mergeTootsWithFeed;
     private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
+    private mergePromisedTootsIntoFeed;
+    private mergeTootsWithFeed;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
