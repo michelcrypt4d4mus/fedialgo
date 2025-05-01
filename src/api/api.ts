@@ -12,9 +12,10 @@ import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
-import { StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
+import { findMinId } from "../helpers/collection_helpers";
+import { MastodonID, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
+import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
 
 export const INSTANCE = "instance";
@@ -24,6 +25,7 @@ export const TAGS = "tags";
 
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
+const MUTEX_WARN_SECONDS = 10;
 
 export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 
@@ -34,7 +36,9 @@ export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 //   - label: key to use for caching
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
-//   - skipCache: if true, don't use cached data
+//   - moar: if true, continue fetching from the max_id found in the cache
+//   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
+//   - skipMutex: if true, don't use mutex locks to prevent parallelism mutex when making requests
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     label: StorageKey,
@@ -42,6 +46,8 @@ interface FetchParams<T> {
     maxRecords?: number,
     skipCache?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => boolean,
+    moar?: boolean,
+    skipMutex?: boolean,
 };
 
 
@@ -137,7 +143,9 @@ export class MastoApi {
             } else {
                 const trendingTags = await MastodonServer.fediverseTrendingTags();
                 const tootTags: Toot[][] = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
-                const toots = Toot.dedupeToots(tootTags.flat(), StorageKey.TRENDING_TAG_TOOTS);
+                let toots = tootTags.flat();
+                Toot.setDependentProps(toots);
+                toots = Toot.dedupeToots(toots, StorageKey.TRENDING_TAG_TOOTS);
                 toots.sort((a, b) => b.popularity() - a.popularity());
 
                 // Take only the first Config.numTrendingTagsToots of the toots we've assumebled
@@ -174,6 +182,11 @@ export class MastoApi {
         return (followedTags || []).map(repairTag);
     }
 
+    // Get more notifications, favourites, etc. and store to cache
+    async getMore(): Promise<void> {
+
+    }
+
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(): Promise<Account[]> {
         const mutedAccounts = await this.fetchData<mastodon.v1.Account>({
@@ -196,10 +209,11 @@ export class MastoApi {
     };
 
     // Get the user's recent notifications
-    async getRecentNotifications(): Promise<mastodon.v1.Notification[]> {
+    async getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]> {
         return await this.fetchData<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
-            label: StorageKey.RECENT_NOTIFICATIONS
+            label: StorageKey.RECENT_NOTIFICATIONS,
+            moar: moar,
         });
     }
 
@@ -271,7 +285,6 @@ export class MastoApi {
         return recentToots.map(t => new Toot(t));
     };
 
-
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -298,6 +311,7 @@ export class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     //   - logMsg:        optional description of why the search is being run (for logging only)
+    // TODO: Toot.buildToots has NOT been called on these!
     async searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
@@ -309,8 +323,9 @@ export class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const toots = await Toot.buildToots(searchResult.statuses);
+            // return await Toot.buildToots(toots); // TODO
             console.debug(`${logPrefix} Retrieved ${toots.length} ${tootsForQryMsg} ${inSeconds(startTime)}`);
-            return toots;
+            return toots.map(t => new Toot(t));
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQryMsg} ${inSeconds(startTime)}`);
             return [];
@@ -320,6 +335,7 @@ export class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
     async hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const logPrefix = `[${StorageKey.TRENDING_TAG_TOOTS_V2}] hashtagTimelineToots():`;
@@ -331,10 +347,12 @@ export class MastoApi {
                 label: StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
                 skipCache: true,
+                // skipMutex: true,
             });
 
             console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
-            return await Toot.buildToots(toots);
+            // return await Toot.buildToots(toots); // TODO should this be here?
+            return toots.map(t => new Toot(t));
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
             return [];
@@ -357,50 +375,68 @@ export class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-        let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+        fetchParams.maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
-        const logPrefix = `[API ${label}]`;
-        console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
-
-        const startTime = new Date();;
-        const releaseFetchMutex = await this.mutexes[label].acquire();
-        let results: T[] = [];
+        const logPfx = `[API ${label}]`;
+        console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         let pageNumber = 0;
+        let rows: T[] = [];
+
+        // Start the timer before the mutex so we can see if the lock is taking too long to acuqire
+        // Also skipCache means skip the Mutex. TrendingTagTootsV2 were getting held by only allowing
+        // one request to process at a time.
+        const startAt = new Date();
+        // TODO: undoing this change for now
+        // const releaseFetchMutex = skipCache ? null : await this.mutexes[label].acquire();
+        const releaseFetchMutex = await this.mutexes[label].acquire();
+        if (ageInSeconds(startAt) > MUTEX_WARN_SECONDS) console.warn(`${logPfx} Mutex ${inSeconds(startAt)}!`);
 
         try {
+            // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedData = await Storage.get(label);
+                const cachedRows = await Storage.get(label) as T[];
 
-                if (cachedData && !(await Storage.isDataStale(label))) {
-                    const rows = cachedData as T[];
-                    console.debug(`${logPrefix} Loaded ${rows.length} cached records ${inSeconds(startTime)}`);
-                    return rows;
+                if (cachedRows && !(await Storage.isDataStale(label))) {
+                    console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startAt)}`);
+                    if (!moar) return cachedRows;
+
+                    // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
+                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`, cachedRows);
+                    rows = cachedRows;
+                    maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
+                    maxId = findMinId(rows as MastodonID[]);
+                    console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
                 };
             }
 
-            for await (const page of fetch(this.buildParams(maxId, maxRecords))) {
-                results = results.concat(page as T[]);
-                pageNumber += 1;
+            const parms = this.buildParams(maxId, maxRecords)
+            console.debug(`${logPfx} Fetching ${label} with params:`, parms);
 
-                if (results.length >= maxRecords || breakIf(page, results)) {
-                    let msg = `${logPrefix} Completing fetch at page ${pageNumber}`;
-                    console.debug(`${msg}, got ${results.length} records ${inSeconds(startTime)}`);
+            for await (const page of fetch(parms)) {
+                rows = rows.concat(page as T[]);
+                pageNumber += 1;
+                const recordsSoFar = `have ${rows.length} records so far ${inSeconds(startAt)}`;
+
+                if (rows.length >= maxRecords || breakIf(page, rows)) {
+                    let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
+                    console.debug(`${msg}, ${recordsSoFar}`);
                     break;
                 } else {
-                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far ${inSeconds(startTime)})`);
+                    console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
 
-            if (!skipCache) await Storage.set(label, results as StorableObj);
+            if (!skipCache) await Storage.set(label, rows as StorableObj);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed ${inSeconds(startTime)}`);
-            return results;
+            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${inSeconds(startAt)}`);
+            return rows;
         } finally {
-            releaseFetchMutex();
+            releaseFetchMutex ? releaseFetchMutex() : null;
         }
 
-        return results;
+        return rows;
     };
 
     // Get latest toots for a given tag and populate trendingToots property
@@ -422,6 +458,7 @@ export class MastoApi {
         // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
         // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
         const tagToots = [...searchToots, ...tagTimelineToots];
+        // TODO: none of these toots have had setDependentProperties() called on them yet
         return shouldDedupe ? Toot.dedupeToots(tagToots, StorageKey.TRENDING_TAG_TOOTS) : tagToots;
     };
 

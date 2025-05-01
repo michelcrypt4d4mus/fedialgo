@@ -543,7 +543,7 @@ export default class Toot implements TootObj {
             "Toot.setDependentProperties()"
         );
 
-        return toots;
+        return toots; // TODO: this return is unecessary; objects are mutated in place
     }
 };
 

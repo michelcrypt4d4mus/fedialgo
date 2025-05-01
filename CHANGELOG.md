@@ -1,10 +1,13 @@
 # NEXT RELEASE
 
+### v0.22.4
+* Add the **MOAR** feature to inch towards continued backfilling of user data later on, after the initial load is not busy
+
 ### v0.22.3
-* Add trendingRank to Toot.popularity()
+* Add `trendingRank` to `Toot.popularity()`
 * Standardize boolean logic around cache hits and misses
-* Add mastodon.art to list of no MAU servers
-* Reduce minRecordsForFeatureScoring to 240 in the hopes of improving startup speed (see TODO section of README)
+* Add `mastodon.art` to list of no MAU servers
+* Reduce `Config.minRecordsForFeatureScoring` to 240 in the hopes of improving startup speed (see TODO section of README)
 
 ### v0.22.2
 * Add lastLoadTimeInSeconds prop to TheAlgorithm

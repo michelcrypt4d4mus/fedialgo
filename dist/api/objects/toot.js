@@ -442,7 +442,7 @@ class Toot {
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
-        return toots;
+        return toots; // TODO: this return is unecessary; objects are mutated in place
     }
 }
 exports.default = Toot;

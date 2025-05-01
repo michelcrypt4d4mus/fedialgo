@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const Storage_1 = __importDefault(require("../Storage"));
+const string_helpers_1 = require("./string_helpers");
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
     values = values.filter(v => !!v);
@@ -157,5 +158,27 @@ objType) {
     return filtered;
 }
 exports.filterWithLog = filterWithLog;
+;
+// Find the minimum id in an array of objects using the given idFxn to extract the id
+function findMinId(array) {
+    if (array.length == 0)
+        return undefined;
+    const idVals = array.map(e => e.id);
+    const isNumberArray = idVals.every(string_helpers_1.isNumber);
+    console.debug(`Is this a number array?  ${isNumberArray}`);
+    const sortedIDs = idVals.toSorted((a, b) => {
+        a = a.toString();
+        b = b.toString();
+        if (isNumberArray) {
+            return parseFloat(a) - parseFloat(b);
+        }
+        else {
+            return a > b ? 1 : -1;
+        }
+    });
+    console.info(`Start of sortedIDs (isNumberArray=${isNumberArray}):`, sortedIDs.slice(0, 10));
+    return sortedIDs[0].toString();
+}
+exports.findMinId = findMinId;
 ;
 //# sourceMappingURL=collection_helpers.js.map

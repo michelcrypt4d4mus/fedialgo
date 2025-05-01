@@ -131,6 +131,13 @@ export type StorableObj = (
     number
 );
 
+// All these types have an id property
+export type MastodonID = (
+    mastodon.v1.Account |
+    mastodon.v1.Notification |
+    SerializableToot
+);
+
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

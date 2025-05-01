@@ -5,7 +5,8 @@ import md5 from "blueimp-md5";
 
 import Storage from "../Storage";
 import { ageInSeconds } from "./time_helpers";
-import { CountKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonID, StringNumberDict, Weights } from "../types";
+import { isNumber } from "./string_helpers";
 
 
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
@@ -193,4 +194,27 @@ export function filterWithLog<T>(
     }
 
     return filtered;
+};
+
+
+// Find the minimum id in an array of objects using the given idFxn to extract the id
+export function findMinId(array: MastodonID[]): string | undefined{
+    if (array.length == 0) return undefined;
+    const idVals = array.map(e => e.id);
+    const isNumberArray = idVals.every(isNumber);
+    console.debug(`Is this a number array?  ${isNumberArray}`)
+
+    const sortedIDs = idVals.toSorted((a, b) => {
+        a = a.toString();
+        b = b.toString();
+
+        if (isNumberArray) {
+            return parseFloat(a) - parseFloat(b);
+        } else {
+            return a > b ? 1 : -1;
+        }
+    });
+
+    console.info(`Start of sortedIDs (isNumberArray=${isNumberArray}):`, sortedIDs.slice(0, 10));
+    return sortedIDs[0].toString();
 };

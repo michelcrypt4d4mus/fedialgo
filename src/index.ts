@@ -155,19 +155,18 @@ class TheAlgorithm {
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
-            this.loadStartedAt = new Date();
-
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = "initial data";
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
-            } else if (this.feed.length) {
+            } else {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
                 console.info(`${logPrefix} Set catchupCheckpoint marker. Current state:`, this.statusDict());
             }
 
             // These are all calls we should only make in the initial load (all called asynchronously)
+            this.loadStartedAt = new Date();
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
@@ -325,10 +324,15 @@ class TheAlgorithm {
                 this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
                 this.loadStartedAt = null;
             } else {
+                this.lastLoadTimeInSeconds = null;
                 console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             }
 
+            // console.log(`Triggering MOAR test for getRecentNotifications()...`);
+            // const moarResult = await MastoApi.instance.getRecentNotifications(true);
+            // console.log(`MOAR test result has ${moarResult.length} rows`);
             this.loadingStatus = null;
+            console.log(`should have set this.loadingStatus to null by now. state:`, this.statusDict());
         }
     }
 
@@ -419,6 +423,7 @@ class TheAlgorithm {
         return Object.entries(this.statusDict()).map((k, v) => `${k}=${v}`).join(", ")
     }
 
+    // Info about the state of this TheAlgorithm instance
     private statusDict(): Record<string, any> {
         return {
             tootsInFeed: this.feed?.length,

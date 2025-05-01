@@ -91,6 +91,7 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingLink[] | TrendingTag[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
+export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

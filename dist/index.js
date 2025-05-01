@@ -158,18 +158,18 @@ class TheAlgorithm {
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {
-            this.loadStartedAt = new Date();
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = "initial data";
                 // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             }
-            else if (this.feed.length) {
+            else {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
                 console.info(`${logPrefix} Set catchupCheckpoint marker. Current state:`, this.statusDict());
             }
             // These are all calls we should only make in the initial load (all called asynchronously)
+            this.loadStartedAt = new Date();
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
@@ -310,9 +310,14 @@ class TheAlgorithm {
                 this.loadStartedAt = null;
             }
             else {
+                this.lastLoadTimeInSeconds = null;
                 console.warn(`[${string_helpers_1.TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             }
+            // console.log(`Triggering MOAR test for getRecentNotifications()...`);
+            // const moarResult = await MastoApi.instance.getRecentNotifications(true);
+            // console.log(`MOAR test result has ${moarResult.length} rows`);
             this.loadingStatus = null;
+            console.log(`should have set this.loadingStatus to null by now. state:`, this.statusDict());
         }
     }
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
@@ -394,6 +399,7 @@ class TheAlgorithm {
     statusMsg() {
         return Object.entries(this.statusDict()).map((k, v) => `${k}=${v}`).join(", ");
     }
+    // Info about the state of this TheAlgorithm instance
     statusDict() {
         return {
             tootsInFeed: this.feed?.length,

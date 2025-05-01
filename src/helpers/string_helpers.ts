@@ -132,6 +132,7 @@ export function logAndThrowError(message: string, obj?: any): never {
 
 // Doublequotes
 export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
+export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
 
 
 // Number to string (could also be done with Math.floor(num).toLocaleString())

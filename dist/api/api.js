@@ -33,6 +33,7 @@ const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const string_helpers_1 = require("../helpers/string_helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -43,6 +44,7 @@ exports.STATUSES = "statuses";
 exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
+const MUTEX_WARN_SECONDS = 10;
 ;
 // Singleton class for interacting with the Mastodon API
 class MastoApi {
@@ -130,7 +132,9 @@ class MastoApi {
             else {
                 const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
                 const tootTags = await Promise.all(trendingTags.map(tt => this.getTootsForTag(tt)));
-                const toots = toot_1.default.dedupeToots(tootTags.flat(), types_1.StorageKey.TRENDING_TAG_TOOTS);
+                let toots = tootTags.flat();
+                toot_1.default.setDependentProps(toots);
+                toots = toot_1.default.dedupeToots(toots, types_1.StorageKey.TRENDING_TAG_TOOTS);
                 toots.sort((a, b) => b.popularity() - a.popularity());
                 // Take only the first Config.numTrendingTagsToots of the toots we've assumebled
                 const numToots = toots.length;
@@ -163,6 +167,9 @@ class MastoApi {
         });
         return (followedTags || []).map(tag_1.repairTag);
     }
+    // Get more notifications, favourites, etc. and store to cache
+    async getMore() {
+    }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {
         const mutedAccounts = await this.fetchData({
@@ -183,10 +190,11 @@ class MastoApi {
     }
     ;
     // Get the user's recent notifications
-    async getRecentNotifications() {
+    async getRecentNotifications(moar) {
         return await this.fetchData({
             fetch: this.api.v1.notifications.list,
-            label: types_1.StorageKey.RECENT_NOTIFICATIONS
+            label: types_1.StorageKey.RECENT_NOTIFICATIONS,
+            moar: moar,
         });
     }
     // Retrieve content based feed filters the user has set up on the server
@@ -278,6 +286,7 @@ class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     //   - logMsg:        optional description of why the search is being run (for logging only)
+    // TODO: Toot.buildToots has NOT been called on these!
     async searchForToots(searchStr, maxRecords, logMsg) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
@@ -288,8 +297,9 @@ class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const toots = await toot_1.default.buildToots(searchResult.statuses);
+            // return await Toot.buildToots(toots); // TODO
             console.debug(`${logPrefix} Retrieved ${toots.length} ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            return toots;
+            return toots.map(t => new toot_1.default(t));
         }
         catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
@@ -300,6 +310,7 @@ class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
     async hashtagTimelineToots(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const logPrefix = `[${types_1.StorageKey.TRENDING_TAG_TOOTS_V2}] hashtagTimelineToots():`;
@@ -310,9 +321,11 @@ class MastoApi {
                 label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
                 skipCache: true,
+                // skipMutex: true,
             });
             console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
-            return await toot_1.default.buildToots(toots);
+            // return await Toot.buildToots(toots); // TODO should this be here?
+            return toots.map(t => new toot_1.default(t));
         }
         catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
@@ -335,49 +348,67 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async fetchData(fetchParams) {
-        let { breakIf, fetch, label, maxId, maxRecords, skipCache } = fetchParams;
-        maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        fetchParams.maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
-        const logPrefix = `[API ${label}]`;
-        console.debug(`${logPrefix} fetchData() called (maxRecords=${maxRecords})`);
-        const startTime = new Date();
-        ;
-        const releaseFetchMutex = await this.mutexes[label].acquire();
-        let results = [];
+        const logPfx = `[API ${label}]`;
+        console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        if (moar && (skipCache || maxId))
+            console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         let pageNumber = 0;
+        let rows = [];
+        // Start the timer before the mutex so we can see if the lock is taking too long to acuqire
+        // Also skipCache means skip the Mutex. TrendingTagTootsV2 were getting held by only allowing
+        // one request to process at a time.
+        const startAt = new Date();
+        // TODO: undoing this change for now
+        // const releaseFetchMutex = skipCache ? null : await this.mutexes[label].acquire();
+        const releaseFetchMutex = await this.mutexes[label].acquire();
+        if ((0, time_helpers_1.ageInSeconds)(startAt) > MUTEX_WARN_SECONDS)
+            console.warn(`${logPfx} Mutex ${(0, time_helpers_1.inSeconds)(startAt)}!`);
         try {
+            // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedData = await Storage_1.default.get(label);
-                if (cachedData && !(await Storage_1.default.isDataStale(label))) {
-                    const rows = cachedData;
-                    console.debug(`${logPrefix} Loaded ${rows.length} cached records ${(0, time_helpers_1.inSeconds)(startTime)}`);
-                    return rows;
+                const cachedRows = await Storage_1.default.get(label);
+                if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
+                    console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startAt)}`);
+                    if (!moar)
+                        return cachedRows;
+                    // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
+                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`, cachedRows);
+                    rows = cachedRows;
+                    maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
+                    maxId = (0, collection_helpers_1.findMinId)(rows);
+                    console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
                 }
                 ;
             }
-            for await (const page of fetch(this.buildParams(maxId, maxRecords))) {
-                results = results.concat(page);
+            const parms = this.buildParams(maxId, maxRecords);
+            console.debug(`${logPfx} Fetching ${label} with params:`, parms);
+            for await (const page of fetch(parms)) {
+                rows = rows.concat(page);
                 pageNumber += 1;
-                if (results.length >= maxRecords || breakIf(page, results)) {
-                    let msg = `${logPrefix} Completing fetch at page ${pageNumber}`;
-                    console.debug(`${msg}, got ${results.length} records ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.inSeconds)(startAt)}`;
+                if (rows.length >= maxRecords || breakIf(page, rows)) {
+                    let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
+                    console.debug(`${msg}, ${recordsSoFar}`);
                     break;
                 }
                 else {
-                    console.debug(`${logPrefix} Retrieved page ${pageNumber} (${results.length} records so far ${(0, time_helpers_1.inSeconds)(startTime)})`);
+                    console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
             if (!skipCache)
-                await Storage_1.default.set(label, results);
+                await Storage_1.default.set(label, rows);
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} fetchData() for ${label} failed ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            return results;
+            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${(0, time_helpers_1.inSeconds)(startAt)}`);
+            return rows;
         }
         finally {
-            releaseFetchMutex();
+            releaseFetchMutex ? releaseFetchMutex() : null;
         }
-        return results;
+        return rows;
     }
     ;
     // Get latest toots for a given tag and populate trendingToots property
@@ -397,6 +428,7 @@ class MastoApi {
         // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
         // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
         const tagToots = [...searchToots, ...tagTimelineToots];
+        // TODO: none of these toots have had setDependentProperties() called on them yet
         return shouldDedupe ? toot_1.default.dedupeToots(tagToots, types_1.StorageKey.TRENDING_TAG_TOOTS) : tagToots;
     }
     ;
