@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Use the timelines/tag endpoint to pull trending tag toots in addition to search endpoint
+* Use the `/api/v1/timelines/tag/:hashtag` endpoint to pull trending tag toots in addition to search endpoint
 * Log the Instance server info dict all at once
 
 ### v0.21.3
