@@ -67,9 +67,6 @@ interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
-console.log(`[FediAlgo] process.env.NODE_ENV:`, process.env.NODE_ENV);
-console.log(`[FediAlgo] process.env.DEBUG:`, process.env.DEBUG);
-
 
 class TheAlgorithm {
     // Variables set in the constructor

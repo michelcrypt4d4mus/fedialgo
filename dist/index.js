@@ -84,8 +84,6 @@ const INITIAL_STATUS_MSG = "(ready to load)";
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
 ;
-console.log(`[FediAlgo] process.env.NODE_ENV:`, process.env.NODE_ENV);
-console.log(`[FediAlgo] process.env.DEBUG:`, process.env.DEBUG);
 class TheAlgorithm {
     // Variables set in the constructor
     api;
