@@ -195,7 +195,7 @@ export default class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
-        debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localForage.setItem(storageKey, withTimestamp);
     }
 

@@ -191,7 +191,7 @@ class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value };
-        debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        api_1.TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Store the current timeline toots
