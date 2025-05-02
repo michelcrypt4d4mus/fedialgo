@@ -232,13 +232,26 @@ export function checkUniqueIDs(array: MastodonID[], label: StorageKey): void {
 };
 
 
-export function sortObjsByProp<T>(array: T[], prop: keyof T, ascending: boolean = true): T[] {
+// Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
+// If ascending is true, sort in ascending order.
+export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending: boolean = true): T[] {
+    const props = Array.isArray(prop) ? prop : [prop];
+    if (props.length > 2) throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
+
     return array.toSorted((a: T, b: T) => {
-        const aVal = a[prop];
-        const bVal = b[prop];
+        let aVal = a[props[0]];
+        let bVal = b[props[0]];
 
         if (aVal < bVal) return ascending ? -1 : 1;
         if (aVal > bVal) return ascending ? 1 : -1;
+        if (props.length == 1) return 0;
+
+        // Compare second propert
+        aVal = a[props[1]];
+        bVal = b[props[2]];
+        if (aVal < bVal) return ascending ? -1 : 1;
+        if (aVal > bVal) return ascending ? 1 : -1;
+
         return 0;
     });
 };

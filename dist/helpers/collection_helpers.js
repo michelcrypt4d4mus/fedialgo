@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortObjsByProp = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -192,10 +192,24 @@ function checkUniqueIDs(array, label) {
 }
 exports.checkUniqueIDs = checkUniqueIDs;
 ;
-function sortObjsByProp(array, prop, ascending = true) {
+// Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
+// If ascending is true, sort in ascending order.
+function sortObjsByProps(array, prop, ascending = true) {
+    const props = Array.isArray(prop) ? prop : [prop];
+    if (props.length > 2)
+        throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
     return array.toSorted((a, b) => {
-        const aVal = a[prop];
-        const bVal = b[prop];
+        let aVal = a[props[0]];
+        let bVal = b[props[0]];
+        if (aVal < bVal)
+            return ascending ? -1 : 1;
+        if (aVal > bVal)
+            return ascending ? 1 : -1;
+        if (props.length == 1)
+            return 0;
+        // Compare second propert
+        aVal = a[props[1]];
+        bVal = b[props[2]];
         if (aVal < bVal)
             return ascending ? -1 : 1;
         if (aVal > bVal)
@@ -203,6 +217,6 @@ function sortObjsByProp(array, prop, ascending = true) {
         return 0;
     });
 }
-exports.sortObjsByProp = sortObjsByProp;
+exports.sortObjsByProps = sortObjsByProps;
 ;
 //# sourceMappingURL=collection_helpers.js.map

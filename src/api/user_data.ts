@@ -6,16 +6,21 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { sortObjsByProp } from "../helpers/collection_helpers";
+import { sortObjsByProps } from "../helpers/collection_helpers";
 import { MastoApi } from "./api";
 import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag, UserDataSerialized } from "../types";
 
+const SORT_TAGS_BY = ["numToots" as keyof TrendingTag, "name" as keyof TrendingTag];
+
 interface UserDataCls extends UserDataSerialized {
+    isDataStale: () => Promise<boolean>;
     populate: () => Promise<void>;
+    popularUserTags: () => TrendingTag[];
+    serialize: () => UserDataSerialized;
 };
 
 // Raw API data required to build UserData
-interface UserDataProps {
+interface UserApiData {
     followedAccounts: Account[];
     followedTags: TrendingTag[];
     mutedAccounts: Account[];
@@ -31,7 +36,8 @@ export default class UserData implements UserDataCls {
     participatedHashtags: TagNames;
     serverSideFilters: mastodon.v2.Filter[];
 
-    static buildFromData(data: UserDataProps): UserData {
+    // Alternate constructor to build UserData from raw API data
+    static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.followedAccounts = Account.buildAccountNames(data.followedAccounts);
         userData.followedTags = data.followedTags;
@@ -41,7 +47,7 @@ export default class UserData implements UserDataCls {
         return userData;
     }
 
-    // Build a UserData object from the API and/or storage cache
+    // Alternate constructor to build a UserData object with data fetched from the API or cache
     static async getUserData(): Promise<UserData> {
         const userData = new UserData();
         await userData.populate();
@@ -57,7 +63,13 @@ export default class UserData implements UserDataCls {
         this.serverSideFilters = [];
     }
 
-    // Pull user's data from cache and/or API
+    // Use MUTED_ACCOUNTS as a proxy for staleness
+    // TODO: could be smarter
+    async isDataStale(): Promise<boolean> {
+        return await Storage.isDataStale(StorageKey.MUTED_ACCOUNTS);
+    }
+
+    // Pull latest user's data from cache and/or API
     async populate(): Promise<void> {
         const responses = await Promise.all([
             MastoApi.instance.getFollowedAccounts(),
@@ -72,13 +84,11 @@ export default class UserData implements UserDataCls {
         this.mutedAccounts = Account.buildAccountNames(responses[2]);
         this.participatedHashtags = responses[3];
         this.serverSideFilters = responses[4];
-        console.debug(`[UserData] Populated UserData object`);
     }
 
-    // Use MUTED_ACCOUNTS as a proxy for staleness
-    // TODO: could be smarter
-    async isDataStale(): Promise<boolean> {
-        return await Storage.isDataStale(StorageKey.MUTED_ACCOUNTS);
+    // Returns TrendingTags the user has participated in sorted by number of times they tooted it
+    popularUserTags(): TrendingTag[] {
+        return UserData.sortTagNames(this.participatedHashtags);
     }
 
     // Strip functions from the object
@@ -86,24 +96,9 @@ export default class UserData implements UserDataCls {
         return this as UserDataSerialized;
     }
 
-    // Returns tags the user has participated in sorted by number of times
-    popularUserTags(): TrendingTag[] {
-        return UserData.sortTagNames(this.participatedHashtags);
-    }
-
-    // Build a dict of tag names to the number of times the user tooted it from a list of toots
-    static buildUserHashtags(userToots: TootLike[]): TagNames {
-        const tags = userToots.flatMap(toot => (toot.reblog ?? toot).tags || []) as TrendingTag[];
-
-        return tags.reduce(
-            (tags, tag) => {
-                tags[tag.name] ??= tag;
-                tags[tag.name].numToots = (tags[tag.name].numToots || 0) + 1;
-                return tags;
-            },
-            {} as TagNames
-        );
-    }
+    ////////////////////////////
+    //      Class Methods     //
+    ////////////////////////////
 
     // Build TrendingTag objects with numToots prop set to number of times the user tooted it
     static async getUsersHashtags(): Promise<TagNames> {
@@ -119,6 +114,20 @@ export default class UserData implements UserDataCls {
 
     // Return array of TrendingTags sorted by numToots
     static sortTagNames(userTags: TagNames): TrendingTag[] {
-        return sortObjsByProp(Object.values(userTags), "numToots" as keyof TrendingTag, false);
+        return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, false);
+    }
+
+    // Build a dict of tag names to the number of times the user tooted it from a list of toots
+    private static buildUserHashtags(userToots: TootLike[]): TagNames {
+        const tags = userToots.flatMap(toot => (toot.reblog ?? toot).tags || []) as TrendingTag[];
+
+        return tags.reduce(
+            (tags, tag) => {
+                tags[tag.name] ??= tag;
+                tags[tag.name].numToots = (tags[tag.name].numToots || 0) + 1;
+                return tags;
+            },
+            {} as TagNames
+        );
     }
 };
