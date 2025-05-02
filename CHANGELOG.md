@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.23.0
 * Add HashtagParticipationScorer and import recent toots that contain hashtags the user participates in often in the feed
 * Poll for old records after initial load with `setInterval()`. Add `Config.backgroundLoadIntervalMS` and `Config.maxRecordsForFeatureScoring` variables
 
