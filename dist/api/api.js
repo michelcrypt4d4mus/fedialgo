@@ -42,7 +42,7 @@ exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-exports.TRACE_LOG = false;
+exports.TRACE_LOG = true;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 exports.MUTEX_WARN_SECONDS = 10;

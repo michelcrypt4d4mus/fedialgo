@@ -86,9 +86,9 @@ export const DEFAULT_CONFIG: Config = {
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
-    // backgroundLoadIntervalMS: 25_000, // 30sec
-    backgroundLoadIntervalMS: 60_000,    // 1 minute
-    maxRecordsForFeatureScoring: 2_000,  // number of notifications, replies, etc. to pull slowly in background for scoring
+    backgroundLoadIntervalMS: 25_000, // 30sec
+    // backgroundLoadIntervalMS: 60_000,    // 1 minute
+    maxRecordsForFeatureScoring: 2_800,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
     minRecordsForFeatureScoring: 240,    // number of notifications, replies, etc. to pull in initial load
     minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags

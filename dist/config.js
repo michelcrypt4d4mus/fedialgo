@@ -38,9 +38,9 @@ exports.DEFAULT_CONFIG = {
     },
     timelineDecayExponent: 1.2,
     // API stuff
-    // backgroundLoadIntervalMS: 25_000, // 30sec
-    backgroundLoadIntervalMS: 60000,
-    maxRecordsForFeatureScoring: 2000,
+    backgroundLoadIntervalMS: 25000,
+    // backgroundLoadIntervalMS: 60_000,    // 1 minute
+    maxRecordsForFeatureScoring: 2800,
     maxFollowingAccountsToPull: 5000,
     minRecordsForFeatureScoring: 240,
     minServerMAU: 100,

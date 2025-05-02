@@ -32,6 +32,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog } from "./helpers/collection_helpers";
+import { getMoarData } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -57,7 +58,6 @@ const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider usin
 const INITIAL_STATUS_MSG = "(ready to load)"
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
-const MOAR_MUTEX = new Mutex();
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -345,7 +345,7 @@ class TheAlgorithm {
                 console.log(`${logPrefix} starting data poller...`);
 
                 this.dataPoller = setInterval(
-                    () => this.getMoarData(),
+                    () => this.checkMoarData(),
                     Storage.getConfig().backgroundLoadIntervalMS
                 );
             } else {
@@ -356,57 +356,15 @@ class TheAlgorithm {
         }
     }
 
-    // Get morar historical data, force Scorers to update, and rescore the feed.
-    // TODO: Add followed accounts?  for people who follow a lot?
-    // TODO: move this to its own file?
-    private async getMoarData(): Promise<void> {
-        const logPrefix = `[getMoarData()]`;
-        console.log(`${logPrefix} triggered by timer...`);
-        const maxRecordsForFeatureScoring = Storage.getConfig().maxRecordsForFeatureScoring;
-        const releaseMutex = await MOAR_MUTEX.acquire();
-        const startTime = new Date();
+    // Launch the poller, Foorce scorers to recompute data and rescore the feed
+    private async checkMoarData(): Promise<void> {
+        const shouldContinue = await getMoarData();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
 
-        const pollers = [
-            MastoApi.instance.getRecentNotifications.bind(MastoApi.instance),
-            MastoApi.instance.getRecentFavourites.bind(MastoApi.instance),
-            MastoApi.instance.getUserRecentToots.bind(MastoApi.instance),
-        ];
-
-        try {
-            // Call without moar boolean to check how big the cache is
-            let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
-
-            // Launch with moar flag those that are insufficient
-            const newRecordCounts = await Promise.all(
-                cacheSizes.map(async (size, i) => {
-                    if (size >= maxRecordsForFeatureScoring) {
-                        console.log(`${logPrefix} ${pollers[i].name} has ${size} records which is enough`);
-                        return 0;
-                    };
-
-                    // Launch the puller with moar=true
-                    const newRecords = await pollers[i](true);
-                    const newCount = (newRecords?.length || 0);
-                    const extraCount = newCount - cacheSizes[i];
-                    let msg = `${logPrefix} ${pollers[i].name} oldCount=${cacheSizes[i]}`;
-                    msg += `, newCount=${newCount}, extraCount=${extraCount}`;
-                    extraCount < 0 ? console.warn(msg) : console.log(msg);
-                    return extraCount || 0;
-                })
-            );
-
-            // Foorce scorers to recompute data and rescore the feed
-            await this.prepareScorers(true);
-            await this.scoreAndFilterFeed();
-
-            if (newRecordCounts.every((x) => x <= 0)) {
-                console.log(`${logPrefix} all pollers have enough data so calling clearInterval()`);
-                clearInterval(this.dataPoller!);
-            }
-
-            console.log(`${logPrefix} finished ${inSeconds(startTime)}`);
-        } finally {
-            releaseMutex();
+        if (!shouldContinue) {
+            console.log(`[getMoarData()] stopping data poller...`);
+            this.dataPoller && clearInterval(this.dataPoller!);
         }
     }
 

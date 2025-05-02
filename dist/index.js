@@ -61,6 +61,7 @@ const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/vide
 const feed_filters_1 = require("./filters/feed_filters");
 const weight_presets_1 = require("./scorer/weight_presets");
 const collection_helpers_1 = require("./helpers/collection_helpers");
+const poller_1 = require("./api/poller");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
@@ -79,7 +80,6 @@ const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider usin
 const INITIAL_STATUS_MSG = "(ready to load)";
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
-const MOAR_MUTEX = new async_mutex_1.Mutex();
 ;
 class TheAlgorithm {
     // Variables set in the constructor
@@ -326,7 +326,7 @@ class TheAlgorithm {
             // set dataPoller to null later to make it clear it's done
             if (!this.dataPoller) {
                 console.log(`${logPrefix} starting data poller...`);
-                this.dataPoller = setInterval(() => this.getMoarData(), Storage_1.default.getConfig().backgroundLoadIntervalMS);
+                this.dataPoller = setInterval(() => this.checkMoarData(), Storage_1.default.getConfig().backgroundLoadIntervalMS);
             }
             else {
                 console.log(`${logPrefix} not launching data poller bc... already running?`, this.dataPoller);
@@ -334,50 +334,14 @@ class TheAlgorithm {
             this.loadingStatus = null;
         }
     }
-    // Get morar historical data, force Scorers to update, and rescore the feed.
-    // TODO: Add followed accounts?  for people who follow a lot?
-    // TODO: move this to its own file?
-    async getMoarData() {
-        const logPrefix = `[getMoarData()]`;
-        console.log(`${logPrefix} triggered by timer...`);
-        const maxRecordsForFeatureScoring = Storage_1.default.getConfig().maxRecordsForFeatureScoring;
-        const releaseMutex = await MOAR_MUTEX.acquire();
-        const startTime = new Date();
-        const pollers = [
-            api_1.MastoApi.instance.getRecentNotifications.bind(api_1.MastoApi.instance),
-            api_1.MastoApi.instance.getRecentFavourites.bind(api_1.MastoApi.instance),
-            api_1.MastoApi.instance.getUserRecentToots.bind(api_1.MastoApi.instance),
-        ];
-        try {
-            // Call without moar boolean to check how big the cache is
-            let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
-            // Launch with moar flag those that are insufficient
-            const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
-                if (size >= maxRecordsForFeatureScoring) {
-                    console.log(`${logPrefix} ${pollers[i].name} has ${size} records which is enough`);
-                    return 0;
-                }
-                ;
-                // Launch the puller with moar=true
-                const newRecords = await pollers[i](true);
-                const newCount = (newRecords?.length || 0);
-                const extraCount = newCount - cacheSizes[i];
-                let msg = `${logPrefix} ${pollers[i].name} oldCount=${cacheSizes[i]}`;
-                msg += `, newCount=${newCount}, extraCount=${extraCount}`;
-                extraCount < 0 ? console.warn(msg) : console.log(msg);
-                return extraCount || 0;
-            }));
-            // Foorce scorers to recompute data and rescore the feed
-            await this.prepareScorers(true);
-            await this.scoreAndFilterFeed();
-            if (newRecordCounts.every((x) => x <= 0)) {
-                console.log(`${logPrefix} all pollers have enough data so calling clearInterval()`);
-                clearInterval(this.dataPoller);
-            }
-            console.log(`${logPrefix} finished ${(0, time_helpers_1.inSeconds)(startTime)}`);
-        }
-        finally {
-            releaseMutex();
+    // Launch the poller, Foorce scorers to recompute data and rescore the feed
+    async checkMoarData() {
+        const shouldContinue = await (0, poller_1.getMoarData)();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
+        if (!shouldContinue) {
+            console.log(`[getMoarData()] stopping data poller...`);
+            this.dataPoller && clearInterval(this.dataPoller);
         }
     }
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher

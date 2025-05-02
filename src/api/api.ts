@@ -23,7 +23,7 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-export const TRACE_LOG = false;
+export const TRACE_LOG = true;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 

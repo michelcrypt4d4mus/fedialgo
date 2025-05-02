@@ -65,7 +65,7 @@ declare class TheAlgorithm {
     private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
-    private getMoarData;
+    private checkMoarData;
     private mergePromisedTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;

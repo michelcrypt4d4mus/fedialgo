@@ -181,11 +181,12 @@ exports.findMinId = findMinId;
 ;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
-    const uniq = uniquifyByProp(array, (e) => e.id);
     const logPrefix = `[${label}]`;
     console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
-    if (uniq.length != array.length) {
-        console.warn(`${logPrefix} ${array.length} objs only have ${uniq.length} unique IDs!`);
+    const objsByID = groupBy(array, (e) => e.id);
+    const uniqueIDs = Object.keys(objsByID);
+    if (uniqueIDs.length != array.length) {
+        console.warn(`${logPrefix} ${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
     }
 }
 exports.checkUniqueIDs = checkUniqueIDs;
