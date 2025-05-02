@@ -156,6 +156,7 @@ There's a pre-commit git hook that runs `npm run build`.
 
 # TODO
 1. Add scoring for links similar to `onlyLinks` filter
+1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 
 ### What's slow:
 Not 100% sure if these are slow because the actual fetch needs to be slow or if there is some mutex situation keeping them from running but either way right now these are the outliers:
@@ -169,6 +170,8 @@ Not 100% sure if these are slow because the actual fetch needs to be slow or if 
 Not on the critical path so maybe fine:
 
 * [API TrendingTagTootsV2] Completing fetch at page 1, got 15 records in 31.8 seconds
+
+
 
 # Resources
 * [`masto.js` documentation](https://neet.github.io/masto.js)

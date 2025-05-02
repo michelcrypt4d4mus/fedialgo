@@ -38,8 +38,8 @@ exports.DEFAULT_CONFIG = {
     },
     timelineDecayExponent: 1.2,
     // API stuff
-    backgroundLoadIntervalMS: 25000,
-    // backgroundLoadIntervalMS: 60_000,    // 1 minute
+    // backgroundLoadIntervalMS: 25_000, // 30sec
+    backgroundLoadIntervalMS: 60000,
     maxRecordsForFeatureScoring: 2800,
     maxFollowingAccountsToPull: 5000,
     minRecordsForFeatureScoring: 240,
@@ -187,6 +187,9 @@ exports.SCORERS_CONFIG = {
     },
     [types_1.WeightName.FOLLOWED_TAGS]: {
         description: "Favour toots that contain hashtags you are following",
+    },
+    [types_1.WeightName.HASHTAG_PARTICIPATION]: {
+        description: "Favour toots that contain hashtags you toot about",
     },
     [types_1.WeightName.IMAGE_ATTACHMENTS]: {
         description: "Favour image attachments",

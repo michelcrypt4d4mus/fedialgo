@@ -9,6 +9,7 @@ import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
+import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MastodonServer from './api/mastodon_server';
@@ -93,6 +94,7 @@ class TheAlgorithm {
     featureScorers = [
         new ChaosScorer(),
         new FollowedTagsScorer(),
+        new HashtagParticipationScorer(),
         new MentionsFollowedScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
@@ -181,6 +183,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
+            this.mergePromisedTootsIntoFeed(MastoApi.instance.participatingHashtagToots(), "participatingHashtagToots");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         } else {

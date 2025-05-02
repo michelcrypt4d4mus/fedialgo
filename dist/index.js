@@ -33,6 +33,7 @@ exports.Account = account_1.default;
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
+const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
@@ -106,6 +107,7 @@ class TheAlgorithm {
     featureScorers = [
         new chaos_scorer_1.default(),
         new followed_tags_scorer_1.default(),
+        new hashtag_participation_scorer_1.default(),
         new mentions_followed_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
@@ -182,6 +184,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
+            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.participatingHashtagToots(), "participatingHashtagToots");
             mastodon_server_1.default.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         }

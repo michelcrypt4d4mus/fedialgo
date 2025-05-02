@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.repairTag = void 0;
+exports.participatedHashtags = exports.repairTag = void 0;
+const collection_helpers_1 = require("../../helpers/collection_helpers");
+const api_1 = require("../../api/api");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name and URL
 function repairTag(tag) {
@@ -15,5 +17,13 @@ function repairTag(tag) {
     return tag;
 }
 exports.repairTag = repairTag;
+;
+// Count how many times th euser has used a given tag
+async function participatedHashtags() {
+    const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
+    const hashtags = recentToots.flatMap(toot => toot.realToot().tags || []);
+    return (0, collection_helpers_1.countValues)(hashtags, (tag) => tag.name);
+}
+exports.participatedHashtags = participatedHashtags;
 ;
 //# sourceMappingURL=tag.js.map

@@ -25,7 +25,6 @@ export declare class MastoApi {
     getRecentTootsForTrendingTags(): Promise<Toot[]>;
     getFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
-    getMore(): Promise<void>;
     getMutedAccounts(): Promise<Account[]>;
     getRecentFavourites(moar?: boolean): Promise<Toot[]>;
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
@@ -34,6 +33,7 @@ export declare class MastoApi {
     getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]>;
+    participatingHashtagToots(): Promise<Toot[]>;
     hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]>;
     private buildParams;
     private fetchData;
