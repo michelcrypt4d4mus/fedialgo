@@ -172,6 +172,7 @@ export interface TrendingTag extends mastodon.v1.Tag {
 };
 
 export interface TrendingStorage {
+    hashtagParticipation: TrendingTag[];
     links: TrendingLink[];
     toots: Toot[];
     tags: TrendingTag[];

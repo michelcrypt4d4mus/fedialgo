@@ -36,7 +36,6 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
-const tag_2 = require("./objects/tag");
 const time_helpers_1 = require("../helpers/time_helpers");
 const change_case_1 = require("change-case");
 exports.INSTANCE = "instance";
@@ -167,7 +166,7 @@ class MastoApi {
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
-        return (followedTags || []).map(tag_2.repairTag);
+        return (followedTags || []).map(tag_1.repairTag);
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {

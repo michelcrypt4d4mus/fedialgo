@@ -146,11 +146,13 @@ class MastodonServer {
             this.fediverseTrendingLinks(),
             this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
+            (0, tag_1.participatedTags)(), // TODO: this doesn't belong here - it's user specific not public
         ]);
         return {
             links: responses[0],
             tags: responses[1],
             toots: responses[2],
+            hashtagParticipation: responses[3],
         };
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.

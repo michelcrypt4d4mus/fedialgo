@@ -101,7 +101,7 @@ class TheAlgorithm {
     mergeMutex = new async_mutex_1.Mutex();
     moarMutex = new async_mutex_1.Mutex();
     scoreMutex = new async_mutex_1.Mutex();
-    trendingData = { links: [], tags: [], toots: [] };
+    trendingData = { hashtagParticipation: [], links: [], tags: [], toots: [] };
     dataPoller;
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [

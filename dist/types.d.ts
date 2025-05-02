@@ -121,6 +121,7 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 }
 export interface TrendingStorage {
+    hashtagParticipation: TrendingTag[];
     links: TrendingLink[];
     toots: Toot[];
     tags: TrendingTag[];

@@ -4,9 +4,9 @@
  */
 import { mastodon } from "masto";
 
-import { countValues } from "../../helpers/collection_helpers";
+import { countValues, sortKeysByValue } from "../../helpers/collection_helpers";
 import { MastoApi } from "../../api/api";
-import { StringNumberDict } from "../../types";
+import { StringNumberDict, TrendingTag } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
@@ -25,9 +25,22 @@ export function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag {
 };
 
 
-// Count how many times th euser has used a given tag
+// Count how many times the user has posted each tag
 export async function participatedHashtags(): Promise<StringNumberDict> {
     const recentToots = await MastoApi.instance.getUserRecentToots();
     const hashtags = recentToots.flatMap(toot => toot.realToot().tags || []);
     return countValues<mastodon.v1.Tag>(hashtags, (tag) => tag.name);
+};
+
+
+// Count how many times the user has posted each tag
+export async function participatedTags(): Promise<TrendingTag[]> {
+    const tagCounts = await participatedHashtags();
+    const popularTags = sortKeysByValue(tagCounts).slice(0, 20);  // TODO: make this configurable
+
+    return popularTags.map(tagName => ({
+        name: tagName,
+        url: `https://mastodon.social/tags/${tagName}`,
+        numToots: tagCounts[tagName],
+    } as TrendingTag));
 };

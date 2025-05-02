@@ -1,8 +1,6 @@
 /*
  * Score toots containing hashtags the user posts about a lot
  */
-import { mastodon } from 'masto';
-
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { participatedHashtags } from '../../api/objects/tag';

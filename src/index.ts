@@ -87,7 +87,7 @@ class TheAlgorithm {
     mergeMutex = new Mutex();
     moarMutex = new Mutex();
     scoreMutex = new Mutex();
-    trendingData: TrendingStorage = {links: [], tags: [], toots: []};
+    trendingData: TrendingStorage = {hashtagParticipation: [], links: [], tags: [], toots: []};
     dataPoller?: ReturnType<typeof setInterval>;
 
     // These can score a toot without knowing about the rest of the toots in the feed

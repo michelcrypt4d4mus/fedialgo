@@ -112,6 +112,7 @@ export default class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending(): Promise<TrendingStorage> {
         return {
+            hashtagParticipation: [],
             links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],

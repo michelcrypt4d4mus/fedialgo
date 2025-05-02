@@ -14,8 +14,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import { checkUniqueIDs, findMinId, groupBy, sortKeysByValue, uniquifyByProp } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
 import { MastodonID, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
-import { participatedHashtags } from "./objects/tag";
-import { repairTag } from "./objects/tag";
+import { participatedHashtags, repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
 

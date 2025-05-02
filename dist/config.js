@@ -189,7 +189,7 @@ exports.SCORERS_CONFIG = {
         description: "Favour toots that contain hashtags you are following",
     },
     [types_1.WeightName.HASHTAG_PARTICIPATION]: {
-        description: "Favour toots that contain hashtags you toot about",
+        description: "Favour hastags you toot about",
     },
     [types_1.WeightName.IMAGE_ATTACHMENTS]: {
         description: "Favour image attachments",
