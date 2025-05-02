@@ -292,8 +292,10 @@ class Toot {
         return Object.entries(this.scoreInfo).reduce((scoreDict, [key, value]) => {
             if (key == "rawScores") {
                 scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
-                    scoreDetails[scoreKey] = scoreValue.toPrecision();
-                    scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo.weightedScores[scoreKey].toPrecision()})`;
+                    scoreDetails[scoreKey] = {
+                        rawScore: Number(scoreValue.toPrecision()),
+                        weighted: Number(this.scoreInfo.weightedScores[scoreKey].toPrecision())
+                    };
                     return scoreDetails;
                 }, {});
             }

@@ -29,6 +29,7 @@ import {
     FeedFilterSettings,
     MediaCategory,
     StatusList,
+    StringNumberDict,
     TootLike,
     TootScore,
     TrendingLink,
@@ -363,7 +364,7 @@ export default class Toot implements TootObj {
     }
 
     // Return a scoreInfo dict that turns the rawScores into a human-readable strings
-    simplifiedScoreInfo(): Record<string, number | string | Record<string, string>> {
+    simplifiedScoreInfo(): Record<string, number | Record<string, Record<string, number>>> {
         if (!this.scoreInfo) return {};
 
         return Object.entries(this.scoreInfo).reduce(
@@ -371,11 +372,13 @@ export default class Toot implements TootObj {
                 if (key == "rawScores") {
                     scoreDict["scores"] = Object.entries(value).reduce(
                         (scoreDetails, [scoreKey, scoreValue]) => {
-                            scoreDetails[scoreKey] = scoreValue.toPrecision();
-                            scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision()})`;
+                            scoreDetails[scoreKey] = {
+                                rawScore: Number(scoreValue.toPrecision()),
+                                weighted: Number(this.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision())
+                            };
                             return scoreDetails;
                         },
-                        {} as Record<string, string>
+                        {} as Record<string, StringNumberDict>
                     )
                 } else if (key != "weightedScores") {
                     scoreDict[key] = value as number;
@@ -383,7 +386,7 @@ export default class Toot implements TootObj {
 
                 return scoreDict;
             },
-            {} as Record<string, number | string | Record<string, string>>
+            {} as Record<string, number | Record<string, StringNumberDict>>
         )
     }
 

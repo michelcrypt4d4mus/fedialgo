@@ -93,7 +93,7 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
-    simplifiedScoreInfo(): Record<string, number | string | Record<string, string>>;
+    simplifiedScoreInfo(): Record<string, number | Record<string, Record<string, number>>>;
     serialize(): SerializableToot;
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void;
     tootedAt(): Date;
