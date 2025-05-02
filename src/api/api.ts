@@ -23,6 +23,7 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
+const TRACE_LOG = false;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 const MUTEX_WARN_SECONDS = 10;
@@ -347,7 +348,7 @@ export class MastoApi {
                 label: StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
                 skipCache: true,
-                // skipMutex: true,
+                skipMutex: true,
             });
 
             console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
@@ -376,10 +377,10 @@ export class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async fetchData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         fetchParams.maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
+        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPfx = `[API ${label}]`;
-        console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         let pageNumber = 0;
         let rows: T[] = [];
@@ -388,9 +389,9 @@ export class MastoApi {
         // Also skipCache means skip the Mutex. TrendingTagTootsV2 were getting held by only allowing
         // one request to process at a time.
         const startAt = new Date();
-        // TODO: undoing this change for now
-        // const releaseFetchMutex = skipCache ? null : await this.mutexes[label].acquire();
-        const releaseFetchMutex = await this.mutexes[label].acquire();
+        // This possibly caused some issues the first time i tried to unblock trendign toot tags
+        const releaseFetchMutex = skipMutex ? null : await this.mutexes[label].acquire();
+        // const releaseFetchMutex = await this.mutexes[label].acquire();
         if (ageInSeconds(startAt) > MUTEX_WARN_SECONDS) console.warn(`${logPfx} Mutex ${inSeconds(startAt)}!`);
 
         try {
@@ -399,7 +400,7 @@ export class MastoApi {
                 const cachedRows = await Storage.get(label) as T[];
 
                 if (cachedRows && !(await Storage.isDataStale(label))) {
-                    console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startAt)}`);
+                    TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startAt)}`);
                     if (!moar) return cachedRows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -412,7 +413,7 @@ export class MastoApi {
             }
 
             const parms = this.buildParams(maxId, maxRecords)
-            console.debug(`${logPfx} Fetching ${label} with params:`, parms);
+            TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
 
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page as T[]);
@@ -421,10 +422,10 @@ export class MastoApi {
 
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    console.debug(`${msg}, ${recordsSoFar}`);
+                    TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
                     break;
                 } else {
-                    console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
 
@@ -433,7 +434,7 @@ export class MastoApi {
             this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${inSeconds(startAt)}`);
             return rows;
         } finally {
-            releaseFetchMutex ? releaseFetchMutex() : null;
+            releaseFetchMutex && releaseFetchMutex();
         }
 
         return rows;
