@@ -10,6 +10,7 @@ import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { logAndThrowError, toFixedLocale } from "./helpers/string_helpers";
+import { TRACE_LOG } from "./api/api";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
@@ -165,7 +166,7 @@ export default class Storage {
             console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return true;
         } else {
-            console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
+            TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }

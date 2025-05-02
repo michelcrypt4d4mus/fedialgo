@@ -36,6 +36,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
+const api_1 = require("./api/api");
 const types_1 = require("./types");
 const PREFIX = '[STORAGE]';
 const logMsg = (s) => `${PREFIX} ${s}`;
@@ -165,7 +166,7 @@ class Storage {
             return true;
         }
         else {
-            console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
+            api_1.TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }

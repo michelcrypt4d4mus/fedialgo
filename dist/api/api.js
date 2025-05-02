@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.MastoApi = exports.MUTEX_WARN_SECONDS = exports.TRACE_LOG = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
@@ -42,10 +42,10 @@ exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-const TRACE_LOG = false;
+exports.TRACE_LOG = false;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
-const MUTEX_WARN_SECONDS = 10;
+exports.MUTEX_WARN_SECONDS = 10;
 ;
 // Singleton class for interacting with the Mastodon API
 class MastoApi {
@@ -353,7 +353,7 @@ class MastoApi {
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPfx = `[API ${label}]`;
-        TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        exports.TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         let pageNumber = 0;
@@ -365,14 +365,14 @@ class MastoApi {
         // This possibly caused some issues the first time i tried to unblock trendign toot tags
         const releaseFetchMutex = skipMutex ? null : await this.mutexes[label].acquire();
         // const releaseFetchMutex = await this.mutexes[label].acquire();
-        if ((0, time_helpers_1.ageInSeconds)(startAt) > MUTEX_WARN_SECONDS)
+        if ((0, time_helpers_1.ageInSeconds)(startAt) > exports.MUTEX_WARN_SECONDS)
             console.warn(`${logPfx} Mutex ${(0, time_helpers_1.inSeconds)(startAt)}!`);
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
                 if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
-                    TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startAt)}`);
+                    exports.TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startAt)}`);
                     if (!moar)
                         return cachedRows;
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -385,18 +385,18 @@ class MastoApi {
                 ;
             }
             const parms = this.buildParams(maxId, maxRecords);
-            TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
+            exports.TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.inSeconds)(startAt)}`;
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
+                    exports.TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
                     break;
                 }
                 else {
-                    TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    exports.TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
             if (!skipCache)

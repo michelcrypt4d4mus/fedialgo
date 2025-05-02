@@ -325,7 +325,6 @@ class TheAlgorithm {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
         let newToots = [];
-        (0, string_helpers_1.logDebug)(logPrefix, `Called ${logPrefix}, state:`, this.statusDict());
         try {
             newToots = await tootFetcher;
         }
@@ -333,7 +332,10 @@ class TheAlgorithm {
             console.error(`${logPrefix} Error fetching toots:`, e);
         }
         // Only need to lock the mutex when we start modifying common variables like this.feed
+        const mutexedAt = new Date();
         const releaseMutex = await this.mergeMutex.acquire();
+        if ((0, time_helpers_1.ageInSeconds)(mutexedAt) > api_1.MUTEX_WARN_SECONDS)
+            console.warn(`${logPrefix} Mutex ${(0, time_helpers_1.inSeconds)(mutexedAt)}!`);
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();

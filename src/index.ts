@@ -33,7 +33,7 @@ import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filt
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog } from "./helpers/collection_helpers";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logDebug, logInfo } from './helpers/string_helpers';
-import { MastoApi } from "./api/api";
+import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
 import { timeString, quotedISOFmt, ageInSeconds, inSeconds, toISOFormat } from './helpers/time_helpers';
@@ -341,7 +341,6 @@ class TheAlgorithm {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
         const startTime = new Date();
         let newToots: Toot[] = [];
-        logDebug(logPrefix, `Called ${logPrefix}, state:`, this.statusDict())
 
         try {
             newToots = await tootFetcher;
@@ -350,7 +349,9 @@ class TheAlgorithm {
         }
 
         // Only need to lock the mutex when we start modifying common variables like this.feed
+        const mutexedAt = new Date();
         const releaseMutex = await this.mergeMutex.acquire();
+        if (ageInSeconds(mutexedAt) > MUTEX_WARN_SECONDS) console.warn(`${logPrefix} Mutex ${inSeconds(mutexedAt)}!`)
 
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);

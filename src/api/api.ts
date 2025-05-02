@@ -23,12 +23,12 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-const TRACE_LOG = false;
+export const TRACE_LOG = false;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
-const MUTEX_WARN_SECONDS = 10;
 
 export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
+export const MUTEX_WARN_SECONDS = 10;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
