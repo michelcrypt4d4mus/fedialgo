@@ -75,6 +75,7 @@ Object.defineProperty(exports, "timeString", { enumerable: true, get: function (
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
+const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setFeedInApp() callback.`;
 const INITIAL_STATUS_MSG = "(ready to load)";
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
@@ -91,6 +92,8 @@ class TheAlgorithm {
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadStartedAt = null; // Timestamp of when the feed started loading
+    // TODO: loadingStatus has become sort of the main flag for whether the feed is loading or not. We should probably
+    // TODO: not use a string like this.
     loadingStatus = INITIAL_STATUS_MSG; // String describing load activity (undefined means load complete)
     mastodonServers = {};
     mergeMutex = new async_mutex_1.Mutex();
@@ -154,7 +157,9 @@ class TheAlgorithm {
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
         const logPrefix = `${GET_FEED}`;
-        (0, string_helpers_1.logInfo)(logPrefix, `called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        (0, string_helpers_1.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        if (!maxId && !numTimelineToots && this.loadingStatus)
+            (0, string_helpers_1.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {

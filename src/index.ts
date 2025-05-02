@@ -32,7 +32,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog } from "./helpers/collection_helpers";
-import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logDebug, logInfo } from './helpers/string_helpers';
+import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
@@ -53,6 +53,7 @@ import {
     Weights,
 } from "./types";
 
+const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setFeedInApp() callback.`
 const INITIAL_STATUS_MSG = "(ready to load)"
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
@@ -77,6 +78,8 @@ class TheAlgorithm {
     hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
+    // TODO: loadingStatus has become sort of the main flag for whether the feed is loading or not. We should probably
+    // TODO: not use a string like this.
     loadingStatus: string | null = INITIAL_STATUS_MSG;  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonServersInfo = {};
     mergeMutex = new Mutex();
@@ -150,7 +153,8 @@ class TheAlgorithm {
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         const logPrefix = `${GET_FEED}`;
-        logInfo(logPrefix, `called (numTimelineToots=${numTimelineToots}, maxId=${maxId})`);
+        logInfo(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        if (!maxId && !numTimelineToots && this.loadingStatus) logAndThrowError(logPrefix, GET_FEED_BUSY_MSG);
         numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
