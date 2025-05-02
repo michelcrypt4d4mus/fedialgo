@@ -10,12 +10,12 @@ const time_helpers_1 = require("./helpers/time_helpers");
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
-    maxNumCachedToots: 2500,
     // Timeline toots
     enableIncrementalLoad: true,
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
     // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 1000,
+    maxNumCachedToots: 2500,
     maxTimelineTootsToFetch: 900,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,

@@ -362,6 +362,31 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
+    // Return a scoreInfo dict that turns the rawScores into a human-readable strings
+    simplifiedScoreInfo(): Record<string, number | string | Record<string, string>> {
+        if (!this.scoreInfo) return {};
+
+        return Object.entries(this.scoreInfo).reduce(
+            (scoreDict, [key, value]) => {
+                if (key == "rawScores") {
+                    scoreDict["scores"] = Object.entries(value).reduce(
+                        (scoreDetails, [scoreKey, scoreValue]) => {
+                            scoreDetails[scoreKey] = `${scoreValue.toFixed(3)}`;
+                            scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo!.weightedScores[scoreKey as WeightName]?.toFixed(3)})`;
+                            return scoreDetails;
+                        },
+                        {} as Record<string, string>
+                    )
+                } else if (key != "weightedScores") {
+                    scoreDict[key] = value as number;
+                }
+
+                return scoreDict;
+            },
+            {} as Record<string, number | string | Record<string, string>>
+        )
+    }
+
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
         const serializableToot = {...this} as SerializableToot;

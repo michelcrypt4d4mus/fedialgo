@@ -447,7 +447,13 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
-        this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
+        const maxToots = Storage.getConfig().maxNumCachedToots;
+
+        if (this.feed.length > maxToots) {
+            console.log(`Trimming feed history from ${this.feed.length} to ${maxToots} toots`);
+            this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
+        }
+
         await Storage.setFeed(this.feed);
         return this.filterFeedAndSetInApp();
     }

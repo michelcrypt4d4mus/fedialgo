@@ -285,6 +285,24 @@ class Toot {
         }
         return this.resolvedToot;
     }
+    // Return a scoreInfo dict that turns the rawScores into a human-readable strings
+    simplifiedScoreInfo() {
+        if (!this.scoreInfo)
+            return {};
+        return Object.entries(this.scoreInfo).reduce((scoreDict, [key, value]) => {
+            if (key == "rawScores") {
+                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
+                    scoreDetails[scoreKey] = `${scoreValue.toFixed(3)}`;
+                    scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo.weightedScores[scoreKey]?.toFixed(3)})`;
+                    return scoreDetails;
+                }, {});
+            }
+            else if (key != "weightedScores") {
+                scoreDict[key] = value;
+            }
+            return scoreDict;
+        }, {});
+    }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
         const serializableToot = { ...this };
