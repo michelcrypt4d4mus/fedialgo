@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * Rename `Config.maxTimelineTootsToFetch` to `Config.maxInitialTimelineToots`
-* Create a UserData object, expose a userData prop on TheAlgorithm
+* Create a `UserData` object, expose a `userData` prop on `TheAlgorithm`
 * `repairTag()` now replaces the `tag.url` property with link to the tag on the user's homeserver
 
 ### v0.23.1
