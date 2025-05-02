@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = exports.MUTEX_WARN_SECONDS = exports.TRACE_LOG = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.MastoApi = exports.MUTEX_WARN_SECONDS = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
@@ -39,11 +39,11 @@ const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
 const time_helpers_1 = require("../helpers/time_helpers");
 const change_case_1 = require("change-case");
+const environment_helpers_1 = require("../helpers/environment_helpers");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-exports.TRACE_LOG = true;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 exports.MUTEX_WARN_SECONDS = 10;
@@ -385,7 +385,7 @@ class MastoApi {
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPfx = `[API ${label}]`;
-        exports.TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         let pageNumber = 0;
@@ -404,7 +404,7 @@ class MastoApi {
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
                 if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
-                    exports.TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startAt)}`);
+                    environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startAt)}`);
                     if (!moar)
                         return cachedRows;
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -417,18 +417,18 @@ class MastoApi {
                 ;
             }
             const parms = this.buildParams(maxId, maxRecords);
-            exports.TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
+            environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.inSeconds)(startAt)}`;
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    exports.TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
+                    environment_helpers_1.TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
                     break;
                 }
                 else {
-                    exports.TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
             if (!skipCache)

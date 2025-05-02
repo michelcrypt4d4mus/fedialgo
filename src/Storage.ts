@@ -11,7 +11,7 @@ import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { logAndThrowError, toFixedLocale } from "./helpers/string_helpers";
-import { TRACE_LOG } from "./api/api";
+import { TRACE_LOG } from "./helpers/environment_helpers";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,

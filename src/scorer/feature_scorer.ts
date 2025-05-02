@@ -6,7 +6,7 @@
 import Scorer from "./scorer";
 import { inSeconds } from "../helpers/time_helpers";
 import { StringNumberDict, WeightName } from "../types";
-import { TRACE_LOG } from "../api/api";
+import { TRACE_LOG } from "../helpers/environment_helpers";
 
 
 // TODO: Find a better name than "Feature" for this class

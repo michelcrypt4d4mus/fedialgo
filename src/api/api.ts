@@ -18,13 +18,13 @@ import { MastodonID, MastodonTag, StorableObj, StorageKey, TrendingTag, UserData
 import { repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
+import { TRACE_LOG } from "../helpers/environment_helpers";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-export const TRACE_LOG = true;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 

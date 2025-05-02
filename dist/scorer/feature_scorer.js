@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const scorer_1 = __importDefault(require("./scorer"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const api_1 = require("../api/api");
+const environment_helpers_1 = require("../helpers/environment_helpers");
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
     constructor(scoreName) {
@@ -33,7 +33,7 @@ class FeatureScorer extends scorer_1.default {
             console.debug(`${msg}, returned:`, this.scoreData);
         }
         else {
-            api_1.TRACE_LOG && console.debug(`${msg}, no data returned`);
+            environment_helpers_1.TRACE_LOG && console.debug(`${msg}, no data returned`);
         }
     }
     // Can be overloaded in subclasses to set up any data required for scoring Toots

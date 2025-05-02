@@ -15,6 +15,7 @@ const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = require("../api");
+const environment_helpers_1 = require("../../helpers/environment_helpers");
 const tag_1 = require("./tag");
 const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -231,7 +232,7 @@ class Toot {
     isValidForFeed() {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
-            api_1.TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
+            environment_helpers_1.TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
         }
         // Remove muted accounts and toots

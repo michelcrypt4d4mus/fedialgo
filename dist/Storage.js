@@ -37,7 +37,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
-const api_1 = require("./api/api");
+const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
 const PREFIX = '[STORAGE]';
 const logMsg = (s) => `${PREFIX} ${s}`;
@@ -169,7 +169,7 @@ class Storage {
             return true;
         }
         else {
-            api_1.TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
+            environment_helpers_1.TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }
@@ -194,7 +194,7 @@ class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value };
-        api_1.TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        environment_helpers_1.TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Store the current timeline toots

@@ -11,7 +11,8 @@ import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
 import UserData from "../user_data";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
-import { MastoApi, TRACE_LOG } from "../api";
+import { MastoApi } from "../api";
+import { TRACE_LOG } from "../../helpers/environment_helpers";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
 import {

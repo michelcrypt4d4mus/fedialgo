@@ -8,7 +8,6 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-export declare const TRACE_LOG = true;
 export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 export declare const MUTEX_WARN_SECONDS = 10;
 export declare class MastoApi {
