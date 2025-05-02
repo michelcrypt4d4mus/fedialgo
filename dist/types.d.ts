@@ -87,12 +87,13 @@ export type MastodonServerInfo = {
     followedPctOfMAU: number;
     serverMAU: number;
 };
+export type MastodonTag = mastodon.v1.Tag | TrendingTag;
 export type ScorerInfo = {
     description: string;
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | SerializableToot[] | StringNumberDict | TrendingLink[] | TrendingTag[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | mastodon.v1.Tag[] | number);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | MastodonTag[] | SerializableToot[] | StringNumberDict | TrendingLink[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number);
 export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
 export type StorableWithTimestamp = {
     updatedAt: string;

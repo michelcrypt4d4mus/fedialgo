@@ -27,6 +27,7 @@ import {
 } from "../../helpers/string_helpers";
 import {
     FeedFilterSettings,
+    MastodonTag,
     MediaCategory,
     StatusList,
     StringNumberDict,
@@ -443,7 +444,7 @@ export default class Toot implements TootObj {
 
     // Generate a string describing the followed and trending tags in the toot
     private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
-        let tags: mastodon.v1.Tag[] | TrendingTag[] = [];
+        let tags: MastodonTag[] = [];
 
         if (tagType == WeightName.FOLLOWED_TAGS) {
             tags = this.followedTags || [];
@@ -521,8 +522,10 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    static async buildToots(toots: mastodon.v1.Status[]): Promise<Toot[]> {
-        return await this.setDependentProps(toots.map(t => new Toot(t)));
+    static async buildToots(statuses: mastodon.v1.Status[]): Promise<Toot[]> {
+        const toots = statuses.map(t => new Toot(t));
+        await this.setDependentProps(toots);
+        return toots;
     }
 
     // Remove dupes by uniquifying on the toot's URI
@@ -532,10 +535,10 @@ export default class Toot implements TootObj {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
+            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
-            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
 
@@ -560,7 +563,7 @@ export default class Toot implements TootObj {
     };
 
     // Set the dependent properties for all of a list of Toot objects
-    static async setDependentProps(toots: Toot[]): Promise<Toot[]> {
+    static async setDependentProps(toots: Toot[]): Promise<void> {
         const userData = await MastoApi.instance.getUserData();
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
@@ -570,8 +573,6 @@ export default class Toot implements TootObj {
             async (t: Toot) => t.setDependentProperties(userData, trendingLinks, trendingTags),
             "Toot.setDependentProperties()"
         );
-
-        return toots; // TODO: this return is unecessary; objects are mutated in place
     }
 };
 

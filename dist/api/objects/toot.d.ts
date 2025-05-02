@@ -101,9 +101,9 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
-    static buildToots(toots: mastodon.v1.Status[]): Promise<Toot[]>;
+    static buildToots(statuses: mastodon.v1.Status[]): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
-    static setDependentProps(toots: Toot[]): Promise<Toot[]>;
+    static setDependentProps(toots: Toot[]): Promise<void>;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;

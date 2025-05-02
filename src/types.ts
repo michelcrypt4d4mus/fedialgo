@@ -111,6 +111,8 @@ export type MastodonServerInfo = {
     serverMAU: number;
 };
 
+export type MastodonTag = mastodon.v1.Tag | TrendingTag;
+
 export type ScorerInfo = {
     description: string;
     minValue?: number;
@@ -121,15 +123,14 @@ export type ScorerInfo = {
 export type StorableObj = (
     FeedFilterSettingsSerialized |
     MastodonServersInfo |
+    MastodonTag[] |
     SerializableToot[] |
     StringNumberDict |
     TrendingLink[] |
-    TrendingTag[] |
     Weights |
     mastodon.v1.Account |
     mastodon.v1.Account[] |
     mastodon.v2.Filter[] |
-    mastodon.v1.Tag[] |
     number
 );
 

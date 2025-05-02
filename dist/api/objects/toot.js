@@ -423,8 +423,10 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    static async buildToots(toots) {
-        return await this.setDependentProps(toots.map(t => new Toot(t)));
+    static async buildToots(statuses) {
+        const toots = statuses.map(t => new Toot(t));
+        await this.setDependentProps(toots);
+        return toots;
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
@@ -432,10 +434,10 @@ class Toot {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
+            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
-            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             uriToots.forEach((toot) => {
@@ -462,7 +464,6 @@ class Toot {
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
-        return toots; // TODO: this return is unecessary; objects are mutated in place
     }
 }
 exports.default = Toot;
