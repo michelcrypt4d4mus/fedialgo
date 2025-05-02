@@ -68,6 +68,7 @@ interface AlgorithmArgs {
 };
 
 console.log(`[FediAlgo] process.env.NODE_ENV:`, process.env.NODE_ENV);
+console.log(`[FediAlgo] process.env.DEBUG:`, process.env.DEBUG);
 
 
 class TheAlgorithm {
