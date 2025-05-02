@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.23.1
 * (Demo App) Add a section for hashtags the user participates in
 * Add `Toot.simplifiedScoreInfo()` method
 
