@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Poll for old records after initial load with setInterval(). Add Config.backgroundLoadIntervalMS and Config.maxRecordsForFeatureScoring variables
+* Poll for old records after initial load with `setInterval()`. Add `Config.backgroundLoadIntervalMS` and `Config.maxRecordsForFeatureScoring` variables
 
 ### v0.22.4
 * Add the **MOAR** feature to inch towards continued backfilling of user data later on, after the initial load is not busy
