@@ -5,7 +5,7 @@ import md5 from "blueimp-md5";
 
 import Storage from "../Storage";
 import { ageInSeconds } from "./time_helpers";
-import { CountKey, MastodonID, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./string_helpers";
 
 
@@ -202,7 +202,6 @@ export function findMinId(array: MastodonID[]): string | undefined{
     if (array.length == 0) return undefined;
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
-    console.debug(`Is this a number array?  ${isNumberArray}`)
 
     const sortedIDs = idVals.toSorted((a, b) => {
         a = a.toString();
@@ -215,6 +214,17 @@ export function findMinId(array: MastodonID[]): string | undefined{
         }
     });
 
-    console.info(`Start of sortedIDs (isNumberArray=${isNumberArray}):`, sortedIDs.slice(0, 10));
     return sortedIDs[0].toString();
+};
+
+
+// Check if the elements of 'array' are as unique as they should be
+export function checkUniqueIDs(array: MastodonID[], label: StorageKey): void {
+    const uniq = uniquifyByProp(array, (e) => e.id);
+    const logPrefix = `[${label}]`;
+    console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+
+    if (uniq.length != array.length) {
+        console.warn(`${logPrefix} ${array.length} objs only have ${uniq.length} unique IDs!`);
+    }
 };

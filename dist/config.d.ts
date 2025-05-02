@@ -14,6 +14,8 @@ export type Config = {
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
+    backgroundLoadIntervalMS: number;
+    maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
     reloadFeaturesEveryNthOpen: number;

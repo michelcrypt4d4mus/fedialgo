@@ -43,8 +43,10 @@ declare class TheAlgorithm {
     loadingStatus: string | null;
     mastodonServers: MastodonServersInfo;
     mergeMutex: Mutex;
+    moarMutex: Mutex;
     scoreMutex: Mutex;
     trendingData: TrendingStorage;
+    dataPoller?: ReturnType<typeof setInterval>;
     featureScorers: (ChaosScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: DiversityFeedScorer[];
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
@@ -63,6 +65,7 @@ declare class TheAlgorithm {
     private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
+    private getMoarData;
     private mergePromisedTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;

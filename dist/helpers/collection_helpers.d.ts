@@ -1,4 +1,4 @@
-import { CountKey, MastodonID, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function average(values: number[]): number;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
@@ -17,3 +17,4 @@ export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => strin
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
 export declare function findMinId(array: MastodonID[]): string | undefined;
+export declare function checkUniqueIDs(array: MastodonID[], label: StorageKey): void;

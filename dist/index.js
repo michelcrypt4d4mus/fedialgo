@@ -79,6 +79,7 @@ const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider usin
 const INITIAL_STATUS_MSG = "(ready to load)";
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
+const MOAR_MUTEX = new async_mutex_1.Mutex();
 ;
 class TheAlgorithm {
     // Variables set in the constructor
@@ -97,8 +98,10 @@ class TheAlgorithm {
     loadingStatus = INITIAL_STATUS_MSG; // String describing load activity (undefined means load complete)
     mastodonServers = {};
     mergeMutex = new async_mutex_1.Mutex();
+    moarMutex = new async_mutex_1.Mutex();
     scoreMutex = new async_mutex_1.Mutex();
     trendingData = { links: [], tags: [], toots: [] };
+    dataPoller;
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaos_scorer_1.default(),
@@ -225,6 +228,7 @@ class TheAlgorithm {
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.catchupCheckpoint = null;
+        this.dataPoller && clearInterval(this.dataPoller);
         await Storage_1.default.clearAll();
         await this.loadCachedData();
     }
@@ -319,12 +323,67 @@ class TheAlgorithm {
                 this.lastLoadTimeInSeconds = null;
                 console.warn(`[${string_helpers_1.TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             }
-            // console.log(`Triggering MOAR test for getRecentNotifications()...`);
-            // const moarResult = await MastoApi.instance.getRecentNotifications(true);
-            // console.log(`MOAR test result has ${moarResult.length} rows`);
+            // set dataPoller to null later to make it clear it's done
+            if (!this.dataPoller) {
+                console.log(`${logPrefix} starting data poller...`);
+                this.dataPoller = setInterval(() => this.getMoarData(), Storage_1.default.getConfig().backgroundLoadIntervalMS);
+            }
+            else {
+                console.log(`${logPrefix} not launching data poller bc... already running?`, this.dataPoller);
+            }
             this.loadingStatus = null;
-            console.log(`should have set this.loadingStatus to null by now. state:`, this.statusDict());
         }
+    }
+    // Get morar historical data, force Scorers to update, and rescore the feed.
+    // TODO: Add followed accounts?  for people who follow a lot?
+    async getMoarData() {
+        const logPrefix = `[getMoarData()]`;
+        console.log(`${logPrefix} called, loading more data...`);
+        const maxRecordsForFeatureScoring = Storage_1.default.getConfig().maxRecordsForFeatureScoring;
+        const releaseMutex = await MOAR_MUTEX.acquire();
+        const startTime = new Date();
+        const scoringDatatPullers = [
+            api_1.MastoApi.instance.getRecentNotifications.bind(api_1.MastoApi.instance),
+            api_1.MastoApi.instance.getRecentFavourites.bind(api_1.MastoApi.instance),
+            api_1.MastoApi.instance.getUserRecentToots.bind(api_1.MastoApi.instance),
+        ];
+        try {
+            let hasNewData = false;
+            // Call without moar boolean to check how big the cache is
+            let cacheSizes = await Promise.all(scoringDatatPullers.map(async (puller) => {
+                // console.log(`getMoarData() checking ${puller.name}...`);
+                const cacheRecords = await puller();
+                console.log(`${logPrefix} ${puller.name} has ${cacheRecords.length} records`);
+                return cacheRecords?.length || 0;
+            }));
+            // Launch with moar flag those that are insufficient
+            const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
+                if (size >= maxRecordsForFeatureScoring) {
+                    console.log(`${logPrefix} ${scoringDatatPullers[i].name} has ${size} records which is enough`);
+                    return 0;
+                }
+                ;
+                // Launch the puller with moar=true
+                const newRecords = await scoringDatatPullers[i](true);
+                const newCount = (newRecords?.length || 0);
+                const extraCount = newCount - cacheSizes[i];
+                const msg = `${logPrefix} ${scoringDatatPullers[i].name} oldCount=${cacheSizes[i]}, newCount=${newCount}, extraCount=${extraCount}`;
+                extraCount < 0 ? console.warn(msg) : console.log(msg);
+                return extraCount || 0;
+            }));
+            if (newRecordCounts.every(x => x <= 0)) {
+                console.log(`${logPrefix} no pullers to call, all have enough records`);
+                clearInterval(this.dataPoller);
+                return;
+            }
+            // Foorce scorers to recompute data and rescore the feed
+            await this.prepareScorers(true);
+            await this.scoreAndFilterFeed();
+        }
+        finally {
+            releaseMutex();
+        }
+        console.log(`getMoarData() finished ${(0, time_helpers_1.inSeconds)(startTime)}`);
     }
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
     async mergePromisedTootsIntoFeed(tootFetcher, label) {
@@ -360,19 +419,16 @@ class TheAlgorithm {
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(toots, await api_1.MastoApi.instance.getUserData());
         return toots;
     }
-    // Prepare the scorers for scoring.
-    async prepareScorers() {
+    // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
+    async prepareScorers(force) {
         const releaseMutex = await this.scoreMutex.acquire();
         const logPrefix = `prepareScorers()`;
         try {
-            if (this.featureScorers.some(scorer => !scorer.isReady)) {
+            if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
                 (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            }
-            else {
-                // console.debug(`${(new Date().toISOString())} [prepareScorers()]  FeatureScorers already ready`);
             }
         }
         finally {

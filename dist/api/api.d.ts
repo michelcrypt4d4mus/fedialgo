@@ -27,11 +27,11 @@ export declare class MastoApi {
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getMore(): Promise<void>;
     getMutedAccounts(): Promise<Account[]>;
-    getRecentFavourites(): Promise<Toot[]>;
+    getRecentFavourites(moar?: boolean): Promise<Toot[]>;
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getUserData(): Promise<UserData>;
-    getUserRecentToots(): Promise<Toot[]>;
+    getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]>;
     hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]>;

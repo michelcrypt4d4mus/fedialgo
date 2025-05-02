@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -165,7 +165,6 @@ function findMinId(array) {
         return undefined;
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(string_helpers_1.isNumber);
-    console.debug(`Is this a number array?  ${isNumberArray}`);
     const sortedIDs = idVals.toSorted((a, b) => {
         a = a.toString();
         b = b.toString();
@@ -176,9 +175,19 @@ function findMinId(array) {
             return a > b ? 1 : -1;
         }
     });
-    console.info(`Start of sortedIDs (isNumberArray=${isNumberArray}):`, sortedIDs.slice(0, 10));
     return sortedIDs[0].toString();
 }
 exports.findMinId = findMinId;
+;
+// Check if the elements of 'array' are as unique as they should be
+function checkUniqueIDs(array, label) {
+    const uniq = uniquifyByProp(array, (e) => e.id);
+    const logPrefix = `[${label}]`;
+    console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    if (uniq.length != array.length) {
+        console.warn(`${logPrefix} ${array.length} objs only have ${uniq.length} unique IDs!`);
+    }
+}
+exports.checkUniqueIDs = checkUniqueIDs;
 ;
 //# sourceMappingURL=collection_helpers.js.map

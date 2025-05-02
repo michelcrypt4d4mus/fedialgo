@@ -11,8 +11,8 @@ import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
+import { checkUniqueIDs, findMinId, groupBy, uniquifyByProp } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
-import { findMinId } from "../helpers/collection_helpers";
 import { MastodonID, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
@@ -200,22 +200,27 @@ export class MastoApi {
     };
 
     // Get an array of Toots the user has recently favourited
-    async getRecentFavourites(): Promise<Toot[]> {
+    async getRecentFavourites(moar?: boolean): Promise<Toot[]> {
         const recentFaves = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
-            label: StorageKey.FAVOURITED_ACCOUNTS
+            label: StorageKey.FAVOURITED_ACCOUNTS,
+            moar: moar,
         });
 
+        checkUniqueIDs(recentFaves, StorageKey.FAVOURITED_ACCOUNTS);
         return recentFaves.map(t => new Toot(t));
     };
 
     // Get the user's recent notifications
     async getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]> {
-        return await this.fetchData<mastodon.v1.Notification>({
+        const notifs = await this.fetchData<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             label: StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
         });
+
+        checkUniqueIDs(notifs, StorageKey.RECENT_NOTIFICATIONS);
+        return notifs;
     }
 
     // Retrieve content based feed filters the user has set up on the server
@@ -277,12 +282,14 @@ export class MastoApi {
     };
 
     // Get the user's recent toots
-    async getUserRecentToots(): Promise<Toot[]> {
+    async getUserRecentToots(moar?: boolean): Promise<Toot[]> {
         const recentToots = await this.fetchData<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: StorageKey.RECENT_USER_TOOTS
+            label: StorageKey.RECENT_USER_TOOTS,
+            moar: moar,
         });
 
+        checkUniqueIDs(recentToots, StorageKey.RECENT_USER_TOOTS);
         return recentToots.map(t => new Toot(t));
     };
 
@@ -404,7 +411,7 @@ export class MastoApi {
                     if (!moar) return cachedRows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
-                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`, cachedRows);
+                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`);
                     rows = cachedRows;
                     maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
                     maxId = findMinId(rows as MastodonID[]);
