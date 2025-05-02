@@ -358,64 +358,56 @@ class TheAlgorithm {
 
     // Get morar historical data, force Scorers to update, and rescore the feed.
     // TODO: Add followed accounts?  for people who follow a lot?
+    // TODO: move this to its own file?
     private async getMoarData(): Promise<void> {
         const logPrefix = `[getMoarData()]`;
-        console.log(`${logPrefix} called, loading more data...`);
+        console.log(`${logPrefix} triggered by timer...`);
         const maxRecordsForFeatureScoring = Storage.getConfig().maxRecordsForFeatureScoring;
         const releaseMutex = await MOAR_MUTEX.acquire();
         const startTime = new Date();
 
-        const scoringDatatPullers = [
+        const pollers = [
             MastoApi.instance.getRecentNotifications.bind(MastoApi.instance),
             MastoApi.instance.getRecentFavourites.bind(MastoApi.instance),
             MastoApi.instance.getUserRecentToots.bind(MastoApi.instance),
         ];
 
         try {
-            let hasNewData = false;
-
             // Call without moar boolean to check how big the cache is
-            let cacheSizes = await Promise.all(
-                scoringDatatPullers.map(async (puller) => {
-                    // console.log(`getMoarData() checking ${puller.name}...`);
-                    const cacheRecords = await puller();
-                    console.log(`${logPrefix} ${puller.name} has ${cacheRecords.length} records`);
-                    return cacheRecords?.length || 0;
-                })
-            );
+            let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
 
             // Launch with moar flag those that are insufficient
             const newRecordCounts = await Promise.all(
                 cacheSizes.map(async (size, i) => {
                     if (size >= maxRecordsForFeatureScoring) {
-                        console.log(`${logPrefix} ${scoringDatatPullers[i].name} has ${size} records which is enough`);
+                        console.log(`${logPrefix} ${pollers[i].name} has ${size} records which is enough`);
                         return 0;
                     };
 
                     // Launch the puller with moar=true
-                    const newRecords = await scoringDatatPullers[i](true);
+                    const newRecords = await pollers[i](true);
                     const newCount = (newRecords?.length || 0);
                     const extraCount = newCount - cacheSizes[i];
-                    const msg = `${logPrefix} ${scoringDatatPullers[i].name} oldCount=${cacheSizes[i]}, newCount=${newCount}, extraCount=${extraCount}`;
+                    let msg = `${logPrefix} ${pollers[i].name} oldCount=${cacheSizes[i]}`;
+                    msg += `, newCount=${newCount}, extraCount=${extraCount}`;
                     extraCount < 0 ? console.warn(msg) : console.log(msg);
                     return extraCount || 0;
                 })
             );
 
-            if (newRecordCounts.every(x => x <= 0)) {
-                console.log(`${logPrefix} no pullers to call, all have enough records`);
-                clearInterval(this.dataPoller!);
-                return;
-            }
-
             // Foorce scorers to recompute data and rescore the feed
             await this.prepareScorers(true);
-            await this.scoreAndFilterFeed()
+            await this.scoreAndFilterFeed();
+
+            if (newRecordCounts.every((x) => x <= 0)) {
+                console.log(`${logPrefix} all pollers have enough data so calling clearInterval()`);
+                clearInterval(this.dataPoller!);
+            }
+
+            console.log(`${logPrefix} finished ${inSeconds(startTime)}`);
         } finally {
             releaseMutex();
         }
-
-        console.log(`getMoarData() finished ${inSeconds(startTime)}`);
     }
 
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
