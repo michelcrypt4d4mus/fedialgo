@@ -158,8 +158,9 @@ class TheAlgorithm {
     async getFeed(numTimelineToots, maxId) {
         const logPrefix = `${GET_FEED}`;
         (0, string_helpers_1.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
-        if (!maxId && !numTimelineToots && this.loadingStatus)
+        if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
             (0, string_helpers_1.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
+        }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (!maxId) {

@@ -154,7 +154,11 @@ class TheAlgorithm {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         const logPrefix = `${GET_FEED}`;
         logInfo(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
-        if (!maxId && !numTimelineToots && this.loadingStatus) logAndThrowError(logPrefix, GET_FEED_BUSY_MSG);
+
+        if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
+            logAndThrowError(logPrefix, GET_FEED_BUSY_MSG);
+        }
+
         numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
 
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
