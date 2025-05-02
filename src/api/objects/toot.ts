@@ -10,7 +10,7 @@ import Account from "./account";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
-import { MastoApi } from "../api";
+import { MastoApi, TRACE_LOG } from "../api";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
 import {
@@ -297,7 +297,7 @@ export default class Toot implements TootObj {
     isValidForFeed(): boolean {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
-            console.debug(`Removing fedialgo user's own toot:`, this);
+            TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
         }
 
