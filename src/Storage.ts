@@ -10,7 +10,7 @@ import UserData from "./api/user_data";
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
-import { logAndThrowError, toFixedLocale } from "./helpers/string_helpers";
+import { logAndThrowError, toLocaleInt } from "./helpers/string_helpers";
 import { TRACE_LOG } from "./helpers/environment_helpers";
 import {
     FeedFilterSettings,
@@ -155,8 +155,8 @@ export default class Storage {
         const numAppOpens = await this.getNumAppOpens();
 
         const logPrefix = `${PREFIX} isDataStale("${key}"):`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${toFixedLocale(dataAgeInSeconds)}`;
-        secondsLogMsg += `, staleAfterSeconds: ${toFixedLocale(staleAfterSeconds)}`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
+        secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
 
         if (numAppOpens <= 1) {

@@ -34,7 +34,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty } from "./helpers/collection_helpers";
-import { getMoarData } from "./api/poller";
+import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -366,14 +366,15 @@ class TheAlgorithm {
         }
     }
 
-    // Launch the poller, Foorce scorers to recompute data and rescore the feed
+    // Launch the poller, force scorers to recompute data, rescore the feed
     private async checkMoarData(): Promise<void> {
         const shouldContinue = await getMoarData();
+        await this.userData.populate();
         await this.prepareScorers(true);
         await this.scoreAndFilterFeed();
 
         if (!shouldContinue) {
-            console.log(`[getMoarData()] stopping data poller...`);
+            console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
             this.dataPoller && clearInterval(this.dataPoller!);
         }
     }

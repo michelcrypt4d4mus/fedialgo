@@ -152,8 +152,8 @@ class Storage {
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
         const numAppOpens = await this.getNumAppOpens();
         const logPrefix = `${PREFIX} isDataStale("${key}"):`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toFixedLocale)(dataAgeInSeconds)}`;
-        secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toFixedLocale)(staleAfterSeconds)}`;
+        let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
+        secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
         if (numAppOpens <= 1) {
             // TODO: this feels like a very janky work around to the initial load issue

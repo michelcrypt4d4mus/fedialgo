@@ -345,13 +345,14 @@ class TheAlgorithm {
             this.loadingStatus = null;
         }
     }
-    // Launch the poller, Foorce scorers to recompute data and rescore the feed
+    // Launch the poller, force scorers to recompute data, rescore the feed
     async checkMoarData() {
         const shouldContinue = await (0, poller_1.getMoarData)();
+        await this.userData.populate();
         await this.prepareScorers(true);
         await this.scoreAndFilterFeed();
         if (!shouldContinue) {
-            console.log(`[getMoarData()] stopping data poller...`);
+            console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
             this.dataPoller && clearInterval(this.dataPoller);
         }
     }

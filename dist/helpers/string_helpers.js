@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logDebug = exports.logInfo = exports.toFixedLocale = exports.isNumber = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.logDebug = exports.logInfo = exports.toLocaleInt = exports.addPrefix = exports.isNumber = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -118,23 +118,27 @@ exports.logAndThrowError = logAndThrowError;
 // Doublequotes
 const quote = (text) => text == null ? exports.NULL : `"${text}"`;
 exports.quote = quote;
+// Returns true if n is a number or a string that can be converted to a number
 const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
 exports.isNumber = isNumber;
+// Prefix a string
+const addPrefix = (prefix, msg) => `[${prefix}] ${msg}`;
+exports.addPrefix = addPrefix;
 // Number to string (could also be done with Math.floor(num).toLocaleString())
-const toFixedLocale = (num) => {
+const toLocaleInt = (num) => {
     if (num == null)
         return exports.NULL;
     return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
 };
-exports.toFixedLocale = toFixedLocale;
-// console.info() with a timestamp
-const logInfo = (logPrefix, message, ...args) => {
-    console.info(`[${logPrefix}] ${message}`, ...args);
+exports.toLocaleInt = toLocaleInt;
+// console.info() with a prefix
+const logInfo = (prefix, msg, ...args) => {
+    console.info((0, exports.addPrefix)(prefix, msg), ...args);
 };
 exports.logInfo = logInfo;
-// console.info() with a timestamp
-const logDebug = (logPrefix, message, ...args) => {
-    console.debug(`[${logPrefix}] ${message}`, ...args);
+// console.info() with a prefix
+const logDebug = (prefix, msg, ...args) => {
+    console.debug((0, exports.addPrefix)(prefix, msg), ...args);
 };
 exports.logDebug = logDebug;
 //# sourceMappingURL=string_helpers.js.map

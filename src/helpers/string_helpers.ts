@@ -132,22 +132,25 @@ export function logAndThrowError(message: string, obj?: any): never {
 
 // Doublequotes
 export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
+// Returns true if n is a number or a string that can be converted to a number
 export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
+// Prefix a string
+export const addPrefix = (prefix: string, msg: string): string => `[${prefix}] ${msg}`;
 
 
 // Number to string (could also be done with Math.floor(num).toLocaleString())
-export const toFixedLocale = (num: number | null): string => {
+export const toLocaleInt = (num: number | null): string => {
     if (num == null) return NULL;
     return num.toLocaleString(undefined, {maximumFractionDigits: 0});
 };
 
 
-// console.info() with a timestamp
-export const logInfo = (logPrefix: string, message: string, ...args: any[]): void => {
-    console.info(`[${logPrefix}] ${message}`, ...args);
+// console.info() with a prefix
+export const logInfo = (prefix: string, msg: string, ...args: any[]): void => {
+    console.info(addPrefix(prefix, msg), ...args);
 };
 
-// console.info() with a timestamp
-export const logDebug = (logPrefix: string, message: string, ...args: any[]): void => {
-    console.debug(`[${logPrefix}] ${message}`, ...args);
+// console.info() with a prefix
+export const logDebug = (prefix: string, msg: string, ...args: any[]): void => {
+    console.debug(addPrefix(prefix, msg), ...args);
 };

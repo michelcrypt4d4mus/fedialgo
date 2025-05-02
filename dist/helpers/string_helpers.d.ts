@@ -19,6 +19,7 @@ export declare function logTootRemoval(prefix: string, tootType: string, numRemo
 export declare function logAndThrowError(message: string, obj?: any): never;
 export declare const quote: (text: string | null) => string;
 export declare const isNumber: (n: string | number) => boolean;
-export declare const toFixedLocale: (num: number | null) => string;
-export declare const logInfo: (logPrefix: string, message: string, ...args: any[]) => void;
-export declare const logDebug: (logPrefix: string, message: string, ...args: any[]) => void;
+export declare const addPrefix: (prefix: string, msg: string) => string;
+export declare const toLocaleInt: (num: number | null) => string;
+export declare const logInfo: (prefix: string, msg: string, ...args: any[]) => void;
+export declare const logDebug: (prefix: string, msg: string, ...args: any[]) => void;
