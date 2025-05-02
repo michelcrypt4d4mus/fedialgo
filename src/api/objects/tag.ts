@@ -40,7 +40,7 @@ export async function participatedTags(): Promise<TrendingTag[]> {
 
     return popularTags.map(tagName => ({
         name: tagName,
-        url: `https://mastodon.social/tags/${tagName}`,
+        url: `https://mastodon.social/tags/${tagName}`, // TODO: unused (client links to the user's home server)
         numToots: tagCounts[tagName],
     } as TrendingTag));
 };
