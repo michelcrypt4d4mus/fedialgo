@@ -32,7 +32,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { filterWithLog } from "./helpers/collection_helpers";
+import { filterWithLog, keyByProperty } from "./helpers/collection_helpers";
 import { getMoarData } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
@@ -500,5 +500,6 @@ export {
     Weights,
     // Helpers we also export
     extractDomain,
+    keyByProperty,
     timeString,
 };

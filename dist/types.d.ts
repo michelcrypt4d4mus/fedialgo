@@ -63,6 +63,7 @@ export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = TootLike[];
 export type StringNumberDict = Record<string, number>;
+export type TagNames = Record<string, MastodonTag>;
 export type TootLike = mastodon.v1.Status | Toot;
 export type Weights = Record<WeightName, number>;
 export type CountKey = FilterTitle | string;
