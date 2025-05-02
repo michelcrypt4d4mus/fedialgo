@@ -1,4 +1,7 @@
 # NEXT RELEASE
+* Rename `Config.maxTimelineTootsToFetch` to `Config.maxInitialTimelineToots`
+* Create a UserData object, expose a userData prop on TheAlgorithm
+* `repairTag()` now replaces the `tag.url` property with link to the tag on the user's homeserver
 
 ### v0.23.1
 * (Demo App) Add a section for hashtags the user participates in
@@ -125,7 +128,7 @@
 
 ## v0.20.0
 * (Demo App) Add ability to bookmark toots
-* Limit length of feed to `maxNumCachedToots` only after scoring and sorting
+* Limit length of feed to `maxCachedTimelineToots` only after scoring and sorting
 * Refactor filters serialize/deserialize methods to `feed_filters.ts`
 
 ### v0.19.8
@@ -158,7 +161,7 @@
 * Refactor `shuffle()` method for arrays
 * Lower default `NUM_FAVOURITES` weighting
 * Add `Config.noTrendingLinksServers` so we can skip scraping trending links from servers that don't support it.
-* Lower `Config.maxTimelineTootsToFetch` to 1,200
+* Lower `Config.maxInitialTimelineToots` to 1,200
 
 ### v0.19.1
 * Rename `TheAlgorithm.extractSummaryInfo()` to `TheAlgorithm.initializeFiltersWithSummaryInfo()`
@@ -182,7 +185,7 @@
 * Introduce `Account` class
 
 ### v0.18.2
-* Increase `Config.maxTimelineTootsToFetch` to 1500
+* Increase `Config.maxInitialTimelineToots` to 1500
 
 ### v0.18.1
 * Cache the user's server side filter settings

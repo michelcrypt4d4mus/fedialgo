@@ -18,3 +18,4 @@ export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => bo
 objType?: string): T[];
 export declare function findMinId(array: MastodonID[]): string | undefined;
 export declare function checkUniqueIDs(array: MastodonID[], label: StorageKey): void;
+export declare function sortObjsByProp<T>(array: T[], prop: keyof T, ascending?: boolean): T[];

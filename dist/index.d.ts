@@ -21,6 +21,7 @@ import Toot from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
+import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { keyByProperty } from "./helpers/collection_helpers";
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
@@ -48,6 +49,7 @@ declare class TheAlgorithm {
     moarMutex: Mutex;
     scoreMutex: Mutex;
     trendingData: TrendingStorage;
+    userData: UserData;
     dataPoller?: ReturnType<typeof setInterval>;
     featureScorers: (ChaosScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: DiversityFeedScorer[];
@@ -61,10 +63,10 @@ declare class TheAlgorithm {
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
     reset(): Promise<void>;
-    buildTagURL(tag: mastodon.v1.Tag): string;
     mostRecentHomeTootAt(): Date | null;
     homeTimelineToots(): Toot[];
-    private filterFeedAndSetInApp;
+    private filteredFeed;
+    private setFilteredFeedInApp;
     private loadCachedData;
     private maybeGetMoreToots;
     private checkMoarData;

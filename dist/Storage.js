@@ -32,6 +32,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const localforage_1 = __importDefault(require("localforage"));
 const account_1 = __importDefault(require("./api/objects/account"));
 const toot_1 = __importStar(require("./api/objects/toot"));
+const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
@@ -75,6 +76,11 @@ class Storage {
         }
         return withTimestamp.value;
     }
+    // Generic method for deserializing stored Accounts
+    static async getAccounts(key) {
+        const accounts = await this.get(key);
+        return accounts ? accounts.map(t => new account_1.default(t)) : null;
+    }
     // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
     static getConfig() {
         return this.config;
@@ -114,7 +120,6 @@ class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending() {
         return {
-            hashtagParticipation: [],
             links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: (await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
@@ -122,19 +127,16 @@ class Storage {
     }
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async getUserData() {
-        const followedAccounts = await this.getCoerced(types_1.StorageKey.FOLLOWED_ACCOUNTS);
-        const followedTags = await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS);
-        const serverSideFilters = await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS);
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
-        const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a));
-        return {
-            followedAccounts: account_1.default.buildAccountNames(followedAccounts.map(a => new account_1.default(a))),
-            followedTags: followedTags,
-            mutedAccounts: account_1.default.buildAccountNames(silencedAccounts),
-            serverSideFilters: serverSideFilters,
-        };
+        return user_data_1.default.buildFromData({
+            followedAccounts: await this.getAccounts(types_1.StorageKey.FOLLOWED_ACCOUNTS) || [],
+            followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
+            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a)),
+            recentToots: await this.getToots(types_1.StorageKey.RECENT_USER_TOOTS) || [],
+            serverSideFilters: await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS),
+        });
     }
     // Return true if the data stored at 'key' is stale and should be refetched
     // Preferred boolean is like this:

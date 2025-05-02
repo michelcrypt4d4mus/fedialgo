@@ -2,7 +2,8 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
-import { StorageKey, UserData, WeightName } from "../types";
+import UserData from "./user_data";
+import { MastodonTag, StorageKey, WeightName } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -35,8 +36,10 @@ export declare class MastoApi {
     searchForToots(searchStr: string, maxRecords?: number, logMsg?: string): Promise<Toot[]>;
     participatingHashtagToots(): Promise<Toot[]>;
     hashtagTimelineToots(searchStr: string, maxRecords?: number): Promise<Toot[]>;
+    tagURL(tag: MastodonTag): string;
     private buildParams;
     private fetchData;
     private getTootsForTag;
     private throwIfAccessTokenRevoked;
+    private endpointURL;
 }

@@ -3,7 +3,7 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { participatedHashtags } from '../../api/objects/tag';
+import UserData from '../../api/user_data';
 import { StringNumberDict, WeightName } from "../../types";
 import { sumArray } from '../../helpers/collection_helpers';
 
@@ -14,7 +14,15 @@ export default class HashtagParticipationScorer extends FeatureScorer {
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return await participatedHashtags();;
+        const userTags = await UserData.getUsersHashtags();
+
+        return Object.values(userTags).reduce(
+            (acc, tag) => {
+                acc[tag.name] = tag.numToots || 0;
+                return acc;
+            },
+            {} as StringNumberDict
+        );
     };
 
     async _score(toot: Toot): Promise<number> {

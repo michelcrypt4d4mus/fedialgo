@@ -58,6 +58,7 @@ export enum StorageKey {
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
     TRENDING_TAG_TOOTS_V2 = 'TrendingTagTootsV2',  // Uses timelines/tag endpoint: https://docs.joinmastodon.org/methods/timelines/#tag
     USER = 'FedialgoUser',
+    USER_DATA = 'UserData',  // Only used for mutex for now
     WEIGHTS = 'Weights',
 };
 
@@ -78,8 +79,8 @@ export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = TootLike[];
 export type StringNumberDict = Record<string, number>;
-export type TagNames = Record<string, MastodonTag>;
-export type TootLike = mastodon.v1.Status | Toot;
+export type TagNames = Record<string, TrendingTag>;
+export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type Weights = Record<WeightName, number>;
 
 // Misc
@@ -174,7 +175,6 @@ export interface TrendingTag extends mastodon.v1.Tag {
 };
 
 export interface TrendingStorage {
-    hashtagParticipation: TrendingTag[];
     links: TrendingLink[];
     toots: Toot[];
     tags: TrendingTag[];
@@ -184,10 +184,11 @@ export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
 // Data retrieved at startup and stored in TheAlgorithm
-export type UserData = {
+export type UserDataSerialized = {
     followedAccounts: AccountNames,
     followedTags: mastodon.v1.Tag[],
     mutedAccounts: AccountNames,
+    participatedHashtags: TagNames,
     serverSideFilters: mastodon.v2.Filter[],
 };
 

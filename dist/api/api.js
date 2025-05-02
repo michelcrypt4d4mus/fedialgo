@@ -32,6 +32,7 @@ const account_1 = __importDefault(require("./objects/account"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
+const user_data_1 = __importDefault(require("./user_data"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
@@ -92,7 +93,7 @@ class MastoApi {
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots || Storage_1.default.getConfig().maxTimelineTootsToFetch,
+            maxRecords: numToots || Storage_1.default.getConfig().maxInitialTimelineToots,
             skipCache: true,
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
@@ -235,25 +236,12 @@ class MastoApi {
     }
     ;
     // Retrieve background data about the user that will be used for scoring etc.
+    // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData() {
-        // Use MUTED_ACCOUNTS as a stand in for all user data freshness
-        const isDataStale = await Storage_1.default.isDataStale(types_1.StorageKey.MUTED_ACCOUNTS);
-        if (this.userData && !isDataStale)
-            return this.userData;
-        const responses = await Promise.all([
-            this.getFollowedAccounts(),
-            this.getFollowedTags(),
-            this.getMutedAccounts(),
-            this.getServerSideFilters(),
-        ]);
-        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
-        this.userData = {
-            followedAccounts: account_1.default.buildAccountNames(responses[0]),
-            followedTags: responses[1],
-            mutedAccounts: account_1.default.buildAccountNames(responses[2]),
-            serverSideFilters: responses[3],
-        };
-        console.debug(`[MastoApi] Constructed UserData object:`, this.userData);
+        // TODO: should there be a mutex here? Concluded no for now...
+        if (!this.userData || (await this.userData.isDataStale())) {
+            this.userData = await user_data_1.default.getUserData();
+        }
         return this.userData;
     }
     ;
@@ -326,11 +314,11 @@ class MastoApi {
                 return toots;
             }
             else {
-                const tagCounts = await (0, tag_1.participatedHashtags)();
-                const popularTags = (0, collection_helpers_1.sortKeysByValue)(tagCounts).slice(0, 10); // TODO: make this configurable
-                const tagStr = popularTags.map(tagName => `${tagName}: ${tagCounts[tagName]}`).join(",\n");
-                console.log(`[${logPrefix}] most popular tags: ${tagStr}`);
-                const tootTags = await Promise.all(popularTags.map(tagName => this.getTootsForTag(tagName)));
+                // TODO: exclude followed tags from this list
+                const numTagsToScan = Storage_1.default.getConfig().numUserTagsToFetchTootsFor;
+                const tags = (await user_data_1.default.sortedUsersHashtags()).slice(0, numTagsToScan);
+                console.log(`[${logPrefix}] most popular tags:`, tags);
+                const tootTags = await Promise.all(tags.map(t => this.getTootsForTag(t.name)));
                 toots = tootTags.flat();
                 await toot_1.default.setDependentProps(toots);
                 toots = toot_1.default.dedupeToots(toots, types_1.StorageKey.HASHTAG_PARTICIPATION);
@@ -374,6 +362,10 @@ class MastoApi {
         }
     }
     ;
+    // Get URL for the tag on the user's homeserver
+    tagURL(tag) {
+        return `${this.endpointURL(exports.TAGS)}/${tag.name}`;
+    }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     buildParams(maxId, limit) {
         limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
@@ -481,6 +473,9 @@ class MastoApi {
         if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
             throw e;
         }
+    }
+    endpointURL(endpoint) {
+        return `https://${this.homeDomain}/${endpoint}`;
     }
 }
 exports.MastoApi = MastoApi;

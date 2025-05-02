@@ -12,27 +12,29 @@ type StaleDataConfig = {
 // See DEFAULT_CONFIG for comments explaining these values
 export type Config = {
     defaultLanguage: string;
-    defaultRecordsPerPage: number;
-    maxNumCachedToots: number;
     // Timeline
     enableIncrementalLoad: boolean;
     incrementalLoadDelayMS: number;
+    maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
-    maxTimelineTootsToFetch: number;
+    maxInitialTimelineToots: number;
     numTootsInFirstFetch: number;
+    numUserTagsToFetchTootsFor: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
     // API stuff
     backgroundLoadIntervalMS: number;
+    defaultRecordsPerPage: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
     reloadFeaturesEveryNthOpen: number;
-    numServersToCheck: number;
-    minServerMAU: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
+    // Trending stuff
+    minServerMAU: number;
+    numServersToCheck: number;
     // Trending tags
     excessiveTags: number;
     excessiveTagsPenalty: number;
@@ -60,12 +62,13 @@ export const DEFAULT_CONFIG: Config = {
     // Timeline toots
     enableIncrementalLoad: true,         // Continue loading in background after initial load
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
-    // maxTimelineTootsToFetch: 2_500,      // How many standard timeline toots to pull
+    // maxInitialTimelineToots: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
-    maxNumCachedToots: 2500,            // How many toots to keep in memory maximum
-    maxTimelineTootsToFetch: 900,        // useful dev options for faster load
+    maxCachedTimelineToots: 2500,        // How many toots to keep in memory maximum
+    maxInitialTimelineToots: 900,        // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
+    numUserTagsToFetchTootsFor: 10,      // Pull toots for this many of the user's most participated tags
     scoringBatchSize: 100,               // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,    // Default how long to wait before considering data stale
     staleDataSeconds: {                  // Dictionary to configure customized timeouts for different kinds of data

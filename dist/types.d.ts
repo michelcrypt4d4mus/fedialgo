@@ -48,6 +48,7 @@ export declare enum StorageKey {
     TRENDING_TAG_TOOTS = "TrendingTagToots",
     TRENDING_TAG_TOOTS_V2 = "TrendingTagTootsV2",
     USER = "FedialgoUser",
+    USER_DATA = "UserData",
     WEIGHTS = "Weights"
 }
 export declare enum MediaCategory {
@@ -63,8 +64,8 @@ export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StatusList = TootLike[];
 export type StringNumberDict = Record<string, number>;
-export type TagNames = Record<string, MastodonTag>;
-export type TootLike = mastodon.v1.Status | Toot;
+export type TagNames = Record<string, TrendingTag>;
+export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type Weights = Record<WeightName, number>;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
@@ -123,16 +124,16 @@ export interface TrendingTag extends mastodon.v1.Tag {
     trendingRank?: number;
 }
 export interface TrendingStorage {
-    hashtagParticipation: TrendingTag[];
     links: TrendingLink[];
     toots: Toot[];
     tags: TrendingTag[];
 }
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
-export type UserData = {
+export type UserDataSerialized = {
     followedAccounts: AccountNames;
     followedTags: mastodon.v1.Tag[];
     mutedAccounts: AccountNames;
+    participatedHashtags: TagNames;
     serverSideFilters: mastodon.v2.Filter[];
 };

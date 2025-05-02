@@ -1,18 +1,19 @@
 import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
 import { Config } from "./config";
-import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserData, Weights } from "./types";
+import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserDataSerialized, Weights } from "./types";
 export default class Storage {
     static config: Config;
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
+    static getAccounts(key: StorageKey): Promise<Account[] | null>;
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFeed(): Promise<Toot[] | null>;
     static getFilters(): Promise<FeedFilterSettings>;
     static getToots(key: StorageKey): Promise<Toot[] | null>;
     static getTrending(): Promise<TrendingStorage>;
-    static getUserData(): Promise<UserData>;
+    static getUserData(): Promise<UserDataSerialized>;
     static isDataStale(key: StorageKey): Promise<boolean>;
     static logAppOpen(): Promise<void>;
     static getWeightings(): Promise<Weights>;

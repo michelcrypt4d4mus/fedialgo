@@ -51,6 +51,7 @@ var StorageKey;
     StorageKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
     StorageKey["TRENDING_TAG_TOOTS_V2"] = "TrendingTagTootsV2";
     StorageKey["USER"] = "FedialgoUser";
+    StorageKey["USER_DATA"] = "UserData";
     StorageKey["WEIGHTS"] = "Weights";
 })(StorageKey || (exports.StorageKey = StorageKey = {}));
 ;

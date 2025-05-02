@@ -13,7 +13,7 @@ import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { logAndThrowError, TELEMETRY } from "../helpers/string_helpers";
-import { participatedTags, repairTag } from "./objects/tag";
+import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
     countValues,
@@ -176,14 +176,12 @@ export default class MastodonServer {
             this.fediverseTrendingLinks(),
             this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
-            participatedTags(), // TODO: this doesn't belong here - it's user specific not public
         ]);
 
         return {
             links: responses[0],
             tags: responses[1],
             toots: responses[2],
-            hashtagParticipation: responses[3],
         };
     }
 

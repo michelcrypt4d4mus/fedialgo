@@ -9,6 +9,7 @@ const escape = require('regexp.escape');
 import Account from "./account";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
+import UserData from "../user_data";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
 import { MastoApi, TRACE_LOG } from "../api";
 import { repairTag } from "./tag";
@@ -35,7 +36,6 @@ import {
     TootScore,
     TrendingLink,
     TrendingTag,
-    UserData,
     WeightName
 } from "../../types";
 

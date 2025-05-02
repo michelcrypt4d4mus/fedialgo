@@ -6,6 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
+import UserData from "./api/user_data";
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
@@ -20,7 +21,7 @@ import {
     TrendingLink,
     TrendingStorage,
     TrendingTag,
-    UserData,
+    UserDataSerialized,
     Weights,
 } from "./types";
 
@@ -64,6 +65,12 @@ export default class Storage {
         }
 
         return withTimestamp.value;
+    }
+
+    // Generic method for deserializing stored Accounts
+    static async getAccounts(key: StorageKey): Promise<Account[] | null> {
+        const accounts = await this.get(key) as mastodon.v1.Account[];
+        return accounts ? accounts.map(t => new Account(t)) : null;
     }
 
     // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
@@ -112,7 +119,6 @@ export default class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending(): Promise<TrendingStorage> {
         return {
-            hashtagParticipation: [],
             links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
@@ -120,21 +126,18 @@ export default class Storage {
     }
 
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
-    static async getUserData(): Promise<UserData> {
-        const followedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.FOLLOWED_ACCOUNTS);
-        const followedTags = await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS);
-        const serverSideFilters = await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS);
+    static async getUserData(): Promise<UserDataSerialized> {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.MUTED_ACCOUNTS);
-        const silencedAccounts = mutedAccounts.concat(blockedAccounts).map((a) => new Account(a));
 
-        return {
-            followedAccounts: Account.buildAccountNames(followedAccounts.map(a => new Account(a))),
-            followedTags: followedTags,
-            mutedAccounts: Account.buildAccountNames(silencedAccounts),
-            serverSideFilters: serverSideFilters,
-        };
+        return UserData.buildFromData({
+            followedAccounts: await this.getAccounts(StorageKey.FOLLOWED_ACCOUNTS) || [],
+            followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
+            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new Account(a)),
+            recentToots: await this.getToots(StorageKey.RECENT_USER_TOOTS) || [],
+            serverSideFilters: await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS),
+        });
     }
 
     // Return true if the data stored at 'key' is stale and should be refetched

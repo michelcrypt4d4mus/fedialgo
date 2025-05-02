@@ -203,6 +203,7 @@ export function findMinId(array: MastodonID[]): string | undefined{
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
 
+    // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {
         a = a.toString();
         b = b.toString();
@@ -228,4 +229,16 @@ export function checkUniqueIDs(array: MastodonID[], label: StorageKey): void {
     if (uniqueIDs.length != array.length) {
         console.warn(`${logPrefix} ${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
     }
+};
+
+
+export function sortObjsByProp<T>(array: T[], prop: keyof T, ascending: boolean = true): T[] {
+    return array.toSorted((a: T, b: T) => {
+        const aVal = a[prop];
+        const bVal = b[prop];
+
+        if (aVal < bVal) return ascending ? -1 : 1;
+        if (aVal > bVal) return ascending ? 1 : -1;
+        return 0;
+    });
 };

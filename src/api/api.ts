@@ -11,10 +11,11 @@ import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
+import UserData from "./user_data";
 import { checkUniqueIDs, findMinId, groupBy, sortKeysByValue, uniquifyByProp } from "../helpers/collection_helpers";
 import { extractDomain, logAndThrowError } from '../helpers/string_helpers';
-import { MastodonID, StorableObj, StorageKey, TrendingTag, UserData, WeightName} from "../types";
-import { participatedHashtags, repairTag } from "./objects/tag";
+import { MastodonID, MastodonTag, StorableObj, StorageKey, TrendingTag, UserDataSerialized, WeightName} from "../types";
+import { repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
 
@@ -98,7 +99,7 @@ export class MastoApi {
             fetch: this.api.v1.timelines.home.list,
             label: StorageKey.HOME_TIMELINE,  // TODO: this shouldn't actually cache anything
             maxId: maxId,
-            maxRecords: numToots || Storage.getConfig().maxTimelineTootsToFetch,
+            maxRecords: numToots || Storage.getConfig().maxInitialTimelineToots,
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (pageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
@@ -255,27 +256,13 @@ export class MastoApi {
     };
 
     // Retrieve background data about the user that will be used for scoring etc.
+    // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData(): Promise<UserData> {
-        // Use MUTED_ACCOUNTS as a stand in for all user data freshness
-        const isDataStale = await Storage.isDataStale(StorageKey.MUTED_ACCOUNTS);
-        if (this.userData && !isDataStale) return this.userData;
+        // TODO: should there be a mutex here? Concluded no for now...
+        if (!this.userData || (await this.userData.isDataStale())) {
+            this.userData = await UserData.getUserData();
+        }
 
-        const responses = await Promise.all([
-            this.getFollowedAccounts(),
-            this.getFollowedTags(),
-            this.getMutedAccounts(),
-            this.getServerSideFilters(),
-        ]);
-
-        // Cache a copy here instead of relying on browser storage because this is accessed quite a lot
-        this.userData = {
-            followedAccounts: Account.buildAccountNames(responses[0]),
-            followedTags: responses[1],
-            mutedAccounts: Account.buildAccountNames(responses[2]),
-            serverSideFilters: responses[3],
-        };
-
-        console.debug(`[MastoApi] Constructed UserData object:`, this.userData);
         return this.userData;
     };
 
@@ -351,12 +338,12 @@ export class MastoApi {
                 console.debug(`${logPrefix} Loaded ${toots.length} recoreds from cache:`);
                 return toots;
             } else {
-                const tagCounts = await participatedHashtags();
-                const popularTags = sortKeysByValue(tagCounts).slice(0, 10);  // TODO: make this configurable
-                const tagStr = popularTags.map(tagName => `${tagName}: ${tagCounts[tagName]}`).join(",\n");
-                console.log(`[${logPrefix}] most popular tags: ${tagStr}`);
+                // TODO: exclude followed tags from this list
+                const numTagsToScan = Storage.getConfig().numUserTagsToFetchTootsFor;
+                const tags = (await UserData.sortedUsersHashtags()).slice(0, numTagsToScan);
+                console.log(`[${logPrefix}] most popular tags:`, tags);
 
-                const tootTags: Toot[][] = await Promise.all(popularTags.map(tagName => this.getTootsForTag(tagName)));
+                const tootTags: Toot[][] = await Promise.all(tags.map(t => this.getTootsForTag(t.name)));
                 toots = tootTags.flat();
                 await Toot.setDependentProps(toots);
                 toots = Toot.dedupeToots(toots, StorageKey.HASHTAG_PARTICIPATION);
@@ -401,6 +388,11 @@ export class MastoApi {
             return [];
         }
     };
+
+    // Get URL for the tag on the user's homeserver
+    tagURL(tag: MastodonTag): string {
+        return `${this.endpointURL(TAGS)}/${tag.name}`;
+    }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
@@ -513,6 +505,10 @@ export class MastoApi {
         if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
             throw e;
         }
+    }
+
+    private endpointURL(endpoint: string): string {
+        return `https://${this.homeDomain}/${endpoint}`;
     }
 };
 

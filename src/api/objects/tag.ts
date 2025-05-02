@@ -11,7 +11,7 @@ import { StringNumberDict, TrendingTag } from "../../types";
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
-// Lowercase the tag name and URL
+// Lowercase the tag name, replace URL with one on homeserver
 export function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag {
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);
@@ -20,27 +20,12 @@ export function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag {
         tag.name = tag.name.toLowerCase();
     }
 
-    tag.url = tag.url.toLowerCase();
+    if (MastoApi.instance) {
+        tag.url = MastoApi.instance.tagURL(tag)
+    } else {
+        console.warn(`MastoApi.instance is null!`);
+        tag.url = tag.url.toLowerCase() || "";
+    }
+
     return tag;
-};
-
-
-// Count how many times the user has posted each tag
-export async function participatedHashtags(): Promise<StringNumberDict> {
-    const recentToots = await MastoApi.instance.getUserRecentToots();
-    const hashtags = recentToots.flatMap(toot => toot.realToot().tags || []);
-    return countValues<mastodon.v1.Tag>(hashtags, (tag) => tag.name);
-};
-
-
-// Count how many times the user has posted each tag
-export async function participatedTags(): Promise<TrendingTag[]> {
-    const tagCounts = await participatedHashtags();
-    const popularTags = sortKeysByValue(tagCounts).slice(0, 20);  // TODO: make this configurable
-
-    return popularTags.map(tagName => ({
-        name: tagName,
-        url: `https://mastodon.social/tags/${tagName}`, // TODO: unused (client links to the user's home server)
-        numToots: tagCounts[tagName],
-    } as TrendingTag));
 };

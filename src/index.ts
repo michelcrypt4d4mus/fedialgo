@@ -29,6 +29,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './a
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
+import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
@@ -66,6 +67,8 @@ interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
+console.log(`[FediAlgo] process.env.NODE_ENV:`, process.env.NODE_ENV);
+
 
 class TheAlgorithm {
     // Variables set in the constructor
@@ -87,7 +90,8 @@ class TheAlgorithm {
     mergeMutex = new Mutex();
     moarMutex = new Mutex();
     scoreMutex = new Mutex();
-    trendingData: TrendingStorage = {hashtagParticipation: [], links: [], tags: [], toots: []};
+    trendingData: TrendingStorage = {links: [], tags: [], toots: []};
+    userData: UserData = new UserData();
     dataPoller?: ReturnType<typeof setInterval>;
 
     // These can score a toot without knowing about the rest of the toots in the feed
@@ -186,9 +190,15 @@ class TheAlgorithm {
             this.mergePromisedTootsIntoFeed(MastoApi.instance.participatingHashtagToots(), "participatingHashtagToots");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
+            MastoApi.instance.getUserData().then((userData) => this.userData = userData);
         } else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-            this.loadingStatus += `, want ${Storage.getConfig().maxTimelineTootsToFetch.toLocaleString()})`;
+
+            if (this.feed.length < Storage.getConfig().maxInitialTimelineToots) {
+                this.loadingStatus += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()})`;
+            } else {
+                this.loadingStatus += `)`;
+            }
         }
 
         this.mergePromisedTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
@@ -199,7 +209,8 @@ class TheAlgorithm {
                 this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
             });
 
-        return this.feed; // TODO: This should be unnecessary
+        // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
+        return this.filteredFeed();
     }
 
     // Return the user's current weightings for each score category
@@ -212,7 +223,7 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
-        return this.filterFeedAndSetInApp();
+        return this.setFilteredFeedInApp();
     }
 
     // Update user weightings and rescore / resort the feed.
@@ -241,12 +252,6 @@ class TheAlgorithm {
         await this.loadCachedData();
     }
 
-    // Helper method to return the URL for a given tag on the local server
-    // TODO: should probably be a static method?
-    buildTagURL(tag: mastodon.v1.Tag): string {
-        return `https://${MastoApi.instance.homeDomain}/tags/${tag.name}`;
-    }
-
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt(): Date | null {
         return mostRecentTootedAt(this.homeTimelineToots());
@@ -256,12 +261,16 @@ class TheAlgorithm {
         return this.feed.filter(toot => toot.isFollowed);
     }
 
+    // Filter the feed based on the user's settings.
+    private filteredFeed(): Toot[] {
+        return this.feed.filter(toot => toot.isInTimeline(this.filters));
+    }
+
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
-    private filterFeedAndSetInApp(): Toot[] {
-        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        console.debug(`[filterFeed()] found ${filteredFeed.length} valid toots of ${this.feed.length}...`);
+    private setFilteredFeedInApp(): Toot[] {
+        const filteredFeed = this.filteredFeed();
         this.setFeedInApp(filteredFeed);
 
         if (!this.hasProvidedAnyTootsToClient) {
@@ -284,7 +293,7 @@ class TheAlgorithm {
     // Asynchronously fetch more toots if we have not reached the requred # of toots
     // and the last request returned the full requested count
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
-        const maxTimelineTootsToFetch = Storage.getConfig().maxTimelineTootsToFetch;
+        const maxInitialTimelineToots = Storage.getConfig().maxInitialTimelineToots;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
 
@@ -294,7 +303,7 @@ class TheAlgorithm {
             && (
                    // Check newHomeToots is bigger than (numTimelineToots - 3) bc sometimes we get e.g. 39 records instead of 40
                    // but if we got like, 5 toots, that means we've exhausted the user's timeline and there's nothing more to fetch
-                   (this.feed.length < maxTimelineTootsToFetch && newHomeToots.length >= (numTimelineToots - 3))
+                   (this.feed.length < maxInitialTimelineToots && newHomeToots.length >= (numTimelineToots - 3))
                    // Alternatively check if the earliest new home toot is newer than the catchup checkpoint. If it is
                    // we should continue fetching more toots.
                 || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
@@ -307,7 +316,7 @@ class TheAlgorithm {
                     // will have different ID schemes and we can't rely on them to be in order.
                     const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
                     let msg = `Calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                    msg += `(want ${maxTimelineTootsToFetch})`;
+                    msg += `(want ${maxInitialTimelineToots})`;
                     console.log(`${logPrefix} ${msg}. state:`, this.statusDict());
                     this.getFeed(numTimelineToots, tootWithMaxId.id);
                 },
@@ -327,8 +336,8 @@ class TheAlgorithm {
                 } else {
                     console.warn(`${logPrefix} but NOT caught up to catchupCheckpoint! state:`, this.statusDict());
                 }
-            } else if (this.feed.length >= maxTimelineTootsToFetch) {
-                console.log(`${logPrefix} have enough toots (wanted ${maxTimelineTootsToFetch}), state:`, this.statusDict());
+            } else if (this.feed.length >= maxInitialTimelineToots) {
+                console.log(`${logPrefix} have enough toots (wanted ${maxInitialTimelineToots}), state:`, this.statusDict());
             } else {
                 let msg = `${logPrefix} stopping because fetch only got ${newHomeToots.length} toots`;
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
@@ -447,15 +456,15 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
-        const maxToots = Storage.getConfig().maxNumCachedToots;
+        const maxToots = Storage.getConfig().maxCachedTimelineToots;
 
         if (this.feed.length > maxToots) {
             console.log(`Trimming feed history from ${this.feed.length} to ${maxToots} toots`);
-            this.feed = this.feed.slice(0, Storage.getConfig().maxNumCachedToots);
+            this.feed = this.feed.slice(0, Storage.getConfig().maxCachedTimelineToots);
         }
 
         await Storage.setFeed(this.feed);
-        return this.filterFeedAndSetInApp();
+        return this.setFilteredFeedInApp();
     }
 
     // Simple string with important feed status information
