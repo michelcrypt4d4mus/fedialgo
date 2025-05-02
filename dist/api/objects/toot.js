@@ -231,7 +231,7 @@ class Toot {
     isValidForFeed() {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
-            console.debug(`Removing fedialgo user's own toot:`, this);
+            api_1.TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
         }
         // Remove muted accounts and toots
