@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * (Demo App) Add a section for hashtags the user participates in
+* Add `Toot.simplifiedScoreInfo()` method
 
 # v0.23.0
 * Add HashtagParticipationScorer and import recent toots that contain hashtags the user participates in often in the feed

@@ -371,8 +371,8 @@ export default class Toot implements TootObj {
                 if (key == "rawScores") {
                     scoreDict["scores"] = Object.entries(value).reduce(
                         (scoreDetails, [scoreKey, scoreValue]) => {
-                            scoreDetails[scoreKey] = `${scoreValue.toFixed(3)}`;
-                            scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo!.weightedScores[scoreKey as WeightName]?.toFixed(3)})`;
+                            scoreDetails[scoreKey] = scoreValue.toPrecision();
+                            scoreDetails[scoreKey] += ` (weighted: ${this.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision()})`;
                             return scoreDetails;
                         },
                         {} as Record<string, string>
