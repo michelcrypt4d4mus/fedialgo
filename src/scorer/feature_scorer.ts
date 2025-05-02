@@ -6,6 +6,7 @@
 import Scorer from "./scorer";
 import { inSeconds } from "../helpers/time_helpers";
 import { StringNumberDict, WeightName } from "../types";
+import { TRACE_LOG } from "../api/api";
 
 
 // TODO: Find a better name than "Feature" for this class
@@ -27,12 +28,12 @@ export default abstract class FeatureScorer extends Scorer {
         }
 
         this.isReady = true;
-        let msg = `${this.logPrefix()} prepareScoreData() finished ${inSeconds(startTime)}`;
+        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${inSeconds(startTime)}`;
 
         if (Object.values(this.scoreData).length > 0) {
             console.debug(`${msg}, returned:`, this.scoreData);
         } else {
-            console.debug(`${msg}, no data returned`);
+            TRACE_LOG && console.debug(`${msg}, no data returned`);
         }
     }
 
