@@ -67,7 +67,7 @@ export const DEFAULT_CONFIG: Config = {
     // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
     // maxInitialTimelineToots: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
-    maxCachedTimelineToots: 2500,        // How many toots to keep in memory maximum
+    maxCachedTimelineToots: 1600,        // How many toots to keep in memory maximum
     maxInitialTimelineToots: 900,        // useful dev options for faster load
     maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
     numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
@@ -78,7 +78,7 @@ export const DEFAULT_CONFIG: Config = {
     staleDataDefaultSeconds: 10 * 60,    // Default how long to wait before considering data stale
     staleDataSeconds: {                  // Dictionary to configure customized timeouts for different kinds of data
         [StorageKey.BLOCKED_ACCOUNTS]:        12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
-        [StorageKey.FAVOURITED_TOOTS]:     12 * SECONDS_IN_HOUR,
+        [StorageKey.FAVOURITED_TOOTS]:        12 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TAGS]:  4 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
