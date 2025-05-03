@@ -2,6 +2,7 @@
  * Typescript type definitions.
  */
 import { mastodon } from 'masto';
+import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
@@ -73,6 +74,7 @@ export enum MediaCategory {
 // Records
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;  // TODO: unused
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
+export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;

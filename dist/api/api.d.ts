@@ -1,15 +1,13 @@
 import { mastodon } from "masto";
-import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { Config } from "../config";
 import { MastodonTag, StorageKey } from "../types";
+import { Config } from "../config";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-export type ApiMutex = Record<StorageKey, Mutex>;
 export default class MastoApi {
     #private;
     api: mastodon.rest.Client;

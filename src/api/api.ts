@@ -12,12 +12,12 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
+import { ApiMutex, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
 import { repairTag } from "./objects/tag";
 
 export const INSTANCE = "instance";
@@ -27,8 +27,6 @@ export const TAGS = "tags";
 
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
-
-export type ApiMutex = Record<StorageKey, Mutex>;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API

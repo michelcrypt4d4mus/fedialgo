@@ -22,6 +22,7 @@ import {
     zipPromises
 } from "../helpers/collection_helpers";
 import {
+    ApiMutex,
     InstanceResponse,
     MastodonInstanceEmpty,
     MastodonInstance,
@@ -43,7 +44,7 @@ const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 
-const TRENDING_MUTEXES: Record<string, Mutex> = {
+const TRENDING_MUTEXES: Partial<ApiMutex> = {
     [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
     [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
     [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
@@ -226,7 +227,7 @@ export default class MastodonServer {
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
         const startedAt = new Date();
-        const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS], logPrefix);
+        const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
 
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonInstances;
@@ -308,7 +309,7 @@ export default class MastodonServer {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
         const logPrefix = `[${key}]`;
-        const releaseMutex = await lockMutex(TRENDING_MUTEXES[key], logPrefix);
+        const releaseMutex = await lockMutex(TRENDING_MUTEXES[key]!, logPrefix);
         const startedAt = new Date();
 
         try {
