@@ -292,29 +292,22 @@ export default class Toot implements TootObj {
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently
+    // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(): boolean {
-        // Remove user's own toots
         if (this.isUsersOwnToot()) {
             traceLog(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
-        }
-
-        // Remove muted accounts and toots
-        if (this.reblog?.muted || this.muted) {
-            console.debug(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+        } else if (this.reblog?.muted || this.muted) {
+            traceLog(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
-        }
-
-        // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-        if (Date.now() < this.tootedAt().getTime()) {
+        } if (Date.now() < this.tootedAt().getTime()) {
+            // Sometimes there are wonky statuses that are like years in the future so we filter them out.
             console.warn(`Removed toot with future timestamp:`, this);
             return false;
-        }
-
-        // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-        if (this.filtered?.length) {
+        } if (this.filtered?.length) {
+            // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
-            // console.debug(`Removed toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            traceLog(`Removed toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
 
