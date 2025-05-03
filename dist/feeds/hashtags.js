@@ -19,10 +19,10 @@ async function getParticipatedHashtagToots() {
         // Exclude followed tags from the list (they will show up in the timeline on their own)
         const followedTags = await api_1.default.instance.getFollowedTags();
         tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-        tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
+        tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
         console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
         return await api_1.default.instance.getStatusesForTags(tags);
-    }, "numUserParticipatedTagToots");
+    }, "numParticipatedTagToots");
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 // Get toots for the top trending tags via the search endpoint.

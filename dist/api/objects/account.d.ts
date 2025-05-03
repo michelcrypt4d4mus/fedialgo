@@ -3,6 +3,8 @@ import { AccountNames } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
+    homserverURL?: () => string;
+    serialize?: () => mastodon.v1.Account;
     webfingerURI: string;
 }
 export default class Account implements AccountObj {

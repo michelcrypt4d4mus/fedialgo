@@ -304,7 +304,7 @@ class TheAlgorithm {
             }
         }
         else if (this.feed.length >= maxInitialTimelineToots) { // Or if we have enough toots
-            this.logWithState(logPrefix, `have enough toots (have ${this.feed.length}, want ${maxInitialTimelineToots})`);
+            this.logWithState(logPrefix, `done (have ${this.feed.length} toots, wanted ${maxInitialTimelineToots})`);
         }
         else { // Otherwise (presumably) the last fetch didn't get fulfilled
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${numTimelineToots}`);
@@ -314,6 +314,7 @@ class TheAlgorithm {
         this.markLoadComplete();
         this.loadingStatus = null;
     }
+    // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
         if (this.dataPoller) {
             console.log(`${poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);

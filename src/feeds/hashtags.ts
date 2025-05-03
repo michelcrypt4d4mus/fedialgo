@@ -18,11 +18,11 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
             // Exclude followed tags from the list (they will show up in the timeline on their own)
             const followedTags = await MastoApi.instance.getFollowedTags();
             tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-            tags = truncateToConfiguredLength(tags, "numUserParticipatedTagsToFetchTootsFor");
+            tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
             console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
             return await MastoApi.instance.getStatusesForTags(tags);
         },
-        "numUserParticipatedTagToots"
+        "numParticipatedTagToots"
     );
 }
 

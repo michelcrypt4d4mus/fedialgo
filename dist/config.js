@@ -9,7 +9,6 @@ const time_helpers_1 = require("./helpers/time_helpers");
 // App level config that is not user configurable
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
-    defaultRecordsPerPage: 40,
     // Timeline toots
     incrementalLoadDelayMS: 1000,
     maxCachedTimelineToots: 1600,
@@ -17,8 +16,8 @@ exports.DEFAULT_CONFIG = {
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
     // TODO: increase this but make the load happen after the initial load
-    numUserParticipatedTagsToFetchTootsFor: 10,
-    numUserParticipatedTagToots: 150,
+    numParticipatedTagsToFetchTootsFor: 20,
+    numParticipatedTagToots: 200,
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {
@@ -38,7 +37,8 @@ exports.DEFAULT_CONFIG = {
     },
     timelineDecayExponent: 1.2,
     // API stuff
-    backgroundLoadIntervalMS: 60000,
+    backgroundLoadIntervalMS: 120000,
+    defaultRecordsPerPage: 40,
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?

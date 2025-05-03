@@ -18,8 +18,8 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxInitialTimelineToots: number;
     numTootsInFirstFetch: number;
-    numUserParticipatedTagsToFetchTootsFor: number;
-    numUserParticipatedTagToots: number;
+    numParticipatedTagsToFetchTootsFor: number;
+    numParticipatedTagToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
@@ -59,20 +59,19 @@ export type Config = {
 // App level config that is not user configurable
 export const DEFAULT_CONFIG: Config = {
     defaultLanguage: "en",
-    defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 
     // Timeline toots
-    incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
-    maxCachedTimelineToots: 1600,        // How many toots to keep in memory maximum
-    maxInitialTimelineToots: 900,        // useful dev options for faster load
-    maxTimelineHoursToFetch: 168,        // Maximum length of time to pull timeline toots for
-    numTootsInFirstFetch: 80,            // How many toots to pull in the first fetch
+    incrementalLoadDelayMS: 1000,           // Delay between incremental loads of toots
+    maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
+    maxInitialTimelineToots: 900,           // useful dev options for faster load
+    maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
+    numTootsInFirstFetch: 80,               // How many toots to pull in the first fetch
     // TODO: increase this but make the load happen after the initial load
-    numUserParticipatedTagsToFetchTootsFor: 10,      // Pull toots for this many of the user's most participated tags
-    numUserParticipatedTagToots: 150,    // How many total toots to include for the user's most participated tags
-    scoringBatchSize: 100,               // How many toots to score at once
-    staleDataDefaultSeconds: 10 * 60,    // Default how long to wait before considering data stale
-    staleDataSeconds: {                  // Dictionary to configure customized timeouts for different kinds of data
+    numParticipatedTagsToFetchTootsFor: 20, // Pull toots for this many of the user's most participated tags
+    numParticipatedTagToots: 200,           // How many total toots to include for the user's most participated tags
+    scoringBatchSize: 100,                  // How many toots to score at once
+    staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
+    staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
         [StorageKey.BLOCKED_ACCOUNTS]:        12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
         [StorageKey.FAVOURITED_TOOTS]:        12 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TAGS]:  4 * SECONDS_IN_HOUR,
@@ -90,7 +89,8 @@ export const DEFAULT_CONFIG: Config = {
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
-    backgroundLoadIntervalMS: 60_000,    // 1 minute
+    backgroundLoadIntervalMS: 120_000,   // 1 minute
+    defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
