@@ -42,6 +42,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
+const collection_helpers_2 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 var FediverseTrendingType;
 (function (FediverseTrendingType) {
@@ -201,7 +202,7 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, tag => tag.name);
-                return uniqueTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
+                return (0, collection_helpers_2.truncateToConfiguredLength)(uniqueTags, "numTrendingTags");
             }
         });
     }

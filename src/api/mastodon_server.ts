@@ -16,6 +16,7 @@ import { ageString } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
+import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import {
     ApiMutex,
     InstanceResponse,
@@ -213,7 +214,7 @@ export default class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = uniquifyTrendingObjs<TrendingTag>(tags, tag => (tag as TrendingTag).name);
-                return uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
+                return truncateToConfiguredLength(uniqueTags, "numTrendingTags");
             }
         });
     }
