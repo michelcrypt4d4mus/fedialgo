@@ -6,6 +6,7 @@ import { Mutex, MutexInterface } from 'async-mutex';
 import Storage from '../Storage';
 import { ageInSeconds, inSeconds } from '../helpers/time_helpers';
 import { isDebugMode } from '../helpers/environment_helpers';
+import { log } from 'console';
 
 const TRACE_LOG = isDebugMode();
 
@@ -44,9 +45,13 @@ export function logAndThrowError(message: string, obj?: any): never {
 export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexInterface.Releaser> {
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
+    const mutexWaitSeconds = ageInSeconds(startedAt);
+    const logMsg = `${logPrefix} Mutex lock acquired ${inSeconds(startedAt)}`;
 
-    if (ageInSeconds(startedAt) > Storage.getConfig().mutexWarnSeconds) {
-        console.warn(`${logPrefix} Mutex ${inSeconds(startedAt)}!`);
+    if (mutexWaitSeconds > Storage.getConfig().mutexWarnSeconds) {
+        console.warn(logMsg);
+    } else if (mutexWaitSeconds > 2) {
+        console.debug(log);
     }
 
     return releaseMutex;
@@ -71,5 +76,5 @@ export function traceLog(msg: string, ...args: any[]): void {
 // Prefix a string with [Brackets] and a space
 export function addPrefix(prefix: string, msg: string): string {
     prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
-    return `[${prefix}] ${msg}`;
+    return `${prefix} ${msg}`;
 };

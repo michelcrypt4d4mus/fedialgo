@@ -7,6 +7,7 @@ exports.addPrefix = exports.traceLog = exports.lockMutex = exports.logAndThrowEr
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
+const console_1 = require("console");
 const TRACE_LOG = (0, environment_helpers_1.isDebugMode)();
 // console.info() with a prefix
 const logInfo = (prefix, msg, ...args) => {
@@ -42,8 +43,13 @@ exports.logAndThrowError = logAndThrowError;
 async function lockMutex(mutex, logPrefix) {
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
-    if ((0, time_helpers_1.ageInSeconds)(startedAt) > Storage_1.default.getConfig().mutexWarnSeconds) {
-        console.warn(`${logPrefix} Mutex ${(0, time_helpers_1.inSeconds)(startedAt)}!`);
+    const mutexWaitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
+    const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.inSeconds)(startedAt)}`;
+    if (mutexWaitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
+        console.warn(logMsg);
+    }
+    else if (mutexWaitSeconds > 2) {
+        console.debug(console_1.log);
     }
     return releaseMutex;
 }
@@ -66,7 +72,7 @@ exports.traceLog = traceLog;
 // Prefix a string with [Brackets] and a space
 function addPrefix(prefix, msg) {
     prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
-    return `[${prefix}] ${msg}`;
+    return `${prefix} ${msg}`;
 }
 exports.addPrefix = addPrefix;
 ;
