@@ -237,6 +237,7 @@ export default class MastoApi {
 
     // Collect and fully populate / dedup a collection of toots for an array of Tags
     async getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]> {
+        console.log(`[getStatusesForTags()] called for ${tags.length} tags:`, tags.map(t => t.name));
         const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
         return tagToots.flat();
     }
