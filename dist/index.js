@@ -167,7 +167,7 @@ class TheAlgorithm {
         (0, log_helpers_1.logInfo)(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
             console.warn(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
-            return this.setFilteredFeedInApp();
+            return this.scoreAndFilterFeed();
             // logAndThrowError(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
         }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
