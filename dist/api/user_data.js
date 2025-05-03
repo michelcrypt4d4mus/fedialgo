@@ -8,6 +8,7 @@ const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const SORT_TAGS_BY = [
     "numToots",
     "name"
@@ -73,10 +74,9 @@ class UserData {
     // Return an array of keywords the user has muted on the server side
     static async mutedKeywords() {
         const serverSideFilters = await api_1.default.instance.getServerSideFilters();
-        console.log(`mutedKeywords() raw serverSideFilters:`, serverSideFilters);
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        console.log(`mutedKeywords() found ${keywords.length} keywords:`, keywords);
+        (0, log_helpers_1.traceLog)(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
     }
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
