@@ -58,7 +58,7 @@ async function lockSemaphore(semaphore, logPrefix) {
     const startedAt = new Date();
     const release = await semaphore.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
-    const logMsg = `${logPrefix} Semaphore lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
     if (waitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);
     }

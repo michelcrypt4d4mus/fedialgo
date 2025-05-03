@@ -290,22 +290,21 @@ export default class MastoApi {
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
-    //   - logMsg:        optional description of why the search is being run (for logging only)
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         let logPrefix = `[searchForToots("${searchStr}")]`;
         const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
         logPrefix += ` (semaphore ${semaphoreNum})`;
-        const startTime = new Date();
+        const startedAt = new Date();
 
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            console.debug(`${logPrefix} Retrieved ${statuses.length} ${ageString(startTime)}`);
+            console.debug(`${logPrefix} Retrieved ${statuses.length} ${ageString(startedAt)}`);
             return statuses;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startTime)}`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
             return [];
         } finally {
             releaseSemaphore();
@@ -399,7 +398,7 @@ export default class MastoApi {
             if (!skipCache) await Storage.set(label as StorageKey, rows as StorableObj);
         } catch (e) {
             // If the access token was not revoked whatever rows we've retrieved will be returned
-            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
         } finally {
             releaseMutex?.();
         }
@@ -427,7 +426,7 @@ export default class MastoApi {
             console.debug(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
             return [];
         } finally {
             releaseSemaphore();
@@ -448,9 +447,13 @@ export default class MastoApi {
     };
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
-    private throwIfAccessTokenRevoked(e: unknown, msg: string): void {
+    static throwIfAccessTokenRevoked(e: unknown, msg: string): void {
         console.error(`${msg}. Error:`, e);
-        if (!(e instanceof Error)) return;
+
+        if (!(e instanceof Error)) {
+            console.warn(`${msg} - Error is not an instance of Error:`, e);
+            return;
+        }
 
         if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
             throw e;

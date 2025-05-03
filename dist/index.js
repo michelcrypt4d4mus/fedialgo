@@ -364,7 +364,7 @@ class TheAlgorithm {
             newToots = await tootFetcher;
         }
         catch (e) {
-            console.error(`${logPrefix} Error fetching toots:`, e);
+            api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mergeMutex, logPrefix);

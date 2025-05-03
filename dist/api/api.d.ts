@@ -40,5 +40,5 @@ export default class MastoApi {
     private getApiRecords;
     private hashtagTimelineToots;
     private buildParams;
-    private throwIfAccessTokenRevoked;
+    static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 }

@@ -59,9 +59,9 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
 
 export async function lockSemaphore(semaphore: Semaphore, logPrefix: string): Promise<[number, SemaphoreInterface.Releaser]> {
     const startedAt = new Date();
-    const release = await semaphore.acquire();
+    const release: [number, SemaphoreInterface.Releaser] = await semaphore.acquire();
     const waitSeconds = ageInSeconds(startedAt);
-    const logMsg = `${logPrefix} Semaphore lock acquired ${ageString(startedAt)}`;
+    const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${ageString(startedAt)}`;
 
     if (waitSeconds > Storage.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);

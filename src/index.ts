@@ -387,7 +387,7 @@ class TheAlgorithm {
         try {
             newToots = await tootFetcher;
         } catch (e) {
-            console.error(`${logPrefix} Error fetching toots:`, e);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
         }
 
         // Only need to lock the mutex when we start modifying common variables like this.feed
