@@ -13,8 +13,8 @@ import Toot from "./objects/toot";
 import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { TELEMETRY } from "../helpers/string_helpers";
 import { repairTag } from "./objects/tag";
+import { TELEMETRY } from "../helpers/string_helpers";
 import {
     countValues,
     sortKeysByValue,
@@ -22,12 +22,12 @@ import {
     zipPromises
 } from "../helpers/collection_helpers";
 import {
+    InstanceResponse,
     MastodonInstanceEmpty,
     MastodonInstance,
     MastodonInstances,
     StorableObj,
     StorageKey,
-    StringNumberDict,
     TrendingLink,
     TrendingStorage,
     TrendingTag,
@@ -49,8 +49,6 @@ const TRENDING_MUTEXES: Record<string, Mutex> = {
     [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
     [StorageKey.POPULAR_SERVERS]: new Mutex(),
 };
-
-type InstanceResponse = MastodonInstance | null;
 
 interface FetchTrendingProps<T> {
     key: StorageKey;
@@ -126,7 +124,11 @@ export default class MastodonServer {
         return trendingTags;
     };
 
-    // Fetch a list of objects of type T from a public API endpoint
+    ///////////////////////////////////
+    //        Private Methods       //
+    //////////////////////////////////
+
+    // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
     private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
         return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
     };
@@ -157,7 +159,7 @@ export default class MastodonServer {
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
         let url = this.endpointUrl(endpoint);
         if (limit) url += `?limit=${limit}`;
-        // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
+        traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
@@ -175,17 +177,13 @@ export default class MastodonServer {
 
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData(): Promise<TrendingStorage> {
-        const responses = await Promise.all([
+        const [links, tags, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
             this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
         ]);
 
-        return {
-            links: responses[0],
-            tags: responses[1],
-            toots: responses[2],
-        };
+        return { links, tags, toots };
     }
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
@@ -251,7 +249,7 @@ export default class MastodonServer {
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        console.debug(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
+        traceLog(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage.getConfig();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest

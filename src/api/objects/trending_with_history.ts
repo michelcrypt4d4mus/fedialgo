@@ -23,9 +23,9 @@
 import { mastodon } from "masto";
 
 import Storage from "../../Storage";
+import Toot from "./toot";
 import { TrendingWithHistory } from "../../types";
 import { groupBy, average } from "../../helpers/collection_helpers";
-import Toot from "./toot";
 
 
 // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'

@@ -34,6 +34,7 @@ const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -85,7 +86,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI);
         // Count tags
         toot.tags.forEach((tag) => (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name));
-        // Aggregate type counts
+        // Aggregate counts for each type of toot
         Object.entries(property_filter_2.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
                 (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
@@ -95,7 +96,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
                 if (toot.containsString(keyword.keyword)) {
-                    // console.debug(`Matched server filter (${toot.describe()}):`, filter);
+                    (0, log_helpers_1.traceLog)(`Matched server filter (${toot.describe()}):`, filter);
                     (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }
             });

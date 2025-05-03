@@ -9,9 +9,9 @@ exports.getMoarData = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
  * after things have died down from the intitial load.
  */
 const async_mutex_1 = require("async-mutex");
+const api_1 = __importDefault(require("../api/api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const api_1 = __importDefault(require("../api/api"));
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();

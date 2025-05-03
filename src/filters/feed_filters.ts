@@ -5,9 +5,18 @@ import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { FeedFilterSettings, PropertyFilters, NumericFilters, StringNumberDict, WeightName, UserDataSerialized } from "../types";
 import { incrementCount } from "../helpers/collection_helpers";
+import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
+import {
+    FeedFilterSettings,
+    PropertyFilters,
+    NumericFilters,
+    StringNumberDict,
+    WeightName,
+    UserDataSerialized
+} from "../types";
+
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -71,7 +80,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
         // Count tags
         toot.tags.forEach((tag) => incrementCount(tootCounts[PropertyName.HASHTAG], tag.name));
 
-        // Aggregate type counts
+        // Aggregate counts for each type of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
                 incrementCount(tootCounts[PropertyName.TYPE], name);
@@ -82,7 +91,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
         userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
                 if (toot.containsString(keyword.keyword)) {
-                    // console.debug(`Matched server filter (${toot.describe()}):`, filter);
+                    traceLog(`Matched server filter (${toot.describe()}):`, filter);
                     incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }
             });

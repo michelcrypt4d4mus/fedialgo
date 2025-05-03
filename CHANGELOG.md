@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove deprecated Config.enableIncrementalLoad property
 
 ### v0.24.1
 * Lower `Config.maxRecordsForFeatureScoring` to 1600, `numTrendingTagsToots` to 200

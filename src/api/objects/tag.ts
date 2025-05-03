@@ -4,9 +4,7 @@
  */
 import { mastodon } from "masto";
 
-import { countValues, sortKeysByValue } from "../../helpers/collection_helpers";
 import MastoApi from "../../api/api";
-import { StringNumberDict, TrendingTag } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 

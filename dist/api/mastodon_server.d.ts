@@ -1,11 +1,10 @@
 import Toot from "./objects/toot";
-import { MastodonInstance, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
+import { InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
 export declare enum FediverseTrendingType {
     STATUSES = "statuses",
     LINKS = "links",
     TAGS = "tags"
 }
-type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     private static v1Url;
@@ -32,4 +31,3 @@ export default class MastodonServer {
     private static callForAllServers;
     private static callForServers;
 }
-export {};

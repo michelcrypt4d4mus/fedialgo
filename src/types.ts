@@ -106,6 +106,8 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
+export type InstanceResponse = MastodonInstance | null;
+
 // All these types have an id property
 export type MastodonObjWithID = (
     mastodon.v1.Account |
@@ -195,14 +197,6 @@ export type UserDataSerialized = {
 
 
 // TODO: unused stuff below here
-// Check if two types are equal from: https://www.geeksforgeeks.org/how-to-test-if-two-types-are-exactly-the-same-in-typescript/
-// Usage:
-//     const areTypesEqual: EqualType<Type1, Type2> = true;
-export type EqualType<T, U> = keyof T extends keyof U
-                            ? (keyof U extends keyof T ? true : false)
-                            : false;
-
-
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
 function promiseWithTimeout<T>(
     promise: Promise<T>,

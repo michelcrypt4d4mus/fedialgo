@@ -13,7 +13,6 @@ type StaleDataConfig = {
 export type Config = {
     defaultLanguage: string;
     // Timeline
-    enableIncrementalLoad: boolean;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
@@ -35,7 +34,7 @@ export type Config = {
     reloadFeaturesEveryNthOpen: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
-    // Trending stuff
+    // Fedivere server scraping
     minServerMAU: number;
     numServersToCheck: number;
     // Trending tags
@@ -63,9 +62,6 @@ export const DEFAULT_CONFIG: Config = {
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
 
     // Timeline toots
-    enableIncrementalLoad: true,         // Continue loading in background after initial load
-    // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
-    // maxInitialTimelineToots: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 1000,        // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,        // How many toots to keep in memory maximum
     maxInitialTimelineToots: 900,        // useful dev options for faster load
@@ -94,7 +90,6 @@ export const DEFAULT_CONFIG: Config = {
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
-    // backgroundLoadIntervalMS: 25_000, // 30sec
     backgroundLoadIntervalMS: 60_000,    // 1 minute
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL

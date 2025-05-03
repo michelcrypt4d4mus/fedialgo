@@ -84,6 +84,7 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
+export type InstanceResponse = MastodonInstance | null;
 export type MastodonObjWithID = (mastodon.v1.Account | mastodon.v1.Notification | mastodon.v2.Filter | SerializableToot);
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
@@ -136,4 +137,3 @@ export type UserDataSerialized = {
     participatedHashtags: TagNames;
     serverSideFilters: mastodon.v2.Filter[];
 };
-export type EqualType<T, U> = keyof T extends keyof U ? (keyof U extends keyof T ? true : false) : false;

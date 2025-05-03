@@ -4,7 +4,6 @@ type StaleDataConfig = {
 };
 export type Config = {
     defaultLanguage: string;
-    enableIncrementalLoad: boolean;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;

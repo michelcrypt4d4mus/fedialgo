@@ -1,5 +1,4 @@
 import { mastodon } from "masto";
-import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
@@ -34,23 +33,22 @@ interface AlgorithmArgs {
     setFeedInApp?: (feed: Toot[]) => void;
 }
 declare class TheAlgorithm {
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    filters: FeedFilterSettings;
-    setFeedInApp: (feed: Toot[]) => void;
     feed: Toot[];
-    catchupCheckpoint: Date | null;
-    hasProvidedAnyTootsToClient: boolean;
+    filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
-    loadStartedAt: Date | null;
     loadingStatus: string | null;
     mastodonServers: MastodonInstances;
-    mergeMutex: Mutex;
-    moarMutex: Mutex;
-    scoreMutex: Mutex;
     trendingData: TrendingStorage;
     userData: UserData;
-    dataPoller?: ReturnType<typeof setInterval>;
+    private api;
+    private user;
+    private setFeedInApp;
+    private catchupCheckpoint;
+    private dataPoller?;
+    private hasProvidedAnyTootsToClient;
+    private loadStartedAt;
+    private mergeMutex;
+    private scoreMutex;
     featureScorers: (ChaosScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     feedScorers: DiversityFeedScorer[];
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
@@ -65,18 +63,18 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     homeTimelineToots(): Toot[];
-    private filteredFeed;
     private setFilteredFeedInApp;
-    private checkForMoarData;
     private loadCachedData;
     private maybeGetMoreToots;
+    private launchBackgroundPoller;
     private loadingMoreTootsStatusMsg;
+    private logWithState;
+    private markLoadComplete;
     private mergePromisedTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
-    private statusMsg;
     private statusDict;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, keyByProperty, timeString, };

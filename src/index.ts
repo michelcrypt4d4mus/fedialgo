@@ -1,7 +1,6 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
-import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
@@ -62,6 +61,7 @@ const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider usin
 const INITIAL_STATUS_MSG = "(ready to load)"
 const CLEANUP_FEED = "cleanupFeed()";
 const GET_FEED = "getFeed()";
+const MAX_ID_IDX = 2;
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -71,28 +71,26 @@ interface AlgorithmArgs {
 
 
 class TheAlgorithm {
-    // Variables set in the constructor
-    api: mastodon.rest.Client;
-    user: mastodon.v1.Account;
-    filters: FeedFilterSettings;
-    setFeedInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
-
-    // Variables with initial values
     feed: Toot[] = [];
-    catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
-    hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
+    filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
-    loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
-    // TODO: loadingStatus has become sort of the main flag for whether the feed is loading or not. We should probably
-    // TODO: not use a string like this.
+    // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus: string | null = INITIAL_STATUS_MSG;  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonInstances = {};
-    mergeMutex = new Mutex();
-    moarMutex = new Mutex();
-    scoreMutex = new Mutex();
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
     userData: UserData = new UserData();
-    dataPoller?: ReturnType<typeof setInterval>;
+
+    // Constructor argument variables
+    private api: mastodon.rest.Client;
+    private user: mastodon.v1.Account;
+    private setFeedInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
+    // Other private variables
+    private catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
+    private dataPoller?: ReturnType<typeof setInterval>;
+    private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
+    private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
+    private mergeMutex = new Mutex();
+    private scoreMutex = new Mutex();
 
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
@@ -137,7 +135,7 @@ class TheAlgorithm {
         } as ScorerDict
     );
 
-    // This is the alternate constructor() that instantiates the class and loads the feed from storage.
+    // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         const user = new Account(params.user);
         await Storage.setIdentity(user);
@@ -155,7 +153,6 @@ class TheAlgorithm {
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? ((f: Toot[]) => console.debug(`Default setFeedInApp() called`));
         MastoApi.init(this.api, this.user as Account);
-        this.filters = buildNewFilterSettings();
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -236,12 +233,12 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
+        this.dataPoller && clearInterval(this.dataPoller!);
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = INITIAL_STATUS_MSG;
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.catchupCheckpoint = null;
-        this.dataPoller && clearInterval(this.dataPoller!);
         await Storage.clearAll();
         await this.loadCachedData();
     }
@@ -255,16 +252,11 @@ class TheAlgorithm {
         return this.feed.filter(toot => toot.isFollowed);
     }
 
-    // Filter the feed based on the user's settings.
-    private filteredFeed(): Toot[] {
-        return this.feed.filter(toot => toot.isInTimeline(this.filters));
-    }
-
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
     private setFilteredFeedInApp(): Toot[] {
-        const filteredFeed = this.filteredFeed();
+        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         this.setFeedInApp(filteredFeed);
 
         if (!this.hasProvidedAnyTootsToClient) {
@@ -275,104 +267,85 @@ class TheAlgorithm {
         return filteredFeed;
     }
 
-    // Launch the poller, force scorers to recompute data, rescore the feed
-    private async checkForMoarData(): Promise<void> {
-        const shouldContinue = await getMoarData();
-        await this.userData.populate();
-        await this.prepareScorers(true);
-        await this.scoreAndFilterFeed();
-
-        if (!shouldContinue) {
-            console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
-            this.dataPoller && clearInterval(this.dataPoller!);
-        }
-    }
-
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.feed = (await Storage.getFeed()) ?? [];
         this.filters = await Storage.getFilters();
         this.trendingData = await Storage.getTrending();
         this.setFeedInApp(this.feed);
-        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData:`, this.trendingData);
+        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
 
-    // Asynchronously fetch more toots if we have not reached the requred # of toots
-    // and the last request returned the full requested count
+    // Handles deciding what is the current state of the world and whether to continue fetching timeline toots
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
-        const maxInitialTimelineToots = Storage.getConfig().maxInitialTimelineToots;
+        const config = Storage.getConfig();
+        const maxInitialTimelineToots = config.maxInitialTimelineToots;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
 
-        // Stop if we have enough toots or the last request didn't return the full requested count (minus 2)
         if (
-               Storage.getConfig().enableIncrementalLoad  // TODO: we don't need this config option any more
-            && (
-                   // Check newHomeToots is bigger than (numTimelineToots - 3) bc sometimes we get e.g. 39 records instead of 40
-                   // but if we got like, 5 toots, that means we've exhausted the user's timeline and there's nothing more to fetch
-                   (this.feed.length < maxInitialTimelineToots && newHomeToots.length >= (numTimelineToots - 3))
-                   // Alternatively check if the earliest new home toot is newer than the catchup checkpoint. If it is
-                   // we should continue fetching more toots.
-                || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
-            )
+                // If we don't have enough toots yet and we got almost all the numTimelineToots we requested last time
+                // ("almost" bc sometimes we get 38 records instead of 40) then there's probably more toots to fetch.
+                (this.feed.length < maxInitialTimelineToots && newHomeToots.length >= (numTimelineToots - MAX_ID_IDX))
+                // Or if we have enough toots but the catchupCheckpoint is older than what we just got also fetch more
+            || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
         ) {
-            setTimeout(
-                () => {
-                    // Use the 4th toot bc sometimes there are weird outliers. Dupes will be removed later.
-                    // It's important that we *only* look at home timeline toots here. Toots from other servers
-                    // will have different ID schemes and we can't rely on them to be in order.
-                    const tootWithMaxId = sortByCreatedAt(newHomeToots)[4];
-                    let msg = `Calling ${GET_FEED} recursively, newHomeToots has ${newHomeToots.length} toots`;
-                    msg += `(want ${maxInitialTimelineToots})`;
-                    console.log(`${logPrefix} ${msg}. state:`, this.statusDict());
-                    this.getFeed(numTimelineToots, tootWithMaxId.id);
-                },
-                Storage.getConfig().incrementalLoadDelayMS
-            );
-        } else {
-            logPrefix += ` Halting ${GET_FEED}:`;
-
-            if (!Storage.getConfig().enableIncrementalLoad) {
-                console.log(`${logPrefix} Incremental loading is fully disabled`);
-            } else if (this.catchupCheckpoint) {
-                if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
-                    let tmpCheckpoint = this.catchupCheckpoint;
-                    this.catchupCheckpoint = null;
-                    let msg = `${logPrefix} all caught up: oldest new toot ${quotedISOFmt(earliestNewHomeTootAt)}`;
-                    console.log(`${msg} older than checkpoint ${quotedISOFmt(tmpCheckpoint)}. state:`, this.statusDict());
-                } else {
-                    console.warn(`${logPrefix} but NOT caught up to catchupCheckpoint! state:`, this.statusDict());
-                }
-            } else if (this.feed.length >= maxInitialTimelineToots) {
-                console.log(`${logPrefix} have enough toots (wanted ${maxInitialTimelineToots}), state:`, this.statusDict());
-            } else {
-                let msg = `${logPrefix} stopping because fetch only got ${newHomeToots.length} toots`;
-                console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
-            }
-
-            if (this.loadStartedAt) {
-                logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
-                this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
-                this.loadStartedAt = null;
-            } else {
-                this.lastLoadTimeInSeconds = null;
-                console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
-            }
-
-            // set dataPoller to null later to make it clear it's done
-            if (!this.dataPoller) {
-                console.log(`${logPrefix} starting data poller...`);
-
-                this.dataPoller = setInterval(
-                    () => this.checkForMoarData(),
-                    Storage.getConfig().backgroundLoadIntervalMS
-                );
-            } else {
-                console.log(`${logPrefix} not launching data poller bc... already running?`, this.dataPoller);
-            }
-
-            this.loadingStatus = null;
+            // Extract the minimum ID from the last batch of toots (or almost - we use the 3rd toot bc sometimes
+            // there are weird outliers in the 1st toot). We must ONLY look at home timeline toots for this -
+            // toots from other servers will have different ID schemes.
+            // TODO: this is kind of shaky logic - what if a user follows almost no one and has an empty feed?
+            const maxId = sortByCreatedAt(newHomeToots)[MAX_ID_IDX].id;
+            this.logWithState(logPrefix, `Scheduling ${GET_FEED} recursively with maxID='${maxId}'`);
+            setTimeout(() => this.getFeed(numTimelineToots, maxId), config.incrementalLoadDelayMS);
+            return;
         }
+
+        // Otherwise stop (either we have enough toots, the last fetch didn't get fulfilled, or we hit the checkpoint)
+        logPrefix += ` Halting ${GET_FEED}:`;
+
+        if (this.catchupCheckpoint) {  // If we hit the checkpoint
+            if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
+                let msg = `all caught up: oldest newHomeToot is ${quotedISOFmt(earliestNewHomeTootAt)}`;
+                this.logWithState(logPrefix, `${msg}, older than checkpoint ${quotedISOFmt(this.catchupCheckpoint)}`);
+                this.catchupCheckpoint = null;
+            } else {
+                console.warn(`${logPrefix} but NOT caught up to catchupCheckpoint! state:`, this.statusDict());
+            }
+        } else if (this.feed.length >= maxInitialTimelineToots) {  // Or if we have enough toots
+            this.logWithState(logPrefix, `have enough toots (have ${this.feed.length}, want ${maxInitialTimelineToots})`);
+        } else {  // Otherwise (presumably) the last fetch didn't get fulfilled
+            this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${numTimelineToots}`);
+        }
+
+        // Now that we have a complete set of initial toots start the background data poller
+        this.launchBackgroundPoller();
+        this.markLoadComplete();
+        this.loadingStatus = null;
+    }
+
+    private launchBackgroundPoller(): void {
+        if (this.dataPoller) {
+            console.log(`${MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            return;
+        }
+
+        console.log(`${MOAR_DATA_PREFIX} starting data poller...`);
+
+        this.dataPoller = setInterval(
+            async () => {
+                // Force scorers to recompute data, rescore the feed
+                const shouldContinue = await getMoarData();
+                await this.userData.populate();
+                await this.prepareScorers(true);
+                await this.scoreAndFilterFeed();
+
+                if (!shouldContinue) {
+                    console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
+                    this.dataPoller && clearInterval(this.dataPoller!);
+                }
+            },
+            Storage.getConfig().backgroundLoadIntervalMS
+        );
     }
 
     private loadingMoreTootsStatusMsg(): string {
@@ -383,6 +356,22 @@ class TheAlgorithm {
         }
 
         return msg + ')'
+    }
+
+    private logWithState(prefix: string, msg: string): void {
+        console.log(`${prefix} ${msg}. state:`, this.statusDict());
+    }
+
+    // Set a few state variables indicating that the load is complete. // TODO: there's too many state variables
+    private markLoadComplete(): void {
+        if (this.loadStartedAt) {
+            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
+            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
+            this.loadStartedAt = null;
+        } else {
+            this.lastLoadTimeInSeconds = null;
+            console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
+        }
     }
 
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
@@ -461,11 +450,6 @@ class TheAlgorithm {
         this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
         await Storage.setFeed(this.feed);
         return this.setFilteredFeedInApp();
-    }
-
-    // Simple string with important feed status information
-    private statusMsg(): string {
-        return Object.entries(this.statusDict()).map((k, v) => `${k}=${v}`).join(", ")
     }
 
     // Info about the state of this TheAlgorithm instance

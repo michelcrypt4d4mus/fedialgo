@@ -11,9 +11,6 @@ exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     defaultRecordsPerPage: 40,
     // Timeline toots
-    enableIncrementalLoad: true,
-    // incrementalLoadDelayMS: 500,         // Delay between incremental loads of toots
-    // maxInitialTimelineToots: 2_500,      // How many standard timeline toots to pull
     incrementalLoadDelayMS: 1000,
     maxCachedTimelineToots: 1600,
     maxInitialTimelineToots: 900,
@@ -41,7 +38,6 @@ exports.DEFAULT_CONFIG = {
     },
     timelineDecayExponent: 1.2,
     // API stuff
-    // backgroundLoadIntervalMS: 25_000, // 30sec
     backgroundLoadIntervalMS: 60000,
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,

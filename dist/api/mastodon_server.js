@@ -39,8 +39,8 @@ const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
-const string_helpers_1 = require("../helpers/string_helpers");
 const tag_1 = require("./objects/tag");
+const string_helpers_1 = require("../helpers/string_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 var FediverseTrendingType;
@@ -119,7 +119,10 @@ class MastodonServer {
         return trendingTags;
     }
     ;
-    // Fetch a list of objects of type T from a public API endpoint
+    ///////////////////////////////////
+    //        Private Methods       //
+    //////////////////////////////////
+    // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
     async fetchTrending(typeStr, limit) {
         return this.fetchList(MastodonServer.trendUrl(typeStr), limit);
     }
@@ -150,7 +153,7 @@ class MastodonServer {
         let url = this.endpointUrl(endpoint);
         if (limit)
             url += `?limit=${limit}`;
-        // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
+        (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
         if (json.status === 200 && json.data) {
@@ -167,16 +170,12 @@ class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData() {
-        const responses = await Promise.all([
+        const [links, tags, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
             this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
         ]);
-        return {
-            links: responses[0],
-            tags: responses[1],
-            toots: responses[2],
-        };
+        return { links, tags, toots };
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
@@ -239,7 +238,7 @@ class MastodonServer {
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        console.debug(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
+        (0, log_helpers_1.traceLog)(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage_1.default.getConfig();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck

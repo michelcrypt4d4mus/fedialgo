@@ -4,11 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
+const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
-const api_1 = __importDefault(require("./api"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const SORT_TAGS_BY = ["numToots", "name"];
+const SORT_TAGS_BY = [
+    "numToots",
+    "name"
+];
+;
 ;
 class UserData {
     followedAccounts;
