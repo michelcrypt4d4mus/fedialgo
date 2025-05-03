@@ -33,7 +33,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { filterWithLog, keyByProperty } from "./helpers/collection_helpers";
+import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
@@ -185,7 +185,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(MastoApi.instance.participatingHashtagToots(), "participatingHashtagToots");
+            this.mergePromisedTootsIntoFeed(MastoApi.instance.participatedHashtagToots(), "participatedHashtagToots");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             MastoApi.instance.getUserData().then((userData) => this.userData = userData);
@@ -455,13 +455,7 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
-        const maxToots = Storage.getConfig().maxCachedTimelineToots;
-
-        if (this.feed.length > maxToots) {
-            console.log(`Trimming feed history from ${this.feed.length} to ${maxToots} toots`);
-            this.feed = this.feed.slice(0, Storage.getConfig().maxCachedTimelineToots);
-        }
-
+        this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
         await Storage.setFeed(this.feed);
         return this.setFilteredFeedInApp();
     }

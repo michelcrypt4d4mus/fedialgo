@@ -1,14 +1,15 @@
 /*
- * Methods for dealing with user data.
+ * Methods for dealing with data about the user currently using fedialgo - background
+ * data for the scorers and so on.
  */
 import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { sortObjsByProps } from "../helpers/collection_helpers";
-import { MastoApi } from "./api";
 import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag, UserDataSerialized } from "../types";
+import { MastoApi } from "./api";
+import { sortObjsByProps } from "../helpers/collection_helpers";
 
 const SORT_TAGS_BY = ["numToots" as keyof TrendingTag, "name" as keyof TrendingTag];
 
@@ -75,7 +76,7 @@ export default class UserData implements UserDataCls {
             MastoApi.instance.getFollowedAccounts(),
             MastoApi.instance.getFollowedTags(),
             MastoApi.instance.getMutedAccounts(),
-            UserData.getUsersHashtags(),
+            UserData.getPostedHashtags(),
             MastoApi.instance.getServerSideFilters(),
         ]);
 
@@ -100,16 +101,16 @@ export default class UserData implements UserDataCls {
     //      Class Methods     //
     ////////////////////////////
 
-    // Build TrendingTag objects with numToots prop set to number of times the user tooted it
-    static async getUsersHashtags(): Promise<TagNames> {
-        const recentToots = await MastoApi.instance.getUserRecentToots();
-        return this.buildUserHashtags(recentToots);
+    // Fetch or load array of TrendingTags sorted by number of times the user tooted it
+    static async getPostedHashtagsSorted(): Promise<TrendingTag[]> {
+        const userTags = await UserData.getPostedHashtags();
+        return this.sortTagNames(userTags);
     }
 
-    // Return array of TrendingTags sorted by number of times the user tooted it
-    static async sortedUsersHashtags(): Promise<TrendingTag[]> {
-        const userTags = await UserData.getUsersHashtags();
-        return this.sortTagNames(userTags);
+    // Fetch or load TrendingTag objects with numToots prop set to number of times user tooted it
+    static async getPostedHashtags(): Promise<TagNames> {
+        const recentToots = await MastoApi.instance.getUserRecentToots();
+        return this.buildUserHashtags(recentToots);
     }
 
     // Return array of TrendingTags sorted by numToots

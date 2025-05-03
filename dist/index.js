@@ -187,7 +187,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.participatingHashtagToots(), "participatingHashtagToots");
+            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.participatedHashtagToots(), "participatedHashtagToots");
             mastodon_server_1.default.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             api_1.MastoApi.instance.getUserData().then((userData) => this.userData = userData);
@@ -426,11 +426,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         await this.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
-        const maxToots = Storage_1.default.getConfig().maxCachedTimelineToots;
-        if (this.feed.length > maxToots) {
-            console.log(`Trimming feed history from ${this.feed.length} to ${maxToots} toots`);
-            this.feed = this.feed.slice(0, Storage_1.default.getConfig().maxCachedTimelineToots);
-        }
+        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
         await Storage_1.default.setFeed(this.feed);
         return this.setFilteredFeedInApp();
     }

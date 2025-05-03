@@ -5,6 +5,7 @@ import md5 from "blueimp-md5";
 
 import Storage from "../Storage";
 import { ageInSeconds } from "./time_helpers";
+import { Config } from "../config";
 import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./string_helpers";
 
@@ -254,4 +255,23 @@ export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], asce
 
         return 0;
     });
+};
+
+
+// Find the configured value at configKey and truncate array to that length
+export function truncateToConfiguredLength(array: any[], key: keyof Config, label?: string): any[] {
+    const logPfx = label ? `[${label}] ` : "";
+    const configValue = Storage.getConfig()[key] as number;
+
+    if (!configValue) {
+        console.error(`${logPfx}No configured value for ${key}! Not truncating.`);
+        return array;
+    } else if (array.length <= configValue) {
+        return array;
+    }
+
+    const startLen = array.length;
+    array = array.slice(0, configValue);
+    console.log(`${logPfx}Truncated array of ${startLen} to ${array.length} to ${key}: ${configValue}`);
+    return array;
 };

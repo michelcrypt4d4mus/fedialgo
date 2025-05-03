@@ -10,7 +10,8 @@ export type Config = {
     maxTimelineHoursToFetch: number;
     maxInitialTimelineToots: number;
     numTootsInFirstFetch: number;
-    numUserTagsToFetchTootsFor: number;
+    numUserParticipatedTagsToFetchTootsFor: number;
+    numUserParticipatedTagToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;

@@ -1,3 +1,4 @@
+import { Config } from "../config";
 import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function average(values: number[]): number;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
@@ -19,3 +20,4 @@ objType?: string): T[];
 export declare function findMinId(array: MastodonID[]): string | undefined;
 export declare function checkUniqueIDs(array: MastodonID[], label: StorageKey): void;
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean): T[];
+export declare function truncateToConfiguredLength(array: any[], key: keyof Config, label?: string): any[];

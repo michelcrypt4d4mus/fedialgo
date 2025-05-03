@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -218,5 +218,23 @@ function sortObjsByProps(array, prop, ascending = true) {
     });
 }
 exports.sortObjsByProps = sortObjsByProps;
+;
+// Find the configured value at configKey and truncate array to that length
+function truncateToConfiguredLength(array, key, label) {
+    const logPfx = label ? `[${label}] ` : "";
+    const configValue = Storage_1.default.getConfig()[key];
+    if (!configValue) {
+        console.error(`${logPfx}No configured value for ${key}! Not truncating.`);
+        return array;
+    }
+    else if (array.length <= configValue) {
+        return array;
+    }
+    const startLen = array.length;
+    array = array.slice(0, configValue);
+    console.log(`${logPfx}Truncated array of ${startLen} to ${array.length} to ${key}: ${configValue}`);
+    return array;
+}
+exports.truncateToConfiguredLength = truncateToConfiguredLength;
 ;
 //# sourceMappingURL=collection_helpers.js.map

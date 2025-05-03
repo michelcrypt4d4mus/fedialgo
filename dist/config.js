@@ -19,7 +19,9 @@ exports.DEFAULT_CONFIG = {
     maxInitialTimelineToots: 900,
     maxTimelineHoursToFetch: 168,
     numTootsInFirstFetch: 80,
-    numUserTagsToFetchTootsFor: 10,
+    // TODO: increase this but make the load happen after the initial load
+    numUserParticipatedTagsToFetchTootsFor: 10,
+    numUserParticipatedTagToots: 150,
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {

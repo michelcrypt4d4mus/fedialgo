@@ -28,8 +28,8 @@ export default class UserData implements UserDataCls {
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
     serialize(): UserDataSerialized;
-    static getUsersHashtags(): Promise<TagNames>;
-    static sortedUsersHashtags(): Promise<TrendingTag[]>;
+    static getPostedHashtagsSorted(): Promise<TrendingTag[]>;
+    static getPostedHashtags(): Promise<TagNames>;
     static sortTagNames(userTags: TagNames): TrendingTag[];
     private static buildUserHashtags;
 }
