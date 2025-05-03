@@ -166,7 +166,9 @@ class TheAlgorithm {
     async getFeed(numTimelineToots, maxId) {
         (0, log_helpers_1.logInfo)(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            (0, log_helpers_1.logAndThrowError)(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
+            console.warn(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
+            return this.setFilteredFeedInApp();
+            // logAndThrowError(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
         }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
@@ -253,7 +255,7 @@ class TheAlgorithm {
     setFilteredFeedInApp() {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         this.setFeedInApp(filteredFeed);
-        if (!this.hasProvidedAnyTootsToClient) {
+        if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
             (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
         }
