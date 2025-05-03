@@ -10,6 +10,7 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag } from "../types";
 import { sortObjsByProps } from "../helpers/collection_helpers";
+import { traceLog } from "../helpers/log_helpers";
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TrendingTag,
@@ -95,10 +96,9 @@ export default class UserData {
     // Return an array of keywords the user has muted on the server side
     static async mutedKeywords(): Promise<string[]> {
         const serverSideFilters = await MastoApi.instance.getServerSideFilters();
-        console.log(`mutedKeywords() raw serverSideFilters:`, serverSideFilters);
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        console.log(`mutedKeywords() found ${keywords.length} keywords:`, keywords);
+        traceLog(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
     }
 
