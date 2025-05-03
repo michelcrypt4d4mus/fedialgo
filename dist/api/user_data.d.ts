@@ -21,6 +21,7 @@ export default class UserData {
     isDataStale(): Promise<boolean>;
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
+    static mutedKeywords(): Promise<string[]>;
     static getPostedHashtagsSorted(): Promise<TrendingTag[]>;
     static getPostedHashtags(): Promise<TagNames>;
     static sortTagNames(userTags: TagNames): TrendingTag[];

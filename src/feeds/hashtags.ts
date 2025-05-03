@@ -5,23 +5,19 @@ import MastoApi from "../api/api";
 import MastodonServer from "../api/mastodon_server";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
-import { StorageKey } from "../types";
+import { MastodonTag, StorageKey } from "../types";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 
 
 // Get recent toots from hashtags the user has participated in frequently
 export async function getParticipatedHashtagToots(): Promise<Toot[]> {
+    let tags = await UserData.getPostedHashtagsSorted();
+    tags = await removeFollowedAndMutedTags(tags);
+    tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
+
     return await MastoApi.instance.getCacheableToots(
         StorageKey.PARTICIPATED_TAG_TOOTS,
-        async () => {
-            let tags = await UserData.getPostedHashtagsSorted();
-            // Exclude followed tags from the list (they will show up in the timeline on their own)
-            const followedTags = await MastoApi.instance.getFollowedTags();
-            tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-            tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
-            console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
-            return await MastoApi.instance.getStatusesForTags(tags);
-        },
+        async () => await MastoApi.instance.getStatusesForTags(tags),
         "numParticipatedTagToots"
     );
 }
@@ -29,9 +25,43 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
 
 // Get toots for the top trending tags via the search endpoint.
 export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
+    let tags = await MastodonServer.fediverseTrendingTags()
+    tags = await removeFollowedAndMutedTags(tags);
+
     return await MastoApi.instance.getCacheableToots(
         StorageKey.TRENDING_TAG_TOOTS,
-        async () => MastoApi.instance.getStatusesForTags(await MastodonServer.fediverseTrendingTags()),
+        async () => MastoApi.instance.getStatusesForTags(tags),
         "numTrendingTagsToots"
     );
+};
+
+
+// Filter out any tags that are muted or followed
+async function removeFollowedAndMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
+    return await removeFollowedTags(await removeMutedTags(tags));
+}
+
+
+// Screen a list of hashtags against the user's server side filters, removing any that are muted.
+async function removeMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
+    let mutedKeywords = await UserData.mutedKeywords();
+    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
+};
+
+
+// Screen a list of hashtags against the user's followed tags, removing any that are followed.
+async function removeFollowedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
+    const followedKeywords = (await MastoApi.instance.getFollowedTags()).map(t => t.name);
+    return removeKeywordsFromTags(tags, followedKeywords, "[removeFollowedTags()]");
+};
+
+
+function removeKeywordsFromTags(tags: MastodonTag[], keywords: string[], logPrefix: string): MastodonTag[] {
+    const validTags = tags.filter(tag => !keywords.includes(tag.name));
+
+    if (validTags.length != tags.length) {
+        console.debug(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
+    }
+
+    return validTags;
 };

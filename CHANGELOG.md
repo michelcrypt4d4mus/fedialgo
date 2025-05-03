@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove blocked keywrods (no bueno) and followed tags (they show up on their own) from the list of tags to scan for new toots
 
 ### v0.24.4
 * Re-raise access token revoked errors in `mergePromisedTootsIntoFeed()`

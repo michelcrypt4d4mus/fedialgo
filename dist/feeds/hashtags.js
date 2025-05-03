@@ -14,21 +14,42 @@ const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 // Get recent toots from hashtags the user has participated in frequently
 async function getParticipatedHashtagToots() {
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => {
-        let tags = await user_data_1.default.getPostedHashtagsSorted();
-        // Exclude followed tags from the list (they will show up in the timeline on their own)
-        const followedTags = await api_1.default.instance.getFollowedTags();
-        tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-        tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
-        console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
-        return await api_1.default.instance.getStatusesForTags(tags);
-    }, "numParticipatedTagToots");
+    let tags = await user_data_1.default.getPostedHashtagsSorted();
+    tags = await removeFollowedAndMutedTags(tags);
+    tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
+    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags), "numParticipatedTagToots");
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 // Get toots for the top trending tags via the search endpoint.
 async function getRecentTootsForTrendingTags() {
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => api_1.default.instance.getStatusesForTags(await mastodon_server_1.default.fediverseTrendingTags()), "numTrendingTagsToots");
+    let tags = await mastodon_server_1.default.fediverseTrendingTags();
+    tags = await removeFollowedAndMutedTags(tags);
+    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => api_1.default.instance.getStatusesForTags(tags), "numTrendingTagsToots");
 }
 exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
+;
+// Filter out any tags that are muted or followed
+async function removeFollowedAndMutedTags(tags) {
+    return await removeFollowedTags(await removeMutedTags(tags));
+}
+// Screen a list of hashtags against the user's server side filters, removing any that are muted.
+async function removeMutedTags(tags) {
+    let mutedKeywords = await user_data_1.default.mutedKeywords();
+    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
+}
+;
+// Screen a list of hashtags against the user's followed tags, removing any that are followed.
+async function removeFollowedTags(tags) {
+    const followedKeywords = (await api_1.default.instance.getFollowedTags()).map(t => t.name);
+    return removeKeywordsFromTags(tags, followedKeywords, "[removeFollowedTags()]");
+}
+;
+function removeKeywordsFromTags(tags, keywords, logPrefix) {
+    const validTags = tags.filter(tag => !keywords.includes(tag.name));
+    if (validTags.length != tags.length) {
+        console.debug(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
+    }
+    return validTags;
+}
 ;
 //# sourceMappingURL=hashtags.js.map
