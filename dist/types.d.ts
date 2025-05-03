@@ -84,7 +84,7 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
-export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
+export type MastodonObjWithID = (mastodon.v1.Account | mastodon.v1.Notification | mastodon.v2.Filter | SerializableToot);
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
@@ -99,16 +99,11 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableApiObject = (MastodonTag | SerializableToot | TrendingLink | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Tag | mastodon.v1.TrendLink | mastodon.v2.Filter);
+export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink | mastodon.v1.TrendLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
-};
-export type TimelineData = {
-    homeToots: Toot[];
-    otherToots: Toot[];
-    trendingToots?: Toot[];
 };
 export type TootScore = {
     rawScore: number;

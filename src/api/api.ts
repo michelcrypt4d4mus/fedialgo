@@ -17,7 +17,7 @@ import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { MastodonID, MastodonTag, StorableObj, StorageKey } from "../types";
+import { MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
 import { repairTag } from "./objects/tag";
 
 export const INSTANCE = "instance";
@@ -379,7 +379,7 @@ export default class MastoApi {
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
                     maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
-                    maxId = findMinId(rows as MastodonID[]);
+                    maxId = findMinId(rows as MastodonObjWithID[]);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
                 };
             }

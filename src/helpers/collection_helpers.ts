@@ -4,9 +4,8 @@
 import md5 from "blueimp-md5";
 
 import Storage from "../Storage";
-import { ageInSeconds } from "./time_helpers";
 import { Config } from "../config";
-import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
+import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { isNumber } from "./string_helpers";
 
 
@@ -199,7 +198,7 @@ export function filterWithLog<T>(
 
 
 // Find the minimum id in an array of objects using the given idFxn to extract the id
-export function findMinId(array: MastodonID[]): string | undefined{
+export function findMinId(array: MastodonObjWithID[]): string | undefined{
     if (array.length == 0) return undefined;
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
@@ -221,10 +220,10 @@ export function findMinId(array: MastodonID[]): string | undefined{
 
 
 // Check if the elements of 'array' are as unique as they should be
-export function checkUniqueIDs(array: MastodonID[], label: StorageKey): void {
+export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
     const logPrefix = `[${label}]`;
     console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
-    const objsByID = groupBy<MastodonID>(array, (e) => e.id);
+    const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
 
     if (uniqueIDs.length != array.length) {

@@ -107,9 +107,10 @@ export type FilterArgs = {
 };
 
 // All these types have an id property
-export type MastodonID = (
+export type MastodonObjWithID = (
     mastodon.v1.Account |
     mastodon.v1.Notification |
+    mastodon.v2.Filter |
     SerializableToot
 );
 
@@ -132,14 +133,10 @@ export type ScorerInfo = {
 };
 
 export type StorableApiObject = (
+    MastodonObjWithID |
     MastodonTag |
-    SerializableToot |
     TrendingLink |
-    mastodon.v1.Account |
-    mastodon.v1.Notification |
-    mastodon.v1.Tag |
-    mastodon.v1.TrendLink |
-    mastodon.v2.Filter
+    mastodon.v1.TrendLink
 );
 
 // Types that are valid for browser local storage
@@ -157,12 +154,6 @@ export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
 }
-
-export type TimelineData = {
-    homeToots: Toot[],
-    otherToots: Toot[],
-    trendingToots?: Toot[],
-};
 
 export type TootScore = {
     rawScore: number;             // Raw score without time decay etc. applied

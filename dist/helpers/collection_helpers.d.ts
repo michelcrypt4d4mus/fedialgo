@@ -1,5 +1,5 @@
 import { Config } from "../config";
-import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function average(values: number[]): number;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
@@ -17,8 +17,8 @@ export declare function batchPromises<T>(items: Array<T>, fn: (item: T) => Promi
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
-export declare function findMinId(array: MastodonID[]): string | undefined;
-export declare function checkUniqueIDs(array: MastodonID[], label: StorageKey): void;
+export declare function findMinId(array: MastodonObjWithID[]): string | undefined;
+export declare function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void;
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean): T[];
 export declare function truncateToConfiguredLength(array: any[], key: keyof Config, label?: string): any[];
 export declare const isWeightName: (value: string) => boolean;
