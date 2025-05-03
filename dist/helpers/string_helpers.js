@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.addPrefix = exports.isNumber = exports.quote = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.isNumber = exports.quote = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -100,9 +100,6 @@ exports.quote = quote;
 // Returns true if n is a number or a string that can be converted to a number
 const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
 exports.isNumber = isNumber;
-// Prefix a string
-const addPrefix = (prefix, msg) => `[${prefix}] ${msg}`;
-exports.addPrefix = addPrefix;
 // Number to string (could also be done with Math.floor(num).toLocaleString())
 const toLocaleInt = (num) => {
     if (num == null)

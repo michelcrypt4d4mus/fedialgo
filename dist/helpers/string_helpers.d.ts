@@ -17,5 +17,4 @@ export declare function countInstances(str: string, substr: string): number;
 export declare function createRandomString(length: number): string;
 export declare const quote: (text: string | null) => string;
 export declare const isNumber: (n: string | number) => boolean;
-export declare const addPrefix: (prefix: string, msg: string) => string;
 export declare const toLocaleInt: (num: number | null) => string;

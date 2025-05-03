@@ -5,8 +5,8 @@
  */
 import Scorer from "./scorer";
 import { inSeconds } from "../helpers/time_helpers";
+import { traceLog } from "../helpers/log_helpers";
 import { StringNumberDict, WeightName } from "../types";
-import { TRACE_LOG } from "../helpers/environment_helpers";
 
 
 // TODO: Find a better name than "Feature" for this class
@@ -33,7 +33,7 @@ export default abstract class FeatureScorer extends Scorer {
         if (Object.values(this.scoreData).length > 0) {
             console.debug(`${msg}, returned:`, this.scoreData);
         } else {
-            TRACE_LOG && console.debug(`${msg}, no data returned`);
+            traceLog(`${msg}, no data returned`);
         }
     }
 

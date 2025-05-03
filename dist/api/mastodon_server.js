@@ -199,17 +199,15 @@ class MastodonServer {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonServersInfo() {
-        const releaseMutex = await TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS].acquire();
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            // TODO: we should store the whole Instance object not just the MAU computation etc
             if (servers && Object.keys(servers).length && !(await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
-                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
             }
             else {
                 servers = await this.fetchMastodonServersInfo();
-                console.log(`${logPrefix} retrieved mastodon server infos`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             return servers;
@@ -271,14 +269,14 @@ class MastodonServer {
     // an array of unique objects.
     static async fetchTrendingFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
-        const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
-        const releaseMutex = await TRENDING_MUTEXES[key].acquire();
-        const startTime = new Date();
         const logPrefix = `[${key}]`;
+        const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[key], logPrefix);
+        const startedAt = new Date();
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.inSeconds)(startedAt)}`);
                 return storageObjs;
             }
             else {
@@ -286,7 +284,7 @@ class MastodonServer {
                 // console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startTime)}`;
+                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }

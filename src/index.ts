@@ -32,7 +32,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
-import { checkMutexWaitTime, logInfo } from './helpers/log_helpers';
+import { lockMutex, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
@@ -394,9 +394,7 @@ class TheAlgorithm {
         }
 
         // Only need to lock the mutex when we start modifying common variables like this.feed
-        const mutexedAt = new Date();
-        const releaseMutex = await this.mergeMutex.acquire();
-        checkMutexWaitTime(mutexedAt, `[${logPrefix} mutexedAt]`);
+        const releaseMutex = await lockMutex(this.mergeMutex, logPrefix);
 
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
@@ -420,7 +418,7 @@ class TheAlgorithm {
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     private async prepareScorers(force?: boolean): Promise<void> {
         const logPrefix = `prepareScorers()`;
-        const releaseMutex = await this.scoreMutex.acquire();
+        const releaseMutex = await lockMutex(this.scoreMutex, logPrefix);
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {

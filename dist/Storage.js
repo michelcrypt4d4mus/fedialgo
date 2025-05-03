@@ -39,7 +39,6 @@ const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
-const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
@@ -51,8 +50,8 @@ exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.TRENDING_TAG_TOOTS,
     types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
 ];
-const PREFIX = '[STORAGE]';
-const logMsg = (s) => `${PREFIX} ${s}`;
+const LOG_PREFIX = '[STORAGE]';
+const logMsg = (s) => `${LOG_PREFIX} ${s}`;
 const log = (s, ...args) => console.log(logMsg(s), ...args);
 const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
@@ -104,7 +103,7 @@ class Storage {
             value = [];
         }
         else if (!Array.isArray(value)) {
-            (0, log_helpers_1.logAndThrowError)(`${PREFIX} Expected array at '${key}' but got`, value);
+            (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
         }
         return value;
     }
@@ -163,7 +162,7 @@ class Storage {
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
         const numAppOpens = await this.getNumAppOpens();
-        const logPrefix = `${PREFIX} isDataStale("${key}"):`;
+        const logPrefix = `${LOG_PREFIX} isDataStale("${key}"):`;
         let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
@@ -181,7 +180,7 @@ class Storage {
             return true;
         }
         else {
-            environment_helpers_1.TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
+            (0, log_helpers_1.traceLog)(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }
@@ -206,7 +205,7 @@ class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value };
-        environment_helpers_1.TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        (0, log_helpers_1.traceLog)(LOG_PREFIX, `Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Store the current timeline toots

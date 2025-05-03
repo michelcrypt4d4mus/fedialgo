@@ -4,6 +4,7 @@
  *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
+import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
@@ -12,15 +13,14 @@ import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
-import { checkMutexWaitTime, logAndThrowError } from '../helpers/log_helpers';
 import { checkUniqueIDs, findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
+import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
+import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { MastodonID, MastodonTag, StorableObj, StorageKey, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
-import { capitalCase } from "change-case";
-import { TRACE_LOG } from "../helpers/environment_helpers";
+import { trace } from "console";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -217,8 +217,8 @@ export class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
-        const releaseMutex = await this.mutexes[StorageKey.SERVER_SIDE_FILTERS].acquire()
         const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
+        const releaseMutex = await lockMutex(this.mutexes[StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
 
         try {
@@ -371,9 +371,8 @@ export class MastoApi {
         maxRecordsConfigKey?: keyof Config
     ): Promise<Toot[]> {
         const logPrefix = `[API getCacheableToots ${key}]`;
+        const releaseMutex = await lockMutex(this.mutexes[key], logPrefix);
         const startedAt = new Date();
-        const releaseMutex = await this.mutexes[key].acquire();
-        checkMutexWaitTime(startedAt, logPrefix);
 
         try {
             let toots = await Storage.getToots(key);
@@ -389,7 +388,7 @@ export class MastoApi {
 
                 await Storage.storeToots(key, toots);
             } else {
-                TRACE_LOG && console.debug(`${logPrefix} Loaded ${toots.length} cached toots ${inSeconds(startedAt)}`);
+                traceLog(`${logPrefix} Loaded ${toots.length} cached toots ${inSeconds(startedAt)}`);
             }
 
             return toots;
@@ -406,15 +405,13 @@ export class MastoApi {
         fetchParams.breakIf ||= DEFAULT_BREAK_IF;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         const logPfx = `[API ${label}]`;
-        TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        traceLog(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+
+        const releaseFetchMutex = skipMutex ? null : await lockMutex(this.mutexes[label], logPfx);
+        const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
-
-        // Start the timer before the mutex so we can see if the lock is taking too long to acuqire
-        const startedAt = new Date();
-        const releaseFetchMutex = skipMutex ? null : await this.mutexes[label].acquire();
-        checkMutexWaitTime(startedAt, logPfx);
 
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
@@ -422,7 +419,7 @@ export class MastoApi {
                 const cachedRows = await Storage.get(label) as T[];
 
                 if (cachedRows && !(await Storage.isDataStale(label))) {
-                    TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startedAt)}`);
+                    traceLog(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startedAt)}`);
                     if (!moar) return cachedRows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -435,7 +432,7 @@ export class MastoApi {
             }
 
             const parms = this.buildParams(maxId, maxRecords)
-            TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
+            traceLog(`${logPfx} Fetching with params:`, parms);
 
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page as T[]);
@@ -444,10 +441,10 @@ export class MastoApi {
 
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
+                    traceLog(`${msg}, ${recordsSoFar}`);
                     break;
                 } else {
-                    TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    traceLog(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
 

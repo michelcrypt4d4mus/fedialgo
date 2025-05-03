@@ -11,8 +11,7 @@ import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { toLocaleInt } from "./helpers/string_helpers";
-import { logAndThrowError } from './helpers/log_helpers';
-import { TRACE_LOG } from "./helpers/environment_helpers";
+import { logAndThrowError, traceLog } from './helpers/log_helpers';
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
@@ -37,8 +36,8 @@ export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.TRENDING_TAG_TOOTS_V2,
 ];
 
-const PREFIX = '[STORAGE]';
-const logMsg = (s: string) => `${PREFIX} ${s}`;
+const LOG_PREFIX = '[STORAGE]';
+const logMsg = (s: string) => `${LOG_PREFIX} ${s}`;
 const log = (s: string, ...args: any[]) => console.log(logMsg(s), ...args);
 const warn = (s: string, ...args: any[]) => console.warn(logMsg(s), ...args);
 const debug = (s: string, ...args: any[]) => console.debug(logMsg(s), ...args);
@@ -97,7 +96,7 @@ export default class Storage {
         if (!value) {
             value = [];
         } else if (!Array.isArray(value)) {
-            logAndThrowError(`${PREFIX} Expected array at '${key}' but got`, value);
+            logAndThrowError(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
         }
 
         return value as T[];
@@ -166,7 +165,7 @@ export default class Storage {
         const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
         const numAppOpens = await this.getNumAppOpens();
 
-        const logPrefix = `${PREFIX} isDataStale("${key}"):`;
+        const logPrefix = `${LOG_PREFIX} isDataStale("${key}"):`;
         let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
@@ -182,7 +181,7 @@ export default class Storage {
             console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return true;
         } else {
-            TRACE_LOG && console.debug(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
+            traceLog(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
             return false;
         }
     }
@@ -211,7 +210,7 @@ export default class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
-        TRACE_LOG && debug(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        traceLog(LOG_PREFIX, `Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localForage.setItem(storageKey, withTimestamp);
     }
 

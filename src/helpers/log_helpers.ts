@@ -1,9 +1,13 @@
 /*
  * Logging related methods.
  */
+import { Mutex, MutexInterface } from 'async-mutex';
+
 import Storage from '../Storage';
-import { addPrefix } from './string_helpers';
 import { ageInSeconds, inSeconds } from '../helpers/time_helpers';
+import { isDebugMode } from '../helpers/environment_helpers';
+
+const TRACE_LOG = isDebugMode();
 
 
 // console.info() with a prefix
@@ -37,8 +41,35 @@ export function logAndThrowError(message: string, obj?: any): never {
 };
 
 
-export function checkMutexWaitTime(waitStartedAt: Date, logPrefix: string): void {
-    if (ageInSeconds(waitStartedAt) > Storage.getConfig().mutexWarnSeconds) {
-        console.warn(`${logPrefix} Mutex ${inSeconds(waitStartedAt)}!`);
+export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexInterface.Releaser> {
+    const startedAt = new Date();
+    const releaseMutex = await mutex.acquire();
+
+    if (ageInSeconds(startedAt) > Storage.getConfig().mutexWarnSeconds) {
+        console.warn(`${logPrefix} Mutex ${inSeconds(startedAt)}!`);
     }
+
+    return releaseMutex;
+};
+
+
+// Log only if DEBUG env var is set.
+// Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
+export function traceLog(msg: string, ...args: any[]): void {
+    if (!TRACE_LOG) return;
+
+    if (args.length > 0) {
+        if (typeof args[0] == 'string') {
+            msg = addPrefix(msg, args.shift() as string);
+        }
+    }
+
+    console.debug(msg, ...args);
+};
+
+
+// Prefix a string with [Brackets] and a space
+export function addPrefix(prefix: string, msg: string): string {
+    prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
+    return `[${prefix}] ${msg}`;
 };

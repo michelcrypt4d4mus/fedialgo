@@ -114,8 +114,6 @@ export function createRandomString(length: number): string {
 export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
 // Returns true if n is a number or a string that can be converted to a number
 export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
-// Prefix a string
-export const addPrefix = (prefix: string, msg: string): string => `[${prefix}] ${msg}`;
 
 
 // Number to string (could also be done with Math.floor(num).toLocaleString())

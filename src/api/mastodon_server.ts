@@ -13,7 +13,7 @@ import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
 import { TELEMETRY } from "../helpers/string_helpers";
-import { logAndThrowError } from '../helpers/log_helpers';
+import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,
@@ -232,18 +232,16 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonServersInfo(): Promise<MastodonServersInfo> {
-        const releaseMutex = await TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS].acquire()
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
+        const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS], logPrefix);
 
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
 
-            // TODO: we should store the whole Instance object not just the MAU computation etc
             if (servers && Object.keys(servers).length && !(await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
-                console.debug(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
+                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
             } else {
                 servers = await this.fetchMastodonServersInfo();
-                console.log(`${logPrefix} retrieved mastodon server infos`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             }
 
@@ -320,23 +318,23 @@ export default class MastodonServer {
     // an array of unique objects.
     private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
-        const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
-        const releaseMutex = await TRENDING_MUTEXES[key].acquire();
-        const startTime = new Date();
         const logPrefix = `[${key}]`;
+        const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
+        const releaseMutex = await lockMutex(TRENDING_MUTEXES[key], logPrefix);
+        const startedAt = new Date();
 
         try {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${inSeconds(startTime)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${inSeconds(startedAt)}`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
                 // console.debug(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
-                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${inSeconds(startTime)}`;
+                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${inSeconds(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }

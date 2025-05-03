@@ -14,12 +14,11 @@ const account_1 = __importDefault(require("./account"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const log_helpers_1 = require("../../helpers/log_helpers");
 const api_1 = require("../api");
-const environment_helpers_1 = require("../../helpers/environment_helpers");
 const tag_1 = require("./tag");
 const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
-const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
@@ -234,7 +233,7 @@ class Toot {
     isValidForFeed() {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
-            environment_helpers_1.TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
+            (0, log_helpers_1.traceLog)(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
         }
         // Remove muted accounts and toots
@@ -333,7 +332,7 @@ class Toot {
         }
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            environment_helpers_1.TRACE_LOG && console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }

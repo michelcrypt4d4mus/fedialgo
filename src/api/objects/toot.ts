@@ -11,8 +11,8 @@ import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
 import UserData from "../user_data";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
+import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { MastoApi } from "../api";
-import { TRACE_LOG } from "../../helpers/environment_helpers";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
 import {
@@ -26,7 +26,6 @@ import {
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
-import { logTootRemoval } from '../../helpers/log_helpers';
 import {
     FeedFilterSettings,
     MastodonTag,
@@ -301,7 +300,7 @@ export default class Toot implements TootObj {
     isValidForFeed(): boolean {
         // Remove user's own toots
         if (this.isUsersOwnToot()) {
-            TRACE_LOG && console.debug(`Removing fedialgo user's own toot: ${this.describe()}`);
+            traceLog(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
         }
 
@@ -425,7 +424,7 @@ export default class Toot implements TootObj {
 
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            TRACE_LOG && console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }

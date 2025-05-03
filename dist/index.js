@@ -370,9 +370,7 @@ class TheAlgorithm {
             console.error(`${logPrefix} Error fetching toots:`, e);
         }
         // Only need to lock the mutex when we start modifying common variables like this.feed
-        const mutexedAt = new Date();
-        const releaseMutex = await this.mergeMutex.acquire();
-        (0, log_helpers_1.checkMutexWaitTime)(mutexedAt, `[${logPrefix} mutexedAt]`);
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mergeMutex, logPrefix);
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
@@ -394,7 +392,7 @@ class TheAlgorithm {
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     async prepareScorers(force) {
         const logPrefix = `prepareScorers()`;
-        const releaseMutex = await this.scoreMutex.acquire();
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.scoreMutex, logPrefix);
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();

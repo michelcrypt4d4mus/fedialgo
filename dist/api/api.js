@@ -27,20 +27,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+/*
+ * Class to wrap authenticated mastodon API calls to the user's home server (unauthenticated
+ * calls are handled by MastodonServer).
+ *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
+ *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
+ */
+const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
-const log_helpers_1 = require("../helpers/log_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const time_helpers_1 = require("../helpers/time_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
-const time_helpers_1 = require("../helpers/time_helpers");
-const change_case_1 = require("change-case");
-const environment_helpers_1 = require("../helpers/environment_helpers");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -189,8 +194,8 @@ class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
-        const releaseMutex = await this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS].acquire();
         const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
@@ -334,9 +339,8 @@ class MastoApi {
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(key, fetch, maxRecordsConfigKey) {
         const logPrefix = `[API getCacheableToots ${key}]`;
+        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mutexes[key], logPrefix);
         const startedAt = new Date();
-        const releaseMutex = await this.mutexes[key].acquire();
-        (0, log_helpers_1.checkMutexWaitTime)(startedAt, logPrefix);
         try {
             let toots = await Storage_1.default.getToots(key);
             if (!toots || (await Storage_1.default.isDataStale(key))) {
@@ -349,7 +353,7 @@ class MastoApi {
                 await Storage_1.default.storeToots(key, toots);
             }
             else {
-                environment_helpers_1.TRACE_LOG && console.debug(`${logPrefix} Loaded ${toots.length} cached toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${toots.length} cached toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
             }
             return toots;
         }
@@ -365,21 +369,19 @@ class MastoApi {
         fetchParams.breakIf ||= DEFAULT_BREAK_IF;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         const logPfx = `[API ${label}]`;
-        environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+        const releaseFetchMutex = skipMutex ? null : await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx);
+        const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
-        // Start the timer before the mutex so we can see if the lock is taking too long to acuqire
-        const startedAt = new Date();
-        const releaseFetchMutex = skipMutex ? null : await this.mutexes[label].acquire();
-        (0, log_helpers_1.checkMutexWaitTime)(startedAt, logPfx);
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
                 if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
-                    environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                    (0, log_helpers_1.traceLog)(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startedAt)}`);
                     if (!moar)
                         return cachedRows;
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -392,18 +394,18 @@ class MastoApi {
                 ;
             }
             const parms = this.buildParams(maxId, maxRecords);
-            environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Fetching with params:`, parms);
+            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, parms);
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.inSeconds)(startedAt)}`;
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    environment_helpers_1.TRACE_LOG && console.debug(`${msg}, ${recordsSoFar}`);
+                    (0, log_helpers_1.traceLog)(`${msg}, ${recordsSoFar}`);
                     break;
                 }
                 else {
-                    environment_helpers_1.TRACE_LOG && console.debug(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    (0, log_helpers_1.traceLog)(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
             if (!skipCache)
