@@ -11,6 +11,7 @@ const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
 const user_data_1 = __importDefault(require("../api/user_data"));
 const types_1 = require("../types");
+const log_helpers_1 = require("../helpers/log_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 // Get recent toots from hashtags the user has participated in frequently
 async function getParticipatedHashtagToots() {
@@ -47,7 +48,7 @@ async function removeFollowedTags(tags) {
 function removeKeywordsFromTags(tags, keywords, logPrefix) {
     const validTags = tags.filter(tag => !keywords.includes(tag.name));
     if (validTags.length != tags.length) {
-        console.debug(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
+        (0, log_helpers_1.traceLog)(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
     }
     return validTags;
 }

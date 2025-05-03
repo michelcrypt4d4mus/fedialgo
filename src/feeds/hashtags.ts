@@ -6,6 +6,7 @@ import MastodonServer from "../api/mastodon_server";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { MastodonTag, StorageKey } from "../types";
+import { traceLog } from "../helpers/log_helpers";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 
 
@@ -60,7 +61,7 @@ function removeKeywordsFromTags(tags: MastodonTag[], keywords: string[], logPref
     const validTags = tags.filter(tag => !keywords.includes(tag.name));
 
     if (validTags.length != tags.length) {
-        console.debug(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
+        traceLog(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
     }
 
     return validTags;
