@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.24.4
 * Re-raise access token revoked errors in `mergePromisedTootsIntoFeed()`
 
 ### v0.24.3
