@@ -110,7 +110,7 @@ export default class MastodonServer {
         const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
         trendingLinks.forEach(decorateHistoryScores);
         return trendingLinks;
-    };
+    }
 
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TrendingTag[]> {
@@ -118,7 +118,7 @@ export default class MastodonServer {
         const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
         return trendingTags;
-    };
+    }
 
     ///////////////////////////////////
     //        Private Methods       //
@@ -127,7 +127,7 @@ export default class MastodonServer {
     // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
     private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
         return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
-    };
+    }
 
     // Fetch a list of objects of type T from a public API endpoint
     private async fetchList<T>(endpoint: string, limit?: number): Promise<T[]> {
@@ -149,7 +149,7 @@ export default class MastodonServer {
         }
 
         return list as T[];
-    };
+    }
 
     // Get data from a public API endpoint on a Mastodon server.
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
@@ -165,7 +165,7 @@ export default class MastodonServer {
         } else {
             throw json;
         }
-    };
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
@@ -193,7 +193,7 @@ export default class MastodonServer {
                 return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });
-    };
+    }
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
@@ -204,7 +204,7 @@ export default class MastodonServer {
                 return uniquifyTrendingObjs<TrendingLink>(links, link => link.url);
             }
         });
-    };
+    }
 
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
@@ -296,7 +296,7 @@ export default class MastodonServer {
 
         console.debug(`[${StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;
-    };
+    }
 
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.

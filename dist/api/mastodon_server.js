@@ -110,7 +110,6 @@ class MastodonServer {
         trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
         return trendingLinks;
     }
-    ;
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = Storage_1.default.getConfig().numTrendingTagsPerServer;
@@ -118,7 +117,6 @@ class MastodonServer {
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
         return trendingTags;
     }
-    ;
     ///////////////////////////////////
     //        Private Methods       //
     //////////////////////////////////
@@ -126,7 +124,6 @@ class MastodonServer {
     async fetchTrending(typeStr, limit) {
         return this.fetchList(MastodonServer.trendUrl(typeStr), limit);
     }
-    ;
     // Fetch a list of objects of type T from a public API endpoint
     async fetchList(endpoint, limit) {
         const label = endpoint.split("/").pop();
@@ -147,7 +144,6 @@ class MastodonServer {
         }
         return list;
     }
-    ;
     // Get data from a public API endpoint on a Mastodon server.
     async fetch(endpoint, limit) {
         let url = this.endpointUrl(endpoint);
@@ -164,7 +160,6 @@ class MastodonServer {
             throw json;
         }
     }
-    ;
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +184,6 @@ class MastodonServer {
             },
         });
     }
-    ;
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
         return await this.fetchTrendingFromAllServers({
@@ -200,7 +194,6 @@ class MastodonServer {
             }
         });
     }
-    ;
     // Get the top trending tags from all servers
     static async fediverseTrendingTags() {
         return await this.fetchTrendingFromAllServers({
@@ -278,7 +271,6 @@ class MastodonServer {
         console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;
     }
-    ;
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
     static async fetchTrendingFromAllServers(props) {

@@ -31,7 +31,6 @@ var TootVisibility;
 })(TootVisibility || (TootVisibility = {}));
 ;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
-const HUGE_ID = 10 ** 100;
 const UNKNOWN = "unknown";
 ;
 ;
@@ -299,8 +298,8 @@ class Toot {
         // Set trendingLinks property
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set trendingTags and followedTags properties
-        // TODO: this has an unfortunate side effect that the filters don't work
-        // correctly on toots that contain the name of a hashtag without actually
+        // TODO: this has an unfortunate side effect that the filters don't work correctly
+        // on toots that contain the name of a hashtag without actually
         // containing that hashtag. TootMatcher was updated to make it work while we try this out.
         if (!toot.trendingTags || !toot.followedTags) {
             toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
@@ -345,10 +344,10 @@ class Toot {
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {
-        const algoUser = api_1.default.instance.user;
-        if (this.account.webfingerURI == algoUser.webfingerURI)
+        const algoUserWebfingerURI = api_1.default.instance.user.webfingerURI;
+        if (this.account.webfingerURI == algoUserWebfingerURI)
             return true;
-        if (this.reblog && this.reblog.account.webfingerURI == algoUser.webfingerURI)
+        if (this.reblog && this.reblog.account.webfingerURI == algoUserWebfingerURI)
             return true;
         return false;
     }
