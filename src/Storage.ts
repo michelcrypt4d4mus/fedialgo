@@ -29,7 +29,7 @@ import {
 export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
-    StorageKey.PARTICIPATED_HASHTAG_TOOTS,
+    StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.RECENT_USER_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,

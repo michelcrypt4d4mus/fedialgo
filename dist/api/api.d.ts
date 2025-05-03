@@ -31,7 +31,7 @@ export declare class MastoApi {
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
     getRecentTootsForTrendingTags(): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getTootsForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    getTootsForHashtag(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
     getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;

@@ -183,6 +183,7 @@ class TheAlgorithm {
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.loadStartedAt = new Date();
             this.prepareScorers();
+            // TODO: consider waiting until after 100 or so toots have been loaded to launch these pulls
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
@@ -190,13 +191,7 @@ class TheAlgorithm {
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             MastoApi.instance.getUserData().then((userData) => this.userData = userData);
         } else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-
-            if (this.feed.length < Storage.getConfig().maxInitialTimelineToots) {
-                this.loadingStatus += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()})`;
-            } else {
-                this.loadingStatus += `)`;
-            }
+            this.loadingStatus = this.loadingMoreTootsStatusMsg();;
         }
 
         this.mergePromisedTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
@@ -279,6 +274,19 @@ class TheAlgorithm {
         return filteredFeed;
     }
 
+    // Launch the poller, force scorers to recompute data, rescore the feed
+    private async checkForMoarData(): Promise<void> {
+        const shouldContinue = await getMoarData();
+        await this.userData.populate();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
+
+        if (!shouldContinue) {
+            console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
+            this.dataPoller && clearInterval(this.dataPoller!);
+        }
+    }
+
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.feed = (await Storage.getFeed()) ?? [];
@@ -355,7 +363,7 @@ class TheAlgorithm {
                 console.log(`${logPrefix} starting data poller...`);
 
                 this.dataPoller = setInterval(
-                    () => this.checkMoarData(),
+                    () => this.checkForMoarData(),
                     Storage.getConfig().backgroundLoadIntervalMS
                 );
             } else {
@@ -366,17 +374,14 @@ class TheAlgorithm {
         }
     }
 
-    // Launch the poller, force scorers to recompute data, rescore the feed
-    private async checkMoarData(): Promise<void> {
-        const shouldContinue = await getMoarData();
-        await this.userData.populate();
-        await this.prepareScorers(true);
-        await this.scoreAndFilterFeed();
+    private loadingMoreTootsStatusMsg(): string {
+        let msg = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
 
-        if (!shouldContinue) {
-            console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
-            this.dataPoller && clearInterval(this.dataPoller!);
+        if (this.feed.length < Storage.getConfig().maxInitialTimelineToots) {
+            msg += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()}`;
         }
+
+        return msg + ')'
     }
 
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher

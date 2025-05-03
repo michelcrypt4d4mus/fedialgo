@@ -151,7 +151,7 @@ class MastoApi {
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
     }
-    // Get recent toots from hashtags the user has participated in
+    // Get recent toots from hashtags the user has participated in frequently
     async getParticipatedHashtagToots() {
         const fetch = async () => {
             let tags = await user_data_1.default.getPostedHashtagsSorted();
@@ -159,9 +159,10 @@ class MastoApi {
             const followedTags = await MastoApi.instance.getFollowedTags();
             tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
             tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
+            console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
             return await this.getStatusesForTags(tags);
         };
-        return await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch, "numUserParticipatedTagToots");
+        return await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, fetch, "numUserParticipatedTagToots");
     }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
@@ -192,7 +193,7 @@ class MastoApi {
     }
     ;
     // Retrieve content based feed filters the user has set up on the server
-    // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
+    // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
         const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS], logPrefix);
@@ -226,24 +227,24 @@ class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async getTootsForHashtag(searchStr, maxRecords) {
+    async getTootsForHashtag(tag, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const startedAt = new Date();
         const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag()] (semaphore ${semaphoreNum})`;
+        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
         try {
             const toots = await this.getApiRecords({
-                fetch: this.api.v1.timelines.tag.$select(searchStr).list,
+                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
                 label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
                 skipCache: true,
                 skipMutex: true,
             });
-            console.debug(`${logPrefix} Retrieved ${toots.length} '#${searchStr}' toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
             return toots;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get '#${searchStr}' ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
             return [];
         }
         finally {
@@ -324,13 +325,15 @@ class MastoApi {
         return `${this.endpointURL(exports.TAGS)}/${tag.name}`;
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(maxId, limit) {
+    buildParams(maxId, limit, logPfx) {
         limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
         let params = {
             limit: Math.min(limit, Storage_1.default.getConfig().defaultRecordsPerPage),
         };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };
+        if (logPfx)
+            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, params);
         return params;
     }
     ;
@@ -364,13 +367,16 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
-        fetchParams.maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        fetchParams.breakIf ||= DEFAULT_BREAK_IF;
-        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
-        const logPfx = `[API ${label}]`;
+        // Process args
+        const logPfx = `[API ${fetchParams.label}]`;
         (0, log_helpers_1.traceLog)(`${logPfx} fetchData() called w/params:`, fetchParams);
+        fetchParams.breakIf ??= DEFAULT_BREAK_IF;
+        fetchParams.filterResults ??= (_obj) => true;
+        fetchParams.maxRecords ??= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        let { breakIf, fetch, filterResults, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+        // Lock mutex for the endpoint to prevent parallelism
         const releaseFetchMutex = skipMutex ? null : await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
@@ -380,27 +386,24 @@ class MastoApi {
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
                 if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
+                    rows = cachedRows;
                     (0, log_helpers_1.traceLog)(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.inSeconds)(startedAt)}`);
                     if (!moar)
-                        return cachedRows;
+                        return rows;
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
-                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`);
-                    rows = cachedRows;
+                    // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
                     maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
                     maxId = (0, collection_helpers_1.findMinId)(rows);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
                 }
                 ;
             }
-            const parms = this.buildParams(maxId, maxRecords);
-            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, parms);
-            for await (const page of fetch(parms)) {
+            for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.inSeconds)(startedAt)}`;
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
-                    let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    (0, log_helpers_1.traceLog)(`${msg}, ${recordsSoFar}`);
+                    (0, log_helpers_1.traceLog)(`${logPfx} Completing fetch at page ${pageNumber} ${recordsSoFar}`);
                     break;
                 }
                 else {
@@ -411,36 +414,28 @@ class MastoApi {
                 await Storage_1.default.set(label, rows);
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${(0, time_helpers_1.inSeconds)(startedAt)}`);
-            return rows;
+            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}! Returning ${rows.length} rows`);
         }
         finally {
             releaseFetchMutex && releaseFetchMutex();
         }
-        return rows;
+        return rows.filter(fetchParams.filterResults);
     }
     ;
-    // Get latest toots for a given tag and populate trendingToots property
-    // Currently uses both the Search API as well as the tag timeline API which have
-    // surprising little overlap (~80% of toots are unique)
-    async getStatusesForTag(tagName, numToots) {
+    // Get latest toots for a given tag using both the Search API and tag timeline API.
+    // The two APIs give results with surprising little overlap (~80% of toots are unique)
+    async getStatusesForTag(tag, numToots) {
         numToots ||= Storage_1.default.getConfig().numTootsPerTrendingTag;
         const tagToots = await Promise.all([
-            this.searchForToots(tagName, numToots),
-            this.getTootsForHashtag(tagName, numToots),
+            this.searchForToots(tag.name, numToots),
+            this.getTootsForHashtag(tag, numToots),
         ]);
-        // TODO: this is excessive logging, remove it once we've had a chance to inspect results
-        // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
-        // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
-        // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
-        // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
         return tagToots.flat();
     }
     ;
     // Collect and fully populate / dedup a collection of toots for an array of Tags
-    // Sorts toots by poplularity and returns them.
     async getStatusesForTags(tags) {
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag.name)));
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
         return tagToots.flat();
     }
     // Re-raise access revoked errors so they can trigger a logout() call

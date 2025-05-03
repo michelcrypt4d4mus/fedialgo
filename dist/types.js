@@ -42,7 +42,7 @@ var StorageKey;
     StorageKey["LAST_OPENED"] = "LastOpened";
     StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     StorageKey["OPENINGS"] = "Openings";
-    StorageKey["PARTICIPATED_HASHTAG_TOOTS"] = "ParticipatedHashtagToots";
+    StorageKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
     StorageKey["POPULAR_SERVERS"] = "PopularServers";
     StorageKey["RECENT_NOTIFICATIONS"] = "RecentNotifications";
     StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";

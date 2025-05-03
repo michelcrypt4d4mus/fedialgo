@@ -39,7 +39,7 @@ export declare enum StorageKey {
     LAST_OPENED = "LastOpened",
     MUTED_ACCOUNTS = "MutedAccounts",
     OPENINGS = "Openings",
-    PARTICIPATED_HASHTAG_TOOTS = "ParticipatedHashtagToots",
+    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     POPULAR_SERVERS = "PopularServers",
     RECENT_NOTIFICATIONS = "RecentNotifications",
     RECENT_USER_TOOTS = "RecentUserToots",

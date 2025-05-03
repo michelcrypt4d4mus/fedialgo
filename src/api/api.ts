@@ -35,6 +35,7 @@ export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 //   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF()
 //   - fetch: the data fetching function to call with params
+//   - filterResults: optional function to filter the results (e.g. for toots that are not replies)
 //   - label: key to use for caching
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
@@ -43,6 +44,7 @@ export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
 //   - skipMutex: if true, don't use mutex locks to prevent parallelism mutex when making requests
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
+    filterResults?: (obj: T) => boolean,
     label: StorageKey,
     maxId?: string | number,
     maxRecords?: number,
@@ -163,7 +165,7 @@ export class MastoApi {
         return mutedAccounts.map(a => new Account(a)).concat(blockedAccounts);
     }
 
-    // Get recent toots from hashtags the user has participated in
+    // Get recent toots from hashtags the user has participated in frequently
     async getParticipatedHashtagToots(): Promise<Toot[]> {
         const fetch = async () => {
             let tags = await UserData.getPostedHashtagsSorted();
@@ -171,10 +173,11 @@ export class MastoApi {
             const followedTags = await MastoApi.instance.getFollowedTags();
             tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
             tags = truncateToConfiguredLength(tags, "numUserParticipatedTagsToFetchTootsFor");
+            console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
             return await this.getStatusesForTags(tags);
         }
 
-        return await this.getCacheableToots(StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch, "numUserParticipatedTagToots");
+        return await this.getCacheableToots(StorageKey.PARTICIPATED_TAG_TOOTS, fetch, "numUserParticipatedTagToots");
     }
 
     // Get an array of Toots the user has recently favourited
@@ -214,7 +217,7 @@ export class MastoApi {
     };
 
     // Retrieve content based feed filters the user has set up on the server
-    // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
+    // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
         const releaseMutex = await lockMutex(this.mutexes[StorageKey.SERVER_SIDE_FILTERS], logPrefix);
@@ -249,25 +252,25 @@ export class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async getTootsForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
+    async getTootsForHashtag(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const startedAt = new Date();
         const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag()] (semaphore ${semaphoreNum})`;
+        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
 
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
-                fetch: this.api.v1.timelines.tag.$select(searchStr).list,
+                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
                 label: StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
-                skipCache: true,
+                skipCache: true,  // Don't cache the results of this endpoint
                 skipMutex: true,
             });
 
-            console.debug(`${logPrefix} Retrieved ${toots.length} '#${searchStr}' toots ${inSeconds(startedAt)}`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${inSeconds(startedAt)}`);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get '#${searchStr}' ${inSeconds(startedAt)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots ${inSeconds(startedAt)}`);
             return [];
         } finally {
             releaseSemaphore();
@@ -350,7 +353,7 @@ export class MastoApi {
     }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    private buildParams(maxId?: number | string, limit?: number): mastodon.DefaultPaginationParams {
+    private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
         limit ||= Storage.getConfig().defaultRecordsPerPage;
 
         let params: mastodon.DefaultPaginationParams = {
@@ -358,6 +361,7 @@ export class MastoApi {
         };
 
         if (maxId) params = {...params, maxId: `${maxId}`};
+        if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params as mastodon.DefaultPaginationParams;
     };
 
@@ -399,13 +403,15 @@ export class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-        fetchParams.maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
-        fetchParams.breakIf ||= DEFAULT_BREAK_IF;
-        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
-        const logPfx = `[API ${label}]`;
+        // Process args
+        const logPfx = `[API ${fetchParams.label}]`;
         traceLog(`${logPfx} fetchData() called w/params:`, fetchParams);
+        fetchParams.breakIf ??= DEFAULT_BREAK_IF;
+        fetchParams.filterResults ??= (_obj: T) => true;
+        fetchParams.maxRecords ??= Storage.getConfig().minRecordsForFeatureScoring;
+        let { breakIf, fetch, filterResults, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
-
+        // Lock mutex for the endpoint to prevent parallelism
         const releaseFetchMutex = skipMutex ? null : await lockMutex(this.mutexes[label], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
@@ -417,29 +423,25 @@ export class MastoApi {
                 const cachedRows = await Storage.get(label) as T[];
 
                 if (cachedRows && !(await Storage.isDataStale(label))) {
+                    rows = cachedRows;
                     traceLog(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startedAt)}`);
-                    if (!moar) return cachedRows;
+                    if (!moar) return rows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
-                    console.log(`${logPfx} Found ${cachedRows?.length} cached rows, using minId to fetch more`);
-                    rows = cachedRows;
+                    // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
                     maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
                     maxId = findMinId(rows as MastodonID[]);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
                 };
             }
 
-            const parms = this.buildParams(maxId, maxRecords)
-            traceLog(`${logPfx} Fetching with params:`, parms);
-
-            for await (const page of fetch(parms)) {
+            for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const recordsSoFar = `have ${rows.length} records so far ${inSeconds(startedAt)}`;
 
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
-                    let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
-                    traceLog(`${msg}, ${recordsSoFar}`);
+                    traceLog(`${logPfx} Completing fetch at page ${pageNumber} ${recordsSoFar}`);
                     break;
                 } else {
                     traceLog(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
@@ -448,38 +450,30 @@ export class MastoApi {
 
             if (!skipCache) await Storage.set(label, rows as StorableObj);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${inSeconds(startedAt)}`);
-            return rows;
+            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${inSeconds(startedAt)}! Returning ${rows.length} rows`);
         } finally {
             releaseFetchMutex && releaseFetchMutex();
         }
 
-        return rows;
+        return rows.filter(fetchParams.filterResults) as T[];
     };
 
-    // Get latest toots for a given tag and populate trendingToots property
-    // Currently uses both the Search API as well as the tag timeline API which have
-    // surprising little overlap (~80% of toots are unique)
-    private async getStatusesForTag(tagName: string, numToots?: number): Promise<mastodon.v1.Status[]> {
+    // Get latest toots for a given tag using both the Search API and tag timeline API.
+    // The two APIs give results with surprising little overlap (~80% of toots are unique)
+    private async getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]> {
         numToots ||= Storage.getConfig().numTootsPerTrendingTag;
 
         const tagToots = await Promise.all([
-            this.searchForToots(tagName, numToots),
-            this.getTootsForHashtag(tagName, numToots),
+            this.searchForToots(tag.name, numToots),
+            this.getTootsForHashtag(tag, numToots),
         ]);
 
-        // TODO: this is excessive logging, remove it once we've had a chance to inspect results
-        // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
-        // tagTimelineToots.forEach(t => console.info(`${logPrefix} TIMELINE found: ${t.describe()}`));
-        // logTrendingTagResults(logPrefix, "SEARCH", searchToots);
-        // logTrendingTagResults(logPrefix, "TIMELINE", tagTimelineToots);
         return tagToots.flat();
     };
 
     // Collect and fully populate / dedup a collection of toots for an array of Tags
-    // Sorts toots by poplularity and returns them.
     private async getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]> {
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag.name)));
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
         return tagToots.flat();
     }
 

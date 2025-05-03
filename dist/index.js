@@ -185,6 +185,7 @@ class TheAlgorithm {
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.loadStartedAt = new Date();
             this.prepareScorers();
+            // TODO: consider waiting until after 100 or so toots have been loaded to launch these pulls
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
@@ -193,13 +194,8 @@ class TheAlgorithm {
             api_1.MastoApi.instance.getUserData().then((userData) => this.userData = userData);
         }
         else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-            if (this.feed.length < Storage_1.default.getConfig().maxInitialTimelineToots) {
-                this.loadingStatus += `, want ${Storage_1.default.getConfig().maxInitialTimelineToots.toLocaleString()})`;
-            }
-            else {
-                this.loadingStatus += `)`;
-            }
+            this.loadingStatus = this.loadingMoreTootsStatusMsg();
+            ;
         }
         this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
             .then((newToots) => {
@@ -267,6 +263,17 @@ class TheAlgorithm {
             (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
         }
         return filteredFeed;
+    }
+    // Launch the poller, force scorers to recompute data, rescore the feed
+    async checkForMoarData() {
+        const shouldContinue = await (0, poller_1.getMoarData)();
+        await this.userData.populate();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
+        if (!shouldContinue) {
+            console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
+            this.dataPoller && clearInterval(this.dataPoller);
+        }
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -337,7 +344,7 @@ class TheAlgorithm {
             // set dataPoller to null later to make it clear it's done
             if (!this.dataPoller) {
                 console.log(`${logPrefix} starting data poller...`);
-                this.dataPoller = setInterval(() => this.checkMoarData(), Storage_1.default.getConfig().backgroundLoadIntervalMS);
+                this.dataPoller = setInterval(() => this.checkForMoarData(), Storage_1.default.getConfig().backgroundLoadIntervalMS);
             }
             else {
                 console.log(`${logPrefix} not launching data poller bc... already running?`, this.dataPoller);
@@ -345,16 +352,12 @@ class TheAlgorithm {
             this.loadingStatus = null;
         }
     }
-    // Launch the poller, force scorers to recompute data, rescore the feed
-    async checkMoarData() {
-        const shouldContinue = await (0, poller_1.getMoarData)();
-        await this.userData.populate();
-        await this.prepareScorers(true);
-        await this.scoreAndFilterFeed();
-        if (!shouldContinue) {
-            console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
-            this.dataPoller && clearInterval(this.dataPoller);
+    loadingMoreTootsStatusMsg() {
+        let msg = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
+        if (this.feed.length < Storage_1.default.getConfig().maxInitialTimelineToots) {
+            msg += `, want ${Storage_1.default.getConfig().maxInitialTimelineToots.toLocaleString()}`;
         }
+        return msg + ')';
     }
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
     async mergePromisedTootsIntoFeed(tootFetcher, label) {

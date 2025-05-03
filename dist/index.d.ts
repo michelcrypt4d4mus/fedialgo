@@ -67,9 +67,10 @@ declare class TheAlgorithm {
     homeTimelineToots(): Toot[];
     private filteredFeed;
     private setFilteredFeedInApp;
+    private checkForMoarData;
     private loadCachedData;
     private maybeGetMoreToots;
-    private checkMoarData;
+    private loadingMoreTootsStatusMsg;
     private mergePromisedTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;
