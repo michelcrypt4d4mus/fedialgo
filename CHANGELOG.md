@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.24.1
-* Lower Config.maxRecordsForFeatureScoring to 1600, numTrendingTagsToots to 200
+* Lower `Config.maxRecordsForFeatureScoring` to 1600, `numTrendingTagsToots` to 200
 * `HashtagParticipationScorer` uses the square root of the number of participations to tamp down runaway scores.
 * Use a Semaphore to limit concurrency of hashtag search API requests; add `Config.maxConcurrentTootRequests`
 * Exclude followed tags from the pulling of hashtag participation toots (followed tags are already in timeline)
