@@ -25,7 +25,7 @@ async function getMoarData() {
     const releaseMutex = await MOAR_MUTEX.acquire();
     const pollers = [
         api_1.default.instance.getRecentNotifications.bind(api_1.default.instance),
-        api_1.default.instance.getUserRecentToots.bind(api_1.default.instance),
+        api_1.default.instance.getRecentUserToots.bind(api_1.default.instance),
         // TODO: getRecentFavourites API doesn't use maxId argument BUT you can page as far back as you want
         // MastoApi.instance.getRecentFavourites.bind(MastoApi.instance),
     ];

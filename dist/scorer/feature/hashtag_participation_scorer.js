@@ -15,7 +15,7 @@ class HashtagParticipationScorer extends feature_scorer_1.default {
         super(types_1.WeightName.HASHTAG_PARTICIPATION);
     }
     async prepareScoreData() {
-        const userTags = await user_data_1.default.getPostedHashtags();
+        const userTags = await user_data_1.default.getUserParticipatedTags();
         return Object.values(userTags).reduce((acc, tag) => {
             acc[tag.name] = tag.numToots || 0;
             return acc;

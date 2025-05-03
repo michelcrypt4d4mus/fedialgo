@@ -234,7 +234,7 @@ class MastoApi {
     ;
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have setDependentProperties() called on them!
-    async getUserRecentToots(moar) {
+    async getRecentUserToots(moar) {
         const recentToots = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: types_1.StorageKey.RECENT_USER_TOOTS,

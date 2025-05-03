@@ -40,7 +40,7 @@ export default class UserData {
         userData.followedAccounts = Account.buildAccountNames(data.followedAccounts);
         userData.followedTags = data.followedTags;
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = UserData.buildUserHashtags(data.recentToots);
+        userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.serverSideFilters = data.serverSideFilters;
         return userData;
     }
@@ -73,7 +73,7 @@ export default class UserData {
             MastoApi.instance.getFollowedAccounts(),
             MastoApi.instance.getFollowedTags(),
             MastoApi.instance.getMutedAccounts(),
-            UserData.getPostedHashtags(),
+            UserData.getUserParticipatedTags(),
             MastoApi.instance.getServerSideFilters(),
         ]);
 
@@ -86,7 +86,7 @@ export default class UserData {
 
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TrendingTag[] {
-        return UserData.sortTagNames(this.participatedHashtags);
+        return UserData.sortTrendingTags(this.participatedHashtags);
     }
 
     ////////////////////////////
@@ -103,25 +103,27 @@ export default class UserData {
     }
 
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getPostedHashtagsSorted(): Promise<TrendingTag[]> {
-        const userTags = await UserData.getPostedHashtags();
-        return this.sortTagNames(userTags);
+    static async getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]> {
+        const userTags = await UserData.getUserParticipatedTags();
+        return this.sortTrendingTags(userTags);
     }
 
-    // Fetch or load TrendingTag objects with numToots prop set to number of times user tooted it
-    static async getPostedHashtags(): Promise<TagNames> {
-        const recentToots = await MastoApi.instance.getUserRecentToots();
-        return this.buildUserHashtags(recentToots);
+    // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
+    // The numToots prop is set to number of times user tooted it
+    static async getUserParticipatedTags(): Promise<TagNames> {
+        const recentToots = await MastoApi.instance.getRecentUserToots();
+        return this.buildUserParticipatedHashtags(recentToots);
     }
 
     // Return array of TrendingTags sorted by numToots
-    static sortTagNames(userTags: TagNames): TrendingTag[] {
+    static sortTrendingTags(userTags: TagNames): TrendingTag[] {
         return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, false);
     }
 
     // Build a dict of tag names to the number of times the user tooted it from a list of toots
-    private static buildUserHashtags(userToots: TootLike[]): TagNames {
-        const tags = userToots.flatMap(toot => (toot.reblog ?? toot).tags || []) as TrendingTag[];
+    private static buildUserParticipatedHashtags(userToots: TootLike[]): TagNames {
+        // Ignores reblogs. Only counts toots authored by the user
+        const tags = userToots.flatMap(toot => toot.tags || []) as TrendingTag[];
 
         return tags.reduce(
             (tags, tag) => {

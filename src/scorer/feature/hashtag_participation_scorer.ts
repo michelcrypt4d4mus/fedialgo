@@ -14,7 +14,7 @@ export default class HashtagParticipationScorer extends FeatureScorer {
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const userTags = await UserData.getPostedHashtags();
+        const userTags = await UserData.getUserParticipatedTags();
 
         return Object.values(userTags).reduce(
             (acc, tag) => {

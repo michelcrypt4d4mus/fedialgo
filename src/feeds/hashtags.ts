@@ -12,7 +12,7 @@ import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 
 // Get recent toots from hashtags the user has participated in frequently
 export async function getParticipatedHashtagToots(): Promise<Toot[]> {
-    let tags = await UserData.getPostedHashtagsSorted();
+    let tags = await UserData.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
 

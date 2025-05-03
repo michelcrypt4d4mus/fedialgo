@@ -18,7 +18,7 @@ class MostRepliedAccountsScorer extends feature_scorer_1.default {
     // would require a lot of API calls, so it's just working with the account ID which is NOT
     // unique across all servers.
     async prepareScoreData() {
-        const recentToots = await api_1.default.instance.getUserRecentToots();
+        const recentToots = await api_1.default.instance.getRecentUserToots();
         const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
         return (0, collection_helpers_1.countValues)(recentReplies, (toot) => toot?.inReplyToAccountId);
     }

@@ -15,7 +15,7 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 // Get recent toots from hashtags the user has participated in frequently
 async function getParticipatedHashtagToots() {
-    let tags = await user_data_1.default.getPostedHashtagsSorted();
+    let tags = await user_data_1.default.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
     return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags), "numParticipatedTagToots");

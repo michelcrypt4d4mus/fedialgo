@@ -22,9 +22,9 @@ export default class UserData {
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
     static mutedKeywords(): Promise<string[]>;
-    static getPostedHashtagsSorted(): Promise<TrendingTag[]>;
-    static getPostedHashtags(): Promise<TagNames>;
-    static sortTagNames(userTags: TagNames): TrendingTag[];
-    private static buildUserHashtags;
+    static getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]>;
+    static getUserParticipatedTags(): Promise<TagNames>;
+    static sortTrendingTags(userTags: TagNames): TrendingTag[];
+    private static buildUserParticipatedHashtags;
 }
 export {};
