@@ -25,7 +25,9 @@ export default class HashtagParticipationScorer extends FeatureScorer {
         );
     };
 
+    // Use the square root of the number of toots with the hashtag to prevent runaway scores
+    // for hashtags like #uspol
     async _score(toot: Toot): Promise<number> {
-        return sumArray(toot.realToot().tags.map(t => this.scoreData[t.name] || 0));
+        return sumArray(toot.realToot().tags.map(t => Math.sqrt(this.scoreData[t.name] || 0)));
     }
 };

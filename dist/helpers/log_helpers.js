@@ -7,8 +7,7 @@ exports.addPrefix = exports.traceLog = exports.lockMutex = exports.logAndThrowEr
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
-const console_1 = require("console");
-const TRACE_LOG = (0, environment_helpers_1.isDebugMode)();
+const ENABLE_TRACE_LOG = (0, environment_helpers_1.isDebugMode)();
 // console.info() with a prefix
 const logInfo = (prefix, msg, ...args) => {
     console.info(addPrefix(prefix, msg), ...args);
@@ -49,7 +48,7 @@ async function lockMutex(mutex, logPrefix) {
         console.warn(logMsg);
     }
     else if (mutexWaitSeconds > 2) {
-        console.debug(console_1.log);
+        console.debug(logMsg);
     }
     return releaseMutex;
 }
@@ -58,7 +57,7 @@ exports.lockMutex = lockMutex;
 // Log only if DEBUG env var is set.
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 function traceLog(msg, ...args) {
-    if (!TRACE_LOG)
+    if (!ENABLE_TRACE_LOG)
         return;
     if (args.length > 0) {
         if (typeof args[0] == 'string') {

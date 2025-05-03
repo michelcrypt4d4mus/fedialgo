@@ -6,9 +6,8 @@ import { Mutex, MutexInterface } from 'async-mutex';
 import Storage from '../Storage';
 import { ageInSeconds, inSeconds } from '../helpers/time_helpers';
 import { isDebugMode } from '../helpers/environment_helpers';
-import { log } from 'console';
 
-const TRACE_LOG = isDebugMode();
+const ENABLE_TRACE_LOG = isDebugMode();
 
 
 // console.info() with a prefix
@@ -51,7 +50,7 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
     if (mutexWaitSeconds > Storage.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (mutexWaitSeconds > 2) {
-        console.debug(log);
+        console.debug(logMsg);
     }
 
     return releaseMutex;
@@ -61,7 +60,7 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
 // Log only if DEBUG env var is set.
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 export function traceLog(msg: string, ...args: any[]): void {
-    if (!TRACE_LOG) return;
+    if (!ENABLE_TRACE_LOG) return;
 
     if (args.length > 0) {
         if (typeof args[0] == 'string') {

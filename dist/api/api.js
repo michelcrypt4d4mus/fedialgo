@@ -226,7 +226,6 @@ class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
     async getTootsForHashtag(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const startedAt = new Date();
@@ -304,7 +303,7 @@ class MastoApi {
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
         const startTime = new Date();
         const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[searchForToots(${searchStr})] (semaphore ${semaphoreNum})`;
+        const logPrefix = `[searchForToots("${searchStr}")] (semaphore ${semaphoreNum})`;
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;

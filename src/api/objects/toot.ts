@@ -523,8 +523,10 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    static async buildToots(statuses: SerializableToot[], logPrefix?: string): Promise<Toot[]> {
-        let toots = statuses.map(t => new Toot(t));
+    static async buildToots(statuses: SerializableToot[] | Toot[], logPrefix?: string): Promise<Toot[]> {
+        if (statuses.length == 0) return [];
+        // If the first element is a Toot, assume all Toots and we don't need to create new Toot objects
+        let toots = (statuses[0] instanceof Toot) ? statuses as Toot[] : statuses.map(t => new Toot(t));
         await this.setDependentProps(toots);
         toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
         // TODO: sorting by popularity is just here so various fetchers that use this can truncate

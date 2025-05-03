@@ -102,7 +102,7 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
-    static buildToots(statuses: SerializableToot[], logPrefix?: string): Promise<Toot[]>;
+    static buildToots(statuses: SerializableToot[] | Toot[], logPrefix?: string): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
     static setDependentProps(toots: Toot[]): Promise<void>;
 }

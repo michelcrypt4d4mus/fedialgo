@@ -20,7 +20,6 @@ import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { MastodonID, MastodonTag, StorableObj, StorageKey, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
-import { trace } from "console";
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -250,7 +249,6 @@ export class MastoApi {
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
     async getTootsForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const startedAt = new Date();
@@ -331,7 +329,7 @@ export class MastoApi {
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
         const startTime = new Date();
         const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[searchForToots(${searchStr})] (semaphore ${semaphoreNum})`;
+        const logPrefix = `[searchForToots("${searchStr}")] (semaphore ${semaphoreNum})`;
 
         try {
             const searchResult = await this.api.v2.search.list(query);

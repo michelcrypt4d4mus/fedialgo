@@ -61,10 +61,12 @@ interface FetchTrendingProps<T> {
 export default class MastodonServer {
     domain: string;
 
-    // Static helper methods for building URLs
-    public static v1Url = (path: string) => `${API_V1}/${path}`;
-    public static v2Url = (path: string) => `${API_V2}/${path}`;
-    public static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
+    // Helper methods for building URLs
+    private static v1Url = (path: string) => `${API_V1}/${path}`;
+    private static v2Url = (path: string) => `${API_V2}/${path}`;
+    private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
+    private endpointDomain = (endpoint: string) => `${this.domain}/${endpoint}`;
+    private endpointUrl = (endpoint: string) => `https://${this.endpointDomain(endpoint)}`;
 
     constructor(domain: string) {
         this.domain = domain;
@@ -87,7 +89,8 @@ export default class MastodonServer {
 
     // Fetch toots that are trending on this server
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
-    async fetchTrendingToots(): Promise<Toot[]> {
+    // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
+    async fetchTrendingStatuses(): Promise<Toot[]> {
         const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
         const trendingToots = toots.map(t => new Toot(t));
 
@@ -151,16 +154,14 @@ export default class MastodonServer {
 
     // Get data from a public API endpoint on a Mastodon server.
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
-        const startTime = new Date();
-        let urlEndpoint = `${this.domain}/${endpoint}`
-        let url = `https://${urlEndpoint}`;
+        let url = this.endpointUrl(endpoint);
         if (limit) url += `?limit=${limit}`;
         // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
+        const startedAt = new Date();
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {
-            // TODO: this is useful sometimes but incredibly verbose
-            // console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
+            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${inSeconds(startedAt)}:`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;
@@ -191,14 +192,10 @@ export default class MastodonServer {
         return await this.fetchTrendingFromAllServers<Toot>({
             key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
             loadingFxn: Storage.getToots.bind(Storage),
-            serverFxn: (server) => server.fetchTrendingToots(),
+            serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
-                await Toot.setDependentProps(toots);
-                let uniqueToots = Toot.dedupeToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
-                uniqueToots = uniqueToots.sort((a, b) => b.popularity() - a.popularity());
-                Storage.storeToots(StorageKey.FEDIVERSE_TRENDING_TOOTS, uniqueToots);
-                return uniqueToots;
+                return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });
     };
@@ -209,9 +206,7 @@ export default class MastodonServer {
             key: StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
-                const uniqueLinks = uniquifyTrendingObjs<TrendingLink>(links, obj => obj.url);
-                await Storage.set(StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
-                return uniqueLinks;
+                return uniquifyTrendingObjs<TrendingLink>(links, link => link.url);
             }
         });
     };
@@ -222,10 +217,8 @@ export default class MastodonServer {
             key: StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = uniquifyTrendingObjs<TrendingTag>(tags, obj => (obj as TrendingTag).name);
-                uniqueTags = uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
-                await Storage.set(StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
-                return uniqueTags;
+                const uniqueTags = uniquifyTrendingObjs<TrendingTag>(tags, tag => (tag as TrendingTag).name);
+                return uniqueTags.slice(0, Storage.getConfig().numTrendingTags);
             }
         });
     }
@@ -318,8 +311,8 @@ export default class MastodonServer {
     // an array of unique objects.
     private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
-        const logPrefix = `[${key}]`;
         const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
+        const logPrefix = `[${key}]`;
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
 
@@ -331,9 +324,16 @@ export default class MastodonServer {
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
-                // console.debug(`${logPrefix} result from all servers:`, serverObjs);
+                traceLog(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
+
+                if (uniqueObjs.length && uniqueObjs[0] instanceof Toot) {
+                    await Storage.storeToots(key, uniqueObjs as Toot[]);
+                } else {
+                    await Storage.set(key, uniqueObjs as StorableObj);
+                }
+
                 let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${inSeconds(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
@@ -361,6 +361,7 @@ export default class MastodonServer {
 };
 
 
+// Extract server MAU StringNumberDict
 const instancesToServerMAUs = (instances: Record<string, InstanceResponse>): StringNumberDict => {
     return Object.entries(instances).reduce(
         (maus, [server, instance]) => {

@@ -9,12 +9,14 @@ export declare enum FediverseTrendingType {
 type InstanceResponse = mastodon.v2.Instance | null;
 export default class MastodonServer {
     domain: string;
-    static v1Url: (path: string) => string;
-    static v2Url: (path: string) => string;
-    static trendUrl: (path: string) => string;
+    private static v1Url;
+    private static v2Url;
+    private static trendUrl;
+    private endpointDomain;
+    private endpointUrl;
     constructor(domain: string);
     fetchServerInfo(): Promise<InstanceResponse>;
-    fetchTrendingToots(): Promise<Toot[]>;
+    fetchTrendingStatuses(): Promise<Toot[]>;
     fetchTrendingLinks(): Promise<TrendingLink[]>;
     fetchTrendingTags(): Promise<TrendingTag[]>;
     private fetchTrending;

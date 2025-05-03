@@ -39,10 +39,12 @@ const TRENDING_MUTEXES = {
 ;
 class MastodonServer {
     domain;
-    // Static helper methods for building URLs
+    // Helper methods for building URLs
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
+    endpointDomain = (endpoint) => `${this.domain}/${endpoint}`;
+    endpointUrl = (endpoint) => `https://${this.endpointDomain(endpoint)}`;
     constructor(domain) {
         this.domain = domain;
     }
@@ -63,7 +65,8 @@ class MastodonServer {
     }
     // Fetch toots that are trending on this server
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
-    async fetchTrendingToots() {
+    // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
+    async fetchTrendingStatuses() {
         const toots = await this.fetchTrending(api_1.STATUSES);
         const trendingToots = toots.map(t => new toot_1.default(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
@@ -121,16 +124,14 @@ class MastodonServer {
     ;
     // Get data from a public API endpoint on a Mastodon server.
     async fetch(endpoint, limit) {
-        const startTime = new Date();
-        let urlEndpoint = `${this.domain}/${endpoint}`;
-        let url = `https://${urlEndpoint}`;
+        let url = this.endpointUrl(endpoint);
         if (limit)
             url += `?limit=${limit}`;
         // console.debug(`[${urlEndpoint}] fetching at ${quotedISOFmt(startTime)}...`);
+        const startedAt = new Date();
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
         if (json.status === 200 && json.data) {
-            // TODO: this is useful sometimes but incredibly verbose
-            // console.debug(`[${urlEndpoint}] fetch response (${ageInSeconds(startTime)} seconds):`, json.data);
+            (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetch response ${(0, time_helpers_1.inSeconds)(startedAt)}:`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
@@ -159,14 +160,10 @@ class MastodonServer {
         return await this.fetchTrendingFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
             loadingFxn: Storage_1.default.getToots.bind(Storage_1.default),
-            serverFxn: (server) => server.fetchTrendingToots(),
+            serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                await toot_1.default.setDependentProps(toots);
-                let uniqueToots = toot_1.default.dedupeToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
-                uniqueToots = uniqueToots.sort((a, b) => b.popularity() - a.popularity());
-                Storage_1.default.storeToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS, uniqueToots);
-                return uniqueToots;
+                return await toot_1.default.buildToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });
     }
@@ -177,9 +174,7 @@ class MastodonServer {
             key: types_1.StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
-                const uniqueLinks = (0, trending_with_history_1.uniquifyTrendingObjs)(links, obj => obj.url);
-                await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS, uniqueLinks);
-                return uniqueLinks;
+                return (0, trending_with_history_1.uniquifyTrendingObjs)(links, link => link.url);
             }
         });
     }
@@ -190,10 +185,8 @@ class MastodonServer {
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, obj => obj.name);
-                uniqueTags = uniqueTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
-                await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS, uniqueTags);
-                return uniqueTags;
+                const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, tag => tag.name);
+                return uniqueTags.slice(0, Storage_1.default.getConfig().numTrendingTags);
             }
         });
     }
@@ -269,8 +262,8 @@ class MastodonServer {
     // an array of unique objects.
     static async fetchTrendingFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
-        const logPrefix = `[${key}]`;
         const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
+        const logPrefix = `[${key}]`;
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
@@ -281,9 +274,15 @@ class MastodonServer {
             }
             else {
                 const serverObjs = await this.callForAllServers(serverFxn);
-                // console.debug(`${logPrefix} result from all servers:`, serverObjs);
+                (0, log_helpers_1.traceLog)(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 const uniqueObjs = await processingFxn(flatObjs);
+                if (uniqueObjs.length && uniqueObjs[0] instanceof toot_1.default) {
+                    await Storage_1.default.storeToots(key, uniqueObjs);
+                }
+                else {
+                    await Storage_1.default.set(key, uniqueObjs);
+                }
                 let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
@@ -305,6 +304,7 @@ class MastodonServer {
 }
 exports.default = MastodonServer;
 ;
+// Extract server MAU StringNumberDict
 const instancesToServerMAUs = (instances) => {
     return Object.entries(instances).reduce((maus, [server, instance]) => {
         maus[server] = instance?.usage?.users?.activeMonth || 0;

@@ -32,12 +32,11 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
-import { lockMutex, logInfo } from './helpers/log_helpers';
+import { lockMutex, logAndThrowError, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { logAndThrowError } from './helpers/log_helpers';
 import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
@@ -161,11 +160,10 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
-        const logPrefix = `${GET_FEED}`;
-        logInfo(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        logInfo(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
 
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            logAndThrowError(logPrefix, GET_FEED_BUSY_MSG);
+            logAndThrowError(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
         }
 
         numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
@@ -179,7 +177,7 @@ class TheAlgorithm {
             } else {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
-                console.info(`${logPrefix} Set catchupCheckpoint marker. Current state:`, this.statusDict());
+                console.info(`${GET_FEED} Set catchupCheckpoint marker. Current state:`, this.statusDict());
             }
 
             // These are all calls we should only make in the initial load (all called asynchronously)
@@ -205,7 +203,7 @@ class TheAlgorithm {
             .then((newToots) => {
                 let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
                 msg += ` total home TL toots so far ${inSeconds(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-                logInfo(logPrefix, msg);
+                logInfo(GET_FEED, msg);
                 this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
             });
 

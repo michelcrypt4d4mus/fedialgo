@@ -70,7 +70,6 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
-const log_helpers_2 = require("./helpers/log_helpers");
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
@@ -166,10 +165,9 @@ class TheAlgorithm {
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
-        const logPrefix = `${GET_FEED}`;
-        (0, log_helpers_1.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        (0, log_helpers_1.logInfo)(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            (0, log_helpers_2.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
+            (0, log_helpers_1.logAndThrowError)(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
         }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
@@ -182,7 +180,7 @@ class TheAlgorithm {
             else {
                 this.catchupCheckpoint = this.mostRecentHomeTootAt();
                 this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
-                console.info(`${logPrefix} Set catchupCheckpoint marker. Current state:`, this.statusDict());
+                console.info(`${GET_FEED} Set catchupCheckpoint marker. Current state:`, this.statusDict());
             }
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.loadStartedAt = new Date();
@@ -207,7 +205,7 @@ class TheAlgorithm {
             .then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            (0, log_helpers_1.logInfo)(logPrefix, msg);
+            (0, log_helpers_1.logInfo)(GET_FEED, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
         // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
