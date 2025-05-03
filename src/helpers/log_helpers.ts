@@ -1,7 +1,7 @@
 /*
  * Logging related methods.
  */
-import { Mutex, MutexInterface } from 'async-mutex';
+import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import Storage from '../Storage';
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
@@ -44,16 +44,32 @@ export function logAndThrowError(message: string, obj?: any): never {
 export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexInterface.Releaser> {
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
-    const mutexWaitSeconds = ageInSeconds(startedAt);
+    const waitSeconds = ageInSeconds(startedAt);
     const logMsg = `${logPrefix} Mutex lock acquired ${ageString(startedAt)}`;
 
-    if (mutexWaitSeconds > Storage.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > Storage.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);
-    } else if (mutexWaitSeconds > 2) {
+    } else if (waitSeconds > 2) {
         console.debug(logMsg);
     }
 
     return releaseMutex;
+};
+
+
+export async function lockSemaphore(semaphore: Semaphore, logPrefix: string): Promise<[number, SemaphoreInterface.Releaser]> {
+    const startedAt = new Date();
+    const release = await semaphore.acquire();
+    const waitSeconds = ageInSeconds(startedAt);
+    const logMsg = `${logPrefix} Semaphore lock acquired ${ageString(startedAt)}`;
+
+    if (waitSeconds > Storage.getConfig().mutexWarnSeconds) {
+        console.warn(logMsg);
+    } else if (waitSeconds > 2) {
+        console.debug(logMsg);
+    }
+
+    return release;
 };
 
 

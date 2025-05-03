@@ -290,7 +290,7 @@ class MastodonServer {
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
                 return storageObjs;
             }
             else {

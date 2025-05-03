@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPrefix = exports.traceLog = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = void 0;
+exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = void 0;
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -42,17 +42,32 @@ exports.logAndThrowError = logAndThrowError;
 async function lockMutex(mutex, logPrefix) {
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
-    const mutexWaitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
+    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (mutexWaitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);
     }
-    else if (mutexWaitSeconds > 2) {
+    else if (waitSeconds > 2) {
         console.debug(logMsg);
     }
     return releaseMutex;
 }
 exports.lockMutex = lockMutex;
+;
+async function lockSemaphore(semaphore, logPrefix) {
+    const startedAt = new Date();
+    const release = await semaphore.acquire();
+    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
+    const logMsg = `${logPrefix} Semaphore lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    if (waitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
+        console.warn(logMsg);
+    }
+    else if (waitSeconds > 2) {
+        console.debug(logMsg);
+    }
+    return release;
+}
+exports.lockSemaphore = lockSemaphore;
 ;
 // Log only if DEBUG env var is set.
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.

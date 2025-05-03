@@ -270,10 +270,11 @@ class MastoApi {
     //   - logMsg:        optional description of why the search is being run (for logging only)
     async searchForToots(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        let logPrefix = `[searchForToots("${searchStr}")]`;
+        const [semaphoreNum, releaseSemaphore] = await (0, log_helpers_1.lockSemaphore)(this.requestSemphore, logPrefix);
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
+        logPrefix += ` (semaphore ${semaphoreNum})`;
         const startTime = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[searchForToots("${searchStr}")] (semaphore ${semaphoreNum})`;
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
@@ -379,9 +380,10 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
+        const [semaphoreNum, releaseSemaphore] = await (0, log_helpers_1.lockSemaphore)(this.requestSemphore, logPrefix);
+        logPrefix += ` (semaphore ${semaphoreNum})`;
         const startedAt = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,

@@ -17,7 +17,7 @@ import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } f
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { ageString, quotedISOFmt } from "../helpers/time_helpers";
-import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
 export const INSTANCE = "instance";
@@ -293,10 +293,11 @@ export default class MastoApi {
     //   - logMsg:        optional description of why the search is being run (for logging only)
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        let logPrefix = `[searchForToots("${searchStr}")]`;
+        const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
+        logPrefix += ` (semaphore ${semaphoreNum})`;
         const startTime = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[searchForToots("${searchStr}")] (semaphore ${semaphoreNum})`;
 
         try {
             const searchResult = await this.api.v2.search.list(query);
@@ -411,9 +412,10 @@ export default class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
+        const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
+        logPrefix += ` (semaphore ${semaphoreNum})`;
         const startedAt = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
 
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({

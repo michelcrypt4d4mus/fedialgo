@@ -29,7 +29,7 @@ class UserData {
         userData.serverSideFilters = data.serverSideFilters;
         return userData;
     }
-    // Alternate constructor to build a UserData object with data fetched from the API or cache
+    // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async getUserData() {
         const userData = new UserData();
         await userData.populate();
