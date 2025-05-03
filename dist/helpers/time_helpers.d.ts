@@ -3,7 +3,6 @@ export declare const SECONDS_IN_HOUR = 3600;
 export declare const SECONDS_IN_DAY = 86400;
 export declare function ageInSeconds(date: Date | number | string | null): number;
 export declare function ageInMinutes(date: Date | number | string | null): number;
-export declare function inMinutes(date: Date | number | string | null): string;
 export declare function ageString(date: Date | number | string | null): string;
 export declare function toISOFormat(date: Date | string | null | undefined, withMilliseconds?: boolean): string;
 export declare function quotedISOFmt(date: Date | string | null, withMilliseconds?: boolean): string;
