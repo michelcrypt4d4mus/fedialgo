@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.24.2
-* Rename Toot.simplifiedScoreInfo() to alternateScoreInfo()
+* Rename `Toot.simplifiedScoreInfo()` to `alternateScoreInfo()`
 * Remove deprecated `Config.enableIncrementalLoad` property
 * Privatize a bunch of `TheAlgorithm` properties that should be private
 
