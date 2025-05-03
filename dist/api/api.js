@@ -83,13 +83,11 @@ class MastoApi {
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         this.timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
-        // Initialize mutexes for each key in Key and WeightName
-        this.requestSemphore = new async_mutex_1.Semaphore(Storage_1.default.getConfig().maxConcurrentTootRequests);
+        // Initialize mutexes for each StorageKey and WeightName and a Semaphore for concurrent requests
         this.mutexes = {};
         for (const key in types_1.StorageKey)
             this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
-        for (const key in types_1.WeightName)
-            this.mutexes[types_1.WeightName[key]] = new async_mutex_1.Mutex();
+        this.requestSemphore = new async_mutex_1.Semaphore(Storage_1.default.getConfig().maxConcurrentTootRequests);
     }
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
@@ -140,7 +138,7 @@ class MastoApi {
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
-        return (followedTags || []).map(tag_1.repairTag);
+        return followedTags.map(tag_1.repairTag);
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {
@@ -172,7 +170,7 @@ class MastoApi {
         const recentFaves = await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
             label: types_1.StorageKey.FAVOURITED_TOOTS,
-            moar: moar,
+            // moar: moar,
         });
         (0, collection_helpers_1.checkUniqueIDs)(recentFaves, types_1.StorageKey.FAVOURITED_TOOTS);
         return recentFaves.map(t => new toot_1.default(t));
@@ -235,16 +233,14 @@ class MastoApi {
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
+                label: logPrefix,
                 maxRecords: maxRecords,
-                skipCache: true,
-                skipMutex: true,
             });
             console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
             return toots;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}`);
             return [];
         }
         finally {
@@ -312,7 +308,7 @@ class MastoApi {
             return statuses;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to fetch ${(0, time_helpers_1.inSeconds)(startTime)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.inSeconds)(startTime)}`);
             return [];
         }
         finally {
@@ -367,17 +363,20 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
-        // Process args
         const logPfx = `[API ${fetchParams.label}]`;
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() called w/params:`, fetchParams);
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() raw params:`, fetchParams);
+        const useCache = (0, collection_helpers_1.isStorageKey)(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
-        fetchParams.filterResults ??= (_obj) => true;
         fetchParams.maxRecords ??= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        let { breakIf, fetch, filterResults, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
+        fetchParams.skipCache ||= !useCache; // Don't cache if label is not a StorageKey
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() processed params:`, fetchParams);
+        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
-        // Lock mutex for the endpoint to prevent parallelism
-        const releaseFetchMutex = skipMutex ? null : await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx);
+        // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
+        const releaseMutex = useCache ? await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx) : null;
+        if (!releaseMutex)
+            console.log(`${logPfx} Not using mutex for ${label} (not in the mutexes dictionary)`);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
@@ -414,12 +413,12 @@ class MastoApi {
                 await Storage_1.default.set(label, rows);
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}! Returning ${rows.length} rows`);
+            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}, have ${rows.length} rows`);
         }
         finally {
-            releaseFetchMutex && releaseFetchMutex();
+            releaseMutex?.();
         }
-        return rows.filter(fetchParams.filterResults);
+        return rows;
     }
     ;
     // Get latest toots for a given tag using both the Search API and tag timeline API.

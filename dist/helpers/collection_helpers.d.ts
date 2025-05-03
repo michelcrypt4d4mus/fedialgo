@@ -21,3 +21,5 @@ export declare function findMinId(array: MastodonID[]): string | undefined;
 export declare function checkUniqueIDs(array: MastodonID[], label: StorageKey): void;
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean): T[];
 export declare function truncateToConfiguredLength(array: any[], key: keyof Config, label?: string): any[];
+export declare const isWeightName: (value: string) => boolean;
+export declare const isStorageKey: (value: string) => boolean;

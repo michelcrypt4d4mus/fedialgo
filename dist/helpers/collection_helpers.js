@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const Storage_1 = __importDefault(require("../Storage"));
+const types_1 = require("../types");
 const string_helpers_1 = require("./string_helpers");
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
@@ -237,4 +238,15 @@ function truncateToConfiguredLength(array, key, label) {
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;
 ;
+// Generate a fxn to check if a string is in an enum.
+// From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
+function isValueInStringEnum(strEnum) {
+    const enumValues = Object.values(strEnum);
+    return (value) => enumValues.includes(value);
+}
+;
+const isWeightName = (value) => isValueInStringEnum(types_1.WeightName)(value);
+exports.isWeightName = isWeightName;
+const isStorageKey = (value) => isValueInStringEnum(types_1.StorageKey)(value);
+exports.isStorageKey = isStorageKey;
 //# sourceMappingURL=collection_helpers.js.map

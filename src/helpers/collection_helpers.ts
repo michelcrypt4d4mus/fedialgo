@@ -6,7 +6,7 @@ import md5 from "blueimp-md5";
 import Storage from "../Storage";
 import { ageInSeconds } from "./time_helpers";
 import { Config } from "../config";
-import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { isNumber } from "./string_helpers";
 
 
@@ -275,3 +275,14 @@ export function truncateToConfiguredLength(array: any[], key: keyof Config, labe
     console.log(`${logPfx}Truncated array of ${startLen} to ${array.length} to ${key}: ${configValue}`);
     return array;
 };
+
+
+// Generate a fxn to check if a string is in an enum.
+// From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
+function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
+    const enumValues = Object.values(strEnum) as string[];
+    return (value: string): value is E => enumValues.includes(value);
+};
+
+export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
+export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);

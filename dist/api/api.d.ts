@@ -3,12 +3,12 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { MastodonTag, StorageKey, WeightName } from "../types";
+import { MastodonTag, StorageKey } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
+export type ApiMutex = Record<StorageKey, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
