@@ -1,13 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from "./objects/toot";
-import { AccountNames, TagNames, TrendingTag, UserDataSerialized } from "../types";
-interface UserDataCls extends UserDataSerialized {
-    isDataStale: () => Promise<boolean>;
-    populate: () => Promise<void>;
-    popularUserTags: () => TrendingTag[];
-    serialize: () => UserDataSerialized;
-}
+import { AccountNames, TagNames, TrendingTag } from "../types";
 interface UserApiData {
     followedAccounts: Account[];
     followedTags: TrendingTag[];
@@ -15,7 +9,7 @@ interface UserApiData {
     recentToots: Toot[];
     serverSideFilters: mastodon.v2.Filter[];
 }
-export default class UserData implements UserDataCls {
+export default class UserData {
     followedAccounts: AccountNames;
     followedTags: TrendingTag[];
     mutedAccounts: AccountNames;
@@ -27,7 +21,6 @@ export default class UserData implements UserDataCls {
     isDataStale(): Promise<boolean>;
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
-    serialize(): UserDataSerialized;
     static getPostedHashtagsSorted(): Promise<TrendingTag[]>;
     static getPostedHashtags(): Promise<TagNames>;
     static sortTagNames(userTags: TagNames): TrendingTag[];

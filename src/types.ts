@@ -186,15 +186,6 @@ export interface TrendingStorage {
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
 
-// Data retrieved at startup and stored in TheAlgorithm
-export type UserDataSerialized = {
-    followedAccounts: AccountNames,
-    followedTags: mastodon.v1.Tag[],
-    mutedAccounts: AccountNames,
-    participatedHashtags: TagNames,
-    serverSideFilters: mastodon.v2.Filter[],
-};
-
 
 // TODO: unused stuff below here
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm

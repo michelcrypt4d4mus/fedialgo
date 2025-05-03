@@ -5,6 +5,7 @@ import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
+import UserData from "../api/user_data";
 import { incrementCount } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
@@ -14,7 +15,6 @@ import {
     NumericFilters,
     StringNumberDict,
     WeightName,
-    UserDataSerialized
 } from "../types";
 
 
@@ -59,7 +59,9 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 
 
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDataSerialized): FeedFilterSettings {
+// Note that this shouldn't need to be called when initializing from storage because the filter options
+// will all have been stored and reloaded along with the feed that birthed those filter options.
+export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserData): FeedFilterSettings {
     const filters: FeedFilterSettings = buildNewFilterSettings();
 
     const tootCounts = Object.values(PropertyName).reduce(

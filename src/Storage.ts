@@ -21,7 +21,6 @@ import {
     TrendingLink,
     TrendingStorage,
     TrendingTag,
-    UserDataSerialized,
     Weights,
 } from "./types";
 
@@ -137,7 +136,7 @@ export default class Storage {
     }
 
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
-    static async getUserData(): Promise<UserDataSerialized> {
+    static async getUserData(): Promise<UserData> {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.MUTED_ACCOUNTS);

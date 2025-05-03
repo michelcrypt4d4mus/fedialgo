@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Make type filters apply properly to retoots
+* Get rid of useless UserDataSerialized type
 
 ### v0.24.2
 * Rename `Toot.simplifiedScoreInfo()` to `alternateScoreInfo()`

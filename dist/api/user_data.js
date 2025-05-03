@@ -13,7 +13,6 @@ const SORT_TAGS_BY = [
     "name"
 ];
 ;
-;
 class UserData {
     followedAccounts;
     followedTags;
@@ -67,10 +66,6 @@ class UserData {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
         return UserData.sortTagNames(this.participatedHashtags);
-    }
-    // Strip functions from the object
-    serialize() {
-        return this;
     }
     ////////////////////////////
     //      Class Methods     //

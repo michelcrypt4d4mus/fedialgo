@@ -8,20 +8,13 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag, UserDataSerialized } from "../types";
+import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag } from "../types";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TrendingTag,
     "name" as keyof TrendingTag
 ];
-
-interface UserDataCls extends UserDataSerialized {
-    isDataStale: () => Promise<boolean>;
-    populate: () => Promise<void>;
-    popularUserTags: () => TrendingTag[];
-    serialize: () => UserDataSerialized;
-};
 
 // Raw API data required to build UserData
 interface UserApiData {
@@ -33,7 +26,7 @@ interface UserApiData {
 };
 
 
-export default class UserData implements UserDataCls {
+export default class UserData {
     followedAccounts: AccountNames;
     followedTags: TrendingTag[];
     mutedAccounts: AccountNames;
@@ -93,11 +86,6 @@ export default class UserData implements UserDataCls {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TrendingTag[] {
         return UserData.sortTagNames(this.participatedHashtags);
-    }
-
-    // Strip functions from the object
-    serialize(): UserDataSerialized {
-        return this as UserDataSerialized;
     }
 
     ////////////////////////////

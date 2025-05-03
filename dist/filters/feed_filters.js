@@ -72,6 +72,8 @@ function buildNewFilterSettings() {
 exports.buildNewFilterSettings = buildNewFilterSettings;
 ;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
+// Note that this shouldn't need to be called when initializing from storage because the filter options
+// will all have been stored and reloaded along with the feed that birthed those filter options.
 function initializeFiltersWithSummaryInfo(toots, userData) {
     const filters = buildNewFilterSettings();
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {

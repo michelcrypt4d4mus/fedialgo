@@ -130,10 +130,3 @@ export interface TrendingStorage {
 }
 export type TrendingWithHistory = TrendingLink | TrendingTag;
 export type TrendingObj = TrendingWithHistory | Toot;
-export type UserDataSerialized = {
-    followedAccounts: AccountNames;
-    followedTags: mastodon.v1.Tag[];
-    mutedAccounts: AccountNames;
-    participatedHashtags: TagNames;
-    serverSideFilters: mastodon.v2.Filter[];
-};

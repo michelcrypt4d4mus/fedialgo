@@ -264,6 +264,7 @@ class TheAlgorithm {
         this.feed = (await Storage_1.default.getFeed()) ?? [];
         this.filters = await Storage_1.default.getFilters();
         this.trendingData = await Storage_1.default.getTrending();
+        this.userData = await Storage_1.default.getUserData();
         this.setFeedInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
