@@ -1,6 +1,6 @@
 /*
- * Class to wrap authenticated mastodon API calls to the user's home server (unauthenticated
- * calls are handled by MastodonServer).
+ * Singleton class to wrap authenticated mastodon API calls to the user's home server
+ * (unauthenticated calls are handled by the MastodonServer class).
  *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
@@ -42,7 +42,7 @@ export type ApiMutex = Record<StorageKey, Mutex>;
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
 interface FetchParams<T> {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
-    label: StorageKey | string,  // Mutex will be skipped if label is a string not a StorageKey
+    label: StorageKey | string,  // Mutex will be skipped if label is a string not a StorageKey,
     maxId?: string | number,
     maxRecords?: number,
     skipCache?: boolean,
@@ -51,17 +51,22 @@ interface FetchParams<T> {
 };
 
 
-// Singleton class for interacting with the Mastodon API
+//
 export class MastoApi {
+    static #instance: MastoApi;  // Singleton instance of MastoApi
+
     api: mastodon.rest.Client;
-    user: Account;
     homeDomain: string;
-    userData?: UserData;  // Preserve user data for the session in the object to avoid having to go to local storage over and over
-    static #instance: MastoApi;
+    user: Account;
+    userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
 
     private mutexes: ApiMutex;
     private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
     private timelineLookBackMS: number;  // How far back to look for toots in the home timeline
+
+    // URL for a tag on the user's homeserver
+    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;
+    endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -69,7 +74,7 @@ export class MastoApi {
             return;
         }
 
-        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user.acct);
+        console.log(`[API] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     };
 
@@ -84,7 +89,7 @@ export class MastoApi {
         this.homeDomain = extractDomain(user.url);
         this.timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
 
-        // Initialize mutexes for each StorageKey and WeightName and a Semaphore for concurrent requests
+        // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {} as ApiMutex;
         for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
         this.requestSemphore = new Semaphore(Storage.getConfig().maxConcurrentTootRequests);
@@ -92,19 +97,20 @@ export class MastoApi {
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
-        numToots ||= Storage.getConfig().numTootsInFirstFetch;
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = new Date(Date.now() - this.timelineLookBackMS);
+        numToots ||= Storage.getConfig().numTootsInFirstFetch;
 
         const statuses = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             label: StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots || Storage.getConfig().maxInitialTimelineToots,
+            maxRecords: numToots,
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
 
+                // Break the toot fetching loop if we encounter a toot older than the cutoff date
                 if (oldestTootAt && oldestTootAt <= cutoffAt) {
                     console.log(`${logPrefix} Halting (${quotedISOFmt(oldestTootAt)} <= ${quotedISOFmt(cutoffAt)})`);
                     return true;
@@ -244,31 +250,24 @@ export class MastoApi {
         }
     };
 
-    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
-    // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async getTootsForHashtag(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]> {
-        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
-        const startedAt = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
+    // Get latest toots for a given tag using both the Search API and tag timeline API.
+    // The two APIs give results with surprising little overlap (~80% of toots are unique)
+    async getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]> {
+        numToots ||= Storage.getConfig().numTootsPerTrendingTag;
 
-        try {
-            const toots = await this.getApiRecords<mastodon.v1.Status>({
-                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                label: logPrefix,  // String label means skip mutex and skipCache=true
-                maxRecords: maxRecords,
-            });
+        const tagToots = await Promise.all([
+            this.searchForToots(tag.name, numToots),
+            this.hashtagTimelineToots(tag, numToots),
+        ]);
 
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${inSeconds(startedAt)}`);
-            return toots;
-        } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${inSeconds(startedAt)}`);
-            return [];
-        } finally {
-            releaseSemaphore();
-        }
-    };
+        return tagToots.flat();
+    }
+
+    // Collect and fully populate / dedup a collection of toots for an array of Tags
+    async getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]> {
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
+        return tagToots.flat();
+    }
 
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
@@ -339,11 +338,6 @@ export class MastoApi {
             releaseSemaphore();
         }
     };
-
-    // Get URL for the tag on the user's homeserver
-    tagURL(tag: MastodonTag): string {
-        return `${this.endpointURL(TAGS)}/${tag.name}`;
-    }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
@@ -451,26 +445,33 @@ export class MastoApi {
         }
 
         return rows;
-    };
-
-    // Get latest toots for a given tag using both the Search API and tag timeline API.
-    // The two APIs give results with surprising little overlap (~80% of toots are unique)
-    private async getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]> {
-        numToots ||= Storage.getConfig().numTootsPerTrendingTag;
-
-        const tagToots = await Promise.all([
-            this.searchForToots(tag.name, numToots),
-            this.getTootsForHashtag(tag, numToots),
-        ]);
-
-        return tagToots.flat();
-    };
-
-    // Collect and fully populate / dedup a collection of toots for an array of Tags
-    private async getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]> {
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
-        return tagToots.flat();
     }
+
+    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // See https://docs.joinmastodon.org/methods/timelines/#tag
+    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]> {
+        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        const startedAt = new Date();
+        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
+        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
+
+        try {
+            const toots = await this.getApiRecords<mastodon.v1.Status>({
+                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
+                label: logPrefix,  // String label means skip mutex and skipCache=true
+                maxRecords: maxRecords,
+            });
+
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${inSeconds(startedAt)}`);
+            return toots;
+        } catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${inSeconds(startedAt)}`);
+            return [];
+        } finally {
+            releaseSemaphore();
+        }
+    };
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     private throwIfAccessTokenRevoked(e: unknown, msg: string): void {
@@ -480,10 +481,6 @@ export class MastoApi {
         if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
             throw e;
         }
-    }
-
-    private endpointURL(endpoint: string): string {
-        return `https://${this.homeDomain}/${endpoint}`;
     }
 };
 

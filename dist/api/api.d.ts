@@ -12,12 +12,14 @@ export type ApiMutex = Record<StorageKey, Mutex>;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
-    user: Account;
     homeDomain: string;
+    user: Account;
     userData?: UserData;
     private mutexes;
     private requestSemphore;
     private timelineLookBackMS;
+    tagURL: (tag: MastodonTag) => string;
+    endpointURL: (endpoint: string) => string;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
@@ -31,17 +33,15 @@ export declare class MastoApi {
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
     getRecentTootsForTrendingTags(): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getTootsForHashtag(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
+    getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
     getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
-    tagURL(tag: MastodonTag): string;
     private buildParams;
     private getCacheableToots;
     private getApiRecords;
-    private getStatusesForTag;
-    private getStatusesForTags;
+    private hashtagTimelineToots;
     private throwIfAccessTokenRevoked;
-    private endpointURL;
 }

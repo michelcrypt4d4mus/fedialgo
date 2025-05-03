@@ -28,8 +28,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 /*
- * Class to wrap authenticated mastodon API calls to the user's home server (unauthenticated
- * calls are handled by MastodonServer).
+ * Singleton class to wrap authenticated mastodon API calls to the user's home server
+ * (unauthenticated calls are handled by the MastodonServer class).
  *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
@@ -53,22 +53,25 @@ exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 ;
-// Singleton class for interacting with the Mastodon API
+//
 class MastoApi {
+    static #instance; // Singleton instance of MastoApi
     api;
-    user;
     homeDomain;
-    userData; // Preserve user data for the session in the object to avoid having to go to local storage over and over
-    static #instance;
+    user;
+    userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
     timelineLookBackMS; // How far back to look for toots in the home timeline
+    // URL for a tag on the user's homeserver
+    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`;
+    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
             return;
         }
-        console.log(`[MastoApi] Initializing MastoApi instance with user:`, user.acct);
+        console.log(`[API] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
     ;
@@ -83,7 +86,7 @@ class MastoApi {
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         this.timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
-        // Initialize mutexes for each StorageKey and WeightName and a Semaphore for concurrent requests
+        // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {};
         for (const key in types_1.StorageKey)
             this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
@@ -92,17 +95,18 @@ class MastoApi {
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
-        numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = new Date(Date.now() - this.timelineLookBackMS);
+        numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots || Storage_1.default.getConfig().maxInitialTimelineToots,
+            maxRecords: numToots,
             skipCache: true,
             breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
+                // Break the toot fetching loop if we encounter a toot older than the cutoff date
                 if (oldestTootAt && oldestTootAt <= cutoffAt) {
                     console.log(`${logPrefix} Halting (${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)} <= ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)})`);
                     return true;
@@ -222,32 +226,21 @@ class MastoApi {
         }
     }
     ;
-    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
-    // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async getTootsForHashtag(tag, maxRecords) {
-        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
-        const startedAt = new Date();
-        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
-        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
-        try {
-            const toots = await this.getApiRecords({
-                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                label: logPrefix,
-                maxRecords: maxRecords,
-            });
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
-            return toots;
-        }
-        catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}`);
-            return [];
-        }
-        finally {
-            releaseSemaphore();
-        }
+    // Get latest toots for a given tag using both the Search API and tag timeline API.
+    // The two APIs give results with surprising little overlap (~80% of toots are unique)
+    async getStatusesForTag(tag, numToots) {
+        numToots ||= Storage_1.default.getConfig().numTootsPerTrendingTag;
+        const tagToots = await Promise.all([
+            this.searchForToots(tag.name, numToots),
+            this.hashtagTimelineToots(tag, numToots),
+        ]);
+        return tagToots.flat();
     }
-    ;
+    // Collect and fully populate / dedup a collection of toots for an array of Tags
+    async getStatusesForTags(tags) {
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
+        return tagToots.flat();
+    }
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData() {
@@ -316,10 +309,6 @@ class MastoApi {
         }
     }
     ;
-    // Get URL for the tag on the user's homeserver
-    tagURL(tag) {
-        return `${this.endpointURL(exports.TAGS)}/${tag.name}`;
-    }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     buildParams(maxId, limit, logPfx) {
         limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
@@ -418,23 +407,32 @@ class MastoApi {
         }
         return rows;
     }
-    ;
-    // Get latest toots for a given tag using both the Search API and tag timeline API.
-    // The two APIs give results with surprising little overlap (~80% of toots are unique)
-    async getStatusesForTag(tag, numToots) {
-        numToots ||= Storage_1.default.getConfig().numTootsPerTrendingTag;
-        const tagToots = await Promise.all([
-            this.searchForToots(tag.name, numToots),
-            this.getTootsForHashtag(tag, numToots),
-        ]);
-        return tagToots.flat();
+    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // See https://docs.joinmastodon.org/methods/timelines/#tag
+    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    async hashtagTimelineToots(tag, maxRecords) {
+        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        const startedAt = new Date();
+        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
+        const logPrefix = `[getTootsForHashtag("#${tag.name}")] (semaphore ${semaphoreNum})`;
+        try {
+            const toots = await this.getApiRecords({
+                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
+                label: logPrefix,
+                maxRecords: maxRecords,
+            });
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            return toots;
+        }
+        catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            return [];
+        }
+        finally {
+            releaseSemaphore();
+        }
     }
     ;
-    // Collect and fully populate / dedup a collection of toots for an array of Tags
-    async getStatusesForTags(tags) {
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
-        return tagToots.flat();
-    }
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
@@ -443,9 +441,6 @@ class MastoApi {
         if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
             throw e;
         }
-    }
-    endpointURL(endpoint) {
-        return `https://${this.homeDomain}/${endpoint}`;
     }
 }
 exports.MastoApi = MastoApi;
