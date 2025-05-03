@@ -374,7 +374,7 @@ export class MastoApi {
 
             if (!toots || (await Storage.isDataStale(key))) {
                 const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} toots ${inSeconds(startedAt)}`);
+                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${inSeconds(startedAt)}`);
                 toots = await Toot.buildToots(statuses, logPrefix);
 
                 if (maxRecordsConfigKey) {
@@ -397,18 +397,16 @@ export class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         const logPfx = `[API ${fetchParams.label}]`;
-        traceLog(`${logPfx} fetchData() raw params:`, fetchParams);
         const useCache = isStorageKey(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= Storage.getConfig().minRecordsForFeatureScoring;
-        fetchParams.skipCache ||= !useCache;  // Don't cache if label is not a StorageKey
-        traceLog(`${logPfx} fetchData() processed params:`, fetchParams);
+        fetchParams.skipCache ||= !useCache;  // Skip cache if label is not a StorageKey
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+        traceLog(`${logPfx} fetchData() params:`, fetchParams);
 
         // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
         const releaseMutex = useCache ? await lockMutex(this.mutexes[label as StorageKey], logPfx) : null;
-        if (!releaseMutex) console.log(`${logPfx} Not using mutex for ${label} (not in the mutexes dictionary)`);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
@@ -446,6 +444,7 @@ export class MastoApi {
 
             if (!skipCache) await Storage.set(label as StorageKey, rows as StorableObj);
         } catch (e) {
+            // If the access token was not revoked whatever rows we've retrieved will be returned
             this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${inSeconds(startedAt)}, have ${rows.length} rows`);
         } finally {
             releaseMutex?.();
@@ -473,7 +472,7 @@ export class MastoApi {
         return tagToots.flat();
     }
 
-    // Re-raise access revoked errors so they can trigger a logout() call
+    // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     private throwIfAccessTokenRevoked(e: unknown, msg: string): void {
         console.error(`${msg}. Error:`, e);
         if (!(e instanceof Error)) return;

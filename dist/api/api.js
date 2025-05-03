@@ -343,7 +343,7 @@ class MastoApi {
             let toots = await Storage_1.default.getToots(key);
             if (!toots || (await Storage_1.default.isDataStale(key))) {
                 const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.inSeconds)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, logPrefix);
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
@@ -364,19 +364,16 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
         const logPfx = `[API ${fetchParams.label}]`;
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() raw params:`, fetchParams);
         const useCache = (0, collection_helpers_1.isStorageKey)(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= Storage_1.default.getConfig().minRecordsForFeatureScoring;
-        fetchParams.skipCache ||= !useCache; // Don't cache if label is not a StorageKey
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() processed params:`, fetchParams);
+        fetchParams.skipCache ||= !useCache; // Skip cache if label is not a StorageKey
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
         // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
         const releaseMutex = useCache ? await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx) : null;
-        if (!releaseMutex)
-            console.log(`${logPfx} Not using mutex for ${label} (not in the mutexes dictionary)`);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
@@ -413,6 +410,7 @@ class MastoApi {
                 await Storage_1.default.set(label, rows);
         }
         catch (e) {
+            // If the access token was not revoked whatever rows we've retrieved will be returned
             this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${(0, time_helpers_1.inSeconds)(startedAt)}, have ${rows.length} rows`);
         }
         finally {
@@ -437,7 +435,7 @@ class MastoApi {
         const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
         return tagToots.flat();
     }
-    // Re-raise access revoked errors so they can trigger a logout() call
+    // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
         if (!(e instanceof Error))
