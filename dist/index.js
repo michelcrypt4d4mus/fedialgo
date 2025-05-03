@@ -199,7 +199,7 @@ class TheAlgorithm {
         this.mergePromisedTootsIntoFeed(api_1.default.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
             .then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
-            msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+            msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
             (0, log_helpers_1.logInfo)(GET_FEED, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
@@ -255,7 +255,7 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
         }
         return filteredFeed;
     }
@@ -343,7 +343,7 @@ class TheAlgorithm {
     // Set a few state variables indicating that the load is complete. // TODO: there's too many state variables
     markLoadComplete() {
         if (this.loadStartedAt) {
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
             this.loadStartedAt = null;
         }
@@ -368,7 +368,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}:`, this.statusDict());
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -391,7 +391,7 @@ class TheAlgorithm {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.ageString)(startTime)}`);
             }
         }
         finally {

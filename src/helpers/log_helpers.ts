@@ -4,7 +4,7 @@
 import { Mutex, MutexInterface } from 'async-mutex';
 
 import Storage from '../Storage';
-import { ageInSeconds, inSeconds } from '../helpers/time_helpers';
+import { ageInSeconds, ageString } from '../helpers/time_helpers';
 import { isDebugMode } from '../helpers/environment_helpers';
 
 const ENABLE_TRACE_LOG = isDebugMode();
@@ -45,7 +45,7 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
     const mutexWaitSeconds = ageInSeconds(startedAt);
-    const logMsg = `${logPrefix} Mutex lock acquired ${inSeconds(startedAt)}`;
+    const logMsg = `${logPrefix} Mutex lock acquired ${ageString(startedAt)}`;
 
     if (mutexWaitSeconds > Storage.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);

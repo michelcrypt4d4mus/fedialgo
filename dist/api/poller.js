@@ -47,7 +47,7 @@ async function getMoarData() {
             extraCount < 0 ? console.warn(msg) : console.log(msg);
             return extraCount || 0;
         }));
-        console.log(`${exports.MOAR_DATA_PREFIX} finished ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+        console.log(`${exports.MOAR_DATA_PREFIX} finished ${(0, time_helpers_1.ageString)(startedAt)}`);
         if (newRecordCounts.every((x) => x <= 0)) {
             console.log(`${exports.MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);
             return false;

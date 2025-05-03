@@ -40,7 +40,7 @@ import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./fe
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
-import { timeString, quotedISOFmt, ageInSeconds, inSeconds, toISOFormat } from './helpers/time_helpers';
+import { timeString, quotedISOFmt, ageInSeconds, ageString, toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonInstances,
@@ -195,7 +195,7 @@ class TheAlgorithm {
         this.mergePromisedTootsIntoFeed(MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
             .then((newToots) => {
                 let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
-                msg += ` total home TL toots so far ${inSeconds(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+                msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
                 logInfo(GET_FEED, msg);
                 this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
             });
@@ -261,7 +261,7 @@ class TheAlgorithm {
 
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            logInfo(TELEMETRY, `First ${filteredFeed.length} toots sent to client ${inSeconds(this.loadStartedAt)}`);
+            logInfo(TELEMETRY, `First ${filteredFeed.length} toots sent to client ${ageString(this.loadStartedAt)}`);
         }
 
         return filteredFeed;
@@ -366,7 +366,7 @@ class TheAlgorithm {
     // Set a few state variables indicating that the load is complete. // TODO: there's too many state variables
     private markLoadComplete(): void {
         if (this.loadStartedAt) {
-            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${inSeconds(this.loadStartedAt)}`);
+            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
             this.loadStartedAt = null;
         } else {
@@ -393,7 +393,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            logInfo(TELEMETRY, `${label} merged ${newToots.length} toots ${inSeconds(startedAt)}:`, this.statusDict());
+            logInfo(TELEMETRY, `${label} merged ${newToots.length} toots ${ageString(startedAt)}:`, this.statusDict());
             return newToots;
         } finally {
             releaseMutex();
@@ -418,7 +418,7 @@ class TheAlgorithm {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(TELEMETRY, `${logPrefix} ready in ${inSeconds(startTime)}`);
+                logInfo(TELEMETRY, `${logPrefix} ready in ${ageString(startTime)}`);
             }
         } finally {
             releaseMutex();

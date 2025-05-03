@@ -10,17 +10,12 @@ import Account from "./objects/account";
 import MastoApi, { INSTANCE, LINKS, STATUSES, TAGS } from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { inSeconds } from "../helpers/time_helpers";
+import { countValues, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
+import { ageString } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
-import {
-    countValues,
-    sortKeysByValue,
-    transformKeys,
-    zipPromises
-} from "../helpers/collection_helpers";
 import {
     ApiMutex,
     InstanceResponse,
@@ -165,7 +160,7 @@ export default class MastodonServer {
         const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
 
         if (json.status === 200 && json.data) {
-            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${inSeconds(startedAt)}:`, json.data);
+            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;
@@ -233,10 +228,10 @@ export default class MastodonServer {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonInstances;
 
             if (servers && Object.keys(servers).length && !(await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
-                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${inSeconds(startedAt)}`);
+                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${ageString(startedAt)}`);
             } else {
                 servers = await this.fetchMastodonInstances();
-                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${inSeconds(startedAt)}:`, servers);
+                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${ageString(startedAt)}:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             }
 
@@ -316,7 +311,7 @@ export default class MastodonServer {
             const storageObjs = await loadingFxn(key) as T[];
 
             if (storageObjs?.length && !(await Storage.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${inSeconds(startedAt)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${ageString(startedAt)}`);
                 return storageObjs;
             } else {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
@@ -330,7 +325,7 @@ export default class MastodonServer {
                     await Storage.set(key, uniqueObjs as StorableObj);
                 }
 
-                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${inSeconds(startedAt)}`;
+                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${ageString(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }

@@ -4,7 +4,7 @@
  * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
  */
 import Scorer from "./scorer";
-import { inSeconds } from "../helpers/time_helpers";
+import { ageString } from "../helpers/time_helpers";
 import { StringNumberDict, WeightName } from "../types";
 
 
@@ -27,7 +27,7 @@ export default abstract class FeatureScorer extends Scorer {
         }
 
         this.isReady = true;
-        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${inSeconds(startTime)}`;
+        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
 
         if (Object.values(this.scoreData).length > 0) {
             console.debug(`${msg}, returned:`, this.scoreData);

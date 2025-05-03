@@ -43,7 +43,7 @@ async function lockMutex(mutex, logPrefix) {
     const startedAt = new Date();
     const releaseMutex = await mutex.acquire();
     const mutexWaitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
-    const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.inSeconds)(startedAt)}`;
+    const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
     if (mutexWaitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
         console.warn(logMsg);
     }

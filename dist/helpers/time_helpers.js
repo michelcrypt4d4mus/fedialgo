@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.inSeconds = exports.inMinutes = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.ageString = exports.inMinutes = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -36,11 +36,11 @@ function inMinutes(date) {
 exports.inMinutes = inMinutes;
 ;
 // Make a nice string like "in 2.5 minutes"
-function inSeconds(date) {
+function ageString(date) {
     const seconds = ageInSeconds(date);
     return `in ${seconds.toFixed(1)} seconds`;
 }
-exports.inSeconds = inSeconds;
+exports.ageString = ageString;
 ;
 // To the format YYYY-MM-DDTHH:MM:SSZ
 function toISOFormat(date, withMilliseconds) {

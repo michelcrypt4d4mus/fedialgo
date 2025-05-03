@@ -27,7 +27,7 @@ class FeatureScorer extends scorer_1.default {
             this.scoreData = {};
         }
         this.isReady = true;
-        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.inSeconds)(startTime)}`;
+        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
         if (Object.values(this.scoreData).length > 0) {
             console.debug(`${msg}, returned:`, this.scoreData);
         }

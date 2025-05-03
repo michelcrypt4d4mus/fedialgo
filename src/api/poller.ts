@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 
 import MastoApi from "../api/api";
 import Storage from "../Storage";
-import { inSeconds } from '../helpers/time_helpers';
+import { ageString } from '../helpers/time_helpers';
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
@@ -51,7 +51,7 @@ export async function getMoarData(): Promise<boolean> {
             })
         );
 
-        console.log(`${MOAR_DATA_PREFIX} finished ${inSeconds(startedAt)}`);
+        console.log(`${MOAR_DATA_PREFIX} finished ${ageString(startedAt)}`);
 
         if (newRecordCounts.every((x) => x <= 0)) {
             console.log(`${MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);

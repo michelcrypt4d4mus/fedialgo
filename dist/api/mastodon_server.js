@@ -36,12 +36,12 @@ const async_mutex_1 = require("async-mutex");
 const api_1 = __importStar(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
-const time_helpers_1 = require("../helpers/time_helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
+const time_helpers_1 = require("../helpers/time_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 var FediverseTrendingType;
 (function (FediverseTrendingType) {
@@ -157,7 +157,7 @@ class MastodonServer {
         const startedAt = new Date();
         const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
         if (json.status === 200 && json.data) {
-            (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetch response ${(0, time_helpers_1.inSeconds)(startedAt)}:`, json.data);
+            (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetch response ${(0, time_helpers_1.ageString)(startedAt)}:`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
         }
         else {
@@ -220,11 +220,11 @@ class MastodonServer {
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
             if (servers && Object.keys(servers).length && !(await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${(0, time_helpers_1.ageString)(startedAt)}`);
             }
             else {
                 servers = await this.fetchMastodonInstances();
-                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${(0, time_helpers_1.inSeconds)(startedAt)}:`, servers);
+                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             return servers;
@@ -290,7 +290,7 @@ class MastodonServer {
         try {
             const storageObjs = await loadingFxn(key);
             if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
-                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                console.debug(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
                 return storageObjs;
             }
             else {
@@ -304,7 +304,7 @@ class MastodonServer {
                 else {
                     await Storage_1.default.set(key, uniqueObjs);
                 }
-                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.inSeconds)(startedAt)}`;
+                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, uniqueObjs);
                 return uniqueObjs;
             }

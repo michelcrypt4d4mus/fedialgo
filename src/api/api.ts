@@ -16,7 +16,7 @@ import { ApiMutex, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } fro
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { inSeconds, quotedISOFmt } from "../helpers/time_helpers";
+import { ageString, quotedISOFmt } from "../helpers/time_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
@@ -213,7 +213,7 @@ export default class MastoApi {
                 });
 
                 await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
-                console.log(`${logPrefix} Retrieved ${filters.length} records ${inSeconds(startTime)}:`, filters);
+                console.log(`${logPrefix} Retrieved ${filters.length} records ${ageString(startTime)}:`, filters);
             }
 
             return filters;
@@ -301,10 +301,10 @@ export default class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            console.debug(`${logPrefix} Retrieved ${statuses.length} ${inSeconds(startTime)}`);
+            console.debug(`${logPrefix} Retrieved ${statuses.length} ${ageString(startTime)}`);
             return statuses;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${inSeconds(startTime)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startTime)}`);
             return [];
         } finally {
             releaseSemaphore();
@@ -327,7 +327,7 @@ export default class MastoApi {
 
             if (!toots || (await Storage.isDataStale(key))) {
                 const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${inSeconds(startedAt)}`);
+                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, logPrefix);
 
                 if (maxRecordsConfigKey) {
@@ -336,7 +336,7 @@ export default class MastoApi {
 
                 await Storage.storeToots(key, toots);
             } else {
-                traceLog(`${logPrefix} Loaded ${toots.length} cached toots ${inSeconds(startedAt)}`);
+                traceLog(`${logPrefix} Loaded ${toots.length} cached toots ${ageString(startedAt)}`);
             }
 
             return toots;
@@ -371,7 +371,7 @@ export default class MastoApi {
 
                 if (cachedRows && !(await Storage.isDataStale(label as StorageKey))) {
                     rows = cachedRows;
-                    traceLog(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startedAt)}`);
+                    traceLog(`${logPfx} Loaded ${rows.length} cached rows ${ageString(startedAt)}`);
                     if (!moar) return rows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -385,7 +385,7 @@ export default class MastoApi {
             for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
-                const recordsSoFar = `have ${rows.length} records so far ${inSeconds(startedAt)}`;
+                const recordsSoFar = `have ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     traceLog(`${logPfx} Completing fetch at page ${pageNumber} ${recordsSoFar}`);
@@ -398,7 +398,7 @@ export default class MastoApi {
             if (!skipCache) await Storage.set(label as StorageKey, rows as StorableObj);
         } catch (e) {
             // If the access token was not revoked whatever rows we've retrieved will be returned
-            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${inSeconds(startedAt)}, have ${rows.length} rows`);
+            this.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
         } finally {
             releaseMutex?.();
         }
@@ -422,10 +422,10 @@ export default class MastoApi {
                 maxRecords: maxRecords,
             });
 
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${inSeconds(startedAt)}`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${inSeconds(startedAt)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
             return [];
         } finally {
             releaseSemaphore();

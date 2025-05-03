@@ -37,7 +37,7 @@ export function inMinutes(date: Date | number | string | null): string {
 
 
 // Make a nice string like "in 2.5 minutes"
-export function inSeconds(date: Date | number | string | null): string {
+export function ageString(date: Date | number | string | null): string {
     const seconds = ageInSeconds(date);
     return `in ${seconds.toFixed(1)} seconds`;
 };
