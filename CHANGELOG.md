@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.24.5
 * Remove blocked keywrods (no bueno) and followed tags (they show up on their own) from the list of tags to scan for new toots
 
 ### v0.24.4
