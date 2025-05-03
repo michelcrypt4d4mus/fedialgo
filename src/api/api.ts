@@ -88,7 +88,7 @@ export default class MastoApi {
         // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {} as ApiMutex;
         for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
-        this.requestSemphore = new Semaphore(Storage.getConfig().maxConcurrentTootRequests);
+        this.requestSemphore = new Semaphore(Storage.getConfig().maxConcurrentRequestsInitial);
     };
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
@@ -346,11 +346,19 @@ export default class MastoApi {
         }
     }
 
+    // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
+    // drain switching back to the browser window, which triggers a lot of background requests
+    setBackgroundConcurrency(): void {
+        const newConcurrency = Storage.getConfig().maxConcurrentRequestsBackground;
+        console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
+        this.requestSemphore = new Semaphore(newConcurrency);
+    }
+
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
-        const logPfx = `[API ${fetchParams.label}]`;
+        let logPfx = `[API ${fetchParams.label}]`;
         const useCache = isStorageKey(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= Storage.getConfig().minRecordsForFeatureScoring;
@@ -360,7 +368,13 @@ export default class MastoApi {
         traceLog(`${logPfx} fetchData() params:`, fetchParams);
 
         // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
+        // This is for data pulls that are not trying to get at the same data (e.g. running a bunch of searches
+        // for different terms vs. trying to get the user's home timeline, which does require a mutex)
         const releaseMutex = useCache ? await lockMutex(this.mutexes[label as StorageKey], logPfx) : null;
+        // Trying to put a global semaphore on requests led to thread locks - apparently the searchForToots()
+        // requests are grabbing all the semaphores and something important can't get through.
+        // const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPfx);
+        // logPfx += ` (semaphore ${semaphoreNum})`;
         const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
@@ -402,6 +416,7 @@ export default class MastoApi {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
         } finally {
             releaseMutex?.();
+            // releaseSemaphore();
         }
 
         return rows;

@@ -308,9 +308,10 @@ class TheAlgorithm {
         else { // Otherwise (presumably) the last fetch didn't get fulfilled
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${numTimelineToots}`);
         }
-        // Now that we have a complete set of initial toots start the background data poller
+        // Now that we have a complete set of initial toots start the background data poller and lower concurrency
         this.launchBackgroundPoller();
         this.markLoadComplete();
+        api_1.default.instance.setBackgroundConcurrency();
         this.loadingStatus = null;
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist

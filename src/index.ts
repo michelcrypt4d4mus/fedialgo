@@ -320,9 +320,10 @@ class TheAlgorithm {
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${numTimelineToots}`);
         }
 
-        // Now that we have a complete set of initial toots start the background data poller
+        // Now that we have a complete set of initial toots start the background data poller and lower concurrency
         this.launchBackgroundPoller();
         this.markLoadComplete();
+        MastoApi.instance.setBackgroundConcurrency();
         this.loadingStatus = null;
     }
 

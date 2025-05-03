@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `MastoApi.instance.setBackgroundConcurrency()`, `Config.maxConcurrentRequestsBackground` option. Handle missing `Storage.getIdentity()` if possibl
 
 ### v0.24.5
 * Remove blocked keywrods (no bueno) and followed tags (they show up on their own) from the list of tags to scan for new toots

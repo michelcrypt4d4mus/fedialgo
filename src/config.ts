@@ -26,7 +26,8 @@ export type Config = {
     // API stuff
     backgroundLoadIntervalMS: number;
     defaultRecordsPerPage: number;
-    maxConcurrentTootRequests: number;
+    maxConcurrentRequestsBackground: number;
+    maxConcurrentRequestsInitial: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
@@ -94,7 +95,9 @@ export const DEFAULT_CONFIG: Config = {
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
-    maxConcurrentTootRequests: 15,       // How many toot requests to make in parallel
+    // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
+    maxConcurrentRequestsInitial: 15,    // How many toot requests to make in parallel
+    maxConcurrentRequestsBackground: 3,  // How many toot requests to make in parallel once the initial load is done
     minRecordsForFeatureScoring: 240,    // number of notifications, replies, etc. to pull in initial load
     minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                 // How long to wait before warning about a mutex lock

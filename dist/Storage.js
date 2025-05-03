@@ -40,6 +40,7 @@ const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
+const api_1 = __importDefault(require("./api/api"));
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FAVOURITED_TOOTS,
@@ -239,9 +240,18 @@ class Storage {
     //////////////////////////////
     // Build a string that prepends the user ID to the key
     static async buildKey(key) {
-        const user = await this.getIdentity();
-        if (!user)
-            (0, log_helpers_1.logAndThrowError)(`[Storage] No user identity found`);
+        let user = await this.getIdentity();
+        if (!user) {
+            warn(`No user identity found, checking MastoApi...`);
+            if (api_1.default.instance.user) {
+                console.warn(`No user identity found! MastoApi has a user ID, using that instead`);
+                user = api_1.default.instance.user;
+                await this.setIdentity(user);
+            }
+            else {
+                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} No user identity found! Cannot build key for ${key}`);
+            }
+        }
         return `${user.id}_${key}`;
     }
     // Get the user identity from storage

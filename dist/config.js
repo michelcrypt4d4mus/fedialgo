@@ -42,7 +42,9 @@ exports.DEFAULT_CONFIG = {
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
-    maxConcurrentTootRequests: 15,
+    // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
+    maxConcurrentRequestsInitial: 15,
+    maxConcurrentRequestsBackground: 3,
     minRecordsForFeatureScoring: 240,
     minServerMAU: 100,
     mutexWarnSeconds: 5,

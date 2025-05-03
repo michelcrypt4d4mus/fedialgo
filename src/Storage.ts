@@ -23,6 +23,7 @@ import {
     TrendingTag,
     Weights,
 } from "./types";
+import MastoApi from "./api/api";
 
 // The cache values at these keys contain SerializedToot objects
 export const STORAGE_KEYS_WITH_TOOTS = [
@@ -251,8 +252,20 @@ export default class Storage {
 
     // Build a string that prepends the user ID to the key
     private static async buildKey(key: StorageKey): Promise<string> {
-        const user = await this.getIdentity();
-        if (!user) logAndThrowError(`[Storage] No user identity found`);
+        let user = await this.getIdentity();
+
+        if (!user) {
+            warn(`No user identity found, checking MastoApi...`);
+
+            if (MastoApi.instance.user) {
+                console.warn(`No user identity found! MastoApi has a user ID, using that instead`);
+                user = MastoApi.instance.user;
+                await this.setIdentity(user);
+            } else {
+                logAndThrowError(`${LOG_PREFIX} No user identity found! Cannot build key for ${key}`);
+            }
+        }
+
         return `${user.id}_${key}`;
     }
 
