@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Re-raise access token revoked errors in `mergePromisedTootsIntoFeed()`
 
 ### v0.24.3
 * Double `Config.numParticipatedTagsToFetchTootsFor` to 20
