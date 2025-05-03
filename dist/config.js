@@ -82,9 +82,7 @@ exports.DEFAULT_CONFIG = {
         "mastodonapp.uk",
         "ioc.exchange",
         "tech.lgbt",
-        "mastodon.art",
         "techhub.social",
-        "mastodon.sdf.org",
         "indieweb.social",
         "mastodon.green",
         "defcon.social",
@@ -164,7 +162,6 @@ exports.DEFAULT_CONFIG = {
         "fediscience.org",
         "mastodon.cloud",
         "mastodon.gamedev.place",
-        "mastodon.sdf.org",
         "med-mastodon.com",
     ],
 };

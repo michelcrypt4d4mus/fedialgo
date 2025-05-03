@@ -269,11 +269,10 @@ export default class MastodonServer {
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/the minimum ${config.minServerMAU} MAU`);
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config.minServerMAU} MAU, adding some`);
             const extraServers = config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
             serverDict = {...serverDict, ...extraServerInfos};
-            console.log(`${logPrefix} mastodon.v2.Instance objs for all servers:`, serverDict);
         }
 
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
@@ -364,7 +363,7 @@ function filterMinMAU(
     serverInfos: Record<string, InstanceResponse>,
     minMAU: number
 ): Record<string, MastodonInstance> {
-    return Object.entries(serverInfos).reduce(
+    const servers = Object.entries(serverInfos).reduce(
         (filtered, [domain, instanceObj]) => {
             if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
                 filtered[domain] = instanceObj as MastodonInstance;
@@ -373,4 +372,7 @@ function filterMinMAU(
         },
         {} as Record<string, MastodonInstance>
     );
+
+    traceLog(`[filterMinMAU()] ${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);
+    return servers;
 };
