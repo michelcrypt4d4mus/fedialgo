@@ -96,10 +96,10 @@ export const DEFAULT_CONFIG: Config = {
     // API stuff
     // backgroundLoadIntervalMS: 25_000, // 30sec
     backgroundLoadIntervalMS: 60_000,    // 1 minute
-    maxRecordsForFeatureScoring: 2_800,  // number of notifications, replies, etc. to pull slowly in background for scoring
+    maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
-    maxConcurrentTootRequests: 15,         // How many toot requests to make in parallel
+    maxConcurrentTootRequests: 15,       // How many toot requests to make in parallel
     minRecordsForFeatureScoring: 240,    // number of notifications, replies, etc. to pull in initial load
     minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                 // How long to wait before warning about a mutex lock
@@ -113,9 +113,9 @@ export const DEFAULT_CONFIG: Config = {
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 15,          // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server
-    numTrendingTags: 18,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+    numTrendingTags: 20,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
     numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
-    numTrendingTagsToots: 250,           // Maximum number of toots with trending tags to push into the user's feed
+    numTrendingTagsToots: 200,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
 

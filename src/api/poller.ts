@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 
 import Storage from "../Storage";
 import { inSeconds } from '../helpers/time_helpers';
-import { MastoApi } from "../api/api";
+import MastoApi from "../api/api";
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;

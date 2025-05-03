@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
-const api_1 = require("./api");
+const api_1 = __importDefault(require("./api"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SORT_TAGS_BY = ["numToots", "name"];
 ;
@@ -48,11 +48,11 @@ class UserData {
     // Pull latest user's data from cache and/or API
     async populate() {
         const responses = await Promise.all([
-            api_1.MastoApi.instance.getFollowedAccounts(),
-            api_1.MastoApi.instance.getFollowedTags(),
-            api_1.MastoApi.instance.getMutedAccounts(),
+            api_1.default.instance.getFollowedAccounts(),
+            api_1.default.instance.getFollowedTags(),
+            api_1.default.instance.getMutedAccounts(),
             UserData.getPostedHashtags(),
-            api_1.MastoApi.instance.getServerSideFilters(),
+            api_1.default.instance.getServerSideFilters(),
         ]);
         this.followedAccounts = account_1.default.buildAccountNames(responses[0]);
         this.followedTags = responses[1];
@@ -78,7 +78,7 @@ class UserData {
     }
     // Fetch or load TrendingTag objects with numToots prop set to number of times user tooted it
     static async getPostedHashtags() {
-        const recentToots = await api_1.MastoApi.instance.getUserRecentToots();
+        const recentToots = await api_1.default.instance.getUserRecentToots();
         return this.buildUserHashtags(recentToots);
     }
     // Return array of TrendingTags sorted by numToots

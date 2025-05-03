@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const api_1 = require("../../api/api");
+const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
     constructor() {
@@ -13,7 +13,7 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     }
     // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     async prepareScoreData() {
-        const followedAccounts = await api_1.MastoApi.instance.getFollowedAccounts();
+        const followedAccounts = await api_1.default.instance.getFollowedAccounts();
         return (0, collection_helpers_1.countValues)(followedAccounts, (account) => account.webfingerURI);
     }
     ;

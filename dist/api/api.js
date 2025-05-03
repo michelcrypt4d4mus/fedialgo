@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 /*
  * Singleton class to wrap authenticated mastodon API calls to the user's home server
  * (unauthenticated calls are handled by the MastodonServer class).
@@ -36,7 +36,6 @@ exports.MastoApi = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INS
 const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
-const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
@@ -53,7 +52,6 @@ exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults, allResults) => false;
 ;
-//
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
@@ -153,19 +151,6 @@ class MastoApi {
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
     }
-    // Get recent toots from hashtags the user has participated in frequently
-    async getParticipatedHashtagToots() {
-        const fetch = async () => {
-            let tags = await user_data_1.default.getPostedHashtagsSorted();
-            // Exclude followed tags from the list (they will show up in the timeline on their own)
-            const followedTags = await MastoApi.instance.getFollowedTags();
-            tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-            tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
-            console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
-            return await this.getStatusesForTags(tags);
-        };
-        return await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, fetch, "numUserParticipatedTagToots");
-    }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
@@ -189,11 +174,6 @@ class MastoApi {
         (0, collection_helpers_1.checkUniqueIDs)(notifications, types_1.StorageKey.RECENT_NOTIFICATIONS);
         return notifications;
     }
-    // Get toots for the top trending tags via the search endpoint.
-    async getRecentTootsForTrendingTags() {
-        return await this.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => this.getStatusesForTags(await mastodon_server_1.default.fediverseTrendingTags()), "numTrendingTagsToots");
-    }
-    ;
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
@@ -309,19 +289,6 @@ class MastoApi {
         }
     }
     ;
-    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(maxId, limit, logPfx) {
-        limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
-        let params = {
-            limit: Math.min(limit, Storage_1.default.getConfig().defaultRecordsPerPage),
-        };
-        if (maxId)
-            params = { ...params, maxId: `${maxId}` };
-        if (logPfx)
-            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, params);
-        return params;
-    }
-    ;
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(key, fetch, maxRecordsConfigKey) {
@@ -433,6 +400,19 @@ class MastoApi {
         }
     }
     ;
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    buildParams(maxId, limit, logPfx) {
+        limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
+        let params = {
+            limit: Math.min(limit, Storage_1.default.getConfig().defaultRecordsPerPage),
+        };
+        if (maxId)
+            params = { ...params, maxId: `${maxId}` };
+        if (logPfx)
+            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, params);
+        return params;
+    }
+    ;
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
@@ -443,7 +423,7 @@ class MastoApi {
         }
     }
 }
-exports.MastoApi = MastoApi;
+exports.default = MastoApi;
 ;
 // TODO: get rid of this eventually
 const logTrendingTagResults = (logPrefix, searchMethod, toots) => {

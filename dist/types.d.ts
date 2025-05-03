@@ -58,7 +58,7 @@ export declare enum MediaCategory {
 }
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
-export type MastodonServersInfo = Record<string, MastodonServerInfo>;
+export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
@@ -84,10 +84,14 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
-export type MastodonServerInfo = {
-    domain: string;
-    followedPctOfMAU: number;
-    serverMAU: number;
+export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
+export interface MastodonInstance extends mastodon.v2.Instance {
+    followedPctOfMAU?: number;
+    MAU?: number;
+}
+export type MastodonInstanceEmpty = {
+    followedPctOfMAU?: number;
+    MAU?: number;
 };
 export type MastodonTag = mastodon.v1.Tag | TrendingTag;
 export type ScorerInfo = {
@@ -96,8 +100,7 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 export type StorableApiObject = (MastodonTag | SerializableToot | TrendingLink | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Tag | mastodon.v1.TrendLink | mastodon.v2.Filter);
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
-export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

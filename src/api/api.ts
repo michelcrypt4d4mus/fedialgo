@@ -9,7 +9,6 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
@@ -51,8 +50,7 @@ interface FetchParams<T> {
 };
 
 
-//
-export class MastoApi {
+export default class MastoApi {
     static #instance: MastoApi;  // Singleton instance of MastoApi
 
     api: mastodon.rest.Client;
@@ -166,21 +164,6 @@ export class MastoApi {
         return mutedAccounts.map(a => new Account(a)).concat(blockedAccounts);
     }
 
-    // Get recent toots from hashtags the user has participated in frequently
-    async getParticipatedHashtagToots(): Promise<Toot[]> {
-        const fetch = async () => {
-            let tags = await UserData.getPostedHashtagsSorted();
-            // Exclude followed tags from the list (they will show up in the timeline on their own)
-            const followedTags = await MastoApi.instance.getFollowedTags();
-            tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-            tags = truncateToConfiguredLength(tags, "numUserParticipatedTagsToFetchTootsFor");
-            console.debug(`[getParticipatedHashtagToots] Fetching toots for tags:`, tags);
-            return await this.getStatusesForTags(tags);
-        }
-
-        return await this.getCacheableToots(StorageKey.PARTICIPATED_TAG_TOOTS, fetch, "numUserParticipatedTagToots");
-    }
-
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
@@ -207,15 +190,6 @@ export class MastoApi {
         checkUniqueIDs(notifications, StorageKey.RECENT_NOTIFICATIONS);
         return notifications;
     }
-
-    // Get toots for the top trending tags via the search endpoint.
-    async getRecentTootsForTrendingTags(): Promise<Toot[]> {
-        return await this.getCacheableToots(
-            StorageKey.TRENDING_TAG_TOOTS,
-            async () => this.getStatusesForTags(await MastodonServer.fediverseTrendingTags()),
-            "numTrendingTagsToots"
-        );
-    };
 
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
@@ -339,22 +313,9 @@ export class MastoApi {
         }
     };
 
-    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
-        limit ||= Storage.getConfig().defaultRecordsPerPage;
-
-        let params: mastodon.DefaultPaginationParams = {
-            limit: Math.min(limit, Storage.getConfig().defaultRecordsPerPage),
-        };
-
-        if (maxId) params = {...params, maxId: `${maxId}`};
-        if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
-        return params as mastodon.DefaultPaginationParams;
-    };
-
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
-    private async getCacheableToots(
+    async getCacheableToots(
         key: StorageKey,
         fetch: () => Promise<mastodon.v1.Status[]>,
         maxRecordsConfigKey?: keyof Config
@@ -471,6 +432,19 @@ export class MastoApi {
         } finally {
             releaseSemaphore();
         }
+    };
+
+    // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
+    private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
+        limit ||= Storage.getConfig().defaultRecordsPerPage;
+
+        let params: mastodon.DefaultPaginationParams = {
+            limit: Math.min(limit, Storage.getConfig().defaultRecordsPerPage),
+        };
+
+        if (maxId) params = {...params, maxId: `${maxId}`};
+        if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
+        return params as mastodon.DefaultPaginationParams;
     };
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on

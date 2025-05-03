@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 import { AccountNames } from "../../types";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
-import { MastoApi } from "../api";
+import MastoApi from "../api";
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;

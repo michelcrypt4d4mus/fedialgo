@@ -73,7 +73,7 @@ export enum MediaCategory {
 // Records
 export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;  // TODO: unused
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
-export type MastodonServersInfo = Record<string, MastodonServerInfo>;
+export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
@@ -106,11 +106,21 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
-// Holds basic info about a given mastodon server
-export type MastodonServerInfo = {
-    domain: string;
-    followedPctOfMAU: number;
-    serverMAU: number;
+// All these types have an id property
+export type MastodonID = (
+    mastodon.v1.Account |
+    mastodon.v1.Notification |
+    SerializableToot
+);
+
+export interface MastodonInstance extends mastodon.v2.Instance {
+    followedPctOfMAU?: number;
+    MAU?: number;  // MAU data is buried in the Instance hierarchy so this just a copy on the top level
+};
+
+export type MastodonInstanceEmpty = {
+    followedPctOfMAU?: number;
+    MAU?: number;
 };
 
 export type MastodonTag = mastodon.v1.Tag | TrendingTag;
@@ -135,19 +145,12 @@ export type StorableApiObject = (
 // Types that are valid for browser local storage
 export type StorableObj = (
     FeedFilterSettingsSerialized |
-    MastodonServersInfo |
+    MastodonInstances |
     StorableApiObject |
     StorableApiObject[] |
     StringNumberDict |
     Weights |
     number
-);
-
-// All these types have an id property
-export type MastodonID = (
-    mastodon.v1.Account |
-    mastodon.v1.Notification |
-    SerializableToot
 );
 
 export type StorableWithTimestamp = {

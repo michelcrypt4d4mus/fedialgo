@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const string_helpers_1 = require("../../helpers/string_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const api_1 = require("../api");
+const api_1 = __importDefault(require("../api"));
 ;
 class Account {
     id;
@@ -80,11 +83,11 @@ class Account {
         return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server";
     }
     homserverURL() {
-        if (this.homeserver() == api_1.MastoApi.instance.homeDomain) {
+        if (this.homeserver() == api_1.default.instance.homeDomain) {
             return this.url;
         }
         else {
-            return `https://${api_1.MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
+            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
     // Strip functions so it can be serialized to local storage

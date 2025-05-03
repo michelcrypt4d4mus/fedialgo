@@ -15,7 +15,7 @@ const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const log_helpers_1 = require("../../helpers/log_helpers");
-const api_1 = require("../api");
+const api_1 = __importDefault(require("../api"));
 const tag_1 = require("./tag");
 const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -176,7 +176,7 @@ class Toot {
     }
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention() {
-        return this.mentions.some((mention) => mention.acct == api_1.MastoApi.instance.user.webfingerURI);
+        return this.mentions.some((mention) => mention.acct == api_1.default.instance.user.webfingerURI);
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
@@ -279,7 +279,7 @@ class Toot {
         if (this.resolvedToot)
             return this.resolvedToot;
         try {
-            this.resolvedToot = await api_1.MastoApi.instance.resolveToot(this);
+            this.resolvedToot = await api_1.default.instance.resolveToot(this);
         }
         catch (error) {
             console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
@@ -366,7 +366,7 @@ class Toot {
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {
-        const algoUser = api_1.MastoApi.instance.user;
+        const algoUser = api_1.default.instance.user;
         if (this.account.webfingerURI == algoUser.webfingerURI)
             return true;
         if (this.reblog && this.reblog.account.webfingerURI == algoUser.webfingerURI)
@@ -468,7 +468,7 @@ class Toot {
     ;
     // Set the dependent properties for all of a list of Toot objects
     static async setDependentProps(toots) {
-        const userData = await api_1.MastoApi.instance.getUserData();
+        const userData = await api_1.default.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");

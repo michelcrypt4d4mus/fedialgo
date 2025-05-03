@@ -3,13 +3,14 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
+import { Config } from "../config";
 import { MastodonTag, StorageKey } from "../types";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
 export type ApiMutex = Record<StorageKey, Mutex>;
-export declare class MastoApi {
+export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
     homeDomain: string;
@@ -28,10 +29,8 @@ export declare class MastoApi {
     getFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getMutedAccounts(): Promise<Account[]>;
-    getParticipatedHashtagToots(): Promise<Toot[]>;
     getRecentFavourites(moar?: boolean): Promise<Toot[]>;
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
-    getRecentTootsForTrendingTags(): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
     getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]>;
@@ -39,9 +38,9 @@ export declare class MastoApi {
     getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
-    private buildParams;
-    private getCacheableToots;
+    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey?: keyof Config): Promise<Toot[]>;
     private getApiRecords;
     private hashtagTimelineToots;
+    private buildParams;
     private throwIfAccessTokenRevoked;
 }

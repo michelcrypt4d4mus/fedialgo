@@ -7,23 +7,24 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
+import MastoApi, { INSTANCE, LINKS, STATUSES, TAGS } from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
-import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { TELEMETRY } from "../helpers/string_helpers";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { TELEMETRY } from "../helpers/string_helpers";
 import { repairTag } from "./objects/tag";
 import {
-    atLeastValues,
     countValues,
     sortKeysByValue,
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
 import {
-    MastodonServersInfo,
+    MastodonInstanceEmpty,
+    MastodonInstance,
+    MastodonInstances,
     StorableObj,
     StorageKey,
     StringNumberDict,
@@ -41,13 +42,18 @@ export enum FediverseTrendingType {
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-type InstanceResponse = mastodon.v2.Instance | null;
 
 const TRENDING_MUTEXES: Record<string, Mutex> = {
     [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
     [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
     [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
     [StorageKey.POPULAR_SERVERS]: new Mutex(),
+};
+
+type InstanceResponse = MastodonInstance | null;
+
+type EmptyInstance = {
+    followedPctOfMAU: number;
 };
 
 interface FetchTrendingProps<T> {
@@ -80,7 +86,7 @@ export default class MastodonServer {
         }
 
         try {
-            return await this.fetch<mastodon.v2.Instance>(MastodonServer.v2Url(INSTANCE));
+            return await this.fetch<MastodonInstance>(MastodonServer.v2Url(INSTANCE));
         } catch (error) {
             console.warn(`[fetchServerInfo()] Error for server '${this.domain}'`, error);
             return null;
@@ -224,17 +230,19 @@ export default class MastodonServer {
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    static async getMastodonServersInfo(): Promise<MastodonServersInfo> {
+    static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
+        const startedAt = new Date();
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS], logPrefix);
 
         try {
-            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonServersInfo;
+            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonInstances;
 
             if (servers && Object.keys(servers).length && !(await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
-                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache...`);
+                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${inSeconds(startedAt)}`);
             } else {
-                servers = await this.fetchMastodonServersInfo();
+                servers = await this.fetchMastodonInstances();
+                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${inSeconds(startedAt)}:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             }
 
@@ -246,61 +254,56 @@ export default class MastodonServer {
 
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
-    private static async fetchMastodonServersInfo(): Promise<MastodonServersInfo> {
+    private static async fetchMastodonInstances(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         console.debug(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
         const config = Storage.getConfig();
-        const startTime = new Date();
 
+        // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
-        // Find the top numServersToCheck servers among accounts followed by the user to check for trends.
-        const followedServerUserCounts = countValues<Account>(follows, account => account.homeserver());
-        const mostFollowedServers = sortKeysByValue(followedServerUserCounts).slice(0, config.numServersToCheck);
+        const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver());
+        const mostFollowedDomains = sortKeysByValue(followedUserDomainCounts).slice(0, config.numServersToCheck);
 
-        // Fetch Instance objects for the most followed servers
-        let serverInfos = await this.callForServers<InstanceResponse>(mostFollowedServers, (s) => s.fetchServerInfo());
-        let serverMAUs = instancesToServerMAUs(serverInfos);
-        const validServers = atLeastValues(serverMAUs, config.minServerMAU);
-        const numValidServers = Object.keys(validServers).length;
-        const numDefaultServers = config.numServersToCheck - numValidServers;
-        console.debug(`${logPrefix} followedServerUserCounts:`, followedServerUserCounts, `\nserverMAUs:`, serverMAUs);
+        // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
+        // current Fedialgo. Filter out those below the userminServerMAU threshold
+        let serverInfos = await this.callForServers<InstanceResponse>(mostFollowedDomains, (s) => s.fetchServerInfo());
+        const activeServers = filterMinMAU(serverInfos, config.minServerMAU);
+        const numActiveServers = Object.keys(activeServers).length;
+        const numServersToAdd = config.numServersToCheck - numActiveServers; // Number of default servers to add
 
-        if (numDefaultServers > 0) {
-            console.warn(`${logPrefix} Only got ${numValidServers} servers w/MAU over the ${config.minServerMAU} user threshold`);
-            const extraServers = config.defaultServers.filter(s => !(s in serverMAUs)).slice(0, numDefaultServers);
+        // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
+        // TODO: if some of the default servers barf we won't top up the list again
+        if (numServersToAdd > 0) {
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/the minimum ${config.minServerMAU} MAU`);
+            const extraServers = config.defaultServers.filter(s => !(s in serverInfos)).slice(0, numServersToAdd);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
-            const extraServerMAUs = instancesToServerMAUs(extraServerInfos);
-            const allServerInfos = {...serverInfos, ...extraServerInfos};
-            console.log(`${logPrefix} mastodon.v2.Instance objs for all servers:`, allServerInfos);
-            serverMAUs = { ...validServers, ...extraServerMAUs };
+            serverInfos = {...serverInfos, ...extraServerInfos};
+            console.log(`${logPrefix} mastodon.v2.Instance objs for all servers:`, serverInfos);
         }
 
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        const mastodonServers = Object.keys(serverMAUs).reduce(
-            (serverInfo, server) => {
-                serverInfo[server] = {
-                    domain: server,
-                    followedPctOfMAU: 100 * (followedServerUserCounts[server] || 0) / serverMAUs[server],
-                    serverMAU: serverMAUs[server],
-                }
-
-                return serverInfo;
+        return Object.entries(serverInfos).reduce(
+            (serverDict, [domain, _instance]) => {
+                // Replace any null responses with MastodonInstanceEmpty objs
+                const instance = _instance ? (_instance as MastodonInstance) : ({} as MastodonInstanceEmpty);
+                const domainAccountsFollowed = followedUserDomainCounts[domain] || 0;
+                instance.MAU = _instance?.usage?.users?.activeMonth || 0;  // copy MAU to top level
+                instance.followedPctOfMAU = instance.MAU ? (domainAccountsFollowed / instance.MAU) : 0;
+                instance.followedPctOfMAU *= 100;
+                serverDict[domain] = instance;
+                return serverDict;
             },
-            {} as MastodonServersInfo
+            {} as MastodonInstances
         );
-
-
-        console.log(`${logPrefix} Constructed MastodonServersInfo object ${inSeconds(startTime)}:`, mastodonServers);
-        return mastodonServers;
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     private static async getTopServerDomains(): Promise<string[]> {
-        const servers = await this.getMastodonServersInfo();
+        const servers = await this.getMastodonInstancesInfo();
 
         // Sort the servers by the number of users on each server
         const topServerDomains = Object.keys(servers).sort(
-            (a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU
+            (a, b) => servers[b].followedPctOfMAU! - servers[a].followedPctOfMAU!
         );
 
         console.debug(`[${StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
@@ -361,13 +364,17 @@ export default class MastodonServer {
 };
 
 
-// Extract server MAU StringNumberDict
-const instancesToServerMAUs = (instances: Record<string, InstanceResponse>): StringNumberDict => {
-    return Object.entries(instances).reduce(
-        (maus, [server, instance]) => {
-            maus[server] = instance?.usage?.users?.activeMonth || 0;
-            return maus;
+function filterMinMAU(
+    serverInfos: Record<string, InstanceResponse>,
+    minMAU: number
+): Record<string, MastodonInstance> {
+    return Object.entries(serverInfos).reduce(
+        (filtered, [domain, instanceObj]) => {
+            if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
+                filtered[domain] = instanceObj as MastodonInstance;
+            }
+            return filtered;
         },
-        {} as StringNumberDict
+        {} as Record<string, MastodonInstance>
     );
 };

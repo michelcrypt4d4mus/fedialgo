@@ -4,7 +4,7 @@
 import AccountScorer from '../acccount_scorer';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers/collection_helpers';
-import { MastoApi } from '../../api/api';
+import MastoApi from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
 
 

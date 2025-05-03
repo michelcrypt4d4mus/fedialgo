@@ -12,7 +12,7 @@ import Storage from "../../Storage";
 import UserData from "../user_data";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
-import { MastoApi } from "../api";
+import MastoApi from "../api";
 import { repairTag } from "./tag";
 import { toISOFormat } from "../../helpers/time_helpers";
 import {

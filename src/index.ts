@@ -12,6 +12,7 @@ import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
+import MastoApi from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
@@ -36,14 +37,14 @@ import { lockMutex, logAndThrowError, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
+import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
 import { timeString, quotedISOFmt, ageInSeconds, inSeconds, toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
-    MastodonServersInfo,
+    MastodonInstances,
     MediaCategory,
     ScorerDict,
     ScorerInfo,
@@ -85,7 +86,7 @@ class TheAlgorithm {
     // TODO: loadingStatus has become sort of the main flag for whether the feed is loading or not. We should probably
     // TODO: not use a string like this.
     loadingStatus: string | null = INITIAL_STATUS_MSG;  // String describing load activity (undefined means load complete)
-    mastodonServers: MastodonServersInfo = {};
+    mastodonServers: MastodonInstances = {};
     mergeMutex = new Mutex();
     moarMutex = new Mutex();
     scoreMutex = new Mutex();
@@ -185,9 +186,9 @@ class TheAlgorithm {
             this.prepareScorers();
             // TODO: consider waiting until after 100 or so toots have been loaded to launch these pulls
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
-            this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
-            MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
+            this.mergePromisedTootsIntoFeed(getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
+            this.mergePromisedTootsIntoFeed(getParticipatedHashtagToots(), "participatedHashtagToots");
+            MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             MastoApi.instance.getUserData().then((userData) => this.userData = userData);
         } else {

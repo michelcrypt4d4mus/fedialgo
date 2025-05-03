@@ -8,7 +8,7 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag, UserDataSerialized } from "../types";
-import { MastoApi } from "./api";
+import MastoApi from "./api";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 
 const SORT_TAGS_BY = ["numToots" as keyof TrendingTag, "name" as keyof TrendingTag];

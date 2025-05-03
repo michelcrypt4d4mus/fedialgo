@@ -43,7 +43,7 @@ exports.DEFAULT_CONFIG = {
     // API stuff
     // backgroundLoadIntervalMS: 25_000, // 30sec
     backgroundLoadIntervalMS: 60000,
-    maxRecordsForFeatureScoring: 2800,
+    maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,
     // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
     maxConcurrentTootRequests: 15,
@@ -59,9 +59,9 @@ exports.DEFAULT_CONFIG = {
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 15,
     numTrendingLinksPerServer: 20,
-    numTrendingTags: 18,
+    numTrendingTags: 20,
     numTrendingTagsPerServer: 30,
-    numTrendingTagsToots: 250,
+    numTrendingTagsToots: 200,
     // Trending toots
     numTrendingTootsPerServer: 30,
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough

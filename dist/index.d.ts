@@ -27,7 +27,7 @@ import { keyByProperty } from "./helpers/collection_helpers";
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { timeString } from './helpers/time_helpers';
-import { FeedFilterSettings, MastodonServersInfo, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
+import { FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -44,7 +44,7 @@ declare class TheAlgorithm {
     lastLoadTimeInSeconds: number | null;
     loadStartedAt: Date | null;
     loadingStatus: string | null;
-    mastodonServers: MastodonServersInfo;
+    mastodonServers: MastodonInstances;
     mergeMutex: Mutex;
     moarMutex: Mutex;
     scoreMutex: Mutex;

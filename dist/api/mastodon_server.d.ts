@@ -1,12 +1,11 @@
-import { mastodon } from "masto";
 import Toot from "./objects/toot";
-import { MastodonServersInfo, TrendingLink, TrendingStorage, TrendingTag } from "../types";
+import { MastodonInstance, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
 export declare enum FediverseTrendingType {
     STATUSES = "statuses",
     LINKS = "links",
     TAGS = "tags"
 }
-type InstanceResponse = mastodon.v2.Instance | null;
+type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     private static v1Url;
@@ -26,8 +25,8 @@ export default class MastodonServer {
     static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TrendingTag[]>;
-    static getMastodonServersInfo(): Promise<MastodonServersInfo>;
-    private static fetchMastodonServersInfo;
+    static getMastodonInstancesInfo(): Promise<MastodonInstances>;
+    private static fetchMastodonInstances;
     private static getTopServerDomains;
     private static fetchTrendingFromAllServers;
     private static callForAllServers;

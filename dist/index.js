@@ -36,6 +36,7 @@ const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followe
 const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
+const api_1 = __importDefault(require("./api/api"));
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
 const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
@@ -66,11 +67,11 @@ const weight_presets_1 = require("./scorer/weight_presets");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "keyByProperty", { enumerable: true, get: function () { return collection_helpers_1.keyByProperty; } });
 const poller_1 = require("./api/poller");
+const hashtags_1 = require("./feeds/hashtags");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
-const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
 Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_2.PresetWeights; } });
@@ -159,7 +160,7 @@ class TheAlgorithm {
         this.api = params.api;
         this.user = params.user;
         this.setFeedInApp = params.setFeedInApp ?? ((f) => console.debug(`Default setFeedInApp() called`));
-        api_1.MastoApi.init(this.api, this.user);
+        api_1.default.init(this.api, this.user);
         this.filters = (0, feed_filters_1.buildNewFilterSettings)();
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
@@ -187,17 +188,17 @@ class TheAlgorithm {
             this.prepareScorers();
             // TODO: consider waiting until after 100 or so toots have been loaded to launch these pulls
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
-            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
-            mastodon_server_1.default.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
+            this.mergePromisedTootsIntoFeed((0, hashtags_1.getRecentTootsForTrendingTags)(), "getRecentTootsForTrendingTags");
+            this.mergePromisedTootsIntoFeed((0, hashtags_1.getParticipatedHashtagToots)(), "participatedHashtagToots");
+            mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
-            api_1.MastoApi.instance.getUserData().then((userData) => this.userData = userData);
+            api_1.default.instance.getUserData().then((userData) => this.userData = userData);
         }
         else {
             this.loadingStatus = this.loadingMoreTootsStatusMsg();
             ;
         }
-        this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
+        this.mergePromisedTootsIntoFeed(api_1.default.instance.fetchHomeFeed(numTimelineToots, maxId), "fetchHomeFeed")
             .then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
@@ -387,7 +388,7 @@ class TheAlgorithm {
     async mergeTootsWithFeed(toots) {
         toots = (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(), CLEANUP_FEED, 'invalid', 'Toot');
         toots = toot_1.default.dedupeToots([...this.feed, ...toots], CLEANUP_FEED);
-        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(toots, await api_1.MastoApi.instance.getUserData());
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(toots, await api_1.default.instance.getUserData());
         return toots;
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.

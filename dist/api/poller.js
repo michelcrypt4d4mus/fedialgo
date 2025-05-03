@@ -11,7 +11,7 @@ exports.getMoarData = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
 const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const api_1 = require("../api/api");
+const api_1 = __importDefault(require("../api/api"));
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();
@@ -24,8 +24,8 @@ async function getMoarData() {
     const startedAt = new Date();
     const releaseMutex = await MOAR_MUTEX.acquire();
     const pollers = [
-        api_1.MastoApi.instance.getRecentNotifications.bind(api_1.MastoApi.instance),
-        api_1.MastoApi.instance.getUserRecentToots.bind(api_1.MastoApi.instance),
+        api_1.default.instance.getRecentNotifications.bind(api_1.default.instance),
+        api_1.default.instance.getUserRecentToots.bind(api_1.default.instance),
         // TODO: getRecentFavourites API doesn't use maxId argument BUT you can page as far back as you want
         // MastoApi.instance.getRecentFavourites.bind(MastoApi.instance),
     ];
