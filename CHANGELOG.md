@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.24.3
 * Double `Config.numParticipatedTagsToFetchTootsFor` to 20
 * Make type filters apply properly to retoots
 * Get rid of useless UserDataSerialized type
