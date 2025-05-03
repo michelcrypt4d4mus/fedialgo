@@ -2,6 +2,7 @@ import Account from "./api/objects/account";
 import Toot from './api/objects/toot';
 import { Config } from "./config";
 import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, UserDataSerialized, Weights } from "./types";
+export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export default class Storage {
     static config: Config;
     static clearAll(): Promise<void>;

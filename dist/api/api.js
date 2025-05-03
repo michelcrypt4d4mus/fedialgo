@@ -35,6 +35,7 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
 const tag_1 = require("./objects/tag");
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -108,7 +109,7 @@ class MastoApi {
                 return false;
             }
         });
-        const toots = await toot_1.default.buildToots(statuses);
+        const toots = await toot_1.default.buildToots(statuses, `fetchHomeFeed()`);
         console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))})`);
         return toots;
     }
@@ -121,40 +122,6 @@ class MastoApi {
         return blockedAccounts.map(a => new account_1.default(a));
     }
     ;
-    // Get toots for the top trending tags via the search endpoint.
-    async getRecentTootsForTrendingTags() {
-        const releaseMutex = await this.mutexes[types_1.StorageKey.TRENDING_TAG_TOOTS].acquire();
-        const logPrefix = `[API ${types_1.StorageKey.TRENDING_TAG_TOOTS}]`;
-        const startTime = new Date();
-        try {
-            let trendingTagToots = await Storage_1.default.getToots(types_1.StorageKey.TRENDING_TAG_TOOTS);
-            if (trendingTagToots?.length && !(await Storage_1.default.isDataStale(types_1.StorageKey.TRENDING_TAG_TOOTS))) {
-                console.debug(`${logPrefix} Loaded ${trendingTagToots.length} from cache ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            }
-            else {
-                const toots = await this.getTootsForTags(await mastodon_server_1.default.fediverseTrendingTags());
-                // Take only the first Config.numTrendingTagsToots of the toots we've assumebled
-                const numToots = toots.length;
-                trendingTagToots = toots.slice(0, Storage_1.default.getConfig().numTrendingTagsToots);
-                await Storage_1.default.storeToots(types_1.StorageKey.TRENDING_TAG_TOOTS, trendingTagToots);
-                console.log(`${logPrefix} Using ${trendingTagToots.length} of ${numToots} toots (${(0, time_helpers_1.inSeconds)(startTime)})`, trendingTagToots);
-            }
-            return trendingTagToots;
-        }
-        finally {
-            releaseMutex();
-        }
-    }
-    ;
-    // Collect and fully populate / dedup a collection of toots for an array of Tags
-    // Sorts toots by poplularity and returns them.
-    async getTootsForTags(tags) {
-        const tagToots = await Promise.all(tags.map(tag => this.getTootsForTag(tag.name)));
-        let toots = tagToots.flat();
-        await toot_1.default.setDependentProps(toots);
-        toots = toot_1.default.dedupeToots(toots, types_1.StorageKey.TRENDING_TAG_TOOTS);
-        return toots.sort((a, b) => b.popularity() - a.popularity());
-    }
     // Get accounts the user is following
     async getFollowedAccounts() {
         const followedAccounts = await this.fetchData({
@@ -164,7 +131,6 @@ class MastoApi {
         });
         return followedAccounts.map(a => new account_1.default(a));
     }
-    ;
     // Get hashtags the user is following
     async getFollowedTags() {
         const followedTags = await this.fetchData({
@@ -182,7 +148,19 @@ class MastoApi {
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
     }
-    ;
+    // Get recent toots from hashtags the user has participated in
+    async getParticipatedHashtagToots() {
+        const fetch = async () => {
+            let tags = await user_data_1.default.getPostedHashtagsSorted();
+            // Exclude followed tags from the list (they will show up in the timeline on their own)
+            const followedTags = await MastoApi.instance.getFollowedTags();
+            tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
+            tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
+            return await this.getStatusesForTags(tags);
+        };
+        const toots = await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch);
+        return (0, collection_helpers_1.truncateToConfiguredLength)(toots, "numUserParticipatedTagToots");
+    }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
@@ -190,13 +168,12 @@ class MastoApi {
     async getRecentFavourites(moar) {
         const recentFaves = await this.fetchData({
             fetch: this.api.v1.favourites.list,
-            label: types_1.StorageKey.FAVOURITED_ACCOUNTS,
+            label: types_1.StorageKey.FAVOURITED_TOOTS,
             moar: moar,
         });
-        (0, collection_helpers_1.checkUniqueIDs)(recentFaves, types_1.StorageKey.FAVOURITED_ACCOUNTS);
+        (0, collection_helpers_1.checkUniqueIDs)(recentFaves, types_1.StorageKey.FAVOURITED_TOOTS);
         return recentFaves.map(t => new toot_1.default(t));
     }
-    ;
     // Get the user's recent notifications
     async getRecentNotifications(moar) {
         const notifs = await this.fetchData({
@@ -207,6 +184,15 @@ class MastoApi {
         (0, collection_helpers_1.checkUniqueIDs)(notifs, types_1.StorageKey.RECENT_NOTIFICATIONS);
         return notifs;
     }
+    // Get toots for the top trending tags via the search endpoint.
+    async getRecentTootsForTrendingTags() {
+        const fetch = async () => {
+            return await this.getStatusesForTags(await mastodon_server_1.default.fediverseTrendingTags());
+        };
+        const toots = await this.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, fetch);
+        return (0, collection_helpers_1.truncateToConfiguredLength)(toots, "numTrendingTagsToots");
+    }
+    ;
     // Retrieve content based feed filters the user has set up on the server
     // TODO: The generalized method this.fetchData() doesn't work here because it's a v2 endpoint
     async getServerSideFilters() {
@@ -239,10 +225,35 @@ class MastoApi {
         }
     }
     ;
+    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // See https://docs.joinmastodon.org/methods/timelines/#tag
+    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
+    async getToosForHashtag(searchStr, maxRecords) {
+        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        const logPrefix = `getToosForHashtag():`;
+        try {
+            const toots = await this.fetchData({
+                fetch: this.api.v1.timelines.tag.$select(searchStr).list,
+                label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
+                maxRecords: maxRecords,
+                skipCache: true,
+                skipMutex: true,
+            });
+            console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`);
+            return toots;
+        }
+        catch (e) {
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
+            return [];
+        }
+    }
+    ;
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData() {
         // TODO: should there be a mutex here? Concluded no for now...
+        // TODO: the staleness check probably belongs in the UserData class
         if (!this.userData || (await this.userData.isDataStale())) {
             this.userData = await user_data_1.default.getUserData();
         }
@@ -250,6 +261,7 @@ class MastoApi {
     }
     ;
     // Get the user's recent toots
+    // NOTE: the user's own Toots don't have setDependentProperties() called on them!
     async getUserRecentToots(moar) {
         const recentToots = await this.fetchData({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
@@ -274,7 +286,7 @@ class MastoApi {
             return toot;
         const lookupResult = await this.api.v2.search.list({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            (0, string_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
+            (0, log_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
         console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
@@ -291,71 +303,14 @@ class MastoApi {
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
         const logPrefix = `[searchForToots(${searchStr})]`;
         const startTime = new Date();
-        const tootsForQryMsg = `toots for query '${searchStr}'`;
         try {
             const searchResult = await this.api.v2.search.list(query);
-            const toots = await toot_1.default.buildToots(searchResult.statuses);
-            // return await Toot.buildToots(toots); // TODO
-            console.debug(`${logPrefix} Retrieved ${toots.length} ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            return toots.map(t => new toot_1.default(t));
+            const statuses = searchResult.statuses;
+            console.debug(`${logPrefix} Retrieved ${statuses.length} ${(0, time_helpers_1.inSeconds)(startTime)}`);
+            return statuses;
         }
         catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get ${tootsForQryMsg} ${(0, time_helpers_1.inSeconds)(startTime)}`);
-            return [];
-        }
-    }
-    ;
-    // Get recent toots from hashtags the user has participated in
-    async participatedHashtagToots() {
-        const releaseMutex = await this.mutexes[types_1.StorageKey.HASHTAG_PARTICIPATION].acquire();
-        const logPrefix = `[API ${types_1.StorageKey.HASHTAG_PARTICIPATION}]`;
-        const startedAt = new Date();
-        try {
-            let toots = await Storage_1.default.getToots(types_1.StorageKey.HASHTAG_PARTICIPATION);
-            if (toots && !(await Storage_1.default.isDataStale(types_1.StorageKey.HASHTAG_PARTICIPATION))) {
-                environment_helpers_1.TRACE_LOG && console.debug(`${logPrefix} Loaded ${toots.length} recoreds from cache:`);
-                return toots;
-            }
-            else {
-                let tags = await user_data_1.default.getPostedHashtagsSorted();
-                // Exclude followed tags from the list because they will show up in the timeline anyways
-                const followedTags = await MastoApi.instance.getFollowedTags();
-                tags = tags.filter(t => !followedTags.some(f => f.name == t.name));
-                tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
-                // Fetch the toots
-                let toots = await this.getTootsForTags(tags);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, "numUserParticipatedTagToots");
-                await Storage_1.default.storeToots(types_1.StorageKey.HASHTAG_PARTICIPATION, toots);
-                console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
-                return toots;
-            }
-        }
-        finally {
-            releaseMutex();
-        }
-    }
-    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
-    // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
-    async hashtagTimelineToots(searchStr, maxRecords) {
-        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
-        const logPrefix = `hashtagTimelineToots():`;
-        // console.log(`${logPrefix} hashtagTimelineToots("${searchStr}", maxRecords=${maxRecords}) called`);
-        try {
-            const toots = await this.fetchData({
-                fetch: this.api.v1.timelines.tag.$select(searchStr).list,
-                label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
-                maxRecords: maxRecords,
-                skipCache: true,
-                skipMutex: true,
-            });
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`, toots);
-            // return await Toot.buildToots(toots); // TODO should this be here?
-            return toots.map(t => new toot_1.default(t));
-        }
-        catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to fetch ${(0, time_helpers_1.inSeconds)(startTime)}`);
             return [];
         }
     }
@@ -375,9 +330,35 @@ class MastoApi {
         return params;
     }
     ;
+    // Generic data getter for things we want to cache but require custom fetch logic
+    async getCacheableToots(key, fetch) {
+        const logPrefix = `[API getCacheableToots ${key}]`;
+        const startedAt = new Date();
+        const releaseMutex = await this.mutexes[key].acquire();
+        if ((0, time_helpers_1.ageInSeconds)(startedAt) > exports.MUTEX_WARN_SECONDS)
+            console.warn(`${key} Mutex took ${(0, time_helpers_1.inSeconds)(startedAt)}!`);
+        try {
+            let toots = await Storage_1.default.getToots(key);
+            if (!toots || (await Storage_1.default.isDataStale(key))) {
+                const statuses = await fetch();
+                console.debug(`${logPrefix} Retrieved ${statuses.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+                toots = await toot_1.default.buildToots(statuses, logPrefix);
+                // TODO: we should be truncating toots before storing them, not after
+                await Storage_1.default.storeToots(key, toots);
+            }
+            else {
+                environment_helpers_1.TRACE_LOG && console.debug(`${logPrefix} Loaded ${toots.length} cached toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
+            }
+            return toots;
+        }
+        finally {
+            releaseMutex();
+        }
+    }
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
+    // TODO: rename getCacheableData
     async fetchData(fetchParams) {
         fetchParams.maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
@@ -445,12 +426,11 @@ class MastoApi {
     // Get latest toots for a given tag and populate trendingToots property
     // Currently uses both the Search API as well as the tag timeline API which have
     // surprising little overlap (~80% of toots are unique)
-    // TODO: none of these toots have had setDependentProperties() called on them yet!
-    async getTootsForTag(tagName, numToots) {
+    async getStatusesForTag(tagName, numToots) {
         numToots ||= Storage_1.default.getConfig().numTootsPerTrendingTag;
         const tagToots = await Promise.all([
             this.searchForToots(tagName, numToots),
-            this.hashtagTimelineToots(tagName, numToots),
+            this.getToosForHashtag(tagName, numToots),
         ]);
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results
         // searchToots.forEach(t => console.info(`${logPrefix} SEARCH found: ${t.describe()}`));
@@ -460,6 +440,12 @@ class MastoApi {
         return tagToots.flat();
     }
     ;
+    // Collect and fully populate / dedup a collection of toots for an array of Tags
+    // Sorts toots by poplularity and returns them.
+    async getStatusesForTags(tags) {
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag.name)));
+        return tagToots.flat();
+    }
     // Re-raise access revoked errors so they can trigger a logout() call
     throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);

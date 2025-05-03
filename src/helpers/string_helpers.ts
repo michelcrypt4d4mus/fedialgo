@@ -110,26 +110,6 @@ export function createRandomString(length: number): string {
 };
 
 
-// Simple log helper that only fires if numRemoved > 0
-export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
-    if (numRemoved == 0) return;
-    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-};
-
-
-// Log an error message and throw an Error
-export function logAndThrowError(message: string, obj?: any): never {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    } else {
-        console.error(message);
-    }
-
-    throw new Error(message);
-};
-
-
 // Doublequotes
 export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
 // Returns true if n is a number or a string that can be converted to a number
@@ -142,15 +122,4 @@ export const addPrefix = (prefix: string, msg: string): string => `[${prefix}] $
 export const toLocaleInt = (num: number | null): string => {
     if (num == null) return NULL;
     return num.toLocaleString(undefined, {maximumFractionDigits: 0});
-};
-
-
-// console.info() with a prefix
-export const logInfo = (prefix: string, msg: string, ...args: any[]): void => {
-    console.info(addPrefix(prefix, msg), ...args);
-};
-
-// console.info() with a prefix
-export const logDebug = (prefix: string, msg: string, ...args: any[]): void => {
-    console.debug(addPrefix(prefix, msg), ...args);
 };

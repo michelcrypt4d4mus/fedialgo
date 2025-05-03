@@ -12,7 +12,8 @@ import Toot from "./objects/toot";
 import { inSeconds } from "../helpers/time_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { INSTANCE, LINKS, STATUSES, TAGS, MastoApi } from "./api";
-import { logAndThrowError, TELEMETRY } from "../helpers/string_helpers";
+import { TELEMETRY } from "../helpers/string_helpers";
+import { logAndThrowError } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import {
     atLeastValues,

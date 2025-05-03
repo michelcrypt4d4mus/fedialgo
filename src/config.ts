@@ -76,7 +76,7 @@ export const DEFAULT_CONFIG: Config = {
     staleDataDefaultSeconds: 10 * 60,    // Default how long to wait before considering data stale
     staleDataSeconds: {                  // Dictionary to configure customized timeouts for different kinds of data
         [StorageKey.BLOCKED_ACCOUNTS]:        12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
-        [StorageKey.FAVOURITED_ACCOUNTS]:     12 * SECONDS_IN_HOUR,
+        [StorageKey.FAVOURITED_TOOTS]:     12 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TAGS]:  4 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,

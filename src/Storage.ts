@@ -10,7 +10,8 @@ import UserData from "./api/user_data";
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
-import { logAndThrowError, toLocaleInt } from "./helpers/string_helpers";
+import { toLocaleInt } from "./helpers/string_helpers";
+import { logAndThrowError } from './helpers/log_helpers';
 import { TRACE_LOG } from "./helpers/environment_helpers";
 import {
     FeedFilterSettings,
@@ -24,6 +25,17 @@ import {
     UserDataSerialized,
     Weights,
 } from "./types";
+
+// The cache values at these keys contain SerializedToot objects
+export const STORAGE_KEYS_WITH_TOOTS = [
+    StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
+    StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    StorageKey.PARTICIPATED_HASHTAG_TOOTS,
+    StorageKey.RECENT_USER_TOOTS,
+    StorageKey.TIMELINE,
+    StorageKey.TRENDING_TAG_TOOTS,
+    StorageKey.TRENDING_TAG_TOOTS_V2,
+];
 
 const PREFIX = '[STORAGE]';
 const logMsg = (s: string) => `${PREFIX} ${s}`;

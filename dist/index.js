@@ -69,6 +69,8 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const log_helpers_1 = require("./helpers/log_helpers");
+const log_helpers_2 = require("./helpers/log_helpers");
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
@@ -165,9 +167,9 @@ class TheAlgorithm {
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
         const logPrefix = `${GET_FEED}`;
-        (0, string_helpers_1.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        (0, log_helpers_2.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            (0, string_helpers_1.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
+            (0, log_helpers_1.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
         }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
@@ -187,7 +189,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.participatedHashtagToots(), "participatedHashtagToots");
+            this.mergePromisedTootsIntoFeed(api_1.MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
             mastodon_server_1.default.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             api_1.MastoApi.instance.getUserData().then((userData) => this.userData = userData);
@@ -205,11 +207,11 @@ class TheAlgorithm {
             .then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            (0, string_helpers_1.logInfo)(logPrefix, msg);
+            (0, log_helpers_2.logInfo)(logPrefix, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
         // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
-        return this.filteredFeed();
+        return this.scoreAndFilterFeed();
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
@@ -264,7 +266,7 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+            (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
         }
         return filteredFeed;
     }
@@ -326,7 +328,7 @@ class TheAlgorithm {
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {
-                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+                (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
                 this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
                 this.loadStartedAt = null;
             }
@@ -375,7 +377,7 @@ class TheAlgorithm {
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}:`, this.statusDict());
+            (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -399,7 +401,7 @@ class TheAlgorithm {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, string_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
             }
         }
         finally {

@@ -35,7 +35,9 @@ import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filt
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
-import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain, logAndThrowError, logDebug, logInfo } from './helpers/string_helpers';
+import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
+import { logAndThrowError } from './helpers/log_helpers';
+import { logDebug, logInfo } from './helpers/log_helpers';
 import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
@@ -185,7 +187,7 @@ class TheAlgorithm {
             this.prepareScorers();
             this.mergePromisedTootsIntoFeed(MastodonServer.fediverseTrendingToots(), "fediverseTrendingToots");
             this.mergePromisedTootsIntoFeed(MastoApi.instance.getRecentTootsForTrendingTags(), "getRecentTootsForTrendingTags");
-            this.mergePromisedTootsIntoFeed(MastoApi.instance.participatedHashtagToots(), "participatedHashtagToots");
+            this.mergePromisedTootsIntoFeed(MastoApi.instance.getParticipatedHashtagToots(), "participatedHashtagToots");
             MastodonServer.getMastodonServersInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
             MastoApi.instance.getUserData().then((userData) => this.userData = userData);
@@ -208,7 +210,7 @@ class TheAlgorithm {
             });
 
         // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
-        return this.filteredFeed();
+        return this.scoreAndFilterFeed();
     }
 
     // Return the user's current weightings for each score category

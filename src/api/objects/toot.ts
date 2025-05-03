@@ -23,10 +23,10 @@ import {
     htmlToText,
     isImage,
     isVideo,
-    logTootRemoval,
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
+import { logTootRemoval } from '../../helpers/log_helpers';
 import {
     FeedFilterSettings,
     MastodonTag,
@@ -87,6 +87,7 @@ interface TootObj extends SerializableToot {
 
 
 export default class Toot implements TootObj {
+    // Props from mastodon.v1.Status
     id: string;
     uri: string;
     application: mastodon.v1.Application;
@@ -424,7 +425,7 @@ export default class Toot implements TootObj {
 
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            TRACE_LOG && console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }
@@ -523,9 +524,12 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    static async buildToots(statuses: mastodon.v1.Status[]): Promise<Toot[]> {
-        const toots = statuses.map(t => new Toot(t));
+    static async buildToots(statuses: SerializableToot[], logPrefix?: string): Promise<Toot[]> {
+        let toots = statuses.map(t => new Toot(t));
         await this.setDependentProps(toots);
+        toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
+        // TODO: sorting by popularity is just here so various fetchers that use this can truncate
+        toots.sort((a, b) => b.popularity() - a.popularity());
         return toots;
     }
 

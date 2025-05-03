@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.STORAGE_KEYS_WITH_TOOTS = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -37,8 +38,19 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
+const log_helpers_1 = require("./helpers/log_helpers");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
+// The cache values at these keys contain SerializedToot objects
+exports.STORAGE_KEYS_WITH_TOOTS = [
+    types_1.StorageKey.FAVOURITED_TOOTS,
+    types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    types_1.StorageKey.PARTICIPATED_HASHTAG_TOOTS,
+    types_1.StorageKey.RECENT_USER_TOOTS,
+    types_1.StorageKey.TIMELINE,
+    types_1.StorageKey.TRENDING_TAG_TOOTS,
+    types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
+];
 const PREFIX = '[STORAGE]';
 const logMsg = (s) => `${PREFIX} ${s}`;
 const log = (s, ...args) => console.log(logMsg(s), ...args);
@@ -92,7 +104,7 @@ class Storage {
             value = [];
         }
         else if (!Array.isArray(value)) {
-            (0, string_helpers_1.logAndThrowError)(`${PREFIX} Expected array at '${key}' but got`, value);
+            (0, log_helpers_1.logAndThrowError)(`${PREFIX} Expected array at '${key}' but got`, value);
         }
         return value;
     }
@@ -230,7 +242,7 @@ class Storage {
     static async buildKey(key) {
         const user = await this.getIdentity();
         if (!user)
-            (0, string_helpers_1.logAndThrowError)(`[Storage] No user identity found`);
+            (0, log_helpers_1.logAndThrowError)(`[Storage] No user identity found`);
         return `${user.id}_${key}`;
     }
     // Get the user identity from storage

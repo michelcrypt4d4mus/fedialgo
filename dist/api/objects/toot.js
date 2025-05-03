@@ -19,6 +19,7 @@ const environment_helpers_1 = require("../../helpers/environment_helpers");
 const tag_1 = require("./tag");
 const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
@@ -35,6 +36,7 @@ const UNKNOWN = "unknown";
 ;
 ;
 class Toot {
+    // Props from mastodon.v1.Status
     id;
     uri;
     application;
@@ -331,7 +333,7 @@ class Toot {
         }
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
+            environment_helpers_1.TRACE_LOG && console.debug(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }
@@ -424,9 +426,12 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    static async buildToots(statuses) {
-        const toots = statuses.map(t => new Toot(t));
+    static async buildToots(statuses, logPrefix) {
+        let toots = statuses.map(t => new Toot(t));
         await this.setDependentProps(toots);
+        toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
+        // TODO: sorting by popularity is just here so various fetchers that use this can truncate
+        toots.sort((a, b) => b.popularity() - a.popularity());
         return toots;
     }
     // Remove dupes by uniquifying on the toot's URI
@@ -455,7 +460,7 @@ class Toot {
             });
         });
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
-        (0, string_helpers_1.logTootRemoval)(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
+        (0, log_helpers_1.logTootRemoval)(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     }
     ;

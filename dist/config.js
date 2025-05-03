@@ -26,7 +26,7 @@ exports.DEFAULT_CONFIG = {
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FAVOURITED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,

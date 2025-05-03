@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logDebug = exports.logInfo = exports.toLocaleInt = exports.addPrefix = exports.isNumber = exports.quote = exports.logAndThrowError = exports.logTootRemoval = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.addPrefix = exports.isNumber = exports.quote = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -94,27 +94,6 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
-// Simple log helper that only fires if numRemoved > 0
-function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
-    if (numRemoved == 0)
-        return;
-    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-}
-exports.logTootRemoval = logTootRemoval;
-;
-// Log an error message and throw an Error
-function logAndThrowError(message, obj) {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    }
-    else {
-        console.error(message);
-    }
-    throw new Error(message);
-}
-exports.logAndThrowError = logAndThrowError;
-;
 // Doublequotes
 const quote = (text) => text == null ? exports.NULL : `"${text}"`;
 exports.quote = quote;
@@ -131,14 +110,4 @@ const toLocaleInt = (num) => {
     return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
 };
 exports.toLocaleInt = toLocaleInt;
-// console.info() with a prefix
-const logInfo = (prefix, msg, ...args) => {
-    console.info((0, exports.addPrefix)(prefix, msg), ...args);
-};
-exports.logInfo = logInfo;
-// console.info() with a prefix
-const logDebug = (prefix, msg, ...args) => {
-    console.debug((0, exports.addPrefix)(prefix, msg), ...args);
-};
-exports.logDebug = logDebug;
 //# sourceMappingURL=string_helpers.js.map

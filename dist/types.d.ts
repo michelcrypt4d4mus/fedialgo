@@ -28,18 +28,18 @@ export declare enum WeightName {
 }
 export declare enum StorageKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
-    FAVOURITED_ACCOUNTS = "FavouritedAccounts",
+    FAVOURITED_TOOTS = "FavouritedToots",
     FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
     FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
     FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
     FILTERS = "Filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
-    HASHTAG_PARTICIPATION = "HashtagParticipation",
     HOME_TIMELINE = "HomeTimeline",
     LAST_OPENED = "LastOpened",
     MUTED_ACCOUNTS = "MutedAccounts",
     OPENINGS = "Openings",
+    PARTICIPATED_HASHTAG_TOOTS = "ParticipatedHashtagToots",
     POPULAR_SERVERS = "PopularServers",
     RECENT_NOTIFICATIONS = "RecentNotifications",
     RECENT_USER_TOOTS = "RecentUserToots",
@@ -95,7 +95,8 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | MastodonTag[] | SerializableToot[] | StringNumberDict | TrendingLink[] | Weights | mastodon.v1.Account | mastodon.v1.Account[] | mastodon.v2.Filter[] | number);
+export type StorableApiObject = (MastodonTag | SerializableToot | TrendingLink | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Tag | mastodon.v1.TrendLink | mastodon.v2.Filter);
+export type StorableObj = (FeedFilterSettingsSerialized | MastodonServersInfo | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type MastodonID = (mastodon.v1.Account | mastodon.v1.Notification | SerializableToot);
 export type StorableWithTimestamp = {
     updatedAt: string;
@@ -137,3 +138,4 @@ export type UserDataSerialized = {
     participatedHashtags: TagNames;
     serverSideFilters: mastodon.v2.Filter[];
 };
+export type EqualType<T, U> = keyof T extends keyof U ? (keyof U extends keyof T ? true : false) : false;

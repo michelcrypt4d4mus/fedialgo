@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
 const weight_presets_1 = require("./weight_presets");
-const string_helpers_1 = require("../helpers/string_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 const config_1 = require("../config");
@@ -44,7 +44,7 @@ class Scorer {
     // Throw an error if the scorer is not ready to score
     checkIsReady() {
         if (!this.isReady)
-            (0, string_helpers_1.logAndThrowError)(`${this.name} scorer not ready!`);
+            (0, log_helpers_1.logAndThrowError)(`${this.name} scorer not ready!`);
     }
     ///////////////////////////////
     //   Static class methods  ////

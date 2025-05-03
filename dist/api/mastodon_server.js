@@ -16,6 +16,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const api_1 = require("./api");
 const string_helpers_1 = require("../helpers/string_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
@@ -105,7 +106,7 @@ class MastodonServer {
         try {
             list = await this.fetch(endpoint, limit);
             if (!list) {
-                (0, string_helpers_1.logAndThrowError)(`No ${label} found! list: ${JSON.stringify(list)}`);
+                (0, log_helpers_1.logAndThrowError)(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
             else if (list.length === 0) {
                 console.warn(`[${endpointURI}] Empty array of ${label} found (but no actual error)`);

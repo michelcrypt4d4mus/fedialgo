@@ -6,7 +6,7 @@ import { E_CANCELED, Mutex } from 'async-mutex';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { logAndThrowError } from "../helpers/string_helpers";
+import { logAndThrowError } from '../helpers/log_helpers';
 import { batchPromises, sumValues } from "../helpers/collection_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";

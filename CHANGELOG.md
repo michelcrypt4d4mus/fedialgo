@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Excluded followed tags from the pulling of hashtag participation toots (followed tags are already in timeline)
+* Exclude followed tags from the pulling of hashtag participation toots (followed tags are already in timeline)
+* Refactor common handling for cacheable toot fetches
 
 # v0.24.0
 * Rename `Config.maxTimelineTootsToFetch` to `Config.maxInitialTimelineToots`
