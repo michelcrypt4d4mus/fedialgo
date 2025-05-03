@@ -1,8 +1,9 @@
 /*
  * Logging related methods.
  */
-
+import Storage from '../Storage';
 import { addPrefix } from './string_helpers';
+import { ageInSeconds, inSeconds } from '../helpers/time_helpers';
 
 
 // console.info() with a prefix
@@ -14,12 +15,6 @@ export const logInfo = (prefix: string, msg: string, ...args: any[]): void => {
 export const logDebug = (prefix: string, msg: string, ...args: any[]): void => {
     console.debug(addPrefix(prefix, msg), ...args);
 };
-
-
-// Doesn't work?
-// export function fxnName(): string {
-//     return fxnName.caller.name;
-// };
 
 
 // Simple log helper that only fires if numRemoved > 0
@@ -39,4 +34,11 @@ export function logAndThrowError(message: string, obj?: any): never {
     }
 
     throw new Error(message);
+};
+
+
+export function checkMutexWaitTime(waitStartedAt: Date, logPrefix: string): void {
+    if (ageInSeconds(waitStartedAt) > Storage.getConfig().mutexWarnSeconds) {
+        console.warn(`${logPrefix} Mutex ${inSeconds(waitStartedAt)}!`);
+    }
 };

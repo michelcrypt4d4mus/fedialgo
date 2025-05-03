@@ -32,13 +32,13 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
+import { checkMutexWaitTime, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { logAndThrowError } from './helpers/log_helpers';
-import { logDebug, logInfo } from './helpers/log_helpers';
-import { MastoApi, MUTEX_WARN_SECONDS } from "./api/api";
+import { MastoApi } from "./api/api";
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
 import { timeString, quotedISOFmt, ageInSeconds, inSeconds, toISOFormat } from './helpers/time_helpers';
@@ -384,7 +384,7 @@ class TheAlgorithm {
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
     private async mergePromisedTootsIntoFeed(tootFetcher: Promise<Toot[]>, label: string): Promise<Toot[]> {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
-        const startTime = new Date();
+        const startedAt = new Date();
         let newToots: Toot[] = [];
 
         try {
@@ -396,12 +396,12 @@ class TheAlgorithm {
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const mutexedAt = new Date();
         const releaseMutex = await this.mergeMutex.acquire();
-        if (ageInSeconds(mutexedAt) > MUTEX_WARN_SECONDS) console.warn(`${logPrefix} Mutex ${inSeconds(mutexedAt)}!`)
+        checkMutexWaitTime(mutexedAt, `[${logPrefix} mutexedAt]`);
 
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            logInfo(TELEMETRY, `${label} merged ${newToots.length} toots ${inSeconds(startTime)}:`, this.statusDict());
+            logInfo(TELEMETRY, `${label} merged ${newToots.length} toots ${inSeconds(startedAt)}:`, this.statusDict());
             return newToots;
         } finally {
             releaseMutex();
@@ -419,8 +419,8 @@ class TheAlgorithm {
 
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     private async prepareScorers(force?: boolean): Promise<void> {
-        const releaseMutex = await this.scoreMutex.acquire();
         const logPrefix = `prepareScorers()`;
+        const releaseMutex = await this.scoreMutex.acquire();
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {

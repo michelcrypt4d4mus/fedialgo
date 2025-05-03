@@ -45,8 +45,11 @@ exports.DEFAULT_CONFIG = {
     backgroundLoadIntervalMS: 60000,
     maxRecordsForFeatureScoring: 2800,
     maxFollowingAccountsToPull: 5000,
+    // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
+    maxConcurrentTootRequests: 15,
     minRecordsForFeatureScoring: 240,
     minServerMAU: 100,
+    mutexWarnSeconds: 5,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
     timeoutMS: 5000,

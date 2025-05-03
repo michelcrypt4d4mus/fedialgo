@@ -19,9 +19,9 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
-    const maxRecordsForFeatureScoring = Storage_1.default.getConfig().maxRecordsForFeatureScoring;
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
-    const startTime = new Date();
+    const maxRecordsForFeatureScoring = Storage_1.default.getConfig().maxRecordsForFeatureScoring;
+    const startedAt = new Date();
     const releaseMutex = await MOAR_MUTEX.acquire();
     const pollers = [
         api_1.MastoApi.instance.getRecentNotifications.bind(api_1.MastoApi.instance),
@@ -47,7 +47,7 @@ async function getMoarData() {
             extraCount < 0 ? console.warn(msg) : console.log(msg);
             return extraCount || 0;
         }));
-        console.log(`${exports.MOAR_DATA_PREFIX} finished ${(0, time_helpers_1.inSeconds)(startTime)}`);
+        console.log(`${exports.MOAR_DATA_PREFIX} finished ${(0, time_helpers_1.inSeconds)(startedAt)}`);
         if (newRecordCounts.every((x) => x <= 0)) {
             console.log(`${exports.MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);
             return false;

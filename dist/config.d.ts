@@ -17,9 +17,11 @@ export type Config = {
     timelineDecayExponent: number;
     backgroundLoadIntervalMS: number;
     defaultRecordsPerPage: number;
+    maxConcurrentTootRequests: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     maxFollowingAccountsToPull: number;
+    mutexWarnSeconds: number;
     reloadFeaturesEveryNthOpen: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;

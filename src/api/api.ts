@@ -5,17 +5,17 @@
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
 import { mastodon } from "masto";
-import { Mutex } from 'async-mutex';
+import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
+import { checkMutexWaitTime, logAndThrowError } from '../helpers/log_helpers';
 import { checkUniqueIDs, findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { logAndThrowError } from '../helpers/log_helpers';
 import { MastodonID, MastodonTag, StorableObj, StorageKey, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
@@ -31,7 +31,6 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
 
 export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
-export const MUTEX_WARN_SECONDS = 10;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -60,9 +59,12 @@ export class MastoApi {
     api: mastodon.rest.Client;
     user: Account;
     homeDomain: string;
-    mutexes: ApiMutex;
     userData?: UserData;  // Preserve user data for the session in the object to avoid having to go to local storage over and over
     static #instance: MastoApi;
+
+    private mutexes: ApiMutex;
+    private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
+    private timelineLookBackMS: number;  // How far back to look for toots in the home timeline
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -83,8 +85,10 @@ export class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = extractDomain(user.url);
+        this.timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
 
         // Initialize mutexes for each key in Key and WeightName
+        this.requestSemphore = new Semaphore(Storage.getConfig().maxConcurrentTootRequests);
         this.mutexes = {} as ApiMutex;
         for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
         for (const key in WeightName) this.mutexes[WeightName[key as keyof typeof WeightName]] = new Mutex();
@@ -93,25 +97,20 @@ export class MastoApi {
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         numToots ||= Storage.getConfig().numTootsInFirstFetch;
-        const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
-        const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
+        const cutoffAt = new Date(Date.now() - this.timelineLookBackMS);
 
         const statuses = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
-            label: StorageKey.HOME_TIMELINE,  // TODO: this shouldn't actually cache anything
+            label: StorageKey.HOME_TIMELINE,
             maxId: maxId,
             maxRecords: numToots || Storage.getConfig().maxInitialTimelineToots,
             skipCache: true,  // always skip the cache for the home timeline
-            breakIf: (pageOfResults, allResults) => {
+            breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
-                const oldestTootAtStr = quotedISOFmt(oldestTootAt);
-                const oldestInPageStr = quotedISOFmt(earliestTootedAt(pageOfResults));
-                // console.debug(`${logPrefix} oldest in page: ${oldestInPageStr}, oldest retrieved: ${oldestTootAtStr}`);
 
-                if (oldestTootAt && oldestTootAt < cutoffTimelineAt) {
-                    const cutoffStr = quotedISOFmt(cutoffTimelineAt);
-                    console.log(`${logPrefix} Halting (oldestToot ${oldestTootAtStr} is before cutoff ${cutoffStr})`);
+                if (oldestTootAt && oldestTootAt <= cutoffAt) {
+                    console.log(`${logPrefix} Halting (${quotedISOFmt(oldestTootAt)} <= ${quotedISOFmt(cutoffAt)})`);
                     return true;
                 }
 
@@ -119,7 +118,7 @@ export class MastoApi {
             }
         });
 
-        const toots = await Toot.buildToots(statuses, `fetchHomeFeed()`);
+        const toots = await Toot.buildToots(statuses, logPrefix);
         console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
         return toots;
     };
@@ -196,14 +195,14 @@ export class MastoApi {
 
     // Get the user's recent notifications
     async getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]> {
-        const notifs = await this.getApiRecords<mastodon.v1.Notification>({
+        const notifications = await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             label: StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
         });
 
-        checkUniqueIDs(notifs, StorageKey.RECENT_NOTIFICATIONS);
-        return notifs;
+        checkUniqueIDs(notifications, StorageKey.RECENT_NOTIFICATIONS);
+        return notifications;
     }
 
     // Get toots for the top trending tags via the search endpoint.
@@ -252,9 +251,11 @@ export class MastoApi {
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     // TODO: THESE HAVE NOT HAD Theire dependent properties set yet! maybe this whole function belongs in the other one above
-    async getToosForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
+    async getTootsForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
-        const logPrefix = `getToosForHashtag():`;
+        const startedAt = new Date();
+        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
+        const logPrefix = `[getTootsForHashtag()] (semaphore ${semaphoreNum})`;
 
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
@@ -265,18 +266,19 @@ export class MastoApi {
                 skipMutex: true,
             });
 
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots for tag '#${searchStr}'`);
+            console.debug(`${logPrefix} Retrieved ${toots.length} '#${searchStr}' toots ${inSeconds(startedAt)}`);
             return toots;
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get toots for tag '#${searchStr}'`);
+            this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to get '#${searchStr}' ${inSeconds(startedAt)}`);
             return [];
+        } finally {
+            releaseSemaphore();
         }
     };
 
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData(): Promise<UserData> {
-        // TODO: should there be a mutex here? Concluded no for now...
         // TODO: the staleness check probably belongs in the UserData class
         if (!this.userData || (await this.userData.isDataStale())) {
             this.userData = await UserData.getUserData();
@@ -324,12 +326,12 @@ export class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     //   - logMsg:        optional description of why the search is being run (for logging only)
-    // TODO: Toot.buildToots has NOT been called on these!
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
-        const logPrefix = `[searchForToots(${searchStr})]`;
         const startTime = new Date();
+        const [semaphoreNum, releaseSemaphore] = await this.requestSemphore.acquire();
+        const logPrefix = `[searchForToots(${searchStr})] (semaphore ${semaphoreNum})`;
 
         try {
             const searchResult = await this.api.v2.search.list(query);
@@ -339,6 +341,8 @@ export class MastoApi {
         } catch (e) {
             this.throwIfAccessTokenRevoked(e, `${logPrefix} Failed to fetch ${inSeconds(startTime)}`);
             return [];
+        } finally {
+            releaseSemaphore();
         }
     };
 
@@ -360,6 +364,7 @@ export class MastoApi {
     };
 
     // Generic data getter for things we want to cache but require custom fetch logic
+    //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     private async getCacheableToots(
         key: StorageKey,
         fetch: () => Promise<mastodon.v1.Status[]>,
@@ -368,7 +373,7 @@ export class MastoApi {
         const logPrefix = `[API getCacheableToots ${key}]`;
         const startedAt = new Date();
         const releaseMutex = await this.mutexes[key].acquire();
-        if (ageInSeconds(startedAt) > MUTEX_WARN_SECONDS) console.warn(`${key} Mutex took ${inSeconds(startedAt)}!`);
+        checkMutexWaitTime(startedAt, logPrefix);
 
         try {
             let toots = await Storage.getToots(key);
@@ -398,8 +403,8 @@ export class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         fetchParams.maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
+        fetchParams.breakIf ||= DEFAULT_BREAK_IF;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
-        breakIf = breakIf || DEFAULT_BREAK_IF;
         const logPfx = `[API ${label}]`;
         TRACE_LOG && console.debug(`${logPfx} fetchData() called w/params:`, fetchParams);
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
@@ -407,13 +412,9 @@ export class MastoApi {
         let rows: T[] = [];
 
         // Start the timer before the mutex so we can see if the lock is taking too long to acuqire
-        // Also skipCache means skip the Mutex. TrendingTagTootsV2 were getting held by only allowing
-        // one request to process at a time.
-        const startAt = new Date();
-        // This possibly caused some issues the first time i tried to unblock trendign toot tags
+        const startedAt = new Date();
         const releaseFetchMutex = skipMutex ? null : await this.mutexes[label].acquire();
-        // const releaseFetchMutex = await this.mutexes[label].acquire();
-        if (ageInSeconds(startAt) > MUTEX_WARN_SECONDS) console.warn(`${logPfx} Mutex ${inSeconds(startAt)}!`);
+        checkMutexWaitTime(startedAt, logPfx);
 
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
@@ -421,7 +422,7 @@ export class MastoApi {
                 const cachedRows = await Storage.get(label) as T[];
 
                 if (cachedRows && !(await Storage.isDataStale(label))) {
-                    TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startAt)}`);
+                    TRACE_LOG && console.debug(`${logPfx} Loaded ${rows.length} cached rows ${inSeconds(startedAt)}`);
                     if (!moar) return cachedRows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
@@ -439,7 +440,7 @@ export class MastoApi {
             for await (const page of fetch(parms)) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
-                const recordsSoFar = `have ${rows.length} records so far ${inSeconds(startAt)}`;
+                const recordsSoFar = `have ${rows.length} records so far ${inSeconds(startedAt)}`;
 
                 if (rows.length >= maxRecords || breakIf(page, rows)) {
                     let msg = `${logPfx} Completing fetch at page ${pageNumber}`;
@@ -452,7 +453,7 @@ export class MastoApi {
 
             if (!skipCache) await Storage.set(label, rows as StorableObj);
         } catch (e) {
-            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${inSeconds(startAt)}`);
+            this.throwIfAccessTokenRevoked(e, `${logPfx} fetchData() for ${label} failed ${inSeconds(startedAt)}`);
             return rows;
         } finally {
             releaseFetchMutex && releaseFetchMutex();
@@ -469,7 +470,7 @@ export class MastoApi {
 
         const tagToots = await Promise.all([
             this.searchForToots(tagName, numToots),
-            this.getToosForHashtag(tagName, numToots),
+            this.getTootsForHashtag(tagName, numToots),
         ]);
 
         // TODO: this is excessive logging, remove it once we've had a chance to inspect results

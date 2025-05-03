@@ -61,6 +61,7 @@ const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trendi
 const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const feed_filters_1 = require("./filters/feed_filters");
+const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "keyByProperty", { enumerable: true, get: function () { return collection_helpers_1.keyByProperty; } });
@@ -69,7 +70,6 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
-const log_helpers_1 = require("./helpers/log_helpers");
 const log_helpers_2 = require("./helpers/log_helpers");
 const api_1 = require("./api/api");
 const weight_presets_2 = require("./scorer/weight_presets");
@@ -167,9 +167,9 @@ class TheAlgorithm {
     // TODO: this will stop pulling toots before it fills in the gap back to the last of the user's actual timeline toots.
     async getFeed(numTimelineToots, maxId) {
         const logPrefix = `${GET_FEED}`;
-        (0, log_helpers_2.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+        (0, log_helpers_1.logInfo)(logPrefix, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            (0, log_helpers_1.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
+            (0, log_helpers_2.logAndThrowError)(logPrefix, GET_FEED_BUSY_MSG);
         }
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
@@ -207,7 +207,7 @@ class TheAlgorithm {
             .then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            (0, log_helpers_2.logInfo)(logPrefix, msg);
+            (0, log_helpers_1.logInfo)(logPrefix, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots || Storage_1.default.getConfig().numTootsInFirstFetch);
         });
         // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
@@ -266,7 +266,7 @@ class TheAlgorithm {
         this.setFeedInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
         }
         return filteredFeed;
     }
@@ -328,7 +328,7 @@ class TheAlgorithm {
                 console.log(`${msg}, expected ${numTimelineToots}. state:`, this.statusDict());
             }
             if (this.loadStartedAt) {
-                (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
+                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.inSeconds)(this.loadStartedAt)}`);
                 this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
                 this.loadStartedAt = null;
             }
@@ -361,7 +361,7 @@ class TheAlgorithm {
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
     async mergePromisedTootsIntoFeed(tootFetcher, label) {
         const logPrefix = `mergeTootsIntoFeed() ${label}`;
-        const startTime = new Date();
+        const startedAt = new Date();
         let newToots = [];
         try {
             newToots = await tootFetcher;
@@ -372,12 +372,11 @@ class TheAlgorithm {
         // Only need to lock the mutex when we start modifying common variables like this.feed
         const mutexedAt = new Date();
         const releaseMutex = await this.mergeMutex.acquire();
-        if ((0, time_helpers_1.ageInSeconds)(mutexedAt) > api_1.MUTEX_WARN_SECONDS)
-            console.warn(`${logPrefix} Mutex ${(0, time_helpers_1.inSeconds)(mutexedAt)}!`);
+        (0, log_helpers_1.checkMutexWaitTime)(mutexedAt, `[${logPrefix} mutexedAt]`);
         try {
             this.feed = await this.mergeTootsWithFeed(newToots);
             await this.scoreAndFilterFeed();
-            (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startTime)}:`, this.statusDict());
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${label} merged ${newToots.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}:`, this.statusDict());
             return newToots;
         }
         finally {
@@ -394,14 +393,14 @@ class TheAlgorithm {
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     async prepareScorers(force) {
-        const releaseMutex = await this.scoreMutex.acquire();
         const logPrefix = `prepareScorers()`;
+        const releaseMutex = await this.scoreMutex.acquire();
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();
                 // logInfo(logPrefix, `ASYNC triggering FeatureScorers.fetchRequiredData()`);
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, log_helpers_2.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
+                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${logPrefix} ready in ${(0, time_helpers_1.inSeconds)(startTime)}`);
             }
         }
         finally {

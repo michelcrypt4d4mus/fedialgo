@@ -9,14 +9,15 @@ export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
 export type ApiMutex = Record<StorageKey | WeightName, Mutex>;
-export declare const MUTEX_WARN_SECONDS = 10;
 export declare class MastoApi {
     #private;
     api: mastodon.rest.Client;
     user: Account;
     homeDomain: string;
-    mutexes: ApiMutex;
     userData?: UserData;
+    private mutexes;
+    private requestSemphore;
+    private timelineLookBackMS;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
@@ -30,7 +31,7 @@ export declare class MastoApi {
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
     getRecentTootsForTrendingTags(): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getToosForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    getTootsForHashtag(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
     getUserRecentToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;

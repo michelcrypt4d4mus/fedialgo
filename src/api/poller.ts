@@ -17,9 +17,9 @@ const MOAR_MUTEX = new Mutex();
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
-    const maxRecordsForFeatureScoring = Storage.getConfig().maxRecordsForFeatureScoring;
     console.log(`${MOAR_DATA_PREFIX} triggered by timer...`);
-    const startTime = new Date();
+    const maxRecordsForFeatureScoring = Storage.getConfig().maxRecordsForFeatureScoring;
+    const startedAt = new Date();
     const releaseMutex = await MOAR_MUTEX.acquire();
 
     const pollers = [
@@ -51,7 +51,7 @@ export async function getMoarData(): Promise<boolean> {
             })
         );
 
-        console.log(`${MOAR_DATA_PREFIX} finished ${inSeconds(startTime)}`);
+        console.log(`${MOAR_DATA_PREFIX} finished ${inSeconds(startedAt)}`);
 
         if (newRecordCounts.every((x) => x <= 0)) {
             console.log(`${MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);
