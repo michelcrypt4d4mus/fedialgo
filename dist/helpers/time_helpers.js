@@ -10,7 +10,7 @@ exports.SECONDS_IN_HOUR = 3600;
 exports.SECONDS_IN_DAY = 86400;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-const DEFAULT_LOCALE = "en-US";
+const DEFAULT_LOCALE = "en-GB";
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date) {
