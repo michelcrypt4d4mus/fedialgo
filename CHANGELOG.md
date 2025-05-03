@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.24.6
 * `MastoApi.instance.setBackgroundConcurrency()`, `Config.maxConcurrentRequestsBackground` option. Handle missing `Storage.getIdentity()` if possibl
 * Ignore retoots when computting users hashtag history
 
