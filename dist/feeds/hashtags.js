@@ -35,7 +35,7 @@ async function removeFollowedAndMutedTags(tags) {
 }
 // Screen a list of hashtags against the user's server side filters, removing any that are muted.
 async function removeMutedTags(tags) {
-    let mutedKeywords = await user_data_1.default.mutedKeywords();
+    const mutedKeywords = await user_data_1.default.mutedKeywords();
     return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
 }
 ;

@@ -45,7 +45,7 @@ async function removeFollowedAndMutedTags(tags: MastodonTag[]): Promise<Mastodon
 
 // Screen a list of hashtags against the user's server side filters, removing any that are muted.
 async function removeMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
-    let mutedKeywords = await UserData.mutedKeywords();
+    const mutedKeywords = await UserData.mutedKeywords();
     return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
 };
 
