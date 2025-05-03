@@ -45,33 +45,33 @@ var TypeFilterName;
 ;
 exports.TYPE_FILTERS = {
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
-    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!toot.isFollowed,
-    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.followedTags?.length,
-    [TypeFilterName.LINKS]: (toot) => !!(toot.card || toot.reblog?.card || toot.trendingLinks?.length),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
+    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
+    [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     // TODO: unclear if the MENTIONS filter works as expected
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
-    [TypeFilterName.POLLS]: (toot) => !!toot.poll,
-    [TypeFilterName.REPLIES]: (toot) => !!toot.inReplyToId,
+    [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
+    [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.REPOSTS]: (toot) => !!toot.reblog,
-    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.trendingTags?.length,
-    [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.trendingLinks?.length,
-    [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.trendingRank,
+    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
+    [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
+    [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
 };
 const TOOT_MATCHERS = {
     [PropertyName.APP]: (toot, validValues) => {
-        return validValues.includes(toot.application?.name);
+        return validValues.includes(toot.realToot().application?.name);
     },
     [PropertyName.LANGUAGE]: (toot, validValues) => {
-        return validValues.includes(toot.language || Storage_1.default.getConfig().defaultLanguage);
+        return validValues.includes(toot.realToot().language || Storage_1.default.getConfig().defaultLanguage);
     },
     [PropertyName.HASHTAG]: (toot, validValues) => {
         // The old way, using real tags
         // return toot.tags.some(tag => validValues.includes(tag.name));
         // The new way using string search
-        return !!validValues.find((v) => toot.containsString(v));
+        return !!validValues.find((v) => toot.realToot().containsString(v));
     },
     [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
-        return !!validValues.find((v) => toot.containsString(v));
+        return !!validValues.find((v) => toot.realToot().containsString(v));
     },
     [PropertyName.TYPE]: (toot, validValues) => {
         return Object.entries(exports.TYPE_FILTERS).some(([filterName, filter]) => {
@@ -79,7 +79,7 @@ const TOOT_MATCHERS = {
         });
     },
     [PropertyName.USER]: (toot, validValues) => {
-        return validValues.includes(toot.account.webfingerURI); // TODO maybe doesn't handle reblogs correctly
+        return validValues.includes(toot.realToot().account.webfingerURI);
     },
 };
 class PropertyFilter extends toot_filter_1.default {

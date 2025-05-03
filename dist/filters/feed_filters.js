@@ -81,11 +81,11 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         return counts;
     }, {});
     toots.forEach(toot => {
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.application.name);
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.language);
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.account.webfingerURI);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.realToot().application.name);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.realToot().language);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.realToot().account.webfingerURI);
         // Count tags
-        toot.tags.forEach((tag) => (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name));
+        toot.realToot().tags.forEach((tag) => (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name));
         // Aggregate counts for each type of toot
         Object.entries(property_filter_2.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
@@ -95,7 +95,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
         userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
-                if (toot.containsString(keyword.keyword)) {
+                if (toot.realToot().containsString(keyword.keyword)) {
                     (0, log_helpers_1.traceLog)(`Matched server filter (${toot.describe()}):`, filter);
                     (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }

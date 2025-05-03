@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Make type filters apply properly to retoots
 
 ### v0.24.2
 * Rename `Toot.simplifiedScoreInfo()` to `alternateScoreInfo()`

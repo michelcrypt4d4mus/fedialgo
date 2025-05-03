@@ -11,7 +11,7 @@ import { keyByProperty } from "../../helpers/collection_helpers";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
-    webfingerURI: string;
+    webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
 

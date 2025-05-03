@@ -73,12 +73,12 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
     );
 
     toots.forEach(toot => {
-        incrementCount(tootCounts[PropertyName.APP], toot.application.name);
-        incrementCount(tootCounts[PropertyName.LANGUAGE], toot.language);
-        incrementCount(tootCounts[PropertyName.USER], toot.account.webfingerURI);
+        incrementCount(tootCounts[PropertyName.APP], toot.realToot().application.name);
+        incrementCount(tootCounts[PropertyName.LANGUAGE], toot.realToot().language);
+        incrementCount(tootCounts[PropertyName.USER], toot.realToot().account.webfingerURI);
 
         // Count tags
-        toot.tags.forEach((tag) => incrementCount(tootCounts[PropertyName.HASHTAG], tag.name));
+        toot.realToot().tags.forEach((tag) => incrementCount(tootCounts[PropertyName.HASHTAG], tag.name));
 
         // Aggregate counts for each type of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
@@ -90,7 +90,7 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
         // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
         userData.serverSideFilters.forEach((filter) => {
             filter.keywords.forEach((keyword) => {
-                if (toot.containsString(keyword.keyword)) {
+                if (toot.realToot().containsString(keyword.keyword)) {
                     traceLog(`Matched server filter (${toot.describe()}):`, filter);
                     incrementCount(tootCounts[PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }
