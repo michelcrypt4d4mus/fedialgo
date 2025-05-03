@@ -90,7 +90,7 @@ class MastoApi {
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
-        const statuses = await this.getCacheableData({
+        const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
@@ -115,7 +115,7 @@ class MastoApi {
     }
     ;
     async getBlockedAccounts() {
-        const blockedAccounts = await this.getCacheableData({
+        const blockedAccounts = await this.getApiRecords({
             fetch: this.api.v1.blocks.list,
             label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
@@ -124,7 +124,7 @@ class MastoApi {
     ;
     // Get accounts the user is following
     async getFollowedAccounts() {
-        const followedAccounts = await this.getCacheableData({
+        const followedAccounts = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
@@ -133,7 +133,7 @@ class MastoApi {
     }
     // Get hashtags the user is following
     async getFollowedTags() {
-        const followedTags = await this.getCacheableData({
+        const followedTags = await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
@@ -141,7 +141,7 @@ class MastoApi {
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {
-        const mutedAccounts = await this.getCacheableData({
+        const mutedAccounts = await this.getApiRecords({
             fetch: this.api.v1.mutes.list,
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
@@ -158,15 +158,14 @@ class MastoApi {
             tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numUserParticipatedTagsToFetchTootsFor");
             return await this.getStatusesForTags(tags);
         };
-        const toots = await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch);
-        return (0, collection_helpers_1.truncateToConfiguredLength)(toots, "numUserParticipatedTagToots");
+        return await this.getCacheableToots(types_1.StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch, "numUserParticipatedTagToots");
     }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
     async getRecentFavourites(moar) {
-        const recentFaves = await this.getCacheableData({
+        const recentFaves = await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
             label: types_1.StorageKey.FAVOURITED_TOOTS,
             moar: moar,
@@ -176,7 +175,7 @@ class MastoApi {
     }
     // Get the user's recent notifications
     async getRecentNotifications(moar) {
-        const notifs = await this.getCacheableData({
+        const notifs = await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
             label: types_1.StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
@@ -186,11 +185,7 @@ class MastoApi {
     }
     // Get toots for the top trending tags via the search endpoint.
     async getRecentTootsForTrendingTags() {
-        const fetch = async () => {
-            return await this.getStatusesForTags(await mastodon_server_1.default.fediverseTrendingTags());
-        };
-        const toots = await this.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, fetch);
-        return (0, collection_helpers_1.truncateToConfiguredLength)(toots, "numTrendingTagsToots");
+        return await this.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => this.getStatusesForTags(await mastodon_server_1.default.fediverseTrendingTags()), "numTrendingTagsToots");
     }
     ;
     // Retrieve content based feed filters the user has set up on the server
@@ -233,7 +228,7 @@ class MastoApi {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const logPrefix = `getToosForHashtag():`;
         try {
-            const toots = await this.getCacheableData({
+            const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(searchStr).list,
                 label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
@@ -263,7 +258,7 @@ class MastoApi {
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have setDependentProperties() called on them!
     async getUserRecentToots(moar) {
-        const recentToots = await this.getCacheableData({
+        const recentToots = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: types_1.StorageKey.RECENT_USER_TOOTS,
             moar: moar,
@@ -331,7 +326,7 @@ class MastoApi {
     }
     ;
     // Generic data getter for things we want to cache but require custom fetch logic
-    async getCacheableToots(key, fetch) {
+    async getCacheableToots(key, fetch, maxRecordsConfigKey) {
         const logPrefix = `[API getCacheableToots ${key}]`;
         const startedAt = new Date();
         const releaseMutex = await this.mutexes[key].acquire();
@@ -343,7 +338,9 @@ class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} toots ${(0, time_helpers_1.inSeconds)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, logPrefix);
-                // TODO: we should be truncating toots before storing them, not after
+                if (maxRecordsConfigKey) {
+                    toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
+                }
                 await Storage_1.default.storeToots(key, toots);
             }
             else {
@@ -358,7 +355,7 @@ class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    async getCacheableData(fetchParams) {
+    async getApiRecords(fetchParams) {
         fetchParams.maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;

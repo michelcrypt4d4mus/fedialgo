@@ -38,7 +38,7 @@ export declare class MastoApi {
     tagURL(tag: MastodonTag): string;
     private buildParams;
     private getCacheableToots;
-    private getCacheableData;
+    private getApiRecords;
     private getStatusesForTag;
     private getStatusesForTags;
     private throwIfAccessTokenRevoked;

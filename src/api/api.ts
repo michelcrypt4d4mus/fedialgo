@@ -9,13 +9,14 @@ import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
 import MastodonServer from "./mastodon_server";
-import Storage, { STORAGE_KEYS_WITH_TOOTS } from "../Storage";
+import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { checkUniqueIDs, findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { logAndThrowError } from '../helpers/log_helpers';
-import { EqualType, MastodonID, MastodonTag, StorableApiObject, StorableObj, StorageKey, WeightName} from "../types";
+import { MastodonID, MastodonTag, StorableObj, StorageKey, WeightName} from "../types";
 import { repairTag } from "./objects/tag";
 import { ageInSeconds, inSeconds, quotedISOFmt } from "../helpers/time_helpers";
 import { capitalCase } from "change-case";
@@ -175,8 +176,7 @@ export class MastoApi {
             return await this.getStatusesForTags(tags);
         }
 
-        const toots = await this.getCacheableToots(StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch);
-        return truncateToConfiguredLength(toots, "numUserParticipatedTagToots");
+        return await this.getCacheableToots(StorageKey.PARTICIPATED_HASHTAG_TOOTS, fetch, "numUserParticipatedTagToots");
     }
 
     // Get an array of Toots the user has recently favourited
@@ -208,12 +208,11 @@ export class MastoApi {
 
     // Get toots for the top trending tags via the search endpoint.
     async getRecentTootsForTrendingTags(): Promise<Toot[]> {
-        const fetch = async () => {
-            return await this.getStatusesForTags(await MastodonServer.fediverseTrendingTags());
-        }
-
-        const toots = await this.getCacheableToots(StorageKey.TRENDING_TAG_TOOTS, fetch);
-        return truncateToConfiguredLength(toots, "numTrendingTagsToots");
+        return await this.getCacheableToots(
+            StorageKey.TRENDING_TAG_TOOTS,
+            async () => this.getStatusesForTags(await MastodonServer.fediverseTrendingTags()),
+            "numTrendingTagsToots"
+        );
     };
 
     // Retrieve content based feed filters the user has set up on the server
@@ -361,7 +360,11 @@ export class MastoApi {
     };
 
     // Generic data getter for things we want to cache but require custom fetch logic
-    private async getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>): Promise<Toot[]> {
+    private async getCacheableToots(
+        key: StorageKey,
+        fetch: () => Promise<mastodon.v1.Status[]>,
+        maxRecordsConfigKey?: keyof Config
+    ): Promise<Toot[]> {
         const logPrefix = `[API getCacheableToots ${key}]`;
         const startedAt = new Date();
         const releaseMutex = await this.mutexes[key].acquire();
@@ -374,7 +377,11 @@ export class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} toots ${inSeconds(startedAt)}`);
                 toots = await Toot.buildToots(statuses, logPrefix);
-                // TODO: we should be truncating toots before storing them, not after
+
+                if (maxRecordsConfigKey) {
+                    toots = truncateToConfiguredLength(toots, maxRecordsConfigKey);
+                }
+
                 await Storage.storeToots(key, toots);
             } else {
                 TRACE_LOG && console.debug(`${logPrefix} Loaded ${toots.length} cached toots ${inSeconds(startedAt)}`);
