@@ -7,14 +7,14 @@ import { mastodon } from "masto";
 const escape = require('regexp.escape');
 
 import Account from "./account";
+import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Storage from "../../Storage";
 import UserData from "../user_data";
+import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
-import MastoApi from "../api";
 import { repairTag } from "./tag";
-import { toISOFormat } from "../../helpers/time_helpers";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
@@ -38,6 +38,7 @@ import {
     TrendingTag,
     WeightName
 } from "../../types";
+import Scorer from "../../scorer/scorer";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -71,7 +72,6 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
-    ageInSeconds: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
@@ -183,14 +183,9 @@ export default class Toot implements TootObj {
         this.videoAttachments = VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType))
     }
 
-    // Time since this toot was sent in seconds
-    ageInSeconds(): number {
-        return Math.floor((new Date().getTime() - this.tootedAt().getTime()) / 1000);
-    }
-
     // Time since this toot was sent in hours
     ageInHours(): number {
-        return this.ageInSeconds() / 3600;
+        return ageInSeconds(this.tootedAt()) / 3600;
     }
 
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
@@ -365,33 +360,6 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
-    // Return a scoreInfo dict that turns the rawScores into a human-readable strings
-    simplifiedScoreInfo(): Record<string, number | Record<string, Record<string, number>>> {
-        if (!this.scoreInfo) return {};
-
-        return Object.entries(this.scoreInfo).reduce(
-            (scoreDict, [key, value]) => {
-                if (key == "rawScores") {
-                    scoreDict["scores"] = Object.entries(value).reduce(
-                        (scoreDetails, [scoreKey, scoreValue]) => {
-                            scoreDetails[scoreKey] = {
-                                rawScore: Number(scoreValue.toPrecision()),
-                                weighted: Number(this.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision())
-                            };
-                            return scoreDetails;
-                        },
-                        {} as Record<string, StringNumberDict>
-                    )
-                } else if (key != "weightedScores") {
-                    scoreDict[key] = value as number;
-                }
-
-                return scoreDict;
-            },
-            {} as Record<string, number | Record<string, StringNumberDict>>
-        )
-    }
-
      // Remove fxns so toots can be serialized to browser storage
     serialize(): SerializableToot {
         const serializableToot = {...this} as SerializableToot;
@@ -401,11 +369,7 @@ export default class Toot implements TootObj {
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available
-    setDependentProperties(
-        userData: UserData,
-        trendingLinks: TrendingLink[],
-        trendingTags: TrendingTag[]
-    ): void {
+    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void {
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();
@@ -427,6 +391,10 @@ export default class Toot implements TootObj {
             traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
+    }
+
+    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo> {
+        return Scorer.alternateScoreInfo(this);
     }
 
     tootedAt(): Date {
@@ -485,9 +453,6 @@ export default class Toot implements TootObj {
             const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
 
             if (!reblogsByAccts.includes(this.account.webfingerURI)) {
-                if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.webfingerURI}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
-                }
                 this.reblog.reblogsBy.push(this.account);
             }
         }
@@ -529,7 +494,7 @@ export default class Toot implements TootObj {
         let toots = (statuses[0] instanceof Toot) ? statuses as Toot[] : statuses.map(t => new Toot(t));
         await this.setDependentProps(toots);
         toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
-        // TODO: sorting by popularity is just here so various fetchers that use this can truncate
+        // TODO: sorting by popularity is here so fetchers that call this fxn can truncate unpopular toots
         toots.sort((a, b) => b.popularity() - a.popularity());
         return toots;
     }
@@ -602,28 +567,3 @@ export const mostRecentTootedAt = (toots: StatusList): Date | null => {
     const newest = mostRecentToot(toots);
     return newest ? tootedAt(newest) : null;
 };
-
-
-// Find the minimum ID in a list of toots.
-// Unused because sorting by ID only works when all toots came from the same server.
-export const minimumID = (toots: Toot[]): number | null => {
-    const minId =  toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id);  // IDs are not guaranteed to be numerical
-
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-
-    return minId == HUGE_ID ? null : minId;
-};
-
-
-// export const tootSize = (toot: Toot): number => {
-//     return JSON.stringify(toot).length;
-//     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
-//     // return Buffer.byteLength(JSON.stringify(toot));
-// };// Build a string that contains the display name, account name, etc. for a given post.

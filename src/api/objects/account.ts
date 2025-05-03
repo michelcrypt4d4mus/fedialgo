@@ -86,6 +86,7 @@ export default class Account implements AccountObj {
         return `${this.displayName} (${this.webfingerURI})`;
     }
 
+    // displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis(): string {
         return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || []);
     }
@@ -95,6 +96,7 @@ export default class Account implements AccountObj {
         return extractDomain(this.url) || "unknown.server";
     }
 
+    // Return the URL to the account on the fedialgo user's home server
     homserverURL(): string {
         if (this.homeserver() == MastoApi.instance.homeDomain) {
             return this.url;
@@ -108,10 +110,7 @@ export default class Account implements AccountObj {
         return {...this} as mastodon.v1.Account;
     }
 
-    // On the local server you just get the username, but on other servers you need to add the server name
-    // Inject the @server info to accounts on the user's home server
-    // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
-    // TODO: Would require adjusting MentionsFollowedScorer (StatusMention.acct is not preceded with an '@').
+    // On the local server you just get the username so need to add the server domain
     private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
             return this.acct;

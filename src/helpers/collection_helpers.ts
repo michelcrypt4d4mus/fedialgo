@@ -198,6 +198,10 @@ export function filterWithLog<T>(
 
 
 // Find the minimum id in an array of objects using the given idFxn to extract the id
+// TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
+// the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
+// If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
+// This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
 export function findMinId(array: MastodonObjWithID[]): string | undefined{
     if (array.length == 0) return undefined;
     const idVals = array.map(e => e.id);

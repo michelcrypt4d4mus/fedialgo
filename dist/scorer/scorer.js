@@ -84,6 +84,26 @@ class Scorer {
         }
         return toots;
     }
+    // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
+    static alternateScoreInfo(toot) {
+        if (!toot.scoreInfo)
+            return {};
+        return Object.entries(toot.scoreInfo).reduce((scoreDict, [key, value]) => {
+            if (key == "rawScores") {
+                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
+                    scoreDetails[scoreKey] = {
+                        rawScore: Number(scoreValue.toPrecision()),
+                        weighted: Number(toot.scoreInfo.weightedScores[scoreKey].toPrecision())
+                    };
+                    return scoreDetails;
+                }, {});
+            }
+            else if (key != "weightedScores") {
+                scoreDict[key] = value;
+            }
+            return scoreDict;
+        }, {});
+    }
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
         const rawScores = {};

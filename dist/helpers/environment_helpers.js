@@ -9,6 +9,5 @@ function isDebugMode() {
 }
 exports.isDebugMode = isDebugMode;
 ;
-console.log(`[FediAlgo] process.env.NODE_ENV:`, process.env.NODE_ENV);
-console.log(`[FediAlgo] process.env.DEBUG:`, process.env.DEBUG);
+console.log(`[FediAlgo] NODE_ENV:`, process.env.NODE_ENV, `process.env.DEBUG:`, process.env.DEBUG);
 //# sourceMappingURL=environment_helpers.js.map

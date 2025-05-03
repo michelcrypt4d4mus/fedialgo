@@ -2,6 +2,7 @@ import { mastodon } from "masto";
 import Account from "./account";
 import UserData from "../user_data";
 import { FeedFilterSettings, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TrendingTag } from "../../types";
+import Scorer from "../../scorer/scorer";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
@@ -18,7 +19,6 @@ export interface SerializableToot extends mastodon.v1.Status {
 }
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
-    ageInSeconds: () => number;
     containsString: (str: string) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
@@ -74,7 +74,6 @@ export default class Toot implements TootObj {
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
     constructor(toot: SerializableToot);
-    ageInSeconds(): number;
     ageInHours(): number;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
@@ -94,9 +93,9 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
-    simplifiedScoreInfo(): Record<string, number | Record<string, Record<string, number>>>;
     serialize(): SerializableToot;
     setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void;
+    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;
@@ -112,5 +111,4 @@ export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
 export declare const sortByCreatedAt: (toots: StatusList) => StatusList;
 export declare const earliestTootedAt: (toots: StatusList) => Date | null;
 export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;
-export declare const minimumID: (toots: Toot[]) => number | null;
 export {};

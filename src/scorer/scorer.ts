@@ -100,6 +100,33 @@ export default abstract class Scorer {
         return toots;
     }
 
+    // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
+    static alternateScoreInfo(toot: Toot): Record<string, number | Record<string, StringNumberDict>> {
+        if (!toot.scoreInfo) return {};
+
+        return Object.entries(toot.scoreInfo).reduce(
+            (scoreDict, [key, value]) => {
+                if (key == "rawScores") {
+                    scoreDict["scores"] = Object.entries(value).reduce(
+                        (scoreDetails, [scoreKey, scoreValue]) => {
+                            scoreDetails[scoreKey] = {
+                                rawScore: Number(scoreValue.toPrecision()),
+                                weighted: Number(toot.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision())
+                            };
+                            return scoreDetails;
+                        },
+                        {} as Record<string, StringNumberDict>
+                    )
+                } else if (key != "weightedScores") {
+                    scoreDict[key] = value as number;
+                }
+
+                return scoreDict;
+            },
+            {} as Record<string, number | Record<string, StringNumberDict>>
+        )
+    }
+
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
         const rawScores = {} as StringNumberDict;

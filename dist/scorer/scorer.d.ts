@@ -15,6 +15,7 @@ export default abstract class Scorer {
     protected logPrefix(): string;
     private checkIsReady;
     static scoreToots(toots: Toot[], featureScorers: FeatureScorer[], feedScorers: FeedScorer[]): Promise<Toot[]>;
+    static alternateScoreInfo(toot: Toot): Record<string, number | Record<string, StringNumberDict>>;
     private static decorateWithScoreInfo;
     private static sumScores;
 }

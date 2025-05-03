@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Remove deprecated Config.enableIncrementalLoad property
+* Remove deprecated `Config.enableIncrementalLoad` property
+* Privatize a bunch of `TheAlgorithm` properties that should be private
 
 ### v0.24.1
 * Lower `Config.maxRecordsForFeatureScoring` to 1600, `numTrendingTagsToots` to 200

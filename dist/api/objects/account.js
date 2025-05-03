@@ -75,6 +75,7 @@ class Account {
     describe() {
         return `${this.displayName} (${this.webfingerURI})`;
     }
+    // displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis() {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
     }
@@ -82,6 +83,7 @@ class Account {
     homeserver() {
         return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server";
     }
+    // Return the URL to the account on the fedialgo user's home server
     homserverURL() {
         if (this.homeserver() == api_1.default.instance.homeDomain) {
             return this.url;
@@ -94,10 +96,7 @@ class Account {
     serialize() {
         return { ...this };
     }
-    // On the local server you just get the username, but on other servers you need to add the server name
-    // Inject the @server info to accounts on the user's home server
-    // TODO: should this add a preceding '@'? e.g. should 'abc@c.im' be '@abc@c.im' (as it appears in URLs)??
-    // TODO: Would require adjusting MentionsFollowedScorer (StatusMention.acct is not preceded with an '@').
+    // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {
             return this.acct;

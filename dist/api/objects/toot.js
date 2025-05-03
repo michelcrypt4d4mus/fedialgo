@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -11,15 +11,16 @@ exports.minimumID = exports.mostRecentTootedAt = exports.earliestTootedAt = expo
 const change_case_1 = require("change-case");
 const escape = require('regexp.escape');
 const account_1 = __importDefault(require("./account"));
+const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const Storage_1 = __importDefault(require("../../Storage"));
+const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const log_helpers_1 = require("../../helpers/log_helpers");
-const api_1 = __importDefault(require("../api"));
 const tag_1 = require("./tag");
-const time_helpers_1 = require("../../helpers/time_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
+const scorer_1 = __importDefault(require("../../scorer/scorer"));
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -128,13 +129,9 @@ class Toot {
         this.imageAttachments = this.attachmentsOfType(types_1.MediaCategory.IMAGE);
         this.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
     }
-    // Time since this toot was sent in seconds
-    ageInSeconds() {
-        return Math.floor((new Date().getTime() - this.tootedAt().getTime()) / 1000);
-    }
     // Time since this toot was sent in hours
     ageInHours() {
-        return this.ageInSeconds() / 3600;
+        return (0, time_helpers_1.ageInSeconds)(this.tootedAt()) / 3600;
     }
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
@@ -287,26 +284,6 @@ class Toot {
         }
         return this.resolvedToot;
     }
-    // Return a scoreInfo dict that turns the rawScores into a human-readable strings
-    simplifiedScoreInfo() {
-        if (!this.scoreInfo)
-            return {};
-        return Object.entries(this.scoreInfo).reduce((scoreDict, [key, value]) => {
-            if (key == "rawScores") {
-                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
-                    scoreDetails[scoreKey] = {
-                        rawScore: Number(scoreValue.toPrecision()),
-                        weighted: Number(this.scoreInfo.weightedScores[scoreKey].toPrecision())
-                    };
-                    return scoreDetails;
-                }, {});
-            }
-            else if (key != "weightedScores") {
-                scoreDict[key] = value;
-            }
-            return scoreDict;
-        }, {});
-    }
     // Remove fxns so toots can be serialized to browser storage
     serialize() {
         const serializableToot = { ...this };
@@ -335,6 +312,9 @@ class Toot {
             (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
+    }
+    alternateScoreInfo() {
+        return scorer_1.default.alternateScoreInfo(this);
     }
     tootedAt() {
         return new Date(this.createdAt);
@@ -388,9 +368,6 @@ class Toot {
             this.trendingRank ||= this.reblog.trendingRank;
             const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
             if (!reblogsByAccts.includes(this.account.webfingerURI)) {
-                if (this.reblogsBy.length > 0) {
-                    console.log(`Didn't find '${this.account.webfingerURI}' in reblogsByAccts (${JSON.stringify(reblogsByAccts)}). this.reblogsBy raw:\n${JSON.stringify(this.reblogsBy)}`);
-                }
                 this.reblog.reblogsBy.push(this.account);
             }
         }
@@ -432,7 +409,7 @@ class Toot {
         let toots = (statuses[0] instanceof Toot) ? statuses : statuses.map(t => new Toot(t));
         await this.setDependentProps(toots);
         toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
-        // TODO: sorting by popularity is just here so various fetchers that use this can truncate
+        // TODO: sorting by popularity is here so fetchers that call this fxn can truncate unpopular toots
         toots.sort((a, b) => b.popularity() - a.popularity());
         return toots;
     }
@@ -498,23 +475,4 @@ const mostRecentTootedAt = (toots) => {
     return newest ? (0, exports.tootedAt)(newest) : null;
 };
 exports.mostRecentTootedAt = mostRecentTootedAt;
-// Find the minimum ID in a list of toots.
-// Unused because sorting by ID only works when all toots came from the same server.
-const minimumID = (toots) => {
-    const minId = toots.reduce((min, toot) => {
-        const numericalID = parseInt(toot.id); // IDs are not guaranteed to be numerical
-        if (isNaN(numericalID)) {
-            console.warn(`toot.id is not a number: ${toot.id}`);
-            return min;
-        }
-        return numericalID < min ? numericalID : min;
-    }, HUGE_ID);
-    return minId == HUGE_ID ? null : minId;
-};
-exports.minimumID = minimumID;
-// export const tootSize = (toot: Toot): number => {
-//     return JSON.stringify(toot).length;
-//     // TODO: Buffer requires more setup: https://stackoverflow.com/questions/68707553/uncaught-referenceerror-buffer-is-not-defined
-//     // return Buffer.byteLength(JSON.stringify(toot));
-// };// Build a string that contains the display name, account name, etc. for a given post.
 //# sourceMappingURL=toot.js.map
