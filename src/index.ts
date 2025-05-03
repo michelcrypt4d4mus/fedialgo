@@ -493,6 +493,5 @@ export {
     Weights,
     // Helpers we also export
     extractDomain,
-    keyByProperty,
     timeString,
 };
