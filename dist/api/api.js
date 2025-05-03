@@ -90,7 +90,7 @@ class MastoApi {
         const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
-        const statuses = await this.fetchData({
+        const statuses = await this.getCacheableData({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
@@ -115,7 +115,7 @@ class MastoApi {
     }
     ;
     async getBlockedAccounts() {
-        const blockedAccounts = await this.fetchData({
+        const blockedAccounts = await this.getCacheableData({
             fetch: this.api.v1.blocks.list,
             label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
@@ -124,7 +124,7 @@ class MastoApi {
     ;
     // Get accounts the user is following
     async getFollowedAccounts() {
-        const followedAccounts = await this.fetchData({
+        const followedAccounts = await this.getCacheableData({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
@@ -133,7 +133,7 @@ class MastoApi {
     }
     // Get hashtags the user is following
     async getFollowedTags() {
-        const followedTags = await this.fetchData({
+        const followedTags = await this.getCacheableData({
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
@@ -141,7 +141,7 @@ class MastoApi {
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {
-        const mutedAccounts = await this.fetchData({
+        const mutedAccounts = await this.getCacheableData({
             fetch: this.api.v1.mutes.list,
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
@@ -166,7 +166,7 @@ class MastoApi {
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
     async getRecentFavourites(moar) {
-        const recentFaves = await this.fetchData({
+        const recentFaves = await this.getCacheableData({
             fetch: this.api.v1.favourites.list,
             label: types_1.StorageKey.FAVOURITED_TOOTS,
             moar: moar,
@@ -176,7 +176,7 @@ class MastoApi {
     }
     // Get the user's recent notifications
     async getRecentNotifications(moar) {
-        const notifs = await this.fetchData({
+        const notifs = await this.getCacheableData({
             fetch: this.api.v1.notifications.list,
             label: types_1.StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
@@ -233,7 +233,7 @@ class MastoApi {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
         const logPrefix = `getToosForHashtag():`;
         try {
-            const toots = await this.fetchData({
+            const toots = await this.getCacheableData({
                 fetch: this.api.v1.timelines.tag.$select(searchStr).list,
                 label: types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
@@ -263,7 +263,7 @@ class MastoApi {
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have setDependentProperties() called on them!
     async getUserRecentToots(moar) {
-        const recentToots = await this.fetchData({
+        const recentToots = await this.getCacheableData({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: types_1.StorageKey.RECENT_USER_TOOTS,
             moar: moar,
@@ -358,8 +358,7 @@ class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    // TODO: rename getCacheableData
-    async fetchData(fetchParams) {
+    async getCacheableData(fetchParams) {
         fetchParams.maxRecords ||= Storage_1.default.getConfig().minRecordsForFeatureScoring;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;

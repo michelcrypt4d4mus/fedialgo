@@ -96,7 +96,7 @@ export class MastoApi {
         const cutoffTimelineAt = new Date(Date.now() - timelineLookBackMS);
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
 
-        const statuses = await this.getCacheableData<mastodon.v1.Status>({
+        const statuses = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             label: StorageKey.HOME_TIMELINE,  // TODO: this shouldn't actually cache anything
             maxId: maxId,
@@ -124,7 +124,7 @@ export class MastoApi {
     };
 
     async getBlockedAccounts(): Promise<Account[]> {
-        const blockedAccounts = await this.getCacheableData<mastodon.v1.Account>({
+        const blockedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.blocks.list,
             label: StorageKey.BLOCKED_ACCOUNTS
         });
@@ -134,7 +134,7 @@ export class MastoApi {
 
     // Get accounts the user is following
     async getFollowedAccounts(): Promise<Account[]> {
-        const followedAccounts = await this.getCacheableData<mastodon.v1.Account>({
+        const followedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
@@ -145,7 +145,7 @@ export class MastoApi {
 
     // Get hashtags the user is following
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
-        const followedTags = await this.getCacheableData<mastodon.v1.Tag>({
+        const followedTags = await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             label: StorageKey.FOLLOWED_TAGS
         });
@@ -155,7 +155,7 @@ export class MastoApi {
 
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(): Promise<Account[]> {
-        const mutedAccounts = await this.getCacheableData<mastodon.v1.Account>({
+        const mutedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
             label: StorageKey.MUTED_ACCOUNTS
         });
@@ -184,7 +184,7 @@ export class MastoApi {
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
     async getRecentFavourites(moar?: boolean): Promise<Toot[]> {
-        const recentFaves = await this.getCacheableData<mastodon.v1.Status>({
+        const recentFaves = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             label: StorageKey.FAVOURITED_TOOTS,
             moar: moar,
@@ -196,7 +196,7 @@ export class MastoApi {
 
     // Get the user's recent notifications
     async getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]> {
-        const notifs = await this.getCacheableData<mastodon.v1.Notification>({
+        const notifs = await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             label: StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
@@ -258,7 +258,7 @@ export class MastoApi {
         const logPrefix = `getToosForHashtag():`;
 
         try {
-            const toots = await this.getCacheableData<mastodon.v1.Status>({
+            const toots = await this.getApiRecords<mastodon.v1.Status>({
                 fetch: this.api.v1.timelines.tag.$select(searchStr).list,
                 label: StorageKey.TRENDING_TAG_TOOTS_V2,
                 maxRecords: maxRecords,
@@ -289,7 +289,7 @@ export class MastoApi {
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have setDependentProperties() called on them!
     async getUserRecentToots(moar?: boolean): Promise<Toot[]> {
-        const recentToots = await this.getCacheableData<mastodon.v1.Status>({
+        const recentToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             label: StorageKey.RECENT_USER_TOOTS,
             moar: moar,
@@ -389,7 +389,7 @@ export class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getCacheableData<T>(fetchParams: FetchParams<T>): Promise<T[]> {
+    private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
         fetchParams.maxRecords ||= Storage.getConfig().minRecordsForFeatureScoring;
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         breakIf = breakIf || DEFAULT_BREAK_IF;
