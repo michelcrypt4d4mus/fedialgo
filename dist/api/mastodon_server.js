@@ -75,7 +75,7 @@ class MastodonServer {
     ;
     // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server
     async fetchServerInfo() {
-        if (Storage_1.default.getConfig().noMauServers.some(s => this.domain.startsWith(s))) {
+        if (MastodonServer.isNoMauServer(this.domain)) {
             console.debug(`[fetchServerInfo()] Instance info for '${this.domain}' is not available...`);
             return null;
         }
@@ -228,6 +228,13 @@ class MastodonServer {
         }
     }
     ;
+    // Returns true if the domain is known to not provide MAU and trending data via public API
+    static isNoMauServer(domain) {
+        return Storage_1.default.getConfig().noMauServers.some(s => domain == s);
+    }
+    ///////////////////////////////////////
+    //      Private Static Methods       //
+    ///////////////////////////////////////
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
@@ -237,7 +244,9 @@ class MastodonServer {
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         const followedUserDomainCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
-        const mostFollowedDomains = (0, collection_helpers_1.sortKeysByValue)(followedUserDomainCounts).slice(0, config.numServersToCheck);
+        let mostFollowedDomains = (0, collection_helpers_1.sortKeysByValue)(followedUserDomainCounts);
+        mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
+        mostFollowedDomains = mostFollowedDomains.slice(0, config.numServersToCheck);
         // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
         // current Fedialgo. Filter out those below the userminServerMAU threshold
         let serverDict = await this.callForServers(mostFollowedDomains, (s) => s.fetchServerInfo());

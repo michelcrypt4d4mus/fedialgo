@@ -25,6 +25,7 @@ export default class MastodonServer {
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TrendingTag[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
+    static isNoMauServer(domain: string): boolean;
     private static fetchMastodonInstances;
     private static getTopServerDomains;
     private static fetchTrendingFromAllServers;
