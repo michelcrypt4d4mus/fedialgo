@@ -80,15 +80,14 @@ const config_1 = require("./config");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
-const DEFAULT_SET_FEED_IN_APP = (feed) => console.debug(`Default setFeedInApp() called`);
-const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setFeedInApp() callback.`;
+const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
+const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 // TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
 const INITIAL_STATUS_MSG = "(ready to load)";
 const INITIAL_LOAD_STATUS = "initial data";
 const MAX_ID_IDX = 2;
 ;
 class TheAlgorithm {
-    feed = [];
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
@@ -99,8 +98,10 @@ class TheAlgorithm {
     // Constructor argument variables
     api;
     user;
-    setFeedInApp; // Optional callback to set the feed in the app using this package
+    setTimelineInApp; // Optional callback to set the feed in the app using this package
     // Other private variables
+    feed = [];
+    filteredFeed = [];
     catchupCheckpoint = null; // If doing a catch up refresh load we need to get back to this timestamp
     dataPoller;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
@@ -150,7 +151,7 @@ class TheAlgorithm {
         await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({ api: params.api, user: user, setFeedInApp: params.setFeedInApp });
+        const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
         await algo.setDefaultWeights();
         await algo.loadCachedData();
         return algo;
@@ -158,26 +159,26 @@ class TheAlgorithm {
     constructor(params) {
         this.api = params.api;
         this.user = params.user;
-        this.setFeedInApp = params.setFeedInApp ?? DEFAULT_SET_FEED_IN_APP;
+        this.setTimelineInApp = params.setTimelineInApp ?? DEFAULT_SET_TIMELINE_IN_APP;
         api_1.default.init(this.api, this.user);
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
     // TODO: This doesn't return the filtered feed, it returns the entire feed. This is bad, should deprecate
     // a return value.
-    async getFeed(numTimelineToots, maxId) {
-        (0, log_helpers_1.logInfo)(log_helpers_1.GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
+    async triggerFeedUpdate(numTimelineToots, maxId) {
+        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         const isInitialCall = !maxId; // First call from client has maxId
         this.setLoadingStateVariables(isInitialCall);
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         const fetchHomeFeed = async () => await api_1.default.instance.fetchHomeFeed(numTimelineToots, maxId);
-        // Calls to getFeed() trigger loads of the home timeline toots and then recursively call maybeGetMoreToots()
+        // Calls to triggerFeedUpdate() trigger loads of the home timeline toots and then recursively call maybeGetMoreToots()
         this.mergeTootsIntoFeed(fetchHomeFeed).then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            (0, log_helpers_1.logInfo)(log_helpers_1.GET_FEED, msg);
+            (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots);
         });
-        // The first time getFeed() is called we need to load a bunch of other data
+        // The first time triggerFeedUpdate() is called we need to load a bunch of other data
         if (isInitialCall) {
             this.prepareScorers();
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
@@ -186,12 +187,15 @@ class TheAlgorithm {
             this.mergeTootsIntoFeed(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default));
             // Deay the trending tag toot pulls a bit because they generate a ton of API calls
             setTimeout(() => {
-                console.debug(`${log_helpers_1.GET_FEED} Launching delayed hash tag toots getters...`);
+                console.debug(`${log_helpers_1.TRIGGER_FEED} Launching delayed hash tag toots getters...`);
                 this.mergeTootsIntoFeed(hashtags_1.getRecentTootsForTrendingTags);
                 this.mergeTootsIntoFeed(hashtags_1.getParticipatedHashtagToots);
             }, Storage_1.default.getConfig().delayBeforePullingHashtagTootsMS);
         }
-        return this.feed;
+    }
+    // Return a copy of the current filtered feed
+    getTimeline() {
+        return [...this.filteredFeed];
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
@@ -215,6 +219,10 @@ class TheAlgorithm {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
+    // Return the timestamp of the most recent toot from followed accounts ONLY
+    mostRecentHomeTootAt() {
+        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
+    }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
@@ -227,25 +235,21 @@ class TheAlgorithm {
         await Storage_1.default.clearAll();
         await this.loadCachedData();
     }
-    // Return the timestamp of the most recent toot from followed accounts ONLY
-    mostRecentHomeTootAt() {
-        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
+    // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
+    // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
+    // the master timeline).
+    filterFeedAndSetInApp() {
+        this.filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
+        this.setTimelineInApp(this.filteredFeed);
+        if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
+            this.hasProvidedAnyTootsToClient = true;
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${this.filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
+        }
+        return this.filteredFeed;
     }
     // Filter the feed to only include toots from followed accounts
     homeTimelineToots() {
         return this.feed.filter(toot => toot.isFollowed);
-    }
-    // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
-    // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
-    // the master timeline).
-    filterFeedAndSetInApp() {
-        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        this.setFeedInApp(filteredFeed);
-        if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
-            this.hasProvidedAnyTootsToClient = true;
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
-        }
-        return filteredFeed;
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -253,7 +257,7 @@ class TheAlgorithm {
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         this.trendingData = await Storage_1.default.getTrending();
         this.userData = await Storage_1.default.getUserData();
-        this.setFeedInApp(this.feed);
+        this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
     // Decide what is the current state of the world and whether to continue fetching home timeline toots
@@ -272,12 +276,12 @@ class TheAlgorithm {
             // toots from other servers will have different ID schemes.
             // TODO: this is kind of shaky logic - what if a user follows almost no one and has an empty feed?
             const maxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[MAX_ID_IDX].id;
-            this.logWithState(logPrefix, `Scheduling ${log_helpers_1.GET_FEED} recursively with maxID='${maxId}'`);
-            setTimeout(() => this.getFeed(numTimelineToots, maxId), config.incrementalLoadDelayMS);
+            this.logWithState(logPrefix, `Scheduling ${log_helpers_1.TRIGGER_FEED} recursively with maxID='${maxId}'`);
+            setTimeout(() => this.triggerFeedUpdate(numTimelineToots, maxId), config.incrementalLoadDelayMS);
             return;
         }
         // Otherwise stop (either we have enough toots, the last fetch didn't get fulfilled, or we hit the checkpoint)
-        logPrefix += ` Halting ${log_helpers_1.GET_FEED}:`;
+        logPrefix += ` Halting ${log_helpers_1.TRIGGER_FEED}:`;
         if (this.catchupCheckpoint) { // If we hit the checkpoint
             if (earliestNewHomeTootAt && earliestNewHomeTootAt < this.catchupCheckpoint) {
                 let msg = `all caught up: oldest newHomeToot is ${(0, time_helpers_1.quotedISOFmt)(earliestNewHomeTootAt)}`;
@@ -413,7 +417,7 @@ class TheAlgorithm {
     setLoadingStateVariables(isInitialCall) {
         if (isInitialCall) {
             this.loadStartedAt = new Date();
-            // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
+            // If triggerFeedUpdate() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = INITIAL_LOAD_STATUS;
                 return;
@@ -421,7 +425,7 @@ class TheAlgorithm {
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
             if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
-                console.log(`${log_helpers_1.GET_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                console.log(`${log_helpers_1.TRIGGER_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
                 this.catchupCheckpoint = (0, time_helpers_1.timelineCutoffAt)();
             }
             else {

@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* **[BREAKING CHANGE]** Rename TheAlgorithm.getFeed() to triggerFeedUpdate(). No longer returns anything.
+* **[BREAKING CHANGE]** Rename setFeedInApp param to setTimelineInApp
 * Simplify the alternate score dict
 * Disallow setting the catchup checkpoint before the overall app timeline cutoff
 * UserData object now just stores a lookup dict for `followedAccounts` instead of all the actual followed `Account` objects

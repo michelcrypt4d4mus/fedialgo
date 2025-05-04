@@ -36,10 +36,16 @@ The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_f
 import { login, mastodon } from "masto";
 import { TheAlgorithm } from "fedialgo"
 
+// Optionally (tho you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
+// to manage the state of the timeline in your app. In React this might look like:
+import { useState } from React;
+const [timeline, setTimeline] = useState<Toot[]>([]);
+
 // Verify mastodon login and instantiate a TheAlgorithm object
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currentUser = await api.v1.accounts.verifyCredentials()
-const algorithm = await TheAlgorithm.create({api: api, user: currentUser})
+// setTimelineInApp param is optional but encouraged
+const algorithm = await TheAlgorithm.create({api: api, user: currentUser, setTimelineInApp: setTimeline})
 ```
 
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
@@ -47,13 +53,13 @@ Once you've instantiated a `TheAlgorithm` object there's three primary ways of i
 ```typescript
 import { PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
 
-// NOTE: This approach to getting timeline toots could be deprecated in the future.
-//       You are encouraged to use the timeline setting callback approach ("setFeedInApp") described
-//       below to allow fedialgo to manage the state of the timeline.
-// Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
-let timelineFeed: Toot[] = await algorithm.getFeed(400);
-// Get next 400 timeline toots. Args are numToots and maxID. Also see "Callbacks" section below
-timelineFeed = await algorithm.getFeed(400, feed[0].id);
+// Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
+// in the constructor all you need to do is monitor the state of whatever variable contains the timeline
+// (in the React example above that variable would be 'timeline').
+algorithm.triggerFeedUpdate();
+
+// algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
+const timeline: Toot[] = algorithm.getTimeline();
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
 const weights: Weights = await algorithm.getUserWeights();
@@ -76,31 +82,26 @@ filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
 const filteredFeed = algorithm.updateFilters(filters);
 ```
 
+#### More On The `setTimelineInApp` Callback
+You can optionally pass a `setTimelineInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. Specifically the callback will be invoked when:
 
-### Timeline Callback
-You can optionally pass a `setFeedInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. The initial fetch of timeline toots will get `Config.numTootsInFirstFetch` timeline elements after which `TheAlgorithm` will start pulling batches of toots in the background and integrating them into the timeline.
-
-The callback will be invoked when:
-
-* An incremental batch of toots is retrieved from the server and integrated into the timeline
-* A call is made to `algorithm.updateUserWeights()` or `algorithm.updateFilters()`.
+* An incremental batch of toots is retrieved from the fediverse and integrated into the timeline
+* You make a call to `algorithm.updateUserWeights()`
+* You make a call to `algorithm.updateFilters()`.
 
 An example involving React component state:
 
-```typescript
-import { useState } from React;
-import { TheAlgorithm, Toot } from "fedialgo";
 
-const api = await login({url: user.server, accessToken: user.access_token});
-const currentUser = await api.v1.accounts.verifyCredentials()
-const [feed, setFeed] = useState<Toot[]>([]);
+## `Toot` API
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
 
-// setFeed() will be invoked when the feed is changed (e.g. via updateUserWeights() or updateFilters())
-const algorithm = await TheAlgorithm.create({api: api, user: currentUser, setFeedInApp: setFeed})
-```
 
-### Fediverse Trending Data
-`TheAlgorithm` also has properties that can be accessed to get at the current "trending" fediverse data.
+## Other Data Available In `TheAlgorithm`
+FediAlgo provides a bunch of other data besides the timeline should you choose to access it.
+
+
+#### Fediverse Trending Data
+Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.js`](src/types.ts) for info on the data type.
 
 ```typescript
 // Trending links
@@ -116,10 +117,11 @@ algorithm.trendingData.toots.foreach((toot) => console.log(`Trending toot w/rank
 algorithm.mastodonServers.foreach((server) => console.log(`Server used to determine trending data:`, server);
 ```
 
-### `Toot` API
-The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
+#### User Data
+The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at `algorithm.userData`. See [`types.js`](src/types.ts) for info on the data type.
 
-### Package Configuration
+
+## Package Configuration
 Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
 
 

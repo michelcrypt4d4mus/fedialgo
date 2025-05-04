@@ -29,10 +29,9 @@ import { FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, Score
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    setFeedInApp?: (feed: Toot[]) => void;
+    setTimelineInApp?: (feed: Toot[]) => void;
 }
 declare class TheAlgorithm {
-    feed: Toot[];
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
@@ -41,7 +40,9 @@ declare class TheAlgorithm {
     userData: UserData;
     private api;
     private user;
-    private setFeedInApp;
+    private setTimelineInApp;
+    private feed;
+    private filteredFeed;
     private catchupCheckpoint;
     private dataPoller?;
     private hasProvidedAnyTootsToClient;
@@ -54,15 +55,16 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
-    getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]>;
+    triggerFeedUpdate(numTimelineToots?: number, maxId?: string): Promise<void>;
+    getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
-    reset(): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
-    homeTimelineToots(): Toot[];
+    reset(): Promise<void>;
     private filterFeedAndSetInApp;
+    private homeTimelineToots;
     private loadCachedData;
     private maybeGetMoreToots;
     private launchBackgroundPoller;

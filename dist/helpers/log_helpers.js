@@ -3,14 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.GET_FEED = exports.CLEANUP_FEED = void 0;
+exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const ENABLE_TRACE_LOG = (0, environment_helpers_1.isDebugMode)();
 // Log prefixes
 exports.CLEANUP_FEED = "cleanupFeed()";
-exports.GET_FEED = "getFeed()";
+exports.TRIGGER_FEED = "triggerFeedUpdate()";
 exports.PREP_SCORERS = "prepareScorers()";
 // console.info() with a prefix
 const logInfo = (prefix, msg, ...args) => {
