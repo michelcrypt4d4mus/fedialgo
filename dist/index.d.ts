@@ -69,11 +69,12 @@ declare class TheAlgorithm {
     private loadingMoreTootsStatusMsg;
     private logWithState;
     private markLoadComplete;
-    private mergePromisedTootsIntoFeed;
+    private mergeTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
+    private setCheckpointAndLoadingStatus;
     private statusDict;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

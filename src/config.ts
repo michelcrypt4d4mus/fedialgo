@@ -13,6 +13,7 @@ type StaleDataConfig = {
 export type Config = {
     defaultLanguage: string;
     // Timeline
+    delayBeforePullingHashtagTootsMS: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
@@ -62,6 +63,7 @@ export const DEFAULT_CONFIG: Config = {
     defaultLanguage: "en",
 
     // Timeline toots
+    delayBeforePullingHashtagTootsMS: 8000, // Delay before pulling trending & participated hashtag toots
     incrementalLoadDelayMS: 1000,           // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
     maxInitialTimelineToots: 900,           // useful dev options for faster load

@@ -47,6 +47,9 @@ Once you've instantiated a `TheAlgorithm` object there's three primary ways of i
 ```typescript
 import { PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
 
+// NOTE: This approach to getting timeline toots could be deprecated in the future.
+//       You are encouraged to use the timeline setting callback approach ("setFeedInApp") described
+//       below to allow fedialgo to manage the state of the timeline.
 // Get a weight-ordered timeline of 400 home timeline Toot objects combined with trending toots
 let timelineFeed: Toot[] = await algorithm.getFeed(400);
 // Get next 400 timeline toots. Args are numToots and maxID. Also see "Callbacks" section below
