@@ -1,6 +1,5 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import UserData from "../user_data";
 import { FeedFilterSettings, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TrendingTag } from "../../types";
 import Scorer from "../../scorer/scorer";
 export interface SerializableToot extends mastodon.v1.Status {
@@ -94,16 +93,15 @@ export default class Toot implements TootObj {
     realURL(): string;
     resolve(): Promise<Toot>;
     serialize(): SerializableToot;
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void;
     alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
+    private setDependentProperties;
     static buildToots(statuses: SerializableToot[] | Toot[], logPrefix?: string): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
-    static setDependentProps(toots: Toot[]): Promise<void>;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;

@@ -289,28 +289,6 @@ class Toot {
         serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
         return serializableToot;
     }
-    // Some properties cannot be repaired and/or set until info about the user is available
-    setDependentProperties(userData, trendingLinks, trendingTags) {
-        this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
-        if (this.reblog)
-            this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-        const toot = this.realToot();
-        // Set trendingLinks property
-        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
-        // Set trendingTags and followedTags properties
-        // TODO: this has an unfortunate side effect that the filters don't work correctly
-        // on toots that contain the name of a hashtag without actually
-        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
-        if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-        }
-        // Set mutes for toots by muted users that came from a source besides our server timeline
-        if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
-            toot.muted = true;
-        }
-    }
     alternateScoreInfo() {
         return scorer_1.default.alternateScoreInfo(this);
     }
@@ -395,19 +373,44 @@ class Toot {
             }
         });
     }
+    // Some properties cannot be repaired and/or set until info about the user is available
+    setDependentProperties(userData, trendingLinks, trendingTags) {
+        this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
+        if (this.reblog)
+            this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
+        const toot = this.realToot();
+        // Set trendingLinks property
+        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
+        // Set trendingTags and followedTags properties
+        // TODO: this has an unfortunate side effect that the filters don't work correctly
+        // on toots that contain the name of a hashtag without actually
+        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
+        if (!toot.trendingTags || !toot.followedTags) {
+            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
+        }
+        // Set mutes for toots by muted users that came from a source besides our server timeline
+        if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
+            (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
+            toot.muted = true;
+        }
+    }
     ///////////////////////////////
     //       Class methods       //
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
+    // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(statuses, logPrefix) {
         if (statuses.length == 0)
             return [];
+        const userData = await api_1.default.instance.getUserData();
+        const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
+        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         // If the first element is a Toot, assume all Toots and we don't need to create new Toot objects
         let toots = (statuses[0] instanceof Toot) ? statuses : statuses.map(t => new Toot(t));
-        await this.setDependentProps(toots);
+        await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
         toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
-        // TODO: sorting by popularity is here so fetchers that call this fxn can truncate unpopular toots
         toots.sort((a, b) => b.popularity() - a.popularity());
         return toots;
     }
@@ -441,13 +444,6 @@ class Toot {
         return deduped;
     }
     ;
-    // Set the dependent properties for all of a list of Toot objects
-    static async setDependentProps(toots) {
-        const userData = await api_1.default.instance.getUserData();
-        const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
-        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
-        await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
-    }
 }
 exports.default = Toot;
 ;
