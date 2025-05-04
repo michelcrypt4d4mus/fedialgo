@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.25.0
 * **[BREAKING CHANGE]** Rename TheAlgorithm.getFeed() to triggerFeedUpdate(). No longer returns anything.
 * **[BREAKING CHANGE]** Rename setFeedInApp param to setTimelineInApp
 * Simplify the alternate score dict
