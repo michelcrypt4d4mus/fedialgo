@@ -349,6 +349,7 @@ export default class MastoApi {
     setBackgroundConcurrency(): void {
         const newConcurrency = Storage.getConfig().maxConcurrentRequestsBackground;
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
+        // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
         this.requestSemphore = new Semaphore(newConcurrency);
     }
 

@@ -26,7 +26,8 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
 
 // Get toots for the top trending tags via the search endpoint.
 export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
-    let tags = await MastodonServer.fediverseTrendingTags()
+    let tags = await MastodonServer.fediverseTrendingTags();
+    // TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
     tags = await removeFollowedAndMutedTags(tags);
 
     return await MastoApi.instance.getCacheableToots(
