@@ -14,6 +14,7 @@ import FeatureScorer from './feature_scorer';
 import FeedScorer from './feed_scorer';
 
 const SCORE_MUTEX = new Mutex();
+type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 
 
 export default abstract class Scorer {
@@ -101,7 +102,7 @@ export default abstract class Scorer {
     }
 
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
-    static alternateScoreInfo(toot: Toot): Record<string, number | Record<string, StringNumberDict>> {
+    static alternateScoreInfo(toot: Toot): Record<string, number | ScoreDisplayDict> {
         if (!toot.scoreInfo) return {};
 
         return Object.entries(toot.scoreInfo).reduce(
@@ -109,21 +110,26 @@ export default abstract class Scorer {
                 if (key == "rawScores") {
                     scoreDict["scores"] = Object.entries(value).reduce(
                         (scoreDetails, [scoreKey, scoreValue]) => {
-                            scoreDetails[scoreKey] = {
-                                rawScore: Number(scoreValue.toPrecision()),
-                                weighted: Number(toot.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision())
-                            };
+                            if (scoreValue == 0) {
+                                scoreDetails[scoreKey] = 0;
+                            } else {
+                                scoreDetails[scoreKey] = {
+                                    rawScore: Number(scoreValue.toPrecision()),
+                                    weighted: Number(toot.scoreInfo!.weightedScores[scoreKey as WeightName].toPrecision())
+                                };
+                            }
+
                             return scoreDetails;
                         },
-                        {} as Record<string, StringNumberDict>
-                    )
+                        {} as ScoreDisplayDict
+                    );
                 } else if (key != "weightedScores") {
                     scoreDict[key] = value as number;
                 }
 
                 return scoreDict;
             },
-            {} as Record<string, number | Record<string, StringNumberDict>>
+            {} as Record<string, number | ScoreDisplayDict>
         )
     }
 

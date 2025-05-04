@@ -2,6 +2,7 @@ import Toot from '../api/objects/toot';
 import { ScorerInfo, StringNumberDict, WeightName } from "../types";
 import FeatureScorer from './feature_scorer';
 import FeedScorer from './feed_scorer';
+type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 export default abstract class Scorer {
     defaultWeight: number;
     description: string;
@@ -15,7 +16,8 @@ export default abstract class Scorer {
     protected logPrefix(): string;
     private checkIsReady;
     static scoreToots(toots: Toot[], featureScorers: FeatureScorer[], feedScorers: FeedScorer[]): Promise<Toot[]>;
-    static alternateScoreInfo(toot: Toot): Record<string, number | Record<string, StringNumberDict>>;
+    static alternateScoreInfo(toot: Toot): Record<string, number | ScoreDisplayDict>;
     private static decorateWithScoreInfo;
     private static sumScores;
 }
+export {};
