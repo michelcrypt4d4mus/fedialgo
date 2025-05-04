@@ -166,7 +166,7 @@ class TheAlgorithm {
         (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, state:`, this.statusDict());
         if (this.isLoading())
             (0, log_helpers_1.logAndThrowError)(`[${log_helpers_1.TRIGGER_FEED}] ${GET_FEED_BUSY_MSG}`);
-        this.setLoadStartStateVariables(true);
+        this.setLoadingStateVariables(true);
         // Trigger toot fetchers
         this.fetchHomeTimeline();
         this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots);
@@ -180,18 +180,6 @@ class TheAlgorithm {
         let hashtagTootDelayMS = Storage_1.default.getConfig().hashtagTootRetrievalDelaySeconds * 1000;
         hashtagTootDelayMS *= (this.feed.length ? 0.5 : 1); // If we already have toots, reduce the delay
         setTimeout(() => this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags), hashtagTootDelayMS);
-    }
-    // Fetch toots from the mastodon "home timeline" API (what most people think of as their timeline)
-    async fetchHomeTimeline(maxId) {
-        const batchSize = Storage_1.default.getConfig().numTootsInFirstFetch;
-        const fetchHomeTimeline = async () => await api_1.default.instance.fetchHomeFeed(batchSize, maxId);
-        this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
-            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
-            msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, msg);
-            // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
-            this.maybeGetMoreTimelineToots(newToots);
-        });
     }
     // Return the current filtered timeline feed in weight order
     getTimeline() {
@@ -234,6 +222,19 @@ class TheAlgorithm {
         this.catchupCheckpoint = null;
         await Storage_1.default.clearAll();
         await this.loadCachedData();
+    }
+    // Fetch toots from the mastodon "home timeline" API backwards from 'maxId'.
+    // Works in conjunction with maybeGetMoreTimelineToots() to build a complete timeline.
+    async fetchHomeTimeline(maxId) {
+        const batchSize = Storage_1.default.getConfig().numTootsInFirstFetch;
+        const fetchHomeTimeline = async () => await api_1.default.instance.fetchHomeFeed(batchSize, maxId);
+        this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
+            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
+            msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+            (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, msg);
+            // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
+            this.maybeGetMoreTimelineToots(newToots);
+        });
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
@@ -317,7 +318,7 @@ class TheAlgorithm {
             // TODO: this is kind of shaky logic - what if a user follows almost no one and has an empty feed?
             const maxId = (0, toot_1.sortByCreatedAt)(newHomeToots)[MAX_ID_IDX].id;
             this.logWithState(logPrefix, `Scheduling ${log_helpers_1.TRIGGER_FEED} recursively with maxID='${maxId}'`);
-            this.setLoadStartStateVariables(false);
+            this.setLoadingStateVariables(false);
             setTimeout(() => this.fetchHomeTimeline(maxId), config.incrementalLoadDelayMS);
             return;
         }
@@ -434,7 +435,7 @@ class TheAlgorithm {
     // If isinitialCall is true:
     //    - sets this.catchupCheckpoint to the most recent toot in the feed
     //    - sets this.loadStartedAt to the current time
-    setLoadStartStateVariables(isInitialCall) {
+    setLoadingStateVariables(isInitialCall) {
         if (isInitialCall) {
             this.loadStartedAt = new Date();
             // If triggerFeedUpdate() is called with no maxId and no toots in the feed then it's an initial load.

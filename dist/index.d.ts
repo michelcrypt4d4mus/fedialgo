@@ -55,7 +55,6 @@ declare class TheAlgorithm {
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
     triggerFeedUpdate(): Promise<void>;
-    private fetchHomeTimeline;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
@@ -63,6 +62,7 @@ declare class TheAlgorithm {
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
     reset(): Promise<void>;
+    private fetchHomeTimeline;
     private filterFeedAndSetInApp;
     private homeTimelineToots;
     private launchBackgroundPoller;
@@ -77,7 +77,7 @@ declare class TheAlgorithm {
     private setDefaultWeights;
     private scoreAndFilterFeed;
     private setLoadCompleteStateVariables;
-    private setLoadStartStateVariables;
+    private setLoadingStateVariables;
     private statusDict;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

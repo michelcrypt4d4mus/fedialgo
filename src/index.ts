@@ -161,7 +161,7 @@ class TheAlgorithm {
     async triggerFeedUpdate(): Promise<void> {
         logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
         if (this.isLoading()) logAndThrowError(`[${TRIGGER_FEED}] ${GET_FEED_BUSY_MSG}`);
-        this.setLoadStartStateVariables(true);
+        this.setLoadingStateVariables(true);
 
         // Trigger toot fetchers
         this.fetchHomeTimeline();
@@ -181,20 +181,6 @@ class TheAlgorithm {
             () => this.fetchAndMergeToots(getRecentTootsForTrendingTags),
             hashtagTootDelayMS
         );
-    }
-
-    // Fetch toots from the mastodon "home timeline" API (what most people think of as their timeline)
-    private async fetchHomeTimeline(maxId?: string): Promise<void> {
-        const batchSize = Storage.getConfig().numTootsInFirstFetch;
-        const fetchHomeTimeline = async () => await MastoApi.instance.fetchHomeFeed(batchSize, maxId);
-
-        this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
-            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
-            msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            logInfo(TRIGGER_FEED, msg);
-            // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
-            this.maybeGetMoreTimelineToots(newToots!);
-        });
     }
 
     // Return the current filtered timeline feed in weight order
@@ -244,6 +230,22 @@ class TheAlgorithm {
         this.catchupCheckpoint = null;
         await Storage.clearAll();
         await this.loadCachedData();
+    }
+
+    // Fetch toots from the mastodon "home timeline" API backwards from 'maxId'.
+    // Works in conjunction with maybeGetMoreTimelineToots() to build a complete timeline.
+    private async fetchHomeTimeline(maxId?: string): Promise<void> {
+        const batchSize = Storage.getConfig().numTootsInFirstFetch;
+        const fetchHomeTimeline = async () => await MastoApi.instance.fetchHomeFeed(batchSize, maxId);
+
+        this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
+            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
+            msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+            logInfo(TRIGGER_FEED, msg);
+
+            // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
+            this.maybeGetMoreTimelineToots(newToots!);
+        });
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
@@ -347,7 +349,7 @@ class TheAlgorithm {
             // TODO: this is kind of shaky logic - what if a user follows almost no one and has an empty feed?
             const maxId = sortByCreatedAt(newHomeToots)[MAX_ID_IDX].id;
             this.logWithState(logPrefix, `Scheduling ${TRIGGER_FEED} recursively with maxID='${maxId}'`);
-            this.setLoadStartStateVariables(false);
+            this.setLoadingStateVariables(false);
             setTimeout(() => this.fetchHomeTimeline(maxId), config.incrementalLoadDelayMS);
             return;
         }
@@ -473,7 +475,7 @@ class TheAlgorithm {
     // If isinitialCall is true:
     //    - sets this.catchupCheckpoint to the most recent toot in the feed
     //    - sets this.loadStartedAt to the current time
-    private setLoadStartStateVariables(isInitialCall: boolean): void {
+    private setLoadingStateVariables(isInitialCall: boolean): void {
         if (isInitialCall) {
             this.loadStartedAt = new Date();
 
