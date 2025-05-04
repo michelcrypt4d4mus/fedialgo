@@ -175,7 +175,7 @@ class MastodonServer {
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
-        return await this.fetchTrendingFromAllServers({
+        return await this.fetchTrendingObjsFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
             loadingFxn: Storage_1.default.getToots.bind(Storage_1.default),
             serverFxn: (server) => server.fetchTrendingStatuses(),
@@ -187,7 +187,7 @@ class MastodonServer {
     }
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
-        return await this.fetchTrendingFromAllServers({
+        return await this.fetchTrendingObjsFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
@@ -197,7 +197,7 @@ class MastodonServer {
     }
     // Get the top trending tags from all servers
     static async fediverseTrendingTags() {
-        return await this.fetchTrendingFromAllServers({
+        return await this.fetchTrendingObjsFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
@@ -283,33 +283,32 @@ class MastodonServer {
     }
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
-    static async fetchTrendingFromAllServers(props) {
+    static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
         const logPrefix = `[${key}]`;
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
-            const storageObjs = await loadingFxn(key);
-            if (!storageObjs?.length || (await Storage_1.default.isDataStale(key))) {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
-                return storageObjs;
-            }
-            else {
+            let records = await loadingFxn(key);
+            if (!records?.length || (await Storage_1.default.isDataStale(key))) {
                 const serverObjs = await this.callForAllServers(serverFxn);
                 (0, log_helpers_1.traceLog)(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
-                const uniqueObjs = await processingFxn(flatObjs);
-                if (uniqueObjs.length && uniqueObjs[0] instanceof toot_1.default) {
-                    await Storage_1.default.storeToots(key, uniqueObjs);
+                records = await processingFxn(flatObjs);
+                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${records.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`;
+                console.log(`${logPrefix} ${msg}`, records);
+                if (records.length && records[0] instanceof toot_1.default) {
+                    await Storage_1.default.storeToots(key, records);
                 }
                 else {
-                    await Storage_1.default.set(key, uniqueObjs);
+                    await Storage_1.default.set(key, records);
                 }
-                let msg = `[${string_helpers_1.TELEMETRY}] fetched ${uniqueObjs.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`;
-                console.log(`${logPrefix} ${msg}`, uniqueObjs);
-                return uniqueObjs;
             }
+            else {
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${records.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
+            }
+            return records;
         }
         finally {
             releaseMutex();

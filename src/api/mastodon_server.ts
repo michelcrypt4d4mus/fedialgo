@@ -185,7 +185,7 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        return await this.fetchTrendingFromAllServers<Toot>({
+        return await this.fetchTrendingObjsFromAllServers<Toot>({
             key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
             loadingFxn: Storage.getToots.bind(Storage),
             serverFxn: (server) => server.fetchTrendingStatuses(),
@@ -198,7 +198,7 @@ export default class MastodonServer {
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
-        return await this.fetchTrendingFromAllServers<TrendingLink>({
+        return await this.fetchTrendingObjsFromAllServers<TrendingLink>({
             key: StorageKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
@@ -209,7 +209,7 @@ export default class MastodonServer {
 
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TrendingTag[]> {
-        return await this.fetchTrendingFromAllServers<TrendingTag>({
+        return await this.fetchTrendingObjsFromAllServers<TrendingTag>({
             key: StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
@@ -312,7 +312,7 @@ export default class MastodonServer {
 
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
-    private static async fetchTrendingFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
+    private static async fetchTrendingObjsFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
         const logPrefix = `[${key}]`;
@@ -320,27 +320,26 @@ export default class MastodonServer {
         const startedAt = new Date();
 
         try {
-            const storageObjs = await loadingFxn(key) as T[];
+            let records = await loadingFxn(key) as T[];
 
-            if (!storageObjs?.length || (await Storage.isDataStale(key))) {
-                traceLog(`${logPrefix} Loaded ${storageObjs.length} cached records ${ageString(startedAt)}`);
-                return storageObjs;
-            } else {
+            if (!records?.length || (await Storage.isDataStale(key))) {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
                 traceLog(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
-                const uniqueObjs = await processingFxn(flatObjs);
+                records = await processingFxn(flatObjs);
+                let msg = `[${TELEMETRY}] fetched ${records.length} unique records ${ageString(startedAt)}`;
+                console.log(`${logPrefix} ${msg}`, records);
 
-                if (uniqueObjs.length && uniqueObjs[0] instanceof Toot) {
-                    await Storage.storeToots(key, uniqueObjs as Toot[]);
+                if (records.length && records[0] instanceof Toot) {
+                    await Storage.storeToots(key, records as Toot[]);
                 } else {
-                    await Storage.set(key, uniqueObjs as StorableObj);
+                    await Storage.set(key, records as StorableObj);
                 }
-
-                let msg = `[${TELEMETRY}] fetched ${uniqueObjs.length} unique records ${ageString(startedAt)}`;
-                console.log(`${logPrefix} ${msg}`, uniqueObjs);
-                return uniqueObjs;
+            } else {
+                traceLog(`${logPrefix} Loaded ${records.length} cached records ${ageString(startedAt)}`);
             }
+
+            return records;
         } finally {
             releaseMutex();
         }

@@ -28,7 +28,7 @@ export default class MastodonServer {
     static isNoMauServer(domain: string): boolean;
     private static fetchMastodonInstances;
     private static getTopServerDomains;
-    private static fetchTrendingFromAllServers;
+    private static fetchTrendingObjsFromAllServers;
     private static callForAllServers;
     private static callForServers;
 }
