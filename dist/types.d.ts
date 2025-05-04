@@ -100,7 +100,7 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink | mastodon.v1.TrendLink);
+export type StorableApiObject = (MastodonObjWithID | MastodonTag | Toot | TrendingLink | mastodon.v1.TrendLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;

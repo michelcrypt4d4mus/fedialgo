@@ -405,7 +405,7 @@ class TheAlgorithm {
         await this.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
-        await Storage_1.default.setFeed(this.feed);
+        await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables

@@ -51,7 +51,6 @@ interface FetchTrendingProps<T> {
     key: StorageKey;
     serverFxn: (server: MastodonServer) => Promise<T[]>;
     processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify, send to Storage, and anything else needed
-    loadingFxn?: (key: StorageKey) => Promise<StorableObj | null>
 };
 
 
@@ -187,7 +186,6 @@ export default class MastodonServer {
     static async fediverseTrendingToots(): Promise<Toot[]> {
         return await this.fetchTrendingObjsFromAllServers<Toot>({
             key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
-            loadingFxn: Storage.getToots.bind(Storage),
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
@@ -226,14 +224,12 @@ export default class MastodonServer {
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
 
         try {
-            let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonInstances;
+            let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.POPULAR_SERVERS);
 
-            if (!servers || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
+            if (!servers) {
                 servers = await this.fetchMastodonInstances();
                 console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${ageString(startedAt)}:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
-            } else {
-                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${ageString(startedAt)}`);
             }
 
             return servers;
@@ -314,29 +310,21 @@ export default class MastodonServer {
     // an array of unique objects.
     private static async fetchTrendingObjsFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
-        const loadingFxn = props.loadingFxn || Storage.get.bind(Storage);
         const logPrefix = `[${key}]`;
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[key]!, logPrefix);
         const startedAt = new Date();
 
         try {
-            let records = await loadingFxn(key) as T[];
+            let records = await Storage.getIfNotStale<T[]>(key);
 
-            if (!records?.length || (await Storage.isDataStale(key))) {
+            if (!records?.length) {
                 const serverObjs = await this.callForAllServers<T[]>(serverFxn);
                 traceLog(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
                 let msg = `[${TELEMETRY}] fetched ${records.length} unique records ${ageString(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, records);
-
-                if (records.length && records[0] instanceof Toot) {
-                    await Storage.storeToots(key, records as Toot[]);
-                } else {
-                    await Storage.set(key, records as StorableObj);
-                }
-            } else {
-                traceLog(`${logPrefix} Loaded ${records.length} cached records ${ageString(startedAt)}`);
+                await Storage.set(key, records as StorableObj);
             }
 
             return records;

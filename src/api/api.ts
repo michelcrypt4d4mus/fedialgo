@@ -195,9 +195,9 @@ export default class MastoApi {
         const startTime = new Date();
 
         try {
-            let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
+            let filters = await Storage.getIfNotStale<mastodon.v2.Filter[]>(StorageKey.SERVER_SIDE_FILTERS);
 
-            if (!filters || (await Storage.isDataStale(StorageKey.SERVER_SIDE_FILTERS))) {
+            if (!filters){
                 filters = await this.api.v2.filters.list();
 
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -208,10 +208,8 @@ export default class MastoApi {
                     return true;
                 });
 
-                await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`${logPrefix} Retrieved ${filters.length} records ${ageString(startTime)}:`, filters);
-            } else {
-                traceLog(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
+                await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
             }
 
             return filters;
@@ -322,9 +320,9 @@ export default class MastoApi {
         const startedAt = new Date();
 
         try {
-            let toots = await Storage.getToots(key);
+            let toots = await Storage.getIfNotStale<Toot[]>(key);
 
-            if (!toots || (await Storage.isDataStale(key))) {
+            if (!toots) {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, logPrefix);
@@ -333,9 +331,7 @@ export default class MastoApi {
                     toots = truncateToConfiguredLength(toots, maxRecordsConfigKey);
                 }
 
-                await Storage.storeToots(key, toots);
-            } else {
-                traceLog(`${logPrefix} Loaded ${toots.length} cached toots ${ageString(startedAt)}`);
+                await Storage.set(key, toots);
             }
 
             return toots;
@@ -381,15 +377,15 @@ export default class MastoApi {
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedRows = await Storage.get(label as StorageKey) as T[];
+                const cachedRows = await Storage.getIfNotStale<T[]>(label as StorageKey);
 
-                if (cachedRows && !(await Storage.isDataStale(label as StorageKey))) {
-                    rows = cachedRows;
-                    traceLog(`${logPfx} Loaded ${rows.length} cached rows ${ageString(startedAt)}`);
-                    if (!moar) return rows;
+                if (cachedRows) {
+                    // Return cached data unless moar=true
+                    if (!moar) return cachedRows;
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
+                    rows = cachedRows;
                     maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
                     maxId = findMinId(rows as MastodonObjWithID[]);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);

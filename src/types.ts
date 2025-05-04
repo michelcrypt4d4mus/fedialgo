@@ -137,6 +137,7 @@ export type ScorerInfo = {
 export type StorableApiObject = (
     MastodonObjWithID |
     MastodonTag |
+    Toot |
     TrendingLink |
     mastodon.v1.TrendLink
 );

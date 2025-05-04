@@ -177,7 +177,6 @@ class MastodonServer {
     static async fediverseTrendingToots() {
         return await this.fetchTrendingObjsFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
-            loadingFxn: Storage_1.default.getToots.bind(Storage_1.default),
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
@@ -212,14 +211,11 @@ class MastodonServer {
         const startedAt = new Date();
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
         try {
-            let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            if (!servers || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
+            let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.POPULAR_SERVERS);
+            if (!servers) {
                 servers = await this.fetchMastodonInstances();
                 console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
-            }
-            else {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${(0, time_helpers_1.ageString)(startedAt)}`);
             }
             return servers;
         }
@@ -285,28 +281,19 @@ class MastodonServer {
     // an array of unique objects.
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
-        const loadingFxn = props.loadingFxn || Storage_1.default.get.bind(Storage_1.default);
         const logPrefix = `[${key}]`;
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
-            let records = await loadingFxn(key);
-            if (!records?.length || (await Storage_1.default.isDataStale(key))) {
+            let records = await Storage_1.default.getIfNotStale(key);
+            if (!records?.length) {
                 const serverObjs = await this.callForAllServers(serverFxn);
                 (0, log_helpers_1.traceLog)(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
                 let msg = `[${string_helpers_1.TELEMETRY}] fetched ${records.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, records);
-                if (records.length && records[0] instanceof toot_1.default) {
-                    await Storage_1.default.storeToots(key, records);
-                }
-                else {
-                    await Storage_1.default.set(key, records);
-                }
-            }
-            else {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${records.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
+                await Storage_1.default.set(key, records);
             }
             return records;
         }

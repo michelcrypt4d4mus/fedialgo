@@ -179,8 +179,8 @@ class MastoApi {
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
         try {
-            let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
-            if (!filters || (await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
+            let filters = await Storage_1.default.getIfNotStale(types_1.StorageKey.SERVER_SIDE_FILTERS);
+            if (!filters) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
@@ -191,11 +191,8 @@ class MastoApi {
                         return false;
                     return true;
                 });
-                await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`${logPrefix} Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
-            }
-            else {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
+                await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
             }
             return filters;
         }
@@ -295,18 +292,15 @@ class MastoApi {
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mutexes[key], logPrefix);
         const startedAt = new Date();
         try {
-            let toots = await Storage_1.default.getToots(key);
-            if (!toots || (await Storage_1.default.isDataStale(key))) {
+            let toots = await Storage_1.default.getIfNotStale(key);
+            if (!toots) {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, logPrefix);
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
                 }
-                await Storage_1.default.storeToots(key, toots);
-            }
-            else {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${toots.length} cached toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+                await Storage_1.default.set(key, toots);
             }
             return toots;
         }
@@ -349,14 +343,14 @@ class MastoApi {
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedRows = await Storage_1.default.get(label);
-                if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
-                    rows = cachedRows;
-                    (0, log_helpers_1.traceLog)(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.ageString)(startedAt)}`);
+                const cachedRows = await Storage_1.default.getIfNotStale(label);
+                if (cachedRows) {
+                    // Return cached data unless moar=true
                     if (!moar)
-                        return rows;
+                        return cachedRows;
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
+                    rows = cachedRows;
                     maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
                     maxId = (0, collection_helpers_1.findMinId)(rows);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);

@@ -24,15 +24,17 @@ import {
     Weights,
 } from "./types";
 import MastoApi from "./api/api";
+import { trace } from "console";
 
 // The cache values at these keys contain SerializedToot objects
 export const STORAGE_KEYS_WITH_TOOTS = [
-    StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
     StorageKey.PARTICIPATED_TAG_TOOTS,
-    StorageKey.RECENT_USER_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
+    // TODO these are just stored as undecorated Status objects
+    // StorageKey.RECENT_USER_TOOTS,
+    // StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
 ];
 
 const LOG_PREFIX = '[STORAGE]';
@@ -68,6 +70,7 @@ export default class Storage {
         if (!withTimestamp) {
             return null;
         } else if (!withTimestamp.updatedAt) {
+            // TODO: remove this logic eventually, it's only for upgrading existing users
             // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
             warn(`No updatedAt found for "${key}", likely due to a fedialgo upgrade. Clearing cache.`);
             await this.remove(key);
@@ -75,6 +78,38 @@ export default class Storage {
         }
 
         return withTimestamp.value;
+    }
+
+    static async getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null> {
+        const logPrefix = `${LOG_PREFIX} getIfNotStale("${key}"):`;
+        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+
+        if (!withTimestamp?.updatedAt) {
+            traceLog(`${logPrefix} No data found, returning null`);
+            return null;
+        };
+
+        const updatedAt = new Date((withTimestamp as StorableWithTimestamp).updatedAt);
+        const staleAfterSeconds = Storage.getConfig().staleDataSeconds[key] ?? Storage.getConfig().staleDataDefaultSeconds;
+        const dataAgeInSeconds = ageInSeconds(updatedAt);
+        let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
+        secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)})`;
+
+        if (dataAgeInSeconds > staleAfterSeconds) {
+            console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
+            return null;
+        }
+
+        let msg = `Cached data is still fresh ${secondsLogMsg}`;
+        if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
+        traceLog(`${logPrefix} ${msg}`);
+
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            traceLog(`${logPrefix} Deserializing toots...`);
+            return (withTimestamp.value as SerializableToot[]).map(t => new Toot(t)) as T;
+        } else {
+            return withTimestamp.value as T;
+        }
     }
 
     // Generic method for deserializing stored Accounts
@@ -138,33 +173,9 @@ export default class Storage {
         });
     }
 
-    // Return true if the data stored at 'key' is stale and should be refetched
-    // Preferred boolean is like this:
-    //
-    //       if (!cachedData || (await Storage.isDataStale(label))) {
-    //
-    // That way if there's no cached data the call to isDataState() will be skipped
+    // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
     static async isDataStale(key: StorageKey): Promise<boolean> {
-        const staleDataConfig = Storage.getConfig().staleDataSeconds;
-        const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
-        const dataAgeInSeconds = await this.secondsSinceLastUpdated(key);
-        const numAppOpens = await this.getNumAppOpens();
-
-        const logPrefix = `${LOG_PREFIX} isDataStale("${key}"):`;
-        let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
-        secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)}`;
-        secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
-
-        if (dataAgeInSeconds == null) {
-            console.log(`${logPrefix} no dataAgeInSeconds found so data is stale (sort of) ${secondsLogMsg}`);
-            return true;
-        } else if (dataAgeInSeconds > staleAfterSeconds) {
-            console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
-            return true;
-        } else {
-            traceLog(`${logPrefix} Cached data is still fresh ${secondsLogMsg}`);
-            return false;
-        }
+        return !(await this.getIfNotStale(key));
     }
 
     static async logAppOpen(): Promise<void> {
@@ -191,12 +202,13 @@ export default class Storage {
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
         traceLog(LOG_PREFIX, `Setting value at key: ${storageKey} to value:`, withTimestamp);
-        await localForage.setItem(storageKey, withTimestamp);
-    }
 
-    // Store the current timeline toots
-    static async setFeed(timeline: Toot[]) {
-        await this.storeToots(StorageKey.TIMELINE, timeline);
+        if (key in STORAGE_KEYS_WITH_TOOTS) {
+            traceLog(LOG_PREFIX, `Serializing toots at ${key}...`);
+            await this.storeToots(key, value as Toot[]);
+        } else {
+            await localForage.setItem(storageKey, withTimestamp);
+        }
     }
 
     // Serialize the FeedFilterSettings object
@@ -218,12 +230,6 @@ export default class Storage {
 
     static async setWeightings(userWeightings: Weights): Promise<void> {
         await this.set(StorageKey.WEIGHTS, userWeightings);
-    }
-
-    // Generic method for serializing toots to storage
-    static async storeToots(key: StorageKey, toots: Toot[]) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
     }
 
     //////////////////////////////
@@ -269,6 +275,12 @@ export default class Storage {
     private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
         const updatedAt = await this.updatedAt(key);
         return updatedAt ? ageInSeconds(updatedAt) : null;
+    }
+
+    // Generic method for serializing toots to storage
+    private static async storeToots(key: StorageKey, toots: Toot[]) {
+        const serializedToots = toots.map(t => t.serialize());
+        await this.set(key, serializedToots);
     }
 
     private static async updatedAt(key: StorageKey): Promise<Date | null> {

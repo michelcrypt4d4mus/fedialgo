@@ -443,7 +443,7 @@ class TheAlgorithm {
         await this.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
-        await Storage.setFeed(this.feed);
+        await Storage.set(StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }
 

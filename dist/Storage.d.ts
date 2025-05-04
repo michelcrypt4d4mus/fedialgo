@@ -8,6 +8,7 @@ export default class Storage {
     static config: Config;
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
+    static getIfNotStale<T>(key: StorageKey): Promise<T | null>;
     static getAccounts(key: StorageKey): Promise<Account[] | null>;
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
@@ -20,16 +21,15 @@ export default class Storage {
     static getWeightings(): Promise<Weights>;
     static remove(key: StorageKey): Promise<void>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
-    static setFeed(timeline: Toot[]): Promise<void>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
     static setIdentity(user: Account): Promise<void>;
     static setWeightings(userWeightings: Weights): Promise<void>;
-    static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     private static buildKey;
     private static getIdentity;
     private static getNumAppOpens;
     private static lastOpenedAt;
     private static secondsSinceLastUpdated;
+    private static storeToots;
     private static updatedAt;
     private static secondsSinceMostRecentToot;
 }
