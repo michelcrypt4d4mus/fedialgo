@@ -91,13 +91,17 @@ class Scorer {
         return Object.entries(toot.scoreInfo).reduce((scoreDict, [key, value]) => {
             if (key == "rawScores") {
                 scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
+                    const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
                     if (scoreValue == 0) {
                         scoreDetails[scoreKey] = 0;
                     }
+                    else if (scoreValue == weightedScore) {
+                        scoreDetails[scoreKey] = Number(scoreValue.toPrecision());
+                    }
                     else {
                         scoreDetails[scoreKey] = {
-                            rawScore: Number(scoreValue.toPrecision()),
-                            weighted: Number(toot.scoreInfo.weightedScores[scoreKey].toPrecision())
+                            unweighted: Number(scoreValue.toPrecision()),
+                            weighted: Number(weightedScore.toPrecision())
                         };
                     }
                     return scoreDetails;
