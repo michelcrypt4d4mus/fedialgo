@@ -4,7 +4,7 @@ type StaleDataConfig = {
 };
 export type Config = {
     defaultLanguage: string;
-    delayBeforePullingHashtagTootsMS: number;
+    hashtagTootRetrievalDelaySeconds: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;

@@ -59,7 +59,11 @@ import { PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
 algorithm.triggerFeedUpdate();
 
 // algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
+// Note there won't be anything in there until the timeilne is at least partially done being built!
 const timeline: Toot[] = algorithm.getTimeline();
+// You can check if there is a timeline load in progress. Calling treggerFeedUpdate() before the load is done
+// will throw an error.
+if (!algorithm.isLoading()) algorithm.triggerFeedUpdate();
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
 const weights: Weights = await algorithm.getUserWeights();

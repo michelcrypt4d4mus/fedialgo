@@ -10,7 +10,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     // Timeline toots
-    delayBeforePullingHashtagTootsMS: 8000,
+    hashtagTootRetrievalDelaySeconds: 13,
     incrementalLoadDelayMS: 1000,
     maxCachedTimelineToots: 1600,
     maxInitialTimelineToots: 900,

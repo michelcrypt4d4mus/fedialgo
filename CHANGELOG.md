@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Expose TheAlgorithm.isLoading() method
 
 # v0.25.0
 * **[BREAKING CHANGE]** Rename TheAlgorithm.getFeed() to triggerFeedUpdate(). No longer returns anything.
@@ -8,7 +9,7 @@
 * UserData object now just stores a lookup dict for `followedAccounts` instead of all the actual followed `Account` objects
 * Refactor generic `Account.buildWebfingerUriLookup()` method
 * Refactor `TheAlgorithm.setCheckpointAndLoadingStatus()` method
-* Add delay of `Config.delayBeforePullingHashtagTootsMS` to the initial loading of the trending and participated hashtag toots
+* Add delay of `Config.hashtagTootRetrievalDelaySeconds` to the initial loading of the trending and participated hashtag toots
 * Rename `setLoadingStateVariables()` and `setLoadCompleteStateVariables()`
 
 ### v0.24.6

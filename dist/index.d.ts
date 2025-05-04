@@ -54,9 +54,11 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
-    triggerFeedUpdate(numTimelineToots?: number, maxId?: string): Promise<void>;
+    triggerFeedUpdate(): Promise<void>;
+    private fetchHomeTimeline;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
+    isLoading(): boolean;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
@@ -65,13 +67,12 @@ declare class TheAlgorithm {
     private homeTimelineToots;
     private launchBackgroundPoller;
     private loadCachedData;
-    private logNewHomeTootsArrived;
     private logWithState;
+    mostRecentHomeTootAt(): Date | null;
     private shouldGetMoreHomeToots;
-    private maybeGetMoreToots;
+    private maybeGetMoreTimelineToots;
     private fetchAndMergeToots;
     private mergeTootsWithFeed;
-    private mostRecentHomeTootAt;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
