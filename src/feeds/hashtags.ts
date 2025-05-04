@@ -21,7 +21,7 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
         async () => await MastoApi.instance.getStatusesForTags(tags),
         "numParticipatedTagToots"
     );
-}
+};
 
 
 // Get toots for the top trending tags via the search endpoint.
@@ -40,7 +40,7 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 // Filter out any tags that are muted or followed
 async function removeFollowedAndMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
     return await removeFollowedTags(await removeMutedTags(tags));
-}
+};
 
 
 // Screen a list of hashtags against the user's server side filters, removing any that are muted.

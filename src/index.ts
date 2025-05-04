@@ -216,7 +216,7 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
-        return this.setFilteredFeedInApp();
+        return this.filterFeedAndSetInApp();
     }
 
     // Update user weightings and rescore / resort the feed.
@@ -258,7 +258,7 @@ class TheAlgorithm {
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
-    private setFilteredFeedInApp(): Toot[] {
+    private filterFeedAndSetInApp(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         this.setFeedInApp(filteredFeed);
 
@@ -453,7 +453,7 @@ class TheAlgorithm {
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
         await Storage.setFeed(this.feed);
-        return this.setFilteredFeedInApp();
+        return this.filterFeedAndSetInApp();
     }
 
     // Info about the state of this TheAlgorithm instance
