@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Simplify the alternate score dict
 
 ### v0.24.6
 * `MastoApi.instance.setBackgroundConcurrency()`, `Config.maxConcurrentRequestsBackground` option. Handle missing `Storage.getIdentity()` if possibl
