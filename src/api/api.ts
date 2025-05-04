@@ -383,7 +383,7 @@ export default class MastoApi {
             if (!skipCache) {
                 const cachedRows = await Storage.get(label as StorageKey) as T[];
 
-                if (!cachedRows || (await Storage.isDataStale(label as StorageKey))) {
+                if (cachedRows && !(await Storage.isDataStale(label as StorageKey))) {
                     rows = cachedRows;
                     traceLog(`${logPfx} Loaded ${rows.length} cached rows ${ageString(startedAt)}`);
                     if (!moar) return rows;

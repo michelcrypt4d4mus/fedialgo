@@ -350,7 +350,7 @@ class MastoApi {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
-                if (!cachedRows || (await Storage_1.default.isDataStale(label))) {
+                if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
                     rows = cachedRows;
                     (0, log_helpers_1.traceLog)(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.ageString)(startedAt)}`);
                     if (!moar)
