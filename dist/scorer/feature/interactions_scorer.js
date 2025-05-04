@@ -3,9 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Gives higher weight to posts from users that have often interacted with your posts.
+ */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class InteractionsScorer extends acccount_scorer_1.default {
@@ -14,13 +16,8 @@ class InteractionsScorer extends acccount_scorer_1.default {
     }
     async prepareScoreData() {
         const notifications = await api_1.default.instance.getRecentNotifications();
-        return (0, collection_helpers_1.countValues)(notifications, notif => {
-            if (!notif.account?.acct) {
-                console.warn(`No account found in notification: ${JSON.stringify(notif)}`);
-                return "NO_ACCOUNT";
-            }
-            return new account_1.default(notif.account).webfingerURI;
-        });
+        const interactionAccounts = notifications.map(notification => new account_1.default(notification.account));
+        return account_1.default.buildWebfingerUriLookup(interactionAccounts);
     }
     ;
 }

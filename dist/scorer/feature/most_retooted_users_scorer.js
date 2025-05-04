@@ -7,8 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score a toot based on how many times the user has retooted the author (or
  * the original author if it's a retoot).
  */
+const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MostRetootedUsersScorer extends acccount_scorer_1.default {
@@ -17,8 +17,8 @@ class MostRetootedUsersScorer extends acccount_scorer_1.default {
     }
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();
-        const recentRetoots = recentToots.filter(toot => toot?.reblog);
-        return (0, collection_helpers_1.countValues)(recentRetoots, (toot) => toot.reblog?.account?.webfingerURI);
+        const retootedAccounts = recentToots.filter(toot => toot?.reblog).map(toot => toot.reblog.account);
+        return account_1.default.buildWebfingerUriLookup(retootedAccounts);
     }
     ;
 }

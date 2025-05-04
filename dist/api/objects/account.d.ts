@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { AccountNames } from "../../types";
+import { AccountNames, StringNumberDict } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
@@ -42,6 +42,7 @@ export default class Account implements AccountObj {
     homserverURL(): string;
     serialize(): mastodon.v1.Account;
     private buildWebfingerURI;
+    static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict;
     static buildAccountNames(accounts: Account[]): AccountNames;
 }
 export {};

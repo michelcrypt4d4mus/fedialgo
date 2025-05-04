@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = __importDefault(require("../api"));
-const string_helpers_1 = require("../../helpers/string_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const string_helpers_1 = require("../../helpers/string_helpers");
 ;
 class Account {
     id;
@@ -104,6 +104,14 @@ class Account {
         else {
             return `${this.acct}@${this.homeserver()}`;
         }
+    }
+    ////////////////////////////
+    //     Class Methods      //
+    ////////////////////////////
+    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
+    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    static buildWebfingerUriLookup(accounts) {
+        return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
     }
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     static buildAccountNames(accounts) {

@@ -15,7 +15,7 @@ const SORT_TAGS_BY = [
 ];
 ;
 class UserData {
-    followedAccounts;
+    followedAccounts; // Don't store the Account objects, just webfingerURI to save memory
     followedTags;
     mutedAccounts;
     participatedHashtags;
@@ -23,7 +23,7 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
-        userData.followedAccounts = account_1.default.buildAccountNames(data.followedAccounts);
+        userData.followedAccounts = account_1.default.buildWebfingerUriLookup(data.followedAccounts);
         userData.followedTags = data.followedTags;
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
@@ -58,7 +58,7 @@ class UserData {
             UserData.getUserParticipatedTags(),
             api_1.default.instance.getServerSideFilters(),
         ]);
-        this.followedAccounts = account_1.default.buildAccountNames(responses[0]);
+        this.followedAccounts = account_1.default.buildWebfingerUriLookup(responses[0]);
         this.followedTags = responses[1];
         this.mutedAccounts = account_1.default.buildAccountNames(responses[2]);
         this.participatedHashtags = responses[3];

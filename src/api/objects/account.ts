@@ -4,9 +4,9 @@
 import { mastodon } from "masto";
 
 import MastoApi from "../api";
-import { AccountNames } from "../../types";
+import { AccountNames, StringNumberDict } from "../../types";
+import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
-import { keyByProperty } from "../../helpers/collection_helpers";
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -119,6 +119,16 @@ export default class Account implements AccountObj {
         } else {
             return `${this.acct}@${this.homeserver()}`;
         }
+    }
+
+    ////////////////////////////
+    //     Class Methods      //
+    ////////////////////////////
+
+    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
+    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    public static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict {
+        return countValues<Account>(accounts, (account) => account.webfingerURI);
     }
 
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup

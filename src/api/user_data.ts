@@ -8,7 +8,7 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, StorageKey, TagNames, TootLike, TrendingTag } from "../types";
+import { AccountNames, StorageKey, StringNumberDict, TagNames, TootLike, TrendingTag } from "../types";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 
@@ -28,7 +28,7 @@ interface UserApiData {
 
 
 export default class UserData {
-    followedAccounts: AccountNames;
+    followedAccounts: StringNumberDict;  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TrendingTag[];
     mutedAccounts: AccountNames;
     participatedHashtags: TagNames;
@@ -37,7 +37,7 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
-        userData.followedAccounts = Account.buildAccountNames(data.followedAccounts);
+        userData.followedAccounts = Account.buildWebfingerUriLookup(data.followedAccounts);
         userData.followedTags = data.followedTags;
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
@@ -77,7 +77,7 @@ export default class UserData {
             MastoApi.instance.getServerSideFilters(),
         ]);
 
-        this.followedAccounts = Account.buildAccountNames(responses[0]);
+        this.followedAccounts = Account.buildWebfingerUriLookup(responses[0]);
         this.followedTags = responses[1];
         this.mutedAccounts = Account.buildAccountNames(responses[2]);
         this.participatedHashtags = responses[3];
