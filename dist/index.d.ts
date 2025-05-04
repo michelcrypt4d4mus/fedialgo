@@ -42,7 +42,6 @@ declare class TheAlgorithm {
     private user;
     private setTimelineInApp;
     private feed;
-    private filteredFeed;
     private catchupCheckpoint;
     private dataPoller?;
     private hasProvidedAnyTootsToClient;
@@ -61,21 +60,21 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
-    mostRecentHomeTootAt(): Date | null;
     reset(): Promise<void>;
     private filterFeedAndSetInApp;
     private homeTimelineToots;
-    private loadCachedData;
-    private maybeGetMoreToots;
     private launchBackgroundPoller;
+    private loadCachedData;
     private logWithState;
+    private maybeGetMoreToots;
     private mergeTootsIntoFeed;
     private mergeTootsWithFeed;
+    private mostRecentHomeTootAt;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
     private setLoadCompleteStateVariables;
-    private setLoadingStateVariables;
+    private setLoadStartStateVariables;
     private statusDict;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

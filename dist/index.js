@@ -101,7 +101,6 @@ class TheAlgorithm {
     setTimelineInApp; // Optional callback to set the feed in the app using this package
     // Other private variables
     feed = [];
-    filteredFeed = [];
     catchupCheckpoint = null; // If doing a catch up refresh load we need to get back to this timestamp
     dataPoller;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
@@ -168,7 +167,7 @@ class TheAlgorithm {
     async triggerFeedUpdate(numTimelineToots, maxId) {
         (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         const isInitialCall = !maxId; // First call from client has maxId
-        this.setLoadingStateVariables(isInitialCall);
+        this.setLoadStartStateVariables(isInitialCall);
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         const fetchHomeFeed = async () => await api_1.default.instance.fetchHomeFeed(numTimelineToots, maxId);
         // Calls to triggerFeedUpdate() trigger loads of the home timeline toots and then recursively call maybeGetMoreToots()
@@ -193,9 +192,9 @@ class TheAlgorithm {
             }, Storage_1.default.getConfig().delayBeforePullingHashtagTootsMS);
         }
     }
-    // Return a copy of the current filtered feed
+    // Return the current filtered timeline feed in weight order
     getTimeline() {
-        return [...this.filteredFeed];
+        return this.filterFeedAndSetInApp();
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
@@ -219,10 +218,6 @@ class TheAlgorithm {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
     }
-    // Return the timestamp of the most recent toot from followed accounts ONLY
-    mostRecentHomeTootAt() {
-        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
-    }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
@@ -239,17 +234,36 @@ class TheAlgorithm {
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
     filterFeedAndSetInApp() {
-        this.filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
-        this.setTimelineInApp(this.filteredFeed);
+        const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
+        this.setTimelineInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${this.filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
         }
-        return this.filteredFeed;
+        return filteredFeed;
     }
     // Filter the feed to only include toots from followed accounts
     homeTimelineToots() {
         return this.feed.filter(toot => toot.isFollowed);
+    }
+    // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
+    launchBackgroundPoller() {
+        if (this.dataPoller) {
+            console.log(`${poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            return;
+        }
+        console.log(`${poller_1.MOAR_DATA_PREFIX} starting data poller...`);
+        this.dataPoller = setInterval(async () => {
+            // Force scorers to recompute data, rescore the feed
+            const shouldContinue = await (0, poller_1.getMoarData)();
+            await this.userData.populate();
+            await this.prepareScorers(true);
+            await this.scoreAndFilterFeed();
+            if (!shouldContinue) {
+                console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
+                this.dataPoller && clearInterval(this.dataPoller);
+            }
+        }, Storage_1.default.getConfig().backgroundLoadIntervalMS);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -259,6 +273,10 @@ class TheAlgorithm {
         this.userData = await Storage_1.default.getUserData();
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
+    }
+    // Log a message with the current state of the state variables
+    logWithState(prefix, msg) {
+        console.log(`${prefix} ${msg}. state:`, this.statusDict());
     }
     // Decide what is the current state of the world and whether to continue fetching home timeline toots
     async maybeGetMoreToots(newHomeToots, numTimelineToots) {
@@ -304,28 +322,6 @@ class TheAlgorithm {
         api_1.default.instance.setBackgroundConcurrency();
         this.loadingStatus = null;
     }
-    // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
-    launchBackgroundPoller() {
-        if (this.dataPoller) {
-            console.log(`${poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
-            return;
-        }
-        console.log(`${poller_1.MOAR_DATA_PREFIX} starting data poller...`);
-        this.dataPoller = setInterval(async () => {
-            // Force scorers to recompute data, rescore the feed
-            const shouldContinue = await (0, poller_1.getMoarData)();
-            await this.userData.populate();
-            await this.prepareScorers(true);
-            await this.scoreAndFilterFeed();
-            if (!shouldContinue) {
-                console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
-                this.dataPoller && clearInterval(this.dataPoller);
-            }
-        }, Storage_1.default.getConfig().backgroundLoadIntervalMS);
-    }
-    logWithState(prefix, msg) {
-        console.log(`${prefix} ${msg}. state:`, this.statusDict());
-    }
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
     async mergeTootsIntoFeed(tootFetcher) {
         const logPrefix = `mergeTootsIntoFeed() ${tootFetcher.name}`;
@@ -359,6 +355,10 @@ class TheAlgorithm {
         toots = toot_1.default.dedupeToots([...this.feed, ...toots], log_helpers_1.CLEANUP_FEED);
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(toots, await api_1.default.instance.getUserData());
         return toots;
+    }
+    // Return the timestamp of the most recent toot from followed accounts ONLY
+    mostRecentHomeTootAt() {
+        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     async prepareScorers(force) {
@@ -414,7 +414,7 @@ class TheAlgorithm {
     // If isinitialCall is true:
     //    - sets this.catchupCheckpoint to the most recent toot in the feed
     //    - sets this.loadStartedAt to the current time
-    setLoadingStateVariables(isInitialCall) {
+    setLoadStartStateVariables(isInitialCall) {
         if (isInitialCall) {
             this.loadStartedAt = new Date();
             // If triggerFeedUpdate() is called with no maxId and no toots in the feed then it's an initial load.
