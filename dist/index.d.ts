@@ -72,7 +72,6 @@ declare class TheAlgorithm {
     private shouldGetMoreHomeToots;
     private maybeGetMoreTimelineToots;
     private fetchAndMergeToots;
-    private mergeTootsWithFeed;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;

@@ -93,7 +93,7 @@ class MastoApi {
     async fetchHomeFeed(numToots, maxId) {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
-        numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
+        numToots ||= Storage_1.default.getConfig().homeTimelineBatchSize;
         const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,

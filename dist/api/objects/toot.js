@@ -30,6 +30,7 @@ var TootVisibility;
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (TootVisibility = {}));
 ;
+const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const UNKNOWN = "unknown";
 ;
@@ -444,6 +445,16 @@ class Toot {
         return deduped;
     }
     ;
+    // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
+    // for a call to the mastodon API to get the next page of toots.
+    // Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
+    // or future so we use the MAX_ID_IDX toot when sorted by createdAt to get the min ID.
+    static findMinIdForMaxIdParam(toots) {
+        if (toots.length == 0)
+            return null;
+        const idx = Math.min(toots.length - 1, MAX_ID_IDX);
+        return (0, exports.sortByCreatedAt)(toots)[idx].id;
+    }
 }
 exports.default = Toot;
 ;

@@ -1,10 +1,11 @@
 # NEXT RELEASE
+* Rename Config.homeTimelineBatchSize
 
 ### v0.25.1
 * Expose `TheAlgorithm.isLoading()` method
 * `triggerFeedUpdate()` is no longer called recursively
 
-# v0.25.0
+## v0.25.0
 * **[BREAKING CHANGE]** Rename `TheAlgorithm.getFeed()` to `triggerFeedUpdate()`. No longer returns anything.
 * **[BREAKING CHANGE]** Rename `setFeedInApp` param to `setTimelineInApp`
 * Simplify the alternate score dict

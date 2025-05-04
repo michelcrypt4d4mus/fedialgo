@@ -7,6 +7,7 @@ import Storage from "../Storage";
 import { Config } from "../config";
 import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { isNumber } from "./string_helpers";
+import { traceLog } from "./log_helpers";
 
 
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
@@ -226,7 +227,7 @@ export function findMinId(array: MastodonObjWithID[]): string | undefined{
 // Check if the elements of 'array' are as unique as they should be
 export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
     const logPrefix = `[${label}]`;
-    console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
 

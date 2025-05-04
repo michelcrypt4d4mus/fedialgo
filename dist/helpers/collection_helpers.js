@@ -11,6 +11,7 @@ const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
 const string_helpers_1 = require("./string_helpers");
+const log_helpers_1 = require("./log_helpers");
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
     values = values.filter(v => !!v);
@@ -188,7 +189,7 @@ exports.findMinId = findMinId;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
     const logPrefix = `[${label}]`;
-    console.debug(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    (0, log_helpers_1.traceLog)(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
     if (uniqueIDs.length != array.length) {

@@ -14,11 +14,11 @@ export type Config = {
     defaultLanguage: string;
     // Timeline
     hashtagTootRetrievalDelaySeconds: number;
+    homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
-    maxInitialTimelineToots: number;
-    numTootsInFirstFetch: number;
+    numDesiredTimelineToots: number;
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
     scoringBatchSize: number;
@@ -64,11 +64,11 @@ export const DEFAULT_CONFIG: Config = {
 
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 13,   // Delay before pulling trending & participated hashtag toots
+    homeTimelineBatchSize: 80,               // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 1000,           // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
-    maxInitialTimelineToots: 900,           // useful dev options for faster load
+    numDesiredTimelineToots: 900,           // useful dev options for faster load
     maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
-    numTootsInFirstFetch: 80,               // How many toots to pull in the first fetch
     // TODO: increase this but make the load happen after the initial load
     numParticipatedTagsToFetchTootsFor: 20, // Pull toots for this many of the user's most participated tags
     numParticipatedTagToots: 200,           // How many total toots to include for the user's most participated tags

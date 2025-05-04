@@ -11,11 +11,11 @@ exports.DEFAULT_CONFIG = {
     defaultLanguage: "en",
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 13,
+    homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 1000,
     maxCachedTimelineToots: 1600,
-    maxInitialTimelineToots: 900,
+    numDesiredTimelineToots: 900,
     maxTimelineHoursToFetch: 168,
-    numTootsInFirstFetch: 80,
     // TODO: increase this but make the load happen after the initial load
     numParticipatedTagsToFetchTootsFor: 20,
     numParticipatedTagToots: 200,

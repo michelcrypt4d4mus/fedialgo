@@ -5,11 +5,11 @@ type StaleDataConfig = {
 export type Config = {
     defaultLanguage: string;
     hashtagTootRetrievalDelaySeconds: number;
+    homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
-    maxInitialTimelineToots: number;
-    numTootsInFirstFetch: number;
+    numDesiredTimelineToots: number;
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
     scoringBatchSize: number;
