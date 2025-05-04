@@ -161,7 +161,9 @@ class TheAlgorithm {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         logInfo(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         const isInitialCall = !maxId;  // First call from client has maxId
+        this.setLoadingStateVariables(isInitialCall);
         numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
+        const fetchHomeFeed = async () => await MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId);
 
         // TODO: this is a bit of a hack to avoid the client repeatedly slamming getFeed() when the feed is loading
         if (isInitialCall && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
@@ -169,11 +171,17 @@ class TheAlgorithm {
             return this.scoreAndFilterFeed();
         }
 
+        // Calls to getFeed() always trigger loads of the home timeline toots
+        this.mergeTootsIntoFeed(fetchHomeFeed).then((newToots) => {
+            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
+            msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
+            logInfo(GET_FEED, msg);
+            this.maybeGetMoreToots(newToots, numTimelineToots!);
+        });
+
         // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
         if (isInitialCall) {
-            this.setCheckpointAndLoadingStatus();
-            // These are all calls we should only make in the initial load (all called asynchronously)
-            this.loadStartedAt = new Date();
+            // These are all data loads we should only do the first time the client calls getFeed()
             this.prepareScorers();
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
@@ -189,18 +197,8 @@ class TheAlgorithm {
                 },
                 Storage.getConfig().delayBeforePullingHashtagTootsMS
             );
-        } else {
-            this.loadingStatus = this.loadingMoreTootsStatusMsg();;
         }
 
-        const fetchHomeFeed = async () => await MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId);
-
-        this.mergeTootsIntoFeed(fetchHomeFeed).then((newToots) => {
-            let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
-            msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
-            logInfo(GET_FEED, msg);
-            this.maybeGetMoreToots(newToots, numTimelineToots || Storage.getConfig().numTootsInFirstFetch);
-        });
 
         // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
         // TODO: calling scoreAndFilterFeed() here results in thread issues (i think)  - toots end up getting filtered
@@ -325,7 +323,7 @@ class TheAlgorithm {
 
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
         this.launchBackgroundPoller();
-        this.markLoadComplete();
+        this.setLoadCompleteStateVariables();
         MastoApi.instance.setBackgroundConcurrency();
         this.loadingStatus = null;
     }
@@ -356,30 +354,8 @@ class TheAlgorithm {
         );
     }
 
-    private loadingMoreTootsStatusMsg(): string {
-        let msg = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-
-        if (this.feed.length < Storage.getConfig().maxInitialTimelineToots) {
-            msg += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()}`;
-        }
-
-        return msg + ')';
-    }
-
     private logWithState(prefix: string, msg: string): void {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
-    }
-
-    // Set a few state variables indicating that the load is complete. // TODO: there's too many state variables
-    private markLoadComplete(): void {
-        if (this.loadStartedAt) {
-            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
-            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
-            this.loadStartedAt = null;
-        } else {
-            this.lastLoadTimeInSeconds = null;
-            console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
-        }
     }
 
     // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
@@ -461,25 +437,51 @@ class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
 
-    // set this.loadingStatus to a message indicating the current state of the feed
-    private setCheckpointAndLoadingStatus(): void {
-        // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
-        if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
-            return;
-        }
-
-        // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
-        const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
-
-        if (mostRecentHomeTootAt! < timelineCutoffAt()) {
-            console.log(`${GET_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
-            this.catchupCheckpoint = timelineCutoffAt();
+    // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
+    private setLoadCompleteStateVariables(): void {
+        if (this.loadStartedAt) {
+            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
+            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
+            this.loadStartedAt = null;
         } else {
-            this.catchupCheckpoint = mostRecentHomeTootAt;
+            this.lastLoadTimeInSeconds = null;
+            console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
         }
+    }
 
-        this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
+    // sets this.loadingStatus to a message indicating the current state of the feed
+    // If isinitialCall is true:
+    //    - sets this.catchupCheckpoint to the most recent toot in the feed
+    //    - sets this.loadStartedAt to the current time
+    private setLoadingStateVariables(isInitialCall: boolean): void {
+        if (isInitialCall) {
+            // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
+            if (!this.feed.length) {
+                this.loadingStatus = INITIAL_LOAD_STATUS;
+                return;
+            }
+
+            // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
+            const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
+
+            if (mostRecentHomeTootAt! < timelineCutoffAt()) {
+                console.log(`${GET_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                this.catchupCheckpoint = timelineCutoffAt();
+            } else {
+                this.catchupCheckpoint = mostRecentHomeTootAt;
+            }
+
+            this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
+            this.loadStartedAt = new Date();
+        } else {
+            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
+
+            if (this.feed.length < Storage.getConfig().maxInitialTimelineToots) {
+                this.loadingStatus += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()}`;
+            }
+
+            this.loadingStatus += ')';
+        }
     }
 
     // Info about the state of this TheAlgorithm instance

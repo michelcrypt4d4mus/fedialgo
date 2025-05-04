@@ -66,15 +66,14 @@ declare class TheAlgorithm {
     private loadCachedData;
     private maybeGetMoreToots;
     private launchBackgroundPoller;
-    private loadingMoreTootsStatusMsg;
     private logWithState;
-    private markLoadComplete;
     private mergeTootsIntoFeed;
     private mergeTootsWithFeed;
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
-    private setCheckpointAndLoadingStatus;
+    private setLoadCompleteStateVariables;
+    private setLoadingStateVariables;
     private statusDict;
 }
 export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };
