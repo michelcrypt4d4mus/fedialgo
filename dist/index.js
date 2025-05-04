@@ -162,27 +162,23 @@ class TheAlgorithm {
         api_1.default.init(this.api, this.user);
     }
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
+    // TODO: This doesn't return the filtered feed, it returns the entire feed. This is bad, should deprecate
+    // a return value.
     async getFeed(numTimelineToots, maxId) {
         (0, log_helpers_1.logInfo)(log_helpers_1.GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         const isInitialCall = !maxId; // First call from client has maxId
         this.setLoadingStateVariables(isInitialCall);
         numTimelineToots ??= Storage_1.default.getConfig().numTootsInFirstFetch;
         const fetchHomeFeed = async () => await api_1.default.instance.fetchHomeFeed(numTimelineToots, maxId);
-        // TODO: this is a bit of a hack to avoid the client repeatedly slamming getFeed() when the feed is loading
-        if (isInitialCall && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            console.warn(`${log_helpers_1.GET_FEED} ${GET_FEED_BUSY_MSG}`);
-            return this.scoreAndFilterFeed();
-        }
-        // Calls to getFeed() always trigger loads of the home timeline toots
+        // Calls to getFeed() trigger loads of the home timeline toots and then recursively call maybeGetMoreToots()
         this.mergeTootsIntoFeed(fetchHomeFeed).then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
             (0, log_helpers_1.logInfo)(log_helpers_1.GET_FEED, msg);
             this.maybeGetMoreToots(newToots, numTimelineToots);
         });
-        // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
+        // The first time getFeed() is called we need to load a bunch of other data
         if (isInitialCall) {
-            // These are all data loads we should only do the first time the client calls getFeed()
             this.prepareScorers();
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
@@ -195,10 +191,6 @@ class TheAlgorithm {
                 this.mergeTootsIntoFeed(hashtags_1.getParticipatedHashtagToots);
             }, Storage_1.default.getConfig().delayBeforePullingHashtagTootsMS);
         }
-        // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
-        // TODO: calling scoreAndFilterFeed() here results in thread issues (i think)  - toots end up getting filtered
-        // before they are scored because the async calls continue merging toots into this.feed.
-        // Demo app does not use the return value of getFeed() so this is not a problem for it.
         return this.feed;
     }
     // Return the user's current weightings for each score category
@@ -336,6 +328,7 @@ class TheAlgorithm {
         const startedAt = new Date();
         let newToots = [];
         const logTootsStr = () => `${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+        console.debug(`${logPrefix} started fetching toots...`);
         try {
             newToots = await tootFetcher();
             (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} retrieved ${logTootsStr()}`);
@@ -419,6 +412,7 @@ class TheAlgorithm {
     //    - sets this.loadStartedAt to the current time
     setLoadingStateVariables(isInitialCall) {
         if (isInitialCall) {
+            this.loadStartedAt = new Date();
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = INITIAL_LOAD_STATUS;
@@ -434,7 +428,6 @@ class TheAlgorithm {
                 this.catchupCheckpoint = mostRecentHomeTootAt;
             }
             this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
-            this.loadStartedAt = new Date();
         }
         else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;

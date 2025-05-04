@@ -158,6 +158,8 @@ class TheAlgorithm {
     }
 
     // Fetch toots from followed accounts plus trending toots in the fediverse, then score and sort them
+    // TODO: This doesn't return the filtered feed, it returns the entire feed. This is bad, should deprecate
+    // a return value.
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         logInfo(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
         const isInitialCall = !maxId;  // First call from client has maxId
@@ -165,13 +167,7 @@ class TheAlgorithm {
         numTimelineToots ??= Storage.getConfig().numTootsInFirstFetch;
         const fetchHomeFeed = async () => await MastoApi.instance.fetchHomeFeed(numTimelineToots, maxId);
 
-        // TODO: this is a bit of a hack to avoid the client repeatedly slamming getFeed() when the feed is loading
-        if (isInitialCall && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
-            console.warn(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
-            return this.scoreAndFilterFeed();
-        }
-
-        // Calls to getFeed() always trigger loads of the home timeline toots
+        // Calls to getFeed() trigger loads of the home timeline toots and then recursively call maybeGetMoreToots()
         this.mergeTootsIntoFeed(fetchHomeFeed).then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${ageString(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
@@ -179,9 +175,8 @@ class TheAlgorithm {
             this.maybeGetMoreToots(newToots, numTimelineToots!);
         });
 
-        // If this is the first call to getFeed() also fetch the UserData (followed accts, blocks, etc.)
+        // The first time getFeed() is called we need to load a bunch of other data
         if (isInitialCall) {
-            // These are all data loads we should only do the first time the client calls getFeed()
             this.prepareScorers();
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData);
@@ -199,11 +194,6 @@ class TheAlgorithm {
             );
         }
 
-
-        // TODO: Return is here for devs using Fedialgo but it's not well thought out (demo app uses setFeedInApp())
-        // TODO: calling scoreAndFilterFeed() here results in thread issues (i think)  - toots end up getting filtered
-        // before they are scored because the async calls continue merging toots into this.feed.
-        // Demo app does not use the return value of getFeed() so this is not a problem for it.
         return this.feed;
     }
 
@@ -364,6 +354,7 @@ class TheAlgorithm {
         const startedAt = new Date();
         let newToots: Toot[] = [];
         const logTootsStr = () => `${newToots.length} toots ${ageString(startedAt)}`;
+        console.debug(`${logPrefix} started fetching toots...`);
 
         try {
             newToots = await tootFetcher();
@@ -455,6 +446,8 @@ class TheAlgorithm {
     //    - sets this.loadStartedAt to the current time
     private setLoadingStateVariables(isInitialCall: boolean): void {
         if (isInitialCall) {
+            this.loadStartedAt = new Date();
+
             // If getFeed() is called with no maxId and no toots in the feed then it's an initial load.
             if (!this.feed.length) {
                 this.loadingStatus = INITIAL_LOAD_STATUS;
@@ -472,7 +465,6 @@ class TheAlgorithm {
             }
 
             this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
-            this.loadStartedAt = new Date();
         } else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
 

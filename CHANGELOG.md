@@ -1,11 +1,11 @@
 # NEXT RELEASE
 * Simplify the alternate score dict
 * Disallow setting the catchup checkpoint before the overall app timeline cutoff
-* UserData object now just stores a lookup dict for followedAccounts instead of all the actual followed Account objects
-* Refactor generic Account.buildWebfingerUriLookup() method
+* UserData object now just stores a lookup dict for `followedAccounts` instead of all the actual followed `Account` objects
+* Refactor generic `Account.buildWebfingerUriLookup()` method
 * Refactor `TheAlgorithm.setCheckpointAndLoadingStatus()` method
 * Add delay of `Config.delayBeforePullingHashtagTootsMS` to the initial loading of the trending and participated hashtag toots
-* Rename setLoadingStateVariables() and setLoadCompleteStateVariables()
+* Rename `setLoadingStateVariables()` and `setLoadCompleteStateVariables()`
 
 ### v0.24.6
 * `MastoApi.instance.setBackgroundConcurrency()`, `Config.maxConcurrentRequestsBackground` option. Handle missing `Storage.getIdentity()` if possibl
