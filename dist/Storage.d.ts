@@ -12,7 +12,7 @@ export default class Storage {
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFeed(): Promise<Toot[] | null>;
-    static getFilters(): Promise<FeedFilterSettings>;
+    static getFilters(): Promise<FeedFilterSettings | null>;
     static getToots(key: StorageKey): Promise<Toot[] | null>;
     static getTrending(): Promise<TrendingStorage>;
     static getUserData(): Promise<UserData>;
@@ -28,8 +28,9 @@ export default class Storage {
     static storeToots(key: StorageKey, toots: Toot[]): Promise<void>;
     private static buildKey;
     private static getIdentity;
-    private static getLastOpenedTimestamp;
     private static getNumAppOpens;
+    private static lastOpenedAt;
     private static secondsSinceLastUpdated;
+    private static updatedAt;
     private static secondsSinceMostRecentToot;
 }

@@ -1,4 +1,7 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+export declare const CLEANUP_FEED = "cleanupFeed()";
+export declare const GET_FEED = "getFeed()";
+export declare const PREP_SCORERS = "prepareScorers()";
 export declare const logInfo: (prefix: string, msg: string, ...args: any[]) => void;
 export declare const logDebug: (prefix: string, msg: string, ...args: any[]) => void;
 export declare function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void;

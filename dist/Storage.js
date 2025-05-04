@@ -49,7 +49,6 @@ exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.RECENT_USER_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,
-    types_1.StorageKey.TRENDING_TAG_TOOTS_V2,
 ];
 const LOG_PREFIX = '[STORAGE]';
 const logMsg = (s) => `${LOG_PREFIX} ${s}`;
@@ -114,15 +113,9 @@ class Storage {
     }
     // Get the user's saved timeline filter settings
     static async getFilters() {
-        let filters = await this.get(types_1.StorageKey.FILTERS); // Returns serialized FeedFilterSettings
-        if (filters) {
-            (0, feed_filters_1.buildFiltersFromArgs)(filters);
-        }
-        else {
-            filters = (0, feed_filters_1.buildNewFilterSettings)();
-            await this.setFilters(feed_filters_1.DEFAULT_FILTERS); // DEFAULT_FILTERS not the filters we just built
-        }
-        return filters;
+        const filters = await this.get(types_1.StorageKey.FILTERS);
+        // Filters are saved in a serialized format that requires deserialization
+        return filters ? (0, feed_filters_1.buildFiltersFromArgs)(filters) : null;
     }
     // Generic method for deserializing stored toots
     static async getToots(key) {
@@ -188,7 +181,6 @@ class Storage {
     static async logAppOpen() {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
-        await this.set(types_1.StorageKey.LAST_OPENED, new Date().getTime());
     }
     // Return the user's stored timeline weightings
     static async getWeightings() {
@@ -259,32 +251,22 @@ class Storage {
         const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
         return user ? new account_1.default(user) : null;
     }
-    // Get the timestamp the app was last opened // TODO: currently unused
-    static async getLastOpenedTimestamp() {
-        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(types_1.StorageKey.LAST_OPENED);
-        const logPrefix = `[getLastOpenedTimestamp()]`;
-        if (!lastOpenedInt || numAppOpens <= 1) {
-            log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
-            return;
-        }
-        log(`${logPrefix} last opened ${(0, time_helpers_1.quotedISOFmt)(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
-        return lastOpenedInt;
-    }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
         return await this.get(types_1.StorageKey.OPENINGS) ?? 0;
     }
+    // Get the timestamp the app was last opened // TODO: currently unused
+    static async lastOpenedAt() {
+        return await this.updatedAt(types_1.StorageKey.OPENINGS);
+    }
     // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {
+        const updatedAt = await this.updatedAt(key);
+        return updatedAt ? (0, time_helpers_1.ageInSeconds)(updatedAt) : null;
+    }
+    static async updatedAt(key) {
         const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
-        if (withTimestamp) {
-            return (0, time_helpers_1.ageInSeconds)(withTimestamp.updatedAt);
-        }
-        else {
-            debug(`secondsSinceLastUpdated("${key}): No stored object found at '${key}'`);
-            return null;
-        }
+        return withTimestamp ? new Date(withTimestamp.updatedAt) : null;
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {

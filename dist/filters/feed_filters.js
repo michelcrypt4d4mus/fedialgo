@@ -57,6 +57,7 @@ function buildFiltersFromArgs(serializedFilterSettings) {
     numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
         serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
     });
+    return serializedFilterSettings;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
 ;

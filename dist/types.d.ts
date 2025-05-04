@@ -37,7 +37,6 @@ export declare enum StorageKey {
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     HOME_TIMELINE = "HomeTimeline",
-    LAST_OPENED = "LastOpened",
     MUTED_ACCOUNTS = "MutedAccounts",
     OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
@@ -47,7 +46,6 @@ export declare enum StorageKey {
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE = "Timeline",
     TRENDING_TAG_TOOTS = "TrendingTagToots",
-    TRENDING_TAG_TOOTS_V2 = "TrendingTagTootsV2",
     USER = "FedialgoUser",
     USER_DATA = "UserData",
     WEIGHTS = "Weights"

@@ -31,16 +31,16 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
+import { ageInSeconds, ageString, quotedISOFmt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
-import { lockMutex, logAndThrowError, logInfo } from './helpers/log_helpers';
+import { CLEANUP_FEED, GET_FEED, PREP_SCORERS, lockMutex, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
-import { filterWithLog, keyByProperty, truncateToConfiguredLength } from "./helpers/collection_helpers";
+import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { SCORERS_CONFIG } from "./config";
-import { timeString, quotedISOFmt, ageInSeconds, ageString, toISOFormat } from './helpers/time_helpers';
 import {
     FeedFilterSettings,
     MastodonInstances,
@@ -57,10 +57,9 @@ import {
     Weights,
 } from "./types";
 
+const DEFAULT_SET_FEED_IN_APP = (feed: Toot[]) => console.debug(`Default setFeedInApp() called`)
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setFeedInApp() callback.`
 const INITIAL_STATUS_MSG = "(ready to load)"
-const CLEANUP_FEED = "cleanupFeed()";
-const GET_FEED = "getFeed()";
 const MAX_ID_IDX = 2;
 
 interface AlgorithmArgs {
@@ -151,7 +150,7 @@ class TheAlgorithm {
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
         this.user = params.user;
-        this.setFeedInApp = params.setFeedInApp ?? ((f: Toot[]) => console.debug(`Default setFeedInApp() called`));
+        this.setFeedInApp = params.setFeedInApp ?? DEFAULT_SET_FEED_IN_APP;
         MastoApi.init(this.api, this.user as Account);
     }
 
@@ -160,6 +159,7 @@ class TheAlgorithm {
     async getFeed(numTimelineToots?: number, maxId?: string): Promise<Toot[]> {
         logInfo(GET_FEED, `(numTimelineToots=${numTimelineToots}, maxId=${maxId}), state:`, this.statusDict());
 
+        // TODO: this is a bit of a hack to avoid the client repeatedly slamming getFeed() when the feed is loading
         if (!maxId && !numTimelineToots && this.loadingStatus && this.loadingStatus != INITIAL_STATUS_MSG) {
             console.warn(`${GET_FEED} ${GET_FEED_BUSY_MSG}`);
             return this.scoreAndFilterFeed();
@@ -250,6 +250,7 @@ class TheAlgorithm {
         return mostRecentTootedAt(this.homeTimelineToots());
     }
 
+    // Filter the feed to only include toots from followed accounts
     homeTimelineToots(): Toot[] {
         return this.feed.filter(toot => toot.isFollowed);
     }
@@ -272,26 +273,25 @@ class TheAlgorithm {
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.feed = (await Storage.getFeed()) ?? [];
-        this.filters = await Storage.getFilters();
+        this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         this.trendingData = await Storage.getTrending();
         this.userData = await Storage.getUserData();
         this.setFeedInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
 
-    // Handles deciding what is the current state of the world and whether to continue fetching timeline toots
+    // Decide what is the current state of the world and whether to continue fetching home timeline toots
     private async maybeGetMoreToots(newHomeToots: Toot[], numTimelineToots: number): Promise<void> {
         const config = Storage.getConfig();
         const maxInitialTimelineToots = config.maxInitialTimelineToots;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
 
-        if (
-                // If we don't have enough toots yet and we got almost all the numTimelineToots we requested last time
-                // ("almost" bc sometimes we get 38 records instead of 40) then there's probably more toots to fetch.
-                (this.feed.length < maxInitialTimelineToots && newHomeToots.length >= (numTimelineToots - MAX_ID_IDX))
-                // Or if we have enough toots but the catchupCheckpoint is older than what we just got also fetch more
-            || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
+            // If we don't have enough toots yet and we got almost all the numTimelineToots we requested last time
+            // ("almost" bc sometimes we get 38 records instead of 40) then there's probably more toots to fetch.
+        if ((this.feed.length < maxInitialTimelineToots && newHomeToots.length >= (numTimelineToots - MAX_ID_IDX))
+            // Or if we have enough toots but the catchupCheckpoint is older than what we just got also fetch more
+         || (this.catchupCheckpoint && earliestNewHomeTootAt && earliestNewHomeTootAt > this.catchupCheckpoint)
         ) {
             // Extract the minimum ID from the last batch of toots (or almost - we use the 3rd toot bc sometimes
             // there are weird outliers in the 1st toot). We must ONLY look at home timeline toots for this -
@@ -360,7 +360,7 @@ class TheAlgorithm {
             msg += `, want ${Storage.getConfig().maxInitialTimelineToots.toLocaleString()}`;
         }
 
-        return msg + ')'
+        return msg + ')';
     }
 
     private logWithState(prefix: string, msg: string): void {
@@ -415,14 +415,13 @@ class TheAlgorithm {
 
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     private async prepareScorers(force?: boolean): Promise<void> {
-        const logPrefix = `prepareScorers()`;
-        const releaseMutex = await lockMutex(this.scoreMutex, logPrefix);
+        const releaseMutex = await lockMutex(this.scoreMutex, PREP_SCORERS);
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(TELEMETRY, `${logPrefix} ready in ${ageString(startTime)}`);
+                logInfo(TELEMETRY, `${PREP_SCORERS} ready in ${ageString(startTime)}`);
             }
         } finally {
             releaseMutex();

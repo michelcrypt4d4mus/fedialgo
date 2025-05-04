@@ -8,7 +8,9 @@ import { MediaCategory } from '../types';
 
 export const DEFAULT_FONT_SIZE = 15;
 export const NULL = "<<NULL>>";
-export const TELEMETRY = 'TELEMETRY'
+export const TELEMETRY = 'TELEMETRY';
+
+// Multimedia types
 export const GIFV = "gifv";
 export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 export const VIDEO_EXTENSIONS = ["mp4"];

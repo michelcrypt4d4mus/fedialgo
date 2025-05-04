@@ -8,7 +8,7 @@ import Account from "./api/objects/account";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
-import { buildFiltersFromArgs, buildNewFilterSettings, DEFAULT_FILTERS } from "./filters/feed_filters";
+import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
 import { toLocaleInt } from "./helpers/string_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
@@ -33,7 +33,6 @@ export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.RECENT_USER_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
-    StorageKey.TRENDING_TAG_TOOTS_V2,
 ];
 
 const LOG_PREFIX = '[STORAGE]';
@@ -108,17 +107,10 @@ export default class Storage {
     }
 
     // Get the user's saved timeline filter settings
-    static async getFilters(): Promise<FeedFilterSettings> {
-        let filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings; // Returns serialized FeedFilterSettings
-
-        if (filters) {
-            buildFiltersFromArgs(filters);
-        } else {
-            filters = buildNewFilterSettings();
-            await this.setFilters(DEFAULT_FILTERS);  // DEFAULT_FILTERS not the filters we just built
-        }
-
-        return filters;
+    static async getFilters(): Promise<FeedFilterSettings | null> {
+        const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;
+        // Filters are saved in a serialized format that requires deserialization
+        return filters ? buildFiltersFromArgs(filters) : null;
     }
 
     // Generic method for deserializing stored toots
@@ -189,7 +181,6 @@ export default class Storage {
     static async logAppOpen(): Promise<void> {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(StorageKey.OPENINGS, numAppOpens);
-        await this.set(StorageKey.LAST_OPENED, new Date().getTime());
     }
 
     // Return the user's stored timeline weightings
@@ -275,36 +266,25 @@ export default class Storage {
         return user ? new Account(user as mastodon.v1.Account) : null;
     }
 
-    // Get the timestamp the app was last opened // TODO: currently unused
-    private static async getLastOpenedTimestamp(): Promise<number | undefined> {
-        const numAppOpens = (await this.getNumAppOpens()) ?? 0;
-        const lastOpenedInt = await this.get(StorageKey.LAST_OPENED) as number;
-        const logPrefix = `[getLastOpenedTimestamp()]`;
-
-        if (!lastOpenedInt || numAppOpens <= 1) {
-            log(`${logPrefix} Only ${numAppOpens} app opens; returning 0 instead of ${lastOpenedInt}`);
-            return;
-        }
-
-        log(`${logPrefix} last opened ${quotedISOFmt(new Date(lastOpenedInt))} (${numAppOpens} appOpens)`);
-        return lastOpenedInt;
-    }
-
     // Get the number of times the app has been opened by this user
     private static async getNumAppOpens(): Promise<number> {
         return (await this.get(StorageKey.OPENINGS) as number) ?? 0;
     }
 
+    // Get the timestamp the app was last opened // TODO: currently unused
+    private static async lastOpenedAt(): Promise<Date | null> {
+        return await this.updatedAt(StorageKey.OPENINGS);
+    }
+
     // Return the seconds from the updatedAt stored at 'key' and now
     private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
-        const withTimestamp = await localForage.getItem(await this.buildKey(key));
+        const updatedAt = await this.updatedAt(key);
+        return updatedAt ? ageInSeconds(updatedAt) : null;
+    }
 
-        if (withTimestamp) {
-            return ageInSeconds((withTimestamp as StorableWithTimestamp).updatedAt);
-        } else {
-            debug(`secondsSinceLastUpdated("${key}): No stored object found at '${key}'`);
-            return null;
-        }
+    private static async updatedAt(key: StorageKey): Promise<Date | null> {
+        const withTimestamp = await localForage.getItem(await this.buildKey(key));
+        return withTimestamp ? new Date((withTimestamp as StorableWithTimestamp).updatedAt) : null;
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused

@@ -28,7 +28,7 @@ export const DEFAULT_FILTERS = {
 
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
-export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): void {
+export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): FeedFilterSettings {
     serializedFilterSettings.filterSections ??= {} as PropertyFilters;
     serializedFilterSettings.numericFilters ??= {} as NumericFilters;
 
@@ -44,6 +44,8 @@ export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSetting
     FILTERABLE_SCORES.forEach(weightName => {
         serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
     });
+
+    return serializedFilterSettings;
 };
 
 

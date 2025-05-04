@@ -9,6 +9,7 @@ const types_1 = require("../types");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
+// Multimedia types
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 exports.VIDEO_EXTENSIONS = ["mp4"];

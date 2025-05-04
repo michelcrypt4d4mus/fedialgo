@@ -47,7 +47,6 @@ export enum StorageKey {
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
     HOME_TIMELINE = 'HomeTimeline',
-    LAST_OPENED = "LastOpened",
     MUTED_ACCOUNTS = 'MutedAccounts',
     OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
@@ -57,7 +56,6 @@ export enum StorageKey {
     SERVER_SIDE_FILTERS = 'ServerFilters',
     TIMELINE = 'Timeline',
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
-    TRENDING_TAG_TOOTS_V2 = 'TrendingTagTootsV2',  // Uses timelines/tag endpoint: https://docs.joinmastodon.org/methods/timelines/#tag
     USER = 'FedialgoUser',
     USER_DATA = 'UserData',  // Only used for mutex for now
     WEIGHTS = 'Weights',

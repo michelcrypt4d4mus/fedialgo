@@ -9,6 +9,11 @@ import { isDebugMode } from '../helpers/environment_helpers';
 
 const ENABLE_TRACE_LOG = isDebugMode();
 
+// Log prefixes
+export const CLEANUP_FEED = "cleanupFeed()";
+export const GET_FEED = "getFeed()";
+export const PREP_SCORERS = "prepareScorers()";
+
 
 // console.info() with a prefix
 export const logInfo = (prefix: string, msg: string, ...args: any[]): void => {
