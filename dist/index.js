@@ -178,9 +178,21 @@ class TheAlgorithm {
                 // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             }
             else {
-                this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
-                console.info(`${log_helpers_1.GET_FEED} Set catchupCheckpoint marker. Current state:`, this.statusDict());
+                const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
+                if (mostRecentHomeTootAt) {
+                    if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
+                        console.log(`${log_helpers_1.GET_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                        this.catchupCheckpoint = (0, time_helpers_1.timelineCutoffAt)();
+                    }
+                    else {
+                        this.catchupCheckpoint = mostRecentHomeTootAt;
+                    }
+                    this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
+                    this.logWithState(log_helpers_1.GET_FEED, `Set catchupCheckpoint marker. Current state:`);
+                }
+                else {
+                    console.warn(`${log_helpers_1.GET_FEED} no maxId but no most recent toot!`);
+                }
             }
             // These are all calls we should only make in the initial load (all called asynchronously)
             this.loadStartedAt = new Date();
@@ -216,7 +228,7 @@ class TheAlgorithm {
         console.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage_1.default.setFilters(newFilters);
-        return this.setFilteredFeedInApp();
+        return this.filterFeedAndSetInApp();
     }
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
@@ -252,7 +264,7 @@ class TheAlgorithm {
     // Filter the feed based on the user's settings. Has the side effect of calling the setFeedInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
-    setFilteredFeedInApp() {
+    filterFeedAndSetInApp() {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         this.setFeedInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
@@ -422,7 +434,7 @@ class TheAlgorithm {
         this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
         await Storage_1.default.setFeed(this.feed);
-        return this.setFilteredFeedInApp();
+        return this.filterFeedAndSetInApp();
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {

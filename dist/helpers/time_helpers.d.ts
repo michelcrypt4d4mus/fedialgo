@@ -8,3 +8,4 @@ export declare function toISOFormat(date: Date | string | null | undefined, with
 export declare function quotedISOFmt(date: Date | string | null, withMilliseconds?: boolean): string;
 export declare const timeString: (_timestamp: Date | string | null, locale?: string) => string;
 export declare function nowString(): string;
+export declare function timelineCutoffAt(): Date;

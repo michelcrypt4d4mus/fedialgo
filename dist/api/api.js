@@ -60,7 +60,6 @@ class MastoApi {
     userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
-    timelineLookBackMS; // How far back to look for toots in the home timeline
     // URL for a tag on the user's homeserver
     tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
@@ -83,7 +82,6 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
-        this.timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
         // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {};
         for (const key in types_1.StorageKey)
@@ -94,7 +92,7 @@ class MastoApi {
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
-        const cutoffAt = new Date(Date.now() - this.timelineLookBackMS);
+        const cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         numToots ||= Storage_1.default.getConfig().numTootsInFirstFetch;
         const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,

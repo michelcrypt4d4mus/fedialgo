@@ -16,7 +16,6 @@ export default class MastoApi {
     userData?: UserData;
     private mutexes;
     private requestSemphore;
-    private timelineLookBackMS;
     tagURL: (tag: MastodonTag) => string;
     endpointURL: (endpoint: string) => string;
     static init(api: mastodon.rest.Client, user: Account): void;

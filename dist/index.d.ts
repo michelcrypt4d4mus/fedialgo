@@ -62,7 +62,7 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     homeTimelineToots(): Toot[];
-    private setFilteredFeedInApp;
+    private filterFeedAndSetInApp;
     private loadCachedData;
     private maybeGetMoreToots;
     private launchBackgroundPoller;

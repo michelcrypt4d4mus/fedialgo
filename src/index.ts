@@ -31,7 +31,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, quotedISOFmt, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { CLEANUP_FEED, GET_FEED, PREP_SCORERS, lockMutex, logInfo } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
@@ -175,9 +175,21 @@ class TheAlgorithm {
                 this.loadingStatus = "initial data";
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             } else {
-                this.catchupCheckpoint = this.mostRecentHomeTootAt();
-                this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
-                console.info(`${GET_FEED} Set catchupCheckpoint marker. Current state:`, this.statusDict());
+                const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
+
+                if (mostRecentHomeTootAt) {
+                    if (mostRecentHomeTootAt < timelineCutoffAt()) {
+                        console.log(`${GET_FEED} no maxId but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                        this.catchupCheckpoint = timelineCutoffAt();
+                    } else {
+                        this.catchupCheckpoint = mostRecentHomeTootAt;
+                    }
+
+                    this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
+                    this.logWithState(GET_FEED, `Set catchupCheckpoint marker. Current state:`);
+                } else {
+                    console.warn(`${GET_FEED} no maxId but no most recent toot!`);
+                }
             }
 
             // These are all calls we should only make in the initial load (all called asynchronously)

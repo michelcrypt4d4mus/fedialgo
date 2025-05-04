@@ -21,6 +21,7 @@ async function getParticipatedHashtagToots() {
     return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags), "numParticipatedTagToots");
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
+;
 // Get toots for the top trending tags via the search endpoint.
 async function getRecentTootsForTrendingTags() {
     let tags = await mastodon_server_1.default.fediverseTrendingTags();
@@ -33,6 +34,7 @@ exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 async function removeFollowedAndMutedTags(tags) {
     return await removeFollowedTags(await removeMutedTags(tags));
 }
+;
 // Screen a list of hashtags against the user's server side filters, removing any that are muted.
 async function removeMutedTags(tags) {
     const mutedKeywords = await user_data_1.default.mutedKeywords();

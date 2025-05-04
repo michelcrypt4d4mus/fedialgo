@@ -16,7 +16,7 @@ import { ApiMutex, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } fro
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { ageString, quotedISOFmt } from "../helpers/time_helpers";
+import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
 import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
@@ -58,7 +58,6 @@ export default class MastoApi {
 
     private mutexes: ApiMutex;
     private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
-    private timelineLookBackMS: number;  // How far back to look for toots in the home timeline
 
     // URL for a tag on the user's homeserver
     tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;
@@ -83,7 +82,6 @@ export default class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = extractDomain(user.url);
-        this.timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
 
         // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {} as ApiMutex;
@@ -94,7 +92,7 @@ export default class MastoApi {
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
-        const cutoffAt = new Date(Date.now() - this.timelineLookBackMS);
+        const cutoffAt = timelineCutoffAt();
         numToots ||= Storage.getConfig().numTootsInFirstFetch;
 
         const statuses = await this.getApiRecords<mastodon.v1.Status>({

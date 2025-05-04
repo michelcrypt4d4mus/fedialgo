@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Simplify the alternate score dict
+* Disallow setting the catchup checkpoint before the overall app timeline cutoff
 
 ### v0.24.6
 * `MastoApi.instance.setBackgroundConcurrency()`, `Config.maxConcurrentRequestsBackground` option. Handle missing `Storage.getIdentity()` if possibl
