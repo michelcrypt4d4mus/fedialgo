@@ -291,7 +291,7 @@ export default class MastoApi {
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
-        let logPrefix = `[searchForToots("${searchStr}")]`;
+        let logPrefix = `[API searchForToots("${searchStr}")]`;
         const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
         logPrefix += ` (semaphore ${semaphoreNum})`;

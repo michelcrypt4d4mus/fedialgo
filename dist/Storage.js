@@ -107,10 +107,6 @@ class Storage {
         }
         return value;
     }
-    // Get the timeline toots
-    static async getFeed() {
-        return await this.getToots(types_1.StorageKey.TIMELINE);
-    }
     // Get the user's saved timeline filter settings
     static async getFilters() {
         const filters = await this.get(types_1.StorageKey.FILTERS);

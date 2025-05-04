@@ -25,6 +25,7 @@ exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 // Get toots for the top trending tags via the search endpoint.
 async function getRecentTootsForTrendingTags() {
     let tags = await mastodon_server_1.default.fediverseTrendingTags();
+    // TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
     tags = await removeFollowedAndMutedTags(tags);
     return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => api_1.default.instance.getStatusesForTags(tags), "numTrendingTagsToots");
 }

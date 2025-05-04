@@ -11,7 +11,6 @@ export default class Storage {
     static getAccounts(key: StorageKey): Promise<Account[] | null>;
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
-    static getFeed(): Promise<Toot[] | null>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getToots(key: StorageKey): Promise<Toot[] | null>;
     static getTrending(): Promise<TrendingStorage>;

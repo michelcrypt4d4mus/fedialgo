@@ -101,11 +101,6 @@ export default class Storage {
         return value as T[];
     }
 
-    // Get the timeline toots
-    static async getFeed(): Promise<Toot[] | null> {
-        return await this.getToots(StorageKey.TIMELINE);
-    }
-
     // Get the user's saved timeline filter settings
     static async getFilters(): Promise<FeedFilterSettings | null> {
         const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;

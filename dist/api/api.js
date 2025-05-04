@@ -268,7 +268,7 @@ class MastoApi {
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr, maxRecords) {
         maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
-        let logPrefix = `[searchForToots("${searchStr}")]`;
+        let logPrefix = `[API searchForToots("${searchStr}")]`;
         const [semaphoreNum, releaseSemaphore] = await (0, log_helpers_1.lockSemaphore)(this.requestSemphore, logPrefix);
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
         logPrefix += ` (semaphore ${semaphoreNum})`;
@@ -319,6 +319,7 @@ class MastoApi {
     setBackgroundConcurrency() {
         const newConcurrency = Storage_1.default.getConfig().maxConcurrentRequestsBackground;
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
+        // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
         this.requestSemphore = new async_mutex_1.Semaphore(newConcurrency);
     }
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
