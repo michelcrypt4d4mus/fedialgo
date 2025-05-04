@@ -65,9 +65,11 @@ declare class TheAlgorithm {
     private homeTimelineToots;
     private launchBackgroundPoller;
     private loadCachedData;
+    private logNewHomeTootsArrived;
     private logWithState;
+    private shouldGetMoreHomeToots;
     private maybeGetMoreToots;
-    private mergeTootsIntoFeed;
+    private fetchAndMergeToots;
     private mergeTootsWithFeed;
     private mostRecentHomeTootAt;
     private prepareScorers;
