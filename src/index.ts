@@ -237,6 +237,7 @@ class TheAlgorithm {
     private async fetchHomeTimeline(maxId?: string): Promise<void> {
         const batchSize = Storage.getConfig().numTootsInFirstFetch;
         const fetchHomeTimeline = async () => await MastoApi.instance.fetchHomeFeed(batchSize, maxId);
+        console.log(`fetchHomeTimeline() called with maxId='${maxId}'`);
 
         this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
@@ -246,6 +247,8 @@ class TheAlgorithm {
             // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
             this.maybeGetMoreTimelineToots(newToots!);
         });
+
+        console.log(`fetchHomeTimeline() returning after maxId='${maxId}'`);
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback

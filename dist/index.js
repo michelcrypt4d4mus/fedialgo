@@ -228,6 +228,7 @@ class TheAlgorithm {
     async fetchHomeTimeline(maxId) {
         const batchSize = Storage_1.default.getConfig().numTootsInFirstFetch;
         const fetchHomeTimeline = async () => await api_1.default.instance.fetchHomeFeed(batchSize, maxId);
+        console.log(`fetchHomeTimeline() called with maxId='${maxId}'`);
         this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
             let msg = `fetchHomeFeed got ${newToots.length} new home timeline toots, ${this.homeTimelineToots().length}`;
             msg += ` total home TL toots so far ${(0, time_helpers_1.ageString)(this.loadStartedAt)}. Calling maybeGetMoreToots()...`;
@@ -235,6 +236,7 @@ class TheAlgorithm {
             // maybeGetMoreToots() will recursively call fetchHomeTimeline() until we have enough toots
             this.maybeGetMoreTimelineToots(newToots);
         });
+        console.log(`fetchHomeTimeline() returning after maxId='${maxId}'`);
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
