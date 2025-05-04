@@ -228,12 +228,12 @@ export default class MastodonServer {
         try {
             let servers = await Storage.get(StorageKey.POPULAR_SERVERS) as MastodonInstances;
 
-            if (servers && Object.keys(servers).length && !(await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
-                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${ageString(startedAt)}`);
-            } else {
+            if (!servers || (await Storage.isDataStale(StorageKey.POPULAR_SERVERS))) {
                 servers = await this.fetchMastodonInstances();
                 console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${ageString(startedAt)}:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
+            } else {
+                traceLog(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${ageString(startedAt)}`);
             }
 
             return servers;
@@ -322,7 +322,7 @@ export default class MastodonServer {
         try {
             const storageObjs = await loadingFxn(key) as T[];
 
-            if (storageObjs?.length && !(await Storage.isDataStale(key))) {
+            if (!storageObjs?.length || (await Storage.isDataStale(key))) {
                 traceLog(`${logPrefix} Loaded ${storageObjs.length} cached records ${ageString(startedAt)}`);
                 return storageObjs;
             } else {

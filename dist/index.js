@@ -170,7 +170,7 @@ class TheAlgorithm {
         this.fetchHomeTimeline();
         this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots);
         this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default));
-        // Trigger all the other data retrievals
+        // Trigger other data retrievals to populate TheAlgorithm's various instance variables
         mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
         mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData);
         api_1.default.instance.getUserData().then((userData) => this.userData = userData);
@@ -341,7 +341,8 @@ class TheAlgorithm {
         api_1.default.instance.setBackgroundConcurrency();
         this.loadingStatus = null;
     }
-    // Merge a new batch of toots into the feed. Returns whatever toots are retrieve by tooFetcher
+    // Merge a new batch of toots into the feed.
+    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
     async fetchAndMergeToots(tootFetcher) {
         const logPrefix = `fetchAndMergeToots() ${tootFetcher.name}`;
         const startedAt = new Date();

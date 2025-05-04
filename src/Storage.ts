@@ -141,11 +141,9 @@ export default class Storage {
     // Return true if the data stored at 'key' is stale and should be refetched
     // Preferred boolean is like this:
     //
-    //       if (cachedData && !(await Storage.isDataStale(label))) {
-    //            useCache()
-    //       } else {
-    //             fetchData()
-    //       }
+    //       if (!cachedData || (await Storage.isDataStale(label))) {
+    //
+    // That way if there's no cached data the call to isDataState() will be skipped
     static async isDataStale(key: StorageKey): Promise<boolean> {
         const staleDataConfig = Storage.getConfig().staleDataSeconds;
         const staleAfterSeconds = staleDataConfig[key] ?? Storage.getConfig().staleDataDefaultSeconds;
@@ -157,12 +155,8 @@ export default class Storage {
         secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)}`;
         secondsLogMsg += `, numAppOpens is ${numAppOpens})`;
 
-        if (numAppOpens <= 1) {
-            // TODO: this feels like a very janky work around to the initial load issue
-            console.debug(`${logPrefix} numAppOpens=${numAppOpens} means initial load, data not stale ${secondsLogMsg}`);
-            return false;
-        } if (dataAgeInSeconds == null) {
-            console.log(`${logPrefix} no value for dataAgeInSeconds so data is stale ${secondsLogMsg}`);
+        if (dataAgeInSeconds == null) {
+            console.log(`${logPrefix} no dataAgeInSeconds found so data is stale (sort of) ${secondsLogMsg}`);
             return true;
         } else if (dataAgeInSeconds > staleAfterSeconds) {
             console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);

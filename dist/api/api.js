@@ -180,10 +180,7 @@ class MastoApi {
         const startTime = new Date();
         try {
             let filters = await Storage_1.default.get(types_1.StorageKey.SERVER_SIDE_FILTERS);
-            if (filters && !(await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
-                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
-            }
-            else {
+            if (!filters || (await Storage_1.default.isDataStale(types_1.StorageKey.SERVER_SIDE_FILTERS))) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
@@ -196,6 +193,9 @@ class MastoApi {
                 });
                 await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`${logPrefix} Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
+            }
+            else {
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
             }
             return filters;
         }
@@ -350,7 +350,7 @@ class MastoApi {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
                 const cachedRows = await Storage_1.default.get(label);
-                if (cachedRows && !(await Storage_1.default.isDataStale(label))) {
+                if (!cachedRows || (await Storage_1.default.isDataStale(label))) {
                     rows = cachedRows;
                     (0, log_helpers_1.traceLog)(`${logPfx} Loaded ${rows.length} cached rows ${(0, time_helpers_1.ageString)(startedAt)}`);
                     if (!moar)

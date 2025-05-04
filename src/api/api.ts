@@ -197,9 +197,7 @@ export default class MastoApi {
         try {
             let filters = await Storage.get(StorageKey.SERVER_SIDE_FILTERS) as mastodon.v2.Filter[];
 
-            if (filters && !(await Storage.isDataStale(StorageKey.SERVER_SIDE_FILTERS))) {
-                console.debug(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
-            } else {
+            if (!filters || (await Storage.isDataStale(StorageKey.SERVER_SIDE_FILTERS))) {
                 filters = await this.api.v2.filters.list();
 
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -212,6 +210,8 @@ export default class MastoApi {
 
                 await Storage.set(StorageKey.SERVER_SIDE_FILTERS, filters);
                 console.log(`${logPrefix} Retrieved ${filters.length} records ${ageString(startTime)}:`, filters);
+            } else {
+                traceLog(`${logPrefix} Loaded ${filters.length} recoreds from cache:`);
             }
 
             return filters;
@@ -383,7 +383,7 @@ export default class MastoApi {
             if (!skipCache) {
                 const cachedRows = await Storage.get(label as StorageKey) as T[];
 
-                if (cachedRows && !(await Storage.isDataStale(label as StorageKey))) {
+                if (!cachedRows || (await Storage.isDataStale(label as StorageKey))) {
                     rows = cachedRows;
                     traceLog(`${logPfx} Loaded ${rows.length} cached rows ${ageString(startedAt)}`);
                     if (!moar) return rows;

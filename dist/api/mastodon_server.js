@@ -213,13 +213,13 @@ class MastodonServer {
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
         try {
             let servers = await Storage_1.default.get(types_1.StorageKey.POPULAR_SERVERS);
-            if (servers && Object.keys(servers).length && !(await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
-                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${(0, time_helpers_1.ageString)(startedAt)}`);
-            }
-            else {
+            if (!servers || (await Storage_1.default.isDataStale(types_1.StorageKey.POPULAR_SERVERS))) {
                 servers = await this.fetchMastodonInstances();
                 console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
+            }
+            else {
+                (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${Object.keys(servers).length} from cache ${(0, time_helpers_1.ageString)(startedAt)}`);
             }
             return servers;
         }
@@ -291,7 +291,7 @@ class MastodonServer {
         const startedAt = new Date();
         try {
             const storageObjs = await loadingFxn(key);
-            if (storageObjs?.length && !(await Storage_1.default.isDataStale(key))) {
+            if (!storageObjs?.length || (await Storage_1.default.isDataStale(key))) {
                 (0, log_helpers_1.traceLog)(`${logPrefix} Loaded ${storageObjs.length} cached records ${(0, time_helpers_1.ageString)(startedAt)}`);
                 return storageObjs;
             }
