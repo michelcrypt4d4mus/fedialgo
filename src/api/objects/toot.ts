@@ -517,13 +517,13 @@ export default class Toot implements TootObj {
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             // If there's only one too there's no need to collate anything
-            if (uriToots.length == 1) {
-                if (uriToots[0].reblog && uriToots[0].reblog.reblogsBy?.length) {
-                    uriToots[0].reblog.reblogsBy = uniquifyByProp(uriToots[0].reblogsBy, (acct) => acct.webfingerURI);
-                }
+            // if (uriToots.length == 1) {
+            //     if (uriToots[0].reblog && uriToots[0].reblog.reblogsBy?.length) {
+            //         uriToots[0].reblog.reblogsBy = uniquifyByProp(uriToots[0].reblogsBy, (acct) => acct.webfingerURI);
+            //     }
 
-                return;
-            }
+            //     return;
+            // }
 
             const isMuted = uriToots.some(toot => toot.muted);
             const isFollowed = uriToots.some(toot => toot.isFollowed);
