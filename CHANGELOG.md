@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.25.4
 * Fix bug where changes to the feed would invalidate old FeedFilterSettings in the GUI
 * Add `Config.invalidTrendingTags` param to list tags that are too generic to be used
 * `TheAlgorithm.reset()` also resets concurrency
