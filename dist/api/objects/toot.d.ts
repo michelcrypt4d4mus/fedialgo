@@ -74,7 +74,7 @@ export default class Toot implements TootObj {
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
-    constructor(toot: SerializableToot);
+    static build(toot: SerializableToot): Toot;
     ageInHours(): number;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;

@@ -48,6 +48,7 @@ var StorageKey;
     StorageKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
     StorageKey["TIMELINE"] = "Timeline";
     StorageKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
+    StorageKey["TOOT_TESTER"] = "TootTester";
     StorageKey["USER"] = "FedialgoUser";
     StorageKey["USER_DATA"] = "UserData";
     StorageKey["WEIGHTS"] = "Weights";

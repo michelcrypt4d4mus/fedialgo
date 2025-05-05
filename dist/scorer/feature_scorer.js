@@ -30,9 +30,7 @@ class FeatureScorer extends scorer_1.default {
         this.isReady = true;
         let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
         if (Object.values(this.scoreData).length > 0) {
-            if (environment_helpers_1.isDebugMode)
-                msg += `, scoreData: ${JSON.stringify(this.scoreData)}`;
-            console.debug(`${msg}, returned:`, this.scoreData);
+            console.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
     }
     // Can be overloaded in subclasses to set up any data required for scoring Toots

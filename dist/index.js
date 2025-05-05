@@ -27,6 +27,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.timeString = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
+/*
+ * Main class that handles scoring and sorting a feed made of Toot objects.
+ */
+require("reflect-metadata"); // Required for class-transformer
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
@@ -145,7 +149,7 @@ class TheAlgorithm {
     });
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
-        const user = new account_1.default(params.user);
+        const user = account_1.default.build(params.user);
         await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
         // Construct the algorithm object, set the default weights, load feed and filters

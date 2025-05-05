@@ -30,12 +30,12 @@ export default class Account implements AccountObj {
     header: string;
     headerStatic: string;
     noindex?: boolean;
-    moved?: mastodon.v1.Account | null | undefined;
-    suspended?: boolean | null | undefined;
-    limited?: boolean | null | undefined;
+    moved?: Account | null;
+    suspended?: boolean | null;
+    limited?: boolean | null;
     roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
     webfingerURI: string;
-    constructor(account: mastodon.v1.Account);
+    static build(account: mastodon.v1.Account): Account;
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;

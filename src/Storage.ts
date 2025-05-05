@@ -2,6 +2,7 @@
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 import localForage from "localforage";
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
@@ -11,7 +12,7 @@ import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { checkUniqueIDs } from "./helpers/collection_helpers";
-import { ConfigType, Config } from "./config";
+import { Config } from "./config";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
 import { toLocaleInt } from "./helpers/string_helpers";
@@ -77,6 +78,23 @@ export default class Storage {
         }
     }
 
+    static async storeTransformedToots(key: StorageKey, toots: Toot[]): Promise<void> {
+        const serializedToots = toots.map(t => instanceToPlain(t));
+        log(`${key} Storing transformed toots:`, serializedToots);
+        await this.set(key, serializedToots);
+    }
+
+    static async getTransformedToots(key: StorageKey): Promise<Toot[] | null> {
+        log(`${key} Getting transformed toots...`);
+        const serializedToots = await this.get(key) as Record<string, any>[];
+        if (!serializedToots) return null;
+        log(`${key} Loaded serialized toots, about to deserialize:`, serializedToots);
+        // const toots = plainToInstance(Toot, serializedToots);
+        const toots = serializedToots.map(t => plainToInstance(Toot, t));
+        log(`${key} Deserialized toots from ${key}:`, toots);
+        return toots;
+    }
+
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -97,7 +115,7 @@ export default class Storage {
         }
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return (withTimestamp.value as SerializableToot[]).map(t => new Toot(t)) ;
+            return (withTimestamp.value as SerializableToot[]).map(t => Toot.build(t)) ;
         } else {
             return withTimestamp.value;
         }
@@ -130,7 +148,7 @@ export default class Storage {
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             trace(`${logPrefix} Deserializing toots...`);
-            return (withTimestamp.value as SerializableToot[]).map(t => new Toot(t)) as T;
+            return (withTimestamp.value as SerializableToot[]).map(t => Toot.build(t)) as T;
         } else {
             return withTimestamp.value as T;
         }
@@ -139,7 +157,7 @@ export default class Storage {
     // Generic method for deserializing stored Accounts
     static async getAccounts(key: StorageKey): Promise<Account[] | null> {
         const accounts = await this.get(key) as mastodon.v1.Account[];
-        return accounts ? accounts.map(t => new Account(t)) : null;
+        return accounts ? accounts.map(t => Account.build(t)) : null;
     }
 
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
@@ -180,7 +198,7 @@ export default class Storage {
         return UserData.buildFromData({
             followedAccounts: await this.getAccounts(StorageKey.FOLLOWED_ACCOUNTS) || [],
             followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
-            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new Account(a)),
+            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => Account.build(a)),
             recentToots: await this.getCoerced<Toot>(StorageKey.RECENT_USER_TOOTS),  // TODO: maybe expensive to recompute this every time; we store a lot of user toots
             serverSideFilters: await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS),
         });
@@ -210,7 +228,7 @@ export default class Storage {
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    static async set(key: StorageKey, value: StorableObj): Promise<void> {
+    static async set(key: StorageKey, value: StorableObj | Record<string, any>[]): Promise<void> {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
@@ -271,7 +289,7 @@ export default class Storage {
     // Get the user identity from storage
     private static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(StorageKey.USER);
-        return user ? new Account(user as mastodon.v1.Account) : null;
+        return user ? Account.build(user as mastodon.v1.Account) : null;
     }
 
     // Get the number of times the app has been opened by this user

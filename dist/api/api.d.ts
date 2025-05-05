@@ -28,11 +28,11 @@ export default class MastoApi {
     getMutedAccounts(): Promise<Account[]>;
     getRecentFavourites(moar?: boolean): Promise<Toot[]>;
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
+    getRecentUserToots(moar?: boolean): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
     getStatusesForTags(tags: MastodonTag[]): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
-    getRecentUserToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;

@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -9,6 +18,7 @@ exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt 
  * for dealing with Toot objects.
  */
 const change_case_1 = require("change-case");
+const class_transformer_1 = require("class-transformer");
 const escape = require('regexp.escape');
 const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
@@ -43,7 +53,7 @@ class Toot {
     account;
     content;
     createdAt;
-    editedAt;
+    editedAt = null;
     emojis;
     favouritesCount;
     mediaAttachments;
@@ -82,54 +92,55 @@ class Toot {
     audioAttachments;
     imageAttachments;
     videoAttachments;
-    constructor(toot) {
-        // TODO is there a less dumb way to do this other than manually copying all the properties?
-        this.id = toot.id;
-        this.uri = toot.uri;
-        this.account = new account_1.default(toot.account);
-        this.application = toot.application;
-        this.bookmarked = toot.bookmarked;
-        this.card = toot.card;
-        this.content = toot.content;
-        this.createdAt = toot.createdAt;
-        this.editedAt = toot.editedAt;
-        this.emojis = toot.emojis;
-        this.favourited = toot.favourited;
-        this.favouritesCount = toot.favouritesCount;
-        this.filtered = toot.filtered;
-        this.inReplyToId = toot.inReplyToId;
-        this.inReplyToAccountId = toot.inReplyToAccountId;
-        this.language = toot.language;
-        this.mediaAttachments = toot.mediaAttachments;
-        this.mentions = toot.mentions;
-        this.muted = toot.muted;
-        this.pinned = toot.pinned;
-        this.poll = toot.poll;
-        this.reblogsCount = toot.reblogsCount;
-        this.reblogged = toot.reblogged;
-        this.repliesCount = toot.repliesCount;
-        this.sensitive = toot.sensitive;
-        this.spoilerText = toot.spoilerText;
-        this.tags = toot.tags;
-        this.text = toot.text;
-        this.url = toot.url;
-        this.visibility = toot.visibility;
+    static build(toot) {
+        const tootObj = new Toot();
+        tootObj.id = toot.id;
+        tootObj.uri = toot.uri;
+        tootObj.account = account_1.default.build(toot.account);
+        tootObj.application = toot.application;
+        tootObj.bookmarked = toot.bookmarked;
+        tootObj.card = toot.card;
+        tootObj.content = toot.content;
+        tootObj.createdAt = toot.createdAt;
+        tootObj.editedAt = toot.editedAt;
+        tootObj.emojis = toot.emojis;
+        tootObj.favourited = toot.favourited;
+        tootObj.favouritesCount = toot.favouritesCount;
+        tootObj.filtered = toot.filtered;
+        tootObj.inReplyToId = toot.inReplyToId;
+        tootObj.inReplyToAccountId = toot.inReplyToAccountId;
+        tootObj.language = toot.language;
+        tootObj.mediaAttachments = toot.mediaAttachments;
+        tootObj.mentions = toot.mentions;
+        tootObj.muted = toot.muted;
+        tootObj.pinned = toot.pinned;
+        tootObj.poll = toot.poll;
+        tootObj.reblogsCount = toot.reblogsCount;
+        tootObj.reblogged = toot.reblogged;
+        tootObj.repliesCount = toot.repliesCount;
+        tootObj.sensitive = toot.sensitive;
+        tootObj.spoilerText = toot.spoilerText;
+        tootObj.tags = toot.tags;
+        tootObj.text = toot.text;
+        tootObj.url = toot.url;
+        tootObj.visibility = toot.visibility;
         // Unique to fedialgo
-        this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = toot.followedTags;
-        this.isFollowed = toot.isFollowed;
-        this.reblogsBy = (toot.reblogsBy ?? []).map(account => new account_1.default(account));
-        this.resolvedToot = toot.resolvedToot;
-        this.scoreInfo = toot.scoreInfo;
-        this.source = toot.source;
-        this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks;
-        this.trendingTags = toot.trendingTags;
-        this.repair();
+        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
+        tootObj.followedTags = toot.followedTags;
+        tootObj.isFollowed = toot.isFollowed;
+        tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
+        tootObj.resolvedToot = toot.resolvedToot;
+        tootObj.scoreInfo = toot.scoreInfo;
+        tootObj.source = toot.source;
+        tootObj.trendingRank = toot.trendingRank;
+        tootObj.trendingLinks = toot.trendingLinks;
+        tootObj.trendingTags = toot.trendingTags;
+        tootObj.repair();
         // These must be set after repair() has a chance to fix any broken media types
-        this.audioAttachments = this.attachmentsOfType(types_1.MediaCategory.AUDIO);
-        this.imageAttachments = this.attachmentsOfType(types_1.MediaCategory.IMAGE);
-        this.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType));
+        tootObj.audioAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.AUDIO);
+        tootObj.imageAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.IMAGE);
+        tootObj.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
+        return tootObj;
     }
     // Time since this toot was sent in hours
     ageInHours() {
@@ -415,7 +426,7 @@ class Toot {
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         // Set properties, dedupe, and sort by popularity
         const setProps = async (t) => {
-            const toot = (t instanceof Toot ? t : new Toot(t));
+            const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.source = source;
             return toot;
@@ -485,6 +496,22 @@ class Toot {
     }
 }
 exports.default = Toot;
+__decorate([
+    (0, class_transformer_1.Type)(() => account_1.default),
+    __metadata("design:type", account_1.default)
+], Toot.prototype, "account", void 0);
+__decorate([
+    (0, class_transformer_1.Type)(() => Toot),
+    __metadata("design:type", Object)
+], Toot.prototype, "reblog", void 0);
+__decorate([
+    (0, class_transformer_1.Type)(() => account_1.default),
+    __metadata("design:type", Array)
+], Toot.prototype, "reblogsBy", void 0);
+__decorate([
+    (0, class_transformer_1.Type)(() => Toot),
+    __metadata("design:type", Toot)
+], Toot.prototype, "resolvedToot", void 0);
 ;
 // Methods for dealing with toot timestamps
 const tootedAt = (toot) => new Date(toot.createdAt);

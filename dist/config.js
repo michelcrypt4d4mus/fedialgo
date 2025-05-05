@@ -4,6 +4,7 @@ exports.SCORERS_CONFIG = exports.Config = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
+const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
 const time_helpers_1 = require("./helpers/time_helpers");
 // App level config that is not user configurable
@@ -170,6 +171,16 @@ exports.Config = {
         "med-mastodon.com",
     ],
 };
+// Debug mode settings
+if (environment_helpers_1.isDebugMode) {
+    exports.Config.hashtagTootRetrievalDelaySeconds = 5;
+    exports.Config.maxCachedTimelineToots = 700;
+    exports.Config.maxRecordsForFeatureScoring = 480;
+    exports.Config.numDesiredTimelineToots = 500;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 5;
+    exports.Config.numTrendingTags = 5;
+}
+;
 exports.SCORERS_CONFIG = {
     // Global modifiers that affect all weighted scores
     [types_1.WeightName.TIME_DECAY]: {

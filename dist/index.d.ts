@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";

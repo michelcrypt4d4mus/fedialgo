@@ -4,6 +4,7 @@
  */
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";
+import { Type, plainToInstance } from 'class-transformer';
 const escape = require('regexp.escape');
 
 import Account from "./account";
@@ -87,23 +88,23 @@ interface TootObj extends SerializableToot {
 
 export default class Toot implements TootObj {
     // Props from mastodon.v1.Status
-    id: string;
-    uri: string;
-    application: mastodon.v1.Application;
-    account: Account;
-    content: string;
-    createdAt: string;
-    editedAt: string | null;
-    emojis: mastodon.v1.CustomEmoji[];
-    favouritesCount: number;
-    mediaAttachments: mastodon.v1.MediaAttachment[];
-    mentions: mastodon.v1.StatusMention[];
-    reblogsCount: number;
-    repliesCount: number;
-    sensitive: boolean;
-    spoilerText: string;
-    tags: mastodon.v1.Tag[];
-    visibility: mastodon.v1.StatusVisibility;
+    id!: string;
+    uri!: string;
+    application!: mastodon.v1.Application;
+    @Type(() => Account) account!: Account;
+    content!: string;
+    createdAt!: string;
+    editedAt: string | null = null;
+    emojis!: mastodon.v1.CustomEmoji[];
+    favouritesCount!: number;
+    mediaAttachments!: mastodon.v1.MediaAttachment[];
+    mentions!: mastodon.v1.StatusMention[];
+    reblogsCount!: number;
+    repliesCount!: number;
+    sensitive!: boolean;
+    spoilerText!: string;
+    tags!: mastodon.v1.Tag[];
+    visibility!: mastodon.v1.StatusVisibility;
     // Optional fields
     bookmarked?: boolean | null;
     card?: mastodon.v1.PreviewCard | null;
@@ -115,7 +116,7 @@ export default class Toot implements TootObj {
     muted?: boolean | null;
     pinned?: boolean | null;
     poll?: mastodon.v1.Poll | null;
-    reblog?: Toot | null;
+    @Type(() => Toot) reblog?: Toot | null;
     reblogged?: boolean | null;
     text?: string | null;
     url?: string | null;
@@ -123,66 +124,69 @@ export default class Toot implements TootObj {
     // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
     followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    reblogsBy!: Account[];             // The accounts that retooted this toot
-    resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
+    @Type(() => Account) reblogsBy!: Account[];             // The accounts that retooted this toot
+    @Type(() => Toot) resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
     source?: string;                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags?: TrendingTag[];      // Tags that are trending that appear in this toot
-    audioAttachments: mastodon.v1.MediaAttachment[];
-    imageAttachments: mastodon.v1.MediaAttachment[];
-    videoAttachments: mastodon.v1.MediaAttachment[];
+    audioAttachments!: mastodon.v1.MediaAttachment[];
+    imageAttachments!: mastodon.v1.MediaAttachment[];
+    videoAttachments!: mastodon.v1.MediaAttachment[];
 
-    constructor(toot: SerializableToot) {
-        // TODO is there a less dumb way to do this other than manually copying all the properties?
-        this.id = toot.id;
-        this.uri = toot.uri;
-        this.account = new Account(toot.account);
-        this.application = toot.application;
-        this.bookmarked = toot.bookmarked;
-        this.card = toot.card;
-        this.content = toot.content;
-        this.createdAt = toot.createdAt;
-        this.editedAt = toot.editedAt;
-        this.emojis = toot.emojis;
-        this.favourited = toot.favourited;
-        this.favouritesCount = toot.favouritesCount;
-        this.filtered = toot.filtered;
-        this.inReplyToId = toot.inReplyToId;
-        this.inReplyToAccountId = toot.inReplyToAccountId;
-        this.language = toot.language;
-        this.mediaAttachments = toot.mediaAttachments;
-        this.mentions = toot.mentions;
-        this.muted = toot.muted;
-        this.pinned = toot.pinned;
-        this.poll = toot.poll;
-        this.reblogsCount = toot.reblogsCount;
-        this.reblogged = toot.reblogged;
-        this.repliesCount = toot.repliesCount;
-        this.sensitive = toot.sensitive;
-        this.spoilerText = toot.spoilerText;
-        this.tags = toot.tags;
-        this.text = toot.text;
-        this.url = toot.url;
-        this.visibility = toot.visibility;
+    static build(toot: SerializableToot): Toot {
+        const tootObj = new Toot();
+
+        tootObj.id = toot.id;
+        tootObj.uri = toot.uri;
+        tootObj.account = Account.build(toot.account);
+        tootObj.application = toot.application;
+        tootObj.bookmarked = toot.bookmarked;
+        tootObj.card = toot.card;
+        tootObj.content = toot.content;
+        tootObj.createdAt = toot.createdAt;
+        tootObj.editedAt = toot.editedAt;
+        tootObj.emojis = toot.emojis;
+        tootObj.favourited = toot.favourited;
+        tootObj.favouritesCount = toot.favouritesCount;
+        tootObj.filtered = toot.filtered;
+        tootObj.inReplyToId = toot.inReplyToId;
+        tootObj.inReplyToAccountId = toot.inReplyToAccountId;
+        tootObj.language = toot.language;
+        tootObj.mediaAttachments = toot.mediaAttachments;
+        tootObj.mentions = toot.mentions;
+        tootObj.muted = toot.muted;
+        tootObj.pinned = toot.pinned;
+        tootObj.poll = toot.poll;
+        tootObj.reblogsCount = toot.reblogsCount;
+        tootObj.reblogged = toot.reblogged;
+        tootObj.repliesCount = toot.repliesCount;
+        tootObj.sensitive = toot.sensitive;
+        tootObj.spoilerText = toot.spoilerText;
+        tootObj.tags = toot.tags;
+        tootObj.text = toot.text;
+        tootObj.url = toot.url;
+        tootObj.visibility = toot.visibility;
 
         // Unique to fedialgo
-        this.reblog = toot.reblog ? new Toot(toot.reblog) : undefined;
-        this.followedTags = toot.followedTags;
-        this.isFollowed = toot.isFollowed;
-        this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
-        this.resolvedToot = toot.resolvedToot;
-        this.scoreInfo = toot.scoreInfo;
-        this.source = toot.source;
-        this.trendingRank = toot.trendingRank;
-        this.trendingLinks = toot.trendingLinks;
-        this.trendingTags = toot.trendingTags;
-        this.repair();
+        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
+        tootObj.followedTags = toot.followedTags;
+        tootObj.isFollowed = toot.isFollowed;
+        tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
+        tootObj.resolvedToot = toot.resolvedToot;
+        tootObj.scoreInfo = toot.scoreInfo;
+        tootObj.source = toot.source;
+        tootObj.trendingRank = toot.trendingRank;
+        tootObj.trendingLinks = toot.trendingLinks;
+        tootObj.trendingTags = toot.trendingTags;
+
+        tootObj.repair();
         // These must be set after repair() has a chance to fix any broken media types
-        this.audioAttachments = this.attachmentsOfType(MediaCategory.AUDIO);
-        this.imageAttachments = this.attachmentsOfType(MediaCategory.IMAGE);
-        this.videoAttachments = VIDEO_TYPES.flatMap((videoType) => this.attachmentsOfType(videoType))
+        tootObj.audioAttachments = tootObj.attachmentsOfType(MediaCategory.AUDIO);
+        tootObj.imageAttachments = tootObj.attachmentsOfType(MediaCategory.IMAGE);
+        tootObj.videoAttachments = VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
+        return tootObj;
     }
 
     // Time since this toot was sent in hours
@@ -498,7 +502,7 @@ export default class Toot implements TootObj {
 
         // Set properties, dedupe, and sort by popularity
         const setProps = async (t: SerializableToot | Toot): Promise<Toot> => {
-            const toot = (t instanceof Toot ? t : new Toot(t));
+            const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.source = source;
             return toot;

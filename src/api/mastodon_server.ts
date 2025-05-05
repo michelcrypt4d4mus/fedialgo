@@ -92,7 +92,7 @@ export default class MastodonServer {
     // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
     async fetchTrendingStatuses(): Promise<Toot[]> {
         const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
-        const trendingToots = toots.map(t => new Toot(t));
+        const trendingToots = toots.map(t => Toot.build(t));
 
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
@@ -194,6 +194,14 @@ export default class MastodonServer {
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
+
+                const testStorageToots = toots.slice(0, 10).map(t => Toot.build(t));
+                console.log(`[${StorageKey.TOOT_TESTER}] built ${testStorageToots.length} trending toots`, testStorageToots);
+                await Storage.storeTransformedToots(StorageKey.TOOT_TESTER, testStorageToots);
+                console.log(`[${StorageKey.TOOT_TESTER}] about to load serialized toots`);
+                const loadedToots = await Storage.getTransformedToots(StorageKey.TOOT_TESTER);
+                console.log(`[${StorageKey.TOOT_TESTER}] loaded ${loadedToots?.length} toots`, loadedToots);
+
                 return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });

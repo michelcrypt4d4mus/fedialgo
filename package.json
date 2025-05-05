@@ -47,9 +47,11 @@
         "axios": "^1.7.2",
         "blueimp-md5": "^2.19.0",
         "change-case": "^5.4.4",
+        "class-transformer": "^0.5.1",
         "html-entities": "^2.6.0",
         "localforage": "^1.10.0",
         "masto": "^7.0.0",
+        "reflect-metadata": "^0.2.2",
         "regexp.escape": "^2.0.1"
     }
 }

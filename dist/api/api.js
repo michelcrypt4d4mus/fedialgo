@@ -122,7 +122,7 @@ class MastoApi {
             fetch: this.api.v1.blocks.list,
             label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
-        return blockedAccounts.map(a => new account_1.default(a));
+        return blockedAccounts.map(a => account_1.default.build(a));
     }
     ;
     // Get accounts the user is following
@@ -132,7 +132,7 @@ class MastoApi {
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
-        return followedAccounts.map(a => new account_1.default(a));
+        return followedAccounts.map(a => account_1.default.build(a));
     }
     // Get hashtags the user is following
     async getFollowedTags() {
@@ -149,7 +149,7 @@ class MastoApi {
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
         const blockedAccounts = await this.getBlockedAccounts();
-        return mutedAccounts.map(a => new account_1.default(a)).concat(blockedAccounts);
+        return mutedAccounts.map(a => account_1.default.build(a)).concat(blockedAccounts);
     }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
@@ -162,7 +162,7 @@ class MastoApi {
             // moar: moar,
         });
         (0, collection_helpers_1.checkUniqueIDs)(recentFaves, types_1.StorageKey.FAVOURITED_TOOTS);
-        return recentFaves.map(t => new toot_1.default(t));
+        return recentFaves.map(t => toot_1.default.build(t));
     }
     // Get the user's recent notifications
     async getRecentNotifications(moar) {
@@ -174,6 +174,18 @@ class MastoApi {
         (0, collection_helpers_1.checkUniqueIDs)(notifications, types_1.StorageKey.RECENT_NOTIFICATIONS);
         return notifications;
     }
+    // Get the user's recent toots
+    // NOTE: the user's own Toots don't have setDependentProperties() called on them!
+    async getRecentUserToots(moar) {
+        const recentToots = await this.getApiRecords({
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
+            label: types_1.StorageKey.RECENT_USER_TOOTS,
+            moar: moar,
+        });
+        (0, collection_helpers_1.checkUniqueIDs)(recentToots, types_1.StorageKey.RECENT_USER_TOOTS);
+        return recentToots.map(t => toot_1.default.build(t));
+    }
+    ;
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
@@ -229,18 +241,6 @@ class MastoApi {
         return this.userData;
     }
     ;
-    // Get the user's recent toots
-    // NOTE: the user's own Toots don't have setDependentProperties() called on them!
-    async getRecentUserToots(moar) {
-        const recentToots = await this.getApiRecords({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            label: types_1.StorageKey.RECENT_USER_TOOTS,
-            moar: moar,
-        });
-        (0, collection_helpers_1.checkUniqueIDs)(recentToots, types_1.StorageKey.RECENT_USER_TOOTS);
-        return recentToots.map(t => new toot_1.default(t));
-    }
-    ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -259,7 +259,7 @@ class MastoApi {
         }
         const resolvedStatus = lookupResult.statuses[0];
         console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
-        return new toot_1.default(resolvedStatus);
+        return toot_1.default.build(resolvedStatus);
     }
     ;
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.

@@ -1,6 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import { isDebugMode } from "./helpers/environment_helpers";
 import { ScorerDict, StorageKey, WeightName } from "./types";
 import { SECONDS_IN_HOUR, SECONDS_IN_MINUTE } from "./helpers/time_helpers";
 
@@ -227,6 +228,16 @@ export const Config: ConfigType = {
         "mastodon.gamedev.place",
         "med-mastodon.com",
     ],
+};
+
+// Debug mode settings
+if (isDebugMode) {
+    Config.hashtagTootRetrievalDelaySeconds = 5;
+    Config.maxCachedTimelineToots = 700;
+    Config.maxRecordsForFeatureScoring = 480;
+    Config.numDesiredTimelineToots = 500;
+    Config.numParticipatedTagsToFetchTootsFor = 5;
+    Config.numTrendingTags = 5;
 };
 
 

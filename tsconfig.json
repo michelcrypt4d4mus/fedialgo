@@ -3,6 +3,8 @@
         "declaration": true,
         // "forceConsistentCasingInFileNames": false,
         "esModuleInterop": true,
+        "emitDecoratorMetadata": true,  // Required for class-transformer @Type(() => SomeClass)
+        "experimentalDecorators": true,  // Required for class-transformer @Type(() => SomeClass)
         "lib": [
             "ESNext",
         ],

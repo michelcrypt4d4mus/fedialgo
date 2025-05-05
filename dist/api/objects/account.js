@@ -1,8 +1,18 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const class_transformer_1 = require("class-transformer");
 const api_1 = __importDefault(require("../api"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -36,40 +46,42 @@ class Account {
     moved;
     suspended;
     limited;
-    roles;
+    roles = []; // TODO: not sure default is a good idea
     // Fedialgo extension fields
     webfingerURI;
-    constructor(account) {
-        this.id = account.id;
-        this.username = account.username;
-        this.acct = account.acct;
-        this.displayName = account.displayName;
-        this.locked = account.locked;
-        this.bot = account.bot;
-        this.createdAt = account.createdAt;
-        this.group = account.group;
-        this.note = account.note;
-        this.url = account.url;
-        this.avatar = account.avatar;
-        this.avatarStatic = account.avatarStatic;
-        this.header = account.header;
-        this.headerStatic = account.headerStatic;
-        this.followersCount = account.followersCount;
-        this.followingCount = account.followingCount;
-        this.statusesCount = account.statusesCount;
-        this.lastStatusAt = account.lastStatusAt;
+    static build(account) {
+        const accountObj = new Account();
+        accountObj.id = account.id;
+        accountObj.username = account.username;
+        accountObj.acct = account.acct;
+        accountObj.displayName = account.displayName;
+        accountObj.locked = account.locked;
+        accountObj.bot = account.bot;
+        accountObj.createdAt = account.createdAt;
+        accountObj.group = account.group;
+        accountObj.note = account.note;
+        accountObj.url = account.url;
+        accountObj.avatar = account.avatar;
+        accountObj.avatarStatic = account.avatarStatic;
+        accountObj.header = account.header;
+        accountObj.headerStatic = account.headerStatic;
+        accountObj.followersCount = account.followersCount;
+        accountObj.followingCount = account.followingCount;
+        accountObj.statusesCount = account.statusesCount;
+        accountObj.lastStatusAt = account.lastStatusAt;
         // Arrays and optional fields
-        this.moved = account.moved ? new Account(account.moved) : null;
-        this.emojis = account.emojis || [];
-        this.fields = account.fields || [];
+        accountObj.moved = account.moved ? Account.build(account.moved) : null;
+        accountObj.emojis = account.emojis || [];
+        accountObj.fields = account.fields || [];
         // boolean flags
-        this.discoverable = account.discoverable || false;
-        this.noindex = account.noindex || false;
-        this.limited = account.limited || false;
-        this.suspended = account.suspended || false;
-        this.roles = account.roles || [];
+        accountObj.discoverable = account.discoverable || false;
+        accountObj.noindex = account.noindex || false;
+        accountObj.limited = account.limited || false;
+        accountObj.suspended = account.suspended || false;
+        accountObj.roles = account.roles || [];
         // Fedialgo extension fields
-        this.webfingerURI = this.buildWebfingerURI();
+        accountObj.webfingerURI = accountObj.buildWebfingerURI();
+        return accountObj;
     }
     // e.g. "Foobar (@foobar@mastodon.social)"
     describe() {
@@ -119,5 +131,9 @@ class Account {
     }
 }
 exports.default = Account;
+__decorate([
+    (0, class_transformer_1.Type)(() => Account),
+    __metadata("design:type", Object)
+], Account.prototype, "moved", void 0);
 ;
 //# sourceMappingURL=account.js.map

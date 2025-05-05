@@ -1,6 +1,7 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
+import 'reflect-metadata'; // Required for class-transformer
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
@@ -138,7 +139,7 @@ class TheAlgorithm {
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
-        const user = new Account(params.user);
+        const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
 

@@ -30,6 +30,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
 const localforage_1 = __importDefault(require("localforage"));
+const class_transformer_1 = require("class-transformer");
 const account_1 = __importDefault(require("./api/objects/account"));
 const api_1 = __importDefault(require("./api/api"));
 const toot_1 = __importStar(require("./api/objects/toot"));
@@ -86,6 +87,22 @@ class Storage {
             warn(`No user identity found, cleared storage anyways`);
         }
     }
+    static async storeTransformedToots(key, toots) {
+        const serializedToots = toots.map(t => (0, class_transformer_1.instanceToPlain)(t));
+        log(`${key} Storing transformed toots:`, serializedToots);
+        await this.set(key, serializedToots);
+    }
+    static async getTransformedToots(key) {
+        log(`${key} Getting transformed toots...`);
+        const serializedToots = await this.get(key);
+        if (!serializedToots)
+            return null;
+        log(`${key} Loaded serialized toots, about to deserialize:`, serializedToots);
+        // const toots = plainToInstance(Toot, serializedToots);
+        const toots = serializedToots.map(t => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
+        log(`${key} Deserialized toots from ${key}:`, toots);
+        return toots;
+    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -104,7 +121,7 @@ class Storage {
             (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return withTimestamp.value.map(t => new toot_1.default(t));
+            return withTimestamp.value.map(t => toot_1.default.build(t));
         }
         else {
             return withTimestamp.value;
@@ -134,7 +151,7 @@ class Storage {
         trace(`${logPrefix} ${msg}`);
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             trace(`${logPrefix} Deserializing toots...`);
-            return withTimestamp.value.map(t => new toot_1.default(t));
+            return withTimestamp.value.map(t => toot_1.default.build(t));
         }
         else {
             return withTimestamp.value;
@@ -143,7 +160,7 @@ class Storage {
     // Generic method for deserializing stored Accounts
     static async getAccounts(key) {
         const accounts = await this.get(key);
-        return accounts ? accounts.map(t => new account_1.default(t)) : null;
+        return accounts ? accounts.map(t => account_1.default.build(t)) : null;
     }
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
     static async getCoerced(key) {
@@ -178,7 +195,7 @@ class Storage {
         return user_data_1.default.buildFromData({
             followedAccounts: await this.getAccounts(types_1.StorageKey.FOLLOWED_ACCOUNTS) || [],
             followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
-            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a)),
+            mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => account_1.default.build(a)),
             recentToots: await this.getCoerced(types_1.StorageKey.RECENT_USER_TOOTS),
             serverSideFilters: await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS),
         });
@@ -255,7 +272,7 @@ class Storage {
     // Get the user identity from storage
     static async getIdentity() {
         const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
-        return user ? new account_1.default(user) : null;
+        return user ? account_1.default.build(user) : null;
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {

@@ -2,6 +2,7 @@
  * Helper methods for dealing with Mastodon's Account objects.
  */
 import { mastodon } from "masto";
+import { Type } from "class-transformer";
 
 import MastoApi from "../api";
 import { AccountNames, StringNumberDict } from "../../types";
@@ -18,69 +19,71 @@ interface AccountObj extends mastodon.v1.Account {
 
 
 export default class Account implements AccountObj {
-    id: string;
-    username: string;
-    acct: string;
-    bot: boolean;  // isBot
-    createdAt: string;
-    discoverable: boolean;
-    displayName: string;
-    followersCount: number;
-    followingCount: number;
-    group: boolean;
-    lastStatusAt: string;
-    locked: boolean;
-    note: string;  // Profile bio, in plain-text instead of in HTML.
-    statusesCount: number;
-    url: string;
+    id!: string;
+    username!: string;
+    acct!: string;
+    bot!: boolean;  // isBot
+    createdAt!: string;
+    discoverable!: boolean;
+    displayName!: string;
+    followersCount!: number;
+    followingCount!: number;
+    group!: boolean;
+    lastStatusAt!: string;
+    locked!: boolean;
+    note!: string;  // Profile bio, in plain-text instead of in HTML.
+    statusesCount!: number;
+    url!: string;
     // Arrays
-    emojis: mastodon.v1.CustomEmoji[];
-    fields: mastodon.v1.AccountField[];
+    emojis!: mastodon.v1.CustomEmoji[];
+    fields!: mastodon.v1.AccountField[];
     // Images
-    avatar: string;
-    avatarStatic: string;
-    header: string;
-    headerStatic: string;
+    avatar!: string;
+    avatarStatic!: string;
+    header!: string;
+    headerStatic!: string;
     // Optional
     noindex?: boolean;  // Don't index this account in search engines
-    moved?: mastodon.v1.Account | null | undefined;
-    suspended?: boolean | null | undefined;
-    limited?: boolean | null | undefined;
-    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
+    @Type(() => Account) moved?: Account | null;
+    suspended?: boolean | null;
+    limited?: boolean | null;
+    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[] = [];  // TODO: not sure default is a good idea
     // Fedialgo extension fields
-    webfingerURI: string;
+    webfingerURI!: string;
 
-    constructor(account: mastodon.v1.Account) {
-        this.id = account.id;
-        this.username = account.username;
-        this.acct = account.acct;
-        this.displayName = account.displayName;
-        this.locked = account.locked;
-        this.bot = account.bot;
-        this.createdAt = account.createdAt;
-        this.group = account.group;
-        this.note = account.note;
-        this.url = account.url;
-        this.avatar = account.avatar;
-        this.avatarStatic = account.avatarStatic;
-        this.header = account.header;
-        this.headerStatic = account.headerStatic;
-        this.followersCount = account.followersCount;
-        this.followingCount = account.followingCount;
-        this.statusesCount = account.statusesCount;
-        this.lastStatusAt = account.lastStatusAt;
+    static build(account: mastodon.v1.Account): Account {
+        const accountObj = new Account();
+        accountObj.id = account.id;
+        accountObj.username = account.username;
+        accountObj.acct = account.acct;
+        accountObj.displayName = account.displayName;
+        accountObj.locked = account.locked;
+        accountObj.bot = account.bot;
+        accountObj.createdAt = account.createdAt;
+        accountObj.group = account.group;
+        accountObj.note = account.note;
+        accountObj.url = account.url;
+        accountObj.avatar = account.avatar;
+        accountObj.avatarStatic = account.avatarStatic;
+        accountObj.header = account.header;
+        accountObj.headerStatic = account.headerStatic;
+        accountObj.followersCount = account.followersCount;
+        accountObj.followingCount = account.followingCount;
+        accountObj.statusesCount = account.statusesCount;
+        accountObj.lastStatusAt = account.lastStatusAt;
         // Arrays and optional fields
-        this.moved = account.moved ? new Account(account.moved) : null;
-        this.emojis = account.emojis || [];
-        this.fields = account.fields || [];
+        accountObj.moved = account.moved ? Account.build(account.moved) : null;
+        accountObj.emojis = account.emojis || [];
+        accountObj.fields = account.fields || [];
         // boolean flags
-        this.discoverable = account.discoverable || false;
-        this.noindex = account.noindex || false;
-        this.limited = account.limited || false;
-        this.suspended = account.suspended || false;
-        this.roles = account.roles || [];
+        accountObj.discoverable = account.discoverable || false;
+        accountObj.noindex = account.noindex || false;
+        accountObj.limited = account.limited || false;
+        accountObj.suspended = account.suspended || false;
+        accountObj.roles = account.roles || [];
         // Fedialgo extension fields
-        this.webfingerURI = this.buildWebfingerURI();
+        accountObj.webfingerURI = accountObj.buildWebfingerURI();
+        return accountObj;
     }
 
     // e.g. "Foobar (@foobar@mastodon.social)"

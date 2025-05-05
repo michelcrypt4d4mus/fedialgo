@@ -31,8 +31,7 @@ export default abstract class FeatureScorer extends Scorer {
         let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
 
         if (Object.values(this.scoreData).length > 0) {
-            if (isDebugMode) msg += `, scoreData: ${JSON.stringify(this.scoreData)}`;
-            console.debug(`${msg}, returned:`, this.scoreData);
+            console.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
     }
 
