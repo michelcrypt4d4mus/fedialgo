@@ -161,17 +161,24 @@ export default abstract class Scorer {
         const decayExponent = -1 * Math.pow(toot.ageInHours(), Storage.getConfig().timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
+        const score = weightedScore * timeDecayMultiplier;
 
         // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging
-        // TODO: duping the score to realToot() is a hack that sucks
-        toot.realToot().scoreInfo = toot.scoreInfo = {
+        const scoreInfo = {
             rawScore: this.sumScores(rawScores),
             rawScores,
-            score: weightedScore * timeDecayMultiplier,
+            score: score,
             timeDecayMultiplier,
             weightedScores,
             weightedScore,
         } as TootScore;
+
+        if (score < 0) {
+            console.warn(`Negative score ${score} for ${toot.realToot().describe()}:`, scoreInfo);
+        }
+
+        // TODO: duping the score to realToot() is a hack that sucks
+        toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo
     }
 
     // Add 1 so that time decay multiplier works even with scorers giving 0s

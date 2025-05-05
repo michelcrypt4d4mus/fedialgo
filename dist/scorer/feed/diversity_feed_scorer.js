@@ -81,7 +81,13 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     async _score(toot) {
         const score = this.scoreData[toot.uri] || 0;
         if (score > 0) {
-            console.warn(`Got positive diversity score of ${score} for toot:`, toot);
+            // Deal with floating point noise resulting in mildly posivitive scores
+            if (score < 0.2) {
+                this.scoreData[toot.uri] = 0;
+            }
+            else {
+                console.warn(`Got positive diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
+            }
             return 0;
         }
         return score;
