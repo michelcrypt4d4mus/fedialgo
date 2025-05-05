@@ -94,7 +94,7 @@ export const Config: ConfigType = {
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
-    backgroundLoadIntervalMS: 120_000,   // 1 minute
+    backgroundLoadIntervalMS: 120_000,   // 2 minutes
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
