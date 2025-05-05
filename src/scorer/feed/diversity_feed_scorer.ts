@@ -30,15 +30,15 @@ export default class DiversityFeedScorer extends FeedScorer {
             incrementCount(tootsPerAccount, toot.account.webfingerURI);
             if (toot.reblog?.account) incrementCount(tootsPerAccount, toot.reblog.account.webfingerURI);
 
-            if (!toot.trendingTags) {
+            if (!toot.realToot().trendingTags) {
                 console.warn(`No trending tags for toot:`, toot);
             } else {
-                for (const tag of toot.trendingTags!) {
+                toot.realToot().trendingTags!.forEach((tag) => {
                     incrementCount(trendingTagTootsInFeedCount, tag.name);
                     // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
                     trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
                     tootsWithTagScoredSoFar[tag.name] = 0;
-                }
+                });
             }
         });
 
@@ -64,7 +64,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                     scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
                 }
 
-                (toot.trendingTags || []).forEach((tag) => {
+                (toot.realToot().trendingTags || []).forEach((tag) => {
                     // Always decrement the penalty for the tag
                     incrementCount(tootsWithTagScoredSoFar, tag.name);
                     decrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);

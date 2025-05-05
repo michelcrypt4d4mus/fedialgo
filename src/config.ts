@@ -64,7 +64,7 @@ export const Config: ConfigType = {
     defaultLanguage: "en",
 
     // Timeline toots
-    hashtagTootRetrievalDelaySeconds: 13,   // Delay before pulling trending & participated hashtag toots
+    hashtagTootRetrievalDelaySeconds: 20,   // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,               // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 1000,           // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum

@@ -114,6 +114,7 @@ class MastoApi {
         // In one experiment it took 2.1 seconds to get 80 toos from the API and another 8 seconds to call setDependentProperties(toot)
         (0, log_helpers_1.traceLog)(`${logPrefix} Fetched ${statuses.length} statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
         const toots = await toot_1.default.buildToots(statuses, logPrefix);
+        toots.forEach(t => t.source = types_1.StorageKey.HOME_TIMELINE);
         (0, log_helpers_1.traceLog)(`${logPrefix} Built ${toots.length} toots ${(0, time_helpers_1.ageInSeconds)(startedAt)} (oldest: ${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))})`);
         return toots;
     }
@@ -300,6 +301,7 @@ class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, logPrefix);
+                toots.forEach(t => t.source = maxRecordsConfigKey); // TODO: use a better string for this
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
                 }

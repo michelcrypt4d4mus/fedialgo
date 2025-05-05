@@ -30,16 +30,16 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.account.webfingerURI);
             if (toot.reblog?.account)
                 (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.reblog.account.webfingerURI);
-            if (!toot.trendingTags) {
+            if (!toot.realToot().trendingTags) {
                 console.warn(`No trending tags for toot:`, toot);
             }
             else {
-                for (const tag of toot.trendingTags) {
+                toot.realToot().trendingTags.forEach((tag) => {
                     (0, collection_helpers_1.incrementCount)(trendingTagTootsInFeedCount, tag.name);
                     // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
                     trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
                     tootsWithTagScoredSoFar[tag.name] = 0;
-                }
+                });
             }
         });
         // Build a dict of tagName => penaltyIncrement
@@ -57,7 +57,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 (0, collection_helpers_1.decrementCount)(tootsPerAccount, toot.reblog.account.webfingerURI);
                 scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
             }
-            (toot.trendingTags || []).forEach((tag) => {
+            (toot.realToot().trendingTags || []).forEach((tag) => {
                 // Always decrement the penalty for the tag
                 (0, collection_helpers_1.incrementCount)(tootsWithTagScoredSoFar, tag.name);
                 (0, collection_helpers_1.decrementCount)(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);

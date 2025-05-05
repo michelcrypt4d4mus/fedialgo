@@ -98,6 +98,7 @@ class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
+            toot.source = types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS;
         });
         return trendingToots;
     }

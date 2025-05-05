@@ -54,12 +54,13 @@ const UNKNOWN = "unknown";
 
 // Serialized version of a Toot
 export interface SerializableToot extends mastodon.v1.Status {
-    followedTags?: MastodonTag[];  // Array of tags that the user follows that exist in this toot
+    followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblog?: SerializableToot | null,  // The toot that was retooted (if any)
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
+    source?: string;                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
@@ -120,11 +121,12 @@ export default class Toot implements TootObj {
     url?: string | null;
 
     // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
-    followedTags?: mastodon.v1.Tag[];   // Array of tags that the user follows that exist in this toot
+    followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblogsBy!: Account[];             // The accounts that retooted this toot
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
+    source?: string;                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags?: TrendingTag[];      // Tags that are trending that appear in this toot
@@ -172,6 +174,7 @@ export default class Toot implements TootObj {
         this.reblogsBy = (toot.reblogsBy ?? []).map(account => new Account(account));
         this.resolvedToot = toot.resolvedToot;
         this.scoreInfo = toot.scoreInfo;
+        this.source = toot.source;
         this.trendingRank = toot.trendingRank;
         this.trendingLinks = toot.trendingLinks;
         this.trendingTags = toot.trendingTags;
@@ -517,6 +520,7 @@ export default class Toot implements TootObj {
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
+            let source = uriToots.map(toot => toot.source).filter(s => s != undefined).join(", ");
 
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
@@ -528,8 +532,9 @@ export default class Toot implements TootObj {
                 toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
                 toot.followedTags ??= firstFollowedTags?.followedTags;
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
-                toot.muted = isMuted;
                 toot.isFollowed = isFollowed;
+                toot.muted = isMuted;
+                toot.source = source;
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
