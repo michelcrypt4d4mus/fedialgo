@@ -76,19 +76,20 @@ export const Config: ConfigType = {
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
-        [StorageKey.BLOCKED_ACCOUNTS]:        12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
-        [StorageKey.FAVOURITED_TOOTS]:        12 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TAGS]:  4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_ACCOUNTS]:        4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_TAGS]:            4 * SECONDS_IN_HOUR,
-        [StorageKey.MUTED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
-        [StorageKey.RECENT_NOTIFICATIONS]:     6 * SECONDS_IN_HOUR,
-        [StorageKey.RECENT_USER_TOOTS]:        2 * SECONDS_IN_HOUR,
-        [StorageKey.POPULAR_SERVERS]:         24 * SECONDS_IN_HOUR,
-        [StorageKey.SERVER_SIDE_FILTERS]:     24 * SECONDS_IN_HOUR,
-        [StorageKey.TRENDING_TAG_TOOTS]:    0.25 * SECONDS_IN_HOUR,
+        [StorageKey.BLOCKED_ACCOUNTS]:         12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
+        [StorageKey.FAVOURITED_TOOTS]:         12 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TAGS]:   4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_LINKS]:  4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TOOTS]:  4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_ACCOUNTS]:         4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_TAGS]:             4 * SECONDS_IN_HOUR,
+        [StorageKey.MUTED_ACCOUNTS]:           12 * SECONDS_IN_HOUR,
+        [StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * SECONDS_IN_HOUR,
+        [StorageKey.POPULAR_SERVERS]:          24 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_NOTIFICATIONS]:      6 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_USER_TOOTS]:         2 * SECONDS_IN_HOUR,
+        [StorageKey.SERVER_SIDE_FILTERS]:      24 * SECONDS_IN_HOUR,
+        [StorageKey.TRENDING_TAG_TOOTS]:     0.25 * SECONDS_IN_HOUR,
     },
     timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
 
