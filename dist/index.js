@@ -254,7 +254,11 @@ class TheAlgorithm {
     }
     // Filter the feed to only include toots from followed accounts
     homeTimelineToots() {
-        return this.feed.filter(toot => toot.isFollowed);
+        const followedAccountToots = this.feed.filter(toot => toot.isFollowed);
+        if (!followedAccountToots.length && this.feed.length) {
+            console.warn(`no followed account toots in feed with ${this.feed.length} toots!`);
+        }
+        return followedAccountToots;
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
