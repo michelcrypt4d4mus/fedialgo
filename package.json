@@ -46,6 +46,7 @@
         "async-mutex": "^0.5.0",
         "axios": "^1.7.2",
         "blueimp-md5": "^2.19.0",
+        "buffer": "^6.0.3",
         "change-case": "^5.4.4",
         "class-transformer": "^0.5.1",
         "html-entities": "^2.6.0",

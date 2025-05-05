@@ -2,6 +2,7 @@
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
 import 'reflect-metadata'; // Required for class-transformer
+import { Buffer } from 'buffer';
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 

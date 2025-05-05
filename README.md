@@ -29,6 +29,18 @@ Or with `yarn`:
 yarn add https://github.com/michelcrypt4d4mus/fedialgo#stable
 ```
 
+If you're using the library in a browser you may also need the `buffer` package if you get a `Buffer is not a function` error:
+```bash
+npm install --save buffer
+```
+
+And then put this in your main entrypoint (e.g. `App.tsx` or something like that):
+
+```typescript
+import { Buffer } from 'buffer'; // Required for class-transformer to work
+(window as any).Buffer = Buffer;
+```
+
 # Usage
 The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running:
 

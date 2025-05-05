@@ -246,13 +246,13 @@ class Storage {
     }
     static deserialize(key, value) {
         if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`<${key}> Deserializing accounts...`);
+            trace(`[${key}] Deserializing accounts...`);
             // return plainToInstance(Account, value);
             value = value;
             return value.map((a) => (0, class_transformer_1.plainToInstance)(account_1.default, a));
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`<${key}> Deserializing toots...`);
+            trace(`[${key}] Deserializing toots...`);
             // value = value as SerializableToot[];
             if (Array.isArray(value)) {
                 return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
@@ -268,11 +268,11 @@ class Storage {
     }
     static serialize(key, value) {
         if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`<${key}> serializing accounts...`);
+            trace(`[${key}] serializing accounts...`);
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`<${key}> serializing toots...`);
+            trace(`[${key}] serializing toots...`);
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else {

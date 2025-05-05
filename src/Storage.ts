@@ -261,12 +261,12 @@ export default class Storage {
 
     private static deserialize(key: StorageKey, value: StorableObj): StorableObj {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`<${key}> Deserializing accounts...`);
+            trace(`[${key}] Deserializing accounts...`);
             // return plainToInstance(Account, value);
             value = value as mastodon.v1.Account[];
             return value.map((a) => plainToInstance(Account, a));
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`<${key}> Deserializing toots...`);
+            trace(`[${key}] Deserializing toots...`);
             // value = value as SerializableToot[];
             if (Array.isArray(value)) {
                 return value.map((t) => plainToInstance(Toot, t));
@@ -281,10 +281,10 @@ export default class Storage {
 
     private static serialize(key: StorageKey, value: StorableObj): StorableObj {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`<${key}> serializing accounts...`);
+            trace(`[${key}] serializing accounts...`);
             return instanceToPlain(value);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`<${key}> serializing toots...`);
+            trace(`[${key}] serializing toots...`);
             return instanceToPlain(value);
         } else {
             return value;
