@@ -104,7 +104,7 @@ class MastoApi {
             breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
                 // Break the toot fetching loop if we encounter a toot older than the cutoff date
-                if (oldestTootAt && oldestTootAt <= cutoffAt) {
+                if (oldestTootAt && (oldestTootAt <= cutoffAt)) {
                     console.log(`${logPrefix} Halting (${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)} <= ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)})`);
                     return true;
                 }

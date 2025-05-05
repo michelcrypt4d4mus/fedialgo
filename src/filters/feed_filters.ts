@@ -109,6 +109,6 @@ export function initializeFiltersWithSummaryInfo(toots: Toot[], userData: UserDa
     });
 
     Storage.setFilters(filters);
-    console.debug(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
+    traceLog(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
     return filters;
 }

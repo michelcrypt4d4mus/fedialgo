@@ -111,7 +111,7 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
         filters.filterSections[propertyName].setOptions(counts);
     });
     Storage_1.default.setFilters(filters);
-    console.debug(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
+    (0, log_helpers_1.traceLog)(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
     return filters;
 }
 exports.initializeFiltersWithSummaryInfo = initializeFiltersWithSummaryInfo;
