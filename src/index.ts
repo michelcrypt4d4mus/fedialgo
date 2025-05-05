@@ -400,7 +400,7 @@ class TheAlgorithm {
             releaseMutex();
         }
 
-        // TODO: testing out moving these lines outside the mutex lock
+        // TODO: testing out moving these lines outside the mutex lock resulted in < 10 to first visible toots
         this.filters = initializeFiltersWithSummaryInfo(this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
         logInfo(logPrefix, `${TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
