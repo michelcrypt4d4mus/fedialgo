@@ -94,7 +94,7 @@ export default class Storage {
         }
 
         if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && isDebugMode) {
-            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], StorageKey.RECENT_USER_TOOTS);
+            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], key);
         }
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
