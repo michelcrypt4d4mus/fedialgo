@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+# v0.26.0
+* Use `class-transformer` package to serialize and deserialize objects (which will hopefully improve speed)
+
 ### v0.25.4
 * Fix bug where changes to the feed would invalidate old FeedFilterSettings in the GUI
 * Add `Config.invalidTrendingTags` param to list tags that are too generic to be used
