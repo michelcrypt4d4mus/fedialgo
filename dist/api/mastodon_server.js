@@ -209,8 +209,8 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
-        const startedAt = new Date();
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
+        const startedAt = new Date();
         try {
             let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers) {

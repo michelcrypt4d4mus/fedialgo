@@ -2,15 +2,14 @@
  * Helper methods for dealing with Mastodon's Tag objects.
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
-import { mastodon } from "masto";
-
 import MastoApi from "../../api/api";
+import { MastodonTag } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
 // Lowercase the tag name, replace URL with one on homeserver
-export function repairTag(tag: mastodon.v1.Tag): mastodon.v1.Tag {
+export function repairTag(tag: MastodonTag): MastodonTag {
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);
         tag.name = BROKEN_TAG;

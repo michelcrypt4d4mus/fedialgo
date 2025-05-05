@@ -376,6 +376,9 @@ class Toot {
     }
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData, trendingLinks, trendingTags) {
+        // If trendingTags is set we know setDependentProperties() has already been called on this toot
+        if (this.trendingTags)
+            return;
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
@@ -405,15 +408,16 @@ class Toot {
     static async buildToots(statuses, logPrefix) {
         if (statuses.length == 0)
             return [];
+        let toots = statuses.map((status) => status instanceof Toot ? status : new Toot(status));
+        // Fetch all the data we need to set dependent properties
         const userData = await api_1.default.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
-        // If the first element is a Toot, assume all Toots and we don't need to create new Toot objects
-        let toots = (statuses[0] instanceof Toot) ? statuses : statuses.map(t => new Toot(t));
-        await (0, collection_helpers_1.batchPromises)(toots, async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags), "Toot.setDependentProperties()");
+        // Set properties, dedupe, and sort by popularity
+        const setProps = async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags);
+        await (0, collection_helpers_1.batchPromises)(toots, setProps, "buildToots");
         toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
-        toots.sort((a, b) => b.popularity() - a.popularity());
-        return toots;
+        return toots.sort((a, b) => b.popularity() - a.popularity());
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
@@ -421,6 +425,9 @@ class Toot {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            // If there's only one too there's no need to collate anything
+            if (uriToots.length == 1)
+                return;
             const isMuted = uriToots.some(toot => toot.muted);
             const isFollowed = uriToots.some(toot => toot.isFollowed);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);

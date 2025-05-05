@@ -4,6 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.repairTag = void 0;
+/*
+ * Helper methods for dealing with Mastodon's Tag objects.
+ * API docs: https://docs.joinmastodon.org/entities/Tag/
+ */
 const api_1 = __importDefault(require("../../api/api"));
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name, replace URL with one on homeserver

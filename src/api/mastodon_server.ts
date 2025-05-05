@@ -38,6 +38,8 @@ export enum FediverseTrendingType {
     TAGS = "tags",
 };
 
+type InstanceDict = Record<string, MastodonInstance>;
+
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
@@ -52,7 +54,7 @@ const TRENDING_MUTEXES: Partial<ApiMutex> = {
 interface FetchTrendingProps<T> {
     key: StorageKey;
     serverFxn: (server: MastodonServer) => Promise<T[]>;
-    processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify, send to Storage, and anything else needed
+    processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify and anything else needed
 };
 
 
@@ -222,8 +224,8 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
-        const startedAt = new Date();
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
+        const startedAt = new Date();
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.POPULAR_SERVERS);
@@ -353,18 +355,16 @@ export default class MastodonServer {
 
 
 // Return a dict of servers with MAU over the minServerMAU threshold
-function filterMinMAU(
-    serverInfos: Record<string, InstanceResponse>,
-    minMAU: number
-): Record<string, MastodonInstance> {
+function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: number): InstanceDict {
     const servers = Object.entries(serverInfos).reduce(
         (filtered, [domain, instanceObj]) => {
             if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
                 filtered[domain] = instanceObj as MastodonInstance;
             }
+
             return filtered;
         },
-        {} as Record<string, MastodonInstance>
+        {} as InstanceDict
     );
 
     traceLog(`[filterMinMAU()] ${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);

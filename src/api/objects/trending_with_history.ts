@@ -25,11 +25,11 @@ import { mastodon } from "masto";
 import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
-import { TrendingWithHistory } from "../../types";
+import { MastodonTag, TrendingWithHistory } from "../../types";
 
 
 // Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
-export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.Tag): void {
+export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag): void {
     const obj = _obj as TrendingWithHistory;
     obj.url = obj.url.toLowerCase();  // TODO: not ideal for this to happen here
 
