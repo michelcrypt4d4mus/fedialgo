@@ -52,15 +52,15 @@ export function transformKeys<T>(data: T, transform: (key: string) => string): T
 
 
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-export function incrementCount(
-    counts: StringNumberDict,
-    key?: CountKey | null,
-    increment: number = 1
-): StringNumberDict {
+export function incrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
     key = key ?? "unknown";
     counts[key] = (counts[key] || 0) + increment;
     return counts;
 };
+
+export function decrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
+    return incrementCount(counts, key, -1 * increment);
+}
 
 
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'

@@ -6,6 +6,7 @@ import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import Storage from '../../Storage';
 import { sumArray } from '../../helpers/collection_helpers';
+import { traceLog } from '../../helpers/log_helpers';
 import { WeightName } from "../../types";
 
 
@@ -21,8 +22,7 @@ export default class TrendingTagsScorer extends FeatureScorer {
 
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= Storage.getConfig().excessiveTags) {
-            // TODO: reenable this log?
-            // console.info(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            traceLog(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
             score *= Storage.getConfig().excessiveTagsPenalty;
         }
 

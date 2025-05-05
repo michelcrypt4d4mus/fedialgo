@@ -5,7 +5,7 @@
 import FeedScorer from "../feed_scorer";
 import Storage from "../../Storage";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
-import { incrementCount } from "../../helpers/collection_helpers";
+import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
 import { StringNumberDict, WeightName } from "../../types";
 import { traceLog } from "../../helpers/log_helpers";
 
@@ -17,9 +17,9 @@ export default class DiversityFeedScorer extends FeedScorer {
 
     // Count toots by account (but negative instead of positive count)
     extractScoringData(feed: Toot[]): StringNumberDict {
-        const sortedToots = sortByCreatedAt(feed).reverse() as Toot[];
+        const sortedToots = sortByCreatedAt(feed) as Toot[];
         const tootsPerAccount: StringNumberDict = {}
-        const trendingTagUsageCounts: StringNumberDict = {};
+        const trendingTagTootsInFeedCount: StringNumberDict = {};
         const trendingTagPenalty: StringNumberDict = {};
         const tootsWithTagScoredSoFar: StringNumberDict = {};
 
@@ -34,16 +34,18 @@ export default class DiversityFeedScorer extends FeedScorer {
                 console.warn(`No trending tags for toot:`, toot);
             } else {
                 for (const tag of toot.trendingTags!) {
-                    incrementCount(trendingTagUsageCounts, tag.name);
-                    trendingTagPenalty[tag.name] ||= -1 * (tag.numAccounts || 1);  // At first this is just tag.numAccounts
-                    tootsWithTagScoredSoFar[tag.name] ||= 0;
+                    incrementCount(trendingTagTootsInFeedCount, tag.name);
+                    // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
+                    trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
+                    tootsWithTagScoredSoFar[tag.name] = 0;
                 }
             }
         });
 
+        // Build a dict of tagName => penaltyIncrement
         const trendingTagIncrement = Object.entries(trendingTagPenalty).reduce(
-            (increments, [tagName, penalty]) => {
-                increments[tagName] = -1 * penalty / (trendingTagUsageCounts[tagName] || 1);
+            (increments, [tagName, trendingNumAccountsVal]) => {
+                increments[tagName] = trendingNumAccountsVal / (trendingTagTootsInFeedCount[tagName] || 1);
                 return increments;
             }, {} as StringNumberDict
         );
@@ -51,27 +53,28 @@ export default class DiversityFeedScorer extends FeedScorer {
         console.log(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
 
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
+        // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce(
             (scores, toot) => {
-                incrementCount(tootsPerAccount, toot.account.webfingerURI, -1);
+                decrementCount(tootsPerAccount, toot.account.webfingerURI);
                 scores[toot.uri] = -1 * (tootsPerAccount[toot.account.webfingerURI] || 0);
 
                 if (toot.reblog) {
-                    incrementCount(tootsPerAccount, toot.reblog.account.webfingerURI, -1);
+                    decrementCount(tootsPerAccount, toot.reblog.account.webfingerURI);
                     scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
                 }
 
                 (toot.trendingTags || []).forEach((tag) => {
                     // Always decrement the penalty for the tag
-                    incrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
                     incrementCount(tootsWithTagScoredSoFar, tag.name);
-                    const logStr = `penalty: ${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
+                    decrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
+                    const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
 
                     if (toot.isFollowed || toot.reblog?.isFollowed) {
                         // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
                     } else if (tootsWithTagScoredSoFar[tag.name] > Storage.getConfig().minTrendingTagTootsForPenalty) {
                         // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
-                        scores[toot.uri] += trendingTagPenalty[tag.name] || 0;
+                        scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;
                         traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                     } else {
                         // traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
@@ -88,7 +91,13 @@ export default class DiversityFeedScorer extends FeedScorer {
         const score = this.scoreData[toot.uri] || 0;
 
         if (score > 0) {
-            console.warn(`Got positive diversity score of ${score} for toot:`, toot);
+            // Deal with floating point noise resulting in mildly posivitive scores
+            if (score < 0.2) {
+                this.scoreData[toot.uri] = 0;
+            } else {
+                console.warn(`Got positive diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
+            }
+
             return 0;
         }
 

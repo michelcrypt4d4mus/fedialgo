@@ -19,9 +19,9 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     }
     // Count toots by account (but negative instead of positive count)
     extractScoringData(feed) {
-        const sortedToots = (0, toot_1.sortByCreatedAt)(feed).reverse();
+        const sortedToots = (0, toot_1.sortByCreatedAt)(feed);
         const tootsPerAccount = {};
-        const trendingTagUsageCounts = {};
+        const trendingTagTootsInFeedCount = {};
         const trendingTagPenalty = {};
         const tootsWithTagScoredSoFar = {};
         // Collate the overall score for each account. The penalty for frequent tooters decreases by 1 per toot.
@@ -36,36 +36,39 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             }
             else {
                 for (const tag of toot.trendingTags) {
-                    (0, collection_helpers_1.incrementCount)(trendingTagUsageCounts, tag.name);
-                    trendingTagPenalty[tag.name] ||= -1 * (tag.numAccounts || 1); // At first this is just tag.numAccounts
-                    tootsWithTagScoredSoFar[tag.name] ||= 0;
+                    (0, collection_helpers_1.incrementCount)(trendingTagTootsInFeedCount, tag.name);
+                    // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
+                    trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
+                    tootsWithTagScoredSoFar[tag.name] = 0;
                 }
             }
         });
-        const trendingTagIncrement = Object.entries(trendingTagPenalty).reduce((increments, [tagName, penalty]) => {
-            increments[tagName] = -1 * penalty / (trendingTagUsageCounts[tagName] || 1);
+        // Build a dict of tagName => penaltyIncrement
+        const trendingTagIncrement = Object.entries(trendingTagPenalty).reduce((increments, [tagName, trendingNumAccountsVal]) => {
+            increments[tagName] = trendingNumAccountsVal / (trendingTagTootsInFeedCount[tagName] || 1);
             return increments;
         }, {});
         console.log(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
+        // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((scores, toot) => {
-            (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.account.webfingerURI, -1);
+            (0, collection_helpers_1.decrementCount)(tootsPerAccount, toot.account.webfingerURI);
             scores[toot.uri] = -1 * (tootsPerAccount[toot.account.webfingerURI] || 0);
             if (toot.reblog) {
-                (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.reblog.account.webfingerURI, -1);
+                (0, collection_helpers_1.decrementCount)(tootsPerAccount, toot.reblog.account.webfingerURI);
                 scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
             }
             (toot.trendingTags || []).forEach((tag) => {
                 // Always decrement the penalty for the tag
-                (0, collection_helpers_1.incrementCount)(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
                 (0, collection_helpers_1.incrementCount)(tootsWithTagScoredSoFar, tag.name);
-                const logStr = `penalty: ${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
+                (0, collection_helpers_1.decrementCount)(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
+                const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
                 if (toot.isFollowed || toot.reblog?.isFollowed) {
                     // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
                 }
                 else if (tootsWithTagScoredSoFar[tag.name] > Storage_1.default.getConfig().minTrendingTagTootsForPenalty) {
                     // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
-                    scores[toot.uri] += trendingTagPenalty[tag.name] || 0;
+                    scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;
                     (0, log_helpers_1.traceLog)(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                 }
                 else {

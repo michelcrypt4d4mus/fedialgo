@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -55,6 +55,10 @@ function incrementCount(counts, key, increment = 1) {
 }
 exports.incrementCount = incrementCount;
 ;
+function decrementCount(counts, key, increment = 1) {
+    return incrementCount(counts, key, -1 * increment);
+}
+exports.decrementCount = decrementCount;
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 function countValues(items, getKey = (item) => item, countNulls) {
     return items.reduce((counts, item) => {

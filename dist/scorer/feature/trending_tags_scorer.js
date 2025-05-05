@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const Storage_1 = __importDefault(require("../../Storage"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
 class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
@@ -21,8 +22,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         let score = (0, collection_helpers_1.sumArray)(tagScores);
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= Storage_1.default.getConfig().excessiveTags) {
-            // TODO: reenable this log?
-            // console.info(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            (0, log_helpers_1.traceLog)(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
             score *= Storage_1.default.getConfig().excessiveTagsPenalty;
         }
         return score;
