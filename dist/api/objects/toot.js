@@ -13,6 +13,7 @@ const escape = require('regexp.escape');
 const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
+const scorer_1 = __importDefault(require("../../scorer/scorer"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
@@ -20,7 +21,6 @@ const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
-const scorer_1 = __importDefault(require("../../scorer/scorer"));
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -377,22 +377,19 @@ class Toot {
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData, trendingLinks, trendingTags) {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
-        if (this.trendingTags)
+        if (this.followedTags && this.trendingTags)
             return;
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();
-        // Set trendingLinks property
+        // Set trendingTags and followedTags properties, trendingLinks
+        // TODO: this has an unfortunate side effect that the filters don't work correctly on toots
+        // that contain the name of a hashtag without actually containing that hashtag.
+        // TootMatcher was updated to make it work while we try this out.
+        toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
-        // Set trendingTags and followedTags properties
-        // TODO: this has an unfortunate side effect that the filters don't work correctly
-        // on toots that contain the name of a hashtag without actually
-        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
-        if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-        }
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
             (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
@@ -433,6 +430,8 @@ class Toot {
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
+            const firstFollowedTags = uriToots.find(toot => !!toot.followedTags);
+            const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
@@ -445,6 +444,8 @@ class Toot {
                 toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
                 toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
+                toot.followedTags ??= firstFollowedTags?.followedTags;
+                toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.muted = isMuted;
                 toot.isFollowed = isFollowed;
                 if (toot.reblog) {

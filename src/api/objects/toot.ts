@@ -9,6 +9,7 @@ const escape = require('regexp.escape');
 import Account from "./account";
 import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
+import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
@@ -37,7 +38,6 @@ import {
     TrendingTag,
     WeightName
 } from "../../types";
-import Scorer from "../../scorer/scorer";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -54,7 +54,7 @@ const UNKNOWN = "unknown";
 
 // Serialized version of a Toot
 export interface SerializableToot extends mastodon.v1.Status {
-    followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
+    followedTags?: MastodonTag[];  // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblog?: SerializableToot | null,  // The toot that was retooted (if any)
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
@@ -452,22 +452,19 @@ export default class Toot implements TootObj {
     // Some properties cannot be repaired and/or set until info about the user is available
     private setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
-        if (this.trendingTags) return;
+        if (this.followedTags && this.trendingTags) return;
 
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();
-        // Set trendingLinks property
-        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 
-        // Set trendingTags and followedTags properties
-        // TODO: this has an unfortunate side effect that the filters don't work correctly
-        // on toots that contain the name of a hashtag without actually
-        // containing that hashtag. TootMatcher was updated to make it work while we try this out.
-        if (!toot.trendingTags || !toot.followedTags) {
-            toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-        }
+        // Set trendingTags and followedTags properties, trendingLinks
+        // TODO: this has an unfortunate side effect that the filters don't work correctly on toots
+        // that contain the name of a hashtag without actually containing that hashtag.
+        // TootMatcher was updated to make it work while we try this out.
+        toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
+        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
@@ -514,11 +511,12 @@ export default class Toot implements TootObj {
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
+            const firstFollowedTags = uriToots.find(toot => !!toot.followedTags);
+            const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-
 
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
@@ -528,6 +526,8 @@ export default class Toot implements TootObj {
                 toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
                 toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
+                toot.followedTags ??= firstFollowedTags?.followedTags;
+                toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.muted = isMuted;
                 toot.isFollowed = isFollowed;
 

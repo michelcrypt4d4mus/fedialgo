@@ -347,17 +347,17 @@ class TheAlgorithm {
         const logPrefix = `fetchAndMergeToots() ${tootFetcher.name}`;
         const startedAt = new Date();
         let newToots = [];
-        const logTootsStr = () => `${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
         (0, log_helpers_1.traceLog)(`${logPrefix} started fetching toots...`);
         try {
             newToots = await tootFetcher();
-            (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${logTootsStr()}`);
         }
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
+        const logTootsStr = () => `${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+        (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${logTootsStr()}`);
         newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), log_helpers_1.CLEANUP_FEED, 'invalid', 'Toot');
-        // Only need to lock the mutex when we start modifying common variables like this.feed
+        // Only need to lock the mutex when we start mutating common variables like this.feed
         // TODO: this mutex is a bit of a logjam...
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mergeMutex, logPrefix);
         try {
