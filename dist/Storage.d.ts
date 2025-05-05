@@ -4,7 +4,6 @@ import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, Weights }
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
-    static buildFromApiObjects(key: StorageKey, objects: StorableObj[]): StorableObj[];
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null>;

@@ -51,6 +51,7 @@ export default class Account implements AccountObj {
     // Fedialgo extension fields
     webfingerURI!: string;
 
+    // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account: mastodon.v1.Account): Account {
         const accountObj = new Account();
         accountObj.id = account.id;

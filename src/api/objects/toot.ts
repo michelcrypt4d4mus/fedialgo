@@ -135,9 +135,9 @@ export default class Toot implements TootObj {
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
 
+    // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(toot: SerializableToot): Toot {
         const tootObj = new Toot();
-
         tootObj.id = toot.id;
         tootObj.uri = toot.uri;
         tootObj.account = Account.build(toot.account);

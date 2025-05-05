@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import MastoApi from "./api/api";
-import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
+import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
@@ -63,16 +63,6 @@ const trace = (s: string, ...args: any[]) => traceLog(logMsg(s), ...args);
 
 
 export default class Storage {
-    static buildFromApiObjects(key: StorageKey, objects: StorableObj[]): StorableObj[] {
-        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => Account.build(o as mastodon.v1.Account));
-        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return objects.map(o => Toot.build(o as SerializableToot));
-        } else {
-            return objects;
-        }
-    }
-
     // Clear everything but preserve the user's identity and weightings
     static async clearAll(): Promise<void> {
         log(`Clearing all storage...`);
@@ -261,13 +251,9 @@ export default class Storage {
 
     private static deserialize(key: StorageKey, value: StorableObj): StorableObj {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`[${key}] Deserializing accounts...`);
-            // return plainToInstance(Account, value);
             value = value as mastodon.v1.Account[];
             return value.map((a) => plainToInstance(Account, a));
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`[${key}] Deserializing toots...`);
-            // value = value as SerializableToot[];
             if (Array.isArray(value)) {
                 return value.map((t) => plainToInstance(Toot, t));
             } else {

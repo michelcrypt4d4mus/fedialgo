@@ -49,6 +49,7 @@ class Account {
     roles = []; // TODO: not sure default is a good idea
     // Fedialgo extension fields
     webfingerURI;
+    // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account) {
         const accountObj = new Account();
         accountObj.id = account.id;

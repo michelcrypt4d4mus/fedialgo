@@ -46,7 +46,7 @@ export enum StorageKey {
     FILTERS = 'Filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
-    HASHTAG_TOOTS = 'HashtagToots',
+    HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
     HOME_TIMELINE = 'HomeTimeline',
     MUTED_ACCOUNTS = 'MutedAccounts',
     OPENINGS = "Openings",
@@ -113,6 +113,7 @@ export type InstanceResponse = MastodonInstance | null;
 // All these types have an id property
 // TODO: automatically check uniqueness when loading these from cache
 export type MastodonObjWithID = (
+    // Account |
     mastodon.v1.Account |
     mastodon.v1.Notification |
     mastodon.v2.Filter |
@@ -137,11 +138,24 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 
+export type DeserializedApiObject = Account | Toot;
+
 export type StorableApiObject = (
+    // DeserializedApiObject |
+    Account |
     MastodonObjWithID |
     MastodonTag |
     Toot |
     TrendingLink |
+    mastodon.v1.TrendLink
+);
+
+export type MastodonApiObject = (
+    mastodon.v1.Account |
+    mastodon.v1.Notification |
+    mastodon.v2.Filter |
+    mastodon.v1.Status |
+    mastodon.v1.Tag |
     mastodon.v1.TrendLink
 );
 

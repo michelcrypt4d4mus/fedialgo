@@ -102,7 +102,9 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type StorableApiObject = (MastodonObjWithID | MastodonTag | Toot | TrendingLink | mastodon.v1.TrendLink);
+export type DeserializedApiObject = Account | Toot;
+export type StorableApiObject = (Account | MastodonObjWithID | MastodonTag | Toot | TrendingLink | mastodon.v1.TrendLink);
+export type MastodonApiObject = (mastodon.v1.Account | mastodon.v1.Notification | mastodon.v2.Filter | mastodon.v1.Status | mastodon.v1.Tag | mastodon.v1.TrendLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;

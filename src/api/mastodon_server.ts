@@ -24,7 +24,7 @@ import {
     MastodonInstanceEmpty,
     MastodonInstance,
     MastodonInstances,
-    StorableObj,
+    StorableApiObject,
     StorageKey,
     TrendingLink,
     TrendingObj,
@@ -51,7 +51,7 @@ const TRENDING_MUTEXES: Partial<ApiMutex> = {
     [StorageKey.POPULAR_SERVERS]: new Mutex(),
 };
 
-interface FetchTrendingProps<T> {
+interface FetchTrendingProps<T extends TrendingObj> {
     key: StorageKey;
     serverFxn: (server: MastodonServer) => Promise<T[]>;
     processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify and anything else needed
@@ -194,14 +194,6 @@ export default class MastodonServer {
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
-
-                // const testStorageToots = toots.slice(0, 10).map(t => Toot.build(t));
-                // console.log(`[${StorageKey.TOOT_TESTER}] built ${testStorageToots.length} trending toots`, testStorageToots);
-                // await Storage.storeTransformedToots(StorageKey.TOOT_TESTER, testStorageToots);
-                // console.log(`[${StorageKey.TOOT_TESTER}] about to load serialized toots`);
-                // const loadedToots = await Storage.getTransformedToots(StorageKey.TOOT_TESTER);
-                // console.log(`[${StorageKey.TOOT_TESTER}] loaded ${loadedToots?.length} toots`, loadedToots);
-
                 return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });
@@ -320,7 +312,9 @@ export default class MastodonServer {
 
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
-    private static async fetchTrendingObjsFromAllServers<T extends TrendingObj>(props: FetchTrendingProps<T>): Promise<T[]> {
+    private static async fetchTrendingObjsFromAllServers<T extends TrendingObj>(
+        props: FetchTrendingProps<T>
+    ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[key]!, logPrefix);
@@ -336,7 +330,7 @@ export default class MastodonServer {
                 records = await processingFxn(flatObjs);
                 let msg = `[${TELEMETRY}] fetched ${records.length} unique records ${ageString(startedAt)}`;
                 console.log(`${logPrefix} ${msg}`, records);
-                await Storage.set(key, records as StorableObj);
+                await Storage.set(key, records);
             }
 
             return records;

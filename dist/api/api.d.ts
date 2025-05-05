@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { MastodonTag, StorageKey } from "../types";
+import { MastodonApiObject, MastodonTag, StorageKey } from "../types";
 import { ConfigType } from "../config";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
@@ -40,5 +40,6 @@ export default class MastoApi {
     private getApiRecords;
     private hashtagTimelineToots;
     private buildParams;
+    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]): MastodonApiObject[] | Toot[] | Account[];
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 }

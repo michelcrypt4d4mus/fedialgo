@@ -73,17 +73,6 @@ const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
 const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
 class Storage {
-    static buildFromApiObjects(key, objects) {
-        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => account_1.default.build(o));
-        }
-        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return objects.map(o => toot_1.default.build(o));
-        }
-        else {
-            return objects;
-        }
-    }
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
         log(`Clearing all storage...`);
@@ -246,14 +235,10 @@ class Storage {
     }
     static deserialize(key, value) {
         if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`[${key}] Deserializing accounts...`);
-            // return plainToInstance(Account, value);
             value = value;
             return value.map((a) => (0, class_transformer_1.plainToInstance)(account_1.default, a));
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`[${key}] Deserializing toots...`);
-            // value = value as SerializableToot[];
             if (Array.isArray(value)) {
                 return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
             }

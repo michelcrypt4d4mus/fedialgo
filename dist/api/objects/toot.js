@@ -92,6 +92,7 @@ class Toot {
     audioAttachments;
     imageAttachments;
     videoAttachments;
+    // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(toot) {
         const tootObj = new Toot();
         tootObj.id = toot.id;
