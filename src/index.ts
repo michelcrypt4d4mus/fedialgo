@@ -2,7 +2,7 @@
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
 import 'reflect-metadata'; // Required for class-transformer
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer'; // Maybe Required for class-transformer though seems to be required in client?
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
