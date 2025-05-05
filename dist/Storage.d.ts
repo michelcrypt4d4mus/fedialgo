@@ -1,12 +1,12 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, Weights } from "./types";
+import { FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingStorage, Weights } from "./types";
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
-    static getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null>;
+    static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getTrending(): Promise<TrendingStorage>;

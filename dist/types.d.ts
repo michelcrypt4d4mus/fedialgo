@@ -106,6 +106,7 @@ export type ScorerInfo = {
 export type DeserializedApiObject = Account | Toot;
 export type StorableApiObject = (Account | MastodonObjWithID | MastodonApiObject | MastodonTag | Toot | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
+export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

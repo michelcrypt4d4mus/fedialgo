@@ -165,6 +165,11 @@ export type StorableObj = (
     number
 );
 
+export type StorableObjWithCache = (
+    MastodonInstances |
+    StorableApiObject[]
+)
+
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

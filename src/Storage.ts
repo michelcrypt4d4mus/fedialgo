@@ -21,6 +21,7 @@ import {
     FeedFilterSettingsSerialized,
     MastodonObjWithID,
     StorableObj,
+    StorableObjWithCache,
     StorableWithTimestamp,
     StorageKey,
     TrendingLink,
@@ -97,7 +98,7 @@ export default class Storage {
     }
 
     // Return null if the data is in storage is stale or doesn't exist
-    static async getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null> {
+    static async getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null> {
         const logPrefix = `getIfNotStale("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
