@@ -16,7 +16,7 @@ import { ApiMutex, MastodonObjWithID, MastodonTag, StorableApiObject, StorableOb
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config, ConfigType } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
+import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
 import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
@@ -93,13 +93,13 @@ export default class MastoApi {
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = timelineCutoffAt();
-        numToots ||= Config.homeTimelineBatchSize;
+        const startedAt = new Date();
 
         const statuses = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             label: StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots,
+            maxRecords: numToots || Config.homeTimelineBatchSize,
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = earliestTootedAt(allResults) || new Date();
@@ -114,8 +114,10 @@ export default class MastoApi {
             }
         });
 
+        // In one experiment it took 2.1 seconds to get 80 toos from the API and another 8 seconds to call setDependentProperties(toot)
+        traceLog(`${logPrefix} Fetched ${statuses.length} statuses ${ageString(startedAt)}`);
         const toots = await Toot.buildToots(statuses, logPrefix);
-        console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
+        traceLog(`${logPrefix} Built ${toots.length} toots ${ageInSeconds(startedAt)} (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
         return toots;
     };
 

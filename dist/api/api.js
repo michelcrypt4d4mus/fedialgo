@@ -94,12 +94,12 @@ class MastoApi {
     async fetchHomeFeed(numToots, maxId) {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
-        numToots ||= config_1.Config.homeTimelineBatchSize;
+        const startedAt = new Date();
         const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots,
+            maxRecords: numToots || config_1.Config.homeTimelineBatchSize,
             skipCache: true,
             breakIf: (_newPageOfResults, allResults) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(allResults) || new Date();
@@ -111,8 +111,10 @@ class MastoApi {
                 return false;
             }
         });
+        // In one experiment it took 2.1 seconds to get 80 toos from the API and another 8 seconds to call setDependentProperties(toot)
+        (0, log_helpers_1.traceLog)(`${logPrefix} Fetched ${statuses.length} statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
         const toots = await toot_1.default.buildToots(statuses, logPrefix);
-        console.log(`${logPrefix} Retrieved ${toots.length} toots (oldest: ${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))})`);
+        (0, log_helpers_1.traceLog)(`${logPrefix} Built ${toots.length} toots ${(0, time_helpers_1.ageInSeconds)(startedAt)} (oldest: ${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))})`);
         return toots;
     }
     ;

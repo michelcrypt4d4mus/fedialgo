@@ -99,6 +99,7 @@ class Storage {
             await this.remove(key);
             return null;
         }
+        // Check for unique IDs in the stored data if we're in debug mode
         if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
             (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }

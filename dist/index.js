@@ -356,19 +356,21 @@ class TheAlgorithm {
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
+        newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), log_helpers_1.CLEANUP_FEED, 'invalid', 'Toot');
         // Only need to lock the mutex when we start modifying common variables like this.feed
+        // TODO: this mutex is a bit of a logjam...
         const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mergeMutex, logPrefix);
         try {
-            newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), log_helpers_1.CLEANUP_FEED, 'invalid', 'Toot');
             this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], log_helpers_1.CLEANUP_FEED);
-            this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.default.instance.getUserData());
-            await this.scoreAndFilterFeed();
-            (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
-            return newToots;
         }
         finally {
             releaseMutex();
         }
+        // TODO: testing out moving these lines outside the mutex lock
+        this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.default.instance.getUserData());
+        await this.scoreAndFilterFeed();
+        (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
+        return newToots;
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     async prepareScorers(force) {

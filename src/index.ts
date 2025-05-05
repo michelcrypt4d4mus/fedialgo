@@ -389,19 +389,22 @@ class TheAlgorithm {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
         }
 
+        newToots = filterWithLog<Toot>(newToots, t => t.isValidForFeed(), CLEANUP_FEED, 'invalid', 'Toot');
         // Only need to lock the mutex when we start modifying common variables like this.feed
+        // TODO: this mutex is a bit of a logjam...
         const releaseMutex = await lockMutex(this.mergeMutex, logPrefix);
 
         try {
-            newToots = filterWithLog<Toot>(newToots, t => t.isValidForFeed(), CLEANUP_FEED, 'invalid', 'Toot');
             this.feed = Toot.dedupeToots([...this.feed, ...newToots], CLEANUP_FEED);
-            this.filters = initializeFiltersWithSummaryInfo(this.feed, await MastoApi.instance.getUserData());
-            await this.scoreAndFilterFeed();
-            logInfo(logPrefix, `${TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
-            return newToots;
         } finally {
             releaseMutex();
         }
+
+        // TODO: testing out moving these lines outside the mutex lock
+        this.filters = initializeFiltersWithSummaryInfo(this.feed, await MastoApi.instance.getUserData());
+        await this.scoreAndFilterFeed();
+        logInfo(logPrefix, `${TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
+        return newToots;
     }
 
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
