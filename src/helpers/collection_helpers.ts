@@ -140,7 +140,7 @@ export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): 
 
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-export async function batchPromises<T>(
+export async function batchMap<T>(
     items: Array<T>,
     fn: (item: T) => Promise<any>,
     label?: string,

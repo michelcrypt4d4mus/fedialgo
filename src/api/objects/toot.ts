@@ -12,7 +12,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
-import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -483,9 +483,13 @@ export default class Toot implements TootObj {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
-    static async buildToots(statuses: SerializableToot[] | Toot[], logPrefix?: string): Promise<Toot[]> {
+    static async buildToots(
+        statuses: SerializableToot[] | Toot[],
+        source: string,
+        logPrefix?: string
+    ): Promise<Toot[]> {
         if (statuses.length == 0) return [];
-        let toots = statuses.map((status) => status instanceof Toot ? status : new Toot(status));
+        logPrefix ||= source;
 
         // Fetch all the data we need to set dependent properties
         const userData = await MastoApi.instance.getUserData();
@@ -493,9 +497,14 @@ export default class Toot implements TootObj {
         const trendingTags = await MastodonServer.fediverseTrendingTags();
 
         // Set properties, dedupe, and sort by popularity
-        const setProps = async (t: Toot) => t.setDependentProperties(userData, trendingLinks, trendingTags)
-        await batchPromises(toots, setProps, "buildToots");
-        toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
+        const setProps = async (t: SerializableToot | Toot) => {
+            const toot = (t instanceof Toot ? t : new Toot(t));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags);
+            toot.source = source;
+        }
+
+        let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
+        toots = Toot.dedupeToots(toots, logPrefix);
         return toots.sort((a, b) => b.popularity() - a.popularity());
     }
 

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add a `source` property to `Toot` class
 
 ### v0.25.2
 * `DiversityFeedScorer` also penalizes trending tags that show up more than `Config.minTrendingTagTootsForPenalty` times

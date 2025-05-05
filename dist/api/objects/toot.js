@@ -404,18 +404,22 @@ class Toot {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
-    static async buildToots(statuses, logPrefix) {
+    static async buildToots(statuses, source, logPrefix) {
         if (statuses.length == 0)
             return [];
-        let toots = statuses.map((status) => status instanceof Toot ? status : new Toot(status));
+        logPrefix ||= source;
         // Fetch all the data we need to set dependent properties
         const userData = await api_1.default.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         // Set properties, dedupe, and sort by popularity
-        const setProps = async (t) => t.setDependentProperties(userData, trendingLinks, trendingTags);
-        await (0, collection_helpers_1.batchPromises)(toots, setProps, "buildToots");
-        toots = Toot.dedupeToots(toots, logPrefix || "buildToots");
+        const setProps = async (t) => {
+            const toot = (t instanceof Toot ? t : new Toot(t));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags);
+            toot.source = source;
+        };
+        let toots = await (0, collection_helpers_1.batchMap)(statuses, setProps, "buildToots");
+        toots = Toot.dedupeToots(toots, logPrefix);
         return toots.sort((a, b) => b.popularity() - a.popularity());
     }
     // Remove dupes by uniquifying on the toot's URI

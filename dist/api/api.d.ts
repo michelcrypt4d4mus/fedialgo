@@ -35,7 +35,7 @@ export default class MastoApi {
     getRecentUserToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
-    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey?: keyof ConfigType): Promise<Toot[]>;
+    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
     setBackgroundConcurrency(): void;
     private getApiRecords;
     private hashtagTimelineToots;

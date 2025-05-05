@@ -8,10 +8,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 const config_2 = require("../config");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
@@ -67,7 +67,7 @@ class Scorer {
                 // Feed scorers' data must be refreshed each time the feed changes
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
-                await (0, collection_helpers_1.batchPromises)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
+                await (0, collection_helpers_1.batchMap)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
                 // Sort feed based on score from high to low.
                 toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             }

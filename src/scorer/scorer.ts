@@ -7,10 +7,10 @@ import FeatureScorer from './feature_scorer';
 import FeedScorer from './feed_scorer';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
+import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError } from '../helpers/log_helpers';
-import { batchPromises, sumValues } from "../helpers/collection_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
 
@@ -85,7 +85,7 @@ export default abstract class Scorer {
                 // Feed scorers' data must be refreshed each time the feed changes
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
-                await batchPromises<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
+                await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
                 // Sort feed based on score from high to low.
                 toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             } finally {

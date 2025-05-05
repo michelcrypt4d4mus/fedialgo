@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchPromises = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchMap = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -126,7 +126,7 @@ exports.uniquifyByProp = uniquifyByProp;
 ;
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-async function batchPromises(items, fn, label, batchSize) {
+async function batchMap(items, fn, label, batchSize) {
     batchSize ||= config_1.Config.scoringBatchSize;
     const startTime = new Date();
     let results = [];
@@ -140,7 +140,7 @@ async function batchPromises(items, fn, label, batchSize) {
     }
     return results;
 }
-exports.batchPromises = batchPromises;
+exports.batchMap = batchMap;
 ;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {

@@ -116,8 +116,7 @@ export default class MastoApi {
 
         // In one experiment it took 2.1 seconds to get 80 toos from the API and another 8 seconds to call setDependentProperties(toot)
         traceLog(`${logPrefix} Fetched ${statuses.length} statuses ${ageString(startedAt)}`);
-        const toots = await Toot.buildToots(statuses, logPrefix);
-        toots.forEach(t => t.source = StorageKey.HOME_TIMELINE);
+        const toots = await Toot.buildToots(statuses, StorageKey.HOME_TIMELINE, logPrefix);
         traceLog(`${logPrefix} Built ${toots.length} toots ${ageInSeconds(startedAt)} (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
         return toots;
     };
@@ -316,7 +315,7 @@ export default class MastoApi {
     async getCacheableToots(
         key: StorageKey,
         fetch: () => Promise<mastodon.v1.Status[]>,
-        maxRecordsConfigKey?: keyof ConfigType
+        maxRecordsConfigKey: keyof ConfigType
     ): Promise<Toot[]> {
         const logPrefix = `[API getCacheableToots ${key}]`;
         const releaseMutex = await lockMutex(this.mutexes[key], logPrefix);
@@ -328,8 +327,7 @@ export default class MastoApi {
             if (!toots) {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
-                toots = await Toot.buildToots(statuses, logPrefix);
-                toots.forEach(t => t.source = maxRecordsConfigKey);  // TODO: use a better string for this
+                toots = await Toot.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
 
                 if (maxRecordsConfigKey) {
                     toots = truncateToConfiguredLength(toots, maxRecordsConfigKey);
