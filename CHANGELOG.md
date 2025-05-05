@@ -2,7 +2,7 @@
 * `DiversityFeedScorer` also penalizes trending tags that show up more than `Config.minTrendingTagTootsForPenalty` times
 * Rename `Config.homeTimelineBatchSize`
 * Automatically serialize or deserialize toots to/from `Storage.get/set` based on values in `STORAGE_KEYS_WITH_TOOTS`
-* Configure STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_UNIQUE_IDS, call unique checker in debug mode loading from Storage
+* Configure `STORAGE_KEYS_WITH_ACCOUNTS`, `STORAGE_KEYS_WITH_UNIQUE_IDS`, call unique checker in debug mode loading from `Storage`
 
 ### v0.25.1
 * Expose `TheAlgorithm.isLoading()` method

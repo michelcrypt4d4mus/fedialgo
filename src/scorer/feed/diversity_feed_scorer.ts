@@ -61,24 +61,20 @@ export default class DiversityFeedScorer extends FeedScorer {
                     scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
                 }
 
-                // Don't penalize people we follow for their trending tags
-                if (toot.isFollowed || toot.reblog?.isFollowed) {
-                    if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
-                    return scores;
-                }
-
                 (toot.trendingTags || []).forEach((tag) => {
                     // Always decrement the penalty for the tag
                     incrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
                     incrementCount(tootsWithTagScoredSoFar, tag.name);
                     const logStr = `penalty: ${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
 
-                    // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
-                    if (tootsWithTagScoredSoFar[tag.name] > Storage.getConfig().minTrendingTagTootsForPenalty) {
+                    if (toot.isFollowed || toot.reblog?.isFollowed) {
+                        // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
+                    } else if (tootsWithTagScoredSoFar[tag.name] > Storage.getConfig().minTrendingTagTootsForPenalty) {
+                        // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
                         scores[toot.uri] += trendingTagPenalty[tag.name] || 0;
                         traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                     } else {
-                        traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
+                        // traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
                     }
                 })
 
@@ -90,7 +86,12 @@ export default class DiversityFeedScorer extends FeedScorer {
 
     async _score(toot: Toot) {
         const score = this.scoreData[toot.uri] || 0;
-        if (score > 0) console.warn(`Got positive diversity score of ${score} for toot:`, toot);
+
+        if (score > 0) {
+            console.warn(`Got positive diversity score of ${score} for toot:`, toot);
+            return 0;
+        }
+
         return score;
     }
 };
