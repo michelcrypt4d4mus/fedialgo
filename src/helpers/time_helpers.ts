@@ -1,7 +1,7 @@
 /*
  * Helpers for time-related operations
  */
-import Storage from "../Storage";
+import { Config } from "../config";
 import { NULL, quote} from "./string_helpers";
 
 export const SECONDS_IN_MINUTE = 60;
@@ -81,6 +81,6 @@ export function nowString(): string {
 
 // Return the oldest timestamp we should feed timeline toots until
 export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = Storage.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
+    const timelineLookBackMS = Config.maxTimelineHoursToFetch * 3600 * 1000;
     return new Date(Date.now() - timelineLookBackMS);
 };

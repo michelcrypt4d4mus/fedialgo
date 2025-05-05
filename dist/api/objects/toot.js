@@ -13,9 +13,9 @@ const escape = require('regexp.escape');
 const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
-const Storage_1 = __importDefault(require("../../Storage"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const config_1 = require("../../config");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -339,7 +339,7 @@ class Toot {
     repair() {
         this.application ??= { name: UNKNOWN };
         this.application.name ??= UNKNOWN;
-        this.language ??= Storage_1.default.getConfig().defaultLanguage;
+        this.language ??= config_1.Config.defaultLanguage;
         this.tags.forEach(tag_1.repairTag); // Repair Tags
         if (this.reblog) {
             this.trendingRank ||= this.reblog.trendingRank;

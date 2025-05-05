@@ -11,8 +11,8 @@ import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { checkUniqueIDs } from "./helpers/collection_helpers";
-import { Config, DEFAULT_CONFIG } from "./config";
-import { isDebugMode, isProduction } from "./helpers/environment_helpers";
+import { ConfigType, Config } from "./config";
+import { isDebugMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
 import { toLocaleInt } from "./helpers/string_helpers";
 import {
@@ -61,8 +61,6 @@ const trace = (s: string, ...args: any[]) => traceLog(logMsg(s), ...args);
 
 
 export default class Storage {
-    static config: Config = Object.assign({}, DEFAULT_CONFIG);
-
     // Clear everything but preserve the user's identity and weightings
     static async clearAll(): Promise<void> {
         log(`Clearing all storage...`);
@@ -104,6 +102,7 @@ export default class Storage {
         }
     }
 
+    // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null> {
         const logPrefix = `getIfNotStale("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -114,7 +113,7 @@ export default class Storage {
         };
 
         const updatedAt = new Date(withTimestamp.updatedAt);
-        const staleAfterSeconds = Storage.getConfig().staleDataSeconds[key] ?? Storage.getConfig().staleDataDefaultSeconds;
+        const staleAfterSeconds = Config.staleDataSeconds[key] ?? Config.staleDataDefaultSeconds;
         const dataAgeInSeconds = ageInSeconds(updatedAt);
         let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)})`;
@@ -140,11 +139,6 @@ export default class Storage {
     static async getAccounts(key: StorageKey): Promise<Account[] | null> {
         const accounts = await this.get(key) as mastodon.v1.Account[];
         return accounts ? accounts.map(t => new Account(t)) : null;
-    }
-
-    // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
-    static getConfig(): Config {
-        return this.config;
     }
 
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there

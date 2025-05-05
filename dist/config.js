@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SCORERS_CONFIG = exports.DEFAULT_CONFIG = void 0;
+exports.SCORERS_CONFIG = exports.Config = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const types_1 = require("./types");
 const time_helpers_1 = require("./helpers/time_helpers");
 // App level config that is not user configurable
-exports.DEFAULT_CONFIG = {
+exports.Config = {
     defaultLanguage: "en",
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 13,

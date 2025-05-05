@@ -36,6 +36,7 @@ const async_mutex_1 = require("async-mutex");
 const api_1 = __importStar(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -102,18 +103,18 @@ class MastodonServer {
     }
     // Get the links that are trending on this server
     async fetchTrendingLinks() {
-        if (Storage_1.default.getConfig().noTrendingLinksServers.includes(this.domain)) {
+        if (config_1.Config.noTrendingLinksServers.includes(this.domain)) {
             console.debug(`Trending links are not available for '${this.domain}', skipping...`);
             return [];
         }
-        const numLinks = Storage_1.default.getConfig().numTrendingLinksPerServer;
+        const numLinks = config_1.Config.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(api_1.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
-        const numTags = Storage_1.default.getConfig().numTrendingTagsPerServer;
+        const numTags = config_1.Config.numTrendingTagsPerServer;
         const trendingTags = await this.fetchTrending(api_1.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
         return trendingTags;
@@ -152,7 +153,7 @@ class MastodonServer {
             url += `?limit=${limit}`;
         (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
-        const json = await axios_1.default.get(url, { timeout: Storage_1.default.getConfig().timeoutMS });
+        const json = await axios_1.default.get(url, { timeout: config_1.Config.timeoutMS });
         if (json.status === 200 && json.data) {
             (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetch response ${(0, time_helpers_1.ageString)(startedAt)}:`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);
@@ -226,7 +227,7 @@ class MastodonServer {
     ;
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {
-        return Storage_1.default.getConfig().noMauServers.some(s => domain == s);
+        return config_1.Config.noMauServers.some(s => domain == s);
     }
     ///////////////////////////////////////
     //      Private Static Methods       //
@@ -236,24 +237,23 @@ class MastodonServer {
     static async fetchMastodonInstances() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         (0, log_helpers_1.traceLog)(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
-        const config = Storage_1.default.getConfig();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         const followedUserDomainCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
         let mostFollowedDomains = (0, collection_helpers_1.sortKeysByValue)(followedUserDomainCounts);
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
-        mostFollowedDomains = mostFollowedDomains.slice(0, config.numServersToCheck);
+        mostFollowedDomains = mostFollowedDomains.slice(0, config_1.Config.numServersToCheck);
         // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
         // current Fedialgo. Filter out those below the userminServerMAU threshold
         let serverDict = await this.callForServers(mostFollowedDomains, (s) => s.fetchServerInfo());
-        serverDict = filterMinMAU(serverDict, config.minServerMAU);
+        serverDict = filterMinMAU(serverDict, config_1.Config.minServerMAU);
         const numActiveServers = Object.keys(serverDict).length;
-        const numServersToAdd = config.numServersToCheck - numActiveServers; // Number of default servers to add
+        const numServersToAdd = config_1.Config.numServersToCheck - numActiveServers; // Number of default servers to add
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config.minServerMAU} MAU, adding some`);
-            const extraServers = config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config_1.Config.minServerMAU} MAU, adding some`);
+            const extraServers = config_1.Config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             const extraServerInfos = await this.callForServers(extraServers, (s) => s.fetchServerInfo());
             serverDict = { ...serverDict, ...extraServerInfos };
         }

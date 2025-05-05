@@ -8,7 +8,7 @@ exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
-const Storage_1 = __importDefault(require("../Storage"));
+const config_1 = require("../config");
 const types_1 = require("../types");
 const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
@@ -127,7 +127,7 @@ exports.uniquifyByProp = uniquifyByProp;
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
 async function batchPromises(items, fn, label, batchSize) {
-    batchSize ||= Storage_1.default.getConfig().scoringBatchSize;
+    batchSize ||= config_1.Config.scoringBatchSize;
     const startTime = new Date();
     let results = [];
     for (let start = 0; start < items.length; start += batchSize) {
@@ -232,7 +232,7 @@ exports.sortObjsByProps = sortObjsByProps;
 // Find the configured value at configKey and truncate array to that length
 function truncateToConfiguredLength(array, key, label) {
     const logPfx = label ? `[${label}] ` : "";
-    const configValue = Storage_1.default.getConfig()[key];
+    const configValue = config_1.Config[key];
     if (!configValue) {
         console.error(`${logPfx}No configured value for ${key}! Not truncating.`);
         return array;

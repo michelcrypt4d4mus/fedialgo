@@ -3,7 +3,7 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { MastodonTag, StorageKey } from "../types";
-import { Config } from "../config";
+import { ConfigType } from "../config";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -35,7 +35,7 @@ export default class MastoApi {
     getRecentUserToots(moar?: boolean): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
-    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey?: keyof Config): Promise<Toot[]>;
+    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey?: keyof ConfigType): Promise<Toot[]>;
     setBackgroundConcurrency(): void;
     private getApiRecords;
     private hashtagTimelineToots;

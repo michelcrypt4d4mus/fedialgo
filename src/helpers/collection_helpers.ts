@@ -3,8 +3,7 @@
  */
 import md5 from "blueimp-md5";
 
-import Storage from "../Storage";
-import { Config } from "../config";
+import { Config, ConfigType } from "../config";
 import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { isNumber } from "./string_helpers";
 import { traceLog } from "./log_helpers";
@@ -147,7 +146,7 @@ export async function batchPromises<T>(
     label?: string,
     batchSize?: number,
 ): Promise<any[]> {
-    batchSize ||= Storage.getConfig().scoringBatchSize;
+    batchSize ||= Config.scoringBatchSize;
     const startTime = new Date();
     let results: any[] = [];
 
@@ -263,9 +262,9 @@ export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], asce
 
 
 // Find the configured value at configKey and truncate array to that length
-export function truncateToConfiguredLength(array: any[], key: keyof Config, label?: string): any[] {
+export function truncateToConfiguredLength(array: any[], key: keyof ConfigType, label?: string): any[] {
     const logPfx = label ? `[${label}] ` : "";
-    const configValue = Storage.getConfig()[key] as number;
+    const configValue = Config[key] as number;
 
     if (!configValue) {
         console.error(`${logPfx}No configured value for ${key}! Not truncating.`);

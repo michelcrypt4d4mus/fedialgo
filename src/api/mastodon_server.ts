@@ -10,6 +10,7 @@ import Account from "./objects/account";
 import MastoApi, { INSTANCE, LINKS, STATUSES, TAGS } from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
+import { Config } from "../config";
 import { countValues, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { ageString } from "../helpers/time_helpers";
@@ -102,12 +103,12 @@ export default class MastodonServer {
 
     // Get the links that are trending on this server
     async fetchTrendingLinks(): Promise<TrendingLink[]> {
-        if (Storage.getConfig().noTrendingLinksServers.includes(this.domain)) {
+        if (Config.noTrendingLinksServers.includes(this.domain)) {
             console.debug(`Trending links are not available for '${this.domain}', skipping...`);
             return [];
         }
 
-        const numLinks = Storage.getConfig().numTrendingLinksPerServer;
+        const numLinks = Config.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
         trendingLinks.forEach(decorateHistoryScores);
         return trendingLinks;
@@ -115,7 +116,7 @@ export default class MastodonServer {
 
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TrendingTag[]> {
-        const numTags = Storage.getConfig().numTrendingTagsPerServer;
+        const numTags = Config.numTrendingTagsPerServer;
         const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
         return trendingTags;
@@ -158,7 +159,7 @@ export default class MastodonServer {
         if (limit) url += `?limit=${limit}`;
         traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
-        const json = await axios.get<T>(url, { timeout: Storage.getConfig().timeoutMS });
+        const json = await axios.get<T>(url, { timeout: Config.timeoutMS });
 
         if (json.status === 200 && json.data) {
             traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
@@ -241,7 +242,7 @@ export default class MastodonServer {
 
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain: string): boolean {
-        return Storage.getConfig().noMauServers.some(s => domain == s);
+        return Config.noMauServers.some(s => domain == s);
     }
 
     ///////////////////////////////////////
@@ -253,27 +254,26 @@ export default class MastodonServer {
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         traceLog(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
-        const config = Storage.getConfig();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver());
         let mostFollowedDomains = sortKeysByValue(followedUserDomainCounts)
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
-        mostFollowedDomains = mostFollowedDomains.slice(0, config.numServersToCheck);
+        mostFollowedDomains = mostFollowedDomains.slice(0, Config.numServersToCheck);
 
         // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
         // current Fedialgo. Filter out those below the userminServerMAU threshold
         let serverDict = await this.callForServers<InstanceResponse>(mostFollowedDomains, (s) => s.fetchServerInfo());
-        serverDict = filterMinMAU(serverDict, config.minServerMAU);
+        serverDict = filterMinMAU(serverDict, Config.minServerMAU);
         const numActiveServers = Object.keys(serverDict).length;
-        const numServersToAdd = config.numServersToCheck - numActiveServers; // Number of default servers to add
+        const numServersToAdd = Config.numServersToCheck - numActiveServers; // Number of default servers to add
 
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config.minServerMAU} MAU, adding some`);
-            const extraServers = config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${Config.minServerMAU} MAU, adding some`);
+            const extraServers = Config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
             serverDict = {...serverDict, ...extraServerInfos};
         }

@@ -4,13 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = exports.TypeFilterName = exports.PropertyName = void 0;
-/*
- * Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language, hashtag, type of toot).
- */
-const Storage_1 = __importDefault(require("../Storage"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
@@ -62,7 +57,7 @@ const TOOT_MATCHERS = {
         return validValues.includes(toot.realToot().application?.name);
     },
     [PropertyName.LANGUAGE]: (toot, validValues) => {
-        return validValues.includes(toot.realToot().language || Storage_1.default.getConfig().defaultLanguage);
+        return validValues.includes(toot.realToot().language || config_1.Config.defaultLanguage);
     },
     [PropertyName.HASHTAG]: (toot, validValues) => {
         // The old way, using real tags

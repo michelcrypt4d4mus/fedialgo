@@ -41,6 +41,7 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
 const time_helpers_1 = require("../helpers/time_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
@@ -86,14 +87,14 @@ class MastoApi {
         this.mutexes = {};
         for (const key in types_1.StorageKey)
             this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
-        this.requestSemphore = new async_mutex_1.Semaphore(Storage_1.default.getConfig().maxConcurrentRequestsInitial);
+        this.requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial);
     }
     ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots, maxId) {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
-        numToots ||= Storage_1.default.getConfig().homeTimelineBatchSize;
+        numToots ||= config_1.Config.homeTimelineBatchSize;
         const statuses = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
             label: types_1.StorageKey.HOME_TIMELINE,
@@ -128,7 +129,7 @@ class MastoApi {
         const followedAccounts = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
-            maxRecords: Storage_1.default.getConfig().maxFollowingAccountsToPull,
+            maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
         return followedAccounts.map(a => new account_1.default(a));
     }
@@ -204,7 +205,7 @@ class MastoApi {
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
     async getStatusesForTag(tag, numToots) {
-        numToots ||= Storage_1.default.getConfig().numTootsPerTrendingTag;
+        numToots ||= config_1.Config.numTootsPerTrendingTag;
         const tagToots = await Promise.all([
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
@@ -264,7 +265,7 @@ class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr, maxRecords) {
-        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        maxRecords = maxRecords || config_1.Config.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const [semaphoreNum, releaseSemaphore] = await (0, log_helpers_1.lockSemaphore)(this.requestSemphore, logPrefix);
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
@@ -311,7 +312,7 @@ class MastoApi {
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
     // drain switching back to the browser window, which triggers a lot of background requests
     setBackgroundConcurrency() {
-        const newConcurrency = Storage_1.default.getConfig().maxConcurrentRequestsBackground;
+        const newConcurrency = config_1.Config.maxConcurrentRequestsBackground;
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
         // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
         this.requestSemphore = new async_mutex_1.Semaphore(newConcurrency);
@@ -323,7 +324,7 @@ class MastoApi {
         let logPfx = `[API ${fetchParams.label}]`;
         const useCache = (0, collection_helpers_1.isStorageKey)(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
-        fetchParams.maxRecords ??= Storage_1.default.getConfig().minRecordsForFeatureScoring;
+        fetchParams.maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
         fetchParams.skipCache ||= !useCache; // Skip cache if label is not a StorageKey
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         if (moar && (skipCache || maxId))
@@ -386,7 +387,7 @@ class MastoApi {
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
-        maxRecords = maxRecords || Storage_1.default.getConfig().defaultRecordsPerPage;
+        maxRecords = maxRecords || config_1.Config.defaultRecordsPerPage;
         let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
         const [semaphoreNum, releaseSemaphore] = await (0, log_helpers_1.lockSemaphore)(this.requestSemphore, logPrefix);
         logPrefix += ` (semaphore ${semaphoreNum})`;
@@ -411,9 +412,9 @@ class MastoApi {
     ;
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     buildParams(maxId, limit, logPfx) {
-        limit ||= Storage_1.default.getConfig().defaultRecordsPerPage;
+        limit ||= config_1.Config.defaultRecordsPerPage;
         let params = {
-            limit: Math.min(limit, Storage_1.default.getConfig().defaultRecordsPerPage),
+            limit: Math.min(limit, config_1.Config.defaultRecordsPerPage),
         };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };

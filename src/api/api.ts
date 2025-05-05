@@ -14,7 +14,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ApiMutex, MastodonObjWithID, MastodonTag, StorableApiObject, StorableObj, StorageKey } from "../types";
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
-import { Config } from "../config";
+import { Config, ConfigType } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
 import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
@@ -86,14 +86,14 @@ export default class MastoApi {
         // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
         this.mutexes = {} as ApiMutex;
         for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
-        this.requestSemphore = new Semaphore(Storage.getConfig().maxConcurrentRequestsInitial);
+        this.requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial);
     };
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
     async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
         const cutoffAt = timelineCutoffAt();
-        numToots ||= Storage.getConfig().homeTimelineBatchSize;
+        numToots ||= Config.homeTimelineBatchSize;
 
         const statuses = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
@@ -133,7 +133,7 @@ export default class MastoApi {
         const followedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             label: StorageKey.FOLLOWED_ACCOUNTS,
-            maxRecords: Storage.getConfig().maxFollowingAccountsToPull,
+            maxRecords: Config.maxFollowingAccountsToPull,
         });
 
         return followedAccounts.map(a => new Account(a));
@@ -221,7 +221,7 @@ export default class MastoApi {
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
     async getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]> {
-        numToots ||= Storage.getConfig().numTootsPerTrendingTag;
+        numToots ||= Config.numTootsPerTrendingTag;
 
         const tagToots = await Promise.all([
             this.searchForToots(tag.name, numToots),
@@ -288,7 +288,7 @@ export default class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
-        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        maxRecords = maxRecords || Config.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
@@ -313,7 +313,7 @@ export default class MastoApi {
     async getCacheableToots(
         key: StorageKey,
         fetch: () => Promise<mastodon.v1.Status[]>,
-        maxRecordsConfigKey?: keyof Config
+        maxRecordsConfigKey?: keyof ConfigType
     ): Promise<Toot[]> {
         const logPrefix = `[API getCacheableToots ${key}]`;
         const releaseMutex = await lockMutex(this.mutexes[key], logPrefix);
@@ -343,7 +343,7 @@ export default class MastoApi {
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
     // drain switching back to the browser window, which triggers a lot of background requests
     setBackgroundConcurrency(): void {
-        const newConcurrency = Storage.getConfig().maxConcurrentRequestsBackground;
+        const newConcurrency = Config.maxConcurrentRequestsBackground;
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
         // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
         this.requestSemphore = new Semaphore(newConcurrency);
@@ -356,7 +356,7 @@ export default class MastoApi {
         let logPfx = `[API ${fetchParams.label}]`;
         const useCache = isStorageKey(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
-        fetchParams.maxRecords ??= Storage.getConfig().minRecordsForFeatureScoring;
+        fetchParams.maxRecords ??= Config.minRecordsForFeatureScoring;
         fetchParams.skipCache ||= !useCache;  // Skip cache if label is not a StorageKey
         let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
@@ -421,7 +421,7 @@ export default class MastoApi {
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<mastodon.v1.Status[]> {
-        maxRecords = maxRecords || Storage.getConfig().defaultRecordsPerPage;
+        maxRecords = maxRecords || Config.defaultRecordsPerPage;
         let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
         const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
         logPrefix += ` (semaphore ${semaphoreNum})`;
@@ -446,10 +446,10 @@ export default class MastoApi {
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
-        limit ||= Storage.getConfig().defaultRecordsPerPage;
+        limit ||= Config.defaultRecordsPerPage;
 
         let params: mastodon.DefaultPaginationParams = {
-            limit: Math.min(limit, Storage.getConfig().defaultRecordsPerPage),
+            limit: Math.min(limit, Config.defaultRecordsPerPage),
         };
 
         if (maxId) params = {...params, maxId: `${maxId}`};

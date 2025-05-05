@@ -3,8 +3,8 @@
  * prevent prolific tooters from clogging up the feed.
  */
 import FeedScorer from "../feed_scorer";
-import Storage from "../../Storage";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
+import { Config } from "../../config";
 import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
 import { StringNumberDict, WeightName } from "../../types";
 import { traceLog } from "../../helpers/log_helpers";
@@ -72,10 +72,10 @@ export default class DiversityFeedScorer extends FeedScorer {
 
                     if (toot.isFollowed || toot.reblog?.isFollowed) {
                         // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
-                    } else if (tootsWithTagScoredSoFar[tag.name] > Storage.getConfig().minTrendingTagTootsForPenalty) {
+                    } else if (tootsWithTagScoredSoFar[tag.name] > Config.minTrendingTagTootsForPenalty) {
                         // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
                         scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;
-                        traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
+                        // traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                     } else {
                         // traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
                     }

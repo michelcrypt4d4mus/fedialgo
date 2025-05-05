@@ -34,13 +34,13 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
 import { CLEANUP_FEED, TRIGGER_FEED, PREP_SCORERS, lockMutex, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
+import { Config, SCORERS_CONFIG } from './config';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { SCORERS_CONFIG } from "./config";
 import {
     FeedFilterSettings,
     MastodonInstances,
@@ -173,7 +173,7 @@ class TheAlgorithm {
         this.prepareScorers();
 
         // Delay the trending tag toot pulls a bit because they generate a ton of API calls
-        let hashtagTootDelayMS = Storage.getConfig().hashtagTootRetrievalDelaySeconds * 1000;
+        let hashtagTootDelayMS = Config.hashtagTootRetrievalDelaySeconds * 1000;
         hashtagTootDelayMS *= (this.feed.length ? 0.5 : 1) // If we already have toots, reduce the delay
 
         setTimeout(
@@ -234,7 +234,7 @@ class TheAlgorithm {
     // Fetch toots from the mastodon "home timeline" API backwards from 'maxId'.
     // Works in conjunction with maybeGetMoreTimelineToots() to build a complete timeline.
     private async fetchHomeTimeline(maxId?: string): Promise<void> {
-        const batchSize = Storage.getConfig().homeTimelineBatchSize;
+        const batchSize = Config.homeTimelineBatchSize;
         const fetchHomeTimeline = async () => await MastoApi.instance.fetchHomeFeed(batchSize, maxId);
 
         this.fetchAndMergeToots(fetchHomeTimeline).then((newToots) => {
@@ -289,7 +289,7 @@ class TheAlgorithm {
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
-            Storage.getConfig().backgroundLoadIntervalMS
+            Config.backgroundLoadIntervalMS
         );
     }
 
@@ -315,9 +315,9 @@ class TheAlgorithm {
 
     // Decide whether we should fetch more home timeline toots based on current state + the new toots we just got
     private shouldGetMoreHomeToots(newHomeToots: Toot[]): boolean {
-        const maxInitialTimelineToots = Storage.getConfig().numDesiredTimelineToots;
+        const maxInitialTimelineToots = Config.numDesiredTimelineToots;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
-        const acceptableBatchSize = Storage.getConfig().homeTimelineBatchSize - 3;  // TODO: this is a bit arbitrary
+        const acceptableBatchSize = Config.homeTimelineBatchSize - 3;  // TODO: this is a bit arbitrary
 
         // If we don't have enough toots yet and we got almost all the numTimelineToots we requested last time
         // ("almost" bc sometimes we get 38 records instead of 40) then there's probably more toots to fetch.
@@ -335,7 +335,7 @@ class TheAlgorithm {
 
     // Decide what is the current state of the world and whether to continue fetching home timeline toots
     private async maybeGetMoreTimelineToots(newHomeToots: Toot[]): Promise<void> {
-        const maxInitialTimelineToots = Storage.getConfig().numDesiredTimelineToots;
+        const maxInitialTimelineToots = Config.numDesiredTimelineToots;
         const earliestNewHomeTootAt = earliestTootedAt(newHomeToots);
         let logPrefix = `[maybeGetMoreToots()]`;
 
@@ -344,7 +344,7 @@ class TheAlgorithm {
             const maxId = Toot.findMinIdForMaxIdParam(newHomeToots);
             this.logWithState(logPrefix, `Scheduling ${TRIGGER_FEED} recursively with maxID='${maxId}'`);
             this.setLoadingStateVariables(false);
-            setTimeout(() => this.fetchHomeTimeline(maxId!), Storage.getConfig().incrementalLoadDelayMS);
+            setTimeout(() => this.fetchHomeTimeline(maxId!), Config.incrementalLoadDelayMS);
             return;
         }
 
@@ -362,7 +362,7 @@ class TheAlgorithm {
         } else if (this.feed.length >= maxInitialTimelineToots) {  // Or if we have enough toots
             this.logWithState(logPrefix, `done (have ${this.feed.length} toots, wanted ${maxInitialTimelineToots})`);
         } else {  // Otherwise (presumably) the last fetch didn't get fulfilled
-            const batchSize = Storage.getConfig().homeTimelineBatchSize;
+            const batchSize = Config.homeTimelineBatchSize;
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${batchSize}`);
         }
 
@@ -488,8 +488,8 @@ class TheAlgorithm {
         } else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
 
-            if (this.feed.length < Storage.getConfig().numDesiredTimelineToots) {
-                this.loadingStatus += `, want ${Storage.getConfig().numDesiredTimelineToots.toLocaleString()}`;
+            if (this.feed.length < Config.numDesiredTimelineToots) {
+                this.loadingStatus += `, want ${Config.numDesiredTimelineToots.toLocaleString()}`;
             }
 
             this.loadingStatus += ')';

@@ -1,7 +1,7 @@
-import Toot from '../api/objects/toot';
-import { ScorerInfo, StringNumberDict, WeightName } from "../types";
 import FeatureScorer from './feature_scorer';
 import FeedScorer from './feed_scorer';
+import Toot from '../api/objects/toot';
+import { ScorerInfo, StringNumberDict, WeightName } from "../types";
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 export default abstract class Scorer {
     defaultWeight: number;

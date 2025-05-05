@@ -3,9 +3,9 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
+import { Config } from '../config';
 import { countValues } from "../helpers/collection_helpers";
 import { FilterArgs, StorageKey, StringNumberDict } from "../types";
 
@@ -69,7 +69,7 @@ const TOOT_MATCHERS: TootMatchers = {
         return validValues.includes(toot.realToot().application?.name);
     },
     [PropertyName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().language || Storage.getConfig().defaultLanguage);
+        return validValues.includes(toot.realToot().language || Config.defaultLanguage);
     },
     [PropertyName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         // The old way, using real tags

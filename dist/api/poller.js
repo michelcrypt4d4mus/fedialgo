@@ -10,8 +10,8 @@ exports.getMoarData = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
  */
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
-const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const config_1 = require("../config");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();
@@ -20,7 +20,7 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
-    const maxRecordsForFeatureScoring = Storage_1.default.getConfig().maxRecordsForFeatureScoring;
+    const maxRecordsForFeatureScoring = config_1.Config.maxRecordsForFeatureScoring;
     const startedAt = new Date();
     const releaseMutex = await MOAR_MUTEX.acquire();
     const pollers = [

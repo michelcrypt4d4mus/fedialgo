@@ -9,10 +9,10 @@ const escape = require('regexp.escape');
 import Account from "./account";
 import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
-import Storage from "../../Storage";
 import UserData from "../user_data";
 import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
 import { batchPromises, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
+import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import {
@@ -412,7 +412,7 @@ export default class Toot implements TootObj {
     private repair(): void {
         this.application ??= {name: UNKNOWN};
         this.application.name ??= UNKNOWN;
-        this.language ??= Storage.getConfig().defaultLanguage;
+        this.language ??= Config.defaultLanguage;
         this.tags.forEach(repairTag);  // Repair Tags
 
         if (this.reblog){

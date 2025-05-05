@@ -1,13 +1,10 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Helpers for time-related operations
  */
-const Storage_1 = __importDefault(require("../Storage"));
+const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
 exports.SECONDS_IN_MINUTE = 60;
 exports.SECONDS_IN_HOUR = 3600;
@@ -84,7 +81,7 @@ exports.nowString = nowString;
 ;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
-    const timelineLookBackMS = Storage_1.default.getConfig().maxTimelineHoursToFetch * 3600 * 1000;
+    const timelineLookBackMS = config_1.Config.maxTimelineHoursToFetch * 3600 * 1000;
     return new Date(Date.now() - timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;

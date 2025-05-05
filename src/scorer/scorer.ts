@@ -3,15 +3,16 @@
  */
 import { E_CANCELED, Mutex } from 'async-mutex';
 
+import FeatureScorer from './feature_scorer';
+import FeedScorer from './feed_scorer';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
+import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError } from '../helpers/log_helpers';
 import { batchPromises, sumValues } from "../helpers/collection_helpers";
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
-import FeatureScorer from './feature_scorer';
-import FeedScorer from './feed_scorer';
 
 const SCORE_MUTEX = new Mutex();
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
@@ -158,7 +159,7 @@ export default abstract class Scorer {
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
         const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), Storage.getConfig().timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), Config.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

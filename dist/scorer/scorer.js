@@ -8,11 +8,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
+const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
-const config_1 = require("../config");
+const config_2 = require("../config");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 class Scorer {
     defaultWeight;
@@ -22,7 +23,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.description = config_1.SCORERS_CONFIG[name].description;
+        this.description = config_2.SCORERS_CONFIG[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
     // Return a ScorerInfo object with the description and the scorer itself
@@ -131,7 +132,7 @@ class Scorer {
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
         const timeDecayWeight = userWeights[types_1.WeightName.TIME_DECAY] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.TIME_DECAY];
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), Storage_1.default.getConfig().timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.Config.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

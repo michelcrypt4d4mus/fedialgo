@@ -9,8 +9,8 @@ type StaleDataConfig = {
     [key in StorageKey]?: number
 }
 
-// See DEFAULT_CONFIG for comments explaining these values
-export type Config = {
+// See Config for comments explaining these values
+export type ConfigType = {
     defaultLanguage: string;
     // Timeline
     hashtagTootRetrievalDelaySeconds: number;
@@ -60,7 +60,7 @@ export type Config = {
 
 
 // App level config that is not user configurable
-export const DEFAULT_CONFIG: Config = {
+export const Config: ConfigType = {
     defaultLanguage: "en",
 
     // Timeline toots

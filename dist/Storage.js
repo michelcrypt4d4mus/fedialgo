@@ -70,7 +70,6 @@ const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
 const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
 class Storage {
-    static config = Object.assign({}, config_1.DEFAULT_CONFIG);
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
         log(`Clearing all storage...`);
@@ -110,6 +109,7 @@ class Storage {
             return withTimestamp.value;
         }
     }
+    // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale(key) {
         const logPrefix = `getIfNotStale("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -119,7 +119,7 @@ class Storage {
         }
         ;
         const updatedAt = new Date(withTimestamp.updatedAt);
-        const staleAfterSeconds = Storage.getConfig().staleDataSeconds[key] ?? Storage.getConfig().staleDataDefaultSeconds;
+        const staleAfterSeconds = config_1.Config.staleDataSeconds[key] ?? config_1.Config.staleDataDefaultSeconds;
         const dataAgeInSeconds = (0, time_helpers_1.ageInSeconds)(updatedAt);
         let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)})`;
@@ -143,10 +143,6 @@ class Storage {
     static async getAccounts(key) {
         const accounts = await this.get(key);
         return accounts ? accounts.map(t => new account_1.default(t)) : null;
-    }
-    // TODO: This might not be the right place for this. Also should it be cached in the browser storage?
-    static getConfig() {
-        return this.config;
     }
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
     static async getCoerced(key) {

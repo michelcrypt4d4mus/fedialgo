@@ -3,8 +3,8 @@
  */
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
-import Storage from '../Storage';
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
+import { Config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 
 const ENABLE_TRACE_LOG = isDebugMode;
@@ -52,7 +52,7 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
     const waitSeconds = ageInSeconds(startedAt);
     const logMsg = `${logPrefix} Mutex lock acquired ${ageString(startedAt)}`;
 
-    if (waitSeconds > Storage.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > Config.mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (waitSeconds > 2) {
         console.debug(logMsg);
@@ -68,7 +68,7 @@ export async function lockSemaphore(semaphore: Semaphore, logPrefix: string): Pr
     const waitSeconds = ageInSeconds(startedAt);
     const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${ageString(startedAt)}`;
 
-    if (waitSeconds > Storage.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > Config.mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (waitSeconds > 2) {
         console.debug(logMsg);

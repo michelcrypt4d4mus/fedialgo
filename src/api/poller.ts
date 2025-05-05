@@ -5,8 +5,8 @@
 import { Mutex } from 'async-mutex';
 
 import MastoApi from "../api/api";
-import Storage from "../Storage";
 import { ageString } from '../helpers/time_helpers';
+import { Config } from "../config";
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
@@ -18,7 +18,7 @@ const MOAR_MUTEX = new Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
     console.log(`${MOAR_DATA_PREFIX} triggered by timer...`);
-    const maxRecordsForFeatureScoring = Storage.getConfig().maxRecordsForFeatureScoring;
+    const maxRecordsForFeatureScoring = Config.maxRecordsForFeatureScoring;
     const startedAt = new Date();
     const releaseMutex = await MOAR_MUTEX.acquire();
 

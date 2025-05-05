@@ -1,11 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
-const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
@@ -48,7 +45,7 @@ async function lockMutex(mutex, logPrefix) {
     const releaseMutex = await mutex.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (waitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > config_1.Config.mutexWarnSeconds) {
         console.warn(logMsg);
     }
     else if (waitSeconds > 2) {
@@ -63,7 +60,7 @@ async function lockSemaphore(semaphore, logPrefix) {
     const release = await semaphore.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (waitSeconds > Storage_1.default.getConfig().mutexWarnSeconds) {
+    if (waitSeconds > config_1.Config.mutexWarnSeconds) {
         console.warn(logMsg);
     }
     else if (waitSeconds > 2) {

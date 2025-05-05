@@ -22,9 +22,9 @@
  */
 import { mastodon } from "masto";
 
-import Storage from "../../Storage";
 import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
+import { Config } from "../../config";
 import { TrendingWithHistory } from "../../types";
 
 
@@ -38,7 +38,7 @@ export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | mastodon.v1.
         obj.history = [];
     }
 
-    const recentHistory = obj.history.slice(0, Storage.getConfig().numDaysToCountTrendingTagData);
+    const recentHistory = obj.history.slice(0, Config.numDaysToCountTrendingTagData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

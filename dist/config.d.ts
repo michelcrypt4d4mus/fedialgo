@@ -2,7 +2,7 @@ import { ScorerDict, StorageKey } from "./types";
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };
-export type Config = {
+export type ConfigType = {
     defaultLanguage: string;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
@@ -43,6 +43,6 @@ export type Config = {
     noMauServers: string[];
     noTrendingLinksServers: string[];
 };
-export declare const DEFAULT_CONFIG: Config;
+export declare const Config: ConfigType;
 export declare const SCORERS_CONFIG: ScorerDict;
 export {};

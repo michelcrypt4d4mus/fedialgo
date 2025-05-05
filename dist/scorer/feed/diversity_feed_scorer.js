@@ -8,11 +8,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * prevent prolific tooters from clogging up the feed.
  */
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
-const Storage_1 = __importDefault(require("../../Storage"));
 const toot_1 = require("../../api/objects/toot");
+const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
-const log_helpers_1 = require("../../helpers/log_helpers");
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(types_1.WeightName.DIVERSITY);
@@ -66,10 +65,10 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 if (toot.isFollowed || toot.reblog?.isFollowed) {
                     // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
                 }
-                else if (tootsWithTagScoredSoFar[tag.name] > Storage_1.default.getConfig().minTrendingTagTootsForPenalty) {
+                else if (tootsWithTagScoredSoFar[tag.name] > config_1.Config.minTrendingTagTootsForPenalty) {
                     // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
                     scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;
-                    (0, log_helpers_1.traceLog)(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
+                    // traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                 }
                 else {
                     // traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
