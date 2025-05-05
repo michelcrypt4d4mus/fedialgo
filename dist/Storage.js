@@ -101,7 +101,7 @@ class Storage {
             return null;
         }
         if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
-            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, types_1.StorageKey.RECENT_USER_TOOTS);
+            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             return withTimestamp.value.map(t => new toot_1.default(t));

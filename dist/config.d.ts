@@ -30,6 +30,7 @@ export type Config = {
     numServersToCheck: number;
     excessiveTags: number;
     excessiveTagsPenalty: number;
+    minTrendingTagTootsForPenalty: number;
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingLinksPerServer: number;

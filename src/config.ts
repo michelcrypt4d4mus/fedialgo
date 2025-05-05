@@ -42,6 +42,7 @@ export type Config = {
     // Trending tags
     excessiveTags: number;
     excessiveTagsPenalty: number;
+    minTrendingTagTootsForPenalty: number,
     numTootsPerTrendingTag: number;
     numDaysToCountTrendingTagData: number;
     numTrendingLinksPerServer: number;
@@ -110,6 +111,7 @@ export const DEFAULT_CONFIG: Config = {
     // Trending tags and links
     excessiveTags: 25,                   // Toots with more than this many tags will be penalized
     excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
+    minTrendingTagTootsForPenalty: 9,    // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
     numTootsPerTrendingTag: 15,          // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,       // How many trending links to pull from each server

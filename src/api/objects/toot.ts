@@ -507,6 +507,7 @@ export default class Toot implements TootObj {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            const isMuted = uriToots.some(toot => toot.muted);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
@@ -521,6 +522,7 @@ export default class Toot implements TootObj {
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
+                toot.muted = isMuted;
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
