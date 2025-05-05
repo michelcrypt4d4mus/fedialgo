@@ -2,6 +2,7 @@
 
 ### v0.25.3
 * Add a `source` property to `Toot` class
+* (Demo App) Reduce the `numDisplayedToots` if user scrolls up enough
 
 ### v0.25.2
 * `DiversityFeedScorer` also penalizes trending tags that show up more than `Config.minTrendingTagTootsForPenalty` times
