@@ -344,11 +344,10 @@ export default class MastoApi {
 
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
     // drain switching back to the browser window, which triggers a lot of background requests
-    setBackgroundConcurrency(): void {
-        const newConcurrency = Config.maxConcurrentRequestsBackground;
-        console.log(`[MastoApi] Setting semaphore to background concurrency to ${newConcurrency}`);
-        // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
-        this.requestSemphore = new Semaphore(newConcurrency);
+    // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
+    setSemaphoreConcurrency(concurrency: number): void {
+        console.log(`[MastoApi] Setting semaphore to background concurrency to ${concurrency}`);
+        this.requestSemphore = new Semaphore(concurrency);
     }
 
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)

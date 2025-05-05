@@ -229,6 +229,7 @@ class TheAlgorithm {
         this.catchupCheckpoint = null;
         await Storage.clearAll();
         await this.loadCachedData();
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
     }
 
     // Fetch toots from the mastodon "home timeline" API backwards from 'maxId'.
@@ -369,7 +370,7 @@ class TheAlgorithm {
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
         this.launchBackgroundPoller();
         this.setLoadCompleteStateVariables();
-        MastoApi.instance.setBackgroundConcurrency();
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
         this.loadingStatus = null;
     }
 

@@ -221,6 +221,7 @@ class TheAlgorithm {
         this.catchupCheckpoint = null;
         await Storage_1.default.clearAll();
         await this.loadCachedData();
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
     }
     // Fetch toots from the mastodon "home timeline" API backwards from 'maxId'.
     // Works in conjunction with maybeGetMoreTimelineToots() to build a complete timeline.
@@ -338,7 +339,7 @@ class TheAlgorithm {
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
         this.launchBackgroundPoller();
         this.setLoadCompleteStateVariables();
-        api_1.default.instance.setBackgroundConcurrency();
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
         this.loadingStatus = null;
     }
     // Merge a new batch of toots into the feed.
