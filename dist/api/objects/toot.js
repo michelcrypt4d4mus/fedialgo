@@ -404,7 +404,8 @@ class Toot {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
-    static async buildToots(statuses, source, logPrefix) {
+    static async buildToots(statuses, source, // Where did these toots come from?
+    logPrefix) {
         if (statuses.length == 0)
             return [];
         logPrefix ||= source;

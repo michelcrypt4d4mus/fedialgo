@@ -46,7 +46,7 @@ export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag)
 
 // Return one of each unique trending object sorted by the number of accounts tooting that object.
 // The numToots & numAccounts props for each trending object are set to the max value encountered.
-export function uniquifyTrendingObjs<T>(
+export function uniquifyTrendingObjs<T extends TrendingWithHistory>(
     trendingObjs: TrendingWithHistory[],
     uniqueKey: (obj: TrendingWithHistory) => string
 ): T[] {

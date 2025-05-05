@@ -485,7 +485,7 @@ export default class Toot implements TootObj {
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(
         statuses: SerializableToot[] | Toot[],
-        source: string,
+        source: string,  // Where did these toots come from?
         logPrefix?: string
     ): Promise<Toot[]> {
         if (statuses.length == 0) return [];

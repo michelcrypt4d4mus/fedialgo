@@ -102,7 +102,8 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     private repair;
     private setDependentProperties;
-    static buildToots(statuses: SerializableToot[] | Toot[], source: string, logPrefix?: string): Promise<Toot[]>;
+    static buildToots(statuses: SerializableToot[] | Toot[], source: string, // Where did these toots come from?
+    logPrefix?: string): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
 }
