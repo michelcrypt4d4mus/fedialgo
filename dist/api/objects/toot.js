@@ -422,8 +422,10 @@ class Toot {
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             const isMuted = uriToots.some(toot => toot.muted);
+            const isFollowed = uriToots.some(toot => toot.isFollowed);
             const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
+            const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
@@ -435,7 +437,9 @@ class Toot {
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
+                toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
                 toot.muted = isMuted;
+                toot.isFollowed = isFollowed;
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
                     toot.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);

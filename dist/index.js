@@ -366,7 +366,7 @@ class TheAlgorithm {
         finally {
             releaseMutex();
         }
-        // TODO: testing out moving these lines outside the mutex lock
+        // TODO: testing out moving these lines outside the mutex lock resulted in < 10 to first visible toots
         this.filters = (0, feed_filters_1.initializeFiltersWithSummaryInfo)(this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
         (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
