@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const scorer_1 = __importDefault(require("./scorer"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const environment_helpers_1 = require("../helpers/environment_helpers");
 // TODO: Find a better name than "Feature" for this class
 class FeatureScorer extends scorer_1.default {
     constructor(scoreName) {
@@ -29,6 +30,8 @@ class FeatureScorer extends scorer_1.default {
         this.isReady = true;
         let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
         if (Object.values(this.scoreData).length > 0) {
+            if (environment_helpers_1.isDebugMode)
+                msg += `, scoreData: ${JSON.stringify(this.scoreData)}`;
             console.debug(`${msg}, returned:`, this.scoreData);
         }
     }

@@ -14,10 +14,10 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;
-    private mutexes;
-    private requestSemphore;
     tagURL: (tag: MastodonTag) => string;
     endpointURL: (endpoint: string) => string;
+    private mutexes;
+    private requestSemphore;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();

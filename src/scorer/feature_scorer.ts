@@ -5,6 +5,7 @@
  */
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
+import { isDebugMode } from "../helpers/environment_helpers";
 import { StringNumberDict, WeightName } from "../types";
 
 
@@ -30,6 +31,7 @@ export default abstract class FeatureScorer extends Scorer {
         let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
 
         if (Object.values(this.scoreData).length > 0) {
+            if (isDebugMode) msg += `, scoreData: ${JSON.stringify(this.scoreData)}`;
             console.debug(`${msg}, returned:`, this.scoreData);
         }
     }

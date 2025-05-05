@@ -55,8 +55,7 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    // URL for a tag on the user's homeserver
-    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;
+    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;  // URL for tag on the user's homeserver
     endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     private mutexes: ApiMutex;

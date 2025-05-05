@@ -59,11 +59,10 @@ class MastoApi {
     homeDomain;
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
+    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`; // URL for tag on the user's homeserver
+    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
-    // URL for a tag on the user's homeserver
-    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`;
-    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
