@@ -4,7 +4,7 @@
  */
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";
-import { Type, plainToInstance } from 'class-transformer';
+import { Type } from 'class-transformer';
 const escape = require('regexp.escape');
 
 import Account from "./account";

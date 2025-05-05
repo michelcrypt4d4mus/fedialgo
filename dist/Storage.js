@@ -240,10 +240,13 @@ class Storage {
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             if (Array.isArray(value)) {
-                return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
+                const toots = value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
+                const followed = toots.filter(t => t.isFollowed);
+                log(`[${key}] deserialized ${toots.length} toots, found ${followed.length} followed toots`);
+                return toots;
             }
             else {
-                console.warn(`Expected array of toots at key "${key}", but got:`, value);
+                warn(`Expected array of toots at key "${key}", but got:`, value);
                 return value;
             }
         }
@@ -257,7 +260,9 @@ class Storage {
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`[${key}] serializing toots...`);
+            const toots = value;
+            const followed = toots.filter(t => t.isFollowed);
+            log(`[${key}] serializing ${toots.length} toots, ${followed.length} followed toots...`);
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else {
