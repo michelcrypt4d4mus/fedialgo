@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Add Config.invalidTrendingTags param to list tags that are too generic to be used
+* Add `Config.invalidTrendingTags` param to list tags that are too generic to be used
 * `TheAlgorithm.reset()` also resets concurrency
 
 ### v0.25.3
