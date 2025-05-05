@@ -10,12 +10,15 @@ import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
+import { checkUniqueIDs } from "./helpers/collection_helpers";
 import { Config, DEFAULT_CONFIG } from "./config";
+import { isDebugMode, isProduction } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
 import { toLocaleInt } from "./helpers/string_helpers";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
+    MastodonObjWithID,
     StorableObj,
     StorableWithTimestamp,
     StorageKey,
@@ -26,15 +29,28 @@ import {
 } from "./types";
 
 // The cache values at these keys contain SerializedToot objects
-export const STORAGE_KEYS_WITH_TOOTS = [
+const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
     StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
-    // TODO these are just stored as undecorated Status objects
-    // StorageKey.RECENT_USER_TOOTS,
-    // StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
 ];
+
+const STORAGE_KEYS_WITH_ACCOUNTS = [
+    StorageKey.BLOCKED_ACCOUNTS,
+    StorageKey.FOLLOWED_ACCOUNTS,
+    StorageKey.MUTED_ACCOUNTS,
+    StorageKey.RECENT_NOTIFICATIONS,
+];
+
+const STORAGE_KEYS_WITH_UNIQUE_IDS = [
+    ...STORAGE_KEYS_WITH_TOOTS,
+    ...STORAGE_KEYS_WITH_ACCOUNTS,
+    StorageKey.FAVOURITED_TOOTS,   // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
+    StorageKey.RECENT_NOTIFICATIONS,
+    StorageKey.RECENT_USER_TOOTS,  // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
+    StorageKey.SERVER_SIDE_FILTERS,
+]
 
 const LOG_PREFIX = '[STORAGE]';
 const logMsg = (s: string) => `${LOG_PREFIX} ${s}`;
@@ -75,6 +91,10 @@ export default class Storage {
             warn(`No updatedAt found for "${key}", likely due to a fedialgo upgrade. Clearing cache.`);
             await this.remove(key);
             return null;
+        }
+
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && isDebugMode) {
+            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], StorageKey.RECENT_USER_TOOTS);
         }
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
@@ -166,7 +186,7 @@ export default class Storage {
             followedAccounts: await this.getAccounts(StorageKey.FOLLOWED_ACCOUNTS) || [],
             followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new Account(a)),
-            recentToots: await this.getCoerced<Toot>(StorageKey.RECENT_USER_TOOTS),
+            recentToots: await this.getCoerced<Toot>(StorageKey.RECENT_USER_TOOTS),  // TODO: maybe expensive to recompute this every time; we store a lot of user toots
             serverSideFilters: await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS),
         });
     }

@@ -7,7 +7,7 @@ import Storage from '../Storage';
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
 import { isDebugMode } from '../helpers/environment_helpers';
 
-const ENABLE_TRACE_LOG = isDebugMode();
+const ENABLE_TRACE_LOG = isDebugMode;
 
 // Log prefixes
 export const CLEANUP_FEED = "cleanupFeed()";

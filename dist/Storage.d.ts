@@ -2,7 +2,6 @@ import Account from "./api/objects/account";
 import UserData from "./api/user_data";
 import { Config } from "./config";
 import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, Weights } from "./types";
-export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export default class Storage {
     static config: Config;
     static clearAll(): Promise<void>;

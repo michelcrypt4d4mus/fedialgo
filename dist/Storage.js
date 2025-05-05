@@ -26,7 +26,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STORAGE_KEYS_WITH_TOOTS = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -37,19 +36,32 @@ const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
+const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
+const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
-exports.STORAGE_KEYS_WITH_TOOTS = [
+const STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
     types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,
-    // TODO these are just stored as undecorated Status objects
-    // StorageKey.RECENT_USER_TOOTS,
-    // StorageKey.FAVOURITED_TOOTS,  // Stores the toots that were favourited
+];
+const STORAGE_KEYS_WITH_ACCOUNTS = [
+    types_1.StorageKey.BLOCKED_ACCOUNTS,
+    types_1.StorageKey.FOLLOWED_ACCOUNTS,
+    types_1.StorageKey.MUTED_ACCOUNTS,
+    types_1.StorageKey.RECENT_NOTIFICATIONS,
+];
+const STORAGE_KEYS_WITH_UNIQUE_IDS = [
+    ...STORAGE_KEYS_WITH_TOOTS,
+    ...STORAGE_KEYS_WITH_ACCOUNTS,
+    types_1.StorageKey.FAVOURITED_TOOTS,
+    types_1.StorageKey.RECENT_NOTIFICATIONS,
+    types_1.StorageKey.RECENT_USER_TOOTS,
+    types_1.StorageKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
 const logMsg = (s) => `${LOG_PREFIX} ${s}`;
@@ -88,7 +100,10 @@ class Storage {
             await this.remove(key);
             return null;
         }
-        if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
+            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, types_1.StorageKey.RECENT_USER_TOOTS);
+        }
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             return withTimestamp.value.map(t => new toot_1.default(t));
         }
         else {
@@ -116,7 +131,7 @@ class Storage {
         if (Array.isArray(withTimestamp.value))
             msg += ` (${withTimestamp.value.length} records)`;
         trace(`${logPrefix} ${msg}`);
-        if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             trace(`${logPrefix} Deserializing toots...`);
             return withTimestamp.value.map(t => new toot_1.default(t));
         }
@@ -196,7 +211,7 @@ class Storage {
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value };
         trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
-        if (key in exports.STORAGE_KEYS_WITH_TOOTS) {
+        if (key in STORAGE_KEYS_WITH_TOOTS) {
             trace(`Serializing toots at ${key}...`);
             await this.storeToots(key, value);
         }

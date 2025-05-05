@@ -7,7 +7,7 @@ exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
-const ENABLE_TRACE_LOG = (0, environment_helpers_1.isDebugMode)();
+const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
 exports.CLEANUP_FEED = "cleanupFeed()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
