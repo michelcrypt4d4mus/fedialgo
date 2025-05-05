@@ -144,9 +144,9 @@ class Scorer {
             weightedScores,
             weightedScore,
         };
-        if (score < 0) {
-            console.warn(`Negative score ${score} for ${toot.realToot().describe()}:`, scoreInfo);
-        }
+        // if (score < -10) {
+        //     console.debug(`Negative score ${score} for ${toot.realToot().describe()}:`, scoreInfo);
+        // }
         // TODO: duping the score to realToot() is a hack that sucks
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
     }
