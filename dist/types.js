@@ -38,6 +38,7 @@ var StorageKey;
     StorageKey["FILTERS"] = "Filters";
     StorageKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     StorageKey["FOLLOWED_TAGS"] = "FollowedTags";
+    StorageKey["HASHTAG_TOOTS"] = "HashtagToots";
     StorageKey["HOME_TIMELINE"] = "HomeTimeline";
     StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     StorageKey["OPENINGS"] = "Openings";

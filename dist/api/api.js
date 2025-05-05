@@ -35,7 +35,6 @@ exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
  */
 const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
-const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
@@ -122,7 +121,7 @@ class MastoApi {
             fetch: this.api.v1.blocks.list,
             label: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
-        return blockedAccounts.map(a => account_1.default.build(a));
+        return blockedAccounts;
     }
     ;
     // Get accounts the user is following
@@ -132,7 +131,7 @@ class MastoApi {
             label: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
-        return followedAccounts.map(a => account_1.default.build(a));
+        return followedAccounts;
     }
     // Get hashtags the user is following
     async getFollowedTags() {
@@ -140,7 +139,8 @@ class MastoApi {
             fetch: this.api.v1.followedTags.list,
             label: types_1.StorageKey.FOLLOWED_TAGS
         });
-        return followedTags.map(tag_1.repairTag);
+        const tags = followedTags;
+        return tags.map(tag_1.repairTag);
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts() {
@@ -149,7 +149,7 @@ class MastoApi {
             label: types_1.StorageKey.MUTED_ACCOUNTS
         });
         const blockedAccounts = await this.getBlockedAccounts();
-        return mutedAccounts.map(a => account_1.default.build(a)).concat(blockedAccounts);
+        return mutedAccounts.concat(blockedAccounts);
     }
     // Get an array of Toots the user has recently favourited
     // https://docs.joinmastodon.org/methods/favourites/#get
@@ -161,8 +161,7 @@ class MastoApi {
             label: types_1.StorageKey.FAVOURITED_TOOTS,
             // moar: moar,
         });
-        (0, collection_helpers_1.checkUniqueIDs)(recentFaves, types_1.StorageKey.FAVOURITED_TOOTS);
-        return recentFaves.map(t => toot_1.default.build(t));
+        return recentFaves;
     }
     // Get the user's recent notifications
     async getRecentNotifications(moar) {
@@ -171,7 +170,6 @@ class MastoApi {
             label: types_1.StorageKey.RECENT_NOTIFICATIONS,
             moar: moar,
         });
-        (0, collection_helpers_1.checkUniqueIDs)(notifications, types_1.StorageKey.RECENT_NOTIFICATIONS);
         return notifications;
     }
     // Get the user's recent toots
@@ -182,8 +180,7 @@ class MastoApi {
             label: types_1.StorageKey.RECENT_USER_TOOTS,
             moar: moar,
         });
-        (0, collection_helpers_1.checkUniqueIDs)(recentToots, types_1.StorageKey.RECENT_USER_TOOTS);
-        return recentToots.map(t => toot_1.default.build(t));
+        return recentToots;
     }
     ;
     // Retrieve content based feed filters the user has set up on the server
@@ -322,18 +319,16 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
         let logPfx = `[API ${fetchParams.label}]`;
-        const useCache = (0, collection_helpers_1.isStorageKey)(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
-        fetchParams.skipCache ||= !useCache; // Skip cache if label is not a StorageKey
-        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache } = fetchParams;
+        let { breakIf, fetch, label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
         // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
         // This is for data pulls that are not trying to get at the same data (e.g. running a bunch of searches
         // for different terms vs. trying to get the user's home timeline, which does require a mutex)
-        const releaseMutex = useCache ? await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx) : null;
+        const releaseMutex = skipMutex ? await (0, log_helpers_1.lockMutex)(this.mutexes[label], logPfx) : null;
         // Trying to put a global semaphore on requests led to thread locks - apparently the searchForToots()
         // requests are grabbing all the semaphores and something important can't get through.
         // const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPfx);
@@ -381,7 +376,7 @@ class MastoApi {
             releaseMutex?.();
             // releaseSemaphore();
         }
-        return rows;
+        return Storage_1.default.buildFromApiObjects(label, rows);
     }
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
@@ -395,8 +390,10 @@ class MastoApi {
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                label: logPrefix,
+                label: types_1.StorageKey.HASHTAG_TOOTS,
                 maxRecords: maxRecords,
+                skipCache: true,
+                skipMutex: true,
             });
             console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;

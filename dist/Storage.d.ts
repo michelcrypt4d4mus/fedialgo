@@ -1,14 +1,13 @@
 import Account from "./api/objects/account";
-import Toot from './api/objects/toot';
 import UserData from "./api/user_data";
 import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, Weights } from "./types";
+export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
+export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
+    static buildFromApiObjects(key: StorageKey, objects: StorableObj[]): StorableObj[];
     static clearAll(): Promise<void>;
-    static storeTransformedToots(key: StorageKey, toots: Toot[]): Promise<void>;
-    static getTransformedToots(key: StorageKey): Promise<Toot[] | null>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null>;
-    static getAccounts(key: StorageKey): Promise<Account[] | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getTrending(): Promise<TrendingStorage>;
@@ -17,11 +16,13 @@ export default class Storage {
     static logAppOpen(): Promise<void>;
     static getWeightings(): Promise<Weights>;
     static remove(key: StorageKey): Promise<void>;
-    static set(key: StorageKey, value: StorableObj | Record<string, any>[]): Promise<void>;
+    static set(key: StorageKey, value: StorableObj): Promise<void>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
     static setIdentity(user: Account): Promise<void>;
     static setWeightings(userWeightings: Weights): Promise<void>;
     private static buildKey;
+    private static deserialize;
+    private static serialize;
     private static getIdentity;
     private static getNumAppOpens;
     private static getStorableWithTimestamp;

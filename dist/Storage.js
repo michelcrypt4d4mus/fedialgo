@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -44,24 +45,25 @@ const log_helpers_1 = require("./helpers/log_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
-const STORAGE_KEYS_WITH_TOOTS = [
+exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    types_1.StorageKey.HASHTAG_TOOTS,
     types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,
+    // These don't have setDependentProperties, but they are still toots
+    types_1.StorageKey.FAVOURITED_TOOTS,
+    types_1.StorageKey.RECENT_USER_TOOTS, // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
 ];
-const STORAGE_KEYS_WITH_ACCOUNTS = [
+exports.STORAGE_KEYS_WITH_ACCOUNTS = [
     types_1.StorageKey.BLOCKED_ACCOUNTS,
     types_1.StorageKey.FOLLOWED_ACCOUNTS,
     types_1.StorageKey.MUTED_ACCOUNTS,
-    types_1.StorageKey.RECENT_NOTIFICATIONS,
 ];
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
-    ...STORAGE_KEYS_WITH_TOOTS,
-    ...STORAGE_KEYS_WITH_ACCOUNTS,
-    types_1.StorageKey.FAVOURITED_TOOTS,
+    ...exports.STORAGE_KEYS_WITH_TOOTS,
+    ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
     types_1.StorageKey.RECENT_NOTIFICATIONS,
-    types_1.StorageKey.RECENT_USER_TOOTS,
     types_1.StorageKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
@@ -71,6 +73,17 @@ const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
 const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
 class Storage {
+    static buildFromApiObjects(key, objects) {
+        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            return objects.map(o => account_1.default.build(o));
+        }
+        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            return objects.map(o => toot_1.default.build(o));
+        }
+        else {
+            return objects;
+        }
+    }
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
         log(`Clearing all storage...`);
@@ -87,22 +100,6 @@ class Storage {
             warn(`No user identity found, cleared storage anyways`);
         }
     }
-    static async storeTransformedToots(key, toots) {
-        const serializedToots = toots.map(t => (0, class_transformer_1.instanceToPlain)(t));
-        log(`${key} Storing transformed toots:`, serializedToots);
-        await this.set(key, serializedToots);
-    }
-    static async getTransformedToots(key) {
-        log(`${key} Getting transformed toots...`);
-        const serializedToots = await this.get(key);
-        if (!serializedToots)
-            return null;
-        log(`${key} Loaded serialized toots, about to deserialize:`, serializedToots);
-        // const toots = plainToInstance(Toot, serializedToots);
-        const toots = serializedToots.map(t => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
-        log(`${key} Deserialized toots from ${key}:`, toots);
-        return toots;
-    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -116,16 +113,7 @@ class Storage {
             await this.remove(key);
             return null;
         }
-        // Check for unique IDs in the stored data if we're in debug mode
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
-            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
-        }
-        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return withTimestamp.value.map(t => toot_1.default.build(t));
-        }
-        else {
-            return withTimestamp.value;
-        }
+        return this.deserialize(key, withTimestamp.value);
     }
     // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale(key) {
@@ -136,9 +124,8 @@ class Storage {
             return null;
         }
         ;
-        const updatedAt = new Date(withTimestamp.updatedAt);
         const staleAfterSeconds = config_1.Config.staleDataSeconds[key] ?? config_1.Config.staleDataDefaultSeconds;
-        const dataAgeInSeconds = (0, time_helpers_1.ageInSeconds)(updatedAt);
+        const dataAgeInSeconds = (0, time_helpers_1.ageInSeconds)(withTimestamp.updatedAt);
         let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)})`;
         if (dataAgeInSeconds > staleAfterSeconds) {
@@ -149,18 +136,11 @@ class Storage {
         if (Array.isArray(withTimestamp.value))
             msg += ` (${withTimestamp.value.length} records)`;
         trace(`${logPrefix} ${msg}`);
-        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`${logPrefix} Deserializing toots...`);
-            return withTimestamp.value.map(t => toot_1.default.build(t));
+        // Check for unique IDs in the stored data if we're in debug mode
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
+            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }
-        else {
-            return withTimestamp.value;
-        }
-    }
-    // Generic method for deserializing stored Accounts
-    static async getAccounts(key) {
-        const accounts = await this.get(key);
-        return accounts ? accounts.map(t => account_1.default.build(t)) : null;
+        return this.deserialize(key, withTimestamp.value);
     }
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
     static async getCoerced(key) {
@@ -193,7 +173,7 @@ class Storage {
         const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
         return user_data_1.default.buildFromData({
-            followedAccounts: await this.getAccounts(types_1.StorageKey.FOLLOWED_ACCOUNTS) || [],
+            followedAccounts: await this.getCoerced(types_1.StorageKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => account_1.default.build(a)),
             recentToots: await this.getCoerced(types_1.StorageKey.RECENT_USER_TOOTS),
@@ -223,15 +203,10 @@ class Storage {
     static async set(key, value) {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
-        const withTimestamp = { updatedAt, value };
+        const storableValue = this.serialize(key, value);
+        const withTimestamp = { updatedAt, value: storableValue };
         trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
-        if (key in STORAGE_KEYS_WITH_TOOTS) {
-            trace(`Serializing toots at ${key}...`);
-            await this.storeToots(key, value);
-        }
-        else {
-            await localforage_1.default.setItem(storageKey, withTimestamp);
-        }
+        await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Serialize the FeedFilterSettings object
     static async setFilters(filters) {
@@ -268,6 +243,41 @@ class Storage {
             }
         }
         return `${user.id}_${key}`;
+    }
+    static deserialize(key, value) {
+        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            trace(`<${key}> Deserializing accounts...`);
+            // return plainToInstance(Account, value);
+            value = value;
+            return value.map((a) => (0, class_transformer_1.plainToInstance)(account_1.default, a));
+        }
+        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            trace(`<${key}> Deserializing toots...`);
+            // value = value as SerializableToot[];
+            if (Array.isArray(value)) {
+                return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
+            }
+            else {
+                console.warn(`Expected array of toots at key "${key}", but got:`, value);
+                return value;
+            }
+        }
+        else {
+            return value;
+        }
+    }
+    static serialize(key, value) {
+        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            trace(`<${key}> serializing accounts...`);
+            return (0, class_transformer_1.instanceToPlain)(value);
+        }
+        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            trace(`<${key}> serializing toots...`);
+            return (0, class_transformer_1.instanceToPlain)(value);
+        }
+        else {
+            return value;
+        }
     }
     // Get the user identity from storage
     static async getIdentity() {

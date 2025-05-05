@@ -30,26 +30,27 @@ import {
 } from "./types";
 
 // The cache values at these keys contain SerializedToot objects
-const STORAGE_KEYS_WITH_TOOTS = [
+export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    StorageKey.HASHTAG_TOOTS,
     StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
+    // These don't have setDependentProperties, but they are still toots
+    StorageKey.FAVOURITED_TOOTS,   // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
+    StorageKey.RECENT_USER_TOOTS,  // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
 ];
 
-const STORAGE_KEYS_WITH_ACCOUNTS = [
+export const STORAGE_KEYS_WITH_ACCOUNTS = [
     StorageKey.BLOCKED_ACCOUNTS,
     StorageKey.FOLLOWED_ACCOUNTS,
     StorageKey.MUTED_ACCOUNTS,
-    StorageKey.RECENT_NOTIFICATIONS,
 ];
 
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...STORAGE_KEYS_WITH_TOOTS,
     ...STORAGE_KEYS_WITH_ACCOUNTS,
-    StorageKey.FAVOURITED_TOOTS,   // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
     StorageKey.RECENT_NOTIFICATIONS,
-    StorageKey.RECENT_USER_TOOTS,  // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
     StorageKey.SERVER_SIDE_FILTERS,
 ]
 
@@ -62,6 +63,16 @@ const trace = (s: string, ...args: any[]) => traceLog(logMsg(s), ...args);
 
 
 export default class Storage {
+    static buildFromApiObjects(key: StorageKey, objects: StorableObj[]): StorableObj[] {
+        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            return objects.map(o => Account.build(o as mastodon.v1.Account));
+        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            return objects.map(o => Toot.build(o as SerializableToot));
+        } else {
+            return objects;
+        }
+    }
+
     // Clear everything but preserve the user's identity and weightings
     static async clearAll(): Promise<void> {
         log(`Clearing all storage...`);
@@ -78,23 +89,6 @@ export default class Storage {
         }
     }
 
-    static async storeTransformedToots(key: StorageKey, toots: Toot[]): Promise<void> {
-        const serializedToots = toots.map(t => instanceToPlain(t));
-        log(`${key} Storing transformed toots:`, serializedToots);
-        await this.set(key, serializedToots);
-    }
-
-    static async getTransformedToots(key: StorageKey): Promise<Toot[] | null> {
-        log(`${key} Getting transformed toots...`);
-        const serializedToots = await this.get(key) as Record<string, any>[];
-        if (!serializedToots) return null;
-        log(`${key} Loaded serialized toots, about to deserialize:`, serializedToots);
-        // const toots = plainToInstance(Toot, serializedToots);
-        const toots = serializedToots.map(t => plainToInstance(Toot, t));
-        log(`${key} Deserialized toots from ${key}:`, toots);
-        return toots;
-    }
-
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -109,16 +103,7 @@ export default class Storage {
             return null;
         }
 
-        // Check for unique IDs in the stored data if we're in debug mode
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && isDebugMode) {
-            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], key);
-        }
-
-        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return (withTimestamp.value as SerializableToot[]).map(t => Toot.build(t)) ;
-        } else {
-            return withTimestamp.value;
-        }
+        return this.deserialize(key, withTimestamp.value);
     }
 
     // Return null if the data is in storage is stale or doesn't exist
@@ -131,9 +116,8 @@ export default class Storage {
             return null;
         };
 
-        const updatedAt = new Date(withTimestamp.updatedAt);
         const staleAfterSeconds = Config.staleDataSeconds[key] ?? Config.staleDataDefaultSeconds;
-        const dataAgeInSeconds = ageInSeconds(updatedAt);
+        const dataAgeInSeconds = ageInSeconds(withTimestamp.updatedAt);
         let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)})`;
 
@@ -146,18 +130,12 @@ export default class Storage {
         if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
         trace(`${logPrefix} ${msg}`);
 
-        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            trace(`${logPrefix} Deserializing toots...`);
-            return (withTimestamp.value as SerializableToot[]).map(t => Toot.build(t)) as T;
-        } else {
-            return withTimestamp.value as T;
+        // Check for unique IDs in the stored data if we're in debug mode
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && isDebugMode) {
+            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], key);
         }
-    }
 
-    // Generic method for deserializing stored Accounts
-    static async getAccounts(key: StorageKey): Promise<Account[] | null> {
-        const accounts = await this.get(key) as mastodon.v1.Account[];
-        return accounts ? accounts.map(t => Account.build(t)) : null;
+        return this.deserialize(key, withTimestamp.value) as T;
     }
 
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
@@ -196,7 +174,7 @@ export default class Storage {
         const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.MUTED_ACCOUNTS);
 
         return UserData.buildFromData({
-            followedAccounts: await this.getAccounts(StorageKey.FOLLOWED_ACCOUNTS) || [],
+            followedAccounts: await this.getCoerced<Account>(StorageKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => Account.build(a)),
             recentToots: await this.getCoerced<Toot>(StorageKey.RECENT_USER_TOOTS),  // TODO: maybe expensive to recompute this every time; we store a lot of user toots
@@ -228,18 +206,13 @@ export default class Storage {
     }
 
     // Set the value at the given key (with the user ID as a prefix)
-    static async set(key: StorageKey, value: StorableObj | Record<string, any>[]): Promise<void> {
+    static async set(key: StorageKey, value: StorableObj): Promise<void> {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
-        const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
+        const storableValue = this.serialize(key, value);
+        const withTimestamp = {updatedAt, value: storableValue} as StorableWithTimestamp;
         trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
-
-        if (key in STORAGE_KEYS_WITH_TOOTS) {
-            trace(`Serializing toots at ${key}...`);
-            await this.storeToots(key, value as Toot[]);
-        } else {
-            await localForage.setItem(storageKey, withTimestamp);
-        }
+        await localForage.setItem(storageKey, withTimestamp);
     }
 
     // Serialize the FeedFilterSettings object
@@ -284,6 +257,38 @@ export default class Storage {
         }
 
         return `${user.id}_${key}`;
+    }
+
+    private static deserialize(key: StorageKey, value: StorableObj): StorableObj {
+        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            trace(`<${key}> Deserializing accounts...`);
+            // return plainToInstance(Account, value);
+            value = value as mastodon.v1.Account[];
+            return value.map((a) => plainToInstance(Account, a));
+        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            trace(`<${key}> Deserializing toots...`);
+            // value = value as SerializableToot[];
+            if (Array.isArray(value)) {
+                return value.map((t) => plainToInstance(Toot, t));
+            } else {
+                console.warn(`Expected array of toots at key "${key}", but got:`, value);
+                return value;
+            }
+        } else {
+            return value;
+        }
+    }
+
+    private static serialize(key: StorageKey, value: StorableObj): StorableObj {
+        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            trace(`<${key}> serializing accounts...`);
+            return instanceToPlain(value);
+        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            trace(`<${key}> serializing toots...`);
+            return instanceToPlain(value);
+        } else {
+            return value;
+        }
     }
 
     // Get the user identity from storage

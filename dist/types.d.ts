@@ -36,6 +36,7 @@ export declare enum StorageKey {
     FILTERS = "Filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
+    HASHTAG_TOOTS = "HashtagToots",
     HOME_TIMELINE = "HomeTimeline",
     MUTED_ACCOUNTS = "MutedAccounts",
     OPENINGS = "Openings",

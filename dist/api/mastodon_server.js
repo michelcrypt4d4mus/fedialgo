@@ -182,12 +182,12 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                const testStorageToots = toots.slice(0, 10).map(t => toot_1.default.build(t));
-                console.log(`[${types_1.StorageKey.TOOT_TESTER}] built ${testStorageToots.length} trending toots`, testStorageToots);
-                await Storage_1.default.storeTransformedToots(types_1.StorageKey.TOOT_TESTER, testStorageToots);
-                console.log(`[${types_1.StorageKey.TOOT_TESTER}] about to load serialized toots`);
-                const loadedToots = await Storage_1.default.getTransformedToots(types_1.StorageKey.TOOT_TESTER);
-                console.log(`[${types_1.StorageKey.TOOT_TESTER}] loaded ${loadedToots?.length} toots`, loadedToots);
+                // const testStorageToots = toots.slice(0, 10).map(t => Toot.build(t));
+                // console.log(`[${StorageKey.TOOT_TESTER}] built ${testStorageToots.length} trending toots`, testStorageToots);
+                // await Storage.storeTransformedToots(StorageKey.TOOT_TESTER, testStorageToots);
+                // console.log(`[${StorageKey.TOOT_TESTER}] about to load serialized toots`);
+                // const loadedToots = await Storage.getTransformedToots(StorageKey.TOOT_TESTER);
+                // console.log(`[${StorageKey.TOOT_TESTER}] loaded ${loadedToots?.length} toots`, loadedToots);
                 return await toot_1.default.buildToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
             },
         });

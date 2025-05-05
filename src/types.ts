@@ -46,6 +46,7 @@ export enum StorageKey {
     FILTERS = 'Filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
+    HASHTAG_TOOTS = 'HashtagToots',
     HOME_TIMELINE = 'HomeTimeline',
     MUTED_ACCOUNTS = 'MutedAccounts',
     OPENINGS = "Openings",
