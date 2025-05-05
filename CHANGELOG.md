@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Lower `Config.incrementalLoadDelayMS` to 500 ms
 
 ## v0.26.0
 * Use `class-transformer` package to serialize and deserialize objects (which will hopefully improve speed)
