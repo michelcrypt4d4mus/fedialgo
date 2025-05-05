@@ -417,6 +417,7 @@ class Toot {
             const toot = (t instanceof Toot ? t : new Toot(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.source = source;
+            return toot;
         };
         let toots = await (0, collection_helpers_1.batchMap)(statuses, setProps, "buildToots");
         toots = Toot.dedupeToots(toots, logPrefix);

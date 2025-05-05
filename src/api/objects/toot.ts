@@ -497,10 +497,11 @@ export default class Toot implements TootObj {
         const trendingTags = await MastodonServer.fediverseTrendingTags();
 
         // Set properties, dedupe, and sort by popularity
-        const setProps = async (t: SerializableToot | Toot) => {
+        const setProps = async (t: SerializableToot | Toot): Promise<Toot> => {
             const toot = (t instanceof Toot ? t : new Toot(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.source = source;
+            return toot;
         }
 
         let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
