@@ -4,6 +4,7 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs, WeightName } from "../types";
+import { isDebugMode } from '../helpers/environment_helpers';
 
 export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_REPLIES,
@@ -39,7 +40,8 @@ export default class NumericFilter extends TootFilter {
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
 
         if (!tootValue && tootValue !== 0) {
-            console.warn(`No value found for ${this.title} in toot:`, toot);
+            let msg = `No value found for ${this.title} in toot:`;
+            isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
 

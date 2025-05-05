@@ -443,10 +443,11 @@ class TheAlgorithm {
             const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
             // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
             if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
-                console.log(`${log_helpers_1.TRIGGER_FEED} isInitialCall but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                console.warn(`${log_helpers_1.TRIGGER_FEED} isInitialCall but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
                 this.catchupCheckpoint = (0, time_helpers_1.timelineCutoffAt)();
             }
             else {
+                console.log(`${log_helpers_1.TRIGGER_FEED} isInitialCall, setting catchupCheckpoint to ${mostRecentHomeTootAt}`);
                 this.catchupCheckpoint = mostRecentHomeTootAt;
             }
             this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;

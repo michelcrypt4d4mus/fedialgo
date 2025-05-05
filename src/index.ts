@@ -484,9 +484,10 @@ class TheAlgorithm {
 
             // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
             if (mostRecentHomeTootAt! < timelineCutoffAt()) {
-                console.log(`${TRIGGER_FEED} isInitialCall but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
+                console.warn(`${TRIGGER_FEED} isInitialCall but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
                 this.catchupCheckpoint = timelineCutoffAt();
             } else {
+                console.log(`${TRIGGER_FEED} isInitialCall, setting catchupCheckpoint to ${mostRecentHomeTootAt}`);
                 this.catchupCheckpoint = mostRecentHomeTootAt;
             }
 
