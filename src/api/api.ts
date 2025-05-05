@@ -55,13 +55,12 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-
-    private mutexes: ApiMutex;
-    private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
-
     // URL for a tag on the user's homeserver
     tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;
     endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
+
+    private mutexes: ApiMutex;
+    private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
