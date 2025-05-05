@@ -58,6 +58,7 @@ exports.Config = {
     excessiveTagsPenalty: 0.1,
     invalidTrendingTags: [
         "news",
+        "photography",
     ],
     minTrendingTagTootsForPenalty: 9,
     numDaysToCountTrendingTagData: 3,

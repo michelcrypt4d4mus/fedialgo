@@ -115,6 +115,7 @@ export const Config: ConfigType = {
     excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
     invalidTrendingTags: [               // Tags that are too generic to be considered trending
         "news",
+        "photography",
     ],
     minTrendingTagTootsForPenalty: 9,    // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
     numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
