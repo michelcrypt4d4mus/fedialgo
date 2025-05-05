@@ -441,8 +441,13 @@ class TheAlgorithm {
             }
             // Otherwise if there's no maxId but there is already an existing feed array that means it's a refresh
             const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
-            // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
-            if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
+            if (!mostRecentHomeTootAt) {
+                console.log(`${log_helpers_1.TRIGGER_FEED} isInitialCall but no home toots in feed!`);
+                this.loadingStatus = INITIAL_LOAD_STATUS;
+                return;
+            }
+            else if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
+                // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
                 console.warn(`${log_helpers_1.TRIGGER_FEED} isInitialCall but most recent toot ${mostRecentHomeTootAt} older than cutoff`);
                 this.catchupCheckpoint = (0, time_helpers_1.timelineCutoffAt)();
             }
