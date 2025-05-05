@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Rename Config.homeTimelineBatchSize
+* Rename `Config.homeTimelineBatchSize`
+* Automatically serialize or deserialize toots to/from `Storage.get/set` based on values in `STORAGE_KEYS_WITH_TOOTS`
 
 ### v0.25.1
 * Expose `TheAlgorithm.isLoading()` method

@@ -1,5 +1,4 @@
 import Account from "./api/objects/account";
-import Toot from './api/objects/toot';
 import UserData from "./api/user_data";
 import { Config } from "./config";
 import { FeedFilterSettings, StorableObj, StorageKey, TrendingStorage, Weights } from "./types";
@@ -13,7 +12,6 @@ export default class Storage {
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
-    static getToots(key: StorageKey): Promise<Toot[] | null>;
     static getTrending(): Promise<TrendingStorage>;
     static getUserData(): Promise<UserData>;
     static isDataStale(key: StorageKey): Promise<boolean>;
@@ -27,6 +25,7 @@ export default class Storage {
     private static buildKey;
     private static getIdentity;
     private static getNumAppOpens;
+    private static getStorableWithTimestamp;
     private static lastOpenedAt;
     private static secondsSinceLastUpdated;
     private static storeToots;

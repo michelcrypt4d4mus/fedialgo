@@ -5,13 +5,14 @@ import localForage from "localforage";
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
+import MastoApi from "./api/api";
 import Toot, { mostRecentTootedAt, SerializableToot } from './api/objects/toot';
 import UserData from "./api/user_data";
-import { ageInSeconds, quotedISOFmt } from "./helpers/time_helpers";
+import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { Config, DEFAULT_CONFIG } from "./config";
-import { toLocaleInt } from "./helpers/string_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
+import { toLocaleInt } from "./helpers/string_helpers";
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
@@ -23,7 +24,6 @@ import {
     TrendingTag,
     Weights,
 } from "./types";
-import MastoApi from "./api/api";
 
 // The cache values at these keys contain SerializedToot objects
 export const STORAGE_KEYS_WITH_TOOTS = [
@@ -41,6 +41,7 @@ const logMsg = (s: string) => `${LOG_PREFIX} ${s}`;
 const log = (s: string, ...args: any[]) => console.log(logMsg(s), ...args);
 const warn = (s: string, ...args: any[]) => console.warn(logMsg(s), ...args);
 const debug = (s: string, ...args: any[]) => console.debug(logMsg(s), ...args);
+const trace = (s: string, ...args: any[]) => traceLog(logMsg(s), ...args);
 
 
 export default class Storage {
@@ -64,7 +65,7 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
-        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+        const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp) {
             return null;
@@ -84,31 +85,31 @@ export default class Storage {
     }
 
     static async getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null> {
-        const logPrefix = `${LOG_PREFIX} getIfNotStale("${key}"):`;
-        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+        const logPrefix = `getIfNotStale("${key}"):`;
+        const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            traceLog(`${logPrefix} No data found, returning null`);
+            debug(`${logPrefix} No data found, returning null`);
             return null;
         };
 
-        const updatedAt = new Date((withTimestamp as StorableWithTimestamp).updatedAt);
+        const updatedAt = new Date(withTimestamp.updatedAt);
         const staleAfterSeconds = Storage.getConfig().staleDataSeconds[key] ?? Storage.getConfig().staleDataDefaultSeconds;
         const dataAgeInSeconds = ageInSeconds(updatedAt);
         let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)})`;
 
         if (dataAgeInSeconds > staleAfterSeconds) {
-            console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
+            log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return null;
         }
 
         let msg = `Cached data is still fresh ${secondsLogMsg}`;
         if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-        traceLog(`${logPrefix} ${msg}`);
+        trace(`${logPrefix} ${msg}`);
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            traceLog(`${logPrefix} Deserializing toots...`);
+            trace(`${logPrefix} Deserializing toots...`);
             return (withTimestamp.value as SerializableToot[]).map(t => new Toot(t)) as T;
         } else {
             return withTimestamp.value as T;
@@ -144,12 +145,6 @@ export default class Storage {
         const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;
         // Filters are saved in a serialized format that requires deserialization
         return filters ? buildFiltersFromArgs(filters) : null;
-    }
-
-    // Generic method for deserializing stored toots
-    static async getToots(key: StorageKey): Promise<Toot[] | null> {
-        const toots = await this.get(key) as SerializableToot[];
-        return toots ? toots.map(t => new Toot(t)) : null;
     }
 
     // Get trending tags, toots, and links as a single TrendingStorage object
@@ -204,10 +199,10 @@ export default class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value} as StorableWithTimestamp;
-        traceLog(LOG_PREFIX, `Setting value at key: ${storageKey} to value:`, withTimestamp);
+        trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
 
         if (key in STORAGE_KEYS_WITH_TOOTS) {
-            traceLog(LOG_PREFIX, `Serializing toots at ${key}...`);
+            trace(`Serializing toots at ${key}...`);
             await this.storeToots(key, value as Toot[]);
         } else {
             await localForage.setItem(storageKey, withTimestamp);
@@ -247,7 +242,7 @@ export default class Storage {
             warn(`No user identity found, checking MastoApi...`);
 
             if (MastoApi.instance.user) {
-                console.warn(`No user identity found! MastoApi has a user ID, using that instead`);
+                warn(`No user identity found! MastoApi has a user ID, using that instead`);
                 user = MastoApi.instance.user;
                 await this.setIdentity(user);
             } else {
@@ -269,6 +264,12 @@ export default class Storage {
         return (await this.get(StorageKey.OPENINGS) as number) ?? 0;
     }
 
+    // Get the raw StorableWithTimestamp object
+    private static async getStorableWithTimestamp(key: StorageKey): Promise<StorableWithTimestamp | null> {
+        const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
+        return withTimestamp ?? null;
+    }
+
     // Get the timestamp the app was last opened // TODO: currently unused
     private static async lastOpenedAt(): Promise<Date | null> {
         return await this.updatedAt(StorageKey.OPENINGS);
@@ -287,8 +288,8 @@ export default class Storage {
     }
 
     private static async updatedAt(key: StorageKey): Promise<Date | null> {
-        const withTimestamp = await localForage.getItem(await this.buildKey(key));
-        return withTimestamp ? new Date((withTimestamp as StorableWithTimestamp).updatedAt) : null;
+        const withTimestamp = await this.getStorableWithTimestamp(key);
+        return withTimestamp?.updatedAt ? new Date(withTimestamp.updatedAt) : null;
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused

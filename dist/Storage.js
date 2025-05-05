@@ -32,15 +32,15 @@ exports.STORAGE_KEYS_WITH_TOOTS = void 0;
  */
 const localforage_1 = __importDefault(require("localforage"));
 const account_1 = __importDefault(require("./api/objects/account"));
+const api_1 = __importDefault(require("./api/api"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
-const string_helpers_1 = require("./helpers/string_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
+const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
-const api_1 = __importDefault(require("./api/api"));
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
@@ -56,6 +56,7 @@ const logMsg = (s) => `${LOG_PREFIX} ${s}`;
 const log = (s, ...args) => console.log(logMsg(s), ...args);
 const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
+const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
 class Storage {
     static config = Object.assign({}, config_1.DEFAULT_CONFIG);
     // Clear everything but preserve the user's identity and weightings
@@ -76,7 +77,7 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
-        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
+        const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp) {
             return null;
         }
@@ -95,10 +96,10 @@ class Storage {
         }
     }
     static async getIfNotStale(key) {
-        const logPrefix = `${LOG_PREFIX} getIfNotStale("${key}"):`;
-        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
+        const logPrefix = `getIfNotStale("${key}"):`;
+        const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            (0, log_helpers_1.traceLog)(`${logPrefix} No data found, returning null`);
+            debug(`${logPrefix} No data found, returning null`);
             return null;
         }
         ;
@@ -108,15 +109,15 @@ class Storage {
         let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
         secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)})`;
         if (dataAgeInSeconds > staleAfterSeconds) {
-            console.log(`${logPrefix} Data is stale ${secondsLogMsg}`);
+            log(`${logPrefix} Data is stale ${secondsLogMsg}`);
             return null;
         }
         let msg = `Cached data is still fresh ${secondsLogMsg}`;
         if (Array.isArray(withTimestamp.value))
             msg += ` (${withTimestamp.value.length} records)`;
-        (0, log_helpers_1.traceLog)(`${logPrefix} ${msg}`);
+        trace(`${logPrefix} ${msg}`);
         if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            (0, log_helpers_1.traceLog)(`${logPrefix} Deserializing toots...`);
+            trace(`${logPrefix} Deserializing toots...`);
             return withTimestamp.value.map(t => new toot_1.default(t));
         }
         else {
@@ -148,11 +149,6 @@ class Storage {
         const filters = await this.get(types_1.StorageKey.FILTERS);
         // Filters are saved in a serialized format that requires deserialization
         return filters ? (0, feed_filters_1.buildFiltersFromArgs)(filters) : null;
-    }
-    // Generic method for deserializing stored toots
-    static async getToots(key) {
-        const toots = await this.get(key);
-        return toots ? toots.map(t => new toot_1.default(t)) : null;
     }
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrending() {
@@ -199,9 +195,9 @@ class Storage {
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date().toISOString();
         const withTimestamp = { updatedAt, value };
-        (0, log_helpers_1.traceLog)(LOG_PREFIX, `Setting value at key: ${storageKey} to value:`, withTimestamp);
+        trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         if (key in exports.STORAGE_KEYS_WITH_TOOTS) {
-            (0, log_helpers_1.traceLog)(LOG_PREFIX, `Serializing toots at ${key}...`);
+            trace(`Serializing toots at ${key}...`);
             await this.storeToots(key, value);
         }
         else {
@@ -234,7 +230,7 @@ class Storage {
         if (!user) {
             warn(`No user identity found, checking MastoApi...`);
             if (api_1.default.instance.user) {
-                console.warn(`No user identity found! MastoApi has a user ID, using that instead`);
+                warn(`No user identity found! MastoApi has a user ID, using that instead`);
                 user = api_1.default.instance.user;
                 await this.setIdentity(user);
             }
@@ -253,6 +249,11 @@ class Storage {
     static async getNumAppOpens() {
         return await this.get(types_1.StorageKey.OPENINGS) ?? 0;
     }
+    // Get the raw StorableWithTimestamp object
+    static async getStorableWithTimestamp(key) {
+        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
+        return withTimestamp ?? null;
+    }
     // Get the timestamp the app was last opened // TODO: currently unused
     static async lastOpenedAt() {
         return await this.updatedAt(types_1.StorageKey.OPENINGS);
@@ -268,8 +269,8 @@ class Storage {
         await this.set(key, serializedToots);
     }
     static async updatedAt(key) {
-        const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
-        return withTimestamp ? new Date(withTimestamp.updatedAt) : null;
+        const withTimestamp = await this.getStorableWithTimestamp(key);
+        return withTimestamp?.updatedAt ? new Date(withTimestamp.updatedAt) : null;
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
