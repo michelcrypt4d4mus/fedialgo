@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* TheAlgorithm.reset() also resets concurrency
+* Add Config.invalidTrendingTags param to list tags that are too generic to be used
+* `TheAlgorithm.reset()` also resets concurrency
 
 ### v0.25.3
 * Add a `source` property to `Toot` class

@@ -56,6 +56,9 @@ exports.Config = {
     // Trending tags and links
     excessiveTags: 25,
     excessiveTagsPenalty: 0.1,
+    invalidTrendingTags: [
+        "news",
+    ],
     minTrendingTagTootsForPenalty: 9,
     numDaysToCountTrendingTagData: 3,
     numTootsPerTrendingTag: 15,

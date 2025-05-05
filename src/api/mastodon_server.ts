@@ -122,7 +122,7 @@ export default class MastodonServer {
         const numTags = Config.numTrendingTagsPerServer;
         const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
-        return trendingTags;
+        return trendingTags.filter(tag => !Config.invalidTrendingTags.includes(tag.name));
     }
 
     ///////////////////////////////////
