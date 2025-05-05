@@ -12,6 +12,7 @@ const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
+const log_helpers_1 = require("../helpers/log_helpers");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();
@@ -22,7 +23,7 @@ async function getMoarData() {
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
     const maxRecordsForFeatureScoring = config_1.Config.maxRecordsForFeatureScoring;
     const startedAt = new Date();
-    const releaseMutex = await MOAR_MUTEX.acquire();
+    const releaseMutex = await (0, log_helpers_1.lockMutex)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const pollers = [
         api_1.default.instance.getRecentNotifications.bind(api_1.default.instance),
         api_1.default.instance.getRecentUserToots.bind(api_1.default.instance),

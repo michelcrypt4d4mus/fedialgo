@@ -241,7 +241,7 @@ export default class MastodonServer {
         } finally {
             releaseMutex();
         }
-    };
+    }
 
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain: string): boolean {

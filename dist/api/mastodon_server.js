@@ -225,7 +225,6 @@ class MastodonServer {
             releaseMutex();
         }
     }
-    ;
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {
         return config_1.Config.noMauServers.some(s => domain == s);
