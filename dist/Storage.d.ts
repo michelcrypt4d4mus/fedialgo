@@ -8,7 +8,7 @@ export default class Storage {
     static config: Config;
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
-    static getIfNotStale<T>(key: StorageKey): Promise<T | null>;
+    static getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null>;
     static getAccounts(key: StorageKey): Promise<Account[] | null>;
     static getConfig(): Config;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;

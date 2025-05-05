@@ -272,7 +272,7 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
-        this.feed = (await Storage_1.default.getToots(types_1.StorageKey.TIMELINE)) ?? [];
+        this.feed = await Storage_1.default.getCoerced(types_1.StorageKey.TIMELINE);
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         this.trendingData = await Storage_1.default.getTrending();
         this.userData = await Storage_1.default.getUserData();

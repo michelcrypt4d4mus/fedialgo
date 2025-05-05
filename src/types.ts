@@ -109,6 +109,7 @@ export type FilterArgs = {
 export type InstanceResponse = MastodonInstance | null;
 
 // All these types have an id property
+// TODO: automatically check uniqueness when loading these from cache
 export type MastodonObjWithID = (
     mastodon.v1.Account |
     mastodon.v1.Notification |

@@ -12,7 +12,7 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ApiMutex, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
+import { ApiMutex, MastodonObjWithID, MastodonTag, StorableApiObject, StorableObj, StorageKey } from "../types";
 import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { Config } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
@@ -352,7 +352,7 @@ export default class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getApiRecords<T>(fetchParams: FetchParams<T>): Promise<T[]> {
+    private async getApiRecords<T extends StorableApiObject>(fetchParams: FetchParams<T>): Promise<T[]> {
         let logPfx = `[API ${fetchParams.label}]`;
         const useCache = isStorageKey(fetchParams.label);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;

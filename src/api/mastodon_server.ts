@@ -26,6 +26,7 @@ import {
     StorableObj,
     StorageKey,
     TrendingLink,
+    TrendingObj,
     TrendingStorage,
     TrendingTag,
 } from "../types";
@@ -308,7 +309,7 @@ export default class MastodonServer {
 
     // Generic wrapper method to fetch trending data from all servers and process it into
     // an array of unique objects.
-    private static async fetchTrendingObjsFromAllServers<T>(props: FetchTrendingProps<T>): Promise<T[]> {
+    private static async fetchTrendingObjsFromAllServers<T extends TrendingObj>(props: FetchTrendingProps<T>): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[key]!, logPrefix);

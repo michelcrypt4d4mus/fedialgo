@@ -87,7 +87,12 @@ class Storage {
             await this.remove(key);
             return null;
         }
-        return withTimestamp.value;
+        if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            return withTimestamp.value.map(t => new toot_1.default(t));
+        }
+        else {
+            return withTimestamp.value;
+        }
     }
     static async getIfNotStale(key) {
         const logPrefix = `${LOG_PREFIX} getIfNotStale("${key}"):`;
@@ -111,11 +116,10 @@ class Storage {
             msg += ` (${withTimestamp.value.length} records)`;
         (0, log_helpers_1.traceLog)(`${logPrefix} ${msg}`);
         if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            console.log(`${logPrefix} Deserializing toots...`);
+            (0, log_helpers_1.traceLog)(`${logPrefix} Deserializing toots...`);
             return withTimestamp.value.map(t => new toot_1.default(t));
         }
         else {
-            console.log(`${logPrefix} NOT deserializing toots...`);
             return withTimestamp.value;
         }
     }
@@ -155,7 +159,7 @@ class Storage {
         return {
             links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
-            toots: (await this.getToots(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
+            toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
@@ -167,7 +171,7 @@ class Storage {
             followedAccounts: await this.getAccounts(types_1.StorageKey.FOLLOWED_ACCOUNTS) || [],
             followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new account_1.default(a)),
-            recentToots: await this.getToots(types_1.StorageKey.RECENT_USER_TOOTS) || [],
+            recentToots: await this.getCoerced(types_1.StorageKey.RECENT_USER_TOOTS),
             serverSideFilters: await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS),
         });
     }
@@ -269,7 +273,7 @@ class Storage {
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
-        const timelineToots = await this.getToots(types_1.StorageKey.TIMELINE);
+        const timelineToots = await this.get(types_1.StorageKey.TIMELINE);
         if (!timelineToots)
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);

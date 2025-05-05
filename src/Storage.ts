@@ -24,7 +24,6 @@ import {
     Weights,
 } from "./types";
 import MastoApi from "./api/api";
-import { trace } from "console";
 
 // The cache values at these keys contain SerializedToot objects
 export const STORAGE_KEYS_WITH_TOOTS = [
@@ -77,7 +76,11 @@ export default class Storage {
             return null;
         }
 
-        return withTimestamp.value;
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            return (withTimestamp.value as SerializableToot[]).map(t => new Toot(t)) ;
+        } else {
+            return withTimestamp.value;
+        }
     }
 
     static async getIfNotStale<T extends StorableObj>(key: StorageKey): Promise<T | null> {
@@ -154,7 +157,7 @@ export default class Storage {
         return {
             links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
-            toots: (await this.getToots(StorageKey.FEDIVERSE_TRENDING_TOOTS)) ?? [],
+            toots: await this.getCoerced<Toot>(StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
 
@@ -168,7 +171,7 @@ export default class Storage {
             followedAccounts: await this.getAccounts(StorageKey.FOLLOWED_ACCOUNTS) || [],
             followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => new Account(a)),
-            recentToots: await this.getToots(StorageKey.RECENT_USER_TOOTS) || [],
+            recentToots: await this.getCoerced<Toot>(StorageKey.RECENT_USER_TOOTS),
             serverSideFilters: await this.getCoerced<mastodon.v2.Filter>(StorageKey.SERVER_SIDE_FILTERS),
         });
     }
@@ -290,9 +293,9 @@ export default class Storage {
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     private static async secondsSinceMostRecentToot(): Promise<number | null> {
-        const timelineToots = await this.getToots(StorageKey.TIMELINE);
+        const timelineToots = await this.get(StorageKey.TIMELINE);
         if (!timelineToots) return null;
-        const mostRecent = mostRecentTootedAt(timelineToots);
+        const mostRecent = mostRecentTootedAt(timelineToots as Toot[]);
 
         if (mostRecent) {
             return ageInSeconds(mostRecent.getTime());
