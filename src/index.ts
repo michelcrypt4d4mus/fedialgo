@@ -32,7 +32,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
-import { buildNewFilterSettings, initializeFiltersWithSummaryInfo } from "./filters/feed_filters";
+import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { CLEANUP_FEED, TRIGGER_FEED, PREP_SCORERS, lockMutex, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
 import { Config, SCORERS_CONFIG } from './config';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
@@ -402,7 +402,7 @@ class TheAlgorithm {
         }
 
         // TODO: testing out moving these lines outside the mutex lock resulted in < 10 to first visible toots
-        this.filters = initializeFiltersWithSummaryInfo(this.feed, await MastoApi.instance.getUserData());
+        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
         logInfo(logPrefix, `${TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());
         return newToots;

@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initializeFiltersWithSummaryInfo = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+exports.updatePropertyFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
@@ -75,8 +75,7 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-function initializeFiltersWithSummaryInfo(toots, userData) {
-    const filters = buildNewFilterSettings();
+function updatePropertyFilterOptions(filters, toots, userData) {
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
         filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
@@ -114,5 +113,6 @@ function initializeFiltersWithSummaryInfo(toots, userData) {
     (0, log_helpers_1.traceLog)(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
     return filters;
 }
-exports.initializeFiltersWithSummaryInfo = initializeFiltersWithSummaryInfo;
+exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
+;
 //# sourceMappingURL=feed_filters.js.map

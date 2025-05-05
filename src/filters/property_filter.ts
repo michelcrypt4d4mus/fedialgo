@@ -133,6 +133,8 @@ export default class PropertyFilter extends TootFilter {
 
     setOptions(optionInfo: StringNumberDict) {
         this.optionInfo = optionInfo;
+        // Filter out any options that are no longer valid
+        this.validValues = this.validValues.filter((v) => v in optionInfo);
 
         // Server side filters get all the options immediately set to filter out toots that come from trending
         // and other sources where the user's server configuration is not applied.
