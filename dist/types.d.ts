@@ -87,7 +87,8 @@ export type FilterArgs = {
     visible?: boolean;
 };
 export type InstanceResponse = MastodonInstance | null;
-export type MastodonObjWithID = (mastodon.v1.Account | mastodon.v1.Notification | mastodon.v2.Filter | SerializableToot);
+export type MastodonApiObject = (MastodonObjWithID | mastodon.v1.Tag | mastodon.v1.TrendLink);
+export type MastodonObjWithID = (SerializableToot | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
@@ -103,8 +104,7 @@ export type ScorerInfo = {
     scorer?: Scorer;
 };
 export type DeserializedApiObject = Account | Toot;
-export type StorableApiObject = (Account | MastodonObjWithID | MastodonTag | Toot | TrendingLink | mastodon.v1.TrendLink);
-export type MastodonApiObject = (mastodon.v1.Account | mastodon.v1.Notification | mastodon.v2.Filter | mastodon.v1.Status | mastodon.v1.Tag | mastodon.v1.TrendLink);
+export type StorableApiObject = (Account | MastodonObjWithID | MastodonApiObject | MastodonTag | Toot | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;

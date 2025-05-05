@@ -24,7 +24,6 @@ import {
     MastodonInstanceEmpty,
     MastodonInstance,
     MastodonInstances,
-    StorableApiObject,
     StorageKey,
     TrendingLink,
     TrendingObj,

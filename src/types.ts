@@ -110,14 +110,19 @@ export type FilterArgs = {
 
 export type InstanceResponse = MastodonInstance | null;
 
+export type MastodonApiObject = (
+    MastodonObjWithID |
+    mastodon.v1.Tag |
+    mastodon.v1.TrendLink
+);
+
 // All these types have an id property
-// TODO: automatically check uniqueness when loading these from cache
 export type MastodonObjWithID = (
-    // Account |
+    SerializableToot |
     mastodon.v1.Account |
     mastodon.v1.Notification |
-    mastodon.v2.Filter |
-    SerializableToot
+    mastodon.v1.Status |
+    mastodon.v2.Filter
 );
 
 export interface MastodonInstance extends mastodon.v2.Instance {
@@ -141,22 +146,12 @@ export type ScorerInfo = {
 export type DeserializedApiObject = Account | Toot;
 
 export type StorableApiObject = (
-    // DeserializedApiObject |
     Account |
     MastodonObjWithID |
+    MastodonApiObject |
     MastodonTag |
     Toot |
-    TrendingLink |
-    mastodon.v1.TrendLink
-);
-
-export type MastodonApiObject = (
-    mastodon.v1.Account |
-    mastodon.v1.Notification |
-    mastodon.v2.Filter |
-    mastodon.v1.Status |
-    mastodon.v1.Tag |
-    mastodon.v1.TrendLink
+    TrendingLink
 );
 
 // Types that are valid for browser local storage

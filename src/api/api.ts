@@ -12,11 +12,11 @@ import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ApiMutex, DeserializedApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StorableApiObject, StorableObj, StorageKey } from "../types";
-import { checkUniqueIDs, findMinId, isStorageKey, truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
 import { Config, ConfigType } from "../config";
+import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
 import { extractDomain } from '../helpers/string_helpers';
-import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
+import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
