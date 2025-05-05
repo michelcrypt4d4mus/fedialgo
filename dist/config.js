@@ -13,7 +13,7 @@ exports.Config = {
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 20,
     homeTimelineBatchSize: 80,
-    incrementalLoadDelayMS: 1000,
+    incrementalLoadDelayMS: 500,
     maxCachedTimelineToots: 1600,
     numDesiredTimelineToots: 900,
     maxTimelineHoursToFetch: 168,
@@ -174,6 +174,7 @@ exports.Config = {
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
     exports.Config.hashtagTootRetrievalDelaySeconds = 5;
+    exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;
     exports.Config.numDesiredTimelineToots = 500;

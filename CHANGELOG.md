@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.26.0
+## v0.26.0
 * Use `class-transformer` package to serialize and deserialize objects (which will hopefully improve speed)
 
 ### v0.25.4

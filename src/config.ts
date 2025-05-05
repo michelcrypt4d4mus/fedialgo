@@ -68,7 +68,7 @@ export const Config: ConfigType = {
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 20,   // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,               // How many toots to pull in the first fetch
-    incrementalLoadDelayMS: 1000,           // Delay between incremental loads of toots
+    incrementalLoadDelayMS: 500,           // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
     numDesiredTimelineToots: 900,           // useful dev options for faster load
     maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
@@ -233,6 +233,7 @@ export const Config: ConfigType = {
 // Debug mode settings
 if (isDebugMode) {
     Config.hashtagTootRetrievalDelaySeconds = 5;
+    Config.incrementalLoadDelayMS = 100;
     Config.maxCachedTimelineToots = 700;
     Config.maxRecordsForFeatureScoring = 480;
     Config.numDesiredTimelineToots = 500;
