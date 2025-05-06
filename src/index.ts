@@ -389,10 +389,7 @@ class TheAlgorithm {
         }
 
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
-        this.launchBackgroundPoller();
-        this.setLoadCompleteStateVariables();
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
-        this.loadingStatus = null;
+        this.finishInitialLoad();
     }
 
     // Merge a new batch of toots into the feed.
@@ -474,7 +471,7 @@ class TheAlgorithm {
     }
 
     // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
-    private setLoadCompleteStateVariables(): void {
+    private finishInitialLoad(): void {
         if (this.loadStartedAt) {
             logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
@@ -483,6 +480,10 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = null;
             console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
         }
+
+        this.launchBackgroundPoller();
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
+        this.loadingStatus = null;
     }
 
     // sets this.loadingStatus to a message indicating the current state of the feed

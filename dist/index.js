@@ -357,10 +357,7 @@ class TheAlgorithm {
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${batchSize}`);
         }
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
-        this.launchBackgroundPoller();
         this.setLoadCompleteStateVariables();
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
-        this.loadingStatus = null;
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
@@ -443,6 +440,9 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = null;
             console.warn(`[${string_helpers_1.TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
         }
+        this.launchBackgroundPoller();
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
+        this.loadingStatus = null;
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
     // If isinitialCall is true:
