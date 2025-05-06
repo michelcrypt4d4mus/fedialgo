@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add a Sensitive (NSFW) TYPE_FILTER
 * Add OutlierDampener weighting option
 
 ### v0.26.3

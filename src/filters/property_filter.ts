@@ -38,6 +38,7 @@ export enum TypeFilterName {
     POLLS = 'polls',
     REPLIES = 'replies',
     REPOSTS = 'reposts',
+    SENSITIVE = 'sensitive',
     TRENDING_HASHTAGS = 'trendingHashtags',
     TRENDING_LINKS = 'trendingLinks',
     TRENDING_TOOTS = 'trendingToots',
@@ -48,6 +49,7 @@ export interface PropertyFilterArgs extends FilterArgs {
     validValues?: string[];
 };
 
+// Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
@@ -58,12 +60,13 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.POLLS]:             (toot) => !!toot.realToot().poll,
     [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.REPOSTS]:           (toot) => !!toot.reblog,
+    [TypeFilterName.SENSITIVE]:         (toot) => !!toot.sensitive,
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot().trendingRank,
 };
 
-
+// Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS: TootMatchers = {
     [PropertyName.APP]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().application?.name);

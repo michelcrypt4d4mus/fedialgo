@@ -20,6 +20,7 @@ export declare enum TypeFilterName {
     POLLS = "polls",
     REPLIES = "replies",
     REPOSTS = "reposts",
+    SENSITIVE = "sensitive",
     TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_LINKS = "trendingLinks",
     TRENDING_TOOTS = "trendingToots"
