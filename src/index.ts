@@ -133,6 +133,7 @@ class TheAlgorithm {
         },
         // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
         {
+            [WeightName.OUTLIER_DAMPENER]: Object.assign({}, SCORERS_CONFIG[WeightName.OUTLIER_DAMPENER]),
             [WeightName.TIME_DECAY]: Object.assign({}, SCORERS_CONFIG[WeightName.TIME_DECAY]),
             [WeightName.TRENDING]: Object.assign({}, SCORERS_CONFIG[WeightName.TRENDING]),
         } as ScorerDict

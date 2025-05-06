@@ -23,6 +23,7 @@ var WeightName;
     WeightName["TRENDING_TOOTS"] = "TrendingToots";
     WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
     // Special weights
+    WeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
     WeightName["TIME_DECAY"] = "TimeDecay";
     WeightName["TRENDING"] = "Trending";
 })(WeightName || (exports.WeightName = WeightName = {}));

@@ -259,6 +259,11 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Multiplier applied to trending toots, tags, and links",
         minValue: 0.001,
     },
+    // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
+    [WeightName.OUTLIER_DAMPENER]: {
+        description: "Dampens the effect of outliers scores",
+        minValue: 0.001,
+    },
 
     // Weighted scores
     [WeightName.CHAOS]: {

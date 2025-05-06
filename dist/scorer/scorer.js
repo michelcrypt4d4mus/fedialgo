@@ -14,6 +14,7 @@ const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
 const config_2 = require("../config");
+const SCORE_DIGITS = 3; // Number of digits to display in the alternate score
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 class Scorer {
     defaultWeight;
@@ -97,12 +98,12 @@ class Scorer {
                         scoreDetails[scoreKey] = 0;
                     }
                     else if (scoreValue == weightedScore) {
-                        scoreDetails[scoreKey] = Number(scoreValue.toPrecision());
+                        scoreDetails[scoreKey] = toScoreFmt(scoreValue);
                     }
                     else {
                         scoreDetails[scoreKey] = {
-                            unweighted: Number(scoreValue.toPrecision()),
-                            weighted: Number(weightedScore.toPrecision())
+                            unweighted: toScoreFmt(scoreValue),
+                            weighted: toScoreFmt(weightedScore),
                         };
                     }
                     return scoreDetails;
@@ -120,6 +121,7 @@ class Scorer {
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeightings();
         const scores = await Promise.all(scorers.map((s) => s.score(toot)));
+        const outlierDampener = userWeights[types_1.WeightName.OUTLIER_DAMPENER] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.OUTLIER_DAMPENER];
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         scorers.forEach((scorer, i) => {
@@ -128,6 +130,9 @@ class Scorer {
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
             if (toot.realToot().isTrending()) {
                 weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
+            }
+            if (outlierDampener > 0 && weightedScores[scorer.name] > 0) {
+                weightedScores[scorer.name] = Math.pow(weightedScores[scorer.name], 1 / outlierDampener);
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
@@ -157,5 +162,11 @@ class Scorer {
     }
 }
 exports.default = Scorer;
+;
+function toScoreFmt(score) {
+    if (score < Math.pow(10, -1 * SCORE_DIGITS))
+        return score;
+    return Number(score.toPrecision(SCORE_DIGITS));
+}
 ;
 //# sourceMappingURL=scorer.js.map

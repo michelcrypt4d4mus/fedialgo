@@ -144,6 +144,7 @@ class TheAlgorithm {
     }, 
     // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
     {
+        [types_1.WeightName.OUTLIER_DAMPENER]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.OUTLIER_DAMPENER]),
         [types_1.WeightName.TIME_DECAY]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TIME_DECAY]),
         [types_1.WeightName.TRENDING]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TRENDING]),
     });

@@ -32,6 +32,7 @@ export enum WeightName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = 'VideoAttachments',
     // Special weights
+    OUTLIER_DAMPENER = 'OutlierDampener',
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
 };

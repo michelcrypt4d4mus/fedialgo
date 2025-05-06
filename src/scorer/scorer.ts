@@ -14,6 +14,7 @@ import { logAndThrowError } from '../helpers/log_helpers';
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 import { SCORERS_CONFIG } from "../config";
 
+const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 
@@ -116,11 +117,11 @@ export default abstract class Scorer {
                             if (scoreValue == 0) {
                                 scoreDetails[scoreKey] = 0;
                             } else if (scoreValue == weightedScore) {
-                                scoreDetails[scoreKey] = Number(scoreValue.toPrecision());
+                                scoreDetails[scoreKey] = toScoreFmt(scoreValue);
                             } else {
                                 scoreDetails[scoreKey] = {
-                                    unweighted: Number(scoreValue.toPrecision()),
-                                    weighted: Number(weightedScore.toPrecision())
+                                    unweighted: toScoreFmt(scoreValue),
+                                    weighted: toScoreFmt(weightedScore),
                                 };
                             }
 
@@ -144,6 +145,7 @@ export default abstract class Scorer {
         const weightedScores = {} as StringNumberDict;
         const userWeights = await Storage.getWeightings();
         const scores = await Promise.all(scorers.map((s) => s.score(toot)));
+        const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
@@ -154,6 +156,10 @@ export default abstract class Scorer {
 
             if (toot.realToot().isTrending()) {
                 weightedScores[scorer.name] *= (userWeights[WeightName.TRENDING] ?? 0);
+            }
+
+            if (outlierDampener > 0 && weightedScores[scorer.name] > 0) {
+                weightedScores[scorer.name] = Math.pow(weightedScores[scorer.name], 1 / outlierDampener);
             }
         });
 
@@ -186,4 +192,10 @@ export default abstract class Scorer {
     private static sumScores(scores: StringNumberDict | Weights): number {
         return 1 + sumValues(scores);
     }
+};
+
+
+function toScoreFmt(score: number): number {
+    if (score < Math.pow(10, -1 * SCORE_DIGITS)) return score;
+    return Number(score.toPrecision(SCORE_DIGITS));
 };

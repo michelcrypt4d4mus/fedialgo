@@ -24,6 +24,7 @@ export declare enum WeightName {
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments",
+    OUTLIER_DAMPENER = "OutlierDampener",
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending"
 }

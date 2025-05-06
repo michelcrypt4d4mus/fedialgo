@@ -20,6 +20,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     // Global modifiers that affect all weighted scores
     [WeightName.TIME_DECAY]: 0.05,
     [WeightName.TRENDING]: 0.15,
+    [WeightName.OUTLIER_DAMPENER]: 2,
     // Weighted scores
     [WeightName.CHAOS]: 1.0,
     [WeightName.DIVERSITY]: 1.0,
@@ -46,6 +47,7 @@ export const PresetWeights: WeightPresets = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
         [WeightName.TIME_DECAY]: 1.0,
         [WeightName.TRENDING]: 0,
+        [WeightName.OUTLIER_DAMPENER]: 0,
         [WeightName.CHAOS]: 0,
         [WeightName.DIVERSITY]: 0,
         [WeightName.FAVOURITED_ACCOUNTS]: 0,

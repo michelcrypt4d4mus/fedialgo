@@ -19,6 +19,7 @@ exports.DEFAULT_WEIGHTS = {
     // Global modifiers that affect all weighted scores
     [types_1.WeightName.TIME_DECAY]: 0.05,
     [types_1.WeightName.TRENDING]: 0.15,
+    [types_1.WeightName.OUTLIER_DAMPENER]: 2,
     // Weighted scores
     [types_1.WeightName.CHAOS]: 1.0,
     [types_1.WeightName.DIVERSITY]: 1.0,
@@ -43,6 +44,7 @@ exports.PresetWeights = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
         [types_1.WeightName.TIME_DECAY]: 1.0,
         [types_1.WeightName.TRENDING]: 0,
+        [types_1.WeightName.OUTLIER_DAMPENER]: 0,
         [types_1.WeightName.CHAOS]: 0,
         [types_1.WeightName.DIVERSITY]: 0,
         [types_1.WeightName.FAVOURITED_ACCOUNTS]: 0,

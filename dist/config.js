@@ -196,6 +196,11 @@ exports.SCORERS_CONFIG = {
         description: "Multiplier applied to trending toots, tags, and links",
         minValue: 0.001,
     },
+    // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
+    [types_1.WeightName.OUTLIER_DAMPENER]: {
+        description: "Dampens the effect of outliers scores",
+        minValue: 0.001,
+    },
     // Weighted scores
     [types_1.WeightName.CHAOS]: {
         description: "Insert Chaos into the scoring (social media ist krieg)",
