@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.27.1
 * Add a language argument to Algorithm.create() and choose servers for trending toots based on it
 * Refactor `lockExecution()`
 
