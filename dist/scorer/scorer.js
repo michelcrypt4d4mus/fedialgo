@@ -55,7 +55,6 @@ class Scorer {
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     static async scoreToots(toots, featureScorers, feedScorers) {
         const scorers = [...featureScorers, ...feedScorers];
-        (0, log_helpers_1.traceLog)(`${SCORE_PREFIX} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
         const startedAt = new Date();
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
@@ -85,7 +84,7 @@ class Scorer {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);
             }
         }
-        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
         return toots;
     }
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)

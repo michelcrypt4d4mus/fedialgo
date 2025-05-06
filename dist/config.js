@@ -7,9 +7,11 @@ exports.SCORERS_CONFIG = exports.Config = void 0;
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
 const time_helpers_1 = require("./helpers/time_helpers");
+const DEFAULT_LANGUAGE = "en";
 // App level config that is not user configurable
 exports.Config = {
-    defaultLanguage: "en",
+    defaultLanguage: DEFAULT_LANGUAGE,
+    language: DEFAULT_LANGUAGE,
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 20,
     homeTimelineBatchSize: 80,
@@ -179,7 +181,7 @@ if (environment_helpers_1.isDebugMode) {
     exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;
     exports.Config.numDesiredTimelineToots = 500;
-    exports.Config.numParticipatedTagsToFetchTootsFor = 5;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 10;
     exports.Config.numTrendingTags = 5;
 }
 ;

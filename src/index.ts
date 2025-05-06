@@ -70,6 +70,7 @@ interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     setTimelineInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
+    language?: string;  // Optional locale to use for date formatting
 };
 
 
@@ -141,6 +142,14 @@ class TheAlgorithm {
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
+        if (params.language) {
+            if (params.language in Config.foreignLanguageServers) {
+                Config.language = params.language;
+            } else {
+                console.warn(`Language ${params.language} not supported, using default ${Config.defaultLanguage}`);
+            }
+        }
+
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
@@ -424,9 +433,9 @@ class TheAlgorithm {
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
-                const startTime = new Date();
+                const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(TELEMETRY, `${PREP_SCORERS} ready in ${ageString(startTime)}`);
+                logInfo(TELEMETRY, `${PREP_SCORERS} ready in ${ageString(startedAt)}`);
             }
         } finally {
             releaseMutex();
@@ -454,7 +463,7 @@ class TheAlgorithm {
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
-        await this.prepareScorers();
+        await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
         await Storage.set(StorageKey.TIMELINE, this.feed);

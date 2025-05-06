@@ -251,8 +251,15 @@ class MastodonServer {
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
             console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config_1.Config.minServerMAU} MAU, adding some`);
-            const extraServers = config_1.Config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
-            const extraServerInfos = await this.callForServers(extraServers, (s) => s.fetchServerInfo());
+            let extraDomains = [];
+            if (config_1.Config.language != config_1.Config.defaultLanguage) {
+                extraDomains = extraDomains.concat(config_1.Config.foreignLanguageServers[config_1.Config.language] || []);
+                console.log(`${logPrefix} Using ${extraDomains.length} custom "${config_1.Config.language}" servers`);
+            }
+            extraDomains = extraDomains.concat(config_1.Config.defaultServers);
+            extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
+            console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
+            const extraServerInfos = await this.callForServers(extraDomains, (s) => s.fetchServerInfo());
             serverDict = { ...serverDict, ...extraServerInfos };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.

@@ -4,6 +4,7 @@ type StaleDataConfig = {
 };
 export type ConfigType = {
     defaultLanguage: string;
+    language: string;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;

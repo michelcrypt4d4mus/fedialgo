@@ -150,6 +150,14 @@ class TheAlgorithm {
     });
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
+        if (params.language) {
+            if (params.language in config_1.Config.foreignLanguageServers) {
+                config_1.Config.language = params.language;
+            }
+            else {
+                console.warn(`Language ${params.language} not supported, using default ${config_1.Config.defaultLanguage}`);
+            }
+        }
         const user = account_1.default.build(params.user);
         await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
@@ -388,9 +396,9 @@ class TheAlgorithm {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.scoreMutex, log_helpers_1.PREP_SCORERS);
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
-                const startTime = new Date();
+                const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${log_helpers_1.PREP_SCORERS} ready in ${(0, time_helpers_1.ageString)(startTime)}`);
+                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${log_helpers_1.PREP_SCORERS} ready in ${(0, time_helpers_1.ageString)(startedAt)}`);
             }
         }
         finally {
@@ -415,7 +423,7 @@ class TheAlgorithm {
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
-        await this.prepareScorers();
+        await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
         await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);

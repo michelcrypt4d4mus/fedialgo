@@ -5,6 +5,7 @@ import { isDebugMode } from "./helpers/environment_helpers";
 import { ScorerDict, StorageKey, WeightName } from "./types";
 import { SECONDS_IN_HOUR, SECONDS_IN_MINUTE } from "./helpers/time_helpers";
 
+const DEFAULT_LANGUAGE = "en";
 
 type StaleDataConfig = {
     [key in StorageKey]?: number
@@ -13,6 +14,7 @@ type StaleDataConfig = {
 // See Config for comments explaining these values
 export type ConfigType = {
     defaultLanguage: string;
+    language: string;
     // Timeline
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
@@ -65,7 +67,8 @@ export type ConfigType = {
 
 // App level config that is not user configurable
 export const Config: ConfigType = {
-    defaultLanguage: "en",
+    defaultLanguage: DEFAULT_LANGUAGE,
+    language: DEFAULT_LANGUAGE,
 
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 20,   // Delay before pulling trending & participated hashtag toots
@@ -77,7 +80,7 @@ export const Config: ConfigType = {
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
-        [StorageKey.BLOCKED_ACCOUNTS]:         12 * SECONDS_IN_HOUR,  // This value also covers the getUserData() call
+        [StorageKey.BLOCKED_ACCOUNTS]:         12 * SECONDS_IN_HOUR,
         [StorageKey.FAVOURITED_TOOTS]:         12 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_LINKS]:  4 * SECONDS_IN_HOUR,
         [StorageKey.FEDIVERSE_TRENDING_TAGS]:   4 * SECONDS_IN_HOUR,
@@ -241,7 +244,7 @@ if (isDebugMode) {
     Config.maxCachedTimelineToots = 700;
     Config.maxRecordsForFeatureScoring = 480;
     Config.numDesiredTimelineToots = 500;
-    Config.numParticipatedTagsToFetchTootsFor = 5;
+    Config.numParticipatedTagsToFetchTootsFor = 10;
     Config.numTrendingTags = 5;
 };
 

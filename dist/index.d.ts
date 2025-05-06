@@ -31,6 +31,7 @@ interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
     setTimelineInApp?: (feed: Toot[]) => void;
+    language?: string;
 }
 declare class TheAlgorithm {
     filters: FeedFilterSettings;

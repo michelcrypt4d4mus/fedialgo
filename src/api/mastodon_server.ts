@@ -273,8 +273,17 @@ export default class MastodonServer {
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
             console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${Config.minServerMAU} MAU, adding some`);
-            const extraServers = Config.defaultServers.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
-            const extraServerInfos = await this.callForServers<InstanceResponse>(extraServers, (s) => s.fetchServerInfo());
+            let extraDomains: string[] = [];
+
+            if (Config.language != Config.defaultLanguage) {
+                extraDomains = extraDomains.concat(Config.foreignLanguageServers[Config.language] || []);
+                console.log(`${logPrefix} Using ${extraDomains.length} custom "${Config.language}" servers`);
+            }
+
+            extraDomains = extraDomains.concat(Config.defaultServers);
+            extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
+            console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
+            const extraServerInfos = await this.callForServers<InstanceResponse>(extraDomains, (s) => s.fetchServerInfo());
             serverDict = {...serverDict, ...extraServerInfos};
         }
 
