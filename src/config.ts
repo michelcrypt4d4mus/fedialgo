@@ -20,11 +20,13 @@ export type ConfigType = {
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
     numDesiredTimelineToots: number;
-    numParticipatedTagsToFetchTootsFor: number;
-    numParticipatedTagToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
+    // Participated tags
+    numParticipatedTagsToFetchTootsFor: number;
+    numParticipatedTagToots: number;
+    numParticipatedTagTootsPerTag: number;
     // API stuff
     backgroundLoadIntervalMS: number;
     defaultRecordsPerPage: number;
@@ -67,14 +69,11 @@ export const Config: ConfigType = {
 
     // Timeline toots
     hashtagTootRetrievalDelaySeconds: 20,   // Delay before pulling trending & participated hashtag toots
-    homeTimelineBatchSize: 80,               // How many toots to pull in the first fetch
-    incrementalLoadDelayMS: 500,           // Delay between incremental loads of toots
+    homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
+    incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
     numDesiredTimelineToots: 900,           // useful dev options for faster load
     maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
-    // TODO: increase this but make the load happen after the initial load
-    numParticipatedTagsToFetchTootsFor: 20, // Pull toots for this many of the user's most participated tags
-    numParticipatedTagToots: 200,           // How many total toots to include for the user's most participated tags
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
@@ -93,7 +92,12 @@ export const Config: ConfigType = {
         [StorageKey.SERVER_SIDE_FILTERS]:      24 * SECONDS_IN_HOUR,
         [StorageKey.TRENDING_TAG_TOOTS]:     0.25 * SECONDS_IN_HOUR,
     },
-    timelineDecayExponent: 1.2,          // Exponent for the time decay function (higher = more recent toots are favoured)
+    timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
+
+    // Participated tags
+    numParticipatedTagsToFetchTootsFor: 20, // Pull toots for this many of the user's most participated tags
+    numParticipatedTagToots: 150,           // How many total toots to include for the user's most participated tags
+    numParticipatedTagTootsPerTag: 7,       // How many toots to pull for each participated tag
 
     // API stuff
     backgroundLoadIntervalMS: 120_000,   // 2 minutes
@@ -232,7 +236,7 @@ export const Config: ConfigType = {
 
 // Debug mode settings
 if (isDebugMode) {
-    Config.hashtagTootRetrievalDelaySeconds = 5;
+    Config.hashtagTootRetrievalDelaySeconds = 6;
     Config.incrementalLoadDelayMS = 100;
     Config.maxCachedTimelineToots = 700;
     Config.maxRecordsForFeatureScoring = 480;

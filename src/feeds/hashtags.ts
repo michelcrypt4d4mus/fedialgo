@@ -5,6 +5,7 @@ import MastoApi from "../api/api";
 import MastodonServer from "../api/mastodon_server";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
+import { Config } from "../config";
 import { MastodonTag, StorageKey } from "../types";
 import { traceLog } from "../helpers/log_helpers";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
@@ -18,7 +19,7 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.PARTICIPATED_TAG_TOOTS,
-        async () => await MastoApi.instance.getStatusesForTags(tags),
+        async () => await MastoApi.instance.getStatusesForTags(tags, Config.numParticipatedTagTootsPerTag),
         "numParticipatedTagToots"
     );
 };
@@ -32,7 +33,7 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.TRENDING_TAG_TOOTS,
-        async () => MastoApi.instance.getStatusesForTags(tags),
+        async () => MastoApi.instance.getStatusesForTags(tags, Config.numTootsPerTrendingTag),
         "numTrendingTagsToots"
     );
 };

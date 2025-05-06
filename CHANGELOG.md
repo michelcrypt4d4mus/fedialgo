@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add Config.numParticipatedTagTootsPerTag option and set it to 5 so we pull far less participated tag toots
 
 ### v0.26.2
 * Don't set `catchupCheckpoint` if the feed is empty

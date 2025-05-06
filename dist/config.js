@@ -17,9 +17,6 @@ exports.Config = {
     maxCachedTimelineToots: 1600,
     numDesiredTimelineToots: 900,
     maxTimelineHoursToFetch: 168,
-    // TODO: increase this but make the load happen after the initial load
-    numParticipatedTagsToFetchTootsFor: 20,
-    numParticipatedTagToots: 200,
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {
@@ -39,6 +36,10 @@ exports.Config = {
         [types_1.StorageKey.TRENDING_TAG_TOOTS]: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
     },
     timelineDecayExponent: 1.2,
+    // Participated tags
+    numParticipatedTagsToFetchTootsFor: 20,
+    numParticipatedTagToots: 150,
+    numParticipatedTagTootsPerTag: 7,
     // API stuff
     backgroundLoadIntervalMS: 120000,
     defaultRecordsPerPage: 40,
@@ -173,7 +174,7 @@ exports.Config = {
 };
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.hashtagTootRetrievalDelaySeconds = 5;
+    exports.Config.hashtagTootRetrievalDelaySeconds = 6;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;

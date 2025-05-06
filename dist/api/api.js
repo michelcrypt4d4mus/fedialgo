@@ -221,9 +221,9 @@ class MastoApi {
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags
-    async getStatusesForTags(tags) {
+    async getStatusesForTags(tags, numTootsPerTag) {
         console.log(`[getStatusesForTags()] called for ${tags.length} tags:`, tags.map(t => t.name));
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag)));
+        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag, numTootsPerTag)));
         return tagToots.flat();
     }
     // Retrieve background data about the user that will be used for scoring etc.

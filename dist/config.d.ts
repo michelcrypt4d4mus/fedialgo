@@ -10,11 +10,12 @@ export type ConfigType = {
     maxCachedTimelineToots: number;
     maxTimelineHoursToFetch: number;
     numDesiredTimelineToots: number;
-    numParticipatedTagsToFetchTootsFor: number;
-    numParticipatedTagToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
+    numParticipatedTagsToFetchTootsFor: number;
+    numParticipatedTagToots: number;
+    numParticipatedTagTootsPerTag: number;
     backgroundLoadIntervalMS: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
