@@ -46,11 +46,26 @@ export function logAndThrowError(message: string, obj?: any): never {
 };
 
 
-export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexInterface.Releaser> {
+// Lock a Semaphore or Mutex and log the time it took to acquire the lock
+export async function lockExecution(
+    locker: Mutex | Semaphore,
+    logPrefix: string
+): Promise<MutexInterface.Releaser |  SemaphoreInterface.Releaser> {
     const startedAt = new Date();
-    const releaseMutex = await mutex.acquire();
+    const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
-    const logMsg = `${logPrefix} Mutex lock acquired ${ageString(startedAt)}`;
+    let releaseLock: MutexInterface.Releaser |SemaphoreInterface.Releaser;
+    let logMsg = `${logPrefix} `;
+
+    if (Array.isArray(acquireLock)) {
+        logMsg += `Semaphore ${acquireLock[0]} `;
+        releaseLock = acquireLock[1];
+    } else {
+        logMsg += `Mutex `;
+        releaseLock = acquireLock;
+    }
+
+    logMsg += `lock acquired ${ageString(startedAt)}`;
 
     if (waitSeconds > Config.mutexWarnSeconds) {
         console.warn(logMsg);
@@ -58,23 +73,7 @@ export async function lockMutex(mutex: Mutex, logPrefix: string): Promise<MutexI
         console.debug(logMsg);
     }
 
-    return releaseMutex;
-};
-
-
-export async function lockSemaphore(semaphore: Semaphore, logPrefix: string): Promise<[number, SemaphoreInterface.Releaser]> {
-    const startedAt = new Date();
-    const release: [number, SemaphoreInterface.Releaser] = await semaphore.acquire();
-    const waitSeconds = ageInSeconds(startedAt);
-    const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${ageString(startedAt)}`;
-
-    if (waitSeconds > Config.mutexWarnSeconds) {
-        console.warn(logMsg);
-    } else if (waitSeconds > 2) {
-        console.debug(logMsg);
-    }
-
-    return release;
+    return releaseLock;
 };
 
 

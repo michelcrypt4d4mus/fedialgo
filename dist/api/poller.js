@@ -23,7 +23,7 @@ async function getMoarData() {
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
     const maxRecordsForFeatureScoring = config_1.Config.maxRecordsForFeatureScoring;
     const startedAt = new Date();
-    const releaseMutex = await (0, log_helpers_1.lockMutex)(MOAR_MUTEX, exports.GET_MOAR_DATA);
+    const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const pollers = [
         api_1.default.instance.getRecentNotifications.bind(api_1.default.instance),
         api_1.default.instance.getRecentUserToots.bind(api_1.default.instance),

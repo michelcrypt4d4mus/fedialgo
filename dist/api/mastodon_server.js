@@ -209,7 +209,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
-        const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
         try {
             let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers) {
@@ -283,7 +283,7 @@ class MastodonServer {
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
-        const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[key], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);

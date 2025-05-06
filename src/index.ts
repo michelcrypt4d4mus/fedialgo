@@ -35,7 +35,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
-import { CLEANUP_FEED, TRIGGER_FEED, PREP_SCORERS, lockMutex, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
+import { CLEANUP_FEED, TRIGGER_FEED, PREP_SCORERS, lockExecution, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
 import { Config, SCORERS_CONFIG } from './config';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
@@ -402,7 +402,7 @@ class TheAlgorithm {
         newToots = filterWithLog<Toot>(newToots, t => t.isValidForFeed(), CLEANUP_FEED, 'invalid', 'Toot');
         // Only need to lock the mutex when we start mutating common variables like this.feed
         // TODO: this mutex is a bit of a logjam...
-        const releaseMutex = await lockMutex(this.mergeMutex, logPrefix);
+        const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
 
         try {
             this.feed = Toot.dedupeToots([...this.feed, ...newToots], CLEANUP_FEED);
@@ -420,7 +420,7 @@ class TheAlgorithm {
 
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     private async prepareScorers(force?: boolean): Promise<void> {
-        const releaseMutex = await lockMutex(this.scoreMutex, PREP_SCORERS);
+        const releaseMutex = await lockExecution(this.scoreMutex, PREP_SCORERS);
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {

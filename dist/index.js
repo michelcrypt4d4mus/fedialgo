@@ -369,7 +369,7 @@ class TheAlgorithm {
         newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), log_helpers_1.CLEANUP_FEED, 'invalid', 'Toot');
         // Only need to lock the mutex when we start mutating common variables like this.feed
         // TODO: this mutex is a bit of a logjam...
-        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.mergeMutex, logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
             this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], log_helpers_1.CLEANUP_FEED);
         }
@@ -385,7 +385,7 @@ class TheAlgorithm {
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     async prepareScorers(force) {
-        const releaseMutex = await (0, log_helpers_1.lockMutex)(this.scoreMutex, log_helpers_1.PREP_SCORERS);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.scoreMutex, log_helpers_1.PREP_SCORERS);
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startTime = new Date();

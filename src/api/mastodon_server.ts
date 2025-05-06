@@ -14,7 +14,7 @@ import { ageString } from "../helpers/time_helpers";
 import { Config } from "../config";
 import { countValues, sortKeysByValue, transformKeys, truncateToConfiguredLength, zipPromises } from "../helpers/collection_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
-import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
 import {
@@ -223,7 +223,7 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
-        const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.POPULAR_SERVERS);
@@ -318,7 +318,7 @@ export default class MastodonServer {
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
-        const releaseMutex = await lockMutex(TRENDING_MUTEXES[key]!, logPrefix);
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[key]!, logPrefix);
         const startedAt = new Date();
 
         try {

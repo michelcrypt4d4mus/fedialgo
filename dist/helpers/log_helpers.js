@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPrefix = exports.traceLog = exports.lockSemaphore = exports.lockMutex = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
+exports.addPrefix = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -40,35 +40,31 @@ function logAndThrowError(message, obj) {
 }
 exports.logAndThrowError = logAndThrowError;
 ;
-async function lockMutex(mutex, logPrefix) {
+// Lock a Semaphore or Mutex and log the time it took to acquire the lock
+async function lockExecution(locker, logPrefix) {
     const startedAt = new Date();
-    const releaseMutex = await mutex.acquire();
+    const acquireLock = await locker.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
-    const logMsg = `${logPrefix} Mutex lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    let releaseLock;
+    let logMsg = `${logPrefix} `;
+    if (Array.isArray(acquireLock)) {
+        logMsg += `Semaphore ${acquireLock[0]} `;
+        releaseLock = acquireLock[1];
+    }
+    else {
+        logMsg += `Mutex `;
+        releaseLock = acquireLock;
+    }
+    logMsg += `lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
     if (waitSeconds > config_1.Config.mutexWarnSeconds) {
         console.warn(logMsg);
     }
     else if (waitSeconds > 2) {
         console.debug(logMsg);
     }
-    return releaseMutex;
+    return releaseLock;
 }
-exports.lockMutex = lockMutex;
-;
-async function lockSemaphore(semaphore, logPrefix) {
-    const startedAt = new Date();
-    const release = await semaphore.acquire();
-    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
-    const logMsg = `${logPrefix} Semaphore ${release[0]} lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (waitSeconds > config_1.Config.mutexWarnSeconds) {
-        console.warn(logMsg);
-    }
-    else if (waitSeconds > 2) {
-        console.debug(logMsg);
-    }
-    return release;
-}
-exports.lockSemaphore = lockSemaphore;
+exports.lockExecution = lockExecution;
 ;
 // Log only if DEBUG env var is set.
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.

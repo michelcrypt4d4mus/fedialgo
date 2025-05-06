@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Refactor `lockExecution()`
 
 # v0.27.0
 * Add a Sensitive (NSFW) TYPE_FILTER

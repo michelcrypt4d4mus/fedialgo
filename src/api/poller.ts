@@ -7,7 +7,7 @@ import { Mutex } from 'async-mutex';
 import MastoApi from "../api/api";
 import { ageString } from '../helpers/time_helpers';
 import { Config } from "../config";
-import { lockMutex } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/log_helpers';
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
@@ -21,7 +21,7 @@ export async function getMoarData(): Promise<boolean> {
     console.log(`${MOAR_DATA_PREFIX} triggered by timer...`);
     const maxRecordsForFeatureScoring = Config.maxRecordsForFeatureScoring;
     const startedAt = new Date();
-    const releaseMutex = await lockMutex(MOAR_MUTEX, GET_MOAR_DATA);
+    const releaseMutex = await lockExecution(MOAR_MUTEX, GET_MOAR_DATA);
 
     const pollers = [
         MastoApi.instance.getRecentNotifications.bind(MastoApi.instance),

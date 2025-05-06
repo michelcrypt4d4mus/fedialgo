@@ -17,7 +17,7 @@ import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StorageKey
 import { Config, ConfigType } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
-import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 
 export const INSTANCE = "instance";
@@ -196,7 +196,7 @@ export default class MastoApi {
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
-        const releaseMutex = await lockMutex(this.mutexes[StorageKey.SERVER_SIDE_FILTERS], logPrefix);
+        const releaseMutex = await lockExecution(this.mutexes[StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
 
         try {
@@ -283,9 +283,9 @@ export default class MastoApi {
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || Config.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
-        const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
+        const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
-        logPrefix += ` (semaphore ${semaphoreNum})`;
+        logPrefix += ` (semaphore)`;
         const startedAt = new Date();
 
         try {
@@ -309,7 +309,7 @@ export default class MastoApi {
         maxRecordsConfigKey: keyof ConfigType
     ): Promise<Toot[]> {
         const logPrefix = `[API getCacheableToots ${key}]`;
-        const releaseMutex = await lockMutex(this.mutexes[key], logPrefix);
+        const releaseMutex = await lockExecution(this.mutexes[key], logPrefix);
         const startedAt = new Date();
 
         try {
@@ -357,7 +357,7 @@ export default class MastoApi {
         // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
         // This is for data pulls that are not trying to get at the same data (e.g. running a bunch of searches
         // for different terms vs. trying to get the user's home timeline, which does require a mutex)
-        const releaseMutex = !skipMutex ? await lockMutex(this.mutexes[label], logPfx) : null;
+        const releaseMutex = !skipMutex ? await lockExecution(this.mutexes[label], logPfx) : null;
         // Trying to put a global semaphore on requests led to thread locks - apparently the searchForToots()
         // requests are grabbing all the semaphores and something important can't get through.
         // const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPfx);
@@ -415,8 +415,8 @@ export default class MastoApi {
     private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || Config.defaultRecordsPerPage;
         let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
-        const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPrefix);
-        logPrefix += ` (semaphore ${semaphoreNum})`;
+        const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
+        logPrefix += ` (semaphore)`;
         const startedAt = new Date();
 
         try {
