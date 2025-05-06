@@ -40,6 +40,6 @@ export default class MastoApi {
     private getApiRecords;
     private hashtagTimelineToots;
     private buildParams;
-    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]): MastodonApiObject[] | Toot[] | Account[];
+    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]): Account[] | Toot[] | MastodonApiObject[];
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 }

@@ -129,11 +129,15 @@ export default class MastoApi {
 
     // Get accounts the user is following
     async getFollowedAccounts(): Promise<Account[]> {
-        return await this.getApiRecords<mastodon.v1.Account>({
+        const accounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Config.maxFollowingAccountsToPull,
         }) as Account[];
+
+        // const accountsByWebfinger = accounts.filter(a => !!a.webfingerURI);
+        // console.log(`[getFollowedAccounts() ${StorageKey.FOLLOWED_ACCOUNTS}] found ${accounts.length} accounts with ${accountsByWebfinger.length} webfingerURIs`, accounts);
+        return accounts;
     }
 
     // Get hashtags the user is following
@@ -391,8 +395,6 @@ export default class MastoApi {
                     traceLog(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
-
-            if (!skipCache) await Storage.set(label, rows as StorableObj);
         } catch (e) {
             // If the access token was not revoked whatever rows we've retrieved will be returned
             MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
@@ -401,7 +403,9 @@ export default class MastoApi {
             // releaseSemaphore();
         }
 
-        return MastoApi.buildFromApiObjects(label, rows);
+        const objs = MastoApi.buildFromApiObjects(label, rows);
+        if (!skipCache) await Storage.set(label, objs);
+        return objs;
     }
 
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
@@ -447,7 +451,7 @@ export default class MastoApi {
     };
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]): MastodonApiObject[] | Toot[] | Account[] {
+    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]):  Account[] | Toot[] | MastodonApiObject[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => Account.build(o as mastodon.v1.Account));
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {

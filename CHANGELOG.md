@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Don't set catchupCheckpoint if the feed is empty
+* Fix bug where Account.webfingerURI field was not getting set
 
 ### v0.26.1
 * Lower `Config.incrementalLoadDelayMS` to 500 ms

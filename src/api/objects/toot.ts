@@ -461,6 +461,7 @@ export default class Toot implements TootObj {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
         if (this.followedTags && this.trendingTags) return;
 
+        // console.debug(`Checking if ${this.account.webfingerURI} is among ${Object.keys(userData.followedAccounts).length} followed accounts:`, Object.keys(userData.followedAccounts).sort());
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();

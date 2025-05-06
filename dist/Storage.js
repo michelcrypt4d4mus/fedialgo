@@ -156,8 +156,12 @@ class Storage {
             toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
+    // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
+    static async isDataStale(key) {
+        return !(await this.getIfNotStale(key));
+    }
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
-    static async getUserData() {
+    static async loadUserData() {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
@@ -168,10 +172,6 @@ class Storage {
             recentToots: await this.getCoerced(types_1.StorageKey.RECENT_USER_TOOTS),
             serverSideFilters: await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS),
         });
-    }
-    // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
-    static async isDataStale(key) {
-        return !(await this.getIfNotStale(key));
     }
     static async logAppOpen() {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
@@ -235,15 +235,18 @@ class Storage {
     }
     static deserialize(key, value) {
         if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            value = value;
-            return value.map((a) => (0, class_transformer_1.plainToInstance)(account_1.default, a));
+            // Calling the plainToInstance with arrays as argument directly may or may not have caused an issue
+            if (Array.isArray(value)) {
+                return value.map((t) => (0, class_transformer_1.plainToInstance)(account_1.default, t));
+            }
+            else {
+                warn(`Expected array of accounts at key "${key}", but got:`, value);
+                return value;
+            }
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             if (Array.isArray(value)) {
-                const toots = value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
-                const followed = toots.filter(t => t.isFollowed);
-                log(`[${key}] deserialized ${toots.length} toots, found ${followed.length} followed toots`);
-                return toots;
+                return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
             }
             else {
                 warn(`Expected array of toots at key "${key}", but got:`, value);
@@ -256,13 +259,9 @@ class Storage {
     }
     static serialize(key, value) {
         if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            trace(`[${key}] serializing accounts...`);
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            const toots = value;
-            const followed = toots.filter(t => t.isFollowed);
-            log(`[${key}] serializing ${toots.length} toots, ${followed.length} followed toots...`);
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else {

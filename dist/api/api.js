@@ -126,11 +126,14 @@ class MastoApi {
     ;
     // Get accounts the user is following
     async getFollowedAccounts() {
-        return await this.getApiRecords({
+        const accounts = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
+        // const accountsByWebfinger = accounts.filter(a => !!a.webfingerURI);
+        // console.log(`[getFollowedAccounts() ${StorageKey.FOLLOWED_ACCOUNTS}] found ${accounts.length} accounts with ${accountsByWebfinger.length} webfingerURIs`, accounts);
+        return accounts;
     }
     // Get hashtags the user is following
     async getFollowedTags() {
@@ -360,8 +363,6 @@ class MastoApi {
                     (0, log_helpers_1.traceLog)(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
                 }
             }
-            if (!skipCache)
-                await Storage_1.default.set(label, rows);
         }
         catch (e) {
             // If the access token was not revoked whatever rows we've retrieved will be returned
@@ -371,7 +372,10 @@ class MastoApi {
             releaseMutex?.();
             // releaseSemaphore();
         }
-        return MastoApi.buildFromApiObjects(label, rows);
+        const objs = MastoApi.buildFromApiObjects(label, rows);
+        if (!skipCache)
+            await Storage_1.default.set(label, objs);
+        return objs;
     }
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // See https://docs.joinmastodon.org/methods/timelines/#tag

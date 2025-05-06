@@ -10,8 +10,8 @@ export default class Storage {
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getTrending(): Promise<TrendingStorage>;
-    static getUserData(): Promise<UserData>;
     static isDataStale(key: StorageKey): Promise<boolean>;
+    static loadUserData(): Promise<UserData>;
     static logAppOpen(): Promise<void>;
     static getWeightings(): Promise<Weights>;
     static remove(key: StorageKey): Promise<void>;
