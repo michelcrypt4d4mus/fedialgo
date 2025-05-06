@@ -71,7 +71,6 @@ export default abstract class Scorer {
         feedScorers: FeedScorer[]
     ): Promise<Toot[]> {
         const scorers = [...featureScorers, ...feedScorers];
-        traceLog(`${SCORE_PREFIX} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
         const startedAt = new Date();
 
         try {
@@ -101,7 +100,7 @@ export default abstract class Scorer {
             }
         }
 
-        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots in ${ageString(startedAt)}`);
+        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
         return toots;
     }
 
