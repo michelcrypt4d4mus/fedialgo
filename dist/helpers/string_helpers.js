@@ -1,9 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.isNumber = exports.quote = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.isNumber = exports.quote = exports.hashObject = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
+const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
 const types_1 = require("../types");
 exports.DEFAULT_FONT_SIZE = 15;
@@ -94,6 +98,13 @@ function createRandomString(length) {
     return result;
 }
 exports.createRandomString = createRandomString;
+;
+function hashObject(obj) {
+    const str = JSON.stringify(obj);
+    const hash = (0, blueimp_md5_1.default)(str);
+    return hash;
+}
+exports.hashObject = hashObject;
 ;
 // Doublequotes
 const quote = (text) => text == null ? exports.NULL : `"${text}"`;

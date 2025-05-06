@@ -7,15 +7,16 @@ import FeatureScorer from './feature_scorer';
 import FeedScorer from './feed_scorer';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
+import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumValues } from "../helpers/collection_helpers";
-import { Config } from '../config';
+import { Config, SCORERS_CONFIG } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { logAndThrowError } from '../helpers/log_helpers';
+import { logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
-import { SCORERS_CONFIG } from "../config";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
+const SCORE_PREFIX = "[scoreToots()]";
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 
 
@@ -70,8 +71,8 @@ export default abstract class Scorer {
         feedScorers: FeedScorer[]
     ): Promise<Toot[]> {
         const scorers = [...featureScorers, ...feedScorers];
-        const logPrefix = `[scoreFeed()]`;
-        console.debug(`${logPrefix} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+        traceLog(`${SCORE_PREFIX} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+        const startedAt = new Date();
 
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
@@ -94,12 +95,13 @@ export default abstract class Scorer {
             }
         } catch (e) {
             if (e == E_CANCELED) {
-                console.debug(`${logPrefix} mutex cancellation`);
+                console.debug(`${SCORE_PREFIX} mutex cancellation`);
             } else {
-                console.warn(`${logPrefix} caught error:`, e);
+                console.warn(`${SCORE_PREFIX} caught error:`, e);
             }
         }
 
+        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots in ${ageString(startedAt)}`);
         return toots;
     }
 

@@ -8,14 +8,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const async_mutex_1 = require("async-mutex");
 const Storage_1 = __importDefault(require("../Storage"));
+const time_helpers_1 = require("../helpers/time_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
-const config_2 = require("../config");
 const SCORE_DIGITS = 3; // Number of digits to display in the alternate score
 const SCORE_MUTEX = new async_mutex_1.Mutex();
+const SCORE_PREFIX = "[scoreToots()]";
 class Scorer {
     defaultWeight;
     description;
@@ -24,7 +25,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.description = config_2.SCORERS_CONFIG[name].description;
+        this.description = config_1.SCORERS_CONFIG[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
     // Return a ScorerInfo object with the description and the scorer itself
@@ -54,8 +55,8 @@ class Scorer {
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     static async scoreToots(toots, featureScorers, feedScorers) {
         const scorers = [...featureScorers, ...feedScorers];
-        const logPrefix = `[scoreFeed()]`;
-        console.debug(`${logPrefix} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+        (0, log_helpers_1.traceLog)(`${SCORE_PREFIX} Scoring ${toots.length} toots with ${scorers.length} scorers...`);
+        const startedAt = new Date();
         try {
             // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
             // If the mutex is already locked just cancel the current scoring loop and start over
@@ -78,12 +79,13 @@ class Scorer {
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                console.debug(`${logPrefix} mutex cancellation`);
+                console.debug(`${SCORE_PREFIX} mutex cancellation`);
             }
             else {
-                console.warn(`${logPrefix} caught error:`, e);
+                console.warn(`${SCORE_PREFIX} caught error:`, e);
             }
         }
+        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)

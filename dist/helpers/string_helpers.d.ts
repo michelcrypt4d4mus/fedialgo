@@ -15,6 +15,7 @@ export declare function isVideo(uri: string | null | undefined): boolean;
 export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
 export declare function countInstances(str: string, substr: string): number;
 export declare function createRandomString(length: number): string;
+export declare function hashObject(obj: object | number | string): string;
 export declare const quote: (text: string | null) => string;
 export declare const isNumber: (n: string | number) => boolean;
 export declare const toLocaleInt: (num: number | null) => string;

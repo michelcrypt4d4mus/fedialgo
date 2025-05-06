@@ -1,6 +1,7 @@
 /*
  * Helpers for dealing with strings.
  */
+import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { mastodon } from 'masto';
 
@@ -109,6 +110,13 @@ export function createRandomString(length: number): string {
     }
 
     return result;
+};
+
+
+export function hashObject(obj: object | number | string): string {
+    const str = JSON.stringify(obj);
+    const hash = md5(str);
+    return hash;
 };
 
 
