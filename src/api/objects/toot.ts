@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, groupBy, sumArray, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -61,7 +61,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
-    source?: string;                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    sources?: string[];                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
@@ -127,7 +127,7 @@ export default class Toot implements TootObj {
     @Type(() => Account) reblogsBy!: Account[];             // The accounts that retooted this toot
     @Type(() => Toot) resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
-    source?: string;                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    sources?: string[];                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingTags?: TrendingTag[];      // Tags that are trending that appear in this toot
@@ -176,7 +176,7 @@ export default class Toot implements TootObj {
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
-        tootObj.source = toot.source;
+        tootObj.sources = toot.sources;
         tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingLinks = toot.trendingLinks;
         tootObj.trendingTags = toot.trendingTags;
@@ -505,7 +505,7 @@ export default class Toot implements TootObj {
         const setProps = async (t: SerializableToot | Toot): Promise<Toot> => {
             const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
-            toot.source = source;
+            toot.sources = [source];
             return toot;
         }
 
@@ -541,7 +541,6 @@ export default class Toot implements TootObj {
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            let source = uriToots.map(toot => toot.source).filter(s => s != undefined).join(", ");
 
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
@@ -555,7 +554,7 @@ export default class Toot implements TootObj {
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.isFollowed = isFollowed;
                 toot.muted = isMuted;
-                toot.source = source;
+                toot.sources = uniquify(uriToots.map(toot => toot.sources || []).flat());
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;

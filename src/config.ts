@@ -97,7 +97,7 @@ export const Config: ConfigType = {
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 20, // Pull toots for this many of the user's most participated tags
     numParticipatedTagToots: 150,           // How many total toots to include for the user's most participated tags
-    numParticipatedTagTootsPerTag: 7,       // How many toots to pull for each participated tag
+    numParticipatedTagTootsPerTag: 5,       // How many toots to pull for each participated tag
 
     // API stuff
     backgroundLoadIntervalMS: 120_000,   // 2 minutes

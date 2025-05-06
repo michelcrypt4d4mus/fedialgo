@@ -43,7 +43,6 @@ const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
-const collection_helpers_2 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 var FediverseTrendingType;
 (function (FediverseTrendingType) {
@@ -98,7 +97,7 @@ class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.source = types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS;
+            toot.sources = [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS];
         });
         return trendingToots;
     }
@@ -203,7 +202,7 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, tag => tag.name);
-                return (0, collection_helpers_2.truncateToConfiguredLength)(uniqueTags, "numTrendingTags");
+                return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, "numTrendingTags");
             }
         });
     }
@@ -211,12 +210,10 @@ class MastodonServer {
     static async getMastodonInstancesInfo() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
         const releaseMutex = await (0, log_helpers_1.lockMutex)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
-        const startedAt = new Date();
         try {
             let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.POPULAR_SERVERS);
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
                 await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
             }
             return servers;
@@ -237,6 +234,7 @@ class MastodonServer {
     static async fetchMastodonInstances() {
         const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         (0, log_helpers_1.traceLog)(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
+        const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         const followedUserDomainCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
@@ -258,7 +256,7 @@ class MastodonServer {
             serverDict = { ...serverDict, ...extraServerInfos };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        return Object.entries(serverDict).reduce((serverDict, [domain, _instance]) => {
+        const servers = Object.entries(serverDict).reduce((serverDict, [domain, _instance]) => {
             // Replace any null responses with MastodonInstanceEmpty objs
             const instance = _instance ? _instance : {};
             const domainAccountsFollowed = followedUserDomainCounts[domain] || 0;
@@ -268,6 +266,9 @@ class MastodonServer {
             serverDict[domain] = instance;
             return serverDict;
         }, {});
+        const numServers = Object.keys(servers).length;
+        console.log(`${logPrefix} Fetched ${numServers} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
+        return servers;
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains() {

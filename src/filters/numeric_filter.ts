@@ -40,8 +40,9 @@ export default class NumericFilter extends TootFilter {
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
 
         if (!tootValue && tootValue !== 0) {
-            let msg = `No value found for ${this.title} in toot:`;
-            isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
+            let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
+            console.warn(msg);
+            // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
 

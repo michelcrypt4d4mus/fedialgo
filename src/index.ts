@@ -409,7 +409,8 @@ class TheAlgorithm {
             releaseMutex();
         }
 
-        // TODO: testing out moving these lines outside the mutex lock resulted in < 10 to first visible toots
+        // TODO: Moving scoring outside the mutex means that sometimes the feed gets filtered before
+        // everything is scored. This is probably OK but for now it throws warnings in the console.
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
         logInfo(logPrefix, `${TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());

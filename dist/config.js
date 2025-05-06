@@ -39,7 +39,7 @@ exports.Config = {
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 20,
     numParticipatedTagToots: 150,
-    numParticipatedTagTootsPerTag: 7,
+    numParticipatedTagTootsPerTag: 5,
     // API stuff
     backgroundLoadIntervalMS: 120000,
     defaultRecordsPerPage: 40,

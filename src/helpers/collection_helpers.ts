@@ -289,3 +289,12 @@ function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
 
 export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
 export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
+
+
+// Return a new array with only unique non null values
+export const uniquify = (array: (string | undefined)[]): string[] | undefined => {
+    if (array.length == 0) return undefined;
+    let newArray = array.filter((e) => e != undefined) as string[];
+    newArray = [...new Set(newArray)];
+    return newArray;
+};

@@ -13,8 +13,8 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
+import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StorageKey } from "../types";
 import { Config, ConfigType } from "../config";
-import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StorableObj, StorageKey } from "../types";
 import { extractDomain } from '../helpers/string_helpers';
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockMutex, lockSemaphore, logAndThrowError, traceLog } from '../helpers/log_helpers';
@@ -233,6 +233,7 @@ export default class MastoApi {
             this.hashtagTimelineToots(tag, numToots),
         ]);
 
+        logTrendingTagResults(`[#${tag.name}]`, "both", tagToots.flat());
         return tagToots.flat();
     }
 
@@ -478,7 +479,7 @@ export default class MastoApi {
 
 
 // TODO: get rid of this eventually
-const logTrendingTagResults = (logPrefix: string, searchMethod: string, toots: Toot[]): void => {
+const logTrendingTagResults = (logPrefix: string, searchMethod: string, toots: mastodon.v1.Status[] | Toot[]): void => {
     let msg = `${logPrefix} ${capitalCase(searchMethod)} found ${toots.length} toots`;
     msg += ` (oldest=${quotedISOFmt(earliestTootedAt(toots))}, newest=${quotedISOFmt(mostRecentTootedAt(toots))}):`
     console.info(msg);

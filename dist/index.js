@@ -375,7 +375,8 @@ class TheAlgorithm {
         finally {
             releaseMutex();
         }
-        // TODO: testing out moving these lines outside the mutex lock resulted in < 10 to first visible toots
+        // TODO: Moving scoring outside the mutex means that sometimes the feed gets filtered before
+        // everything is scored. This is probably OK but for now it throws warnings in the console.
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
         (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetch + merge complete ${logTootsStr()}, state:`, this.statusDict());

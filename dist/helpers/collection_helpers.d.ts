@@ -24,3 +24,4 @@ export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)
 export declare function truncateToConfiguredLength(array: any[], key: keyof ConfigType, label?: string): any[];
 export declare const isWeightName: (value: string) => boolean;
 export declare const isStorageKey: (value: string) => boolean;
+export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;

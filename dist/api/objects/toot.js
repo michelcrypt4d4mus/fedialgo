@@ -85,7 +85,7 @@ class Toot {
     reblogsBy; // The accounts that retooted this toot
     resolvedToot; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
-    source; // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    sources; // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
     trendingTags; // Tags that are trending that appear in this toot
@@ -132,7 +132,7 @@ class Toot {
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
-        tootObj.source = toot.source;
+        tootObj.sources = toot.sources;
         tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingLinks = toot.trendingLinks;
         tootObj.trendingTags = toot.trendingTags;
@@ -430,7 +430,7 @@ class Toot {
         const setProps = async (t) => {
             const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
-            toot.source = source;
+            toot.sources = [source];
             return toot;
         };
         let toots = await (0, collection_helpers_1.batchMap)(statuses, setProps, "buildToots");
@@ -461,7 +461,6 @@ class Toot {
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            let source = uriToots.map(toot => toot.source).filter(s => s != undefined).join(", ");
             uriToots.forEach((toot) => {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags || [];
@@ -474,7 +473,7 @@ class Toot {
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.isFollowed = isFollowed;
                 toot.muted = isMuted;
-                toot.source = source;
+                toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
                     toot.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);

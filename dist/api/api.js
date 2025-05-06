@@ -40,8 +40,8 @@ const Storage_1 = __importStar(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const config_1 = require("../config");
 const types_1 = require("../types");
+const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
@@ -218,6 +218,7 @@ class MastoApi {
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
         ]);
+        logTrendingTagResults(`[#${tag.name}]`, "both", tagToots.flat());
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags

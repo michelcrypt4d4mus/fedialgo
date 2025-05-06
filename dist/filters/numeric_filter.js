@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const types_1 = require("../types");
-const environment_helpers_1 = require("../helpers/environment_helpers");
 exports.FILTERABLE_SCORES = [
     types_1.WeightName.NUM_REPLIES,
     types_1.WeightName.NUM_RETOOTS,
@@ -32,8 +31,9 @@ class NumericFilter extends toot_filter_1.default {
         if (this.invertSelection && this.value === 0)
             return true; // 0 doesn't work as a maximum
         if (!tootValue && tootValue !== 0) {
-            let msg = `No value found for ${this.title} in toot:`;
-            environment_helpers_1.isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
+            let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
+            console.warn(msg);
+            // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
         const isOK = (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;

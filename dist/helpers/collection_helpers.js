@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchMap = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
+exports.uniquify = exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchMap = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -258,4 +258,13 @@ const isWeightName = (value) => isValueInStringEnum(types_1.WeightName)(value);
 exports.isWeightName = isWeightName;
 const isStorageKey = (value) => isValueInStringEnum(types_1.StorageKey)(value);
 exports.isStorageKey = isStorageKey;
+// Return a new array with only unique non null values
+const uniquify = (array) => {
+    if (array.length == 0)
+        return undefined;
+    let newArray = array.filter((e) => e != undefined);
+    newArray = [...new Set(newArray)];
+    return newArray;
+};
+exports.uniquify = uniquify;
 //# sourceMappingURL=collection_helpers.js.map

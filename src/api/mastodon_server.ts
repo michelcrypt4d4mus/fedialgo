@@ -12,12 +12,11 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { Config } from "../config";
-import { countValues, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
+import { countValues, sortKeysByValue, transformKeys, truncateToConfiguredLength, zipPromises } from "../helpers/collection_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockMutex, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
-import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import {
     ApiMutex,
     InstanceResponse,
@@ -97,7 +96,7 @@ export default class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.source = StorageKey.FEDIVERSE_TRENDING_TOOTS;
+            toot.sources = [StorageKey.FEDIVERSE_TRENDING_TOOTS];
         });
 
         return trendingToots;
@@ -225,14 +224,12 @@ export default class MastodonServer {
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
         const releaseMutex = await lockMutex(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
-        const startedAt = new Date();
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.POPULAR_SERVERS);
 
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                console.log(`${logPrefix} Fetched ${Object.keys(servers).length} Instances ${ageString(startedAt)}:`, servers);
                 await Storage.set(StorageKey.POPULAR_SERVERS, servers);
             }
 
@@ -256,6 +253,7 @@ export default class MastodonServer {
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
         const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
         traceLog(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
+        const startedAt = new Date();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
@@ -269,7 +267,7 @@ export default class MastodonServer {
         let serverDict = await this.callForServers<InstanceResponse>(mostFollowedDomains, (s) => s.fetchServerInfo());
         serverDict = filterMinMAU(serverDict, Config.minServerMAU);
         const numActiveServers = Object.keys(serverDict).length;
-        const numServersToAdd = Config.numServersToCheck - numActiveServers; // Number of default servers to add
+        const numServersToAdd = Config.numServersToCheck - numActiveServers;  // Number of default servers to add
 
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
@@ -281,7 +279,7 @@ export default class MastodonServer {
         }
 
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        return Object.entries(serverDict).reduce(
+        const servers = Object.entries(serverDict).reduce(
             (serverDict, [domain, _instance]) => {
                 // Replace any null responses with MastodonInstanceEmpty objs
                 const instance = _instance ? (_instance as MastodonInstance) : ({} as MastodonInstanceEmpty);
@@ -294,6 +292,10 @@ export default class MastodonServer {
             },
             {} as MastodonInstances
         );
+
+        const numServers = Object.keys(servers).length;
+        console.log(`${logPrefix} Fetched ${numServers} Instances ${ageString(startedAt)}:`, servers);
+        return servers;
     }
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)

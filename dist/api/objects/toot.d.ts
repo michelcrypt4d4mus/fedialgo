@@ -9,7 +9,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     reblogsBy?: mastodon.v1.Account[];
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
-    source?: string;
+    sources?: string[];
     trendingLinks?: TrendingLink[];
     trendingRank?: number;
     trendingTags?: TrendingTag[];
@@ -67,7 +67,7 @@ export default class Toot implements TootObj {
     reblogsBy: Account[];
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
-    source?: string;
+    sources?: string[];
     trendingRank?: number;
     trendingLinks?: TrendingLink[];
     trendingTags?: TrendingTag[];
