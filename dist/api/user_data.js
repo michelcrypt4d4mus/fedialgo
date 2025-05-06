@@ -7,6 +7,7 @@ const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const SORT_TAGS_BY = [
@@ -15,19 +16,22 @@ const SORT_TAGS_BY = [
 ];
 ;
 class UserData {
-    followedAccounts; // Don't store the Account objects, just webfingerURI to save memory
-    followedTags;
-    mutedAccounts;
-    participatedHashtags;
-    serverSideFilters;
+    followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
+    followedTags = [];
+    languagesPostedIn = {};
+    mutedAccounts = {};
+    participatedHashtags = {};
+    serverSideFilters = [];
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
         userData.followedAccounts = account_1.default.buildWebfingerUriLookup(data.followedAccounts);
         userData.followedTags = data.followedTags;
+        userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.serverSideFilters = data.serverSideFilters;
+        console.log("[UserData] built from data:", userData);
         return userData;
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
@@ -35,14 +39,6 @@ class UserData {
         const userData = new UserData();
         await userData.populate();
         return userData;
-    }
-    // Builds an empty UserData object
-    constructor() {
-        this.followedAccounts = {};
-        this.followedTags = [];
-        this.mutedAccounts = {};
-        this.participatedHashtags = {};
-        this.serverSideFilters = [];
     }
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
@@ -67,6 +63,10 @@ class UserData {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
         return UserData.sortTrendingTags(this.participatedHashtags);
+    }
+    // Return the language the user has posted in most frequently
+    preferredLanguage() {
+        return (0, collection_helpers_1.sortKeysByValue)(this.languagesPostedIn)[0] || config_1.Config.defaultLanguage;
     }
     ////////////////////////////
     //      Class Methods     //

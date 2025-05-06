@@ -9,7 +9,8 @@ import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, StorageKey, StringNumberDict, TagNames, TootLike, TrendingTag } from "../types";
-import { sortObjsByProps } from "../helpers/collection_helpers";
+import { Config } from "../config";
+import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 
 const SORT_TAGS_BY = [
@@ -28,20 +29,23 @@ interface UserApiData {
 
 
 export default class UserData {
-    followedAccounts: StringNumberDict;  // Don't store the Account objects, just webfingerURI to save memory
-    followedTags: TrendingTag[];
-    mutedAccounts: AccountNames;
-    participatedHashtags: TagNames;
-    serverSideFilters: mastodon.v2.Filter[];
+    followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
+    followedTags: TrendingTag[] = [];
+    languagesPostedIn: StringNumberDict = {};
+    mutedAccounts: AccountNames = {};
+    participatedHashtags: TagNames = {};
+    serverSideFilters: mastodon.v2.Filter[] = [];
 
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.followedAccounts = Account.buildWebfingerUriLookup(data.followedAccounts);
         userData.followedTags = data.followedTags;
+        userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.serverSideFilters = data.serverSideFilters;
+        console.log("[UserData] built from data:", userData);
         return userData;
     }
 
@@ -50,15 +54,6 @@ export default class UserData {
         const userData = new UserData();
         await userData.populate();
         return userData;
-    }
-
-    // Builds an empty UserData object
-    constructor() {
-        this.followedAccounts = {};
-        this.followedTags = [];
-        this.mutedAccounts = {};
-        this.participatedHashtags = {};
-        this.serverSideFilters = [];
     }
 
     // Use MUTED_ACCOUNTS as a proxy for staleness
@@ -87,6 +82,11 @@ export default class UserData {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TrendingTag[] {
         return UserData.sortTrendingTags(this.participatedHashtags);
+    }
+
+    // Return the language the user has posted in most frequently
+    preferredLanguage(): string {
+        return sortKeysByValue(this.languagesPostedIn)[0] || Config.defaultLanguage;
     }
 
     ////////////////////////////

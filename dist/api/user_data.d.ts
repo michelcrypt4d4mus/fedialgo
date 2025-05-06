@@ -12,15 +12,16 @@ interface UserApiData {
 export default class UserData {
     followedAccounts: StringNumberDict;
     followedTags: TrendingTag[];
+    languagesPostedIn: StringNumberDict;
     mutedAccounts: AccountNames;
     participatedHashtags: TagNames;
     serverSideFilters: mastodon.v2.Filter[];
     static buildFromData(data: UserApiData): UserData;
     static getUserData(): Promise<UserData>;
-    constructor();
     isDataStale(): Promise<boolean>;
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
+    preferredLanguage(): string;
     static mutedKeywords(): Promise<string[]>;
     static getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]>;
     static getUserParticipatedTags(): Promise<TagNames>;
