@@ -1,13 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uniquify = exports.isStorageKey = exports.isWeightName = exports.truncateToConfiguredLength = exports.sortObjsByProps = exports.checkUniqueIDs = exports.findMinId = exports.filterWithLog = exports.keyByProperty = exports.batchMap = exports.uniquifyByProp = exports.shuffle = exports.sumArray = exports.sumValues = exports.atLeastValues = exports.sortKeysByValue = exports.zipPromises = exports.zipArrays = exports.countValues = exports.decrementCount = exports.incrementCount = exports.transformKeys = exports.groupBy = exports.average = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
-const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const config_1 = require("../config");
 const types_1 = require("../types");
 const string_helpers_1 = require("./string_helpers");
@@ -113,7 +109,7 @@ function isRecord(x) {
 ;
 // Randomize the order of an array
 function shuffle(array) {
-    const sortRandom = (a, b) => (0, blueimp_md5_1.default)(JSON.stringify(a)).localeCompare(JSON.stringify(b));
+    const sortRandom = (a, b) => (0, string_helpers_1.hashObject)(a).localeCompare((0, string_helpers_1.hashObject)(b));
     return array.toSorted(sortRandom);
 }
 exports.shuffle = shuffle;

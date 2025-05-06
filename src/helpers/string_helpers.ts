@@ -113,10 +113,9 @@ export function createRandomString(length: number): string {
 };
 
 
+// Take the MD5 hash of a jacascript object / number / string
 export function hashObject(obj: object | number | string): string {
-    const str = JSON.stringify(obj);
-    const hash = md5(str);
-    return hash;
+    return md5(JSON.stringify(obj));
 };
 
 

@@ -133,6 +133,7 @@ class Scorer {
             if (toot.realToot().isTrending()) {
                 weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
             }
+            // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
             if (outlierDampener > 0 && weightedScores[scorer.name] > 0) {
                 weightedScores[scorer.name] = Math.pow(weightedScores[scorer.name], 1 / outlierDampener);
             }
@@ -152,9 +153,6 @@ class Scorer {
             weightedScores,
             weightedScore,
         };
-        // if (score < -10) {
-        //     console.debug(`Negative score ${score} for ${toot.realToot().describe()}:`, scoreInfo);
-        // }
         // TODO: duping the score to realToot() is a hack that sucks
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
     }

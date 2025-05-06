@@ -1,11 +1,9 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
-import md5 from "blueimp-md5";
-
 import { Config, ConfigType } from "../config";
 import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
-import { isNumber } from "./string_helpers";
+import { hashObject, isNumber } from "./string_helpers";
 import { traceLog } from "./log_helpers";
 
 
@@ -126,8 +124,8 @@ function isRecord(x: unknown): x is Record<string, unknown> {
 
 
 // Randomize the order of an array
-export function shuffle<T>(array: T[]): T[] {
-    const sortRandom = (a: T, b: T) => md5(JSON.stringify(a)).localeCompare(JSON.stringify(b));
+export function shuffle<T extends (string | number | object)>(array: T[]): T[] {
+    const sortRandom = (a: T, b: T) => hashObject(a).localeCompare(hashObject(b));
     return array.toSorted(sortRandom);
 };
 

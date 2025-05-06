@@ -99,10 +99,9 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
+// Take the MD5 hash of a jacascript object / number / string
 function hashObject(obj) {
-    const str = JSON.stringify(obj);
-    const hash = (0, blueimp_md5_1.default)(str);
-    return hash;
+    return (0, blueimp_md5_1.default)(JSON.stringify(obj));
 }
 exports.hashObject = hashObject;
 ;
