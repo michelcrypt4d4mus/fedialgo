@@ -15,13 +15,13 @@ export default class UserData {
     languagesPostedIn: StringNumberDict;
     mutedAccounts: AccountNames;
     participatedHashtags: TagNames;
+    preferredLanguage: string;
     serverSideFilters: mastodon.v2.Filter[];
     static buildFromData(data: UserApiData): UserData;
     static getUserData(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
     populate(): Promise<void>;
     popularUserTags(): TrendingTag[];
-    preferredLanguage(): string;
     static mutedKeywords(): Promise<string[]>;
     static getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]>;
     static getUserParticipatedTags(): Promise<TagNames>;

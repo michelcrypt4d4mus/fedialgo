@@ -34,6 +34,7 @@ export default class UserData {
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
     participatedHashtags: TagNames = {};
+    preferredLanguage: string = Config.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];
 
     // Alternate constructor to build UserData from raw API data
@@ -44,8 +45,9 @@ export default class UserData {
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
+        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || Config.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        console.log("[UserData] built from data:", userData);
+        console.debug("[UserData] built from data:", userData);
         return userData;
     }
 
@@ -82,11 +84,6 @@ export default class UserData {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TrendingTag[] {
         return UserData.sortTrendingTags(this.participatedHashtags);
-    }
-
-    // Return the language the user has posted in most frequently
-    preferredLanguage(): string {
-        return sortKeysByValue(this.languagesPostedIn)[0] || Config.defaultLanguage;
     }
 
     ////////////////////////////

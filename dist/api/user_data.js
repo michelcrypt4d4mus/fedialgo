@@ -21,6 +21,7 @@ class UserData {
     languagesPostedIn = {};
     mutedAccounts = {};
     participatedHashtags = {};
+    preferredLanguage = config_1.Config.defaultLanguage;
     serverSideFilters = [];
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
@@ -30,8 +31,9 @@ class UserData {
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
+        userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.Config.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        console.log("[UserData] built from data:", userData);
+        console.debug("[UserData] built from data:", userData);
         return userData;
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
@@ -63,10 +65,6 @@ class UserData {
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
         return UserData.sortTrendingTags(this.participatedHashtags);
-    }
-    // Return the language the user has posted in most frequently
-    preferredLanguage() {
-        return (0, collection_helpers_1.sortKeysByValue)(this.languagesPostedIn)[0] || config_1.Config.defaultLanguage;
     }
     ////////////////////////////
     //      Class Methods     //

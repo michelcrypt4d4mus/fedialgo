@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * Add `Config.numParticipatedTagTootsPerTag` option and set it to 5 so we pull far less participated tag toots
-* Add UserData.languagesPosted in and UserData.preferredLanguage()
+* Add UserData.languagesPosted in and UserData.preferredLanguage
 
 ### v0.26.2
 * Don't set `catchupCheckpoint` if the feed is empty
