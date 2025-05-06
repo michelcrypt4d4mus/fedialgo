@@ -13,7 +13,7 @@ exports.Config = {
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
     // Timeline toots
-    hashtagTootRetrievalDelaySeconds: 20,
+    hashtagTootRetrievalDelaySeconds: 15,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     maxCachedTimelineToots: 1600,
@@ -39,7 +39,7 @@ exports.Config = {
     },
     timelineDecayExponent: 1.2,
     // Participated tags
-    numParticipatedTagsToFetchTootsFor: 20,
+    numParticipatedTagsToFetchTootsFor: 30,
     numParticipatedTagToots: 150,
     numParticipatedTagTootsPerTag: 5,
     // API stuff

@@ -176,7 +176,6 @@ class TheAlgorithm {
 
         // Trigger toot fetchers
         this.fetchHomeTimeline();
-        this.fetchAndMergeToots(getParticipatedHashtagToots);
         this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer));
         // Trigger other data retrievals to populate TheAlgorithm's various instance variables
         MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers);
@@ -189,7 +188,10 @@ class TheAlgorithm {
         hashtagTootDelayMS *= (this.feed.length ? 0.5 : 1) // If we already have toots, reduce the delay
 
         setTimeout(
-            () => this.fetchAndMergeToots(getRecentTootsForTrendingTags),
+            () => {
+                this.fetchAndMergeToots(getRecentTootsForTrendingTags),
+                this.fetchAndMergeToots(getParticipatedHashtagToots)
+            },
             hashtagTootDelayMS
         );
     }
@@ -239,6 +241,7 @@ class TheAlgorithm {
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.catchupCheckpoint = null;
+        this.feed = [];
         await Storage.clearAll();
         await this.loadCachedData();
         MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
