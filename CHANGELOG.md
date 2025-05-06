@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.26.3
 * Add `Config.numParticipatedTagTootsPerTag` option and set it to 5 so we pull far less participated tag toots
 * Add UserData.languagesPosted in and UserData.preferredLanguage
 
