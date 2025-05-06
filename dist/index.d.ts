@@ -77,7 +77,7 @@ declare class TheAlgorithm {
     private prepareScorers;
     private setDefaultWeights;
     private scoreAndFilterFeed;
-    private setLoadCompleteStateVariables;
+    private finishInitialLoad;
     private setLoadingStateVariables;
     private statusDict;
 }

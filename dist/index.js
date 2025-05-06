@@ -357,7 +357,7 @@ class TheAlgorithm {
             this.logWithState(logPrefix, `last fetch only got ${newHomeToots.length} toots, expected ${batchSize}`);
         }
         // Now that we have a complete set of initial toots start the background data poller and lower concurrency
-        this.setLoadCompleteStateVariables();
+        this.finishInitialLoad();
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
@@ -430,7 +430,7 @@ class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
     // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
-    setLoadCompleteStateVariables() {
+    finishInitialLoad() {
         if (this.loadStartedAt) {
             (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
