@@ -269,6 +269,23 @@ class TheAlgorithm {
         MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
     }
 
+    // Merge a new batch of toots into the feed.
+    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
+    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>): Promise<void> {
+        const logPrefix = tootFetcher.name;
+        const startedAt = new Date();
+        let newToots: Toot[] = [];
+
+        try {
+            newToots = await tootFetcher();
+            logInfo(logPrefix, `${TELEMETRY} fetched ${newToots.length} toots ${ageString(startedAt)}`);
+        } catch (e) {
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
+        }
+
+        await this.lockedMergeTootsToFeed(newToots, logPrefix);
+    }
+
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
@@ -335,23 +352,6 @@ class TheAlgorithm {
     // TODO: should be private, public for debugging for now
     logWithState(prefix: string, msg: string): void {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
-    }
-
-    // Merge a new batch of toots into the feed.
-    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>): Promise<void> {
-        const logPrefix = tootFetcher.name;
-        const startedAt = new Date();
-        let newToots: Toot[] = [];
-
-        try {
-            newToots = await tootFetcher();
-            logInfo(logPrefix, `${TELEMETRY} fetched ${newToots.length} toots ${ageString(startedAt)}`);
-        } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
-        }
-
-        await this.lockedMergeTootsToFeed(newToots, logPrefix);
     }
 
     // Merge newToots into this.feed, score, and filter the feed.
