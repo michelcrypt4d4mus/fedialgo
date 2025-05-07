@@ -525,7 +525,9 @@ export default class Toot implements TootObj {
 
         // TODO: async batch is slow so trying to just map it
         // let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
+        const setDependentStartedAt = new Date();
         let toots = statuses.map(setProps);
+        console.info(`${logPrefix} setDependentProperties() finished ${ageString(setDependentStartedAt)}`);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
         console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)} (data setup ${setupAgeStr})`);
