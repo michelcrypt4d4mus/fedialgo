@@ -260,6 +260,7 @@ class TheAlgorithm {
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
         this.dataPoller && clearInterval(this.dataPoller!);
+        this.dataPoller = undefined;
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
