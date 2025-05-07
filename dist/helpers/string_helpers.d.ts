@@ -19,6 +19,7 @@ export declare function isImage(uri: string | null | undefined): boolean;
 export declare function isVideo(uri: string | null | undefined): boolean;
 export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
 export declare function replaceHttpsLinks(input: string): string;
-export declare const quote: (text: string | null) => string;
+export declare const bracket: (str: string) => string;
+export declare const quote: (str: string | null) => string;
 export declare const isNumber: (n: string | number) => boolean;
 export declare const toLocaleInt: (num: number | null) => string;

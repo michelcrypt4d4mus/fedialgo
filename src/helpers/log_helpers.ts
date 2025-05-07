@@ -4,6 +4,7 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
+import { bracket } from './string_helpers';
 import { Config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 
@@ -23,7 +24,7 @@ export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.de
 // Simple log helper that only fires if numRemoved > 0
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
-    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`${bracket(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 };
 
 
@@ -88,6 +89,5 @@ export function traceLog(msg: string, ...args: any[]): void {
 
 // Prefix a string with [Brackets] and a space
 export function prefixed(prefix: string, msg: string): string {
-    prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
-    return `${prefix} ${msg}`;
+    return `${bracket(prefix)} ${msg}`;
 };

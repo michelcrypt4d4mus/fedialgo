@@ -129,8 +129,10 @@ export function replaceHttpsLinks(input: string): string {
 };
 
 
+// [Bracketed]
+export const bracket = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
 // Doublequotes
-export const quote = (text: string | null): string => text == null ? NULL : `"${text}"`;
+export const quote = (str: string | null): string => str == null ? NULL : `"${str}"`;
 // Returns true if n is a number or a string that can be converted to a number
 export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
 

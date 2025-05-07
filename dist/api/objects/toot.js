@@ -441,7 +441,7 @@ class Toot {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
-        logPrefix = `[${logPrefix} buildToots()]`;
+        logPrefix = `${(0, string_helpers_1.bracket)(logPrefix)} buildToots()`;
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.

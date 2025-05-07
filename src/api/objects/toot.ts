@@ -21,6 +21,7 @@ import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
     VIDEO_TYPES,
+    bracket,
     extractDomain,
     htmlToText,
     isImage,
@@ -525,7 +526,7 @@ export default class Toot implements TootObj {
     ): Promise<Toot[]> {
         if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
-        logPrefix = `[${logPrefix} buildToots()]`;
+        logPrefix = `${bracket(logPrefix)} buildToots()`;
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true

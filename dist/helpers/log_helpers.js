@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
+const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
@@ -77,8 +78,7 @@ exports.traceLog = traceLog;
 ;
 // Prefix a string with [Brackets] and a space
 function prefixed(prefix, msg) {
-    prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
-    return `${prefix} ${msg}`;
+    return `${(0, string_helpers_1.bracket)(prefix)} ${msg}`;
 }
 exports.prefixed = prefixed;
 ;

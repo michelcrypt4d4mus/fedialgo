@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.isNumber = exports.quote = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.isNumber = exports.quote = exports.bracket = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -116,8 +116,11 @@ function replaceHttpsLinks(input) {
 }
 exports.replaceHttpsLinks = replaceHttpsLinks;
 ;
+// [Bracketed]
+const bracket = (str) => str.startsWith('[') ? str : `[${str}]`;
+exports.bracket = bracket;
 // Doublequotes
-const quote = (text) => text == null ? exports.NULL : `"${text}"`;
+const quote = (str) => str == null ? exports.NULL : `"${str}"`;
 exports.quote = quote;
 // Returns true if n is a number or a string that can be converted to a number
 const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
