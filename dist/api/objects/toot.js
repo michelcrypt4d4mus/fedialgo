@@ -469,8 +469,8 @@ class Toot {
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         });
-        let msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        msg += `${msg} ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
+        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
+        msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
         console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
         return toots;
     }

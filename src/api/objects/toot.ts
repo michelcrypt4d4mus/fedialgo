@@ -558,8 +558,8 @@ export default class Toot implements TootObj {
             return toot as Toot;
         });
 
-        let msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        msg += `${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
+        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
+        msg += ` ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
         console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
         return toots as Toot[];
     }
