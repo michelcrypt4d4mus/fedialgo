@@ -388,10 +388,11 @@ class TheAlgorithm {
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
+        const mostRecent = this.mostRecentHomeTootAt();
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()),
+            mostRecentHomeTootAt: mostRecent ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : null,
         };
     }
 }

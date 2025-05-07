@@ -417,10 +417,12 @@ class TheAlgorithm {
 
     // Info about the state of this TheAlgorithm instance
     private statusDict(): Record<string, any> {
+        const mostRecent = this.mostRecentHomeTootAt();
+
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: toISOFormat(this.mostRecentHomeTootAt()),
+            mostRecentHomeTootAt: mostRecent ? toISOFormat(this.mostRecentHomeTootAt()) : null,
         };
     }
 };
