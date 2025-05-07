@@ -22,9 +22,11 @@ exports.Config = {
     numDesiredTimelineToots: 700,
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
+    staleDataTrendingSeconds: SECONDS_IN_HOUR,
     staleDataSeconds: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * SECONDS_IN_HOUR,
         [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: 24 * SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * SECONDS_IN_HOUR,
         [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
@@ -32,7 +34,6 @@ exports.Config = {
         [types_1.StorageKey.FOLLOWED_TAGS]: 4 * SECONDS_IN_HOUR,
         [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * SECONDS_IN_HOUR,
         [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * SECONDS_IN_HOUR,
-        [types_1.StorageKey.POPULAR_SERVERS]: 24 * SECONDS_IN_HOUR,
         [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * SECONDS_IN_HOUR,
         [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * SECONDS_IN_HOUR,
         [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * SECONDS_IN_HOUR,
@@ -189,6 +190,27 @@ if (environment_helpers_1.isDebugMode) {
     exports.Config.numTrendingTags = 5;
 }
 ;
+// Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
+exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
+if (!exports.Config.staleDataTrendingSeconds)
+    throw new Error("Config.staleDataTrendingMin is NaN");
+function validateConfig(cfg) {
+    // Check that all the values are valid
+    Object.entries(cfg).forEach(([key, value]) => {
+        if (typeof value === "object") {
+            validateConfig(value);
+        }
+        else if (typeof value == "number" && isNaN(value)) {
+            const msg = `Config value at ${key} is NaN`;
+            console.error(msg);
+            throw new Error(msg);
+        }
+    });
+}
+;
+console.debug(`[Config] Validating config:`, exports.Config);
+validateConfig(exports.Config);
 exports.SCORERS_CONFIG = {
     // Global modifiers that affect all weighted scores
     [types_1.WeightName.TIME_DECAY]: {
@@ -263,20 +285,4 @@ exports.SCORERS_CONFIG = {
         description: "Favour video attachments",
     },
 };
-function validateConfig(cfg) {
-    // Check that all the values are valid
-    Object.entries(cfg).forEach(([key, value]) => {
-        if (typeof value === "object") {
-            validateConfig(value);
-        }
-        else if (typeof value == "number" && isNaN(value)) {
-            const msg = `Config value at ${key} is NaN`;
-            console.error(msg);
-            throw new Error(msg);
-        }
-    });
-}
-;
-console.debug(`[Config] Validating config:`, exports.Config);
-validateConfig(exports.Config);
 //# sourceMappingURL=config.js.map

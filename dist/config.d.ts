@@ -28,6 +28,7 @@ export type ConfigType = {
     reloadFeaturesEveryNthOpen: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
+    staleDataTrendingSeconds: number;
     minServerMAU: number;
     numServersToCheck: number;
     excessiveTags: number;

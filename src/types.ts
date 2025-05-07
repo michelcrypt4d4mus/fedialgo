@@ -48,6 +48,7 @@ export const NON_SCORE_WEIGHTS = [
 export enum StorageKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_TOOTS = 'FavouritedToots',
+    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
     FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
     FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
     FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
@@ -59,7 +60,6 @@ export enum StorageKey {
     MUTED_ACCOUNTS = 'MutedAccounts',
     OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
-    POPULAR_SERVERS = 'PopularServers',
     RECENT_NOTIFICATIONS = 'RecentNotifications',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
@@ -70,6 +70,13 @@ export enum StorageKey {
     USER_DATA = 'UserData',  // Only used for mutex for now
     WEIGHTS = 'Weights',
 };
+
+export const FEDIVERSE_KEYS = [
+    StorageKey.FEDIVERSE_POPULAR_SERVERS,
+    StorageKey.FEDIVERSE_TRENDING_LINKS,
+    StorageKey.FEDIVERSE_TRENDING_TAGS,
+    StorageKey.FEDIVERSE_TRENDING_TOOTS,
+];
 
 // Self explanatory
 export enum MediaCategory {

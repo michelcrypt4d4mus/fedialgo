@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.StorageKey = exports.NON_SCORE_WEIGHTS = exports.WeightName = void 0;
+exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.NON_SCORE_WEIGHTS = exports.WeightName = void 0;
 // Names of the user adjustable score weightings
 var WeightName;
 (function (WeightName) {
@@ -39,6 +39,7 @@ var StorageKey;
 (function (StorageKey) {
     StorageKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     StorageKey["FAVOURITED_TOOTS"] = "FavouritedToots";
+    StorageKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
     StorageKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
     StorageKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
     StorageKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
@@ -50,7 +51,6 @@ var StorageKey;
     StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     StorageKey["OPENINGS"] = "Openings";
     StorageKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
-    StorageKey["POPULAR_SERVERS"] = "PopularServers";
     StorageKey["RECENT_NOTIFICATIONS"] = "RecentNotifications";
     StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     StorageKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
@@ -62,6 +62,12 @@ var StorageKey;
     StorageKey["WEIGHTS"] = "Weights";
 })(StorageKey || (exports.StorageKey = StorageKey = {}));
 ;
+exports.FEDIVERSE_KEYS = [
+    StorageKey.FEDIVERSE_POPULAR_SERVERS,
+    StorageKey.FEDIVERSE_TRENDING_LINKS,
+    StorageKey.FEDIVERSE_TRENDING_TAGS,
+    StorageKey.FEDIVERSE_TRENDING_TOOTS,
+];
 // Self explanatory
 var MediaCategory;
 (function (MediaCategory) {

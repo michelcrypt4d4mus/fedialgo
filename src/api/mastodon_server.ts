@@ -28,6 +28,7 @@ import {
     TrendingObj,
     TrendingStorage,
     TrendingTag,
+    FEDIVERSE_KEYS,
 } from "../types";
 
 export enum FediverseTrendingType {
@@ -42,12 +43,13 @@ const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 
-const TRENDING_MUTEXES: Partial<ApiMutex> = {
-    [StorageKey.FEDIVERSE_TRENDING_LINKS]: new Mutex(),
-    [StorageKey.FEDIVERSE_TRENDING_TAGS]: new Mutex(),
-    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: new Mutex(),
-    [StorageKey.POPULAR_SERVERS]: new Mutex(),
-};
+export const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
+    (mutexes, key) => {
+        mutexes[key] = new Mutex();
+        return mutexes;
+    },
+    {} as ApiMutex
+);
 
 interface FetchTrendingProps<T extends TrendingObj> {
     key: StorageKey;
@@ -222,15 +224,15 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
-        const logPrefix = `[${StorageKey.POPULAR_SERVERS}]`;
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[StorageKey.POPULAR_SERVERS]!, logPrefix);
+        const logPrefix = `[${StorageKey.FEDIVERSE_POPULAR_SERVERS}]`;
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[StorageKey.FEDIVERSE_POPULAR_SERVERS]!, logPrefix);
 
         try {
-            let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.POPULAR_SERVERS);
+            let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.FEDIVERSE_POPULAR_SERVERS);
 
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                await Storage.set(StorageKey.POPULAR_SERVERS, servers);
+                await Storage.set(StorageKey.FEDIVERSE_POPULAR_SERVERS, servers);
             }
 
             return servers;
@@ -251,8 +253,8 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
-        const logPrefix = `[${StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        traceLog(`${logPrefix} fetching ${StorageKey.POPULAR_SERVERS} info...`);
+        const logPrefix = `[${StorageKey.FEDIVERSE_POPULAR_SERVERS}] fetchMastodonServersInfo():`;
+        traceLog(`${logPrefix} fetching ${StorageKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
@@ -316,7 +318,7 @@ export default class MastodonServer {
             (a, b) => servers[b].followedPctOfMAU! - servers[a].followedPctOfMAU!
         );
 
-        console.debug(`[${StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        console.debug(`[${StorageKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;
     }
 

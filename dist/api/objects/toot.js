@@ -150,6 +150,10 @@ class Toot {
     ageInHours() {
         return (0, time_helpers_1.ageInSeconds)(this.tootedAt()) / 3600;
     }
+    // Experimental alternative format for the scoreInfo property used in demo app
+    alternateScoreInfo() {
+        return scorer_1.default.alternateScoreInfo(this);
+    }
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
@@ -306,9 +310,6 @@ class Toot {
         serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
         return serializableToot;
     }
-    alternateScoreInfo() {
-        return scorer_1.default.alternateScoreInfo(this);
-    }
     tootedAt() {
         return new Date(this.createdAt);
     }
@@ -398,8 +399,8 @@ class Toot {
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
     completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
-        if (this.completedAt)
-            return; // TODO: check age since last completedAt
+        if (!this.shouldComplete())
+            return;
         const followedTags = Object.values(userData.followedTags);
         this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
@@ -424,6 +425,10 @@ class Toot {
         }
         if (isDeepInspect)
             this.completedAt = new Date().toISOString();
+    }
+    // Returns true if the toot should be re-completed
+    shouldComplete() {
+        return !this.completedAt || ((0, time_helpers_1.ageInSeconds)(this.completedAt) > (config_1.Config.staleDataTrendingSeconds || 3600));
     }
     ///////////////////////////////
     //       Class methods       //
@@ -450,20 +455,23 @@ class Toot {
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logPrefix, isDeepInspect) {
         let startedAt = new Date();
-        // TODO: remove this at some point, just here for logging info about instanceof usage
-        const tootObjs = toots.filter(toot => toot instanceof Toot);
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
         const fetchAgeStr = (0, time_helpers_1.ageString)(startedAt);
         startedAt = new Date();
+        // TODO: remove this at some point, just here for logging info about instanceof usage
+        const tootObjs = toots.filter(toot => toot instanceof Toot);
+        const numCompletedToots = tootObjs.filter(t => t.completedAt).length;
+        const numRecompletingToots = tootObjs.filter(t => t.shouldComplete()).length;
         toots = toots.map((tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         });
-        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        console.info(`${msg} ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
+        let msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
+        msg += `${msg} ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
+        console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
         return toots;
     }
     // Remove dupes by uniquifying on the toot's URI

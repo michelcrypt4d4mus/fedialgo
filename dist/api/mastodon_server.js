@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FediverseTrendingType = void 0;
+exports.TRENDING_MUTEXES = exports.FediverseTrendingType = void 0;
 /*
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  */
@@ -54,12 +54,10 @@ var FediverseTrendingType;
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-const TRENDING_MUTEXES = {
-    [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: new async_mutex_1.Mutex(),
-    [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: new async_mutex_1.Mutex(),
-    [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: new async_mutex_1.Mutex(),
-    [types_1.StorageKey.POPULAR_SERVERS]: new async_mutex_1.Mutex(),
-};
+exports.TRENDING_MUTEXES = types_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
+    mutexes[key] = new async_mutex_1.Mutex();
+    return mutexes;
+}, {});
 ;
 class MastodonServer {
     domain;
@@ -208,13 +206,13 @@ class MastodonServer {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
-        const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[types_1.StorageKey.POPULAR_SERVERS], logPrefix);
+        const logPrefix = `[${types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS}]`;
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(exports.TRENDING_MUTEXES[types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS], logPrefix);
         try {
-            let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.POPULAR_SERVERS);
+            let servers = await Storage_1.default.getIfNotStale(types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                await Storage_1.default.set(types_1.StorageKey.POPULAR_SERVERS, servers);
+                await Storage_1.default.set(types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS, servers);
             }
             return servers;
         }
@@ -232,8 +230,8 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
-        const logPrefix = `[${types_1.StorageKey.POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        (0, log_helpers_1.traceLog)(`${logPrefix} fetching ${types_1.StorageKey.POPULAR_SERVERS} info...`);
+        const logPrefix = `[${types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS}] fetchMastodonServersInfo():`;
+        (0, log_helpers_1.traceLog)(`${logPrefix} fetching ${types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
@@ -282,7 +280,7 @@ class MastodonServer {
         const servers = await this.getMastodonInstancesInfo();
         // Sort the servers by the number of users on each server
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
-        console.debug(`[${types_1.StorageKey.POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        console.debug(`[${types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;
     }
     // Generic wrapper method to fetch trending data from all servers and process it into
@@ -290,7 +288,7 @@ class MastodonServer {
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[key], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(exports.TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);

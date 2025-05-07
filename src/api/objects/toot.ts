@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, ageString, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
+import { groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -199,6 +199,11 @@ export default class Toot implements TootObj {
         return ageInSeconds(this.tootedAt()) / 3600;
     }
 
+    // Experimental alternative format for the scoreInfo property used in demo app
+    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo> {
+        return Scorer.alternateScoreInfo(this);
+    }
+
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType(): MediaCategory | undefined {
@@ -376,10 +381,6 @@ export default class Toot implements TootObj {
         return serializableToot;
     }
 
-    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo> {
-        return Scorer.alternateScoreInfo(this);
-    }
-
     tootedAt(): Date {
         return new Date(this.createdAt);
     }
@@ -477,8 +478,9 @@ export default class Toot implements TootObj {
         trendingTags: TrendingTag[],
         isDeepInspect?: boolean
     ): void {
-        if (this.completedAt) return;  // TODO: check age since last completedAt
+        if (!this.shouldComplete()) return;
         const followedTags = Object.values(userData.followedTags);
+
         this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
@@ -502,6 +504,11 @@ export default class Toot implements TootObj {
         }
 
         if (isDeepInspect) this.completedAt = new Date().toISOString();
+    }
+
+    // Returns true if the toot should be re-completed
+    private shouldComplete(): boolean {
+        return !this.completedAt || (ageInSeconds(this.completedAt) > (Config.staleDataTrendingSeconds || 3600));
     }
 
     ///////////////////////////////
@@ -534,13 +541,16 @@ export default class Toot implements TootObj {
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
         let startedAt = new Date();
-        // TODO: remove this at some point, just here for logging info about instanceof usage
-        const tootObjs = toots.filter(toot => toot instanceof Toot);
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
         const fetchAgeStr = ageString(startedAt);
         startedAt = new Date();
+
+        // TODO: remove this at some point, just here for logging info about instanceof usage
+        const tootObjs = toots.filter(toot => toot instanceof Toot) as Toot[];
+        const numCompletedToots = tootObjs.filter(t => t.completedAt).length;
+        const numRecompletingToots = tootObjs.filter(t => t.shouldComplete()).length;
 
         toots = toots.map((tootLike): Toot => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
@@ -548,8 +558,9 @@ export default class Toot implements TootObj {
             return toot as Toot;
         });
 
-        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
+        let msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
+        msg += `${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
+        console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
         return toots as Toot[];
     }
 

@@ -1,10 +1,11 @@
 import Toot from "./objects/toot";
-import { InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
+import { ApiMutex, InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
 export declare enum FediverseTrendingType {
     STATUSES = "statuses",
     LINKS = "links",
     TAGS = "tags"
 }
+export declare const TRENDING_MUTEXES: Partial<ApiMutex>;
 export default class MastodonServer {
     domain: string;
     private static v1Url;

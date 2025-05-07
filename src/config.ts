@@ -2,8 +2,7 @@
  * Centralized location for non-user configurable settings.
  */
 import { isDebugMode } from "./helpers/environment_helpers";
-import { ScorerDict, StorageKey, WeightName } from "./types";
-
+import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 const SECONDS_IN_HOUR = 3_600;
@@ -12,6 +11,7 @@ const DEFAULT_LANGUAGE = "en";
 type StaleDataConfig = {
     [key in StorageKey]?: number
 };
+
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -43,6 +43,7 @@ export type ConfigType = {
     reloadFeaturesEveryNthOpen: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
+    staleDataTrendingSeconds: number;
     // Fedivere server scraping
     minServerMAU: number;
     numServersToCheck: number;
@@ -75,7 +76,7 @@ export const Config: ConfigType = {
     language: DEFAULT_LANGUAGE,
 
     // Timeline toots
-    hashtagTootRetrievalDelaySeconds: 5,   // Delay before pulling trending & participated hashtag toots
+    hashtagTootRetrievalDelaySeconds: 5,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
@@ -83,21 +84,22 @@ export const Config: ConfigType = {
     numDesiredTimelineToots: 700,           // How many home timeline toots to start with
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
+    staleDataTrendingSeconds: SECONDS_IN_HOUR, // Default. is actually computed based on the FEDIVERSE_KEYS
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
-        [StorageKey.BLOCKED_ACCOUNTS]:         12 * SECONDS_IN_HOUR,
-        [StorageKey.FAVOURITED_TOOTS]:         12 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_LINKS]:  4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TAGS]:   4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TOOTS]:  4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_ACCOUNTS]:         4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_TAGS]:             4 * SECONDS_IN_HOUR,
-        [StorageKey.MUTED_ACCOUNTS]:           12 * SECONDS_IN_HOUR,
-        [StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * SECONDS_IN_HOUR,
-        [StorageKey.POPULAR_SERVERS]:          24 * SECONDS_IN_HOUR,
-        [StorageKey.RECENT_NOTIFICATIONS]:      6 * SECONDS_IN_HOUR,
-        [StorageKey.RECENT_USER_TOOTS]:         2 * SECONDS_IN_HOUR,
-        [StorageKey.SERVER_SIDE_FILTERS]:      24 * SECONDS_IN_HOUR,
-        [StorageKey.TRENDING_TAG_TOOTS]:     0.25 * SECONDS_IN_HOUR,
+        [StorageKey.BLOCKED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
+        [StorageKey.FAVOURITED_TOOTS]:          12 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_POPULAR_SERVERS]: 24 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_LINKS]:   4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TAGS]:    4 * SECONDS_IN_HOUR,
+        [StorageKey.FEDIVERSE_TRENDING_TOOTS]:   4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_ACCOUNTS]:          4 * SECONDS_IN_HOUR,
+        [StorageKey.FOLLOWED_TAGS]:              4 * SECONDS_IN_HOUR,
+        [StorageKey.MUTED_ACCOUNTS]:            12 * SECONDS_IN_HOUR,
+        [StorageKey.PARTICIPATED_TAG_TOOTS]:  0.25 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_NOTIFICATIONS]:       6 * SECONDS_IN_HOUR,
+        [StorageKey.RECENT_USER_TOOTS]:          2 * SECONDS_IN_HOUR,
+        [StorageKey.SERVER_SIDE_FILTERS]:       24 * SECONDS_IN_HOUR,
+        [StorageKey.TRENDING_TAG_TOOTS]:      0.25 * SECONDS_IN_HOUR,
     },
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
@@ -257,6 +259,29 @@ if (isDebugMode) {
 };
 
 
+// Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+const trendStaleness = FEDIVERSE_KEYS.map(k => Config.staleDataSeconds[k as StorageKey]);
+Config.staleDataTrendingSeconds = Math.min(...trendStaleness as number[]);
+if (!Config.staleDataTrendingSeconds) throw new Error("Config.staleDataTrendingMin is NaN");
+
+
+function validateConfig(cfg: ConfigType | object): void {
+    // Check that all the values are valid
+    Object.entries(cfg).forEach(([key, value]) => {
+        if (typeof value === "object") {
+            validateConfig(value);
+        } else if (typeof value == "number" && isNaN(value)) {
+            const msg = `Config value at ${key} is NaN`;
+            console.error(msg);
+            throw new Error(msg);
+        }
+    });
+};
+
+console.debug(`[Config] Validating config:`, Config);
+validateConfig(Config);
+
+
 export const SCORERS_CONFIG: ScorerDict = {
     // Global modifiers that affect all weighted scores
     [WeightName.TIME_DECAY]: {
@@ -332,20 +357,3 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour video attachments",
     },
 };
-
-
-function validateConfig(cfg: ConfigType | object): void {
-    // Check that all the values are valid
-    Object.entries(cfg).forEach(([key, value]) => {
-        if (typeof value === "object") {
-            validateConfig(value);
-        } else if (typeof value == "number" && isNaN(value)) {
-            const msg = `Config value at ${key} is NaN`;
-            console.error(msg);
-            throw new Error(msg);
-        }
-    });
-};
-
-console.debug(`[Config] Validating config:`, Config);
-validateConfig(Config);

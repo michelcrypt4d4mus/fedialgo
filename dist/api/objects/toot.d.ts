@@ -80,6 +80,7 @@ export default class Toot implements TootObj {
     videoAttachments: mastodon.v1.MediaAttachment[];
     static build(toot: SerializableToot): Toot;
     ageInHours(): number;
+    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
     containsTagsMsg(): string | undefined;
@@ -100,13 +101,13 @@ export default class Toot implements TootObj {
     realURL(): string;
     resolve(): Promise<Toot>;
     serialize(): SerializableToot;
-    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
     private completeProperties;
+    private shouldComplete;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
