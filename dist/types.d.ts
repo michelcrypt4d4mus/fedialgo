@@ -28,6 +28,7 @@ export declare enum WeightName {
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending"
 }
+export declare const NON_SCORE_WEIGHTS: WeightName[];
 export declare enum StorageKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",

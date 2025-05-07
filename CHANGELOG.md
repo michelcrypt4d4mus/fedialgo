@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Export a `NON_SCORE_WEIGHTS` array for `TIME_DECAY` etc.
 
 ### v0.27.3
 * (Demo App) Add missing `Showcase.jpg` file to repo

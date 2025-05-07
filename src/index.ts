@@ -27,23 +27,24 @@ import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import Storage from "./Storage";
-import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
+import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, quotedISOFmt, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInSeconds, ageString, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
-import { CLEANUP_FEED, TRIGGER_FEED, PREP_SCORERS, lockExecution, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
 import { Config, SCORERS_CONFIG } from './config';
 import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
+import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
+    NON_SCORE_WEIGHTS,
     FeedFilterSettings,
     MastodonInstances,
     MediaCategory,
@@ -132,12 +133,13 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
-        {
-            [WeightName.OUTLIER_DAMPENER]: Object.assign({}, SCORERS_CONFIG[WeightName.OUTLIER_DAMPENER]),
-            [WeightName.TIME_DECAY]: Object.assign({}, SCORERS_CONFIG[WeightName.TIME_DECAY]),
-            [WeightName.TRENDING]: Object.assign({}, SCORERS_CONFIG[WeightName.TRENDING]),
-        } as ScorerDict
+        NON_SCORE_WEIGHTS.reduce(
+            (specialScoreInfos, weightName) => {
+                specialScoreInfos[weightName] = Object.assign({}, SCORERS_CONFIG[weightName])
+                return specialScoreInfos;
+            },
+            {} as ScorerDict
+        )
     );
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
@@ -153,7 +155,6 @@ class TheAlgorithm {
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
-
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
         await algo.setDefaultWeights();
@@ -508,6 +509,7 @@ export {
     WeightName,
     Weights,
     // Helpers we also export
+    NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
     extractDomain,
     timeString,

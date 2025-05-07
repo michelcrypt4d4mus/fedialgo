@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.StorageKey = exports.WeightName = void 0;
+exports.MediaCategory = exports.StorageKey = exports.NON_SCORE_WEIGHTS = exports.WeightName = void 0;
 // Names of the user adjustable score weightings
 var WeightName;
 (function (WeightName) {
@@ -22,12 +22,18 @@ var WeightName;
     WeightName["TRENDING_TAGS"] = "TrendingTags";
     WeightName["TRENDING_TOOTS"] = "TrendingToots";
     WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
-    // Special weights
+    // Non score weights
     WeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
     WeightName["TIME_DECAY"] = "TimeDecay";
     WeightName["TRENDING"] = "Trending";
 })(WeightName || (exports.WeightName = WeightName = {}));
 ;
+// Order matters for the demo app
+exports.NON_SCORE_WEIGHTS = [
+    WeightName.TIME_DECAY,
+    WeightName.TRENDING,
+    WeightName.OUTLIER_DAMPENER,
+];
 // Keys that are valid for local browser storage.
 var StorageKey;
 (function (StorageKey) {

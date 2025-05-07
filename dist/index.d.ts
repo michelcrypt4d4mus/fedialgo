@@ -26,7 +26,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
 import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
-import { FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
+import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TrendingTag, TrendingWithHistory, WeightName, Weights } from "./types";
 declare const READY_TO_LOAD_MSG = "(ready to load)";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -81,4 +81,4 @@ declare class TheAlgorithm {
     private setLoadingStateVariables;
     private statusDict;
 }
-export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, READY_TO_LOAD_MSG, extractDomain, timeString, };
+export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, extractDomain, timeString, };

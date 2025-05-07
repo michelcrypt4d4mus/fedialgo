@@ -31,11 +31,18 @@ export enum WeightName {
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = 'VideoAttachments',
-    // Special weights
+    // Non score weights
     OUTLIER_DAMPENER = 'OutlierDampener',
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
 };
+
+// Order matters for the demo app
+export const NON_SCORE_WEIGHTS = [
+    WeightName.TIME_DECAY,
+    WeightName.TRENDING,
+    WeightName.OUTLIER_DAMPENER,
+];
 
 // Keys that are valid for local browser storage.
 export enum StorageKey {

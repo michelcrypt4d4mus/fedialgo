@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.extractDomain = exports.READY_TO_LOAD_MSG = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
+exports.timeString = exports.extractDomain = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -68,7 +68,6 @@ const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/vide
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
-const log_helpers_1 = require("./helpers/log_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const collection_helpers_1 = require("./helpers/collection_helpers");
@@ -78,10 +77,12 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_2 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
 Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_2.PresetWeights; } });
 const types_1 = require("./types");
+Object.defineProperty(exports, "NON_SCORE_WEIGHTS", { enumerable: true, get: function () { return types_1.NON_SCORE_WEIGHTS; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
@@ -142,13 +143,10 @@ class TheAlgorithm {
     scorersDict = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, 
-    // TimeDecay and Trending require bespoke handling so they aren't included in the loop above
-    {
-        [types_1.WeightName.OUTLIER_DAMPENER]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.OUTLIER_DAMPENER]),
-        [types_1.WeightName.TIME_DECAY]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TIME_DECAY]),
-        [types_1.WeightName.TRENDING]: Object.assign({}, config_1.SCORERS_CONFIG[types_1.WeightName.TRENDING]),
-    });
+    }, types_1.NON_SCORE_WEIGHTS.reduce((specialScoreInfos, weightName) => {
+        specialScoreInfos[weightName] = Object.assign({}, config_1.SCORERS_CONFIG[weightName]);
+        return specialScoreInfos;
+    }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
         if (params.language) {

@@ -16,14 +16,8 @@ export const PREP_SCORERS = "prepareScorers()";
 
 
 // console.info() with a prefix
-export const logInfo = (prefix: string, msg: string, ...args: any[]): void => {
-    console.info(addPrefix(prefix, msg), ...args);
-};
-
-// console.info() with a prefix
-export const logDebug = (prefix: string, msg: string, ...args: any[]): void => {
-    console.debug(addPrefix(prefix, msg), ...args);
-};
+export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
+export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.debug(prefixed(pfx, msg), ...args);
 
 
 // Simple log helper that only fires if numRemoved > 0
@@ -84,7 +78,7 @@ export function traceLog(msg: string, ...args: any[]): void {
 
     if (args.length > 0) {
         if (typeof args[0] == 'string') {
-            msg = addPrefix(msg, args.shift() as string);
+            msg = prefixed(msg, args.shift() as string);
         }
     }
 
@@ -93,7 +87,7 @@ export function traceLog(msg: string, ...args: any[]): void {
 
 
 // Prefix a string with [Brackets] and a space
-export function addPrefix(prefix: string, msg: string): string {
+export function prefixed(prefix: string, msg: string): string {
     prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
     return `${prefix} ${msg}`;
 };

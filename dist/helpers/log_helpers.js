@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPrefix = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
+exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -10,14 +10,9 @@ exports.CLEANUP_FEED = "cleanupFeed()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 exports.PREP_SCORERS = "prepareScorers()";
 // console.info() with a prefix
-const logInfo = (prefix, msg, ...args) => {
-    console.info(addPrefix(prefix, msg), ...args);
-};
+const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
 exports.logInfo = logInfo;
-// console.info() with a prefix
-const logDebug = (prefix, msg, ...args) => {
-    console.debug(addPrefix(prefix, msg), ...args);
-};
+const logDebug = (pfx, msg, ...args) => console.debug(prefixed(pfx, msg), ...args);
 exports.logDebug = logDebug;
 // Simple log helper that only fires if numRemoved > 0
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
@@ -73,7 +68,7 @@ function traceLog(msg, ...args) {
         return;
     if (args.length > 0) {
         if (typeof args[0] == 'string') {
-            msg = addPrefix(msg, args.shift());
+            msg = prefixed(msg, args.shift());
         }
     }
     console.debug(msg, ...args);
@@ -81,10 +76,10 @@ function traceLog(msg, ...args) {
 exports.traceLog = traceLog;
 ;
 // Prefix a string with [Brackets] and a space
-function addPrefix(prefix, msg) {
+function prefixed(prefix, msg) {
     prefix = prefix.startsWith("[") ? prefix : `[${prefix}]`;
     return `${prefix} ${msg}`;
 }
-exports.addPrefix = addPrefix;
+exports.prefixed = prefixed;
 ;
 //# sourceMappingURL=log_helpers.js.map
