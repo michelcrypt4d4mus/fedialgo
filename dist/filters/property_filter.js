@@ -109,7 +109,7 @@ class PropertyFilter extends toot_filter_1.default {
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
         }
-        else if (this.title = PropertyName.APP) {
+        else if (this.title == PropertyName.APP) {
             this.visible = config_1.Config.isAppFilterVisible;
         }
     }
