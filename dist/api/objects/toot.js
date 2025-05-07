@@ -479,10 +479,9 @@ class Toot {
         console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
         return toots;
     }
-    // Remove dupes by uniquifying on the toot's URI
+    // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots, logPrefix) {
         logPrefix = `${(0, string_helpers_1.bracket)(logPrefix || "dedupeToots")} dedupeToots()`;
-        const startedAt = new Date();
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Then there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length)
@@ -520,7 +519,7 @@ class Toot {
         });
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
         (0, log_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
-        console.info(`${logPrefix} deduped ${toots.length} toots to ${deduped.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
+        // console.info(`${logPrefix} deduped ${toots.length} toots to ${deduped.length} ${ageString(startedAt)}`);
         return deduped;
     }
     ;
