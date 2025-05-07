@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.28.1
 * `UserData.followedTags` is now a `TagNames` dict
 
 # v0.28.0
