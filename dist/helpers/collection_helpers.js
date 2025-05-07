@@ -126,12 +126,13 @@ async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
     batchSize ||= config_1.Config.scoringBatchSize;
     const startTime = new Date();
     let results = [];
+    let logPrefix = `[${label || 'batchMap'}]`;
     for (let start = 0; start < items.length; start += batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults];
-        if (sleepBetweenMS) {
-            console.debug(`[${label || 'batchMap'}] batchMap() Sleeping for ${sleepBetweenMS}ms...`);
+        if (sleepBetweenMS && (items.length > end)) {
+            console.debug(`${logPrefix} batchMap() processed ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
             await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
         }
         // if (label) {
