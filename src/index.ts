@@ -194,8 +194,7 @@ class TheAlgorithm {
         ]
 
         await Promise.all([...initialLoads, ...secondaryLoads]);
-
-        // Now that all data has arrived, go back over and do the slow stuff.
+        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         await Toot.setDependentProps(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();

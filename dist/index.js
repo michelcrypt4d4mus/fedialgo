@@ -193,7 +193,7 @@ class TheAlgorithm {
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
         ];
         await Promise.all([...initialLoads, ...secondaryLoads]);
-        // Now that all data has arrived, go back over and do the slow stuff.
+        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         await toot_1.default.setDependentProps(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();

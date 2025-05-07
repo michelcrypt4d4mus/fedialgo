@@ -105,12 +105,12 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[], deepInspection?: boolean): void;
+    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[], isDeepInspect?: boolean): void;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
-    static setDependentProps(statuses: TootLike[], logPrefix: string, deepInspection?: boolean): Promise<Toot[]>;
+    static setDependentProps(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;

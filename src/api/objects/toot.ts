@@ -465,28 +465,29 @@ export default class Toot implements TootObj {
         })
     }
 
-    // Some properties cannot be repaired and/or set until info about the user is available
-    // TODO: this is slow! in particular all the tag and trendingLink calcs.
-    // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
-    // Without them it's ~0.1 seconds. In particular the trendingLinks are slow!
+    // Some properties cannot be repaired and/or set until info about the user is available.
+    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
+    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
     setDependentProperties(
         userData: UserData,
         trendingLinks: TrendingLink[],
         trendingTags: TrendingTag[],
-        deepInspection?: boolean
+        isDeepInspect?: boolean
     ): void {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
         // if (this.followedTags && this.trendingTags) return;
-
-        this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
+        this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
+        this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();
 
-        // Set trendingTags and followedTags properties, trendingLinks
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
-        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
+        // Note use of containsTag() instead of containsString() like the other tag arrays.
+        // containsString() matched way too many toots (~80% in my case) and was too slow.
+        toot.participatedTags ??= Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
 
-        if (deepInspection) {
+        // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
+        // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
+        if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
             toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
@@ -495,12 +496,6 @@ export default class Toot implements TootObj {
             // Note use of containsString() instead of containsTag(). TOOT_MATCHERS was updated to match
             toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-        }
-
-        // Set mutes for toots by muted users that came from a source besides our server timeline
-        if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            // traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
-            toot.muted = true;
         }
     }
 
@@ -511,7 +506,6 @@ export default class Toot implements TootObj {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
-    // TODO: building toots is slow! "239 toots built in in 8.0 seconds (data setup in 0.0 seconds)"
     static async buildToots(
         statuses: TootLike[],
         source: string,  // Where did these toots come from?
@@ -522,7 +516,7 @@ export default class Toot implements TootObj {
         logPrefix = `[${logPrefix} buildToots()]`;
         const startedAt = new Date();
 
-        let toots = await this.setDependentProps(statuses, logPrefix);
+        let toots = await this.setDependentProps(statuses, logPrefix, false);
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
@@ -597,26 +591,24 @@ export default class Toot implements TootObj {
     }
 
     // Set dependent properties for a list of toots
-    static async setDependentProps(statuses: TootLike[], logPrefix: string, deepInspection?: boolean): Promise<Toot[]> {
-        const fetchDataStartedAt = new Date();
-
+    static async setDependentProps(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
         // Fetch all the data we need to set dependent properties
+        let startedAt = new Date();
         const userData = await MastoApi.instance.getUserData();
-        const trendingLinks = deepInspection ? (await MastodonServer.fediverseTrendingLinks()) : [];
         const trendingTags = await MastodonServer.fediverseTrendingTags();
-        const fetchAgeStr = ageString(fetchDataStartedAt);
+        const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Trending links are skipped
+        const fetchAgeStr = ageString(startedAt);
+        startedAt = new Date();
 
-        // Set properties, dedupe, and sort by popularity
-        const setProps = (t: SerializableToot | Toot): Toot => {
-            const toot = (t instanceof Toot ? t : Toot.build(t));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags, deepInspection);
-            return toot;
-        }
+        toots = toots.map((tootLike): Toot => {
+            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            return toot as Toot;
+        });
 
-        const startedAt = new Date();
-        let toots = statuses.map(setProps);
-        console.info(`${logPrefix} setDependentProps() deepInspection=${deepInspection} on ${toots.length} toots ${ageString(startedAt)} (data fetch ${fetchAgeStr})`);
-        return toots;
+        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
+        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr})`);
+        return toots as Toot[];
     }
 };
 
