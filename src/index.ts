@@ -320,7 +320,7 @@ class TheAlgorithm {
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
-            Config.backgroundLoadIntervalMS
+            Config.backgroundLoadIntervalSeconds * 1000
         );
     }
 

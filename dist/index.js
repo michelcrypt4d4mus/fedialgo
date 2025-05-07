@@ -300,7 +300,7 @@ class TheAlgorithm {
                 console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
-        }, config_1.Config.backgroundLoadIntervalMS);
+        }, config_1.Config.backgroundLoadIntervalSeconds * 1000);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {

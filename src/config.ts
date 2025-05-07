@@ -30,7 +30,7 @@ export type ConfigType = {
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
     // API stuff
-    backgroundLoadIntervalMS: number;
+    backgroundLoadIntervalSeconds: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
@@ -103,7 +103,7 @@ export const Config: ConfigType = {
     numParticipatedTagTootsPerTag: 5,       // How many toots to pull for each participated tag
 
     // API stuff
-    backgroundLoadIntervalMS: 120_000,   // 2 minutes
+    backgroundLoadIntervalSeconds: 0.25 * SECONDS_IN_HOUR,
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL

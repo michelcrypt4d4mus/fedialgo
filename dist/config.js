@@ -43,7 +43,7 @@ exports.Config = {
     numParticipatedTagToots: 150,
     numParticipatedTagTootsPerTag: 5,
     // API stuff
-    backgroundLoadIntervalMS: 120000,
+    backgroundLoadIntervalSeconds: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
     defaultRecordsPerPage: 40,
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,

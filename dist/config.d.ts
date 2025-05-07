@@ -17,7 +17,7 @@ export type ConfigType = {
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
-    backgroundLoadIntervalMS: number;
+    backgroundLoadIntervalSeconds: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
