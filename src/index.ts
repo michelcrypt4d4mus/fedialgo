@@ -396,7 +396,6 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
     private finishFeedUpdate(): void {
         this.loadingStatus = null;
-        console.log(`${TRIGGER_FEED} finishFeedUpdate(), loadingStatus=${this.loadingStatus}...`);
 
         if (this.loadStartedAt) {
             logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
