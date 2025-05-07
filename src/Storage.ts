@@ -13,6 +13,7 @@ import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { checkUniqueIDs } from "./helpers/collection_helpers";
 import { Config } from "./config";
+import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
 import { toLocaleInt } from "./helpers/string_helpers";
@@ -27,6 +28,7 @@ import {
     TrendingLink,
     TrendingStorage,
     TrendingTag,
+    WeightName,
     Weights,
 } from "./types";
 
@@ -184,10 +186,22 @@ export default class Storage {
         await this.set(StorageKey.OPENINGS, numAppOpens);
     }
 
-    // Return the user's stored timeline weightings
+    // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeightings(): Promise<Weights> {
-        const weightings = await this.get(StorageKey.WEIGHTS);
-        return (weightings ?? {}) as Weights;
+        let weights = await this.get(StorageKey.WEIGHTS) as Weights;
+        if (!weights) return {...DEFAULT_WEIGHTS} as Weights;
+
+        // If there are stored weights set any missing values to the default (possible in case of upgrades)
+        Object.entries(DEFAULT_WEIGHTS).forEach(([key, value]) => {
+            if (!value && value !== 0) {
+                warn(`Missing value for "${key}" in saved weights, setting to default`);
+                weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
+            }
+        });
+
+        // If any changes were made to the Storage weightings, save them back to storage
+        await Storage.setWeightings(weights);
+        return weights;
     }
 
     // Delete the value at the given key (with the user ID as a prefix)

@@ -40,6 +40,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
+const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -178,10 +179,21 @@ class Storage {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
     }
-    // Return the user's stored timeline weightings
+    // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeightings() {
-        const weightings = await this.get(types_1.StorageKey.WEIGHTS);
-        return (weightings ?? {});
+        let weights = await this.get(types_1.StorageKey.WEIGHTS);
+        if (!weights)
+            return { ...weight_presets_1.DEFAULT_WEIGHTS };
+        // If there are stored weights set any missing values to the default (possible in case of upgrades)
+        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, value]) => {
+            if (!value && value !== 0) {
+                warn(`Missing value for "${key}" in saved weights, setting to default`);
+                weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
+            }
+        });
+        // If any changes were made to the Storage weightings, save them back to storage
+        await Storage.setWeightings(weights);
+        return weights;
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {

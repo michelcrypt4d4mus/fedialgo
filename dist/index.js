@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.extractDomain = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.GIFV = void 0;
+exports.timeString = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -69,7 +69,6 @@ const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
-const weight_presets_1 = require("./scorer/weight_presets");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const poller_1 = require("./api/poller");
 const hashtags_1 = require("./feeds/hashtags");
@@ -78,9 +77,9 @@ Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 const log_helpers_1 = require("./helpers/log_helpers");
-const weight_presets_2 = require("./scorer/weight_presets");
-Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_2.PresetWeightLabel; } });
-Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_2.PresetWeights; } });
+const weight_presets_1 = require("./scorer/weight_presets");
+Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_1.PresetWeightLabel; } });
+Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_1.PresetWeights; } });
 const types_1 = require("./types");
 Object.defineProperty(exports, "NON_SCORE_WEIGHTS", { enumerable: true, get: function () { return types_1.NON_SCORE_WEIGHTS; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
@@ -106,7 +105,6 @@ class TheAlgorithm {
     setTimelineInApp; // Optional callback to set the feed in the app using this package
     // Other private variables
     feed = [];
-    catchupCheckpoint = null; // If doing a catch up refresh load we need to get back to this timestamp
     dataPoller;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     loadStartedAt = null; // Timestamp of when the feed started loading
@@ -162,7 +160,6 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen();
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
-        await algo.setDefaultWeights();
         await algo.loadCachedData();
         return algo;
     }
@@ -242,7 +239,7 @@ class TheAlgorithm {
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName) {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
-        return await this.updateUserWeights(weight_presets_2.PresetWeights[presetName]);
+        return await this.updateUserWeights(weight_presets_1.PresetWeights[presetName]);
     }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
@@ -252,7 +249,6 @@ class TheAlgorithm {
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
         this.mastodonServers = {};
-        this.catchupCheckpoint = null;
         this.feed = [];
         await Storage_1.default.clearAll();
         await this.loadCachedData();
@@ -356,21 +352,6 @@ class TheAlgorithm {
             releaseMutex();
         }
     }
-    // Load weightings from storage. Set defaults for any missing weightings.
-    async setDefaultWeights() {
-        let weightings = await Storage_1.default.getWeightings();
-        let shouldSetWeights = false;
-        Object.keys(this.scorersDict).forEach((key) => {
-            const value = weightings[key];
-            if (!value && value !== 0) {
-                weightings[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
-                shouldSetWeights = true;
-            }
-        });
-        // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSetWeights)
-            await Storage_1.default.setWeightings(weightings);
-    }
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
@@ -392,7 +373,6 @@ class TheAlgorithm {
             console.warn(`[${string_helpers_1.TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);
             this.lastLoadTimeInSeconds = null;
         }
-        this.catchupCheckpoint = null;
         this.loadStartedAt = null;
         this.launchBackgroundPoller();
         api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
@@ -401,41 +381,23 @@ class TheAlgorithm {
     setLoadingStateVariables(logPrefix) {
         if (logPrefix == log_helpers_1.TRIGGER_FEED)
             this.loadStartedAt = new Date();
-        logPrefix += ` setLoadingStateVariables()`;
-        console.log(`${logPrefix}) called...`);
-        // If there's no toots in the feed then it's an initial load.
+        // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
-            return;
         }
-        const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
-        // If there's no maxId but there is already an existing feed array that means it's a refresh
-        if (!mostRecentHomeTootAt) {
-            // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
-            if (mostRecentHomeTootAt < (0, time_helpers_1.timelineCutoffAt)()) {
-                console.warn(`${logPrefix} most recent toot ${mostRecentHomeTootAt} older than cutoff`);
-                this.catchupCheckpoint = (0, time_helpers_1.timelineCutoffAt)();
-            }
-            else {
-                console.log(`${logPrefix} setting catchupCheckpoint to ${mostRecentHomeTootAt}`);
-                this.catchupCheckpoint = mostRecentHomeTootAt;
-            }
-            this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.catchupCheckpoint)}`;
+        else if (logPrefix == log_helpers_1.TRIGGER_FEED) {
+            this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.mostRecentHomeTootAt())}`;
         }
         else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-            if (this.feed.length < config_1.Config.numDesiredTimelineToots) {
-                this.loadingStatus += `, want ${config_1.Config.numDesiredTimelineToots.toLocaleString()}`;
-            }
-            this.loadingStatus += ')';
+            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
+        (0, log_helpers_1.logInfo)(logPrefix, `setLoadingStateVariables()`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            catchupCheckpoint: this.catchupCheckpoint ? (0, time_helpers_1.toISOFormat)(this.catchupCheckpoint) : null,
             mostRecentHomeTootAt: (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()),
         };
     }

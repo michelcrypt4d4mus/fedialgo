@@ -90,7 +90,6 @@ class TheAlgorithm {
     private setTimelineInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
     // Other private variables
     private feed: Toot[] = [];
-    private catchupCheckpoint: Date | null = null;  // If doing a catch up refresh load we need to get back to this timestamp
     private dataPoller?: ReturnType<typeof setInterval>;
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
@@ -155,9 +154,9 @@ class TheAlgorithm {
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
+
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
-        await algo.setDefaultWeights();
         await algo.loadCachedData();
         return algo;
     }
@@ -264,7 +263,6 @@ class TheAlgorithm {
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
         this.mastodonServers = {};
-        this.catchupCheckpoint = null;
         this.feed = [];
         await Storage.clearAll();
         await this.loadCachedData();
@@ -389,24 +387,6 @@ class TheAlgorithm {
         }
     }
 
-    // Load weightings from storage. Set defaults for any missing weightings.
-    private async setDefaultWeights(): Promise<void> {
-        let weightings = await Storage.getWeightings();
-        let shouldSetWeights = false;
-
-        Object.keys(this.scorersDict).forEach((key) => {
-            const value = weightings[key as WeightName];
-
-            if (!value && value !== 0) {
-                weightings[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
-                shouldSetWeights = true;
-            }
-        });
-
-        // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSetWeights) await Storage.setWeightings(weightings);
-    }
-
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
@@ -430,7 +410,6 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = null;
         }
 
-        this.catchupCheckpoint = null;
         this.loadStartedAt = null;
         this.launchBackgroundPoller();
         MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
@@ -439,38 +418,17 @@ class TheAlgorithm {
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
         if (logPrefix == TRIGGER_FEED) this.loadStartedAt = new Date();
-        logPrefix += ` setLoadingStateVariables()`;
-        console.log(`${logPrefix}) called...`);
 
-        // If there's no toots in the feed then it's an initial load.
+        // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
-            return;
-        }
-
-        const mostRecentHomeTootAt = this.mostRecentHomeTootAt();
-
-        // If there's no maxId but there is already an existing feed array that means it's a refresh
-        if (!mostRecentHomeTootAt) {
-            // Don't set this.catchupCheckpoint before timelineCutoffAt() (the earliest date we'd want to pull from)
-            if (mostRecentHomeTootAt! < timelineCutoffAt()) {
-                console.warn(`${logPrefix} most recent toot ${mostRecentHomeTootAt} older than cutoff`);
-                this.catchupCheckpoint = timelineCutoffAt();
-            } else {
-                console.log(`${logPrefix} setting catchupCheckpoint to ${mostRecentHomeTootAt}`);
-                this.catchupCheckpoint = mostRecentHomeTootAt;
-            }
-
-            this.loadingStatus = `new toots since ${timeString(this.catchupCheckpoint)}`;
+        } else if (logPrefix == TRIGGER_FEED) {
+            this.loadingStatus = `new toots since ${timeString(this.mostRecentHomeTootAt())}`;
         } else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far`;
-
-            if (this.feed.length < Config.numDesiredTimelineToots) {
-                this.loadingStatus += `, want ${Config.numDesiredTimelineToots.toLocaleString()}`;
-            }
-
-            this.loadingStatus += ')';
+            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
+
+        logInfo(logPrefix, `setLoadingStateVariables()`, this.statusDict());
     }
 
     // Info about the state of this TheAlgorithm instance
@@ -478,9 +436,8 @@ class TheAlgorithm {
         return {
             tootsInFeed: this.feed?.length,
             loadingStatus: this.loadingStatus,
-            catchupCheckpoint: this.catchupCheckpoint ? toISOFormat(this.catchupCheckpoint) : null,
             mostRecentHomeTootAt: toISOFormat(this.mostRecentHomeTootAt()),
-        }
+        };
     }
 };
 
@@ -488,6 +445,8 @@ class TheAlgorithm {
 // Export types and constants needed by apps using this package
 export {
     GIFV,
+    NON_SCORE_WEIGHTS,
+    READY_TO_LOAD_MSG,
     VIDEO_TYPES,
     Account,
     FeedFilterSettings,
@@ -509,8 +468,6 @@ export {
     WeightName,
     Weights,
     // Helpers we also export
-    NON_SCORE_WEIGHTS,
-    READY_TO_LOAD_MSG,
     extractDomain,
     timeString,
 };

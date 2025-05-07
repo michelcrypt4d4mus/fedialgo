@@ -45,7 +45,6 @@ declare class TheAlgorithm {
     private user;
     private setTimelineInApp;
     private feed;
-    private catchupCheckpoint;
     private dataPoller?;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
@@ -75,10 +74,9 @@ declare class TheAlgorithm {
     private fetchAndMergeToots;
     private _mergeTootsToFeed;
     private prepareScorers;
-    private setDefaultWeights;
     private scoreAndFilterFeed;
     private finishFeedUpdate;
     private setLoadingStateVariables;
     private statusDict;
 }
-export { GIFV, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, extractDomain, timeString, };
+export { GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, timeString, };

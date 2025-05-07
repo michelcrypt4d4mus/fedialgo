@@ -79,7 +79,7 @@ export default abstract class Scorer {
             // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
             // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
             // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
-            SCORE_MUTEX.cancel()
+            SCORE_MUTEX.cancel();
             const releaseMutex = await SCORE_MUTEX.acquire();
 
             try {
