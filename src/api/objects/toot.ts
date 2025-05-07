@@ -558,7 +558,12 @@ export default class Toot implements TootObj {
             return toot as Toot;
         }
 
-        toots = await batchMap(toots, (t) => complete(t), "completeToots", null, Config.sleepBetweenCompletionMS);
+        const completeToots = toots.filter(toot => toot instanceof Toot ? !toot.shouldComplete() : false);
+        const tootsToComplete = toots.filter(toot => toot instanceof Toot ? toot.shouldComplete() : true);
+
+        const batchSleepMS = isDeepInspect ? Config.sleepBetweenCompletionMS : 0;
+        const newCompleteToots = await batchMap(tootsToComplete, (t) => complete(t), "completeToots", null, batchSleepMS);
+        toots = completeToots.concat(newCompleteToots);
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;

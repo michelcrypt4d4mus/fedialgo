@@ -123,7 +123,7 @@ export const Config: ConfigType = {
     mutexWarnSeconds: 5,                 // How long to wait before warning about a mutex lock
     numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
     reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
-    sleepBetweenCompletionMS: 1_000,     // How long to wait between batches of Toot.completeToots() calls
+    sleepBetweenCompletionMS: 500,       // How long to wait between batches of Toot.completeToots() calls
     timeoutMS: 5_000,                    // Timeout for API calls
 
     // Trending tags and links
