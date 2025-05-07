@@ -41,7 +41,7 @@ import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logAndThrowError, traceLog } from './helpers/log_helpers';
+import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logAndThrowError, traceLog, logDebug } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
     NON_SCORE_WEIGHTS,
@@ -339,22 +339,19 @@ class TheAlgorithm {
 
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>): Promise<Toot[]> {
-        const logPrefix = `fetchAndMergeToots() ${tootFetcher.name}`;
+    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>): Promise<void> {
+        const logPrefix = tootFetcher.name;
         const startedAt = new Date();
         let newToots: Toot[] = [];
-        traceLog(`${logPrefix} started fetching toots...`);
 
         try {
             newToots = await tootFetcher();
+            logInfo(logPrefix, `${TELEMETRY} fetched ${newToots.length} toots ${ageString(startedAt)}`);
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
         }
 
-        const logTootsStr = () => `${newToots.length} toots ${ageString(startedAt)}`;
-        logInfo(logPrefix, `${TELEMETRY} fetched ${logTootsStr()}`);
         await this.lockedMergeTootsToFeed(newToots, logPrefix);
-        return newToots; // TODO: unused return value
     }
 
     // Merge newToots into this.feed, score, and filter the feed.
@@ -364,11 +361,10 @@ class TheAlgorithm {
         const startedAt = new Date();
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
-
-        // TODO: Moving scoring outside the mutex means that sometimes the feed gets filtered before
-        // everything is scored. This is probably OK but for now it throws warnings in the console.
         await this.scoreAndFilterFeed();
-        logInfo(logPrefix, `${TELEMETRY} merge ${newToots.length} complete ${ageString(startedAt)}, numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
+
+        let msg = `${TELEMETRY} merge ${newToots.length} complete ${ageString(startedAt)}, `;
+        logInfo(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
         this.setLoadingStateVariables(logPrefix);
     }
 
@@ -428,7 +424,7 @@ class TheAlgorithm {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
 
-        logInfo(logPrefix, `setLoadingStateVariables()`, this.statusDict());
+        logDebug(logPrefix, `setLoadingStateVariables()`, this.statusDict());
     }
 
     // Info about the state of this TheAlgorithm instance

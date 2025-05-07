@@ -310,20 +310,17 @@ class TheAlgorithm {
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
     async fetchAndMergeToots(tootFetcher) {
-        const logPrefix = `fetchAndMergeToots() ${tootFetcher.name}`;
+        const logPrefix = tootFetcher.name;
         const startedAt = new Date();
         let newToots = [];
-        (0, log_helpers_1.traceLog)(`${logPrefix} started fetching toots...`);
         try {
             newToots = await tootFetcher();
+            (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
-        const logTootsStr = () => `${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-        (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${logTootsStr()}`);
         await this.lockedMergeTootsToFeed(newToots, logPrefix);
-        return newToots; // TODO: unused return value
     }
     // Merge newToots into this.feed, score, and filter the feed.
     // Don't call this directly, use lockedMergeTootsToFeed() instead.
@@ -332,10 +329,9 @@ class TheAlgorithm {
         const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
-        // TODO: Moving scoring outside the mutex means that sometimes the feed gets filtered before
-        // everything is scored. This is probably OK but for now it throws warnings in the console.
         await this.scoreAndFilterFeed();
-        (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} merge ${newToots.length} complete ${(0, time_helpers_1.ageString)(startedAt)}, numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
+        let msg = `${string_helpers_1.TELEMETRY} merge ${newToots.length} complete ${(0, time_helpers_1.ageString)(startedAt)}, `;
+        (0, log_helpers_1.logInfo)(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
         this.setLoadingStateVariables(logPrefix);
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
@@ -391,7 +387,7 @@ class TheAlgorithm {
         else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
-        (0, log_helpers_1.logInfo)(logPrefix, `setLoadingStateVariables()`, this.statusDict());
+        (0, log_helpers_1.logDebug)(logPrefix, `setLoadingStateVariables()`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
