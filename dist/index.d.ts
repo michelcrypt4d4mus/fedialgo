@@ -66,12 +66,12 @@ declare class TheAlgorithm {
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
     reset(): Promise<void>;
+    private fetchAndMergeToots;
     private filterFeedAndSetInApp;
     private homeTimelineToots;
     private launchBackgroundPoller;
     private loadCachedData;
     logWithState(prefix: string, msg: string): void;
-    private fetchAndMergeToots;
     private _mergeTootsToFeed;
     private prepareScorers;
     private scoreAndFilterFeed;

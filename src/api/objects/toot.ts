@@ -74,6 +74,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
+    containsTag: (tag: string | MastodonTag) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
@@ -122,15 +123,16 @@ export default class Toot implements TootObj {
     url?: string | null;
 
     // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
-    followedTags?: mastodon.v1.Tag[];  // Array of tags that the user follows that exist in this toot
-    isFollowed?: boolean;              // Whether the user follows the account that posted this toot
-    @Type(() => Account) reblogsBy!: Account[];             // The accounts that retooted this toot
-    @Type(() => Toot) resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
-    scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
-    sources?: string[];                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
-    trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
-    trendingLinks?: TrendingLink[];    // Links that are trending in this toot
-    trendingTags?: TrendingTag[];      // Tags that are trending that appear in this toot
+    followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
+    isFollowed?: boolean;                        // Whether the user follows the account that posted this toot
+    participatedTags?: TrendingTag[];            // Array of tags that the user has participated in that exist in this toot
+    @Type(() => Account) reblogsBy!: Account[];  // The accounts that retooted this toot
+    @Type(() => Toot) resolvedToot?: Toot;       // This Toot with URLs resolved to homeserver versions
+    scoreInfo?: TootScore;                       // Scoring info for weighting/sorting this toot
+    sources?: string[];                          // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    trendingRank?: number;                       // Most trending on a server gets a 10, next is a 9, etc.
+    trendingLinks?: TrendingLink[];              // Links that are trending in this toot
+    trendingTags?: TrendingTag[];                // Tags that are trending that appear in this toot
     audioAttachments!: mastodon.v1.MediaAttachment[];
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
@@ -231,6 +233,11 @@ export default class Toot implements TootObj {
         } else if (trendingTagsMsg) {
             return trendingTagsMsg;
         }
+    }
+
+    containsTag(tag: string | MastodonTag): boolean {
+        const tagName = typeof tag == "string" ? tag : tag.name;
+        return this.tags.some((tag) => tag.name == tagName);
     }
 
     // Returns true if the fedialgo user is mentioned in the toot
@@ -462,7 +469,6 @@ export default class Toot implements TootObj {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
         // if (this.followedTags && this.trendingTags) return;
 
-        // console.debug(`Checking if ${this.account.webfingerURI} is among ${Object.keys(userData.followedAccounts).length} followed accounts:`, Object.keys(userData.followedAccounts).sort());
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
         const toot = this.realToot();
@@ -472,6 +478,8 @@ export default class Toot implements TootObj {
         // that contain the name of a hashtag without actually containing that hashtag.
         // TootMatcher was updated to make it work while we try this out.
         toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+        // Note this uses containsTag() unlike followedTags which uses containsString()
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
         toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
 

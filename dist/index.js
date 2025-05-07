@@ -254,6 +254,21 @@ class TheAlgorithm {
         await this.loadCachedData();
         api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
     }
+    // Merge a new batch of toots into the feed.
+    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
+    async fetchAndMergeToots(tootFetcher) {
+        const logPrefix = tootFetcher.name;
+        const startedAt = new Date();
+        let newToots = [];
+        try {
+            newToots = await tootFetcher();
+            (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+        }
+        catch (e) {
+            api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+        }
+        await this.lockedMergeTootsToFeed(newToots, logPrefix);
+    }
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
     // the master timeline).
@@ -307,21 +322,6 @@ class TheAlgorithm {
     logWithState(prefix, msg) {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
     }
-    // Merge a new batch of toots into the feed.
-    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    async fetchAndMergeToots(tootFetcher) {
-        const logPrefix = tootFetcher.name;
-        const startedAt = new Date();
-        let newToots = [];
-        try {
-            newToots = await tootFetcher();
-            (0, log_helpers_1.logInfo)(logPrefix, `${string_helpers_1.TELEMETRY} fetched ${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
-        }
-        catch (e) {
-            api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
-        }
-        await this.lockedMergeTootsToFeed(newToots, logPrefix);
-    }
     // Merge newToots into this.feed, score, and filter the feed.
     // Don't call this directly, use lockedMergeTootsToFeed() instead.
     async _mergeTootsToFeed(newToots, logPrefix) {
@@ -360,7 +360,6 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
     finishFeedUpdate() {
         this.loadingStatus = null;
-        console.log(`${log_helpers_1.TRIGGER_FEED} finishFeedUpdate(), loadingStatus=${this.loadingStatus}...`);
         if (this.loadStartedAt) {
             (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);

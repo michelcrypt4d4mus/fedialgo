@@ -18,6 +18,7 @@ export declare enum TypeFilterName {
     LINKS = "links",
     MENTIONS = "mentions",
     POLLS = "polls",
+    PARTICIPATED_HASHTAGS = "participatedHashtags",
     REPLIES = "replies",
     REPOSTS = "reposts",
     SENSITIVE = "sensitive",

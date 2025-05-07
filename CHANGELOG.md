@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * `Toot.containsString()` also checks the link preview card text
+* Add a Toot.participatedHashtags property and corresponding filter
 
 ### v0.27.4
 * Export a `NON_SCORE_WEIGHTS` array for `TIME_DECAY` etc.

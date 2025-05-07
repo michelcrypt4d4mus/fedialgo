@@ -30,6 +30,7 @@ var TypeFilterName;
     TypeFilterName["LINKS"] = "links";
     TypeFilterName["MENTIONS"] = "mentions";
     TypeFilterName["POLLS"] = "polls";
+    TypeFilterName["PARTICIPATED_HASHTAGS"] = "participatedHashtags";
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["REPOSTS"] = "reposts";
     TypeFilterName["SENSITIVE"] = "sensitive";
@@ -47,6 +48,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
+    [TypeFilterName.PARTICIPATED_HASHTAGS]: (toot) => !!toot.realToot().participatedTags?.length,
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.REPOSTS]: (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]: (toot) => !!toot.sensitive,

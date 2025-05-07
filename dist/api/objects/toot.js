@@ -82,6 +82,7 @@ class Toot {
     // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
+    participatedTags; // Array of tags that the user has participated in that exist in this toot
     reblogsBy; // The accounts that retooted this toot
     resolvedToot; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
@@ -183,6 +184,10 @@ class Toot {
         else if (trendingTagsMsg) {
             return trendingTagsMsg;
         }
+    }
+    containsTag(tag) {
+        const tagName = typeof tag == "string" ? tag : tag.name;
+        return this.tags.some((tag) => tag.name == tagName);
     }
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention() {
@@ -391,7 +396,6 @@ class Toot {
     setDependentProperties(userData, trendingLinks, trendingTags) {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
         // if (this.followedTags && this.trendingTags) return;
-        // console.debug(`Checking if ${this.account.webfingerURI} is among ${Object.keys(userData.followedAccounts).length} followed accounts:`, Object.keys(userData.followedAccounts).sort());
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
             this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
@@ -401,6 +405,8 @@ class Toot {
         // that contain the name of a hashtag without actually containing that hashtag.
         // TootMatcher was updated to make it work while we try this out.
         toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+        // Note this uses containsTag() unlike followedTags which uses containsString()
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
         toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set mutes for toots by muted users that came from a source besides our server timeline
