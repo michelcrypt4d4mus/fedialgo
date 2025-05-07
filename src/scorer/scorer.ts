@@ -11,7 +11,7 @@ import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config, SCORERS_CONFIG } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { logAndThrowError, logDebug, logInfo, traceLog } from '../helpers/log_helpers';
 import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
@@ -74,11 +74,9 @@ export default abstract class Scorer {
         const startedAt = new Date();
 
         try {
-            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
-            // If the mutex is already locked just cancel the current scoring loop and start over
-            // (scoring is idempotent, so this is safe).
-            // Tnis done to make the feed more immediately responsive to the user adjusting the weights -
-            // rather than waiting for a rescore to finish we just cancel it and start over.
+            // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
+            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
+            // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
             SCORE_MUTEX.cancel()
             const releaseMutex = await SCORE_MUTEX.acquire();
 
@@ -92,11 +90,11 @@ export default abstract class Scorer {
             }
 
             // Sort feed based on score from high to low and return
-            console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            logDebug(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         } catch (e) {
             if (e == E_CANCELED) {
-                console.debug(`${SCORE_PREFIX} mutex cancellation`);
+                logDebug(SCORE_PREFIX, `mutex cancellation`);
             } else {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);
             }
@@ -184,7 +182,7 @@ export default abstract class Scorer {
         } as TootScore;
 
         // TODO: duping the score to realToot() is a hack that sucks
-        toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo
+        toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
     }
 
     // Add 1 so that time decay multiplier works even with scorers giving 0s

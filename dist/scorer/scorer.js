@@ -57,11 +57,9 @@ class Scorer {
         const scorers = [...featureScorers, ...feedScorers];
         const startedAt = new Date();
         try {
-            // Lock a mutex to prevent multiple scoring loops to call the DiversityFeedScorer simultaneously
-            // If the mutex is already locked just cancel the current scoring loop and start over
-            // (scoring is idempotent, so this is safe).
-            // Tnis done to make the feed more immediately responsive to the user adjusting the weights -
-            // rather than waiting for a rescore to finish we just cancel it and start over.
+            // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
+            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
+            // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
             SCORE_MUTEX.cancel();
             const releaseMutex = await SCORE_MUTEX.acquire();
             try {
@@ -74,12 +72,12 @@ class Scorer {
                 releaseMutex();
             }
             // Sort feed based on score from high to low and return
-            console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
+            (0, log_helpers_1.logDebug)(SCORE_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                console.debug(`${SCORE_PREFIX} mutex cancellation`);
+                (0, log_helpers_1.logDebug)(SCORE_PREFIX, `mutex cancellation`);
             }
             else {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);
