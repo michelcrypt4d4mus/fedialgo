@@ -38,12 +38,12 @@ const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
+const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
-const string_helpers_1 = require("./helpers/string_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
@@ -79,7 +79,7 @@ class Storage {
     static async clearAll() {
         log(`Clearing all storage...`);
         const user = await this.getIdentity();
-        const weights = await this.getWeightings();
+        const weights = await this.getWeights();
         await localforage_1.default.clear();
         if (user) {
             log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
@@ -90,6 +90,24 @@ class Storage {
         else {
             warn(`No user identity found, cleared storage anyways`);
         }
+    }
+    // Dump information about the size of the data stored in localForage
+    static async dumpData() {
+        (Object.values(types_1.StorageKey)).forEach((key) => {
+            this.buildKey(key).then((storageKey) => {
+                localforage_1.default.getItem(storageKey).then((value) => {
+                    let valStr = `Value at "${key}"`;
+                    if (value) {
+                        if (Array.isArray(value))
+                            valStr += ` (${value.length} items)`;
+                        log(`${valStr} is ${(0, string_helpers_1.byteString)(JSON.stringify(value).length)}`);
+                    }
+                    else {
+                        log(`${valStr} not found`);
+                    }
+                });
+            });
+        });
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
@@ -158,6 +176,22 @@ class Storage {
             toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
+    // Return the user's stored timeline weightings or the default weightings if none are found
+    static async getWeights() {
+        let weights = await this.get(types_1.StorageKey.WEIGHTS);
+        if (!weights)
+            return { ...weight_presets_1.DEFAULT_WEIGHTS };
+        // If there are stored weights set any missing values to the default (possible in case of upgrades)
+        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, value]) => {
+            if (!value && value !== 0) {
+                warn(`Missing value for "${key}" in saved weights, setting to default`);
+                weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
+            }
+        });
+        // If any changes were made to the Storage weightings, save them back to storage
+        await Storage.setWeightings(weights);
+        return weights;
+    }
     // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
     static async isDataStale(key) {
         return !(await this.getIfNotStale(key));
@@ -178,22 +212,6 @@ class Storage {
     static async logAppOpen() {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
-    }
-    // Return the user's stored timeline weightings or the default weightings if none are found
-    static async getWeightings() {
-        let weights = await this.get(types_1.StorageKey.WEIGHTS);
-        if (!weights)
-            return { ...weight_presets_1.DEFAULT_WEIGHTS };
-        // If there are stored weights set any missing values to the default (possible in case of upgrades)
-        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, value]) => {
-            if (!value && value !== 0) {
-                warn(`Missing value for "${key}" in saved weights, setting to default`);
-                weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
-            }
-        });
-        // If any changes were made to the Storage weightings, save them back to storage
-        await Storage.setWeightings(weights);
-        return weights;
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {

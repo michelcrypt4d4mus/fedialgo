@@ -12,7 +12,7 @@ import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
-import { ageInSeconds, toISOFormat } from "../../helpers/time_helpers";
+import { ageInSeconds, ageString, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
@@ -498,6 +498,7 @@ export default class Toot implements TootObj {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
+    // TODO: building toots is slow! "239 toots built in in 8.0 seconds (data setup in 0.0 seconds)"
     static async buildToots(
         statuses: TootLike[],
         source: string,  // Where did these toots come from?
@@ -505,12 +506,14 @@ export default class Toot implements TootObj {
     ): Promise<Toot[]> {
         if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
-        logPrefix = `[${logPrefix} buildToots()]`
+        logPrefix = `[${logPrefix} buildToots()]`;
+        const startedAt = new Date();
 
         // Fetch all the data we need to set dependent properties
         const userData = await MastoApi.instance.getUserData();
         const trendingLinks = await MastodonServer.fediverseTrendingLinks();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
+        const setupAgeStr = ageString(startedAt);
 
         // Set properties, dedupe, and sort by popularity
         const setProps = async (t: SerializableToot | Toot): Promise<Toot> => {
@@ -522,11 +525,14 @@ export default class Toot implements TootObj {
 
         let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
         toots = Toot.dedupeToots(toots, logPrefix);
-        return toots.sort((a, b) => b.popularity() - a.popularity());
+        toots = toots.sort((a, b) => b.popularity() - a.popularity());
+        console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)} (data setup ${setupAgeStr})`);
+        return toots;
     }
 
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
+        const startedAt = new Date();
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can
@@ -576,6 +582,7 @@ export default class Toot implements TootObj {
 
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
         logTootRemoval(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
+        console.info(`${logLabel} deduped ${toots.length} toots to ${deduped.length} ${ageString(startedAt)}`);
         return deduped;
     };
 

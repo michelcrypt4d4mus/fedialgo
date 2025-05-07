@@ -5,15 +5,16 @@ export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
     static clearAll(): Promise<void>;
+    static dumpData(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getTrending(): Promise<TrendingStorage>;
+    static getWeights(): Promise<Weights>;
     static isDataStale(key: StorageKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;
     static logAppOpen(): Promise<void>;
-    static getWeightings(): Promise<Weights>;
     static remove(key: StorageKey): Promise<void>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;

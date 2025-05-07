@@ -118,7 +118,7 @@ class Scorer {
     static async decorateWithScoreInfo(toot, scorers) {
         const rawScores = {};
         const weightedScores = {};
-        const userWeights = await Storage_1.default.getWeightings();
+        const userWeights = await Storage_1.default.getWeights();
         const scores = await Promise.all(scorers.map((s) => s.score(toot)));
         const outlierDampener = userWeights[types_1.WeightName.OUTLIER_DAMPENER] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.OUTLIER_DAMPENER];
         // Compute a weighted score a toot based by multiplying the value of each numerical property

@@ -10,6 +10,8 @@ import { MediaCategory } from '../types';
 export const DEFAULT_FONT_SIZE = 15;
 export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
+export const KILOBYTE = 1024;
+export const MEGABYTE = KILOBYTE * 1024;
 
 // Multimedia types
 export const GIFV = "gifv";
@@ -29,6 +31,32 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 ];
 
 
+// Return a string representation of a number of bytes
+export const byteString = (numBytes: number): string => {
+    if (numBytes < KILOBYTE) return `${numBytes} bytes`;
+    if (numBytes < MEGABYTE) return `${(numBytes / KILOBYTE).toFixed(1)} kilobytes`;
+    return `${(numBytes / MEGABYTE).toFixed(2)} MEGABYTES`;
+};
+
+
+// Count occurrences of substr within str
+export function countInstances(str: string, substr: string): number {
+    return Math.max(str.split(substr).length - 1, 0);
+};
+
+
+export function createRandomString(length: number): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return result;
+};
+
+
 // "http://www.mast.ai/foobar" => "mast.ai"
 export function extractDomain(url: string): string {
     url ??= "";
@@ -43,10 +71,9 @@ export function extractDomain(url: string): string {
 };
 
 
-// Replace https links with [link to DOMAIN], e.g.
-// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
-export function replaceHttpsLinks(input: string): string {
-    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+// Take the MD5 hash of a jacascript object / number / string
+export function hashObject(obj: object | number | string): string {
+    return md5(JSON.stringify(obj));
 };
 
 
@@ -95,27 +122,10 @@ export function replaceEmojiShortcodesWithImageTags(
 };
 
 
-// Count occurrences of substr within str
-export function countInstances(str: string, substr: string): number {
-    return Math.max(str.split(substr).length - 1, 0);
-};
-
-
-export function createRandomString(length: number): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return result;
-};
-
-
-// Take the MD5 hash of a jacascript object / number / string
-export function hashObject(obj: object | number | string): string {
-    return md5(JSON.stringify(obj));
+// Replace https links with [link to DOMAIN], e.g.
+// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
+export function replaceHttpsLinks(input: string): string {
+    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
 };
 
 

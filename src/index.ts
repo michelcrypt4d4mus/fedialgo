@@ -204,7 +204,7 @@ class TheAlgorithm {
 
     // Return the user's current weightings for each score category
     async getUserWeights(): Promise<Weights> {
-        return await Storage.getWeightings();
+        return await Storage.getWeights();
     }
 
     // TODO: Using loadingStatus as the main determinant of state is kind of janky
@@ -336,6 +336,7 @@ class TheAlgorithm {
     // TODO: should be private, public for debugging for now
     logWithState(prefix: string, msg: string): void {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
+        Storage.dumpData();
     }
 
     // Merge newToots into this.feed, score, and filter the feed.

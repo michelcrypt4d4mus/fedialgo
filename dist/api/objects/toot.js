@@ -421,16 +421,19 @@ class Toot {
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
+    // TODO: building toots is slow! "239 toots built in in 8.0 seconds (data setup in 0.0 seconds)"
     static async buildToots(statuses, source, // Where did these toots come from?
     logPrefix) {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
         logPrefix = `[${logPrefix} buildToots()]`;
+        const startedAt = new Date();
         // Fetch all the data we need to set dependent properties
         const userData = await api_1.default.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+        const setupAgeStr = (0, time_helpers_1.ageString)(startedAt);
         // Set properties, dedupe, and sort by popularity
         const setProps = async (t) => {
             const toot = (t instanceof Toot ? t : Toot.build(t));
@@ -440,10 +443,13 @@ class Toot {
         };
         let toots = await (0, collection_helpers_1.batchMap)(statuses, setProps, "buildToots");
         toots = Toot.dedupeToots(toots, logPrefix);
-        return toots.sort((a, b) => b.popularity() - a.popularity());
+        toots = toots.sort((a, b) => b.popularity() - a.popularity());
+        console.info(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)} (data setup ${setupAgeStr})`);
+        return toots;
     }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
+        const startedAt = new Date();
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
@@ -487,6 +493,7 @@ class Toot {
         });
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
         (0, log_helpers_1.logTootRemoval)(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
+        console.info(`${logLabel} deduped ${toots.length} toots to ${deduped.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
         return deduped;
     }
     ;

@@ -145,7 +145,7 @@ export default abstract class Scorer {
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;
-        const userWeights = await Storage.getWeightings();
+        const userWeights = await Storage.getWeights();
         const scores = await Promise.all(scorers.map((s) => s.score(toot)));
         const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
 

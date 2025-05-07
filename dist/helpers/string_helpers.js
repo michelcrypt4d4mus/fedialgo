@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.isNumber = exports.quote = exports.hashObject = exports.createRandomString = exports.countInstances = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.replaceHttpsLinks = exports.extractDomain = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.isNumber = exports.quote = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -13,6 +13,8 @@ const types_1 = require("../types");
 exports.DEFAULT_FONT_SIZE = 15;
 exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
+exports.KILOBYTE = 1024;
+exports.MEGABYTE = exports.KILOBYTE * 1024;
 // Multimedia types
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
@@ -27,6 +29,31 @@ exports.MEDIA_TYPES = [
     types_1.MediaCategory.AUDIO,
     types_1.MediaCategory.IMAGE,
 ];
+// Return a string representation of a number of bytes
+const byteString = (numBytes) => {
+    if (numBytes < exports.KILOBYTE)
+        return `${numBytes} bytes`;
+    if (numBytes < exports.MEGABYTE)
+        return `${(numBytes / exports.KILOBYTE).toFixed(1)} kilobytes`;
+    return `${(numBytes / exports.MEGABYTE).toFixed(2)} MEGABYTES`;
+};
+exports.byteString = byteString;
+// Count occurrences of substr within str
+function countInstances(str, substr) {
+    return Math.max(str.split(substr).length - 1, 0);
+}
+exports.countInstances = countInstances;
+;
+function createRandomString(length) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+exports.createRandomString = createRandomString;
+;
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";
@@ -39,12 +66,11 @@ function extractDomain(url) {
 }
 exports.extractDomain = extractDomain;
 ;
-// Replace https links with [link to DOMAIN], e.g.
-// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
-function replaceHttpsLinks(input) {
-    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+// Take the MD5 hash of a jacascript object / number / string
+function hashObject(obj) {
+    return (0, blueimp_md5_1.default)(JSON.stringify(obj));
 }
-exports.replaceHttpsLinks = replaceHttpsLinks;
+exports.hashObject = hashObject;
 ;
 // Remove HTML tags and newlines from a string; decode HTML entities
 function htmlToText(html) {
@@ -83,27 +109,12 @@ function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DE
 }
 exports.replaceEmojiShortcodesWithImageTags = replaceEmojiShortcodesWithImageTags;
 ;
-// Count occurrences of substr within str
-function countInstances(str, substr) {
-    return Math.max(str.split(substr).length - 1, 0);
+// Replace https links with [link to DOMAIN], e.g.
+// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
+function replaceHttpsLinks(input) {
+    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
 }
-exports.countInstances = countInstances;
-;
-function createRandomString(length) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-exports.createRandomString = createRandomString;
-;
-// Take the MD5 hash of a jacascript object / number / string
-function hashObject(obj) {
-    return (0, blueimp_md5_1.default)(JSON.stringify(obj));
-}
-exports.hashObject = hashObject;
+exports.replaceHttpsLinks = replaceHttpsLinks;
 ;
 // Doublequotes
 const quote = (text) => text == null ? exports.NULL : `"${text}"`;
