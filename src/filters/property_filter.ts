@@ -106,7 +106,7 @@ export default class PropertyFilter extends TootFilter {
         let description: string;
 
         if (title == PropertyName.TYPE) {
-            // Set up the default for source filters so something always shows up in the options
+            // Set up the default for type filters so something always shows up in the options
             optionInfo = countValues<TypeFilterName>(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
@@ -119,8 +119,8 @@ export default class PropertyFilter extends TootFilter {
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
 
+        // Server side filters are invisible & inverted by default bc we don't want to show toots including them
         if (title == PropertyName.SERVER_SIDE_FILTERS) {
-            // Server side filters are inverted by default bc we don't want to show toots including them
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
         }
