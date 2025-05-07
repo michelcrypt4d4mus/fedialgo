@@ -173,17 +173,13 @@ class Toot {
     }
     // Generate a string describing the followed and trending tags in the toot
     containsTagsMsg() {
-        const followedTagsMsg = this.containsTagsOfTypeMsg(types_1.WeightName.FOLLOWED_TAGS);
-        const trendingTagsMsg = this.containsTagsOfTypeMsg(types_1.WeightName.TRENDING_TAGS);
-        if (followedTagsMsg && trendingTagsMsg) {
-            return [followedTagsMsg, trendingTagsMsg].join("; ");
-        }
-        else if (followedTagsMsg) {
-            return followedTagsMsg;
-        }
-        else if (trendingTagsMsg) {
-            return trendingTagsMsg;
-        }
+        let msgs = [
+            this.containsTagsOfTypeMsg(types_1.WeightName.FOLLOWED_TAGS),
+            this.containsTagsOfTypeMsg(types_1.WeightName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(types_1.WeightName.PARTICIPATED_TAGS),
+        ];
+        msgs = msgs.filter((msg) => msg);
+        return msgs.length ? msgs.join("; ") : undefined;
     }
     containsTag(tag) {
         const tagName = typeof tag == "string" ? tag : tag.name;
@@ -325,8 +321,12 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
+        // TODO: The tagType argument should probably be a TypeFilterName type...
         if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
             tags = this.followedTags || [];
+        }
+        else if (tagType == types_1.WeightName.PARTICIPATED_TAGS) {
+            tags = this.participatedTags || [];
         }
         else if (tagType == types_1.WeightName.TRENDING_TAGS) {
             tags = this.trendingTags || [];

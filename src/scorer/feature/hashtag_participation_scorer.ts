@@ -10,7 +10,7 @@ import { sumArray } from '../../helpers/collection_helpers';
 
 export default class HashtagParticipationScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.HASHTAG_PARTICIPATION);
+        super(WeightName.PARTICIPATED_TAGS);
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {

@@ -17,8 +17,8 @@ exports.Config = {
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     maxCachedTimelineToots: 1600,
-    numDesiredTimelineToots: 900,
     maxTimelineHoursToFetch: 168,
+    numDesiredTimelineToots: 700,
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {
@@ -216,9 +216,6 @@ exports.SCORERS_CONFIG = {
     [types_1.WeightName.FOLLOWED_TAGS]: {
         description: "Favour toots that contain hashtags you are following",
     },
-    [types_1.WeightName.HASHTAG_PARTICIPATION]: {
-        description: "Favour hastags you toot about",
-    },
     [types_1.WeightName.IMAGE_ATTACHMENTS]: {
         description: "Favour image attachments",
     },
@@ -242,6 +239,9 @@ exports.SCORERS_CONFIG = {
     },
     [types_1.WeightName.NUM_RETOOTS]: {
         description: "Favour toots that are retooted a lot",
+    },
+    [types_1.WeightName.PARTICIPATED_TAGS]: {
+        description: "Favour hastags you've tooted about",
     },
     [types_1.WeightName.RETOOTED_IN_FEED]: {
         description: "Favour toots retooted by accounts you follow",

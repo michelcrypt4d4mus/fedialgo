@@ -75,8 +75,8 @@ export const Config: ConfigType = {
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
-    numDesiredTimelineToots: 900,           // useful dev options for faster load
     maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
+    numDesiredTimelineToots: 700,           // How many home timeline toots to start with
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
@@ -281,9 +281,6 @@ export const SCORERS_CONFIG: ScorerDict = {
     [WeightName.FOLLOWED_TAGS]: {
         description: "Favour toots that contain hashtags you are following",
     },
-    [WeightName.HASHTAG_PARTICIPATION]: {
-        description: "Favour hastags you toot about",
-    },
     [WeightName.IMAGE_ATTACHMENTS]: {
         description: "Favour image attachments",
     },
@@ -307,6 +304,9 @@ export const SCORERS_CONFIG: ScorerDict = {
     },
     [WeightName.NUM_RETOOTS]: {
         description: "Favour toots that are retooted a lot",
+    },
+    [WeightName.PARTICIPATED_TAGS]: {
+        description: "Favour hastags you've tooted about",
     },
     [WeightName.RETOOTED_IN_FEED]: {
         description: "Favour toots retooted by accounts you follow",
