@@ -12,6 +12,7 @@ const toot_1 = require("../../api/objects/toot");
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
+const log_helpers_1 = require("../../helpers/log_helpers");
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(types_1.WeightName.DIVERSITY);
@@ -47,7 +48,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             increments[tagName] = trendingNumAccountsVal / (trendingTagTootsInFeedCount[tagName] || 1);
             return increments;
         }, {});
-        console.log(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
+        (0, log_helpers_1.traceLog)(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((scores, toot) => {

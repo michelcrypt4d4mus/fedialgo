@@ -206,16 +206,17 @@ export default class Toot implements TootObj {
         }
     }
 
-    // Returns true if the toot contains the given string in the content or (if it starts with '#') tags
+    // True if toot contains 'str' in the content, the link preview card, or (if it starts with '#') the tags
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
 
         if (str.startsWith("#")) {
             return this.tags.some((tag) => str.slice(1) == tag.name);
-        } else {
-            const regex = new RegExp(`\\b${escape(str)}\\b`);
-            return regex.test(this.content.toLowerCase());
         }
+
+        const regex = new RegExp(`\\b${escape(str)}\\b`);
+        const contentStr = `${this.content} ${this.card?.description || ""} ${this.card?.title || ""}`;
+        return regex.test(contentStr.trim().toLowerCase());
     }
 
     // Generate a string describing the followed and trending tags in the toot

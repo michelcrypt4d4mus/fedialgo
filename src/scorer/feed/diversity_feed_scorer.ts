@@ -50,7 +50,7 @@ export default class DiversityFeedScorer extends FeedScorer {
             }, {} as StringNumberDict
         );
 
-        console.log(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
+        traceLog(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
 
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
