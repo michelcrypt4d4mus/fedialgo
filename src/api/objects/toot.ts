@@ -474,8 +474,7 @@ export default class Toot implements TootObj {
         trendingTags: TrendingTag[],
         isDeepInspect?: boolean
     ): void {
-        // If trendingTags is set we know setDependentProperties() has already been called on this toot
-        // if (this.followedTags && this.trendingTags) return;
+        const followedTags = Object.values(userData.followedTags);
         this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
@@ -483,19 +482,19 @@ export default class Toot implements TootObj {
 
         // Note use of containsTag() instead of containsString() like the other tag arrays.
         // containsString() matched way too many toots (~80% in my case) and was too slow.
-        toot.participatedTags ??= Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
 
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
         if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
-            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
-        } else {
-            toot.trendingLinks = [];
-            // Note use of containsString() instead of containsTag(). TOOT_MATCHERS was updated to match
-            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
+            toot.followedTags = followedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
+            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+        } else {
+            // Use containsTag() instead of containsString() for speed
+            toot.followedTags = followedTags.filter(tag => toot.containsTag(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
+            toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
 
@@ -516,7 +515,9 @@ export default class Toot implements TootObj {
         logPrefix = `[${logPrefix} buildToots()]`;
         const startedAt = new Date();
 
-        let toots = await this.setDependentProps(statuses, logPrefix, false);
+        // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
+        // to get the full set of properties set on the Toots.
+        let toots = await this.completeToots(statuses, logPrefix, false);
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
@@ -590,13 +591,14 @@ export default class Toot implements TootObj {
         return sortByCreatedAt(toots)[idx].id;
     }
 
-    // Set dependent properties for a list of toots
-    static async setDependentProps(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
-        // Fetch all the data we need to set dependent properties
+    // Fetch all the data we need to set dependent properties and set them on the toots.
+    static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
         let startedAt = new Date();
+        // TODO: remove this at some point, just here for logging info about instanceof usage
+        const tootObjs = toots.filter(toot => toot instanceof Toot);
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
-        const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Trending links are skipped
+        const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
         const fetchAgeStr = ageString(startedAt);
         startedAt = new Date();
 
@@ -607,7 +609,7 @@ export default class Toot implements TootObj {
         });
 
         const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr})`);
+        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
         return toots as Toot[];
     }
 };

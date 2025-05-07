@@ -194,7 +194,7 @@ class TheAlgorithm {
         ];
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        await toot_1.default.setDependentProps(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
+        await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
@@ -379,7 +379,8 @@ class TheAlgorithm {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         }
         else if (logPrefix == log_helpers_1.TRIGGER_FEED) {
-            this.loadingStatus = `new toots since ${(0, time_helpers_1.timeString)(this.mostRecentHomeTootAt())}`;
+            const mostRecentAt = this.mostRecentHomeTootAt();
+            this.loadingStatus = `new toots` + (mostRecentAt ? ` since ${(0, time_helpers_1.timeString)(mostRecentAt)}` : '');
         }
         else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;

@@ -52,19 +52,19 @@ export interface PropertyFilterArgs extends FilterArgs {
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: TypeFilters = {
-    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
-    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
-    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.LINKS]:             (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
-    [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
-    [TypeFilterName.POLLS]:             (toot) => !!toot.realToot().poll,
+    [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
+    [TypeFilterName.FOLLOWED_HASHTAGS]:     (toot) => !!toot.realToot().followedTags?.length,
+    [TypeFilterName.LINKS]:                 (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [TypeFilterName.MENTIONS]:              (toot) => toot.containsUserMention(),
+    [TypeFilterName.POLLS]:                 (toot) => !!toot.realToot().poll,
     [TypeFilterName.PARTICIPATED_HASHTAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot().inReplyToId,
-    [TypeFilterName.REPOSTS]:           (toot) => !!toot.reblog,
-    [TypeFilterName.SENSITIVE]:         (toot) => !!toot.sensitive,
-    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
-    [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot().trendingLinks?.length,
-    [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot().trendingRank,
+    [TypeFilterName.REPLIES]:               (toot) => !!toot.realToot().inReplyToId,
+    [TypeFilterName.REPOSTS]:               (toot) => !!toot.reblog,
+    [TypeFilterName.SENSITIVE]:             (toot) => !!toot.sensitive,
+    [TypeFilterName.TRENDING_HASHTAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
+    [TypeFilterName.TRENDING_LINKS]:        (toot) => !!toot.realToot().trendingLinks?.length,
+    [TypeFilterName.TRENDING_TOOTS]:        (toot) => !!toot.realToot().trendingRank,
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS

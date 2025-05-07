@@ -195,7 +195,7 @@ class TheAlgorithm {
 
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        await Toot.setDependentProps(this.feed, TRIGGER_FEED + " DEEP", true);
+        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
@@ -407,7 +407,8 @@ class TheAlgorithm {
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         } else if (logPrefix == TRIGGER_FEED) {
-            this.loadingStatus = `new toots since ${timeString(this.mostRecentHomeTootAt())}`;
+            const mostRecentAt = this.mostRecentHomeTootAt();
+            this.loadingStatus = `new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
         } else {
             this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }

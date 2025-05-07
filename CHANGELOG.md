@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.29.0
+## v0.29.0
 * Defer processing of the most expensive Toot properties (trendingLinks, mostly, but other tag stuff too) until all data has arrived
 * `fetchHomeFeed()` now infers the `maxTootedAt` param from the cached `HOME_TIMELINE` toots
 * New private property `TheAlgorithm.homeFeed: Toot[]`
