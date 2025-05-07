@@ -56,11 +56,12 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;  // URL for tag on the user's homeserver
-    endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
-
     private mutexes: ApiMutex;
     private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
+
+    // Helper methods
+    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;  // URL for tag on the user's homeserver
+    endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -120,7 +121,6 @@ export default class MastoApi {
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
             breakIf: async (newStatuses: StatusList, allStatuses: StatusList) => {
-                console.debug(`${logPrefix} breakIf() called with ${newStatuses.length} new statuses, ${allStatuses.length} total`);
                 const oldestTootAt = earliestTootedAt(newStatuses);
 
                 if (!oldestTootAt) {
@@ -143,7 +143,8 @@ export default class MastoApi {
         }) as Toot[];
 
         homeTimelineToots = Toot.dedupeToots([...allNewToots, ...homeTimelineToots], StorageKey.HOME_TIMELINE)
-        console.debug(`${logPrefix} Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}, home feed has ${homeTimelineToots.length} toots)`);
+        let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}`;
+        console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         await Storage.set(StorageKey.HOME_TIMELINE, homeTimelineToots);
         return homeTimelineToots;
     };

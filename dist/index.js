@@ -289,10 +289,9 @@ class TheAlgorithm {
             console.log(`${poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
             return;
         }
-        console.log(`${poller_1.MOAR_DATA_PREFIX} starting data poller...`);
         this.dataPoller = setInterval(async () => {
-            // Force scorers to recompute data, rescore the feed
             const shouldContinue = await (0, poller_1.getMoarData)();
+            // Force scorers to recompute data, rescore the feed
             await this.userData.populate();
             await this.prepareScorers(true);
             await this.scoreAndFilterFeed();

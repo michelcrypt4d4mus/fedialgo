@@ -1,14 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = void 0;
 /*
  * Helpers for time-related operations
  */
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
-exports.SECONDS_IN_MINUTE = 60;
-exports.SECONDS_IN_HOUR = 3600;
-exports.SECONDS_IN_DAY = 86400;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
 const DEFAULT_LOCALE = "en-GB";
@@ -25,7 +22,7 @@ function ageInSeconds(date) {
 exports.ageInSeconds = ageInSeconds;
 ;
 function ageInMinutes(date) {
-    return ageInSeconds(date) / exports.SECONDS_IN_MINUTE;
+    return ageInSeconds(date) / 60.0;
 }
 exports.ageInMinutes = ageInMinutes;
 ;

@@ -59,10 +59,11 @@ class MastoApi {
     homeDomain;
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
-    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`; // URL for tag on the user's homeserver
-    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
+    // Helper methods
+    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`; // URL for tag on the user's homeserver
+    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
@@ -115,7 +116,6 @@ class MastoApi {
             maxRecords: maxRecords,
             skipCache: true,
             breakIf: async (newStatuses, allStatuses) => {
-                console.debug(`${logPrefix} breakIf() called with ${newStatuses.length} new statuses, ${allStatuses.length} total`);
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(newStatuses);
                 if (!oldestTootAt) {
                     console.warn(`${logPrefix} No new statuses in page, stopping fetch`);
@@ -134,7 +134,8 @@ class MastoApi {
             }
         });
         homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], types_1.StorageKey.HOME_TIMELINE);
-        console.debug(`${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}, home feed has ${homeTimelineToots.length} toots)`);
+        let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
+        console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         await Storage_1.default.set(types_1.StorageKey.HOME_TIMELINE, homeTimelineToots);
         return homeTimelineToots;
     }

@@ -4,9 +4,6 @@
 import { Config } from "../config";
 import { NULL, quote} from "./string_helpers";
 
-export const SECONDS_IN_MINUTE = 60;
-export const SECONDS_IN_HOUR = 3600;
-export const SECONDS_IN_DAY = 86400;
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
 const DEFAULT_LOCALE = "en-GB";
@@ -26,7 +23,7 @@ export function ageInSeconds(date: Date | number | string | null): number {
 
 
 export function ageInMinutes(date: Date | number | string | null): number {
-    return ageInSeconds(date) / SECONDS_IN_MINUTE;
+    return ageInSeconds(date) / 60.0;
 };
 
 

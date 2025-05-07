@@ -1,6 +1,3 @@
-export declare const SECONDS_IN_MINUTE = 60;
-export declare const SECONDS_IN_HOUR = 3600;
-export declare const SECONDS_IN_DAY = 86400;
 export declare function ageInSeconds(date: Date | number | string | null): number;
 export declare function ageInMinutes(date: Date | number | string | null): number;
 export declare function ageString(date: Date | number | string | null): string;

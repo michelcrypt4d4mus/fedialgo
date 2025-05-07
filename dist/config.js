@@ -6,7 +6,8 @@ exports.SCORERS_CONFIG = exports.Config = void 0;
  */
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
-const time_helpers_1 = require("./helpers/time_helpers");
+// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
+const SECONDS_IN_HOUR = 3600;
 const DEFAULT_LANGUAGE = "en";
 // App level config that is not user configurable
 exports.Config = {
@@ -22,20 +23,20 @@ exports.Config = {
     scoringBatchSize: 100,
     staleDataDefaultSeconds: 10 * 60,
     staleDataSeconds: {
-        [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FOLLOWED_TAGS]: 4 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.POPULAR_SERVERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * time_helpers_1.SECONDS_IN_HOUR,
-        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
+        [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.FOLLOWED_TAGS]: 4 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.POPULAR_SERVERS]: 24 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * SECONDS_IN_HOUR,
+        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 0.25 * SECONDS_IN_HOUR,
     },
     timelineDecayExponent: 1.2,
     // Participated tags
@@ -43,7 +44,7 @@ exports.Config = {
     numParticipatedTagToots: 150,
     numParticipatedTagTootsPerTag: 5,
     // API stuff
-    backgroundLoadIntervalSeconds: 0.25 * time_helpers_1.SECONDS_IN_HOUR,
+    backgroundLoadIntervalSeconds: 0.25 * SECONDS_IN_HOUR,
     defaultRecordsPerPage: 40,
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,
@@ -176,6 +177,7 @@ exports.Config = {
 };
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
+    exports.Config.backgroundLoadIntervalSeconds = 120;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.maxCachedTimelineToots = 700;
@@ -259,4 +261,20 @@ exports.SCORERS_CONFIG = {
         description: "Favour video attachments",
     },
 };
+function validateConfig(cfg) {
+    // Check that all the values are valid
+    Object.entries(cfg).forEach(([key, value]) => {
+        if (typeof value === "object") {
+            validateConfig(value);
+        }
+        else if (typeof value == "number" && isNaN(value)) {
+            const msg = `Config value at ${key} is NaN`;
+            console.error(msg);
+            throw new Error(msg);
+        }
+    });
+}
+;
+console.debug(`[Config] Validating config:`, exports.Config);
+validateConfig(exports.Config);
 //# sourceMappingURL=config.js.map

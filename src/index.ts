@@ -305,12 +305,10 @@ class TheAlgorithm {
             return;
         }
 
-        console.log(`${MOAR_DATA_PREFIX} starting data poller...`);
-
         this.dataPoller = setInterval(
             async () => {
-                // Force scorers to recompute data, rescore the feed
                 const shouldContinue = await getMoarData();
+                // Force scorers to recompute data, rescore the feed
                 await this.userData.populate();
                 await this.prepareScorers(true);
                 await this.scoreAndFilterFeed();

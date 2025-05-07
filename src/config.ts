@@ -3,13 +3,15 @@
  */
 import { isDebugMode } from "./helpers/environment_helpers";
 import { ScorerDict, StorageKey, WeightName } from "./types";
-import { SECONDS_IN_HOUR, SECONDS_IN_MINUTE } from "./helpers/time_helpers";
 
+
+// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
+const SECONDS_IN_HOUR = 3_600;
 const DEFAULT_LANGUAGE = "en";
 
 type StaleDataConfig = {
     [key in StorageKey]?: number
-}
+};
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -239,6 +241,7 @@ export const Config: ConfigType = {
 
 // Debug mode settings
 if (isDebugMode) {
+    Config.backgroundLoadIntervalSeconds = 120;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;
     Config.maxCachedTimelineToots = 700;
@@ -324,3 +327,20 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour video attachments",
     },
 };
+
+
+function validateConfig(cfg: ConfigType | object): void {
+    // Check that all the values are valid
+    Object.entries(cfg).forEach(([key, value]) => {
+        if (typeof value === "object") {
+            validateConfig(value);
+        } else if (typeof value == "number" && isNaN(value)) {
+            const msg = `Config value at ${key} is NaN`;
+            console.error(msg);
+            throw new Error(msg);
+        }
+    });
+};
+
+console.debug(`[Config] Validating config:`, Config);
+validateConfig(Config);
