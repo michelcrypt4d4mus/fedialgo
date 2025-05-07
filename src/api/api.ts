@@ -112,7 +112,7 @@ export default class MastoApi {
         const startedAt = new Date();
         let allNewToots: Toot[] = [];
 
-        // getApiRecords() returns Toots that haven't had setDependentProperties() called on them
+        // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
@@ -212,7 +212,7 @@ export default class MastoApi {
     }
 
     // Get the user's recent toots
-    // NOTE: the user's own Toots don't have setDependentProperties() called on them!
+    // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(moar?: boolean): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,

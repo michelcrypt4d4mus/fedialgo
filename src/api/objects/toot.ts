@@ -55,13 +55,14 @@ const UNKNOWN = "unknown";
 
 // Serialized version of a Toot
 export interface SerializableToot extends mastodon.v1.Status {
+    completedAt?: string;              // Timestamp a full deep inspection of the toot was completed
     followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;              // Whether the user follows the account that posted this toot
     reblog?: SerializableToot | null,  // The toot that was retooted (if any)
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
-    sources?: string[];                   // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    sources?: string[];                // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks?: TrendingLink[];    // Links that are trending in this toot
     trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags?: TrendingTag[];      // Tags that are trending in this toot
@@ -122,7 +123,8 @@ export default class Toot implements TootObj {
     text?: string | null;
     url?: string | null;
 
-    // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
+    // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
+    completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
     isFollowed?: boolean;                        // Whether the user follows the account that posted this toot
     participatedTags?: TrendingTag[];            // Array of tags that the user has participated in that exist in this toot
@@ -172,9 +174,10 @@ export default class Toot implements TootObj {
         tootObj.visibility = toot.visibility;
 
         // Unique to fedialgo
-        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
+        tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.isFollowed = toot.isFollowed;
+        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
@@ -468,12 +471,13 @@ export default class Toot implements TootObj {
     // Some properties cannot be repaired and/or set until info about the user is available.
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    private setDependentProperties(
+    private completeProperties(
         userData: UserData,
         trendingLinks: TrendingLink[],
         trendingTags: TrendingTag[],
         isDeepInspect?: boolean
     ): void {
+        if (this.completedAt) return;  // TODO: check age since last completedAt
         const followedTags = Object.values(userData.followedTags);
         this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
@@ -496,6 +500,8 @@ export default class Toot implements TootObj {
             toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
             toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
+
+        if (isDeepInspect) this.completedAt = new Date().toISOString();
     }
 
     ///////////////////////////////
@@ -538,7 +544,7 @@ export default class Toot implements TootObj {
 
         toots = toots.map((tootLike): Toot => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot as Toot;
         });
 

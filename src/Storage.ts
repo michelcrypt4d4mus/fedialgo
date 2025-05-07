@@ -40,7 +40,7 @@ export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
-    // These don't have setDependentProperties, but they are still toots
+    // These don't have completeProperties, but they are still toots
     StorageKey.FAVOURITED_TOOTS,   // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
     StorageKey.RECENT_USER_TOOTS,  // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
 ];

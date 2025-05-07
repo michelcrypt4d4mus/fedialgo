@@ -53,7 +53,7 @@ exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,
-    // These don't have setDependentProperties, but they are still toots
+    // These don't have completeProperties, but they are still toots
     types_1.StorageKey.FAVOURITED_TOOTS,
     types_1.StorageKey.RECENT_USER_TOOTS, // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
 ];

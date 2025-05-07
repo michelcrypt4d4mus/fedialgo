@@ -79,7 +79,8 @@ class Toot {
     reblogged;
     text;
     url;
-    // extensions to mastodon.v1.Status. Most of these are set in setDependentProperties()
+    // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
+    completedAt;
     followedTags; // Array of tags that the user follows that exist in this toot
     isFollowed; // Whether the user follows the account that posted this toot
     participatedTags; // Array of tags that the user has participated in that exist in this toot
@@ -127,9 +128,10 @@ class Toot {
         tootObj.url = toot.url;
         tootObj.visibility = toot.visibility;
         // Unique to fedialgo
-        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
+        tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.isFollowed = toot.isFollowed;
+        tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
@@ -395,7 +397,9 @@ class Toot {
     // Some properties cannot be repaired and/or set until info about the user is available.
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
+    completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
+        if (this.completedAt)
+            return; // TODO: check age since last completedAt
         const followedTags = Object.values(userData.followedTags);
         this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
@@ -418,6 +422,8 @@ class Toot {
             toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
             toot.trendingLinks = []; // Very slow to calculate so skip it unless isDeepInspect is true
         }
+        if (isDeepInspect)
+            this.completedAt = new Date().toISOString();
     }
     ///////////////////////////////
     //       Class methods       //
@@ -453,7 +459,7 @@ class Toot {
         startedAt = new Date();
         toots = toots.map((tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         });
         const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;

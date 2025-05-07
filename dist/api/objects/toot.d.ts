@@ -3,6 +3,7 @@ import Account from "./account";
 import Scorer from "../../scorer/scorer";
 import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TrendingTag } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
+    completedAt?: string;
     followedTags?: MastodonTag[];
     isFollowed?: boolean;
     reblog?: SerializableToot | null;
@@ -63,6 +64,7 @@ export default class Toot implements TootObj {
     reblogged?: boolean | null;
     text?: string | null;
     url?: string | null;
+    completedAt?: string;
     followedTags?: mastodon.v1.Tag[];
     isFollowed?: boolean;
     participatedTags?: TrendingTag[];
@@ -104,7 +106,7 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
-    private setDependentProperties;
+    private completeProperties;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;

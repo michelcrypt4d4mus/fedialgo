@@ -107,7 +107,7 @@ class MastoApi {
         let oldestTootStr = "no oldest toot";
         const startedAt = new Date();
         let allNewToots = [];
-        // getApiRecords() returns Toots that haven't had setDependentProperties() called on them
+        // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
@@ -195,7 +195,7 @@ class MastoApi {
         });
     }
     // Get the user's recent toots
-    // NOTE: the user's own Toots don't have setDependentProperties() called on them!
+    // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(moar) {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
