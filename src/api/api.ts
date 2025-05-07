@@ -102,10 +102,14 @@ export default class MastoApi {
         maxId?: string | number,  // Optional maxId to use to start pagination
     ): Promise<Toot[]> {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
+        let homeTimelineToots = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
+        maxTootedAt ||= mostRecentTootedAt(homeTimelineToots);
         const cutoffAt: Date = mostRecent(timelineCutoffAt(), maxTootedAt ?? null)!;
-        const startedAt = new Date();
+        console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);
+
         let oldestTootStr = "no oldest toot";
-        let allToots: Toot[] = [];
+        const startedAt = new Date();
+        let allNewToots: Toot[] = [];
 
         // getApiRecords() returns Toots that haven't had setDependentProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
@@ -128,7 +132,7 @@ export default class MastoApi {
                 console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
                 const newToots = await Toot.buildToots(newStatuses, StorageKey.HOME_TIMELINE);
                 await mergeTootsToFeed(newToots, logPrefix);
-                allToots = allToots.concat(newToots)
+                allNewToots = allNewToots.concat(newToots)
 
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
                 if (oldestTootAt < cutoffAt) {
@@ -138,9 +142,10 @@ export default class MastoApi {
             }
         }) as Toot[];
 
-        console.debug(`${logPrefix} Fetched ${allToots.length} total toots ${ageString(startedAt)} (${oldestTootStr})`);
-        await Storage.set(StorageKey.HOME_TIMELINE, allToots);  // TODO: make use of this cache?
-        return allToots;
+        homeTimelineToots = Toot.dedupeToots([...allNewToots, ...homeTimelineToots], StorageKey.HOME_TIMELINE)
+        console.debug(`${logPrefix} Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}, home feed has ${homeTimelineToots.length} toots)`);
+        await Storage.set(StorageKey.HOME_TIMELINE, homeTimelineToots);
+        return homeTimelineToots;
     };
 
     async getBlockedAccounts(): Promise<Account[]> {

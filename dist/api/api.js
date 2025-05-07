@@ -99,10 +99,13 @@ class MastoApi {
     async fetchHomeFeed(mergeTootsToFeed, maxRecords, maxTootedAt, // Home timeline most recent toot date
     maxId) {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
+        let homeTimelineToots = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
+        maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
         const cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), maxTootedAt ?? null);
-        const startedAt = new Date();
+        console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
         let oldestTootStr = "no oldest toot";
-        let allToots = [];
+        const startedAt = new Date();
+        let allNewToots = [];
         // getApiRecords() returns Toots that haven't had setDependentProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords({
@@ -122,7 +125,7 @@ class MastoApi {
                 console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
                 const newToots = await toot_1.default.buildToots(newStatuses, types_1.StorageKey.HOME_TIMELINE);
                 await mergeTootsToFeed(newToots, logPrefix);
-                allToots = allToots.concat(newToots);
+                allNewToots = allNewToots.concat(newToots);
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
                 if (oldestTootAt < cutoffAt) {
                     console.log(`${logPrefix} Halting fetch (${oldestTootStr} <= cutoff ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)})`);
@@ -130,9 +133,10 @@ class MastoApi {
                 }
             }
         });
-        console.debug(`${logPrefix} Fetched ${allToots.length} total toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr})`);
-        await Storage_1.default.set(types_1.StorageKey.HOME_TIMELINE, allToots); // TODO: make use of this cache?
-        return allToots;
+        homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], types_1.StorageKey.HOME_TIMELINE);
+        console.debug(`${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}, home feed has ${homeTimelineToots.length} toots)`);
+        await Storage_1.default.set(types_1.StorageKey.HOME_TIMELINE, homeTimelineToots);
+        return homeTimelineToots;
     }
     ;
     async getBlockedAccounts() {

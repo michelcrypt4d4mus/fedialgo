@@ -33,10 +33,9 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG } from './config';
-import { DEFAULT_WEIGHTS } from './scorer/weight_presets';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -90,6 +89,7 @@ class TheAlgorithm {
     private setTimelineInApp: (feed: Toot[]) => void;  // Optional callback to set the feed in the app using this package
     // Other private variables
     private feed: Toot[] = [];
+    private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
     private dataPoller?: ReturnType<typeof setInterval>;
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
@@ -176,11 +176,8 @@ class TheAlgorithm {
 
         const initialLoads = [
             this.prepareScorers(),
-            MastoApi.instance.fetchHomeFeed(
-                this.lockedMergeTootsToFeed.bind(this),
-                Config.numDesiredTimelineToots,
-                this.mostRecentHomeTootAt()
-            ),
+            MastoApi.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this), Config.numDesiredTimelineToots)
+                .then((homeFeed) => this.homeFeed = homeFeed),
         ];
 
         // Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
@@ -231,7 +228,7 @@ class TheAlgorithm {
 
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt(): Date | null {
-        return mostRecentTootedAt(this.homeTimelineToots());
+        return mostRecentTootedAt(this.homeFeed);
     }
 
     // Update the feed filters and return the newly filtered feed
@@ -299,17 +296,6 @@ class TheAlgorithm {
         }
 
         return filteredFeed;
-    }
-
-    // Filter the feed to only include toots from followed accounts
-    private homeTimelineToots(): Toot[] {
-        const followedAccountToots = this.feed.filter(toot => toot.isFollowed);
-
-        if (!followedAccountToots.length && this.feed.length) {
-            console.warn(`no followed account toots in feed with ${this.feed.length} toots!`);
-        }
-
-        return followedAccountToots;
     }
 
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist

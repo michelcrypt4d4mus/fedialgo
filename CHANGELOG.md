@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* fetchHomeFeed() now infers the maxTootedAt param from the cached HOME_TIMELINE toots
+* New private property TheAlgorithm.homeFeed: Toot[]
 
 ### v0.28.1
 * `UserData.followedTags` is now a `TagNames` dict

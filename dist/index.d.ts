@@ -45,6 +45,7 @@ declare class TheAlgorithm {
     private user;
     private setTimelineInApp;
     private feed;
+    private homeFeed;
     private dataPoller?;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
@@ -68,7 +69,6 @@ declare class TheAlgorithm {
     reset(): Promise<void>;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
-    private homeTimelineToots;
     private launchBackgroundPoller;
     private loadCachedData;
     logWithState(prefix: string, msg: string): void;

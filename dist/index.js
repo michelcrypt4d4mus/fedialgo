@@ -105,6 +105,7 @@ class TheAlgorithm {
     setTimelineInApp; // Optional callback to set the feed in the app using this package
     // Other private variables
     feed = [];
+    homeFeed = []; // Just the toots pulled from the home timeline
     dataPoller;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     loadStartedAt = null; // Timestamp of when the feed started loading
@@ -177,7 +178,8 @@ class TheAlgorithm {
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const initialLoads = [
             this.prepareScorers(),
-            api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this), config_1.Config.numDesiredTimelineToots, this.mostRecentHomeTootAt()),
+            api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this), config_1.Config.numDesiredTimelineToots)
+                .then((homeFeed) => this.homeFeed = homeFeed),
         ];
         // Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await new Promise(r => setTimeout(r, config_1.Config.hashtagTootRetrievalDelaySeconds * 1000));
@@ -221,7 +223,7 @@ class TheAlgorithm {
     ;
     // Return the timestamp of the most recent toot from followed accounts ONLY
     mostRecentHomeTootAt() {
-        return (0, toot_1.mostRecentTootedAt)(this.homeTimelineToots());
+        return (0, toot_1.mostRecentTootedAt)(this.homeFeed);
     }
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters) {
@@ -280,14 +282,6 @@ class TheAlgorithm {
             (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
         }
         return filteredFeed;
-    }
-    // Filter the feed to only include toots from followed accounts
-    homeTimelineToots() {
-        const followedAccountToots = this.feed.filter(toot => toot.isFollowed);
-        if (!followedAccountToots.length && this.feed.length) {
-            console.warn(`no followed account toots in feed with ${this.feed.length} toots!`);
-        }
-        return followedAccountToots;
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
