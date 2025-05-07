@@ -576,6 +576,8 @@ export default class Toot implements TootObj {
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
         const startedAt = new Date();
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
+        // Then there's nothing to dedupe
+        if (Object.keys(tootsByURI).length == toots.length) return toots;
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).

@@ -483,6 +483,9 @@ class Toot {
     static dedupeToots(toots, logLabel) {
         const startedAt = new Date();
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
+        // Then there's nothing to dedupe
+        if (Object.keys(tootsByURI).length == toots.length)
+            return toots;
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {

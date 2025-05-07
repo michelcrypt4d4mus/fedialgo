@@ -19,7 +19,7 @@ exports.logDebug = logDebug;
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)
         return;
-    console.debug(`[${prefix}] Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`${(0, string_helpers_1.bracket)(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 }
 exports.logTootRemoval = logTootRemoval;
 ;
