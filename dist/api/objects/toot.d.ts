@@ -111,7 +111,7 @@ export default class Toot implements TootObj {
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
-    static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
+    static dedupeToots(toots: Toot[], logPrefix?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
 }
 export declare const tootedAt: (toot: TootLike) => Date;

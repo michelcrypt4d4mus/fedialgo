@@ -353,7 +353,7 @@ class TheAlgorithm {
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
 
-        let msg = `${TELEMETRY} merge ${newToots.length} complete ${ageString(startedAt)}, `;
+        let msg = `${TELEMETRY} merge ${newToots.length} complete ${ageString(startedAt)},`;
         logInfo(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
         this.setLoadingStateVariables(logPrefix);
     }

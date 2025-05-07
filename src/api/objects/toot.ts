@@ -572,9 +572,9 @@ export default class Toot implements TootObj {
         return toots as Toot[];
     }
 
-    // Remove dupes by uniquifying on the toot's URI
-    static dedupeToots(toots: Toot[], logLabel?: string): Toot[] {
-        const startedAt = new Date();
+    // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
+    static dedupeToots(toots: Toot[], logPrefix?: string): Toot[] {
+        logPrefix = `${bracket(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
         // Then there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length) return toots;
@@ -614,8 +614,8 @@ export default class Toot implements TootObj {
         });
 
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
-        logTootRemoval(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
-        console.info(`${logLabel} deduped ${toots.length} toots to ${deduped.length} ${ageString(startedAt)}`);
+        logTootRemoval(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
+        // console.info(`${logPrefix} deduped ${toots.length} toots to ${deduped.length} ${ageString(startedAt)}`);
         return deduped;
     };
 

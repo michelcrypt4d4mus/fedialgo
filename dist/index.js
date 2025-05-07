@@ -329,7 +329,7 @@ class TheAlgorithm {
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
-        let msg = `${string_helpers_1.TELEMETRY} merge ${newToots.length} complete ${(0, time_helpers_1.ageString)(startedAt)}, `;
+        let msg = `${string_helpers_1.TELEMETRY} merge ${newToots.length} complete ${(0, time_helpers_1.ageString)(startedAt)},`;
         (0, log_helpers_1.logInfo)(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
         this.setLoadingStateVariables(logPrefix);
     }

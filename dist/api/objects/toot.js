@@ -480,7 +480,8 @@ class Toot {
         return toots;
     }
     // Remove dupes by uniquifying on the toot's URI
-    static dedupeToots(toots, logLabel) {
+    static dedupeToots(toots, logPrefix) {
+        logPrefix = `${(0, string_helpers_1.bracket)(logPrefix || "dedupeToots")} dedupeToots()`;
         const startedAt = new Date();
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Then there's nothing to dedupe
@@ -518,8 +519,8 @@ class Toot {
             });
         });
         const deduped = Object.values(tootsByURI).map(toots => toots[0]);
-        (0, log_helpers_1.logTootRemoval)(logLabel || `dedupeToots`, "duplicate", toots.length - deduped.length, deduped.length);
-        console.info(`${logLabel} deduped ${toots.length} toots to ${deduped.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
+        (0, log_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
+        console.info(`${logPrefix} deduped ${toots.length} toots to ${deduped.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
         return deduped;
     }
     ;
