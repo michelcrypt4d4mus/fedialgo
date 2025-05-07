@@ -464,11 +464,12 @@ class Toot {
         const tootObjs = toots.filter(toot => toot instanceof Toot);
         const numCompletedToots = tootObjs.filter(t => t.completedAt).length;
         const numRecompletingToots = tootObjs.filter(t => t.shouldComplete()).length;
-        toots = toots.map((tootLike) => {
+        const complete = async (tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
-        });
+        };
+        toots = await (0, collection_helpers_1.batchMap)(toots, (t) => complete(t), "completeToots", null, config_1.Config.sleepBetweenCompletionMS);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
         console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);

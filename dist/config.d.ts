@@ -26,6 +26,7 @@ export type ConfigType = {
     maxFollowingAccountsToPull: number;
     mutexWarnSeconds: number;
     reloadFeaturesEveryNthOpen: number;
+    sleepBetweenCompletionMS: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
     staleDataTrendingSeconds: number;

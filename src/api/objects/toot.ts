@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, ageString, toISOFormat } from "../../helpers/time_helpers";
-import { groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -552,11 +552,13 @@ export default class Toot implements TootObj {
         const numCompletedToots = tootObjs.filter(t => t.completedAt).length;
         const numRecompletingToots = tootObjs.filter(t => t.shouldComplete()).length;
 
-        toots = toots.map((tootLike): Toot => {
+        const complete = async (tootLike: TootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot as Toot;
-        });
+        }
+
+        toots = await batchMap(toots, (t) => complete(t), "completeToots", null, Config.sleepBetweenCompletionMS);
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;

@@ -14,7 +14,7 @@ export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
-export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number): Promise<any[]>;
+export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number | null, sleepBetweenMS?: number): Promise<any[]>;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];

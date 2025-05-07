@@ -122,7 +122,7 @@ exports.uniquifyByProp = uniquifyByProp;
 ;
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-async function batchMap(items, fn, label, batchSize) {
+async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
     batchSize ||= config_1.Config.scoringBatchSize;
     const startTime = new Date();
     let results = [];
@@ -130,6 +130,10 @@ async function batchMap(items, fn, label, batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults];
+        if (sleepBetweenMS) {
+            console.debug(`[${label || 'batchMap'}] batchMap() Sleeping for ${sleepBetweenMS}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
+        }
         // if (label) {
         //     console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
         // }

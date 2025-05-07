@@ -142,7 +142,8 @@ export async function batchMap<T>(
     items: Array<T>,
     fn: (item: T) => Promise<any>,
     label?: string,
-    batchSize?: number,
+    batchSize?: number | null,
+    sleepBetweenMS?: number
 ): Promise<any[]> {
     batchSize ||= Config.scoringBatchSize;
     const startTime = new Date();
@@ -152,6 +153,11 @@ export async function batchMap<T>(
         const end = start + batchSize > items.length ? items.length : start + batchSize;
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults]
+
+        if (sleepBetweenMS) {
+            console.debug(`[${label || 'batchMap'}] batchMap() Sleeping for ${sleepBetweenMS}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
+        }
 
         // if (label) {
         //     console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
