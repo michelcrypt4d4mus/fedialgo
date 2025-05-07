@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.28.0
 * `Toot.containsString()` also checks the link preview card text
 * Add a `Toot.participatedHashtags` property and corresponding filter
 * Rename `HASHTAG_PARTICIPATION` to `PARTICIPATED_TAGS`; add participated hashtags to `Toot.containsTagMsg()`
