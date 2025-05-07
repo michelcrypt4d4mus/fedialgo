@@ -11,7 +11,7 @@ interface UserApiData {
 }
 export default class UserData {
     followedAccounts: StringNumberDict;
-    followedTags: TrendingTag[];
+    followedTags: TagNames;
     languagesPostedIn: StringNumberDict;
     mutedAccounts: AccountNames;
     participatedHashtags: TagNames;

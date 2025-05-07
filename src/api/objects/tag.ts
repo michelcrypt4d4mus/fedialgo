@@ -3,7 +3,7 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
-import { MastodonTag } from "../../types";
+import { MastodonTag, TagNames } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
@@ -25,4 +25,13 @@ export function repairTag(tag: MastodonTag): MastodonTag {
     }
 
     return tag;
+};
+
+
+// Build a lookup table of tag names to tag objects
+export function buildTagNames(tags: MastodonTag[]): TagNames {
+    return tags.reduce((tagNames: TagNames, tag: MastodonTag) => {
+        tagNames[tag.name] = tag;
+        return tagNames;
+    }, {} as TagNames);
 };

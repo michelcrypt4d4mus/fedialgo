@@ -478,7 +478,7 @@ export default class Toot implements TootObj {
         // TODO: this has an unfortunate side effect that the filters don't work correctly on toots
         // that contain the name of a hashtag without actually containing that hashtag.
         // TootMatcher was updated to make it work while we try this out.
-        toot.followedTags = userData.followedTags.filter(tag => toot.containsString(tag.name));
+        toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
         // Note this uses containsTag() unlike followedTags which uses containsString()
         toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
         toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));

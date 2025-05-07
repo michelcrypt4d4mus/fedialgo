@@ -7,6 +7,7 @@ const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
+const tag_1 = require("./objects/tag");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
@@ -17,7 +18,7 @@ const SORT_TAGS_BY = [
 ;
 class UserData {
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
-    followedTags = [];
+    followedTags = {};
     languagesPostedIn = {};
     mutedAccounts = {};
     participatedHashtags = {};
@@ -27,7 +28,7 @@ class UserData {
     static buildFromData(data) {
         const userData = new UserData();
         userData.followedAccounts = account_1.default.buildWebfingerUriLookup(data.followedAccounts);
-        userData.followedTags = data.followedTags;
+        userData.followedTags = (0, tag_1.buildTagNames)(data.followedTags);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
@@ -57,7 +58,7 @@ class UserData {
             api_1.default.instance.getServerSideFilters(),
         ]);
         this.followedAccounts = account_1.default.buildWebfingerUriLookup(responses[0]);
-        this.followedTags = responses[1];
+        this.followedTags = (0, tag_1.buildTagNames)(responses[1]);
         this.mutedAccounts = account_1.default.buildAccountNames(responses[2]);
         this.participatedHashtags = responses[3];
         this.serverSideFilters = responses[4];
