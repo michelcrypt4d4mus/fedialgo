@@ -373,7 +373,7 @@ class MastoApi {
             for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
-                const shouldStop = await breakIf(page, rows);
+                const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
                 const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
                 if (rows.length >= maxRecords || shouldStop) {
                     (0, log_helpers_1.traceLog)(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);

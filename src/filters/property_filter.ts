@@ -124,6 +124,8 @@ export default class PropertyFilter extends TootFilter {
         if (title == PropertyName.SERVER_SIDE_FILTERS) {
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
+        } else if (this.title = PropertyName.APP) {
+            this.visible = Config.isAppFilterVisible;
         }
     }
 

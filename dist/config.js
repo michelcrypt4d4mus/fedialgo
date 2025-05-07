@@ -74,6 +74,8 @@ exports.Config = {
     numTrendingTagsToots: 200,
     // Trending toots
     numTrendingTootsPerServer: 30,
+    // Demo app GUI stuff
+    isAppFilterVisible: false,
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough
     // servers to make for a good set of trending toots and hashtags.
     // Culled from https://mastodonservers.net and https://joinmastodon.org/

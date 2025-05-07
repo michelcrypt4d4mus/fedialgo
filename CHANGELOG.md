@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add `Config.isAppFilterVisible` boolean
 
 ## v0.29.0
 * Defer processing of the most expensive Toot properties (trendingLinks, mostly, but other tag stuff too) until all data has arrived

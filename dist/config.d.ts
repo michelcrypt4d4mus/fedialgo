@@ -45,6 +45,7 @@ export type ConfigType = {
     foreignLanguageServers: Record<string, string[]>;
     noMauServers: string[];
     noTrendingLinksServers: string[];
+    isAppFilterVisible: boolean;
 };
 export declare const Config: ConfigType;
 export declare const SCORERS_CONFIG: ScorerDict;

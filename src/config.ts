@@ -64,6 +64,8 @@ export type ConfigType = {
     foreignLanguageServers: Record<string, string[]>;
     noMauServers: string[];
     noTrendingLinksServers: string[];
+    // Demo app GUI stuff
+    isAppFilterVisible: boolean;
 };
 
 
@@ -136,6 +138,9 @@ export const Config: ConfigType = {
     numTrendingTagsToots: 200,           // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
     numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
+
+    // Demo app GUI stuff
+    isAppFilterVisible: false,                // 99% of toots don't have the app field set so don't show the filter section
 
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough
     // servers to make for a good set of trending toots and hashtags.

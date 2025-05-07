@@ -411,7 +411,7 @@ export default class MastoApi {
             for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
-                const shouldStop = await breakIf(page, rows);
+                const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
                 const recordsSoFar = `have ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || shouldStop) {
