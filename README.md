@@ -124,7 +124,7 @@ Current "trending" fediverse data can be accessed at `algorithm.trendingData`. S
 algorithm.trendingData.links.foreach((link) => console.log(`Link '${link.uri}' tooted by ${link.numAccounts} accounts`));
 
 // Trending tags
-algorithm.trendingData.links.foreach((tag) => console.log(`Tag '${tag.name}' tooted by ${tag.numAccounts} accounts`));
+algorithm.trendingData.tags.foreach((tag) => console.log(`Tag '${tag.name}' tooted by ${tag.numAccounts} accounts`));
 
 // Trending toots
 algorithm.trendingData.toots.foreach((toot) => console.log(`Trending toot w/rank ${toot.trendingRank}: '${toot.describe()}'`));

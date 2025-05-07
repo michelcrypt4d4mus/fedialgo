@@ -171,7 +171,7 @@ export default class Storage {
     }
 
     // Get trending tags, toots, and links as a single TrendingStorage object
-    static async getTrending(): Promise<TrendingStorage> {
+    static async getTrendingData(): Promise<TrendingStorage> {
         return {
             links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
@@ -290,14 +290,14 @@ export default class Storage {
                 return value.map((t) => plainToInstance(Account, t));
             } else {
                 warn(`Expected array of accounts at key "${key}", but got:`, value);
-                return value;
+                return plainToInstance(Account, value);
             }
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             if (Array.isArray(value)) {
                 return value.map((t) => plainToInstance(Toot, t));
             } else {
                 warn(`Expected array of toots at key "${key}", but got:`, value);
-                return value;
+                return plainToInstance(Toot, value);
             }
         } else {
             return value;

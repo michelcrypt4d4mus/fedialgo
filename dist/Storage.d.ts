@@ -10,7 +10,7 @@ export default class Storage {
     static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
-    static getTrending(): Promise<TrendingStorage>;
+    static getTrendingData(): Promise<TrendingStorage>;
     static getWeights(): Promise<Weights>;
     static isDataStale(key: StorageKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;

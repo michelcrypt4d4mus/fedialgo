@@ -331,7 +331,7 @@ class TheAlgorithm {
     private async loadCachedData(): Promise<void> {
         this.feed = await Storage.getCoerced<Toot>(StorageKey.TIMELINE);
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
-        this.trendingData = await Storage.getTrending();
+        this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);

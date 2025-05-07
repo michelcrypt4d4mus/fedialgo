@@ -169,7 +169,7 @@ class Storage {
         return filters ? (0, feed_filters_1.buildFiltersFromArgs)(filters) : null;
     }
     // Get trending tags, toots, and links as a single TrendingStorage object
-    static async getTrending() {
+    static async getTrendingData() {
         return {
             links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
             tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
@@ -272,7 +272,7 @@ class Storage {
             }
             else {
                 warn(`Expected array of accounts at key "${key}", but got:`, value);
-                return value;
+                return (0, class_transformer_1.plainToInstance)(account_1.default, value);
             }
         }
         else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
@@ -281,7 +281,7 @@ class Storage {
             }
             else {
                 warn(`Expected array of toots at key "${key}", but got:`, value);
-                return value;
+                return (0, class_transformer_1.plainToInstance)(toot_1.default, value);
             }
         }
         else {

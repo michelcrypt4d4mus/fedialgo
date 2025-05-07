@@ -480,26 +480,26 @@ export default class Toot implements TootObj {
         isDeepInspect?: boolean
     ): void {
         if (!this.shouldComplete()) return;
-        const followedTags = Object.values(userData.followedTags);
 
-        this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
+        this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog) this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-        const toot = this.realToot();
 
-        // Note use of containsTag() instead of containsString() like the other tag arrays.
-        // containsString() matched way too many toots (~80% in my case) and was too slow.
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
+        // Retoots never have their own tags, etc.
+        const toot = this.realToot();
+        const allFollowedTags = Object.values(userData.followedTags);
+        // containsString() matched way too many toots so we use containsTag() for participated tags
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
 
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
         if (isDeepInspect) {
-            toot.followedTags = followedTags.filter(tag => toot.containsString(tag.name));
+            toot.followedTags = allFollowedTags.filter(tag => toot.containsString(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
         } else {
             // Use containsTag() instead of containsString() for speed
-            toot.followedTags = followedTags.filter(tag => toot.containsTag(tag.name));
+            toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag.name));
             toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
             toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
@@ -582,11 +582,12 @@ export default class Toot implements TootObj {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            const firstCompleted = uriToots.find(toot => !!toot.completedAt);
             const firstFollowedTags = uriToots.find(toot => !!toot.followedTags);
-            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
             const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
+            const firstTrendingRankToot = uriToots.find(toot => !!toot.trendingRank);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
@@ -599,15 +600,15 @@ export default class Toot implements TootObj {
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags;
                 // Set various properties to the first toot that has them
-                toot.scoreInfo ??= firstScoredToot?.scoreInfo;
-                toot.trendingLinks ??= firstScoredToot?.trendingLinks;
-                toot.trendingRank ??= firstRankedToot?.trendingRank;
-                toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
+                toot.completedAt ??= firstCompleted?.completedAt;
                 toot.followedTags ??= firstFollowedTags?.followedTags;
+                toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
+                toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
+                toot.trendingRank ??= firstTrendingRankToot?.trendingRank;
 
                 if (toot.reblog) {
-                    toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
+                    toot.reblog.trendingRank ??= firstTrendingRankToot?.trendingRank;
                     toot.reblog.reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
                 }
             });
