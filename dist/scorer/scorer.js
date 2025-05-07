@@ -16,7 +16,7 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
 const SCORE_DIGITS = 3; // Number of digits to display in the alternate score
 const SCORE_MUTEX = new async_mutex_1.Mutex();
-const SCORE_PREFIX = "[scoreToots()]";
+const SCORE_PREFIX = "scoreToots()";
 class Scorer {
     defaultWeight;
     description;

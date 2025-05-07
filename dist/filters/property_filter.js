@@ -45,7 +45,6 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
-    // TODO: unclear if the MENTIONS filter works as expected
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
@@ -91,7 +90,7 @@ class PropertyFilter extends toot_filter_1.default {
         optionInfo ??= {};
         let description;
         if (title == PropertyName.TYPE) {
-            // Set up the default for source filters so something always shows up in the options
+            // Set up the default for type filters so something always shows up in the options
             optionInfo = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         }
@@ -103,8 +102,8 @@ class PropertyFilter extends toot_filter_1.default {
         this.title = title;
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
+        // Server side filters are invisible & inverted by default bc we don't want to show toots including them
         if (title == PropertyName.SERVER_SIDE_FILTERS) {
-            // Server side filters are inverted by default bc we don't want to show toots including them
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
         }
@@ -121,10 +120,9 @@ class PropertyFilter extends toot_filter_1.default {
         this.optionInfo = optionInfo;
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
-        // Server side filters get all the options immediately set to filter out toots that come from trending
-        // and other sources where the user's server configuration is not applied.
+        // Server side filters get all the options immediately set to filter out toots that come
+        // from trending and other sources where the user's server configuration is not applied.
         if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
-            // console.log(`Setting options for ${this.title} to:`, optionInfo);
             this.validValues = Object.keys(optionInfo);
         }
     }

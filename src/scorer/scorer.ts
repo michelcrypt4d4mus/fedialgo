@@ -16,8 +16,10 @@ import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "..
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
-const SCORE_PREFIX = "[scoreToots()]";
+const SCORE_PREFIX = "scoreToots()";
+
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
+type AlternateScoreDict = Record<string, number | ScoreDisplayDict>
 
 
 export default abstract class Scorer {
@@ -104,7 +106,7 @@ export default abstract class Scorer {
     }
 
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
-    static alternateScoreInfo(toot: Toot): Record<string, number | ScoreDisplayDict> {
+    static alternateScoreInfo(toot: Toot): AlternateScoreDict {
         if (!toot.scoreInfo) return {};
 
         return Object.entries(toot.scoreInfo).reduce(
@@ -135,8 +137,8 @@ export default abstract class Scorer {
 
                 return scoreDict;
             },
-            {} as Record<string, number | ScoreDisplayDict>
-        )
+            {} as AlternateScoreDict
+        );
     }
 
     // Add all the score info to a Toot's scoreInfo property
