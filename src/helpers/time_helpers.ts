@@ -1,12 +1,13 @@
 /*
  * Helpers for time-related operations
  */
-import { Config } from "../config";
+import { Config, DEFAULT_LOCALE, SECONDS_IN_HOUR } from "../config";
 import { NULL, quote} from "./string_helpers";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-const DEFAULT_LOCALE = "en-GB";
+const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
+const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 
 
 // Compute the difference from 'date' to now in seconds.
@@ -79,7 +80,14 @@ export const timeString = (_timestamp: Date | string | null, locale?: string): s
     if (_timestamp == null) return NULL;
     locale ||= DEFAULT_LOCALE;
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
-    let str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    let str: string;
+
+    if (ageInSeconds(timestamp) < (SECONDS_IN_DAY * 6)) {
+        str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    } else {
+        str = timestamp.toLocaleDateString(locale);
+    }
+
     str += ` ${timestamp.toLocaleTimeString(locale)}`;
     // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
@@ -95,6 +103,6 @@ export function nowString(): string {
 
 // Return the oldest timestamp we should feed timeline toots until
 export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = Config.maxTimelineHoursToFetch * 3600 * 1000;
+    const timelineLookBackMS = Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
     return new Date(Date.now() - timelineLookBackMS);
 };

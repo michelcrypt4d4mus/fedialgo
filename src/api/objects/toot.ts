@@ -12,7 +12,7 @@ import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
-import { ageInSeconds, ageString, toISOFormat } from "../../helpers/time_helpers";
+import { ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
@@ -321,14 +321,17 @@ export default class Toot implements TootObj {
         } else if (this.reblog?.muted || this.muted) {
             traceLog(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
-        } if (Date.now() < this.tootedAt().getTime()) {
+        } else if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
             console.warn(`Removing toot with future timestamp:`, this);
             return false;
-        } if (this.filtered?.length) {
+        } else if (this.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
             traceLog(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            return false;
+        } else if (this.tootedAt() < timelineCutoffAt()) {
+            console.debug(`Removing toot older than ${timelineCutoffAt()}:`, this.tootedAt());
             return false;
         }
 

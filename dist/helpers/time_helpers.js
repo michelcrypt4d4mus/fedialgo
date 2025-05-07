@@ -8,7 +8,8 @@ const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-const DEFAULT_LOCALE = "en-GB";
+const SECONDS_IN_DAY = 24 * config_1.SECONDS_IN_HOUR;
+const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date) {
@@ -77,9 +78,15 @@ exports.quotedISOFmt = quotedISOFmt;
 const timeString = (_timestamp, locale) => {
     if (_timestamp == null)
         return string_helpers_1.NULL;
-    locale ||= DEFAULT_LOCALE;
+    locale ||= config_1.DEFAULT_LOCALE;
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
-    let str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    let str;
+    if (ageInSeconds(timestamp) < (SECONDS_IN_DAY * 6)) {
+        str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    }
+    else {
+        str = timestamp.toLocaleDateString(locale);
+    }
     str += ` ${timestamp.toLocaleTimeString(locale)}`;
     // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
@@ -94,7 +101,7 @@ exports.nowString = nowString;
 ;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.Config.maxTimelineHoursToFetch * 3600 * 1000;
+    const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
     return new Date(Date.now() - timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;

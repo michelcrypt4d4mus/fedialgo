@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add a check for `LOAD_TEST=true` env var that dramatically bumps up the number of toots to retrieve
+* Rename Config.maxTimelineDaysToFetch (was hours increment), add age check to Toot.isValidForFeed()
 
 ### v0.29.1
 * Add `Config.isAppFilterVisible` boolean

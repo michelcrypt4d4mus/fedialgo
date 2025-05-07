@@ -1,4 +1,8 @@
 import { ScorerDict, StorageKey } from "./types";
+export declare const SECONDS_IN_HOUR = 3600;
+export declare const DEFAULT_LOCALE = "en-CA";
+export declare const DEFAULT_LANGUAGE: string;
+export declare const DEFAULT_COUNTRY: string;
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };
@@ -9,7 +13,7 @@ export type ConfigType = {
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
-    maxTimelineHoursToFetch: number;
+    maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;

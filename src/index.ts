@@ -33,7 +33,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInSeconds, ageString, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG } from './config';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
@@ -349,6 +349,7 @@ class TheAlgorithm {
     private async _mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
         const numTootsBefore = this.feed.length;  // Good log filter for seeing the issue
         const startedAt = new Date();
+
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();

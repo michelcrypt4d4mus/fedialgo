@@ -257,15 +257,19 @@ class Toot {
             (0, log_helpers_1.traceLog)(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
-        if (Date.now() < this.tootedAt().getTime()) {
+        else if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
             console.warn(`Removing toot with future timestamp:`, this);
             return false;
         }
-        if (this.filtered?.length) {
+        else if (this.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
             (0, log_helpers_1.traceLog)(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            return false;
+        }
+        else if (this.tootedAt() < (0, time_helpers_1.timelineCutoffAt)()) {
+            console.debug(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
             return false;
         }
         return true;

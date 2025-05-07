@@ -5,13 +5,15 @@ import { isDebugMode, isLoadTest } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
-const SECONDS_IN_HOUR = 3_600;
-const DEFAULT_LANGUAGE = "en";
+export const SECONDS_IN_HOUR = 3_600;
+export const DEFAULT_LOCALE = "en-CA";
+export const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
+export const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
+
 
 type StaleDataConfig = {
     [key in StorageKey]?: number
 };
-
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -22,7 +24,7 @@ export type ConfigType = {
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
     maxCachedTimelineToots: number;
-    maxTimelineHoursToFetch: number;
+    maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;
     scoringBatchSize: number;
     staleDataDefaultSeconds: number;
@@ -81,7 +83,7 @@ export const Config: ConfigType = {
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
-    maxTimelineHoursToFetch: 168,           // Maximum length of time to pull timeline toots for
+    maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     numDesiredTimelineToots: 700,           // How many home timeline toots to start with
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
