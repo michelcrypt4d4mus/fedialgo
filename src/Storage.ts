@@ -34,6 +34,7 @@ import {
 export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
     StorageKey.HASHTAG_TOOTS,
+    StorageKey.HOME_TIMELINE,
     StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,

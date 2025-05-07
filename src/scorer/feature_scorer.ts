@@ -27,12 +27,12 @@ export default abstract class FeatureScorer extends Scorer {
             this.scoreData = {};
         }
 
-        this.isReady = true;
-        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
-
         if (Object.values(this.scoreData).length > 0) {
+            const msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
             console.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
+
+        this.isReady = true;
     }
 
     // Can be overloaded in subclasses to set up any data required for scoring Toots

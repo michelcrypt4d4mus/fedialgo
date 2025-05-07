@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -35,6 +35,19 @@ function ageString(date) {
     return `in ${seconds.toFixed(1)} seconds`;
 }
 exports.ageString = ageString;
+;
+function mostRecent(...args) {
+    let mostRecentDate = null;
+    for (const arg of args) {
+        if (arg == null)
+            continue;
+        if (mostRecentDate == null || arg > mostRecentDate) {
+            mostRecentDate = arg;
+        }
+    }
+    return mostRecentDate;
+}
+exports.mostRecent = mostRecent;
 ;
 // To the format YYYY-MM-DDTHH:MM:SSZ
 function toISOFormat(date, withMilliseconds) {

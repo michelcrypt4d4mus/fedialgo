@@ -37,6 +37,21 @@ export function ageString(date: Date | number | string | null): string {
 };
 
 
+export function mostRecent(...args: (Date | null)[]): Date | null {
+    let mostRecentDate: Date | null = null;
+
+    for (const arg of args) {
+        if (arg == null) continue;
+
+        if (mostRecentDate == null || arg > mostRecentDate) {
+            mostRecentDate = arg;
+        }
+    }
+
+    return mostRecentDate;
+};
+
+
 // To the format YYYY-MM-DDTHH:MM:SSZ
 export function toISOFormat(date: Date | string | null | undefined, withMilliseconds?: boolean): string {
     let isoString: string;

@@ -13,7 +13,7 @@ exports.Config = {
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
     // Timeline toots
-    hashtagTootRetrievalDelaySeconds: 15,
+    hashtagTootRetrievalDelaySeconds: 5,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     maxCachedTimelineToots: 1600,
@@ -176,7 +176,7 @@ exports.Config = {
 };
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.hashtagTootRetrievalDelaySeconds = 6;
+    exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;

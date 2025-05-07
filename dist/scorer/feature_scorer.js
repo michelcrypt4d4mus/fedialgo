@@ -27,11 +27,11 @@ class FeatureScorer extends scorer_1.default {
             console.error(`${this.logPrefix()} Error in prepareScoreData():`, e);
             this.scoreData = {};
         }
-        this.isReady = true;
-        let msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
         if (Object.values(this.scoreData).length > 0) {
+            const msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
             console.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
+        this.isReady = true;
     }
     // Can be overloaded in subclasses to set up any data required for scoring Toots
     async prepareScoreData() {

@@ -48,6 +48,7 @@ const types_1 = require("./types");
 exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
     types_1.StorageKey.HASHTAG_TOOTS,
+    types_1.StorageKey.HOME_TIMELINE,
     types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,

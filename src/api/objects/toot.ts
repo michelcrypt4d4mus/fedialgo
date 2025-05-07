@@ -308,12 +308,12 @@ export default class Toot implements TootObj {
             return false;
         } if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-            console.warn(`Removed toot with future timestamp:`, this);
+            console.warn(`Removing toot with future timestamp:`, this);
             return false;
         } if (this.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
-            traceLog(`Removed toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            traceLog(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
 
@@ -459,7 +459,7 @@ export default class Toot implements TootObj {
     // Some properties cannot be repaired and/or set until info about the user is available
     private setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
-        if (this.followedTags && this.trendingTags) return;
+        // if (this.followedTags && this.trendingTags) return;
 
         // console.debug(`Checking if ${this.account.webfingerURI} is among ${Object.keys(userData.followedAccounts).length} followed accounts:`, Object.keys(userData.followedAccounts).sort());
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
@@ -476,7 +476,7 @@ export default class Toot implements TootObj {
 
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
+            // traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }
@@ -489,12 +489,13 @@ export default class Toot implements TootObj {
     // Toots returned by this method should have all their properties set correctly.
     // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(
-        statuses: SerializableToot[] | Toot[],
+        statuses: TootLike[],
         source: string,  // Where did these toots come from?
         logPrefix?: string
     ): Promise<Toot[]> {
-        if (statuses.length == 0) return [];
+        if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
+        logPrefix = `[${logPrefix} buildToots()]`
 
         // Fetch all the data we need to set dependent properties
         const userData = await MastoApi.instance.getUserData();
@@ -598,4 +599,14 @@ export const earliestTootedAt = (toots: StatusList): Date | null => {
 export const mostRecentTootedAt = (toots: StatusList): Date | null => {
     const newest = mostRecentToot(toots);
     return newest ? tootedAt(newest) : null;
+};
+
+export const earliestTootedAtStr = (toots: StatusList): string | null => {
+    const earliest = earliestTootedAt(toots);
+    return earliest ? toISOFormat(earliest) : null;
+};
+
+export const mostRecentTootedAtStr = (toots: StatusList): string | null => {
+    const newest = mostRecentTootedAt(toots);
+    return newest ? toISOFormat(newest) : null;
 };

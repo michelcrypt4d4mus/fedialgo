@@ -48,7 +48,7 @@ export enum StorageKey {
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE = 'HomeTimeline',
+    HOME_TIMELINE = 'HomeTimeline',  // Just toots that are in the home timeline (followed accounts + tags)
     MUTED_ACCOUNTS = 'MutedAccounts',
     OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
@@ -56,7 +56,7 @@ export enum StorageKey {
     RECENT_NOTIFICATIONS = 'RecentNotifications',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE = 'Timeline',
+    TIMELINE = 'Timeline',  // The entire time line (home timeline + trending toots etc.)
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
     TOOT_TESTER = 'TootTester',
     USER = 'FedialgoUser',

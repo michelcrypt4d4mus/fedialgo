@@ -87,11 +87,13 @@ export default abstract class Scorer {
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
                 await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
-                // Sort feed based on score from high to low.
-                toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             } finally {
                 releaseMutex();
             }
+
+            // Sort feed based on score from high to low and return
+            console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         } catch (e) {
             if (e == E_CANCELED) {
                 console.debug(`${SCORE_PREFIX} mutex cancellation`);
@@ -100,7 +102,6 @@ export default abstract class Scorer {
             }
         }
 
-        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
         return toots;
     }
 

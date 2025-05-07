@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Massively rework how loading of home timeline toots is accomplished
 
 ### v0.27.1
 * Add a language argument to Algorithm.create() and choose servers for trending toots based on it

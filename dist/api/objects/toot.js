@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.mostRecentTootedAtStr = exports.earliestTootedAtStr = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -253,13 +253,13 @@ class Toot {
         }
         if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-            console.warn(`Removed toot with future timestamp:`, this);
+            console.warn(`Removing toot with future timestamp:`, this);
             return false;
         }
         if (this.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
-            (0, log_helpers_1.traceLog)(`Removed toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            (0, log_helpers_1.traceLog)(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
         return true;
@@ -391,8 +391,7 @@ class Toot {
     // Some properties cannot be repaired and/or set until info about the user is available
     setDependentProperties(userData, trendingLinks, trendingTags) {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
-        if (this.followedTags && this.trendingTags)
-            return;
+        // if (this.followedTags && this.trendingTags) return;
         // console.debug(`Checking if ${this.account.webfingerURI} is among ${Object.keys(userData.followedAccounts).length} followed accounts:`, Object.keys(userData.followedAccounts).sort());
         this.isFollowed = this.account.webfingerURI in userData.followedAccounts;
         if (this.reblog)
@@ -407,7 +406,7 @@ class Toot {
         toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
-            (0, log_helpers_1.traceLog)(`Muting toot from (${this.realAccount().describe()}):`, this);
+            // traceLog(`Muting toot from (${this.realAccount().describe()}):`, this);
             toot.muted = true;
         }
     }
@@ -420,8 +419,9 @@ class Toot {
     static async buildToots(statuses, source, // Where did these toots come from?
     logPrefix) {
         if (statuses.length == 0)
-            return [];
+            return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
+        logPrefix = `[${logPrefix} buildToots()]`;
         // Fetch all the data we need to set dependent properties
         const userData = await api_1.default.instance.getUserData();
         const trendingLinks = await mastodon_server_1.default.fediverseTrendingLinks();
@@ -536,4 +536,14 @@ const mostRecentTootedAt = (toots) => {
     return newest ? (0, exports.tootedAt)(newest) : null;
 };
 exports.mostRecentTootedAt = mostRecentTootedAt;
+const earliestTootedAtStr = (toots) => {
+    const earliest = (0, exports.earliestTootedAt)(toots);
+    return earliest ? (0, time_helpers_1.toISOFormat)(earliest) : null;
+};
+exports.earliestTootedAtStr = earliestTootedAtStr;
+const mostRecentTootedAtStr = (toots) => {
+    const newest = (0, exports.mostRecentTootedAt)(toots);
+    return newest ? (0, time_helpers_1.toISOFormat)(newest) : null;
+};
+exports.mostRecentTootedAtStr = mostRecentTootedAtStr;
 //# sourceMappingURL=toot.js.map

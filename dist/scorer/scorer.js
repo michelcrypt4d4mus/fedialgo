@@ -69,12 +69,13 @@ class Scorer {
                 feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
                 await (0, collection_helpers_1.batchMap)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
-                // Sort feed based on score from high to low.
-                toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
             }
             finally {
                 releaseMutex();
             }
+            // Sort feed based on score from high to low and return
+            console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
+            toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
@@ -84,7 +85,6 @@ class Scorer {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);
             }
         }
-        console.debug(`${SCORE_PREFIX} scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
         return toots;
     }
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)

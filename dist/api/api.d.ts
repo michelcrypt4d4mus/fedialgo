@@ -21,7 +21,8 @@ export default class MastoApi {
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
-    fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]>;
+    fetchHomeFeed(mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>, maxRecords: number, maxTootedAt?: Date | null, // Home timeline most recent toot date
+    maxId?: string | number): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
     getFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;

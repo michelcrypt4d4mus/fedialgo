@@ -12,8 +12,8 @@ import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ageString, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StorageKey } from "../types";
+import { ageString, mostRecent, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
+import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
 import { Config, ConfigType } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
@@ -26,7 +26,7 @@ export const STATUSES = "statuses";
 export const TAGS = "tags";
 
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const DEFAULT_BREAK_IF = (pageOfResults: any[], allResults: any[]) => false;
+const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -44,7 +44,7 @@ interface FetchParams<T> {
     maxRecords?: number,
     skipCache?: boolean,
     skipMutex?: boolean,
-    breakIf?: (pageOfResults: T[], allResults: T[]) => boolean,
+    breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     moar?: boolean,
 };
 
@@ -88,36 +88,59 @@ export default class MastoApi {
         this.requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial);
     };
 
-    // Get the user's home timeline feed (recent toots from followed accounts and hashtags)
-    async fetchHomeFeed(numToots?: number, maxId?: string | number): Promise<Toot[]> {
+    // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
+    // Pagination starts at the most recent toots and goes backwards in time.
+    //    - mergeTootsToFeed: fxn to call to merge the fetched toots into the feed
+    //    - numToots:         maximum number of toots to fetch
+    //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
+    //    - maxId:            optional maxId to start the fetch from
+    // TODO: should probably be a mutex on this...
+    async fetchHomeFeed(
+        mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
+        maxRecords: number,
+        maxTootedAt?: Date | null, // Home timeline most recent toot date
+        maxId?: string | number,  // Optional maxId to use to start pagination
+    ): Promise<Toot[]> {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
-        const cutoffAt = timelineCutoffAt();
+        const cutoffAt: Date = mostRecent(timelineCutoffAt(), maxTootedAt ?? null)!;
         const startedAt = new Date();
+        let oldestTootStr = "no oldest toot";
+        let allToots: Toot[] = [];
 
-        const statuses = await this.getApiRecords<mastodon.v1.Status>({
+        // getApiRecords() returns Toots that haven't had setDependentProperties() called on them
+        // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
+        const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             storageKey: StorageKey.HOME_TIMELINE,
             maxId: maxId,
-            maxRecords: numToots || Config.homeTimelineBatchSize,
+            maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
-            breakIf: (_newPageOfResults, allResults) => {
-                const oldestTootAt = earliestTootedAt(allResults) || new Date();
+            breakIf: async (newStatuses: StatusList, allStatuses: StatusList) => {
+                console.debug(`${logPrefix} breakIf() called with ${newStatuses.length} new statuses, ${allStatuses.length} total`);
+                const oldestTootAt = earliestTootedAt(newStatuses);
 
-                // Break the toot fetching loop if we encounter a toot older than the cutoff date
-                if (oldestTootAt && (oldestTootAt <= cutoffAt)) {
-                    console.log(`${logPrefix} Halting (${quotedISOFmt(oldestTootAt)} <= ${quotedISOFmt(cutoffAt)})`);
+                if (!oldestTootAt) {
+                    console.warn(`${logPrefix} No new statuses in page, stopping fetch`);
                     return true;
                 }
 
-                return false;
+                oldestTootStr = `oldest toot: ${quotedISOFmt(oldestTootAt)}`;
+                console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
+                const newToots = await Toot.buildToots(newStatuses, StorageKey.HOME_TIMELINE);
+                await mergeTootsToFeed(newToots, logPrefix);
+                allToots = allToots.concat(newToots)
+
+                // Break the toot fetching loop if we encounter a toot older than cutoffAt
+                if (oldestTootAt < cutoffAt) {
+                    console.log(`${logPrefix} Halting fetch (${oldestTootStr} <= cutoff ${quotedISOFmt(cutoffAt)})`);
+                    return true;
+                }
             }
         }) as Toot[];
 
-        // In one experiment it took 2.1 seconds to get 80 toos from the API and another 8 seconds to call setDependentProperties(toot)
-        traceLog(`${logPrefix} Fetched ${statuses.length} statuses ${ageString(startedAt)}`);
-        const toots = await Toot.buildToots(statuses, StorageKey.HOME_TIMELINE, logPrefix);
-        traceLog(`${logPrefix} Built ${toots.length} toots ${ageString(startedAt)} (oldest: ${quotedISOFmt(earliestTootedAt(toots))})`);
-        return toots;
+        console.debug(`${logPrefix} Fetched ${allToots.length} total toots ${ageString(startedAt)} (${oldestTootStr})`);
+        await Storage.set(StorageKey.HOME_TIMELINE, allToots);  // TODO: make use of this cache?
+        return allToots;
     };
 
     async getBlockedAccounts(): Promise<Account[]> {
@@ -347,6 +370,7 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(
         fetchParams: FetchParams<T>
     ): Promise<Account[] | Toot[] | MastodonApiObject[]> {
+        // Parameter setup
         let logPfx = `[API ${fetchParams.storageKey}]`;
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= Config.minRecordsForFeatureScoring;
@@ -354,14 +378,8 @@ export default class MastoApi {
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         traceLog(`${logPfx} fetchData() params:`, fetchParams);
 
-        // Skip mutex if label is not a StorageKey (and so not in the mutexes dictionary)
-        // This is for data pulls that are not trying to get at the same data (e.g. running a bunch of searches
-        // for different terms vs. trying to get the user's home timeline, which does require a mutex)
-        const releaseMutex = !skipMutex ? await lockExecution(this.mutexes[label], logPfx) : null;
-        // Trying to put a global semaphore on requests led to thread locks - apparently the searchForToots()
-        // requests are grabbing all the semaphores and something important can't get through.
-        // const [semaphoreNum, releaseSemaphore] = await lockSemaphore(this.requestSemphore, logPfx);
-        // logPfx += ` (semaphore ${semaphoreNum})`;
+        // Skip mutex for requests that aren't trying to get at the same data
+        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[label], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
@@ -372,8 +390,7 @@ export default class MastoApi {
                 const cachedRows = await Storage.getIfNotStale<T[]>(label);
 
                 if (cachedRows) {
-                    // Return cached data unless moar=true
-                    if (!moar) return cachedRows;
+                    if (!moar) return cachedRows;  // Return cached data unless moar=true
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
@@ -384,13 +401,15 @@ export default class MastoApi {
                 };
             }
 
+            // buildParams will coerce maxRecords down to the max per page if it's larger
             for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
+                const shouldStop = await breakIf(page, rows);
                 const recordsSoFar = `have ${rows.length} records so far ${ageString(startedAt)}`;
 
-                if (rows.length >= maxRecords || breakIf(page, rows)) {
-                    traceLog(`${logPfx} Completing fetch at page ${pageNumber} ${recordsSoFar}`);
+                if (rows.length >= maxRecords || shouldStop) {
+                    traceLog(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
                     break;
                 } else {
                     traceLog(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
@@ -401,7 +420,6 @@ export default class MastoApi {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
         } finally {
             releaseMutex?.();
-            // releaseSemaphore();
         }
 
         const objs = MastoApi.buildFromApiObjects(label, rows);
@@ -439,11 +457,15 @@ export default class MastoApi {
     };
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    private buildParams(maxId?: number | string, limit?: number, logPfx?: string): mastodon.DefaultPaginationParams {
-        limit ||= Config.defaultRecordsPerPage;
+    private buildParams(
+        maxId?: number | string,
+        limitPerPage?: number,
+        logPfx?: string
+    ): mastodon.DefaultPaginationParams {
+        limitPerPage ||= Config.defaultRecordsPerPage;
 
         let params: mastodon.DefaultPaginationParams = {
-            limit: Math.min(limit, Config.defaultRecordsPerPage),
+            limit: Math.min(limitPerPage, Config.defaultRecordsPerPage),
         };
 
         if (maxId) params = {...params, maxId: `${maxId}`};
