@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.27.2
 * Massively rework how loading of home timeline toots is accomplished
 
 ### v0.27.1
