@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* UserData.followedTags is now a TagNames dict
+* `UserData.followedTags` is now a `TagNames` dict
 
 # v0.28.0
 * `Toot.containsString()` also checks the link preview card text
