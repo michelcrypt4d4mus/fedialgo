@@ -9,10 +9,6 @@ exports.isDebugMode = process.env.DEBUG === "true";
 exports.isProduction = process.env.NODE_ENV === "production";
 exports.isLoadTest = process.env.LOAD_TEST === "true";
 if (exports.isLoadTest) {
-    console.warn(`[FediAlgo] Load test mode enabled. This is not a production build.`);
+    console.warn(`[FediAlgo] LOAD_TEST=true mode enabled.`);
 }
-else {
-    console.log(`[FediAlgo] Load test mode disabled.`);
-}
-console.info(`[FediAlgo] JUNK_MODE mode:`, process.env.JUNK_MODE);
 //# sourceMappingURL=environment_helpers.js.map
