@@ -467,37 +467,28 @@ class Toot {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
-            // If there's only one too there's no need to collate anything
-            // if (uriToots.length == 1) {
-            //     if (uriToots[0].reblog && uriToots[0].reblog.reblogsBy?.length) {
-            //         uriToots[0].reblog.reblogsBy = uniquifyByProp(uriToots[0].reblogsBy, (acct) => acct.webfingerURI);
-            //     }
-            //     return;
-            // }
-            const isMuted = uriToots.some(toot => toot.muted);
-            const isFollowed = uriToots.some(toot => toot.isFollowed);
-            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
-            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-            const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
             const firstFollowedTags = uriToots.find(toot => !!toot.followedTags);
+            const firstRankedToot = uriToots.find(toot => !!toot.trendingRank);
+            const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
+            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             uriToots.forEach((toot) => {
+                toot.isFollowed = uriToots.some(toot => toot.isFollowed);
+                toot.muted = uriToots.some(toot => toot.muted);
+                toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 // Set all toots to have all trending tags so when we uniquify we catch everything
-                toot.trendingTags = uniqueTrendingTags || [];
-                // Set missing scoreInfo to first scoreInfo we can find (if any)
+                toot.trendingTags = uniqueTrendingTags;
+                // Set various properties to the first toot that has them
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingLinks ??= firstScoredToot?.trendingLinks;
                 toot.trendingRank ??= firstRankedToot?.trendingRank;
                 toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
                 toot.followedTags ??= firstFollowedTags?.followedTags;
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
-                toot.isFollowed = isFollowed;
-                toot.muted = isMuted;
-                toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstRankedToot?.trendingRank;
                     toot.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
