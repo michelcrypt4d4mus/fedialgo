@@ -466,7 +466,15 @@ export default class Toot implements TootObj {
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available
-    private setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[]): void {
+    // TODO: this is slow! in particular all the tag and trendingLink calcs.
+    // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
+    // Without them it's ~0.1 seconds. In particular the trendingLinks are slow!
+    setDependentProperties(
+        userData: UserData,
+        trendingLinks: TrendingLink[],
+        trendingTags: TrendingTag[],
+        deepInspection?: boolean
+    ): void {
         // If trendingTags is set we know setDependentProperties() has already been called on this toot
         // if (this.followedTags && this.trendingTags) return;
 
@@ -475,14 +483,19 @@ export default class Toot implements TootObj {
         const toot = this.realToot();
 
         // Set trendingTags and followedTags properties, trendingLinks
-        // TODO: this has an unfortunate side effect that the filters don't work correctly on toots
-        // that contain the name of a hashtag without actually containing that hashtag.
-        // TootMatcher was updated to make it work while we try this out.
-        toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsString(tag.name));
-        // Note this uses containsTag() unlike followedTags which uses containsString()
         toot.participatedTags = Object.values(userData.participatedHashtags).filter(tag => toot.containsTag(tag));
-        toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-        toot.trendingLinks ??= trendingLinks.filter(link => toot.containsString(link.url));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
+
+        if (deepInspection) {
+            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
+        } else {
+            toot.trendingLinks = [];
+            // Note use of containsString() instead of containsTag(). TOOT_MATCHERS was updated to match
+            toot.followedTags = Object.values(userData.followedTags).filter(tag => toot.containsTag(tag.name));
+            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
+        }
 
         // Set mutes for toots by muted users that came from a source besides our server timeline
         if (!toot.muted && this.realAccount().webfingerURI in userData.mutedAccounts) {
@@ -509,28 +522,11 @@ export default class Toot implements TootObj {
         logPrefix = `[${logPrefix} buildToots()]`;
         const startedAt = new Date();
 
-        // Fetch all the data we need to set dependent properties
-        const userData = await MastoApi.instance.getUserData();
-        const trendingLinks = await MastodonServer.fediverseTrendingLinks();
-        const trendingTags = await MastodonServer.fediverseTrendingTags();
-        const setupAgeStr = ageString(startedAt);
-
-        // Set properties, dedupe, and sort by popularity
-        const setProps = (t: SerializableToot | Toot): Toot => {
-            const toot = (t instanceof Toot ? t : Toot.build(t));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags);
-            toot.sources = [source];
-            return toot;
-        }
-
-        // TODO: async batch is slow so trying to just map it
-        // let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
-        const setDependentStartedAt = new Date();
-        let toots = statuses.map(setProps);
-        console.info(`${logPrefix} setDependentProperties() finished ${ageString(setDependentStartedAt)}`);
+        let toots = await this.setDependentProps(statuses, logPrefix);
+        toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
-        console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)} (data setup ${setupAgeStr})`);
+        console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 
@@ -598,6 +594,29 @@ export default class Toot implements TootObj {
         if (toots.length == 0) return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return sortByCreatedAt(toots)[idx].id;
+    }
+
+    // Set dependent properties for a list of toots
+    static async setDependentProps(statuses: TootLike[], logPrefix: string, deepInspection?: boolean): Promise<Toot[]> {
+        const fetchDataStartedAt = new Date();
+
+        // Fetch all the data we need to set dependent properties
+        const userData = await MastoApi.instance.getUserData();
+        const trendingLinks = deepInspection ? (await MastodonServer.fediverseTrendingLinks()) : [];
+        const trendingTags = await MastodonServer.fediverseTrendingTags();
+        const fetchAgeStr = ageString(fetchDataStartedAt);
+
+        // Set properties, dedupe, and sort by popularity
+        const setProps = (t: SerializableToot | Toot): Toot => {
+            const toot = (t instanceof Toot ? t : Toot.build(t));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags, deepInspection);
+            return toot;
+        }
+
+        const startedAt = new Date();
+        let toots = statuses.map(setProps);
+        console.info(`${logPrefix} setDependentProps() deepInspection=${deepInspection} on ${toots.length} toots ${ageString(startedAt)} (data fetch ${fetchAgeStr})`);
+        return toots;
     }
 };
 
