@@ -240,7 +240,7 @@ class Storage {
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
         debug(`Setting fedialgo user identity to:`, user);
-        await localforage_1.default.setItem(types_1.StorageKey.USER, user.serialize());
+        await localforage_1.default.setItem(types_1.StorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
     }
     static async setWeightings(userWeightings) {
         await this.set(types_1.StorageKey.WEIGHTS, userWeightings);
@@ -302,7 +302,7 @@ class Storage {
     // Get the user identity from storage
     static async getIdentity() {
         const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
-        return user ? account_1.default.build(user) : null;
+        return user ? (0, class_transformer_1.plainToInstance)(account_1.default, user) : null;
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
@@ -321,11 +321,6 @@ class Storage {
     static async secondsSinceLastUpdated(key) {
         const updatedAt = await this.updatedAt(key);
         return updatedAt ? (0, time_helpers_1.ageInSeconds)(updatedAt) : null;
-    }
-    // Generic method for serializing toots to storage
-    static async storeToots(key, toots) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
     }
     static async updatedAt(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);

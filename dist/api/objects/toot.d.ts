@@ -100,7 +100,6 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
-    serialize(): SerializableToot;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;

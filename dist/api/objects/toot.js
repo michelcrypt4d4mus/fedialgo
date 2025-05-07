@@ -303,13 +303,6 @@ class Toot {
         }
         return this.resolvedToot;
     }
-    // Remove fxns so toots can be serialized to browser storage
-    serialize() {
-        const serializableToot = { ...this };
-        serializableToot.account = this.account.serialize();
-        serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
-        return serializableToot;
-    }
     tootedAt() {
         return new Date(this.createdAt);
     }
@@ -483,7 +476,7 @@ class Toot {
     static dedupeToots(toots, logPrefix) {
         logPrefix = `${(0, string_helpers_1.bracket)(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
-        // Then there's nothing to dedupe
+        // If there's the same # of URIs as toots there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length)
             return toots;
         // Collect the properties of a single Toot from all the instances of the same URI (we can

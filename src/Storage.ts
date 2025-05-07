@@ -253,7 +253,7 @@ export default class Storage {
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user: Account) {
         debug(`Setting fedialgo user identity to:`, user);
-        await localForage.setItem(StorageKey.USER, user.serialize());
+        await localForage.setItem(StorageKey.USER, instanceToPlain(user));
     }
 
     static async setWeightings(userWeightings: Weights): Promise<void> {
@@ -317,7 +317,7 @@ export default class Storage {
     // Get the user identity from storage
     private static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(StorageKey.USER);
-        return user ? Account.build(user as mastodon.v1.Account) : null;
+        return user ? plainToInstance(Account, user) : null;
     }
 
     // Get the number of times the app has been opened by this user
@@ -340,12 +340,6 @@ export default class Storage {
     private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
         const updatedAt = await this.updatedAt(key);
         return updatedAt ? ageInSeconds(updatedAt) : null;
-    }
-
-    // Generic method for serializing toots to storage
-    private static async storeToots(key: StorageKey, toots: Toot[]) {
-        const serializedToots = toots.map(t => t.serialize());
-        await this.set(key, serializedToots);
     }
 
     private static async updatedAt(key: StorageKey): Promise<Date | null> {

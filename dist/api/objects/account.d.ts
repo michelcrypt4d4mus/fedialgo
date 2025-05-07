@@ -4,7 +4,6 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
-    serialize?: () => mastodon.v1.Account;
     webfingerURI: string;
 }
 export default class Account implements AccountObj {
@@ -33,14 +32,13 @@ export default class Account implements AccountObj {
     moved?: Account | null;
     suspended?: boolean | null;
     limited?: boolean | null;
-    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[];
+    roles: mastodon.v1.Account["roles"];
     webfingerURI: string;
     static build(account: mastodon.v1.Account): Account;
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;
     homserverURL(): string;
-    serialize(): mastodon.v1.Account;
     private buildWebfingerURI;
     static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict;
     static buildAccountNames(accounts: Account[]): AccountNames;

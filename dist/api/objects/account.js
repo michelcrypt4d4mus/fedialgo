@@ -105,10 +105,6 @@ class Account {
             return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
-    // Strip functions so it can be serialized to local storage
-    serialize() {
-        return { ...this };
-    }
     // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {

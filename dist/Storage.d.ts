@@ -28,7 +28,6 @@ export default class Storage {
     private static getStorableWithTimestamp;
     private static lastOpenedAt;
     private static secondsSinceLastUpdated;
-    private static storeToots;
     private static updatedAt;
     private static secondsSinceMostRecentToot;
 }

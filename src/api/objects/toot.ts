@@ -54,7 +54,7 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const UNKNOWN = "unknown";
 
 
-// Serialized version of a Toot
+// Extension of mastodon.v1.Status data object with additional properties used by fedialgo
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;              // Timestamp a full deep inspection of the toot was completed
     followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
@@ -374,14 +374,6 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
-     // Remove fxns so toots can be serialized to browser storage
-    serialize(): SerializableToot {
-        const serializableToot = {...this} as SerializableToot;
-        serializableToot.account = this.account.serialize();
-        serializableToot.reblogsBy = this.reblogsBy.map((account) => account.serialize());
-        return serializableToot;
-    }
-
     tootedAt(): Date {
         return new Date(this.createdAt);
     }
@@ -576,7 +568,7 @@ export default class Toot implements TootObj {
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[] {
         logPrefix = `${bracket(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
-        // Then there's nothing to dedupe
+        // If there's the same # of URIs as toots there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length) return toots;
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can

@@ -13,7 +13,6 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
-    serialize?: () => mastodon.v1.Account;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
@@ -47,7 +46,7 @@ export default class Account implements AccountObj {
     @Type(() => Account) moved?: Account | null;
     suspended?: boolean | null;
     limited?: boolean | null;
-    roles: Pick<mastodon.v1.Role, "id" | "name" | "color">[] = [];  // TODO: not sure default is a good idea
+    roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
     // Fedialgo extension fields
     webfingerURI!: string;
 
@@ -109,11 +108,6 @@ export default class Account implements AccountObj {
         } else {
             return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
         }
-    }
-
-    // Strip functions so it can be serialized to local storage
-    serialize(): mastodon.v1.Account {
-        return {...this} as mastodon.v1.Account;
     }
 
     // On the local server you just get the username so need to add the server domain

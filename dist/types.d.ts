@@ -67,14 +67,14 @@ export type MastodonInstances = Record<string, MastodonInstance | MastodonInstan
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
-export type StatusList = TootLike[];
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TrendingTag>;
-export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type Weights = Record<WeightName, number>;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = PropertyName | WeightName;
+export type StatusList = TootLike[];
+export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     filterSections: PropertyFilters;
     numericFilters: NumericFilters;
@@ -106,7 +106,6 @@ export type ScorerInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
-export type DeserializedApiObject = Account | Toot;
 export type StorableApiObject = (Account | MastodonObjWithID | MastodonApiObject | MastodonTag | Toot | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);
