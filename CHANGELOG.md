@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.27.4
 * Export a `NON_SCORE_WEIGHTS` array for `TIME_DECAY` etc.
 
 ### v0.27.3
