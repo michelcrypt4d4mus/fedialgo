@@ -435,13 +435,15 @@ class Toot {
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         const setupAgeStr = (0, time_helpers_1.ageString)(startedAt);
         // Set properties, dedupe, and sort by popularity
-        const setProps = async (t) => {
+        const setProps = (t) => {
             const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.sources = [source];
             return toot;
         };
-        let toots = await (0, collection_helpers_1.batchMap)(statuses, setProps, "buildToots");
+        // TODO: async batch is slow so trying to just map it
+        // let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
+        let toots = statuses.map(setProps);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
         console.info(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)} (data setup ${setupAgeStr})`);

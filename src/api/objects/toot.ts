@@ -516,14 +516,16 @@ export default class Toot implements TootObj {
         const setupAgeStr = ageString(startedAt);
 
         // Set properties, dedupe, and sort by popularity
-        const setProps = async (t: SerializableToot | Toot): Promise<Toot> => {
+        const setProps = (t: SerializableToot | Toot): Toot => {
             const toot = (t instanceof Toot ? t : Toot.build(t));
             toot.setDependentProperties(userData, trendingLinks, trendingTags);
             toot.sources = [source];
             return toot;
         }
 
-        let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
+        // TODO: async batch is slow so trying to just map it
+        // let toots = await batchMap<SerializableToot | Toot>(statuses, setProps, "buildToots");
+        let toots = statuses.map(setProps);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
         console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)} (data setup ${setupAgeStr})`);
