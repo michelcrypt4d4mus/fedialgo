@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add a check for `LOAD_TEST=true` env var that dramatically bumps up the number of toots to retrieve
 
 ### v0.29.1
 * Add `Config.isAppFilterVisible` boolean

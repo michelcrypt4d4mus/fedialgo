@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { isDebugMode } from "./helpers/environment_helpers";
+import { isDebugMode, isLoadTest } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
@@ -123,7 +123,7 @@ export const Config: ConfigType = {
     mutexWarnSeconds: 5,                 // How long to wait before warning about a mutex lock
     numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
     reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
-    sleepBetweenCompletionMS: 200,       // How long to wait between batches of Toot.completeToots() calls
+    sleepBetweenCompletionMS: 100,       // How long to wait between batches of Toot.completeToots() calls
     timeoutMS: 5_000,                    // Timeout for API calls
 
     // Trending tags and links
@@ -258,7 +258,18 @@ if (isDebugMode) {
     Config.numDesiredTimelineToots = 500;
     Config.numParticipatedTagsToFetchTootsFor = 10;
     Config.numTrendingTags = 5;
-};
+}
+
+if (isLoadTest) {
+    Config.maxCachedTimelineToots = 5000;
+    Config.maxRecordsForFeatureScoring = 1500;
+    Config.numDesiredTimelineToots = 2500;
+    Config.numParticipatedTagsToFetchTootsFor = 50;
+    Config.numParticipatedTagToots = 500;
+    Config.numParticipatedTagTootsPerTag = 10;
+    Config.numTrendingTags = 40;
+    Config.numTrendingTagsToots = 1000;
+}
 
 
 // Compute min value for FEDIVERSE_KEYS staleness and store on Config object

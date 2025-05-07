@@ -58,7 +58,7 @@ exports.Config = {
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
-    sleepBetweenCompletionMS: 200,
+    sleepBetweenCompletionMS: 100,
     timeoutMS: 5000,
     // Trending tags and links
     excessiveTags: 25,
@@ -190,7 +190,16 @@ if (environment_helpers_1.isDebugMode) {
     exports.Config.numParticipatedTagsToFetchTootsFor = 10;
     exports.Config.numTrendingTags = 5;
 }
-;
+if (environment_helpers_1.isLoadTest) {
+    exports.Config.maxCachedTimelineToots = 5000;
+    exports.Config.maxRecordsForFeatureScoring = 1500;
+    exports.Config.numDesiredTimelineToots = 2500;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 50;
+    exports.Config.numParticipatedTagToots = 500;
+    exports.Config.numParticipatedTagTootsPerTag = 10;
+    exports.Config.numTrendingTags = 40;
+    exports.Config.numTrendingTagsToots = 1000;
+}
 // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
 const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
 exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
