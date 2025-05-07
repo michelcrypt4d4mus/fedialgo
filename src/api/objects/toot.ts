@@ -468,7 +468,7 @@ export default class Toot implements TootObj {
     // Some properties cannot be repaired and/or set until info about the user is available.
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    setDependentProperties(
+    private setDependentProperties(
         userData: UserData,
         trendingLinks: TrendingLink[],
         trendingTags: TrendingTag[],
@@ -523,6 +523,28 @@ export default class Toot implements TootObj {
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
         console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
+    }
+
+    // Fetch all the data we need to set dependent properties and set them on the toots.
+    static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
+        let startedAt = new Date();
+        // TODO: remove this at some point, just here for logging info about instanceof usage
+        const tootObjs = toots.filter(toot => toot instanceof Toot);
+        const userData = await MastoApi.instance.getUserData();
+        const trendingTags = await MastodonServer.fediverseTrendingTags();
+        const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
+        const fetchAgeStr = ageString(startedAt);
+        startedAt = new Date();
+
+        toots = toots.map((tootLike): Toot => {
+            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            return toot as Toot;
+        });
+
+        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
+        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
+        return toots as Toot[];
     }
 
     // Remove dupes by uniquifying on the toot's URI
@@ -589,28 +611,6 @@ export default class Toot implements TootObj {
         if (toots.length == 0) return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return sortByCreatedAt(toots)[idx].id;
-    }
-
-    // Fetch all the data we need to set dependent properties and set them on the toots.
-    static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
-        let startedAt = new Date();
-        // TODO: remove this at some point, just here for logging info about instanceof usage
-        const tootObjs = toots.filter(toot => toot instanceof Toot);
-        const userData = await MastoApi.instance.getUserData();
-        const trendingTags = await MastodonServer.fediverseTrendingTags();
-        const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        const fetchAgeStr = ageString(startedAt);
-        startedAt = new Date();
-
-        toots = toots.map((tootLike): Toot => {
-            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
-            return toot as Toot;
-        });
-
-        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        console.info(`${msg} ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
-        return toots as Toot[];
     }
 };
 

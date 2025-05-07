@@ -441,6 +441,25 @@ class Toot {
         console.info(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
+    // Fetch all the data we need to set dependent properties and set them on the toots.
+    static async completeToots(toots, logPrefix, isDeepInspect) {
+        let startedAt = new Date();
+        // TODO: remove this at some point, just here for logging info about instanceof usage
+        const tootObjs = toots.filter(toot => toot instanceof Toot);
+        const userData = await api_1.default.instance.getUserData();
+        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+        const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
+        const fetchAgeStr = (0, time_helpers_1.ageString)(startedAt);
+        startedAt = new Date();
+        toots = toots.map((tootLike) => {
+            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            return toot;
+        });
+        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
+        console.info(`${msg} ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
+        return toots;
+    }
     // Remove dupes by uniquifying on the toot's URI
     static dedupeToots(toots, logLabel) {
         const startedAt = new Date();
@@ -500,25 +519,6 @@ class Toot {
             return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return (0, exports.sortByCreatedAt)(toots)[idx].id;
-    }
-    // Fetch all the data we need to set dependent properties and set them on the toots.
-    static async completeToots(toots, logPrefix, isDeepInspect) {
-        let startedAt = new Date();
-        // TODO: remove this at some point, just here for logging info about instanceof usage
-        const tootObjs = toots.filter(toot => toot instanceof Toot);
-        const userData = await api_1.default.instance.getUserData();
-        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
-        const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
-        const fetchAgeStr = (0, time_helpers_1.ageString)(startedAt);
-        startedAt = new Date();
-        toots = toots.map((tootLike) => {
-            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.setDependentProperties(userData, trendingLinks, trendingTags, isDeepInspect);
-            return toot;
-        });
-        const msg = `${logPrefix} setDependentProps() isDeepInspect=${isDeepInspect} on ${toots.length} toots`;
-        console.info(`${msg} ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots)`);
-        return toots;
     }
 }
 exports.default = Toot;

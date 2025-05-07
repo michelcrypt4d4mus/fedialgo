@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import Scorer from "../../scorer/scorer";
-import UserData from "../user_data";
 import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TrendingTag } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     followedTags?: MastodonTag[];
@@ -105,12 +104,12 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
-    setDependentProperties(userData: UserData, trendingLinks: TrendingLink[], trendingTags: TrendingTag[], isDeepInspect?: boolean): void;
+    private setDependentProperties;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
+    static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logLabel?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
-    static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;
