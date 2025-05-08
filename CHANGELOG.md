@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.29.7
 * Export `isAccessTokenRevokedError()`
 
 ### v0.29.6
