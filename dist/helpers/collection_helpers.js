@@ -35,12 +35,9 @@ async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
         const slicedResults = await Promise.all(items.slice(start, end).map(fn));
         results = [...results, ...slicedResults];
         if (sleepBetweenMS && (items.length > end)) {
-            console.debug(`${logPrefix} batchMap() processed ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
+            console.debug(`${logPrefix} batchMap() ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
             await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
         }
-        // if (label) {
-        //     console.debug(`[${label}] Processed ${end} batch promises in ${ageInSeconds(startTime)} seconds...`);
-        // }
     }
     return results;
 }
@@ -81,15 +78,15 @@ function groupBy(array, makeKey) {
 exports.groupBy = groupBy;
 ;
 // Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-function incrementCount(counts, key, increment = 1) {
-    key = key ?? "unknown";
-    counts[key] = (counts[key] || 0) + increment;
+function incrementCount(counts, k, increment = 1) {
+    k = k ?? "unknown";
+    counts[k] = (counts[k] || 0) + increment;
     return counts;
 }
 exports.incrementCount = incrementCount;
 ;
-function decrementCount(counts, key, increment = 1) {
-    return incrementCount(counts, key, -1 * increment);
+function decrementCount(counts, k, increment = 1) {
+    return incrementCount(counts, k, -1 * increment);
 }
 exports.decrementCount = decrementCount;
 ;
