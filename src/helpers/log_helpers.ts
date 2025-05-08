@@ -50,17 +50,17 @@ export async function lockExecution(
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
     let releaseLock: MutexInterface.Releaser |SemaphoreInterface.Releaser;
-    let logMsg = `${logPrefix} `;
+    let logMsg = bracketed(logPrefix);
 
     if (Array.isArray(acquireLock)) {
-        logMsg += `Semaphore ${acquireLock[0]} `;
+        logMsg += ` Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     } else {
-        logMsg += `Mutex `;
+        logMsg += ` Mutex`;
         releaseLock = acquireLock;
     }
 
-    logMsg += `lock acquired ${ageString(startedAt)}`;
+    logMsg += ` lock acquired ${ageString(startedAt)}`;
 
     if (waitSeconds > Config.mutexWarnSeconds) {
         console.warn(logMsg);

@@ -42,16 +42,16 @@ async function lockExecution(locker, logPrefix) {
     const acquireLock = await locker.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     let releaseLock;
-    let logMsg = `${logPrefix} `;
+    let logMsg = (0, string_helpers_1.bracketed)(logPrefix);
     if (Array.isArray(acquireLock)) {
-        logMsg += `Semaphore ${acquireLock[0]} `;
+        logMsg += ` Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     }
     else {
-        logMsg += `Mutex `;
+        logMsg += ` Mutex`;
         releaseLock = acquireLock;
     }
-    logMsg += `lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
     if (waitSeconds > config_1.Config.mutexWarnSeconds) {
         console.warn(logMsg);
     }
