@@ -47,8 +47,8 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 const BATCH_SIZES = {
-    [types_1.StorageKey.FOLLOWED_TAGS]: 100,
     [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 80,
+    [types_1.StorageKey.FOLLOWED_TAGS]: 100,
     [types_1.StorageKey.RECENT_NOTIFICATIONS]: 80, // https://docs.joinmastodon.org/methods/notifications/#get
 };
 ;
@@ -328,6 +328,9 @@ class MastoApi {
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${concurrency}`);
         this.requestSemphore = new async_mutex_1.Semaphore(concurrency);
     }
+    /////////////////////////////
+    //     Private Methods     //
+    /////////////////////////////
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
@@ -384,7 +387,7 @@ class MastoApi {
         finally {
             releaseMutex?.();
         }
-        const objs = MastoApi.buildFromApiObjects(storageKey, rows);
+        const objs = this.buildFromApiObjects(storageKey, rows);
         if (!skipCache)
             await Storage_1.default.set(storageKey, objs);
         return objs;
@@ -394,9 +397,8 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
         maxRecords = maxRecords || config_1.Config.defaultRecordsPerPage;
-        let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
+        let logPrefix = `[hashtagTimelineToots("#${tag.name}")] (semaphore)`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
-        logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {
             const toots = await this.getApiRecords({
@@ -427,7 +429,7 @@ class MastoApi {
         return params;
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    static buildFromApiObjects(key, objects) {
+    buildFromApiObjects(key, objects) {
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => account_1.default.build(o));
         }
@@ -438,6 +440,9 @@ class MastoApi {
             return objects;
         }
     }
+    ////////////////////////////
+    //     Static Methods     //
+    ////////////////////////////
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     static throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);

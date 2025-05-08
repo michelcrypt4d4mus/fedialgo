@@ -28,13 +28,11 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
-type BatchSizes = {
-    [key in StorageKey]?: number
-};
+type BatchSizes = {[key in StorageKey]?: number};
 
 const BATCH_SIZES: BatchSizes = {
-    [StorageKey.FOLLOWED_TAGS]: 100,        // https://docs.joinmastodon.org/methods/followed_tags/
     [StorageKey.FOLLOWED_ACCOUNTS]: 80,     // https://docs.joinmastodon.org/methods/accounts/#following
+    [StorageKey.FOLLOWED_TAGS]: 100,        // https://docs.joinmastodon.org/methods/followed_tags/
     [StorageKey.RECENT_NOTIFICATIONS]: 80,  // https://docs.joinmastodon.org/methods/notifications/#get
 };
 
@@ -382,6 +380,10 @@ export default class MastoApi {
         this.requestSemphore = new Semaphore(concurrency);
     }
 
+    /////////////////////////////
+    //     Private Methods     //
+    /////////////////////////////
+
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
@@ -442,7 +444,7 @@ export default class MastoApi {
             releaseMutex?.();
         }
 
-        const objs = MastoApi.buildFromApiObjects(storageKey, rows);
+        const objs = this.buildFromApiObjects(storageKey, rows);
         if (!skipCache) await Storage.set(storageKey, objs);
         return objs;
     }
@@ -452,9 +454,8 @@ export default class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || Config.defaultRecordsPerPage;
-        let logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
+        let logPrefix = `[hashtagTimelineToots("#${tag.name}")] (semaphore)`;
         const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
-        logPrefix += ` (semaphore)`;
         const startedAt = new Date();
 
         try {
@@ -489,7 +490,7 @@ export default class MastoApi {
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    static buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]):  Account[] | Toot[] | MastodonApiObject[] {
+    private buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]):  Account[] | Toot[] | MastodonApiObject[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => Account.build(o as mastodon.v1.Account));
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
@@ -498,6 +499,10 @@ export default class MastoApi {
             return objects;
         }
     }
+
+    ////////////////////////////
+    //     Static Methods     //
+    ////////////////////////////
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void {
