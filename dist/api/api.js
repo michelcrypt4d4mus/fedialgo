@@ -41,8 +41,8 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const types_1 = require("../types");
-const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
@@ -100,7 +100,7 @@ class MastoApi {
     // TODO: should probably be a mutex on this...
     async fetchHomeFeed(mergeTootsToFeed, maxRecords, maxTootedAt, // Home timeline most recent toot date
     maxId) {
-        const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
+        const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         let homeTimelineToots = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
         maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
         // Look back an additional lookbackForUpdatesMinutes minutes to catch updates and edits to toots
@@ -210,7 +210,7 @@ class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
-        const logPrefix = `[API ${types_1.StorageKey.SERVER_SIDE_FILTERS}]`;
+        const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.SERVER_SIDE_FILTERS);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
         try {
@@ -271,7 +271,7 @@ class MastoApi {
     async resolveToot(toot) {
         const tootURI = toot.realURI();
         const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
-        const logPrefix = `[resolveToot()]`;
+        const logPrefix = `[API resolveToot()]`;
         console.debug(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain)
             return toot;
@@ -312,7 +312,7 @@ class MastoApi {
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(key, fetch, maxRecordsConfigKey) {
-        const logPrefix = `[API getCacheableToots ${key}]`;
+        const logPrefix = `[${key} getCacheableToots()]`;
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logPrefix);
         const startedAt = new Date();
         try {
@@ -344,7 +344,7 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
         // Parameter setup
-        let logPfx = `[API ${fetchParams.storageKey}]`;
+        let logPfx = (0, string_helpers_1.bracketed)(fetchParams.storageKey);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
         let { breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;

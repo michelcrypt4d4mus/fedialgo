@@ -14,8 +14,8 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
+import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { Config, ConfigType } from "../config";
-import { extractDomain } from '../helpers/string_helpers';
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -103,7 +103,7 @@ export default class MastoApi {
         maxTootedAt?: Date | null, // Home timeline most recent toot date
         maxId?: string | number,  // Optional maxId to use to start pagination
     ): Promise<Toot[]> {
-        const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
+        const logPrefix = bracketed(StorageKey.HOME_TIMELINE);
         let homeTimelineToots = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
         maxTootedAt ||= mostRecentTootedAt(homeTimelineToots);
         // Look back an additional lookbackForUpdatesMinutes minutes to catch updates and edits to toots
@@ -227,7 +227,7 @@ export default class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
-        const logPrefix = `[API ${StorageKey.SERVER_SIDE_FILTERS}]`;
+        const logPrefix = bracketed(StorageKey.SERVER_SIDE_FILTERS);
         const releaseMutex = await lockExecution(this.mutexes[StorageKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
 
@@ -295,7 +295,7 @@ export default class MastoApi {
     async resolveToot(toot: Toot): Promise<Toot> {
         const tootURI = toot.realURI();
         const urlDomain = extractDomain(tootURI);
-        const logPrefix = `[resolveToot()]`;
+        const logPrefix = `[API resolveToot()]`;
         console.debug(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain) return toot;
         const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
@@ -340,7 +340,7 @@ export default class MastoApi {
         fetch: () => Promise<mastodon.v1.Status[]>,
         maxRecordsConfigKey: keyof ConfigType
     ): Promise<Toot[]> {
-        const logPrefix = `[API getCacheableToots ${key}]`;
+        const logPrefix = `[${key} getCacheableToots()]`;
         const releaseMutex = await lockExecution(this.mutexes[key], logPrefix);
         const startedAt = new Date();
 
@@ -380,7 +380,7 @@ export default class MastoApi {
         fetchParams: FetchParams<T>
     ): Promise<Account[] | Toot[] | MastodonApiObject[]> {
         // Parameter setup
-        let logPfx = `[API ${fetchParams.storageKey}]`;
+        let logPfx = bracketed(fetchParams.storageKey);
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= Config.minRecordsForFeatureScoring;
         let { breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
