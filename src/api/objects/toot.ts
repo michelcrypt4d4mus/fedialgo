@@ -594,15 +594,12 @@ export default class Toot implements TootObj {
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
+            reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
 
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
                 props[propName as string] = Math.max(...uriToots.map(t => (t[propName] as number) || 0));
                 return props;
             }, {} as StringNumberDict);
-
-            if (uriToots.length > 1) {
-                console.debug(`${logPrefix} propsThatChange: `, propsThatChange);
-            }
 
             uriToots.forEach((toot) => {
                 // Counts may increase over time w/repeated fetches
@@ -625,7 +622,7 @@ export default class Toot implements TootObj {
 
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstTrendingRankToot?.trendingRank;
-                    toot.reblog.reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
+                    toot.reblog.reblogsBy = reblogsBy;
                 }
             });
         });

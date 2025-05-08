@@ -501,13 +501,11 @@ class Toot {
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
+            reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
                 props[propName] = Math.max(...uriToots.map(t => t[propName] || 0));
                 return props;
             }, {});
-            if (uriToots.length > 1) {
-                console.debug(`${logPrefix} propsThatChange: `, propsThatChange);
-            }
             uriToots.forEach((toot) => {
                 // Counts may increase over time w/repeated fetches
                 toot.favouritesCount = propsThatChange.favouritesCount;
@@ -528,7 +526,7 @@ class Toot {
                 toot.trendingRank ??= firstTrendingRankToot?.trendingRank;
                 if (toot.reblog) {
                     toot.reblog.trendingRank ??= firstTrendingRankToot?.trendingRank;
-                    toot.reblog.reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
+                    toot.reblog.reblogsBy = reblogsBy;
                 }
             });
         });
