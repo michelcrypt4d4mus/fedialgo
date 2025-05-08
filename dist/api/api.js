@@ -110,6 +110,7 @@ class MastoApi {
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,
+            skipMutex: true,
             breakIf: async (newStatuses, allStatuses) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(newStatuses);
                 if (!oldestTootAt) {

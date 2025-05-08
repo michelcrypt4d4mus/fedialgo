@@ -126,6 +126,7 @@ export default class MastoApi {
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
+            skipMutex: true,
             breakIf: async (newStatuses: StatusList, allStatuses: StatusList) => {
                 const oldestTootAt = earliestTootedAt(newStatuses);
 
