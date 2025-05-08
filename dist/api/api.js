@@ -241,7 +241,7 @@ class MastoApi {
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
         ]);
-        logTrendingTagResults(`[#${tag.name}]`, "both", tagToots.flat());
+        logTrendingTagResults(`[#${tag.name}]`, "both hashtag searches", tagToots.flat());
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags

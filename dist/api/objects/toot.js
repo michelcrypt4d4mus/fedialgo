@@ -269,7 +269,7 @@ class Toot {
             return false;
         }
         else if (this.tootedAt() < (0, time_helpers_1.timelineCutoffAt)()) {
-            console.debug(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
+            (0, log_helpers_1.traceLog)(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
             return false;
         }
         return true;

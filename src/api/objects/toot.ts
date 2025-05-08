@@ -331,7 +331,7 @@ export default class Toot implements TootObj {
             traceLog(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         } else if (this.tootedAt() < timelineCutoffAt()) {
-            console.debug(`Removing toot older than ${timelineCutoffAt()}:`, this.tootedAt());
+            traceLog(`Removing toot older than ${timelineCutoffAt()}:`, this.tootedAt());
             return false;
         }
 

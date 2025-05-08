@@ -262,7 +262,7 @@ export default class MastoApi {
             this.hashtagTimelineToots(tag, numToots),
         ]);
 
-        logTrendingTagResults(`[#${tag.name}]`, "both", tagToots.flat());
+        logTrendingTagResults(`[#${tag.name}]`, "both hashtag searches", tagToots.flat());
         return tagToots.flat();
     }
 
