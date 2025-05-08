@@ -313,7 +313,7 @@ export default class MastodonServer {
     private static async getTopServerDomains(): Promise<string[]> {
         const servers = await this.getMastodonInstancesInfo();
 
-        // Sort the servers by the number of users on each server
+        // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort(
             (a, b) => servers[b].followedPctOfMAU! - servers[a].followedPctOfMAU!
         );
