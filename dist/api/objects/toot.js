@@ -451,7 +451,7 @@ class Toot {
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
-        console.info(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        console.debug(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.

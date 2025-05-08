@@ -537,7 +537,7 @@ export default class Toot implements TootObj {
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         toots = toots.sort((a, b) => b.popularity() - a.popularity());
-        console.info(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
+        console.debug(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 
