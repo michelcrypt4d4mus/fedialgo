@@ -257,6 +257,7 @@ if (isDebugMode) {
     Config.backgroundLoadIntervalSeconds = 120;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;
+    Config.lookbackForUpdatesMinutes = 15;
     Config.maxCachedTimelineToots = 700;
     Config.maxRecordsForFeatureScoring = 480;
     Config.numDesiredTimelineToots = 500;
