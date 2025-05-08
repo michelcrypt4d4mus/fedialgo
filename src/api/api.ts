@@ -161,15 +161,11 @@ export default class MastoApi {
 
     // Get accounts the user is following
     async getFollowedAccounts(): Promise<Account[]> {
-        const accounts = await this.getApiRecords<mastodon.v1.Account>({
+        return await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: Config.maxFollowingAccountsToPull,
         }) as Account[];
-
-        // const accountsByWebfinger = accounts.filter(a => !!a.webfingerURI);
-        // console.log(`[getFollowedAccounts() ${StorageKey.FOLLOWED_ACCOUNTS}] found ${accounts.length} accounts with ${accountsByWebfinger.length} webfingerURIs`, accounts);
-        return accounts;
     }
 
     // Get hashtags the user is following

@@ -152,14 +152,11 @@ class MastoApi {
     ;
     // Get accounts the user is following
     async getFollowedAccounts() {
-        const accounts = await this.getApiRecords({
+        return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
-        // const accountsByWebfinger = accounts.filter(a => !!a.webfingerURI);
-        // console.log(`[getFollowedAccounts() ${StorageKey.FOLLOWED_ACCOUNTS}] found ${accounts.length} accounts with ${accountsByWebfinger.length} webfingerURIs`, accounts);
-        return accounts;
     }
     // Get hashtags the user is following
     async getFollowedTags() {
