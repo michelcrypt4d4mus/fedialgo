@@ -7,132 +7,17 @@ import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, Wei
 import { traceLog } from "./log_helpers";
 
 
-// Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
-export function average(values: number[]): number {
-    values = values.filter(v => !!v);
-    if (values.length == 0) return NaN;
-    return values.reduce((a, b) => a + b, 0) / values.length;
-};
-
-
-// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
-export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
-    return array.reduce(
-        (grouped, item) => {
-            const group = makeKey(item);
-            grouped[group] ||= [];
-            grouped[group].push(item);
-            return grouped;
-        },
-        {} as Record<string, T[]>
-    );
-};
-
-
-// Apply a transform() function to all keys in a nested object.
-export function transformKeys<T>(data: T, transform: (key: string) => string): T {
-    if (Array.isArray(data)) {
-        return data.map((value) => transformKeys<T>(value, transform)) as T;
-    }
-
-    if (isRecord(data)) {
-        return Object.fromEntries(
-            Object.entries(data).map(([key, value]) => [
-                transform(key),
-                transformKeys(value, transform),
-            ])
-        ) as T;
-    }
-
-    return data as T;
-};
-
-
-// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-export function incrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
-    key = key ?? "unknown";
-    counts[key] = (counts[key] || 0) + increment;
-    return counts;
-};
-
-export function decrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
-    return incrementCount(counts, key, -1 * increment);
-}
-
-
-// Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
-export function countValues<T>(
-    items: T[],
-    getKey: (item: T) => string | null | undefined = (item) => item as string,
-    countNulls?: boolean
-): StringNumberDict {
-    return items.reduce(
-        (counts, item) => {
-            const key = getKey(item);
-            if (key == null && !countNulls) return counts;
-            return incrementCount(counts, key);
-        },
-        {} as StringNumberDict
-    );
-};
-
-
-// [ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 }
-export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
-    return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
-};
-
-
-// Run a list of promises in parallel and return a dict of the results keyed by the input
-export async function zipPromises<T>(
-    args: string[],
-    promiser: (s: string) => Promise<T>
-): Promise<Record<string, T>> {
-    return zipArrays(args, await Promise.all(args.map(promiser)));
-};
-
-
-// Sort the keys of a dict by their values in descending order
-export function sortKeysByValue(dict: StringNumberDict): string[] {
-    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
-};
-
-
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
 };
 
 
-// Sum the values of a dict
-export function sumValues(obj: StringNumberDict | Weights): number {
-    return sumArray(Object.values(obj));
-};
-
-
-// Sum the elements of an array
-export function sumArray(arr: (number | null | undefined)[]): number {
-    const numArray: number[] = arr.map((x) => (x ?? 0));
-    return numArray.reduce((a, b) => a + b, 0);
-}
-
-
-// Mastodon does not support top posts from foreign servers, so we have to do it manually
-function isRecord(x: unknown): x is Record<string, unknown> {
-    return typeof x === "object" && x !== null && x.constructor.name === "Object";
-};
-
-
-// Randomize the order of an array
-export function shuffle<T extends (string | number | object)>(array: T[]): T[] {
-    const sortRandom = (a: T, b: T) => hashObject(a).localeCompare(hashObject(b));
-    return array.toSorted(sortRandom);
-};
-
-
-// Remove elements of an array if they have duplicate values for the given transform function
-export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[] {
-    return [...new Map(array.map((element) => [transform(element), element])).values()];
+// Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
+export function average(values: number[]): number {
+    values = values.filter(v => !!v);
+    if (values.length == 0) return NaN;
+    return values.reduce((a, b) => a + b, 0) / values.length;
 };
 
 
@@ -169,15 +54,59 @@ export async function batchMap<T>(
 };
 
 
-// Build a dictionary from the result of keyFxn() for each object in the array
-export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T> {
-    return array.reduce(
-        (keyedDict, obj) => {
-            keyedDict[keyFxn(obj)] = obj;
-            return keyedDict;
+// Check if the elements of 'array' are as unique as they should be
+export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
+    const logPrefix = `[${label}]`;
+    traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
+    const uniqueIDs = Object.keys(objsByID);
+
+    if (uniqueIDs.length != array.length) {
+        console.warn(`${logPrefix} ${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
+    }
+};
+
+
+// Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
+export function countValues<T>(
+    items: T[],
+    getKey: (item: T) => string | null | undefined = (item) => item as string,
+    countNulls?: boolean
+): StringNumberDict {
+    return items.reduce(
+        (counts, item) => {
+            const key = getKey(item);
+            if (key == null && !countNulls) return counts;
+            return incrementCount(counts, key);
         },
-        {} as Record<string, T>
+        {} as StringNumberDict
     );
+};
+
+
+// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
+export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
+    return array.reduce(
+        (grouped, item) => {
+            const group = makeKey(item);
+            grouped[group] ||= [];
+            grouped[group].push(item);
+            return grouped;
+        },
+        {} as Record<string, T[]>
+    );
+};
+
+
+// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
+export function incrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
+    key = key ?? "unknown";
+    counts[key] = (counts[key] || 0) + increment;
+    return counts;
+};
+
+export function decrementCount(counts: StringNumberDict, key?: CountKey | null, increment: number = 1): StringNumberDict {
+    return incrementCount(counts, key, -1 * increment);
 };
 
 
@@ -228,16 +157,45 @@ export function findMinId(array: MastodonObjWithID[]): string | undefined{
 };
 
 
-// Check if the elements of 'array' are as unique as they should be
-export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
-    const logPrefix = `[${label}]`;
-    traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
-    const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
-    const uniqueIDs = Object.keys(objsByID);
+// Mastodon does not support top posts from foreign servers, so we have to do it manually
+function isRecord(x: unknown): x is Record<string, unknown> {
+    return typeof x === "object" && x !== null && x.constructor.name === "Object";
+};
 
-    if (uniqueIDs.length != array.length) {
-        console.warn(`${logPrefix} ${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
-    }
+
+// Generate a fxn to check if a string is in an enum.
+// From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
+function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
+    const enumValues = Object.values(strEnum) as string[];
+    return (value: string): value is E => enumValues.includes(value);
+};
+
+export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
+export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
+
+
+// Build a dictionary from the result of keyFxn() for each object in the array
+export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T> {
+    return array.reduce(
+        (keyedDict, obj) => {
+            keyedDict[keyFxn(obj)] = obj;
+            return keyedDict;
+        },
+        {} as Record<string, T>
+    );
+};
+
+
+// Randomize the order of an array
+export function shuffle<T extends (string | number | object)>(array: T[]): T[] {
+    const sortRandom = (a: T, b: T) => hashObject(a).localeCompare(hashObject(b));
+    return array.toSorted(sortRandom);
+};
+
+
+// Sort the keys of a dict by their values in descending order
+export function sortKeysByValue(dict: StringNumberDict): string[] {
+    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
 };
 
 
@@ -266,6 +224,38 @@ export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], asce
 };
 
 
+// Sum the elements of an array
+export function sumArray(arr: (number | null | undefined)[]): number {
+    const numArray: number[] = arr.map((x) => (x ?? 0));
+    return numArray.reduce((a, b) => a + b, 0);
+};
+
+
+// Sum the values of a dict
+export function sumValues(obj: StringNumberDict | Weights): number {
+    return sumArray(Object.values(obj));
+};
+
+
+// Apply a transform() function to all keys in a nested object.
+export function transformKeys<T>(data: T, transform: (key: string) => string): T {
+    if (Array.isArray(data)) {
+        return data.map((value) => transformKeys<T>(value, transform)) as T;
+    }
+
+    if (isRecord(data)) {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [
+                transform(key),
+                transformKeys(value, transform),
+            ])
+        ) as T;
+    }
+
+    return data as T;
+};
+
+
 // Find the configured value at configKey and truncate array to that length
 export function truncateToConfiguredLength(array: any[], key: keyof ConfigType, label?: string): any[] {
     const logPfx = label ? `[${label}] ` : "";
@@ -285,21 +275,31 @@ export function truncateToConfiguredLength(array: any[], key: keyof ConfigType, 
 };
 
 
-// Generate a fxn to check if a string is in an enum.
-// From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
-function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
-    const enumValues = Object.values(strEnum) as string[];
-    return (value: string): value is E => enumValues.includes(value);
-};
-
-export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
-export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
-
-
 // Return a new array with only unique non null values
 export const uniquify = (array: (string | undefined)[]): string[] | undefined => {
     if (array.length == 0) return undefined;
     let newArray = array.filter((e) => e != undefined) as string[];
     newArray = [...new Set(newArray)];
     return newArray;
+};
+
+
+// Remove elements of an array if they have duplicate values for the given transform function
+export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[] {
+    return [...new Map(array.map((element) => [transform(element), element])).values()];
+};
+
+
+// [ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 }
+export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
+    return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
+};
+
+
+// Run a list of promises in parallel and return a dict of the results keyed by the input
+export async function zipPromises<T>(
+    args: string[],
+    promiser: (s: string) => Promise<T>
+): Promise<Record<string, T>> {
+    return zipArrays(args, await Promise.all(args.map(promiser)));
 };
