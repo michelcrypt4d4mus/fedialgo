@@ -41,7 +41,7 @@ import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { isDebugMode } from './helpers/environment_helpers';
-import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug } from './helpers/log_helpers';
+import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
     NON_SCORE_WEIGHTS,
@@ -236,9 +236,29 @@ class TheAlgorithm {
         }
     };
 
-    // Return the timestamp of the most recent toot from followed accounts ONLY
+    // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt(): Date | null {
+        // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
+        if (this.homeFeed.length == 0) {
+            console.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
+            return mostRecentTootedAt(this.feed);
+        }
+
         return mostRecentTootedAt(this.homeFeed);
+    }
+
+    // Return the number of seconds since the most recent home timeline toot
+    mostRecentHomeTootAgeInSeconds(): number | null {
+        const mostRecentAt = this.mostRecentHomeTootAt();
+
+        if (!mostRecentAt) {
+            if (this.feed.length) console.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+            return null;
+        }
+
+        const feedAgeInSeconds = ageInSeconds(mostRecentAt);
+        traceLog(`feed is ${feedAgeInSeconds.toFixed(0)}s old, most recent from followed: ${timeString(mostRecentAt)}`);
+        return feedAgeInSeconds;
     }
 
     // Update the feed filters and return the newly filtered feed

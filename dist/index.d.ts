@@ -65,6 +65,7 @@ declare class TheAlgorithm {
     isLoading(): boolean;
     lockedMergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
+    mostRecentHomeTootAgeInSeconds(): number | null;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;

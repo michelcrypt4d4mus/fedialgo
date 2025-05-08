@@ -1,5 +1,7 @@
 # NEXT RELEASE
 * Deal with bug where Toot's followedTags property was getting lost
+* Add `TheAlgorithm.mostRecentHomeTootAgeInSeconds()` method
+* (Demo App) Revamp `useAlgorithmContext`
 
 ### v0.29.5
 * (Demo App) Tooltip text for auto load checkbox

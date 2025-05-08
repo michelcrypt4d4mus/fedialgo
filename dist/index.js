@@ -230,9 +230,26 @@ class TheAlgorithm {
         }
     }
     ;
-    // Return the timestamp of the most recent toot from followed accounts ONLY
+    // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt() {
+        // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
+        if (this.homeFeed.length == 0) {
+            console.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
+            return (0, toot_1.mostRecentTootedAt)(this.feed);
+        }
         return (0, toot_1.mostRecentTootedAt)(this.homeFeed);
+    }
+    // Return the number of seconds since the most recent home timeline toot
+    mostRecentHomeTootAgeInSeconds() {
+        const mostRecentAt = this.mostRecentHomeTootAt();
+        if (!mostRecentAt) {
+            if (this.feed.length)
+                console.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+            return null;
+        }
+        const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
+        (0, log_helpers_1.traceLog)(`feed is ${feedAgeInSeconds.toFixed(0)}s old, most recent from followed: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        return feedAgeInSeconds;
     }
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters) {
