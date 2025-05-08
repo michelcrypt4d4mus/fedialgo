@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.29.5
+* (Demo App) Tooltip text for auto load checkbox
+
 ### v0.29.4
 * Add TheAlgorithm.isDebug property
 
