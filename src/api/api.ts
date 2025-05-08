@@ -95,12 +95,12 @@ export default class MastoApi {
     //    - mergeTootsToFeed: fxn to call to merge the fetched toots into the feed
     //    - numToots:         maximum number of toots to fetch
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
-    //    - maxId:            optional maxId to start the fetch from
+    //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(
         mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
         maxRecords?: number,
-        maxTootedAt?: Date | null, // Home timeline most recent toot date
+        maxTootedAt?: Date | null,
         maxId?: string | number,  // Optional maxId to use to start pagination
     ): Promise<Toot[]> {
         maxRecords ||= Config.numDesiredTimelineToots;
