@@ -508,15 +508,21 @@ export default class MastoApi {
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void {
         console.error(`${msg}. Error:`, e);
 
-        if (!(e instanceof Error)) {
-            console.warn(`${msg} - Error is not an instance of Error:`, e);
-            return;
-        }
-
-        if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
+        if (isAccessTokenRevokedError(e)) {
             throw e;
         }
     }
+};
+
+
+// Return true if the error is an access token revoked error
+export function isAccessTokenRevokedError(e: Error | unknown): boolean {
+    if (!(e instanceof Error)) {
+        console.warn(`error 'e' is not an instance of Error:`, e);
+        return false;
+    }
+
+    return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
 };
 
 

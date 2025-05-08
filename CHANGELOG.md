@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Export `isAccessTokenRevokedError()`
 
 ### v0.29.6
 * Deal with bug where Toot's followedTags property was getting lost

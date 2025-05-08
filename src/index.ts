@@ -13,7 +13,7 @@ import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
-import MastoApi from "./api/api";
+import MastoApi, { isAccessTokenRevokedError } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
@@ -485,5 +485,6 @@ export {
     Weights,
     // Helpers we also export
     extractDomain,
+    isAccessTokenRevokedError,
     timeString,
 };

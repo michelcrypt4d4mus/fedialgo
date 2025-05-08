@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.isAccessTokenRevokedError = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -446,16 +446,22 @@ class MastoApi {
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     static throwIfAccessTokenRevoked(e, msg) {
         console.error(`${msg}. Error:`, e);
-        if (!(e instanceof Error)) {
-            console.warn(`${msg} - Error is not an instance of Error:`, e);
-            return;
-        }
-        if (e.message.includes(ACCESS_TOKEN_REVOKED_MSG)) {
+        if (isAccessTokenRevokedError(e)) {
             throw e;
         }
     }
 }
 exports.default = MastoApi;
+;
+// Return true if the error is an access token revoked error
+function isAccessTokenRevokedError(e) {
+    if (!(e instanceof Error)) {
+        console.warn(`error 'e' is not an instance of Error:`, e);
+        return false;
+    }
+    return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
+}
+exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
 ;
 // TODO: get rid of this eventually
 const logTrendingTagResults = (logPrefix, searchMethod, toots) => {

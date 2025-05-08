@@ -43,3 +43,4 @@ export default class MastoApi {
     private buildFromApiObjects;
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 }
+export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;
