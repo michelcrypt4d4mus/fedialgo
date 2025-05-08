@@ -181,7 +181,7 @@ class TheAlgorithm {
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const initialLoads = [
             this.prepareScorers(),
-            api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this), config_1.Config.numDesiredTimelineToots)
+            api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this))
                 .then((homeFeed) => this.homeFeed = homeFeed),
         ];
         // Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls

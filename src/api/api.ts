@@ -117,7 +117,6 @@ export default class MastoApi {
         cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
         console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);
 
-
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({

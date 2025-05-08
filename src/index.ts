@@ -180,7 +180,7 @@ class TheAlgorithm {
 
         const initialLoads = [
             this.prepareScorers(),
-            MastoApi.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this), Config.numDesiredTimelineToots)
+            MastoApi.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this))
                 .then((homeFeed) => this.homeFeed = homeFeed),
         ];
 
