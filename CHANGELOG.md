@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* fetchHomeFeed() has skipMutex=true
+* `fetchHomeFeed()` has `skipMutex=true`
+* Bump up `TRENDING` weight to 0.25
 
 ### v0.29.2
 * Add `Config.lookbackForUpdatesMinutes` param and scan backwards from the maxUpdatedAt that many more minutes to catch changes
