@@ -181,15 +181,18 @@ class Storage {
         let weights = await this.get(types_1.StorageKey.WEIGHTS);
         if (!weights)
             return { ...weight_presets_1.DEFAULT_WEIGHTS };
+        let shouldSave = false;
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, value]) => {
             if (!value && value !== 0) {
                 warn(`Missing value for "${key}" in saved weights, setting to default`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
+                shouldSave = true;
             }
         });
         // If any changes were made to the Storage weightings, save them back to storage
-        await Storage.setWeightings(weights);
+        if (shouldSave)
+            await Storage.setWeightings(weights);
         return weights;
     }
     // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched

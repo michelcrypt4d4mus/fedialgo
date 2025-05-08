@@ -46,6 +46,11 @@ exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
+const BATCH_SIZES = {
+    [types_1.StorageKey.FOLLOWED_TAGS]: 100,
+    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 80,
+    [types_1.StorageKey.RECENT_NOTIFICATIONS]: 80, // https://docs.joinmastodon.org/methods/notifications/#get
+};
 ;
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
@@ -86,10 +91,9 @@ class MastoApi {
     //    - mergeTootsToFeed: fxn to call to merge the fetched toots into the feed
     //    - numToots:         maximum number of toots to fetch
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
-    //    - maxId:            optional maxId to start the fetch from
+    //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
-    async fetchHomeFeed(mergeTootsToFeed, maxRecords, maxTootedAt, // Home timeline most recent toot date
-    maxId) {
+    async fetchHomeFeed(mergeTootsToFeed, maxRecords, maxTootedAt, maxId) {
         maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -114,7 +118,7 @@ class MastoApi {
             breakIf: async (newStatuses, allStatuses) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(newStatuses);
                 if (!oldestTootAt) {
-                    console.warn(`${logPrefix} No new statuses in page, stopping fetch`);
+                    console.warn(`${logPrefix} No new statuses in page of ${newStatuses.length} toots, halting`);
                     return true;
                 }
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
@@ -170,7 +174,6 @@ class MastoApi {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
-            batchSize: 80,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
     }
@@ -178,7 +181,8 @@ class MastoApi {
     async getFollowedTags() {
         const followedTags = await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
-            storageKey: types_1.StorageKey.FOLLOWED_TAGS
+            storageKey: types_1.StorageKey.FOLLOWED_TAGS,
+            batchSize: 80, // 80 is the max per page for this endpoint: https://docs.joinmastodon.org/methods/accounts/#following
         });
         return followedTags.map(tag_1.repairTag);
     }
@@ -329,24 +333,24 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(fetchParams) {
-        // Parameter setup
         let logPfx = (0, string_helpers_1.bracketed)(fetchParams.storageKey);
-        fetchParams.batchSize ??= fetchParams.maxRecords;
-        fetchParams.breakIf ??= DEFAULT_BREAK_IF;
-        fetchParams.maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
-        let { batchSize, breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
+        let { batchSize, breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
+        maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
+        batchSize ??= BATCH_SIZES[storageKey] || config_1.Config.defaultRecordsPerPage;
+        batchSize = Math.min(batchSize, maxRecords);
+        breakIf ??= DEFAULT_BREAK_IF;
         // Skip mutex for requests that aren't trying to get at the same data
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[label], logPfx);
+        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[storageKey], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedRows = await Storage_1.default.getIfNotStale(label);
+                const cachedRows = await Storage_1.default.getIfNotStale(storageKey);
                 if (cachedRows) {
                     if (!moar)
                         return cachedRows; // Return cached data unless moar=true
@@ -360,11 +364,11 @@ class MastoApi {
                 ;
             }
             // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(maxId, batchSize, logPfx))) {
+            for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
-                const recordsSoFar = `have ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
+                const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
                 if (rows.length >= maxRecords || shouldStop) {
                     (0, log_helpers_1.traceLog)(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
                     break;
@@ -381,9 +385,9 @@ class MastoApi {
         finally {
             releaseMutex?.();
         }
-        const objs = MastoApi.buildFromApiObjects(label, rows);
+        const objs = MastoApi.buildFromApiObjects(storageKey, rows);
         if (!skipCache)
-            await Storage_1.default.set(label, objs);
+            await Storage_1.default.set(storageKey, objs);
         return objs;
     }
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
@@ -415,11 +419,8 @@ class MastoApi {
         }
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(maxId, maxRecords, logPfx) {
-        maxRecords ||= config_1.Config.defaultRecordsPerPage;
-        let params = {
-            limit: Math.min(maxRecords, config_1.Config.defaultRecordsPerPage),
-        };
+    buildParams(batchSize, logPfx, maxId) {
+        let params = { limit: batchSize };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };
         if (logPfx)

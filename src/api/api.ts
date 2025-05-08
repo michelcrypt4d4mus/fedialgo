@@ -28,6 +28,15 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
+type BatchSizes = {
+    [key in StorageKey]?: number
+};
+
+const BATCH_SIZES: BatchSizes = {
+    [StorageKey.FOLLOWED_TAGS]: 100,        // https://docs.joinmastodon.org/methods/followed_tags/
+    [StorageKey.FOLLOWED_ACCOUNTS]: 80,     // https://docs.joinmastodon.org/methods/accounts/#following
+    [StorageKey.RECENT_NOTIFICATIONS]: 80,  // https://docs.joinmastodon.org/methods/notifications/#get
+};
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 //   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF()
@@ -130,7 +139,7 @@ export default class MastoApi {
                 const oldestTootAt = earliestTootedAt(newStatuses);
 
                 if (!oldestTootAt) {
-                    console.warn(`${logPrefix} No new statuses in page, stopping fetch`);
+                    console.warn(`${logPrefix} No new statuses in page of ${newStatuses.length} toots, halting`);
                     return true;
                 }
 
@@ -200,7 +209,6 @@ export default class MastoApi {
         return await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
-            batchSize: 80,  // 80 is the max per page for this endpoint: https://docs.joinmastodon.org/methods/accounts/#following
             maxRecords: Config.maxFollowingAccountsToPull,
         }) as Account[];
     }
@@ -209,7 +217,8 @@ export default class MastoApi {
     async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
         const followedTags = await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
-            storageKey: StorageKey.FOLLOWED_TAGS
+            storageKey: StorageKey.FOLLOWED_TAGS,
+            batchSize: 80,  // 80 is the max per page for this endpoint: https://docs.joinmastodon.org/methods/accounts/#following
         }) as mastodon.v1.Tag[];
 
         return followedTags.map(repairTag);
@@ -380,17 +389,18 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(
         fetchParams: FetchParams<T>
     ): Promise<Account[] | Toot[] | MastodonApiObject[]> {
-        // Parameter setup
         let logPfx = bracketed(fetchParams.storageKey);
-        fetchParams.batchSize ??= fetchParams.maxRecords;
-        fetchParams.breakIf ??= DEFAULT_BREAK_IF;
-        fetchParams.maxRecords ??= Config.minRecordsForFeatureScoring;
-        let { batchSize, breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
-        if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         traceLog(`${logPfx} fetchData() params:`, fetchParams);
+        let { batchSize, breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
+        if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+
+        maxRecords ??= Config.minRecordsForFeatureScoring;
+        batchSize ??= BATCH_SIZES[storageKey] || Config.defaultRecordsPerPage;
+        batchSize = Math.min(batchSize, maxRecords);
+        breakIf ??= DEFAULT_BREAK_IF;
 
         // Skip mutex for requests that aren't trying to get at the same data
-        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[label], logPfx);
+        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[storageKey], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
@@ -398,7 +408,7 @@ export default class MastoApi {
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedRows = await Storage.getIfNotStale<T[]>(label);
+                const cachedRows = await Storage.getIfNotStale<T[]>(storageKey);
 
                 if (cachedRows) {
                     if (!moar) return cachedRows;  // Return cached data unless moar=true
@@ -413,11 +423,11 @@ export default class MastoApi {
             }
 
             // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(maxId, batchSize, logPfx))) {
+            for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
-                const recordsSoFar = `have ${rows.length} records so far ${ageString(startedAt)}`;
+                const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || shouldStop) {
                     traceLog(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
@@ -433,8 +443,8 @@ export default class MastoApi {
             releaseMutex?.();
         }
 
-        const objs = MastoApi.buildFromApiObjects(label, rows);
-        if (!skipCache) await Storage.set(label, objs);
+        const objs = MastoApi.buildFromApiObjects(storageKey, rows);
+        if (!skipCache) await Storage.set(storageKey, objs);
         return objs;
     }
 
@@ -469,16 +479,11 @@ export default class MastoApi {
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(
+        batchSize: number,
+        logPfx: string,
         maxId?: number | string,
-        maxRecords?: number,
-        logPfx?: string
     ): mastodon.DefaultPaginationParams {
-        maxRecords ||= Config.defaultRecordsPerPage;
-
-        let params: mastodon.DefaultPaginationParams = {
-            limit: Math.min(maxRecords, Config.defaultRecordsPerPage),
-        };
-
+        let params: mastodon.DefaultPaginationParams = {limit: batchSize};
         if (maxId) params = {...params, maxId: `${maxId}`};
         if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params as mastodon.DefaultPaginationParams;

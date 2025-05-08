@@ -183,17 +183,19 @@ export default class Storage {
     static async getWeights(): Promise<Weights> {
         let weights = await this.get(StorageKey.WEIGHTS) as Weights;
         if (!weights) return {...DEFAULT_WEIGHTS} as Weights;
+        let shouldSave = false;
 
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(DEFAULT_WEIGHTS).forEach(([key, value]) => {
             if (!value && value !== 0) {
                 warn(`Missing value for "${key}" in saved weights, setting to default`);
                 weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
+                shouldSave = true;
             }
         });
 
         // If any changes were made to the Storage weightings, save them back to storage
-        await Storage.setWeightings(weights);
+        if (shouldSave) await Storage.setWeightings(weights);
         return weights;
     }
 
