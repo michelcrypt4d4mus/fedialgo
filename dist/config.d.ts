@@ -1,14 +1,16 @@
 import { ScorerDict, StorageKey } from "./types";
-export declare const SECONDS_IN_HOUR = 3600;
 export declare const DEFAULT_LOCALE = "en-CA";
 export declare const DEFAULT_LANGUAGE: string;
 export declare const DEFAULT_COUNTRY: string;
+export declare const SECONDS_IN_MINUTE = 60;
+export declare const SECONDS_IN_HOUR: number;
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };
 export type ConfigType = {
     defaultLanguage: string;
     language: string;
+    excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
@@ -37,7 +39,6 @@ export type ConfigType = {
     staleDataTrendingSeconds: number;
     minServerMAU: number;
     numServersToCheck: number;
-    excessiveTags: number;
     excessiveTagsPenalty: number;
     invalidTrendingTags: string[];
     minTrendingTagTootsForPenalty: number;

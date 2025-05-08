@@ -1,21 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SCORERS_CONFIG = exports.Config = exports.DEFAULT_COUNTRY = exports.DEFAULT_LANGUAGE = exports.DEFAULT_LOCALE = exports.SECONDS_IN_HOUR = void 0;
+exports.SCORERS_CONFIG = exports.Config = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.DEFAULT_COUNTRY = exports.DEFAULT_LANGUAGE = exports.DEFAULT_LOCALE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
-// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
-exports.SECONDS_IN_HOUR = 3600;
 exports.DEFAULT_LOCALE = "en-CA";
 exports.DEFAULT_LANGUAGE = exports.DEFAULT_LOCALE.split("-")[0];
 exports.DEFAULT_COUNTRY = exports.DEFAULT_LOCALE.split("-")[1];
+// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
+exports.SECONDS_IN_MINUTE = 60;
+exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * 60;
 // App level config that is not user configurable
 exports.Config = {
     defaultLanguage: exports.DEFAULT_LANGUAGE,
     language: exports.DEFAULT_LANGUAGE,
     // Timeline toots
+    excessiveTags: 25,
     hashtagTootRetrievalDelaySeconds: 5,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
@@ -36,11 +38,11 @@ exports.Config = {
         [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.FOLLOWED_TAGS]: 4 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 0.25 * exports.SECONDS_IN_HOUR,
+        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 15 * exports.SECONDS_IN_MINUTE,
         [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 0.25 * exports.SECONDS_IN_HOUR,
+        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 15 * exports.SECONDS_IN_MINUTE,
     },
     timelineDecayExponent: 1.2,
     // Participated tags
@@ -48,7 +50,7 @@ exports.Config = {
     numParticipatedTagToots: 150,
     numParticipatedTagTootsPerTag: 5,
     // API stuff
-    backgroundLoadIntervalSeconds: 0.25 * exports.SECONDS_IN_HOUR,
+    backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
     maxRecordsForFeatureScoring: 1500,
     maxFollowingAccountsToPull: 5000,
@@ -63,7 +65,6 @@ exports.Config = {
     sleepBetweenCompletionMS: 200,
     timeoutMS: 5000,
     // Trending tags and links
-    excessiveTags: 25,
     excessiveTagsPenalty: 0.1,
     invalidTrendingTags: [
         "news",

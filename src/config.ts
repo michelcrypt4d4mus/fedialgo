@@ -4,11 +4,12 @@
 import { isDebugMode, isLoadTest } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
-// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
-export const SECONDS_IN_HOUR = 3_600;
 export const DEFAULT_LOCALE = "en-CA";
 export const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 export const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
+// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
+export const SECONDS_IN_MINUTE = 60;
+export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * 60;
 
 
 type StaleDataConfig = {
@@ -20,6 +21,7 @@ export type ConfigType = {
     defaultLanguage: string;
     language: string;
     // Timeline
+    excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
@@ -52,7 +54,6 @@ export type ConfigType = {
     minServerMAU: number;
     numServersToCheck: number;
     // Trending tags
-    excessiveTags: number;
     excessiveTagsPenalty: number;
     invalidTrendingTags: string[];
     minTrendingTagTootsForPenalty: number,
@@ -80,6 +81,7 @@ export const Config: ConfigType = {
     language: DEFAULT_LANGUAGE,
 
     // Timeline toots
+    excessiveTags: 25,                      // Toots with more than this many tags will be penalized
     hashtagTootRetrievalDelaySeconds: 5,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
@@ -100,11 +102,11 @@ export const Config: ConfigType = {
         [StorageKey.FOLLOWED_ACCOUNTS]:          4 * SECONDS_IN_HOUR,
         [StorageKey.FOLLOWED_TAGS]:              4 * SECONDS_IN_HOUR,
         [StorageKey.MUTED_ACCOUNTS]:            12 * SECONDS_IN_HOUR,
-        [StorageKey.PARTICIPATED_TAG_TOOTS]:  0.25 * SECONDS_IN_HOUR,
+        [StorageKey.PARTICIPATED_TAG_TOOTS]:    15 * SECONDS_IN_MINUTE,
         [StorageKey.RECENT_NOTIFICATIONS]:       6 * SECONDS_IN_HOUR,
         [StorageKey.RECENT_USER_TOOTS]:          2 * SECONDS_IN_HOUR,
         [StorageKey.SERVER_SIDE_FILTERS]:       24 * SECONDS_IN_HOUR,
-        [StorageKey.TRENDING_TAG_TOOTS]:      0.25 * SECONDS_IN_HOUR,
+        [StorageKey.TRENDING_TAG_TOOTS]:        15 * SECONDS_IN_MINUTE,
     },
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
@@ -114,40 +116,39 @@ export const Config: ConfigType = {
     numParticipatedTagTootsPerTag: 5,       // How many toots to pull for each participated tag
 
     // API stuff
-    backgroundLoadIntervalSeconds: 0.25 * SECONDS_IN_HOUR, // Background poll for user data after initial load
-    defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-    maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
-    maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
+    backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
+    defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+    maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
+    maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
-    maxConcurrentRequestsInitial: 15,    // How many toot requests to make in parallel
-    maxConcurrentRequestsBackground: 3,  // How many toot requests to make in parallel once the initial load is done
-    minRecordsForFeatureScoring: 240,    // number of notifications, replies, etc. to pull in initial load
-    minServerMAU: 100,                   // Minimum MAU for a server to be considered for trending toots/tags
-    mutexWarnSeconds: 5,                 // How long to wait before warning about a mutex lock
-    numServersToCheck: 30,               // NUM_SERVERS_TO_CHECK
-    reloadFeaturesEveryNthOpen: 9,       // RELOAD_FEATURES_EVERY_NTH_OPEN
-    sleepBetweenCompletionMS: 200,       // How long to wait between batches of Toot.completeToots() calls
-    timeoutMS: 5_000,                    // Timeout for API calls
+    maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
+    maxConcurrentRequestsBackground: 3,     // How many toot requests to make in parallel once the initial load is done
+    minRecordsForFeatureScoring: 240,       // number of notifications, replies, etc. to pull in initial load
+    minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
+    mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
+    numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
+    reloadFeaturesEveryNthOpen: 9,          // RELOAD_FEATURES_EVERY_NTH_OPEN
+    sleepBetweenCompletionMS: 200,          // How long to wait between batches of Toot.completeToots() calls
+    timeoutMS: 5_000,                       // Timeout for API calls
 
     // Trending tags and links
-    excessiveTags: 25,                   // Toots with more than this many tags will be penalized
-    excessiveTagsPenalty: 0.1,           // Multiplier to penalize toots with excessive tags
-    invalidTrendingTags: [               // Tags that are too generic to be considered trending
+    excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
+    invalidTrendingTags: [                  // Tags that are too generic to be considered trending
         "news",
         "photography",
     ],
-    minTrendingTagTootsForPenalty: 9,    // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
-    numDaysToCountTrendingTagData: 3,    // Look at this many days of user counts when assessing trending tags
-    numTootsPerTrendingTag: 15,          // How many toots to pull for each trending tag
-    numTrendingLinksPerServer: 20,       // How many trending links to pull from each server
-    numTrendingTags: 20,                 // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
-    numTrendingTagsPerServer: 30,        // How many trending tags to pull from each server (Mastodon default is 10)
-    numTrendingTagsToots: 200,           // Maximum number of toots with trending tags to push into the user's feed
+    minTrendingTagTootsForPenalty: 9,       // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
+    numDaysToCountTrendingTagData: 3,       // Look at this many days of user counts when assessing trending tags
+    numTootsPerTrendingTag: 15,             // How many toots to pull for each trending tag
+    numTrendingLinksPerServer: 20,          // How many trending links to pull from each server
+    numTrendingTags: 20,                    // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+    numTrendingTagsPerServer: 30,           // How many trending tags to pull from each server (Mastodon default is 10)
+    numTrendingTagsToots: 200,              // Maximum number of toots with trending tags to push into the user's feed
     // Trending toots
-    numTrendingTootsPerServer: 30,       // How many trending toots to pull per server
+    numTrendingTootsPerServer: 30,          // How many trending toots to pull per server
 
     // Demo app GUI stuff
-    isAppFilterVisible: false,                // 99% of toots don't have the app field set so don't show the filter section
+    isAppFilterVisible: false,              // 99% of toots don't have the app field set so don't show the filter section
 
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough
     // servers to make for a good set of trending toots and hashtags.
