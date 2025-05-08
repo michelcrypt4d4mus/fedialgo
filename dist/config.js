@@ -19,7 +19,7 @@ exports.Config = {
     hashtagTootRetrievalDelaySeconds: 5,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
-    lookbackForUpdatesMinutes: 60,
+    lookbackForUpdatesMinutes: 180,
     maxCachedTimelineToots: 1600,
     maxTimelineDaysToFetch: 7,
     numDesiredTimelineToots: 700,
