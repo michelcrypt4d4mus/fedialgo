@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `FollowedAccounts` and `FollowedTags` are pulled in batches of 80 records instead of 40
 * `fetchHomeFeed()` has `skipMutex=true`
 * Bump up `TRENDING` weight to 0.25
 
