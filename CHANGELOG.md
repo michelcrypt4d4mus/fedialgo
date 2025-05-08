@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Deal with bug where Toot's followedTags property was getting lost
 
 ### v0.29.5
 * (Demo App) Tooltip text for auto load checkbox

@@ -497,8 +497,11 @@ class Toot {
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.trendingRank);
+            // Deal with tag arrays
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
+            const allFollowedTags = uriToots.flatMap(toot => toot.followedTags || []);
+            const uniqueFollowedTags = (0, collection_helpers_1.uniquifyByProp)(allFollowedTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
@@ -517,9 +520,9 @@ class Toot {
                 toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 // Set all toots to have all trending tags so when we uniquify we catch everything
                 toot.trendingTags = uniqueTrendingTags;
+                toot.followedTags = uniqueFollowedTags;
                 // Set various properties to the first toot that has them
                 toot.completedAt ??= firstCompleted?.completedAt;
-                toot.followedTags ??= firstFollowedTags?.followedTags;
                 toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
                 toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
