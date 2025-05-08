@@ -24,6 +24,7 @@ export default class MastoApi {
     fetchHomeFeed(mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>, maxRecords: number, maxTootedAt?: Date | null, // Home timeline most recent toot date
     maxId?: string | number): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
+    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
     getFollowedAccounts(): Promise<Account[]>;
     getFollowedTags(): Promise<mastodon.v1.Tag[]>;
     getMutedAccounts(): Promise<Account[]>;
@@ -36,7 +37,6 @@ export default class MastoApi {
     getUserData(): Promise<UserData>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
-    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
     setSemaphoreConcurrency(concurrency: number): void;
     private getApiRecords;
     private hashtagTimelineToots;

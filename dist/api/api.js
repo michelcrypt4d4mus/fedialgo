@@ -62,8 +62,8 @@ class MastoApi {
     userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
-    // Helper methods
-    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`; // URL for tag on the user's homeserver
+    // URL for tag on the user's homeserver
+    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
@@ -73,13 +73,11 @@ class MastoApi {
         console.log(`[API] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
-    ;
     static get instance() {
         if (!MastoApi.#instance)
             throw new Error("MastoApi wasn't initialized before use!");
         return MastoApi.#instance;
     }
-    ;
     constructor(api, user) {
         this.api = api;
         this.user = user;
@@ -90,7 +88,6 @@ class MastoApi {
             this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
         this.requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial);
     }
-    ;
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
     // Pagination starts at the most recent toots and goes backwards in time.
     //    - mergeTootsToFeed: fxn to call to merge the fetched toots into the feed
@@ -142,14 +139,36 @@ class MastoApi {
         await Storage_1.default.set(types_1.StorageKey.HOME_TIMELINE, homeTimelineToots);
         return homeTimelineToots;
     }
-    ;
+    // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts() {
         return await this.getApiRecords({
             fetch: this.api.v1.blocks.list,
             storageKey: types_1.StorageKey.BLOCKED_ACCOUNTS
         });
     }
-    ;
+    // Generic data getter for things we want to cache but require custom fetch logic
+    //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
+    async getCacheableToots(key, fetch, maxRecordsConfigKey) {
+        const logPrefix = `[${key} getCacheableToots()]`;
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logPrefix);
+        const startedAt = new Date();
+        try {
+            let toots = await Storage_1.default.getIfNotStale(key);
+            if (!toots) {
+                const statuses = await fetch();
+                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
+                toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
+                if (maxRecordsConfigKey) {
+                    toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
+                }
+                await Storage_1.default.set(key, toots);
+            }
+            return toots;
+        }
+        finally {
+            releaseMutex();
+        }
+    }
     // Get accounts the user is following
     async getFollowedAccounts() {
         return await this.getApiRecords({
@@ -203,7 +222,6 @@ class MastoApi {
             moar: moar,
         });
     }
-    ;
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
@@ -259,7 +277,6 @@ class MastoApi {
         }
         return this.userData;
     }
-    ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -280,7 +297,6 @@ class MastoApi {
         console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
         return toot_1.default.build(resolvedStatus);
     }
-    ;
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
@@ -303,30 +319,6 @@ class MastoApi {
         }
         finally {
             releaseSemaphore();
-        }
-    }
-    ;
-    // Generic data getter for things we want to cache but require custom fetch logic
-    //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
-    async getCacheableToots(key, fetch, maxRecordsConfigKey) {
-        const logPrefix = `[${key} getCacheableToots()]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logPrefix);
-        const startedAt = new Date();
-        try {
-            let toots = await Storage_1.default.getIfNotStale(key);
-            if (!toots) {
-                const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
-                toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                if (maxRecordsConfigKey) {
-                    toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
-                }
-                await Storage_1.default.set(key, toots);
-            }
-            return toots;
-        }
-        finally {
-            releaseMutex();
         }
     }
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
@@ -424,7 +416,6 @@ class MastoApi {
             releaseSemaphore();
         }
     }
-    ;
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     buildParams(maxId, limitPerPage, logPfx) {
         limitPerPage ||= config_1.Config.defaultRecordsPerPage;
@@ -437,7 +428,6 @@ class MastoApi {
             (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, params);
         return params;
     }
-    ;
     // Construct an Account or Toot object from the API object (otherwise just return the object)
     static buildFromApiObjects(key, objects) {
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
