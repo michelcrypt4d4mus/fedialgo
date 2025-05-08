@@ -114,11 +114,10 @@ export const Config: ConfigType = {
     numParticipatedTagTootsPerTag: 5,       // How many toots to pull for each participated tag
 
     // API stuff
-    backgroundLoadIntervalSeconds: 0.25 * SECONDS_IN_HOUR,
+    backgroundLoadIntervalSeconds: 0.25 * SECONDS_IN_HOUR, // Background poll for user data after initial load
     defaultRecordsPerPage: 40,           // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     maxRecordsForFeatureScoring: 1_500,  // number of notifications, replies, etc. to pull slowly in background for scoring
     maxFollowingAccountsToPull: 5_000,   // MAX_FOLLOWING_ACCOUNT_TO_PULL
-    // TODO: possibly consider extending this to all API requests, not just hashtag toot pulls?
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,    // How many toot requests to make in parallel
     maxConcurrentRequestsBackground: 3,  // How many toot requests to make in parallel once the initial load is done
