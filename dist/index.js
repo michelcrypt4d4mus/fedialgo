@@ -76,6 +76,7 @@ const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_1.PresetWeightLabel; } });
@@ -94,6 +95,7 @@ exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 ;
 class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
+    isDebug = environment_helpers_1.isDebugMode;
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)

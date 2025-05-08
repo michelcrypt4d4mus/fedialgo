@@ -33,14 +33,15 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, timelineCutoffAt, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG } from './config';
 import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logAndThrowError, traceLog, logDebug } from './helpers/log_helpers';
+import { isDebugMode } from './helpers/environment_helpers';
+import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
     NON_SCORE_WEIGHTS,
@@ -76,6 +77,7 @@ interface AlgorithmArgs {
 
 class TheAlgorithm {
     filters: FeedFilterSettings = buildNewFilterSettings();
+    isDebug = isDebugMode;
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)

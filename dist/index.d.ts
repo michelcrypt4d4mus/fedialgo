@@ -37,6 +37,7 @@ interface AlgorithmArgs {
 }
 declare class TheAlgorithm {
     filters: FeedFilterSettings;
+    isDebug: boolean;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
     mastodonServers: MastodonInstances;
