@@ -297,7 +297,7 @@ export default class MastoApi {
             this.hashtagTimelineToots(tag, numToots),
         ]);
 
-        logTrendingTagResults(`[#${tag.name}]`, "both hashtag searches", tagToots.flat());
+        logTrendingTagResults(`[getStatusesForTag(#${tag.name})]`, "both hashtag searches", tagToots.flat());
         return tagToots.flat();
     }
 
@@ -355,7 +355,7 @@ export default class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            console.debug(`${logPrefix} Retrieved ${statuses.length} ${ageString(startedAt)}`);
+            traceLog(`${logPrefix} Retrieved ${statuses.length} ${ageString(startedAt)}`);
             return statuses;
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
@@ -511,7 +511,7 @@ export default class MastoApi {
 
 // TODO: get rid of this eventually
 const logTrendingTagResults = (logPrefix: string, searchMethod: string, toots: mastodon.v1.Status[] | Toot[]): void => {
-    let msg = `${logPrefix} ${capitalCase(searchMethod)} found ${toots.length} toots`;
+    let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots`;
     msg += ` (oldest=${quotedISOFmt(earliestTootedAt(toots))}, newest=${quotedISOFmt(mostRecentTootedAt(toots))}):`
-    console.info(msg);
+    console.debug(msg);
 };

@@ -27,13 +27,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
-/*
- * Singleton class to wrap authenticated mastodon API calls to the user's home server
- * (unauthenticated calls are handled by the MastodonServer class).
- *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
- *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
- */
-const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -261,7 +254,7 @@ class MastoApi {
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
         ]);
-        logTrendingTagResults(`[#${tag.name}]`, "both hashtag searches", tagToots.flat());
+        logTrendingTagResults(`[getStatusesForTag(#${tag.name})]`, "both hashtag searches", tagToots.flat());
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags
@@ -312,7 +305,7 @@ class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            console.debug(`${logPrefix} Retrieved ${statuses.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${statuses.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
             return statuses;
         }
         catch (e) {
@@ -458,8 +451,8 @@ exports.default = MastoApi;
 ;
 // TODO: get rid of this eventually
 const logTrendingTagResults = (logPrefix, searchMethod, toots) => {
-    let msg = `${logPrefix} ${(0, change_case_1.capitalCase)(searchMethod)} found ${toots.length} toots`;
+    let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots`;
     msg += ` (oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))}):`;
-    console.info(msg);
+    console.debug(msg);
 };
 //# sourceMappingURL=api.js.map
