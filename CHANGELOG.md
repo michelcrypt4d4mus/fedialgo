@@ -3,9 +3,9 @@
 * Bump up `TRENDING` weight to 0.25
 
 ### v0.29.2
-* Add `Config.lookbackForUpdatesMinutes` param and scan backwards from the maxUpdatedAt that many more minutes to catch changes
+* Add `Config.lookbackForUpdatesMinutes` param and scan backwards from the `maxUpdatedAt` that many more minutes to catch changes
 * Add a check for `LOAD_TEST=true` env var that dramatically bumps up the number of toots to retrieve
-* Rename Config.maxTimelineDaysToFetch (was hours increment), add age check to Toot.isValidForFeed()
+* Rename `Config.maxTimelineDaysToFetch` (was hours increment), add age check to `Toot.isValidForFeed()`
 
 ### v0.29.1
 * Add `Config.isAppFilterVisible` boolean
@@ -13,7 +13,7 @@
 * Add `Config.sleepBetweenCompletionMS` to avoid overloading browser with `completeToots()`
 
 ## v0.29.0
-* Defer processing of the most expensive Toot properties (trendingLinks, mostly, but other tag stuff too) until all data has arrived
+* Defer processing of the most expensive `Toot` properties (`trendingLinks`, mostly, but other tag stuff too) until all data has arrived
 * `fetchHomeFeed()` now infers the `maxTootedAt` param from the cached `HOME_TIMELINE` toots
 * New private property `TheAlgorithm.homeFeed: Toot[]`
 * Rename `Config.backgroundLoadIntervalSeconds`
