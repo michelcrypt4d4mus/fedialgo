@@ -9,7 +9,7 @@
 * (Demo App) Tooltip text for auto load checkbox
 
 ### v0.29.4
-* Add TheAlgorithm.isDebug property
+* Add `TheAlgorithm.isDebug` property
 
 ### v0.29.3
 * `FollowedAccounts` and `RecentNotifications` are pulled in batches of 80 records instead of 40; `FollowedTags` pulled in batches of 100

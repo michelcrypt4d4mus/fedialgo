@@ -187,6 +187,7 @@ if (environment_helpers_1.isDebugMode) {
     exports.Config.backgroundLoadIntervalSeconds = 120;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
+    exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;
     exports.Config.numDesiredTimelineToots = 500;
