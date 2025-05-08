@@ -218,7 +218,6 @@ export default class MastoApi {
         const followedTags = await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             storageKey: StorageKey.FOLLOWED_TAGS,
-            batchSize: 80,  // 80 is the max per page for this endpoint: https://docs.joinmastodon.org/methods/accounts/#following
         }) as mastodon.v1.Tag[];
 
         return followedTags.map(repairTag);

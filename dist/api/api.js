@@ -182,7 +182,6 @@ class MastoApi {
         const followedTags = await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
             storageKey: types_1.StorageKey.FOLLOWED_TAGS,
-            batchSize: 80, // 80 is the max per page for this endpoint: https://docs.joinmastodon.org/methods/accounts/#following
         });
         return followedTags.map(tag_1.repairTag);
     }
