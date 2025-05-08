@@ -12,7 +12,6 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { Config } from "../config";
-import { countValues, sortKeysByValue, transformKeys, truncateToConfiguredLength, zipPromises } from "../helpers/collection_helpers";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -30,6 +29,13 @@ import {
     TrendingTag,
     FEDIVERSE_KEYS,
 } from "../types";
+import {
+    countValues,
+    sortKeysByValue,
+    transformKeys,
+    truncateToConfiguredLength,
+    zipPromises
+} from "../helpers/collection_helpers";
 
 export enum FediverseTrendingType {
     STATUSES = "statuses",
