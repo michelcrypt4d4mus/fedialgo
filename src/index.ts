@@ -170,8 +170,12 @@ class TheAlgorithm {
 
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(): Promise<void> {
+        if (this.isLoading()) {
+            console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
+            return;
+        }
+
         logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
-        if (this.isLoading()) logAndThrowError(`[${TRIGGER_FEED}] ${GET_FEED_BUSY_MSG}`);
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         const initialLoads = [
