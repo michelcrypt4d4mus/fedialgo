@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = void 0;
+exports.timeString = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -86,6 +86,7 @@ Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: functio
 Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
+exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
 // TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
 const INITIAL_LOAD_STATUS = "initial data";
 const READY_TO_LOAD_MSG = "(ready to load)";
@@ -174,7 +175,7 @@ class TheAlgorithm {
     async triggerFeedUpdate() {
         if (this.isLoading()) {
             console.warn(`[${log_helpers_1.TRIGGER_FEED}] Load in progress already!`, this.statusDict());
-            return;
+            throw new Error(GET_FEED_BUSY_MSG);
         }
         (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, state:`, this.statusDict());
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);

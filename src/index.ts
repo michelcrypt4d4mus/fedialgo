@@ -172,7 +172,7 @@ class TheAlgorithm {
     async triggerFeedUpdate(): Promise<void> {
         if (this.isLoading()) {
             console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
-            return;
+            throw new Error(GET_FEED_BUSY_MSG);
         }
 
         logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
@@ -437,6 +437,7 @@ class TheAlgorithm {
 
 // Export types and constants needed by apps using this package
 export {
+    GET_FEED_BUSY_MSG,
     GIFV,
     NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
