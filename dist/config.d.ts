@@ -12,6 +12,7 @@ export type ConfigType = {
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
+    lookbackForUpdatesMinutes: number;
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;

@@ -43,6 +43,11 @@ var TootVisibility;
 const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const UNKNOWN = "unknown";
+const PROPS_THAT_CHANGE = [
+    "favouritesCount",
+    "repliesCount",
+    "reblogsCount"
+];
 ;
 ;
 class Toot {
@@ -496,7 +501,19 @@ class Toot {
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
+            const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
+                props[propName] = Math.max(...uriToots.map(t => t[propName] || 0));
+                return props;
+            }, {});
+            if (uriToots.length > 1) {
+                console.debug(`${logPrefix} propsThatChange: `, propsThatChange);
+            }
             uriToots.forEach((toot) => {
+                // Counts may increase over time w/repeated fetches
+                toot.favouritesCount = propsThatChange.favouritesCount;
+                toot.reblogsCount = propsThatChange.reblogsCount;
+                toot.repliesCount = propsThatChange.repliesCount;
+                // booleans can be ORed
                 toot.isFollowed = uriToots.some(toot => toot.isFollowed);
                 toot.muted = uriToots.some(toot => toot.muted);
                 toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());

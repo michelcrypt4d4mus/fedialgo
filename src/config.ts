@@ -23,6 +23,7 @@ export type ConfigType = {
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
+    lookbackForUpdatesMinutes: number;
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;
@@ -82,6 +83,7 @@ export const Config: ConfigType = {
     hashtagTootRetrievalDelaySeconds: 5,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
+    lookbackForUpdatesMinutes: 60,          // How long to look back for updates (edits, increased reblogs, etc.)
     maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     numDesiredTimelineToots: 700,           // How many home timeline toots to start with

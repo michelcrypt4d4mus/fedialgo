@@ -12,7 +12,7 @@ import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ageString, mostRecent, quotedISOFmt, timelineCutoffAt } from "../helpers/time_helpers";
+import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
 import { Config, ConfigType } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
@@ -26,6 +26,7 @@ export const STATUSES = "statuses";
 export const TAGS = "tags";
 
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
 
@@ -105,7 +106,9 @@ export default class MastoApi {
         const logPrefix = `[API ${StorageKey.HOME_TIMELINE}]`;
         let homeTimelineToots = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
         maxTootedAt ||= mostRecentTootedAt(homeTimelineToots);
-        const cutoffAt: Date = mostRecent(timelineCutoffAt(), maxTootedAt ?? null)!;
+        // Look back an additional lookbackForUpdatesMinutes minutes to catch updates and edits to toots
+        let cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, LOOKBACK_SECONDS) : timelineCutoffAt();
+        cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
         console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);
 
         let oldestTootStr = "no oldest toot";

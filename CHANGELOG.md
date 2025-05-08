@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add Config. lookbackForUpdatesMinutes param and scan backwards from the maxUpdatedAt that many more minutes to catch changes
 * Add a check for `LOAD_TEST=true` env var that dramatically bumps up the number of toots to retrieve
 * Rename Config.maxTimelineDaysToFetch (was hours increment), add age check to Toot.isValidForFeed()
 

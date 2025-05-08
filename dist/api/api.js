@@ -51,6 +51,7 @@ exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 ;
 class MastoApi {
@@ -102,7 +103,9 @@ class MastoApi {
         const logPrefix = `[API ${types_1.StorageKey.HOME_TIMELINE}]`;
         let homeTimelineToots = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
         maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-        const cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), maxTootedAt ?? null);
+        // Look back an additional lookbackForUpdatesMinutes minutes to catch updates and edits to toots
+        let cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, LOOKBACK_SECONDS) : (0, time_helpers_1.timelineCutoffAt)();
+        cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
         console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
         let oldestTootStr = "no oldest toot";
         const startedAt = new Date();

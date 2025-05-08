@@ -104,5 +104,10 @@ export function nowString(): string {
 // Return the oldest timestamp we should feed timeline toots until
 export function timelineCutoffAt(): Date {
     const timelineLookBackMS = Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
-    return new Date(Date.now() - timelineLookBackMS);
+    return subtractSeconds(new Date(), timelineLookBackMS);
+};
+
+
+export function subtractSeconds(date: Date, seconds: number): Date {
+    return new Date(date.getTime() - (seconds * 1000));
 };

@@ -7,3 +7,4 @@ export declare function quotedISOFmt(date: Date | string | null, withMillisecond
 export declare const timeString: (_timestamp: Date | string | null, locale?: string) => string;
 export declare function nowString(): string;
 export declare function timelineCutoffAt(): Date;
+export declare function subtractSeconds(date: Date, seconds: number): Date;

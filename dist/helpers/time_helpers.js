@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = void 0;
+exports.subtractSeconds = exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -102,8 +102,13 @@ exports.nowString = nowString;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
     const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
-    return new Date(Date.now() - timelineLookBackMS);
+    return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
+;
+function subtractSeconds(date, seconds) {
+    return new Date(date.getTime() - (seconds * 1000));
+}
+exports.subtractSeconds = subtractSeconds;
 ;
 //# sourceMappingURL=time_helpers.js.map
