@@ -1,9 +1,9 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
+import { bracket, hashObject, isNumber } from "./string_helpers";
 import { Config, ConfigType } from "../config";
 import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
-import { hashObject, isNumber } from "./string_helpers";
 import { traceLog } from "./log_helpers";
 
 
@@ -195,7 +195,7 @@ export function filterWithLog<T>(
     const numRemoved = startingLength - filtered.length;
 
     if (numRemoved > 0) {
-        console.debug(`[${logPrefix}] Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+        console.debug(`${bracket(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
     }
 
     return filtered;

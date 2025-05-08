@@ -4,9 +4,9 @@ exports.uniquify = exports.isStorageKey = exports.isWeightName = exports.truncat
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
+const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const types_1 = require("../types");
-const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
@@ -160,7 +160,7 @@ objType) {
     const filtered = array.filter(filterFxn);
     const numRemoved = startingLength - filtered.length;
     if (numRemoved > 0) {
-        console.debug(`[${logPrefix}] Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+        console.debug(`${(0, string_helpers_1.bracket)(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
     }
     return filtered;
 }
