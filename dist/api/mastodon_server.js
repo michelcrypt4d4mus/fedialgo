@@ -38,12 +38,12 @@ const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 var FediverseTrendingType;
 (function (FediverseTrendingType) {
     FediverseTrendingType["STATUSES"] = "statuses";
@@ -278,7 +278,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains() {
         const servers = await this.getMastodonInstancesInfo();
-        // Sort the servers by the number of users on each server
+        // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
         console.debug(`[${types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;

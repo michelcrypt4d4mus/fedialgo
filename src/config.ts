@@ -41,9 +41,9 @@ export type ConfigType = {
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
+    maxFollowingAccountsToPull: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
-    maxFollowingAccountsToPull: number;
     mutexWarnSeconds: number;
     reloadFeaturesEveryNthOpen: number;
     sleepBetweenCompletionMS: number;
@@ -118,11 +118,11 @@ export const Config: ConfigType = {
     // API stuff
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
     defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-    maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
-    maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
     maxConcurrentRequestsBackground: 3,     // How many toot requests to make in parallel once the initial load is done
+    maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
+    maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
     minRecordsForFeatureScoring: 240,       // number of notifications, replies, etc. to pull in initial load
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock

@@ -170,6 +170,7 @@ class MastoApi {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
+            batchSize: 80,
             maxRecords: config_1.Config.maxFollowingAccountsToPull,
         });
     }
@@ -330,9 +331,10 @@ class MastoApi {
     async getApiRecords(fetchParams) {
         // Parameter setup
         let logPfx = (0, string_helpers_1.bracketed)(fetchParams.storageKey);
+        fetchParams.batchSize ??= fetchParams.maxRecords;
         fetchParams.breakIf ??= DEFAULT_BREAK_IF;
         fetchParams.maxRecords ??= config_1.Config.minRecordsForFeatureScoring;
-        let { breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
+        let { batchSize, breakIf, fetch, storageKey: label, maxId, maxRecords, moar, skipCache, skipMutex } = fetchParams;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
@@ -358,7 +360,7 @@ class MastoApi {
                 ;
             }
             // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(maxId, maxRecords, logPfx))) {
+            for await (const page of fetch(this.buildParams(maxId, batchSize, logPfx))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
@@ -413,10 +415,10 @@ class MastoApi {
         }
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(maxId, limitPerPage, logPfx) {
-        limitPerPage ||= config_1.Config.defaultRecordsPerPage;
+    buildParams(maxId, maxRecords, logPfx) {
+        maxRecords ||= config_1.Config.defaultRecordsPerPage;
         let params = {
-            limit: Math.min(limitPerPage, config_1.Config.defaultRecordsPerPage),
+            limit: Math.min(maxRecords, config_1.Config.defaultRecordsPerPage),
         };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };

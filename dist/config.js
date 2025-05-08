@@ -52,11 +52,11 @@ exports.Config = {
     // API stuff
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
-    maxRecordsForFeatureScoring: 1500,
-    maxFollowingAccountsToPull: 5000,
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,
     maxConcurrentRequestsBackground: 3,
+    maxFollowingAccountsToPull: 5000,
+    maxRecordsForFeatureScoring: 1500,
     minRecordsForFeatureScoring: 240,
     minServerMAU: 100,
     mutexWarnSeconds: 5,
