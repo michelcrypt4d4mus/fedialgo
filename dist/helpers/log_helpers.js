@@ -10,7 +10,7 @@ const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 exports.CLEANUP_FEED = "cleanupFeed()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 exports.PREP_SCORERS = "prepareScorers()";
-// console.info() with a prefix
+// console.log methods with a prefix
 const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
 exports.logInfo = logInfo;
 const logDebug = (pfx, msg, ...args) => console.debug(prefixed(pfx, msg), ...args);
@@ -19,7 +19,7 @@ exports.logDebug = logDebug;
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)
         return;
-    console.debug(`${(0, string_helpers_1.bracket)(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`${(0, string_helpers_1.bracketed)(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 }
 exports.logTootRemoval = logTootRemoval;
 ;
@@ -78,7 +78,7 @@ exports.traceLog = traceLog;
 ;
 // Prefix a string with [Brackets] and a space
 function prefixed(prefix, msg) {
-    return `${(0, string_helpers_1.bracket)(prefix)} ${msg}`;
+    return `${(0, string_helpers_1.bracketed)(prefix)} ${msg}`;
 }
 exports.prefixed = prefixed;
 ;

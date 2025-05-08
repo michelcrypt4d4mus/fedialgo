@@ -98,7 +98,7 @@ objType) {
     const filtered = array.filter(filterFxn);
     const numRemoved = startingLength - filtered.length;
     if (numRemoved > 0) {
-        console.debug(`${(0, string_helpers_1.bracket)(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+        console.debug(`${(0, string_helpers_1.bracketed)(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
     }
     return filtered;
 }

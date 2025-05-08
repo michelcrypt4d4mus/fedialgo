@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.isNumber = exports.quote = exports.bracket = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -29,6 +29,15 @@ exports.MEDIA_TYPES = [
     types_1.MediaCategory.AUDIO,
     types_1.MediaCategory.IMAGE,
 ];
+// [Bracketed]
+const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
+exports.bracketed = bracketed;
+// Doublequotes
+const quoted = (str) => str == null ? exports.NULL : `"${str}"`;
+exports.quoted = quoted;
+// Returns true if n is a number or a string that can be converted to a number
+const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
+exports.isNumber = isNumber;
 // Return a string representation of a number of bytes
 const byteString = (numBytes) => {
     if (numBytes < exports.KILOBYTE)
@@ -44,6 +53,7 @@ function countInstances(str, substr) {
 }
 exports.countInstances = countInstances;
 ;
+// Create a random string of the given length
 function createRandomString(length) {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -90,7 +100,7 @@ function isImage(uri) {
 }
 exports.isImage = isImage;
 ;
-// Return true if uri ends with an image extension like .jpg or .png
+// Return true if uri ends with a video extension like .mp4 or .gifv
 function isVideo(uri) {
     if (!uri)
         return false;
@@ -116,15 +126,6 @@ function replaceHttpsLinks(input) {
 }
 exports.replaceHttpsLinks = replaceHttpsLinks;
 ;
-// [Bracketed]
-const bracket = (str) => str.startsWith('[') ? str : `[${str}]`;
-exports.bracket = bracket;
-// Doublequotes
-const quote = (str) => str == null ? exports.NULL : `"${str}"`;
-exports.quote = quote;
-// Returns true if n is a number or a string that can be converted to a number
-const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
-exports.isNumber = isNumber;
 // Number to string (could also be done with Math.floor(num).toLocaleString())
 const toLocaleInt = (num) => {
     if (num == null)

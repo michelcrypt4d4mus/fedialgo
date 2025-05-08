@@ -31,6 +31,14 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 ];
 
 
+// [Bracketed]
+export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
+// Doublequotes
+export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
+// Returns true if n is a number or a string that can be converted to a number
+export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
+
+
 // Return a string representation of a number of bytes
 export const byteString = (numBytes: number): string => {
     if (numBytes < KILOBYTE) return `${numBytes} bytes`;
@@ -45,6 +53,7 @@ export function countInstances(str: string, substr: string): number {
 };
 
 
+// Create a random string of the given length
 export function createRandomString(length: number): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -94,7 +103,7 @@ export function isImage(uri: string | null | undefined): boolean {
 };
 
 
-// Return true if uri ends with an image extension like .jpg or .png
+// Return true if uri ends with a video extension like .mp4 or .gifv
 export function isVideo(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
@@ -127,14 +136,6 @@ export function replaceEmojiShortcodesWithImageTags(
 export function replaceHttpsLinks(input: string): string {
     return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
 };
-
-
-// [Bracketed]
-export const bracket = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
-// Doublequotes
-export const quote = (str: string | null): string => str == null ? NULL : `"${str}"`;
-// Returns true if n is a number or a string that can be converted to a number
-export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
 
 
 // Number to string (could also be done with Math.floor(num).toLocaleString())

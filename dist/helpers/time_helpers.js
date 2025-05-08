@@ -22,6 +22,7 @@ function ageInSeconds(date) {
 }
 exports.ageInSeconds = ageInSeconds;
 ;
+// Compute the difference from 'date' to now in minutes
 function ageInMinutes(date) {
     return ageInSeconds(date) / 60.0;
 }
@@ -70,7 +71,7 @@ exports.toISOFormat = toISOFormat;
 function quotedISOFmt(date, withMilliseconds) {
     if (date == null)
         return string_helpers_1.NULL;
-    return (0, string_helpers_1.quote)(toISOFormat(date, withMilliseconds));
+    return (0, string_helpers_1.quoted)(toISOFormat(date, withMilliseconds));
 }
 exports.quotedISOFmt = quotedISOFmt;
 ;
@@ -106,6 +107,7 @@ function timelineCutoffAt() {
 }
 exports.timelineCutoffAt = timelineCutoffAt;
 ;
+// Subtract 'seconds' from 'date' and return the new Date
 function subtractSeconds(date, seconds) {
     return new Date(date.getTime() - (seconds * 1000));
 }

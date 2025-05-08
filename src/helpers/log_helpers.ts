@@ -4,7 +4,7 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
-import { bracket } from './string_helpers';
+import { bracketed } from './string_helpers';
 import { Config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 
@@ -16,7 +16,7 @@ export const TRIGGER_FEED = "triggerFeedUpdate()";
 export const PREP_SCORERS = "prepareScorers()";
 
 
-// console.info() with a prefix
+// console.log methods with a prefix
 export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
 export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.debug(prefixed(pfx, msg), ...args);
 
@@ -24,7 +24,7 @@ export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.de
 // Simple log helper that only fires if numRemoved > 0
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
-    console.debug(`${bracket(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    console.debug(`${bracketed(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 };
 
 
@@ -89,5 +89,5 @@ export function traceLog(msg: string, ...args: any[]): void {
 
 // Prefix a string with [Brackets] and a space
 export function prefixed(prefix: string, msg: string): string {
-    return `${bracket(prefix)} ${msg}`;
+    return `${bracketed(prefix)} ${msg}`;
 };

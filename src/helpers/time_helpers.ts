@@ -2,7 +2,7 @@
  * Helpers for time-related operations
  */
 import { Config, DEFAULT_LOCALE, SECONDS_IN_HOUR } from "../config";
-import { NULL, quote} from "./string_helpers";
+import { NULL, quoted} from "./string_helpers";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
@@ -23,6 +23,7 @@ export function ageInSeconds(date: Date | number | string | null): number {
 };
 
 
+// Compute the difference from 'date' to now in minutes
 export function ageInMinutes(date: Date | number | string | null): number {
     return ageInSeconds(date) / 60.0;
 };
@@ -71,7 +72,7 @@ export function toISOFormat(date: Date | string | null | undefined, withMillisec
 // toISOFormat() but with quotes around it.
 export function quotedISOFmt(date: Date | string | null, withMilliseconds?: boolean): string {
     if (date == null) return NULL;
-    return quote(toISOFormat(date, withMilliseconds));
+    return quoted(toISOFormat(date, withMilliseconds));
 };
 
 
@@ -108,6 +109,7 @@ export function timelineCutoffAt(): Date {
 };
 
 
+// Subtract 'seconds' from 'date' and return the new Date
 export function subtractSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() - (seconds * 1000));
 };

@@ -21,7 +21,7 @@ import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
     VIDEO_TYPES,
-    bracket,
+    bracketed,
     extractDomain,
     htmlToText,
     isImage,
@@ -528,7 +528,7 @@ export default class Toot implements TootObj {
     ): Promise<Toot[]> {
         if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
-        logPrefix = `${bracket(logPrefix)} buildToots()`;
+        logPrefix = `${bracketed(logPrefix)} buildToots()`;
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
@@ -576,7 +576,7 @@ export default class Toot implements TootObj {
 
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[] {
-        logPrefix = `${bracket(logPrefix || "dedupeToots")} dedupeToots()`;
+        logPrefix = `${bracketed(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
         // If there's the same # of URIs as toots there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length) return toots;

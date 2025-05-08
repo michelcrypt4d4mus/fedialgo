@@ -443,7 +443,7 @@ class Toot {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
-        logPrefix = `${(0, string_helpers_1.bracket)(logPrefix)} buildToots()`;
+        logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix)} buildToots()`;
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
@@ -483,7 +483,7 @@ class Toot {
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots, logPrefix) {
-        logPrefix = `${(0, string_helpers_1.bracket)(logPrefix || "dedupeToots")} dedupeToots()`;
+        logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // If there's the same # of URIs as toots there's nothing to dedupe
         if (Object.keys(tootsByURI).length == toots.length)
