@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.29.4
 * Add TheAlgorithm.isDebug property
 
 ### v0.29.3
