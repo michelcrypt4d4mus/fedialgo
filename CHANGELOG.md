@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.29.6
 * Deal with bug where Toot's followedTags property was getting lost
 * Add `TheAlgorithm.mostRecentHomeTootAgeInSeconds()` method
 * (Demo App) Revamp `useAlgorithmContext`
