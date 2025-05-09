@@ -293,10 +293,10 @@ class MastoApi {
             return toot;
         const lookupResult = await this.api.v2.search.list({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            (0, log_helpers_1.logAndThrowError)(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
+            (0, log_helpers_1.logAndThrowError)(`${logPrefix} got bad result for "${tootURI}"`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
-        console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
+        console.debug(`${logPrefix} found resolvedStatus for "${tootURI}":`, resolvedStatus);
         return toot_1.default.build(resolvedStatus);
     }
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.

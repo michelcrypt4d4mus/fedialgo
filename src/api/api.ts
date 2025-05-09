@@ -343,11 +343,11 @@ export default class MastoApi {
         const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
-            logAndThrowError(`${logPrefix} got bad result for '${tootURI}'`, lookupResult);
+            logAndThrowError(`${logPrefix} got bad result for "${tootURI}"`, lookupResult);
         }
 
         const resolvedStatus = lookupResult.statuses[0];
-        console.debug(`${logPrefix} found resolvedStatus for '${tootURI}:`, resolvedStatus);
+        console.debug(`${logPrefix} found resolvedStatus for "${tootURI}":`, resolvedStatus);
         return Toot.build(resolvedStatus as mastodon.v1.Status);
     }
 

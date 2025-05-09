@@ -387,7 +387,7 @@ class Toot {
                     console.info(`Repairing broken video attachment in toot:`, this);
                     media.type = types_1.MediaCategory.VIDEO;
                 }
-                else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small")) {
+                else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
                     console.info(`Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = types_1.MediaCategory.IMAGE;
                 }
