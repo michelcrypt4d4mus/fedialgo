@@ -43,6 +43,7 @@ var TootVisibility;
 const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const UNKNOWN = "unknown";
+const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const PROPS_THAT_CHANGE = [
     "favouritesCount",
     "repliesCount",
@@ -385,6 +386,10 @@ class Toot {
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
                     console.info(`Repairing broken video attachment in toot:`, this);
                     media.type = types_1.MediaCategory.VIDEO;
+                }
+                else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small")) {
+                    console.info(`Repairing broken bluesky bridge image attachment in toot:`, this);
+                    media.type = types_1.MediaCategory.IMAGE;
                 }
                 else {
                     console.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);

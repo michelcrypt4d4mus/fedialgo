@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Special mediaAttachment repair for bluesky bridged toots
 
 ### v0.30.2
 * Set `isFollowed` in `getFollowedAccounts()`, always `Account.build()` starts `isFollowed` as false
