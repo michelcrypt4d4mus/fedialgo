@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePropertyFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+exports.updateHashtagCounts = exports.updatePropertyFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
@@ -38,6 +38,7 @@ const string_helpers_1 = require("../helpers/string_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
+const time_helpers_1 = require("../helpers/time_helpers");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {},
@@ -91,6 +92,8 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.realToot().language);
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.realToot().account.webfingerURI);
         // Count tags
+        // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
+        // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
             const language = (0, string_helpers_1.detectLanguage)(tag.name);
             if (language && language != config_1.Config.language) {
@@ -126,10 +129,29 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
         console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
-    Storage_1.default.setFilters(filters);
+    Storage_1.default.setFilters(filters); // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }
 exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
 ;
+// We have to rescan the toots to get the tag counts because the tag counts are built with
+// containsTag() whereas the demo app uses containsString() to actually filter.
+function updateHashtagCounts(filters, toots) {
+    const logPrefx = `[updateHashtagCounts()]`;
+    const newTootTagCounts = {};
+    console.log(`${logPrefx} Launched...`);
+    const startedAt = Date.now();
+    Object.keys(filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo).forEach((tagName) => {
+        toots.forEach((toot) => {
+            if (toot.realToot().containsTag(tagName, true)) {
+                (0, collection_helpers_1.incrementCount)(newTootTagCounts, tagName);
+            }
+        });
+    });
+    console.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageInSeconds)(startedAt)}`);
+    filters.filterSections[property_filter_1.PropertyName.HASHTAG].setOptions(newTootTagCounts);
+    Storage_1.default.setFilters(filters);
+}
+exports.updateHashtagCounts = updateHashtagCounts;
 //# sourceMappingURL=feed_filters.js.map

@@ -18,6 +18,7 @@ import {
     StringNumberDict,
     WeightName,
 } from "../types";
+import { ageInSeconds } from "../helpers/time_helpers";
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -89,6 +90,8 @@ export function updatePropertyFilterOptions(
         incrementCount(tootCounts[PropertyName.USER], toot.realToot().account.webfingerURI);
 
         // Count tags
+        // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
+        // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
             const language = detectLanguage(tag.name);
 
@@ -130,7 +133,29 @@ export function updatePropertyFilterOptions(
         console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
-    Storage.setFilters(filters);
+    Storage.setFilters(filters);  // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };
+
+
+// We have to rescan the toots to get the tag counts because the tag counts are built with
+// containsTag() whereas the demo app uses containsString() to actually filter.
+export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
+    const logPrefx = `[updateHashtagCounts()]`;
+    const newTootTagCounts = {} as StringNumberDict;
+    console.log(`${logPrefx} Launched...`);
+    const startedAt = Date.now();
+
+    Object.keys(filters.filterSections[PropertyName.HASHTAG].optionInfo).forEach((tagName) => {
+        toots.forEach((toot) => {
+            if (toot.realToot().containsTag(tagName, true)) {
+                incrementCount(newTootTagCounts, tagName);
+            }
+        })
+    });
+
+    console.log(`${logPrefx} Recomputed tag counts ${ageInSeconds(startedAt)}`);
+    filters.filterSections[PropertyName.HASHTAG].setOptions(newTootTagCounts);
+    Storage.setFilters(filters);
+}

@@ -34,7 +34,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
-import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
+import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
@@ -210,6 +210,7 @@ class TheAlgorithm {
         this.loadingStatus = `Finalizing scores`
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        updateHashtagCounts(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
     }

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Second pass to get the HASHTAG counts right
 * More default servers
 * increase `Config.maxConcurrentRequestsBackground` to 8
 

@@ -210,6 +210,7 @@ class TheAlgorithm {
         this.loadingStatus = `Finalizing scores`;
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        (0, feed_filters_1.updateHashtagCounts)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
     }

@@ -129,7 +129,7 @@ class Storage {
         const logPrefix = `getIfNotStale("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            debug(`${logPrefix} No data found, returning null`);
+            (0, log_helpers_1.traceLog)(`${logPrefix} No data found, returning null`);
             return null;
         }
         ;

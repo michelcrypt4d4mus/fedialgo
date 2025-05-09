@@ -464,7 +464,7 @@ export default class MastoApi {
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                storageKey: StorageKey.HASHTAG_TOOTS,  // String label means skip mutex and skipCache=true
+                storageKey: StorageKey.HASHTAG_TOOTS,
                 maxRecords: maxRecords,
                 skipCache: true,
                 skipMutex: true,
