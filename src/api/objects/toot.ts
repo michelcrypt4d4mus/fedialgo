@@ -61,6 +61,12 @@ const PROPS_THAT_CHANGE: (keyof Toot)[] = [
     "reblogsCount"
 ];
 
+// We always use containsTag() instead of containsString() for these
+const TAG_ONLY_STRINGS = [
+    "it",
+    "us",
+]
+
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo
 export interface SerializableToot extends mastodon.v1.Status {
@@ -83,7 +89,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
-    containsTag: (tag: string | MastodonTag) => boolean;
+    containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
@@ -248,9 +254,16 @@ export default class Toot implements TootObj {
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
 
-    containsTag(tag: string | MastodonTag): boolean {
-        const tagName = typeof tag == "string" ? tag : tag.name;
-        return this.tags.some((tag) => tag.name == tagName);
+    // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
+    containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean {
+        let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
+        if (tagName.startsWith("#")) tagName = tagName.slice(1);
+
+        if (fullScan && tagName.length > 1 && !TAG_ONLY_STRINGS.includes(tagName)) {
+            return this.containsString(tagName);
+        } else {
+            return this.tags.some((tag) => tag.name == tagName);
+        }
     }
 
     // Returns true if the fedialgo user is mentioned in the toot
@@ -502,22 +515,16 @@ export default class Toot implements TootObj {
         const allFollowedTags = Object.values(userData.followedTags);
         // containsString() matched way too many toots so we use containsTag() for participated tags
         toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
-
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        if (isDeepInspect) {
-            toot.followedTags = allFollowedTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
-        } else {
-            // Use containsTag() instead of containsString() for speed
-            toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
-            toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
-        }
+        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
 
         if (isDeepInspect) {
+            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
+        } else {
+            toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
 

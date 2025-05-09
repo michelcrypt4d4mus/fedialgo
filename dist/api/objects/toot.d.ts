@@ -20,7 +20,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
-    containsTag: (tag: string | MastodonTag) => boolean;
+    containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
     describe: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
@@ -82,7 +82,7 @@ export default class Toot implements TootObj {
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
     containsTagsMsg(): string | undefined;
-    containsTag(tag: string | MastodonTag): boolean;
+    containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
     containsUserMention(): boolean;
     contentShortened(maxChars?: number): string;
     contentWithEmojis(fontSize?: number): string;

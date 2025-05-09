@@ -49,6 +49,11 @@ const PROPS_THAT_CHANGE = [
     "repliesCount",
     "reblogsCount"
 ];
+// We always use containsTag() instead of containsString() for these
+const TAG_ONLY_STRINGS = [
+    "it",
+    "us",
+];
 ;
 ;
 class Toot {
@@ -192,9 +197,17 @@ class Toot {
         msgs = msgs.filter((msg) => msg);
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
-    containsTag(tag) {
-        const tagName = typeof tag == "string" ? tag : tag.name;
-        return this.tags.some((tag) => tag.name == tagName);
+    // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
+    containsTag(tag, fullScan) {
+        let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
+        if (tagName.startsWith("#"))
+            tagName = tagName.slice(1);
+        if (fullScan && tagName.length > 1 && !TAG_ONLY_STRINGS.includes(tagName)) {
+            return this.containsString(tagName);
+        }
+        else {
+            return this.tags.some((tag) => tag.name == tagName);
+        }
     }
     // Returns true if the fedialgo user is mentioned in the toot
     containsUserMention() {
@@ -424,19 +437,14 @@ class Toot {
         toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
+        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
         if (isDeepInspect) {
-            toot.followedTags = allFollowedTags.filter(tag => toot.containsString(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsString(tag.name));
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         }
         else {
-            // Use containsTag() instead of containsString() for speed
-            toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag.name));
-            toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag.name));
             toot.trendingLinks = []; // Very slow to calculate so skip it unless isDeepInspect is true
-        }
-        if (isDeepInspect) {
-            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         }
     }
     // Returns true if the toot should be re-completed

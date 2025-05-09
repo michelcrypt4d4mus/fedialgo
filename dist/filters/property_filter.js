@@ -71,13 +71,10 @@ const TOOT_MATCHERS = {
         return validValues.includes(toot.realToot().language || config_1.Config.defaultLanguage);
     },
     [PropertyName.HASHTAG]: (toot, validValues) => {
-        // The old way, using real tags
-        // return toot.tags.some(tag => validValues.includes(tag.name));
-        // The new way using string search
-        return !!validValues.find((v) => toot.realToot().containsString(v));
+        return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
     [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
-        return !!validValues.find((v) => toot.realToot().containsString(v));
+        return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
     [PropertyName.TYPE]: (toot, validValues) => {
         return Object.entries(exports.TYPE_FILTERS).some(([filterName, filter]) => {
