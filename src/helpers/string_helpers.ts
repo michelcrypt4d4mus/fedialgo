@@ -12,6 +12,9 @@ export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
 export const KILOBYTE = 1024;
 export const MEGABYTE = KILOBYTE * 1024;
+// Foreign languages
+export const JAPANESE_LANGUAGE = "ja"
+const JAPANESE_REGEX = /^[一ー-龯ぁ-んァ-ン]{2,}/;  // https://gist.github.com/terrancesnyder/1345094
 
 // Multimedia types
 export const GIFV = "gifv";
@@ -37,7 +40,8 @@ export const bracketed = (str: string): string => str.startsWith('[') ? str : `[
 export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
 // Returns true if n is a number or a string that can be converted to a number
 export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
-
+// Returns true if str is japanese
+export const isJapanese = (str: string) => JAPANESE_REGEX.test(str);
 
 // Return a string representation of a number of bytes
 export const byteString = (numBytes: number): string => {

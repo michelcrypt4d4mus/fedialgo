@@ -6,7 +6,9 @@ import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
+import { Config } from "../config";
 import { incrementCount } from "../helpers/collection_helpers";
+import { JAPANESE_LANGUAGE, isJapanese } from "../helpers/string_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
 import {
@@ -17,13 +19,13 @@ import {
     WeightName,
 } from "../types";
 
-
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {} as PropertyFilters,
     numericFilterArgs: [],
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
+
 
 
 // For building a FeedFilterSettings object from the serialized version.
@@ -68,6 +70,8 @@ export function updatePropertyFilterOptions(
     toots: Toot[],
     userData: UserData
 ): FeedFilterSettings {
+    const suppressedJapanese: StringNumberDict = {};
+
     const tootCounts = Object.values(PropertyName).reduce(
         (counts, propertyName) => {
             // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
@@ -84,7 +88,14 @@ export function updatePropertyFilterOptions(
         incrementCount(tootCounts[PropertyName.USER], toot.realToot().account.webfingerURI);
 
         // Count tags
-        toot.realToot().tags.forEach((tag) => incrementCount(tootCounts[PropertyName.HASHTAG], tag.name));
+        toot.realToot().tags.forEach((tag) => {
+            if (isJapanese(tag.name) && Config.language != JAPANESE_LANGUAGE) {
+                suppressedJapanese[tag.name] = (suppressedJapanese[tag.name] || 0) + 1;
+                return false;
+            }
+
+            incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
+        });
 
         // Aggregate counts for each type of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
@@ -109,6 +120,10 @@ export function updatePropertyFilterOptions(
     Object.entries(tootCounts).forEach(([propertyName, counts]) => {
         filters.filterSections[propertyName as PropertyName].setOptions(counts);
     });
+
+    if (Object.keys(suppressedJapanese).length) {
+        console.debug(`Suppressed ${Object.values(suppressedJapanese).length} Japanese filter options:`, suppressedJapanese);
+    }
 
     Storage.setFilters(filters);
     traceLog(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);

@@ -33,7 +33,9 @@ exports.updatePropertyFilterOptions = exports.buildNewFilterSettings = exports.b
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const string_helpers_1 = require("../helpers/string_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
@@ -76,6 +78,7 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 function updatePropertyFilterOptions(filters, toots, userData) {
+    const suppressedJapanese = {};
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
         filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
@@ -87,7 +90,13 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.realToot().language);
         (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.realToot().account.webfingerURI);
         // Count tags
-        toot.realToot().tags.forEach((tag) => (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name));
+        toot.realToot().tags.forEach((tag) => {
+            if ((0, string_helpers_1.isJapanese)(tag.name) && config_1.Config.language != string_helpers_1.JAPANESE_LANGUAGE) {
+                suppressedJapanese[tag.name] = (suppressedJapanese[tag.name] || 0) + 1;
+                return false;
+            }
+            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
+        });
         // Aggregate counts for each type of toot
         Object.entries(property_filter_2.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
@@ -109,6 +118,9 @@ function updatePropertyFilterOptions(filters, toots, userData) {
     Object.entries(tootCounts).forEach(([propertyName, counts]) => {
         filters.filterSections[propertyName].setOptions(counts);
     });
+    if (Object.keys(suppressedJapanese).length) {
+        console.debug(`Suppressed ${Object.values(suppressedJapanese).length} Japanese filter options:`, suppressedJapanese);
+    }
     Storage_1.default.setFilters(filters);
     (0, log_helpers_1.traceLog)(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
     return filters;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.isJapanese = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.JAPANESE_LANGUAGE = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -15,6 +15,9 @@ exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
 exports.KILOBYTE = 1024;
 exports.MEGABYTE = exports.KILOBYTE * 1024;
+// Foreign languages
+exports.JAPANESE_LANGUAGE = "ja";
+const JAPANESE_REGEX = /^[一ー-龯ぁ-んァ-ン]{2,}/; // https://gist.github.com/terrancesnyder/1345094
 // Multimedia types
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
@@ -38,6 +41,9 @@ exports.quoted = quoted;
 // Returns true if n is a number or a string that can be converted to a number
 const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
 exports.isNumber = isNumber;
+// Returns true if str is japanese
+const isJapanese = (str) => JAPANESE_REGEX.test(str);
+exports.isJapanese = isJapanese;
 // Return a string representation of a number of bytes
 const byteString = (numBytes) => {
     if (numBytes < exports.KILOBYTE)
