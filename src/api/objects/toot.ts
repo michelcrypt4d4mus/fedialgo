@@ -485,12 +485,20 @@ export default class Toot implements TootObj {
         isDeepInspect?: boolean
     ): void {
         if (!this.shouldComplete()) return;
+        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
+        const wasFollowed = this.account.isFollowed;
+        this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
 
-        this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
-        this.account.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
+        if (this.account.isFollowed && !wasFollowed) {
+            if (['stevensaus@faithcollapsing.com', "@strandjunker@mstdn.social", '@radicalgraffiti@todon.eu', '@ai6yr@m.ai6yr.org', '@luckytran@med-mastodon.com'].includes(this.account.webfingerURI)) {
+                console.error(`completeProperties() ${this.account.describe()} is followed according to these followedAccounts:`, userData.followedAccounts);
+            } else {
+                console.debug(`completeProperties() ${this.account.describe()} is followed according to this webfingerURI: "${this.account.webfingerURI}"`);
+            }
+        }
 
         if (this.reblog) {
-            this.reblog.account.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
+            this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
         }
 
         // Retoots never have their own tags, etc.
@@ -512,7 +520,9 @@ export default class Toot implements TootObj {
             toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
 
-        if (isDeepInspect) this.completedAt = new Date().toISOString();
+        if (isDeepInspect) {
+            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
+        }
     }
 
     // Returns true if the toot should be re-completed
@@ -585,50 +595,63 @@ export default class Toot implements TootObj {
         logPrefix = `${bracketed(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
         // If there's the same # of URIs as toots there's nothing to dedupe
-        if (Object.keys(tootsByURI).length == toots.length) return toots;
+        // THIS COULD BE UNSAFE BECAUSE OF RETOOTS
+        // if (Object.keys(tootsByURI).length == toots.length) return toots;
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
-            const firstCompleted = uriToots.find(toot => !!toot.completedAt);
-            const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
-            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
-            const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
-            const firstTrendingRankToot = uriToots.find(toot => !!toot.trendingRank);
+            const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
+            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
+            const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
+            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably be Math.max()
             // Deal with tag arrays
-            const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
+            const allTrendingTags = uriToots.flatMap(toot => toot.realToot().trendingTags || []);
             const uniqueTrendingTags = uniquifyByProp(allTrendingTags, (tag) => tag.name);
-            const allFollowedTags = uriToots.flatMap(toot => toot.followedTags || []);
+            const allFollowedTags = uriToots.flatMap(toot => toot.realToot().followedTags || []);
             const uniqueFollowedTags = uniquifyByProp(allFollowedTags, (tag) => tag.name);
+            // Collate accounts - reblogs and realToot accounts
+            const accounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? t.reblog.account : []));
+            const sources = uriToots.flatMap(t => (t.sources || []).concat(t.reblog?.sources || []));
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
 
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
-                props[propName as string] = Math.max(...uriToots.map(t => (t[propName] as number) || 0));
+                props[propName as string] = Math.max(...uriToots.map(t => (t.realToot()[propName] as number) || 0));
                 return props;
             }, {} as StringNumberDict);
 
             uriToots.forEach((toot) => {
                 // Counts may increase over time w/repeated fetches
-                toot.favouritesCount = propsThatChange.favouritesCount;
-                toot.reblogsCount = propsThatChange.reblogsCount;
-                toot.repliesCount = propsThatChange.repliesCount;
+                toot.realToot().favouritesCount = propsThatChange.favouritesCount;
+                toot.realToot().reblogsCount = propsThatChange.reblogsCount;
+                toot.realToot().repliesCount = propsThatChange.repliesCount;
+                toot.account.isFollowed = accounts.some(a => (a.webfingerURI == toot.account.webfingerURI) && a.isFollowed);
+
+                if (toot.account.isFollowed) {
+                    if (toot.account.webfingerURI == "@Strandjunker@mstdn.social".toLowerCase()) {
+                        console.error(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
+                    } else {
+                        console.debug(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
+                    }
+                }
+
                 // booleans can be ORed
-                toot.account.isFollowed = uriToots.some(toot => toot.account.isFollowed);
                 toot.muted = uriToots.some(toot => toot.muted);
-                toot.sources = uniquify(uriToots.map(toot => toot.sources || []).flat());
-                // Set all toots to have all trending tags so when we uniquify we catch everything
-                toot.trendingTags = uniqueTrendingTags;
-                toot.followedTags = uniqueFollowedTags;
+                toot.sources = uniquify(sources);
                 // Set various properties to the first toot that has them
-                toot.completedAt ??= firstCompleted?.completedAt;
-                toot.resolvedToot ??= firstResolvedToot?.resolvedToot;
+                toot.realToot().completedAt ??= firstCompleted?.completedAt;
+                // Set all toots to have all trending tags so when we uniquify we catch everything
+                toot.realToot().trendingTags = uniqueTrendingTags;
+                toot.realToot().followedTags = uniqueFollowedTags;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo;
-                toot.trendingLinks ??= firstTrendingLinks?.trendingLinks;
-                toot.trendingRank ??= firstTrendingRankToot?.trendingRank;
+                toot.realToot().trendingLinks ??= firstTrendingLinks?.trendingLinks;
+                toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
 
                 if (toot.reblog) {
+                    toot.reblog.completedAt ??= firstCompleted?.completedAt;
+                    toot.reblog.account.isFollowed ||= accounts.some(a => (a.webfingerURI == toot.reblog?.account.webfingerURI) && a.isFollowed);
                     toot.reblog.trendingRank ??= firstTrendingRankToot?.trendingRank;
                     toot.reblog.reblogsBy = reblogsBy;
                 }
