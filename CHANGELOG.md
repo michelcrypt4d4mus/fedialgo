@@ -1,10 +1,12 @@
 # NEXT RELEASE
-* Only penalize the "trending" parts of followed accounts & tags toots (last change was no penalty at all)
+
+### v0.30.2
 * Set `isFollowed` in `getFollowedAccounts()`, always `Account.build()` starts `isFollowed` as false
-* Fixes to Toot.dedupeToots(), which was kind of broken because of uniquifying on retoot `realURI()` and randomly choosing retoots or real toots in final step
+* Fixes to `Toot.dedupeToots()`, which was kind of broken because of uniquifying on retoot `realURI()` and randomly choosing retoots or real toots in final step
+* Only penalize the "trending" parts of followed accounts & tags toots (last change was no penalty at all)
 * Lowercase `Account.buildWebfingerURI()`
 * Bump up `minRecordsForFeatureScoring` to 480
-* Load Algorithm.homeFeed from cache on startup
+* Load `Algorithm.homeFeed` from cache on startup
 
 ### v0.30.1
 * Call `Toot.complete()` in batches of 50 instead of 100, increase sleep time to 250ms from 200
