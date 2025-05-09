@@ -54,7 +54,7 @@ exports.Config = {
     defaultRecordsPerPage: 40,
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,
-    maxConcurrentRequestsBackground: 3,
+    maxConcurrentRequestsBackground: 8,
     maxFollowingAccountsToPull: 5000,
     maxRecordsForFeatureScoring: 1500,
     minRecordsForFeatureScoring: 320,

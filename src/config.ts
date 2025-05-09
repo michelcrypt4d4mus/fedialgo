@@ -120,7 +120,7 @@ export const Config: ConfigType = {
     defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
-    maxConcurrentRequestsBackground: 3,     // How many toot requests to make in parallel once the initial load is done
+    maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
     maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
     maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
     minRecordsForFeatureScoring: 320,       // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
