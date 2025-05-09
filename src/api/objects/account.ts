@@ -116,9 +116,9 @@ export default class Account implements AccountObj {
     // On the local server you just get the username so need to add the server domain
     private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
-            return this.acct;
+            return this.acct.toLowerCase();
         } else {
-            return `${this.acct}@${this.homeserver()}`;
+            return `${this.acct}@${this.homeserver()}`.toLowerCase();
         }
     }
 
