@@ -410,7 +410,7 @@ class MastoApi {
                 skipCache: true,
                 skipMutex: true,
             });
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         catch (e) {

@@ -470,7 +470,7 @@ export default class MastoApi {
                 skipMutex: true,
             });
 
-            console.debug(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
+            traceLog(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
             return toots as Toot[];
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
