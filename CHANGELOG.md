@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+# v0.30.0
+* `timeString()` helper now puts "this coming" prefix for future days
+
 ### v0.29.7
 * Export `isAccessTokenRevokedError()`
 

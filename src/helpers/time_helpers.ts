@@ -81,10 +81,16 @@ export const timeString = (_timestamp: Date | string | null, locale?: string): s
     if (_timestamp == null) return NULL;
     locale ||= DEFAULT_LOCALE;
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
+    const isToday = timestamp.getDate() == new Date().getDate();
+    const seconds = ageInSeconds(timestamp);
     let str: string;
 
-    if (ageInSeconds(timestamp) < (SECONDS_IN_DAY * 6)) {
-        str = (timestamp.getDate() == new Date().getDate()) ? "today" : DAY_NAMES[timestamp.getDay()];
+    if (isToday) {
+        str = "today";
+    } else if (seconds < 0 && seconds > (-1 * 7 * SECONDS_IN_DAY)) {
+        str = `this coming ${DAY_NAMES[timestamp.getDay()]}`;
+    } else if (seconds < (SECONDS_IN_DAY * 6)) {
+        str = DAY_NAMES[timestamp.getDay()];
     } else {
         str = timestamp.toLocaleDateString(locale);
     }
