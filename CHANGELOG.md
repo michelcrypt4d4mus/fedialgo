@@ -1,8 +1,8 @@
 # NEXT RELEASE
-* Generate a new Array when updating filter valid values so as to trigger a useMemo() recomputation in demo app
-* Shuffle the defaultServers when adding additional servers to mix it up
-* Configure TAG_ONLY_STRINGS to avoid using containsString() to scan for tags like "us" and "it"
-* loadingStatus no longer assumes "Loading" will be prepended
+* Generate a new Array when updating filter valid values so as to trigger a `useMemo()` recomputation in demo app
+* Shuffle the `defaultServers` when adding additional servers to mix it up
+* Configure `TAG_ONLY_STRINGS` to avoid using `containsString()` to scan for tags like "us" and "it"
+* `loadingStatus` no longer assumes "Loading" will be prepended
 
 ### v0.30.5
 * Suppress a bunch of language hashtags (japanese, russian, greek, korean, arabic) if they don't match the configured language
