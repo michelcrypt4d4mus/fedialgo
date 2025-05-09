@@ -4,6 +4,7 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
+    isFollowed?: boolean;
     webfingerURI: string;
 }
 export default class Account implements AccountObj {
@@ -33,8 +34,9 @@ export default class Account implements AccountObj {
     suspended?: boolean | null;
     limited?: boolean | null;
     roles: mastodon.v1.Account["roles"];
+    isFollowed?: boolean;
     webfingerURI: string;
-    static build(account: mastodon.v1.Account): Account;
+    static build(account: mastodon.v1.Account | Account): Account;
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;

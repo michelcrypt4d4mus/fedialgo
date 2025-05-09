@@ -87,7 +87,7 @@ class Toot {
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
     completedAt;
     followedTags; // Array of tags that the user follows that exist in this toot
-    isFollowed; // Whether the user follows the account that posted this toot
+    isFollowedAccount; // Whether the user follows the account that posted this toot
     participatedTags; // Array of tags that the user has participated in that exist in this toot
     reblogsBy; // The accounts that retooted this toot
     resolvedToot; // This Toot with URLs resolved to homeserver versions
@@ -135,7 +135,7 @@ class Toot {
         // Unique to fedialgo
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
-        tootObj.isFollowed = toot.isFollowed;
+        tootObj.isFollowedAccount = toot.isFollowedAccount;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
@@ -239,6 +239,10 @@ class Toot {
     // Return true if it's a direct message
     isDM() {
         return this.visibility === TootVisibility.DIRECT_MSG;
+    }
+    // Returns true if this toot is from a followed account or contains a followed tag
+    isFollowed() {
+        return !!(this.account.isFollowed || this.realToot().account.isFollowed || this.realToot().followedTags?.length);
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
@@ -404,9 +408,13 @@ class Toot {
         if (!this.shouldComplete())
             return;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
-        this.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
-        if (this.reblog)
-            this.reblog.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
+        this.account.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
+        // TODO: get rid of isFollowedAccount and use account.isFollowed instead
+        this.isFollowedAccount ||= this.account.isFollowed;
+        if (this.reblog) {
+            this.reblog.account.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
+            this.reblog.isFollowedAccount = this.reblog.account.isFollowed;
+        }
         // Retoots never have their own tags, etc.
         const toot = this.realToot();
         const allFollowedTags = Object.values(userData.followedTags);
@@ -492,11 +500,12 @@ class Toot {
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             const firstCompleted = uriToots.find(toot => !!toot.completedAt);
-            const firstFollowedTags = uriToots.find(toot => !!toot.followedTags);
             const firstResolvedToot = uriToots.find(toot => !!toot.resolvedToot);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.trendingRank);
+            // Account properties
+            const isAccountFollowed = uriToots.some(toot => toot.account.isFollowed);
             // Deal with tag arrays
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
@@ -515,7 +524,8 @@ class Toot {
                 toot.reblogsCount = propsThatChange.reblogsCount;
                 toot.repliesCount = propsThatChange.repliesCount;
                 // booleans can be ORed
-                toot.isFollowed = uriToots.some(toot => toot.isFollowed);
+                toot.isFollowedAccount = uriToots.some(toot => toot.isFollowedAccount); // TODO: get rid of this
+                toot.account.isFollowed = isAccountFollowed;
                 toot.muted = uriToots.some(toot => toot.muted);
                 toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 // Set all toots to have all trending tags so when we uniquify we catch everything

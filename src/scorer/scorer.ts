@@ -153,7 +153,7 @@ export default abstract class Scorer {
         let trendingMultiplier = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
 
         // Set TRENDING modifier to at least 1 if it's a followed account or tag (don't penalize follows, basically)
-        if (realToot.isFollowed || realToot.followedTags?.length) {
+        if (realToot.isFollowed()) {
             trendingMultiplier = Math.max(trendingMultiplier, 1);
         }
 

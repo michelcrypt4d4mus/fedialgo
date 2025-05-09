@@ -1,7 +1,9 @@
 # NEXT RELEASE
 * Call `Toot.complete()` in batches of 50 instead of 100, increase sleep time to 250ms from 200
-* Don't penalize toots from followed accounts and tags with TRENDING penalty
-* Apply the OUTLIER_DAMPENER to the DiversityFeedScorer penalty
+* Don't penalize toots from followed accounts and tags with `TRENDING` modifier if it's less than 1 (and thus a penalty)
+* Apply the `OUTLIER_DAMPENER` to the `DiversityFeedScorer` penalty
+* Move the isFollowed property to Account instead of Toot
+* Add Toot.isFollowed() method
 * Tweak `Toot.containsTagsMsg()`
 
 # v0.30.0

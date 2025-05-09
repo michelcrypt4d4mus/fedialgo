@@ -17,7 +17,7 @@ class RetootsInFeedScorer extends feature_scorer_1.default {
             return 0;
         // add 1 if both reblog & toot are followed accounts
         const reblog = toot.reblog;
-        let retootCount = reblog.isFollowed ? 1 : 0;
+        let retootCount = reblog.account.isFollowed ? 1 : 0;
         const nonAuthorRetoots = reblog.reblogsBy.filter((acct) => acct.webfingerURI != reblog.account.webfingerURI);
         retootCount += nonAuthorRetoots.length;
         // If retootsCount is 1 that's a normal retoot so we score it zero, otherwise return the square of retootCount

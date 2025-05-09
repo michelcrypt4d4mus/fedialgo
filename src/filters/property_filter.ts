@@ -53,7 +53,7 @@ export interface PropertyFilterArgs extends FilterArgs {
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
-    [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.isFollowed || toot.reblog?.isFollowed),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]:     (toot) => !!toot.realToot().followedTags?.length,
     [TypeFilterName.LINKS]:                 (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]:              (toot) => toot.containsUserMention(),

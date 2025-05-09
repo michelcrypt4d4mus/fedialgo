@@ -124,7 +124,7 @@ class Scorer {
         const outlierDampener = userWeights[types_1.WeightName.OUTLIER_DAMPENER] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.OUTLIER_DAMPENER];
         let trendingMultiplier = userWeights[types_1.WeightName.TRENDING] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING];
         // Set TRENDING modifier to at least 1 if it's a followed account or tag (don't penalize follows, basically)
-        if (realToot.isFollowed || realToot.followedTags?.length) {
+        if (realToot.isFollowed()) {
             trendingMultiplier = Math.max(trendingMultiplier, 1);
         }
         // Compute a weighted score a toot based by multiplying the value of each numerical property

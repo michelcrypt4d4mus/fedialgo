@@ -13,6 +13,7 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
+    isFollowed?: boolean;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
@@ -48,10 +49,11 @@ export default class Account implements AccountObj {
     limited?: boolean | null;
     roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
     // Fedialgo extension fields
+    isFollowed?: boolean;  // Is this account followed by the user?
     webfingerURI!: string;
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
-    static build(account: mastodon.v1.Account): Account {
+    static build(account: mastodon.v1.Account | Account): Account {
         const accountObj = new Account();
         accountObj.id = account.id;
         accountObj.username = account.username;
@@ -82,6 +84,7 @@ export default class Account implements AccountObj {
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
+        accountObj.isFollowed = (account instanceof Account) ? account.isFollowed : false;
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }

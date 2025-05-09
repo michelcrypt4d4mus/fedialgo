@@ -5,7 +5,7 @@ import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, T
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
     followedTags?: MastodonTag[];
-    isFollowed?: boolean;
+    isFollowedAccount?: boolean;
     reblog?: SerializableToot | null;
     reblogsBy?: mastodon.v1.Account[];
     resolvedToot?: Toot;
@@ -66,7 +66,7 @@ export default class Toot implements TootObj {
     url?: string | null;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];
-    isFollowed?: boolean;
+    isFollowedAccount?: boolean;
     participatedTags?: TrendingTag[];
     reblogsBy: Account[];
     resolvedToot?: Toot;
@@ -91,6 +91,7 @@ export default class Toot implements TootObj {
     describe(): string;
     homeserverURL(): Promise<string>;
     isDM(): boolean;
+    isFollowed(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isTrending(): boolean;
     isValidForFeed(): boolean;

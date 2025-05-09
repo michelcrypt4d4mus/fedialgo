@@ -29,7 +29,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // divided by the tag.numAccounts.
         sortedToots.forEach((toot) => {
             (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.account.webfingerURI);
-            if (toot.reblog?.account)
+            if (toot.reblog)
                 (0, collection_helpers_1.incrementCount)(tootsPerAccount, toot.reblog.account.webfingerURI);
             if (!toot.realToot().trendingTags) {
                 console.warn(`No trending tags for toot:`, toot);
@@ -63,7 +63,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 (0, collection_helpers_1.incrementCount)(tootsWithTagScoredSoFar, tag.name);
                 (0, collection_helpers_1.decrementCount)(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
                 const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
-                if (toot.isFollowed || toot.reblog?.isFollowed) {
+                if (toot.account.isFollowed || toot.reblog?.account.isFollowed) {
                     // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
                 }
                 else if (tootsWithTagScoredSoFar[tag.name] > config_1.Config.minTrendingTagTootsForPenalty) {

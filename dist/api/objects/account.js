@@ -48,6 +48,7 @@ class Account {
     limited;
     roles = []; // TODO: not sure default is a good idea
     // Fedialgo extension fields
+    isFollowed; // Is this account followed by the user?
     webfingerURI;
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account) {
@@ -81,6 +82,7 @@ class Account {
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
+        accountObj.isFollowed = (account instanceof Account) ? account.isFollowed : false;
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }
