@@ -118,6 +118,7 @@ export type TootScore = {
     rawScores: Weights;
     score: number;
     timeDecayMultiplier: number;
+    trendingMultiplier: number;
     weightedScore: number;
     weightedScores: Weights;
 };

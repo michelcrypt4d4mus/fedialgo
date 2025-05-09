@@ -150,11 +150,11 @@ export default abstract class Scorer {
         const weightedScores = {} as StringNumberDict;
         const userWeights = await Storage.getWeights();
         const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
-        let trendingWeight = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
+        let trendingMultiplier = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
 
         // Set TRENDING modifier to at least 1 if it's a followed account or tag (don't penalize follows, basically)
         if (realToot.isFollowed || realToot.followedTags?.length) {
-            trendingWeight = Math.max(trendingWeight, 1);
+            trendingMultiplier = Math.max(trendingMultiplier, 1);
         }
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
@@ -166,7 +166,7 @@ export default abstract class Scorer {
 
             // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
             if (realToot.isTrending()) {
-                weightedScores[scorer.name] *= trendingWeight;
+                weightedScores[scorer.name] *= trendingMultiplier;
             }
 
             // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
@@ -193,8 +193,9 @@ export default abstract class Scorer {
         const scoreInfo = {
             rawScore: this.sumScores(rawScores),
             rawScores,
-            score: score,
+            score,
             timeDecayMultiplier,
+            trendingMultiplier,
             weightedScores,
             weightedScore,
         } as TootScore;

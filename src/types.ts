@@ -193,6 +193,7 @@ export type TootScore = {
     rawScores: Weights;
     score: number;                // Actual final score
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
+    trendingMultiplier: number;   // Multiplier applied to trending toots and tags
     weightedScore: number;        // Score before applying timeDecayMultiplier
     weightedScores: Weights;
 };
