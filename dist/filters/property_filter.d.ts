@@ -12,9 +12,11 @@ export declare enum PropertyName {
     SERVER_SIDE_FILTERS = "ServerFilters"
 }
 export declare enum TypeFilterName {
+    AUDIO = "audio",
     DIRECT_MESSAGE = "directMessages",
     FOLLOWED_ACCOUNTS = "followedAccounts",
     FOLLOWED_HASHTAGS = "followedHashtags",
+    IMAGES = "images",
     LINKS = "links",
     MENTIONS = "mentions",
     POLLS = "polls",
@@ -24,7 +26,8 @@ export declare enum TypeFilterName {
     SENSITIVE = "sensitive",
     TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_LINKS = "trendingLinks",
-    TRENDING_TOOTS = "trendingToots"
+    TRENDING_TOOTS = "trendingToots",
+    VIDEOS = "videos"
 }
 export interface PropertyFilterArgs extends FilterArgs {
     optionInfo?: StringNumberDict;

@@ -24,9 +24,11 @@ var PropertyName;
 ;
 var TypeFilterName;
 (function (TypeFilterName) {
+    TypeFilterName["AUDIO"] = "audio";
     TypeFilterName["DIRECT_MESSAGE"] = "directMessages";
     TypeFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
     TypeFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
+    TypeFilterName["IMAGES"] = "images";
     TypeFilterName["LINKS"] = "links";
     TypeFilterName["MENTIONS"] = "mentions";
     TypeFilterName["POLLS"] = "polls";
@@ -37,14 +39,17 @@ var TypeFilterName;
     TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
     TypeFilterName["TRENDING_LINKS"] = "trendingLinks";
     TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
+    TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
 ;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
+    [TypeFilterName.AUDIO]: (toot) => !!toot.audioAttachments.length,
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
+    [TypeFilterName.IMAGES]: (toot) => !!toot.imageAttachments.length,
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
@@ -55,6 +60,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
+    [TypeFilterName.VIDEOS]: (toot) => !!toot.videoAttachments.length,
 };
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS = {

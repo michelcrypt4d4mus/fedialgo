@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Special mediaAttachment repair for bluesky bridged toots
+* Add TypeFilters for IMAGES, VIDEO, and AUDIO
 
 ### v0.30.2
 * Set `isFollowed` in `getFollowedAccounts()`, always `Account.build()` starts `isFollowed` as false

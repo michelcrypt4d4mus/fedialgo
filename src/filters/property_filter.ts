@@ -30,9 +30,11 @@ export enum PropertyName {
 };
 
 export enum TypeFilterName {
+    AUDIO = 'audio',
     DIRECT_MESSAGE = 'directMessages',
     FOLLOWED_ACCOUNTS = 'followedAccounts',
     FOLLOWED_HASHTAGS = 'followedHashtags',
+    IMAGES = 'images',
     LINKS = 'links',
     MENTIONS = 'mentions',
     POLLS = 'polls',
@@ -43,6 +45,7 @@ export enum TypeFilterName {
     TRENDING_HASHTAGS = 'trendingHashtags',
     TRENDING_LINKS = 'trendingLinks',
     TRENDING_TOOTS = 'trendingToots',
+    VIDEOS = 'videos',
 };
 
 export interface PropertyFilterArgs extends FilterArgs {
@@ -52,9 +55,11 @@ export interface PropertyFilterArgs extends FilterArgs {
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: TypeFilters = {
+    [TypeFilterName.AUDIO]:                 (toot) => !!toot.audioAttachments.length,
     [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]:     (toot) => !!toot.realToot().followedTags?.length,
+    [TypeFilterName.IMAGES]:                (toot) => !!toot.imageAttachments.length,
     [TypeFilterName.LINKS]:                 (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]:              (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]:                 (toot) => !!toot.realToot().poll,
@@ -65,6 +70,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.TRENDING_HASHTAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]:        (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]:        (toot) => !!toot.realToot().trendingRank,
+    [TypeFilterName.VIDEOS]:                 (toot) => !!toot.videoAttachments.length,
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
