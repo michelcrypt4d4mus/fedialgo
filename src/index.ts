@@ -40,7 +40,7 @@ import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
-import { isDebugMode } from './helpers/environment_helpers';
+import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
@@ -172,12 +172,19 @@ class TheAlgorithm {
 
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(): Promise<void> {
+        logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
+        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
+
         if (this.isLoading()) {
             console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
             throw new Error(GET_FEED_BUSY_MSG);
         }
 
-        logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
+        if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds) {
+            console.debug(`[${TRIGGER_FEED}] Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+            return;
+        }
+
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         const initialLoads = [
@@ -356,6 +363,7 @@ class TheAlgorithm {
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.feed = await Storage.getCoerced<Toot>(StorageKey.TIMELINE);
+        this.homeFeed = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();

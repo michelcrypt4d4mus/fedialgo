@@ -176,11 +176,16 @@ class TheAlgorithm {
     }
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate() {
+        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, state:`, this.statusDict());
+        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
         if (this.isLoading()) {
             console.warn(`[${log_helpers_1.TRIGGER_FEED}] Load in progress already!`, this.statusDict());
             throw new Error(GET_FEED_BUSY_MSG);
         }
-        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, state:`, this.statusDict());
+        if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds) {
+            console.debug(`[${log_helpers_1.TRIGGER_FEED}] Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+            return;
+        }
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const initialLoads = [
             this.prepareScorers(),
@@ -332,6 +337,7 @@ class TheAlgorithm {
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
         this.feed = await Storage_1.default.getCoerced(types_1.StorageKey.TIMELINE);
+        this.homeFeed = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
