@@ -90,12 +90,12 @@ exports.Config = {
         "mastodon.online",
         "mas.to",
         "mastodon.world",
+        "loforo.com",
         "c.im",
         "hachyderm.io",
         "infosec.exchange",
         "universeodon.com",
         "kolektiva.social",
-        "loforo.com",
         "mastodon.gamedev.place",
         "mastodonapp.uk",
         "ioc.exchange",
@@ -111,6 +111,8 @@ exports.Config = {
         "metalhead.club",
         "sciences.social",
         "toot.io",
+        "mastodon.ie",
+        "mastodon.nz",
         // Servers that are no bueno for various reasons
         // "baraag.net",                 // very NSFW (anime porn)
         // "mstdn.social",               // Slow, blocked by CORS
@@ -128,17 +130,25 @@ exports.Config = {
             "ruhr.social",
             "muenchen.social",
             "social.cologne",
+            "social.tchncs.de",
+            "sueden.social",
+            "mastodontech.de",
+            "nerdculture.de",
         ],
         "es": [
             "tkz.one",
             "mast.lat",
             "mastorol.es",
         ],
+        "eu": [
+            "mastodon.eus",
+        ],
         "fr": [
             "piaille.fr",
             "pouet.chapril.org",
             "mastoot.fr",
             "mamot.fr",
+            "qlub.social", // Montreal
         ],
         "ja": [
             "mstdn.jp",
@@ -158,10 +168,16 @@ exports.Config = {
         "ru": [
             "pravda.me",
         ],
+        "tr": [
+            "mastoturk.org",
+        ],
         "zh-cn": [
             "m.cmx.im",
             "m.otter.homes",
             "mast.dragon-fly.club",
+            "alive.bar",
+            "g0v.social",
+            "link.baai.ac.cn",
         ],
     },
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly

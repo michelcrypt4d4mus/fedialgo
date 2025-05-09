@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More default servers
 
 ### v0.30.6
 * Generate a new Array when updating filter valid values so as to trigger a `useMemo()` recomputation in demo app
