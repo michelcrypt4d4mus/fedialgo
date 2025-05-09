@@ -31,6 +31,7 @@ import {
 } from "../types";
 import {
     countValues,
+    shuffle,
     sortKeysByValue,
     transformKeys,
     truncateToConfiguredLength,
@@ -288,7 +289,7 @@ export default class MastodonServer {
                 console.log(`${logPrefix} Using ${extraDomains.length} custom "${Config.language}" servers`);
             }
 
-            extraDomains = extraDomains.concat(Config.defaultServers);
+            extraDomains = extraDomains.concat(shuffle(Config.defaultServers));
             extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraDomains, (s) => s.fetchServerInfo());

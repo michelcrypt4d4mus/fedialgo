@@ -254,7 +254,7 @@ class MastodonServer {
                 extraDomains = extraDomains.concat(config_1.Config.foreignLanguageServers[config_1.Config.language] || []);
                 console.log(`${logPrefix} Using ${extraDomains.length} custom "${config_1.Config.language}" servers`);
             }
-            extraDomains = extraDomains.concat(config_1.Config.defaultServers);
+            extraDomains = extraDomains.concat((0, collection_helpers_1.shuffle)(config_1.Config.defaultServers));
             extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
             const extraServerInfos = await this.callForServers(extraDomains, (s) => s.fetchServerInfo());
