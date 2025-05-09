@@ -236,6 +236,7 @@ export const Config: ConfigType = {
     // Non-mastodon servers and/or servers that don't make the MAU data available publicly
     noMauServers: [
         "agora.echelon.pl",
+        "amf.didiermary.fr",
         "bsky.brid.gy",
         "fediverse.one",
         "flipboard.com",

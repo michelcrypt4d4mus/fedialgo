@@ -195,7 +195,7 @@ class TheAlgorithm {
                 .then((homeFeed) => this.homeFeed = homeFeed),
         ];
 
-        // Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
+        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await new Promise(r => setTimeout(r, Config.hashtagTootRetrievalDelaySeconds * 1000));
 
         const secondaryLoads = [
@@ -206,7 +206,7 @@ class TheAlgorithm {
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             MastoApi.instance.getUserData().then((userData) => this.userData = userData),
-        ]
+        ];
 
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
@@ -447,7 +447,7 @@ class TheAlgorithm {
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
-        } else if (this.homeFeed.length == 0) {
+        } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
         } else {

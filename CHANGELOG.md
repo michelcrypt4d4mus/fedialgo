@@ -2,7 +2,7 @@
 
 ### v0.30.6
 * Generate a new Array when updating filter valid values so as to trigger a `useMemo()` recomputation in demo app
-* Shuffle the `defaultServers` when adding additional servers to mix it up
+* Shuffle the `Config.defaultServers` when adding additional servers to mix it up
 * Configure `TAG_ONLY_STRINGS` to avoid using `containsString()` to scan for tags like "us" and "it"
 * `loadingStatus` no longer assumes "Loading" will be prepended
 

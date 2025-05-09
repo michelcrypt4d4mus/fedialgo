@@ -172,7 +172,7 @@ npm run build
 ```
 in `fedialgo` directory after changes and they will automatically be detected.
 
-There's a pre-commit git hook that runs `npm run build`.
+There's a pre-commit git hook that runs `npm run build` but unfortunately it doesn't seem to actually run _before_ the commit :(
 
 
 # TODO

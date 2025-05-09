@@ -195,7 +195,7 @@ class TheAlgorithm {
             api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this))
                 .then((homeFeed) => this.homeFeed = homeFeed),
         ];
-        // Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
+        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await new Promise(r => setTimeout(r, config_1.Config.hashtagTootRetrievalDelaySeconds * 1000));
         const secondaryLoads = [
             this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots),
@@ -414,7 +414,7 @@ class TheAlgorithm {
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         }
-        else if (this.homeFeed.length == 0) {
+        else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${(0, time_helpers_1.timeString)(mostRecentAt)}` : '');
         }
