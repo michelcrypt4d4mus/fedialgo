@@ -43,7 +43,7 @@ exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE.split("-")[0];
 exports.LANGUAGE_REGEXES = {
     [exports.ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [exports.GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
-    [exports.JAPANESE_LANGUAGE]: new RegExp(`^[ー\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
+    [exports.JAPANESE_LANGUAGE]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
     [exports.KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
     [exports.RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
