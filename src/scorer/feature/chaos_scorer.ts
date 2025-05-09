@@ -12,6 +12,11 @@ export default class ChaosScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
+        // Return the existing score if it exists
+        if (toot.scoreInfo?.rawScores[this.name]) {
+            return toot.scoreInfo.rawScores[this.name];
+        }
+
         try {
             return this.decimalHash(toot.reblog?.content || toot.content);
         } catch (e) {

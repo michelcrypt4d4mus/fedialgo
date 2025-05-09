@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* ChaosScorer._score() returns the existing raw score before computing a new one
 
 ### v0.30.3
 * Special `mediaAttachment` repair for bluesky bridged toots
