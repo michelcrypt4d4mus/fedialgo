@@ -95,6 +95,7 @@ class TheAlgorithm {
     private dataPoller?: ReturnType<typeof setInterval>;
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
+    private numTriggers = 0;
     private mergeMutex = new Mutex();
     private scoreMutex = new Mutex();
 
@@ -174,13 +175,14 @@ class TheAlgorithm {
     async triggerFeedUpdate(): Promise<void> {
         logInfo(TRIGGER_FEED, `called, state:`, this.statusDict());
         const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
+        console.log(`[${TRIGGER_FEED}] num triggers: ${++this.numTriggers} triggers so far`);
 
         if (this.isLoading()) {
             console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
             throw new Error(GET_FEED_BUSY_MSG);
         }
 
-        if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds) {
+        if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
             return;
         }

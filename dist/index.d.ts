@@ -52,6 +52,7 @@ declare class TheAlgorithm {
     private dataPoller?;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
+    private numTriggers;
     private mergeMutex;
     private scoreMutex;
     featureScorers: (ChaosScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
