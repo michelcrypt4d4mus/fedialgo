@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.4
 * ChaosScorer._score() returns the existing raw score before computing a new one
 * Filter out Japanese hashtags unless Config.language is "ja"
 
