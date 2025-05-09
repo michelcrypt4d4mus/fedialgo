@@ -183,7 +183,7 @@ class TheAlgorithm {
             throw new Error(GET_FEED_BUSY_MSG);
         }
         if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds) {
-            console.debug(`[${log_helpers_1.TRIGGER_FEED}] Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
             return;
         }
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);

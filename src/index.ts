@@ -181,7 +181,7 @@ class TheAlgorithm {
         }
 
         if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds) {
-            console.debug(`[${TRIGGER_FEED}] Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
             return;
         }
 
