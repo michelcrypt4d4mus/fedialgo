@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Suppress a bunch of language hashtags (japanese, russian, greek, korean, arabic) if they don't match the configured language
+* Export `sortKeysByValue()`
 
 ### v0.30.4
 * `ChaosScorer._score()` returns the existing raw score before computing a new one
