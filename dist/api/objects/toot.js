@@ -497,6 +497,7 @@ class Toot {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
+            // if (uriToots.length == 1) return;  // TODO: turn on this optimization
             const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
             const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
@@ -522,8 +523,6 @@ class Toot {
                 return allAccounts.some((a) => a.isFollowed && (a.webfingerURI == webfingerURI));
             };
             uriToots.forEach((toot) => {
-                if (uriToots.length == 1)
-                    return;
                 // Props that are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
