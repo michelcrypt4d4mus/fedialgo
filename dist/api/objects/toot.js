@@ -474,7 +474,7 @@ class Toot {
         const completeToots = toots.filter(toot => toot instanceof Toot ? !toot.shouldComplete() : false);
         const tootsToComplete = toots.filter(toot => toot instanceof Toot ? toot.shouldComplete() : true);
         const batchSleepMS = isDeepInspect ? config_1.Config.sleepBetweenCompletionMS : 0;
-        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, (t) => complete(t), "completeToots", null, batchSleepMS);
+        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, (t) => complete(t), "completeToots", 50, batchSleepMS);
         toots = completeToots.concat(newCompleteToots);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;

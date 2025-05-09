@@ -62,7 +62,7 @@ exports.Config = {
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
     reloadFeaturesEveryNthOpen: 9,
-    sleepBetweenCompletionMS: 200,
+    sleepBetweenCompletionMS: 250,
     timeoutMS: 5000,
     // Trending tags and links
     excessiveTagsPenalty: 0.1,
