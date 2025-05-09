@@ -190,7 +190,7 @@ class Toot {
             this.containsTagsOfTypeMsg(types_1.WeightName.PARTICIPATED_TAGS),
         ];
         msgs = msgs.filter((msg) => msg);
-        return msgs.length ? msgs.join("; ") : undefined;
+        return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
     containsTag(tag) {
         const tagName = typeof tag == "string" ? tag : tag.name;
@@ -342,7 +342,7 @@ class Toot {
         if (!tags.length)
             return;
         const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
-        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+        return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {

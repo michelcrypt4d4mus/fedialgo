@@ -246,7 +246,7 @@ export default class Toot implements TootObj {
         ];
 
         msgs = msgs.filter((msg) => msg);
-        return msgs.length ? msgs.join("; ") : undefined;
+        return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
 
     containsTag(tag: string | MastodonTag): boolean {
@@ -415,7 +415,7 @@ export default class Toot implements TootObj {
 
         if (!tags.length) return;
         const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag");
-        return `Contains ${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+        return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
 
     // Returns true if this toot is by the fedialgo user
