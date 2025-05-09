@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.5
 * Suppress a bunch of language hashtags (japanese, russian, greek, korean, arabic) if they don't match the configured language
 * Export `sortKeysByValue()`
 
