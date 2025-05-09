@@ -87,7 +87,6 @@ class Toot {
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
     completedAt;
     followedTags; // Array of tags that the user follows that exist in this toot
-    isFollowedAccount; // Whether the user follows the account that posted this toot
     participatedTags; // Array of tags that the user has participated in that exist in this toot
     reblogsBy; // The accounts that retooted this toot
     resolvedToot; // This Toot with URLs resolved to homeserver versions
@@ -135,7 +134,6 @@ class Toot {
         // Unique to fedialgo
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
-        tootObj.isFollowedAccount = toot.isFollowedAccount;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
@@ -409,11 +407,8 @@ class Toot {
             return;
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
         this.account.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
-        // TODO: get rid of isFollowedAccount and use account.isFollowed instead
-        this.isFollowedAccount ||= this.account.isFollowed;
         if (this.reblog) {
             this.reblog.account.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-            this.reblog.isFollowedAccount = this.reblog.account.isFollowed;
         }
         // Retoots never have their own tags, etc.
         const toot = this.realToot();
@@ -524,7 +519,6 @@ class Toot {
                 toot.reblogsCount = propsThatChange.reblogsCount;
                 toot.repliesCount = propsThatChange.repliesCount;
                 // booleans can be ORed
-                toot.isFollowedAccount = uriToots.some(toot => toot.isFollowedAccount); // TODO: get rid of this
                 toot.account.isFollowed = isAccountFollowed;
                 toot.muted = uriToots.some(toot => toot.muted);
                 toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());

@@ -65,7 +65,6 @@ const PROPS_THAT_CHANGE: (keyof Toot)[] = [
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;              // Timestamp a full deep inspection of the toot was completed
     followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
-    isFollowedAccount?: boolean;              // Whether the user follows the account that posted this toot
     reblog?: SerializableToot | null,  // The toot that was retooted (if any)
     reblogsBy?: mastodon.v1.Account[]; // The accounts that retooted this toot (if any)
     resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
@@ -134,7 +133,6 @@ export default class Toot implements TootObj {
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
-    isFollowedAccount?: boolean;                        // Whether the user follows the account that posted this toot
     participatedTags?: TrendingTag[];            // Array of tags that the user has participated in that exist in this toot
     @Type(() => Account) reblogsBy!: Account[];  // The accounts that retooted this toot
     @Type(() => Toot) resolvedToot?: Toot;       // This Toot with URLs resolved to homeserver versions
@@ -184,7 +182,6 @@ export default class Toot implements TootObj {
         // Unique to fedialgo
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
-        tootObj.isFollowedAccount = toot.isFollowedAccount;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
@@ -490,12 +487,9 @@ export default class Toot implements TootObj {
 
         this.muted ||= this.realAccount().webfingerURI in userData.mutedAccounts;
         this.account.isFollowed ||= this.account.webfingerURI in userData.followedAccounts;
-        // TODO: get rid of isFollowedAccount and use account.isFollowed instead
-        this.isFollowedAccount ||= this.account.isFollowed;
 
         if (this.reblog) {
             this.reblog.account.isFollowed ||= this.reblog.account.webfingerURI in userData.followedAccounts;
-            this.reblog.isFollowedAccount = this.reblog.account.isFollowed;
         }
 
         // Retoots never have their own tags, etc.
@@ -622,7 +616,6 @@ export default class Toot implements TootObj {
                 toot.reblogsCount = propsThatChange.reblogsCount;
                 toot.repliesCount = propsThatChange.repliesCount;
                 // booleans can be ORed
-                toot.isFollowedAccount = uriToots.some(toot => toot.isFollowedAccount);  // TODO: get rid of this
                 toot.account.isFollowed = isAccountFollowed;
                 toot.muted = uriToots.some(toot => toot.muted);
                 toot.sources = uniquify(uriToots.map(toot => toot.sources || []).flat());
