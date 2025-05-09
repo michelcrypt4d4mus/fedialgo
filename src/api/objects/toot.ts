@@ -487,12 +487,7 @@ export default class Toot implements TootObj {
     ): void {
         if (!this.shouldComplete()) return;
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
-        const wasFollowed = this.account.isFollowed;
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-
-        if (this.account.isFollowed && !wasFollowed) {
-            console.debug(`completeProperties() ${this.account.describe()} is followed according to this webfingerURI: "${this.account.webfingerURI}"`);
-        }
 
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
@@ -608,8 +603,9 @@ export default class Toot implements TootObj {
             const allFollowedTags = uriToots.flatMap(toot => toot.realToot().followedTags || []);
             const uniqueFollowedTags = uniquifyByProp(allFollowedTags, (tag) => tag.name);
             // Collate accounts - reblogs and realToot accounts
-            const accounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? t.reblog.account : []));
+            const allAccounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? [t.reblog.account] : []));
             const sources = uriToots.flatMap(t => (t.sources || []).concat(t.reblog?.sources || []));
+            const uniqueSources = uniquify(sources);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
@@ -621,54 +617,47 @@ export default class Toot implements TootObj {
             }, {} as StringNumberDict);
 
             const isFollowed = (webfingerURI: string) => {
-                return accounts.some((a) => a.isFollowed && (a.webfingerURI == webfingerURI));
+                return allAccounts.some((a) => a.isFollowed && (a.webfingerURI == webfingerURI));
             }
 
             uriToots.forEach((toot) => {
-                // if (uriToots.length == 1) return;
+                if (uriToots.length == 1) return;
 
                 // Props that are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
                 toot.realToot().repliesCount = propsThatChange.repliesCount;
                 // Props set on first found
-                toot.realToot().completedAt ??= firstCompleted?.completedAt;
+                toot.realToot().completedAt ??= firstCompleted?.completedAt;  // DON'T automatically copy to base toot - some fields may need setting later
                 toot.realToot().trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags
                 toot.realToot().trendingTags = uniqueTrendingTags;
                 toot.realToot().followedTags = uniqueFollowedTags;
-                // Account
-                toot.account.isFollowed = isFollowed(toot.account.webfingerURI);
-
-                if (toot.account.isFollowed && uriToots.length > 1) {
-                    console.debug(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
-                }
-
-                // booleans can be ORed
+                // Booleans etc
+                toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted);
-                toot.sources = uniquify(sources);
+                toot.sources = uniqueSources;
 
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
                     toot.reblog.reblogsBy = reblogsBy;
-                    toot.reblog.sources = uniquify(sources);
+                    toot.reblog.sources = uniqueSources;
                 }
             });
         });
 
         const deduped = Object.values(tootsByURI).map((toots) => {
-            const mostRecent = mostRecentToot(toots);
+            const mostRecent = mostRecentToot(toots)! as Toot;
 
-            if (mostRecent) {
-                return mostRecent as Toot;
-            } else {
-                console.warn(`${logPrefix} No most recent toot found for ${toots.length} toots:`, toots);
-                return toots[0];
+            if (uniquify(toots.map(t => t.uri))!.length > 1) {
+                console.debug(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
             }
+
+            return mostRecent;
         });
 
         logTootRemoval(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
