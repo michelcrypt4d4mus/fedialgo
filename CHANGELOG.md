@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* call `Toot.complete()` in batches of 50 instead of 100, increase sleep time.
+* Call `Toot.complete()` in batches of 50 instead of 100, increase sleep time to 250ms from 200
+* Don't penalize toots from followed accounts and tags with TRENDING penalty
+* Apply the OUTLIER_DAMPENER to the DiversityFeedScorer penalty
+* Tweak `Toot.containsTagsMsg()`
 
 # v0.30.0
 * (Demo App) Implement viewing and voting in Mastodon polls

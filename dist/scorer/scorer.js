@@ -116,23 +116,37 @@ class Scorer {
     }
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
+        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
+        const realToot = toot.realToot();
         const rawScores = {};
         const weightedScores = {};
         const userWeights = await Storage_1.default.getWeights();
-        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
         const outlierDampener = userWeights[types_1.WeightName.OUTLIER_DAMPENER] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.OUTLIER_DAMPENER];
+        let trendingWeight = userWeights[types_1.WeightName.TRENDING] || weight_presets_1.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING];
+        // Set TRENDING modifier to at least 1 if it's a followed account or tag (don't penalize follows, basically)
+        if (realToot.isFollowed || realToot.followedTags?.length) {
+            trendingWeight = Math.max(trendingWeight, 1);
+        }
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         scorers.forEach((scorer, i) => {
             const scoreValue = scores[i] || 0;
             rawScores[scorer.name] = scoreValue;
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
-            if (toot.realToot().isTrending()) {
-                weightedScores[scorer.name] *= (userWeights[types_1.WeightName.TRENDING] ?? 0);
+            // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
+            if (realToot.isTrending()) {
+                weightedScores[scorer.name] *= trendingWeight;
             }
             // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
-            if (outlierDampener > 0 && weightedScores[scorer.name] > 0) {
-                weightedScores[scorer.name] = Math.pow(weightedScores[scorer.name], 1 / outlierDampener);
+            if (outlierDampener > 0) {
+                const scorerScore = weightedScores[scorer.name];
+                // Diversity scores are negative so we temporarily flip the sign to get the root
+                if (scorerScore >= 0) {
+                    weightedScores[scorer.name] = Math.pow(scorerScore, 1 / outlierDampener);
+                }
+                else {
+                    weightedScores[scorer.name] = -1 * Math.pow(-1 * scorerScore, 1 / outlierDampener);
+                }
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
