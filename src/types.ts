@@ -44,6 +44,12 @@ export const NON_SCORE_WEIGHTS = [
     WeightName.OUTLIER_DAMPENER,
 ];
 
+export const TRENDING_WEIGHTS = [
+    WeightName.TRENDING_LINKS,
+    WeightName.TRENDING_TAGS,
+    WeightName.TRENDING_TOOTS,
+];
+
 // Keys that are valid for local browser storage.
 export enum StorageKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',

@@ -29,6 +29,7 @@ export declare enum WeightName {
     TRENDING = "Trending"
 }
 export declare const NON_SCORE_WEIGHTS: WeightName[];
+export declare const TRENDING_WEIGHTS: WeightName[];
 export declare enum StorageKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",

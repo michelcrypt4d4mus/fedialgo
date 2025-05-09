@@ -12,7 +12,7 @@ import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config, SCORERS_CONFIG } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError, logDebug, logInfo, traceLog } from '../helpers/log_helpers';
-import { ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
+import { TRENDING_WEIGHTS, ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -143,19 +143,17 @@ export default abstract class Scorer {
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
-        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
-
+        // Find non scorer weights
+        const userWeights = await Storage.getWeights();
+        const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
+        const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
+        const trendingMultiplier = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
+        // Initialize variables
         const realToot = toot.realToot();
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;
-        const userWeights = await Storage.getWeights();
-        const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
-        let trendingMultiplier = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
-
-        // Set TRENDING modifier to at least 1 if it's a followed account or tag (don't penalize follows, basically)
-        if (realToot.isFollowed()) {
-            trendingMultiplier = Math.max(trendingMultiplier, 1);
-        }
+        // Do scoring
+        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
@@ -165,7 +163,7 @@ export default abstract class Scorer {
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
 
             // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
-            if (realToot.isTrending()) {
+            if (realToot.isTrending() && (!realToot.isFollowed() || TRENDING_WEIGHTS.includes(scorer.name))) {
                 weightedScores[scorer.name] *= trendingMultiplier;
             }
 
@@ -183,7 +181,6 @@ export default abstract class Scorer {
         });
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
         const decayExponent = -1 * Math.pow(toot.ageInHours(), Config.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);

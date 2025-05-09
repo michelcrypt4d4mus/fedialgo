@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Only penalize the "trending" parts of followed accounts & tags toots (last change was no penalty at all)
 
 ### v0.30.1
 * Call `Toot.complete()` in batches of 50 instead of 100, increase sleep time to 250ms from 200
@@ -8,7 +9,7 @@
 * Add `Toot.isFollowed()` method
 * Tweak `Toot.containsTagsMsg()` string
 
-# v0.30.0
+## v0.30.0
 * (Demo App) Implement viewing and voting in Mastodon polls
 * `timeString()` helper now puts "this coming" prefix for future days
 
