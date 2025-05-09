@@ -91,8 +91,8 @@ const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimeline
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
 // TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
-const INITIAL_LOAD_STATUS = "initial data";
-const READY_TO_LOAD_MSG = "(ready to load)";
+const INITIAL_LOAD_STATUS = "Retrieving initial data";
+const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 ;
 class TheAlgorithm {
@@ -208,6 +208,7 @@ class TheAlgorithm {
         ];
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        this.loadingStatus = `Finalizing scores`;
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
@@ -402,8 +403,8 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;
-        this.launchBackgroundPoller();
         api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
+        this.launchBackgroundPoller();
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
     setLoadingStateVariables(logPrefix) {
@@ -413,12 +414,12 @@ class TheAlgorithm {
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         }
-        else if (logPrefix == log_helpers_1.TRIGGER_FEED) {
+        else if (this.homeFeed.length == 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `new toots` + (mostRecentAt ? ` since ${(0, time_helpers_1.timeString)(mostRecentAt)}` : '');
+            this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${(0, time_helpers_1.timeString)(mostRecentAt)}` : '');
         }
         else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
+            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
         (0, log_helpers_1.logDebug)(logPrefix, `setLoadingStateVariables()`, this.statusDict());
     }

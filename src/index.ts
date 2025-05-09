@@ -64,8 +64,8 @@ import {
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`)
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`
 // TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
-const INITIAL_LOAD_STATUS = "initial data";
-const READY_TO_LOAD_MSG = "(ready to load)"
+const INITIAL_LOAD_STATUS = "Retrieving initial data";
+const READY_TO_LOAD_MSG = "Ready to load"
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -210,6 +210,7 @@ class TheAlgorithm {
 
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        this.loadingStatus = `Finalizing scores`
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
@@ -435,8 +436,8 @@ class TheAlgorithm {
         }
 
         this.loadStartedAt = null;
-        this.launchBackgroundPoller();
         MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
+        this.launchBackgroundPoller();
     }
 
     // sets this.loadingStatus to a message indicating the current state of the feed
@@ -446,11 +447,11 @@ class TheAlgorithm {
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
-        } else if (logPrefix == TRIGGER_FEED) {
+        } else if (this.homeFeed.length == 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
+            this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
         } else {
-            this.loadingStatus = `more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
+            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
 
         logDebug(logPrefix, `setLoadingStateVariables()`, this.statusDict());
