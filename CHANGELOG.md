@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Generate a new Array when updating filter valid values so as to trigger a useMemo() recomputation in demo app
 
 ### v0.30.5
 * Suppress a bunch of language hashtags (japanese, russian, greek, korean, arabic) if they don't match the configured language

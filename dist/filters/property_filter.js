@@ -138,14 +138,21 @@ class PropertyFilter extends toot_filter_1.default {
         }
     }
     // Add the element to the filters array if it's not already there or remove it if it is
+    // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element, isValidOption) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
         if (isValidOption) {
-            this.validValues.push(element); // TODO: maybe check that it's not already there to avoid concurrency issues?
+            this.validValues.push(element);
         }
         else {
+            if (!this.validValues.includes(element)) {
+                console.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
+                return;
+            }
             this.validValues.splice(this.validValues.indexOf(element), 1);
         }
+        // Remove duplicates; build new Array object to trigger useMemo() in Demo App // TODO: not great
+        this.validValues = [...new Set(this.validValues)];
     }
     // Required for serialization of settings to local storage
     toArgs() {
