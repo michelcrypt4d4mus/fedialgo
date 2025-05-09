@@ -18,7 +18,7 @@ import {
     StringNumberDict,
     WeightName,
 } from "../types";
-import { ageInSeconds } from "../helpers/time_helpers";
+import { ageInSeconds, ageString } from "../helpers/time_helpers";
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -133,6 +133,7 @@ export function updatePropertyFilterOptions(
         console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
+    console.log(`${logPrefx} Completed, storing filter options:`, filters.filterSections);
     Storage.setFilters(filters);  // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
@@ -141,6 +142,7 @@ export function updatePropertyFilterOptions(
 
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.
+// TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
 export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
     const logPrefx = `[updateHashtagCounts()]`;
     const newTootTagCounts = {} as StringNumberDict;
@@ -155,7 +157,7 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
         })
     });
 
-    console.log(`${logPrefx} Recomputed tag counts ${ageInSeconds(startedAt)}`);
+    console.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
     filters.filterSections[PropertyName.HASHTAG].setOptions(newTootTagCounts);
     Storage.setFilters(filters);
 }

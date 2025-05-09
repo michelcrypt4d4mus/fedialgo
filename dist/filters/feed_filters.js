@@ -129,6 +129,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
         console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
+    console.log(`${logPrefx} Completed, storing filter options:`, filters.filterSections);
     Storage_1.default.setFilters(filters); // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
@@ -137,6 +138,7 @@ exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
 ;
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.
+// TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
 function updateHashtagCounts(filters, toots) {
     const logPrefx = `[updateHashtagCounts()]`;
     const newTootTagCounts = {};
@@ -149,7 +151,7 @@ function updateHashtagCounts(filters, toots) {
             }
         });
     });
-    console.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageInSeconds)(startedAt)}`);
+    console.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
     filters.filterSections[property_filter_1.PropertyName.HASHTAG].setOptions(newTootTagCounts);
     Storage_1.default.setFilters(filters);
 }

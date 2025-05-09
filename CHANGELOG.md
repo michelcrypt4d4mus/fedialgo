@@ -1,7 +1,7 @@
 # NEXT RELEASE
-* Second pass to get the HASHTAG counts right
+* Add a way to do a second pass to get the HASHTAG counts right with `updateHashtagCounts()` (but don't actually use it)
+* Increase `Config.maxConcurrentRequestsBackground` to 8
 * More default servers
-* increase `Config.maxConcurrentRequestsBackground` to 8
 
 ### v0.30.6
 * Generate a new Array when updating filter valid values so as to trigger a `useMemo()` recomputation in demo app

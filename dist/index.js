@@ -210,7 +210,7 @@ class TheAlgorithm {
         this.loadingStatus = `Finalizing scores`;
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
-        (0, feed_filters_1.updateHashtagCounts)(this.filters, this.feed);
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 300 toots)
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
     }
@@ -342,11 +342,11 @@ class TheAlgorithm {
     async loadCachedData() {
         this.feed = await Storage_1.default.getCoerced(types_1.StorageKey.TIMELINE);
         this.homeFeed = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
-        // TODO: actually save filter settings to storage
-        this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
+        // TODO: actually save filter settings to storage
+        this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
+        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, this.userData);
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
