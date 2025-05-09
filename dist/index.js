@@ -178,14 +178,13 @@ class TheAlgorithm {
     }
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate() {
-        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, state:`, this.statusDict());
+        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
-        console.log(`[${log_helpers_1.TRIGGER_FEED}] num triggers: ${++this.numTriggers} triggers so far`);
         if (this.isLoading()) {
             console.warn(`[${log_helpers_1.TRIGGER_FEED}] Load in progress already!`, this.statusDict());
             throw new Error(GET_FEED_BUSY_MSG);
         }
-        if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
+        else if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
             console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
             return;
         }
