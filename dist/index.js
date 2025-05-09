@@ -153,11 +153,11 @@ class TheAlgorithm {
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
         if (params.language) {
-            if (params.language in config_1.Config.foreignLanguageServers) {
+            if (params.language == config_1.Config.language || params.language in config_1.Config.foreignLanguageServers) {
                 config_1.Config.language = params.language;
             }
             else {
-                console.warn(`Language ${params.language} not supported, using default ${config_1.Config.defaultLanguage}`);
+                console.warn(`Language "${params.language}" not supported, using default "${config_1.Config.defaultLanguage}"`);
             }
         }
         const user = account_1.default.build(params.user);
