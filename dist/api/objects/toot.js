@@ -54,6 +54,7 @@ const TAG_ONLY_STRINGS = [
     "in",
     "it",
     "ja",
+    "tv",
     "us",
 ];
 ;

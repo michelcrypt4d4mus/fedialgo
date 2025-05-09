@@ -131,6 +131,6 @@ export function updatePropertyFilterOptions(
     }
 
     Storage.setFilters(filters);
-    traceLog(`${logPrefx} completed, built filters:`, filters);
+    console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };

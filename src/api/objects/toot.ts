@@ -66,8 +66,9 @@ const TAG_ONLY_STRINGS = [
     "in",
     "it",
     "ja",
+    "tv",
     "us",
-]
+];
 
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo

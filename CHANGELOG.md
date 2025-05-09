@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * More default servers
+* increase `Config.maxConcurrentRequestsBackground` to 8
 
 ### v0.30.6
 * Generate a new Array when updating filter valid values so as to trigger a `useMemo()` recomputation in demo app

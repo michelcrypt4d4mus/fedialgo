@@ -127,7 +127,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
     Storage_1.default.setFilters(filters);
-    (0, log_helpers_1.traceLog)(`${logPrefx} completed, built filters:`, filters);
+    console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }
 exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
