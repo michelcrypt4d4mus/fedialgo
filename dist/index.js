@@ -338,7 +338,9 @@ class TheAlgorithm {
     async loadCachedData() {
         this.feed = await Storage_1.default.getCoerced(types_1.StorageKey.TIMELINE);
         this.homeFeed = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
+        // TODO: actually save filter settings to storage
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
+        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.setTimelineInApp(this.feed);

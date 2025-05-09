@@ -364,7 +364,9 @@ class TheAlgorithm {
     private async loadCachedData(): Promise<void> {
         this.feed = await Storage.getCoerced<Toot>(StorageKey.TIMELINE);
         this.homeFeed = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
+        // TODO: actually save filter settings to storage
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
+        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.setTimelineInApp(this.feed);
