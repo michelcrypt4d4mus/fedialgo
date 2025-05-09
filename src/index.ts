@@ -248,7 +248,7 @@ class TheAlgorithm {
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt(): Date | null {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
-        if (this.homeFeed.length == 0) {
+        if (this.homeFeed.length == 0 && this.numTriggers > 1) {
             console.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
             return mostRecentTootedAt(this.feed);
         }

@@ -70,6 +70,7 @@ export function updatePropertyFilterOptions(
     toots: Toot[],
     userData: UserData
 ): FeedFilterSettings {
+    const logPrefx = `[updatePropertyFilterOptions()]`
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
     const tootCounts = Object.values(PropertyName).reduce(
@@ -126,10 +127,10 @@ export function updatePropertyFilterOptions(
 
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));
-        console.debug(`Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
+        console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
     Storage.setFilters(filters);
-    traceLog(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
+    traceLog(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };

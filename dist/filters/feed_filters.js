@@ -78,6 +78,7 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 function updatePropertyFilterOptions(filters, toots, userData) {
+    const logPrefx = `[updatePropertyFilterOptions()]`;
     const suppressedNonLatinTags = {};
     const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
@@ -123,10 +124,10 @@ function updatePropertyFilterOptions(filters, toots, userData) {
     });
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
-        console.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
+        console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
     Storage_1.default.setFilters(filters);
-    (0, log_helpers_1.traceLog)(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);
+    (0, log_helpers_1.traceLog)(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }
 exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
