@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.7
 * Add a way to do a second pass to get the HASHTAG counts right with `updateHashtagCounts()` (but don't actually use it)
 * Increase `Config.maxConcurrentRequestsBackground` to 8
 * More default servers
