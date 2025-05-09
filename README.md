@@ -180,18 +180,13 @@ There's a pre-commit git hook that runs `npm run build`.
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 
 ### What's slow:
-Not 100% sure if these are slow because the actual fetch needs to be slow or if there is some mutex situation keeping them from running but either way right now these are the outliers:
+Some recent stats from a LOAD_TEST
 
-* [API RecentUserToots] Completing fetch at page 10, got 400 records in 28.2 seconds
-* [API FavouritedAccounts] Completing fetch at page 10, got 400 records in 28.6 seconds
-* [API RecentNotifications] Completing fetch at page 10, got 400 records in 29.1 seconds
-* [FediverseTrendingToots] fetched 80 unique records in 25.5 seconds (**Much slower than the otehr fediverse fetches!)
-* [API FollowedTags] Retrieved page 3 (have 118 records so far in 15.2 seconds) (FollowedTags can be surprising slow)
-
-Not on the critical path so maybe fine:
-
-* [API TrendingTagTootsV2] Completing fetch at page 1, got 15 records in 31.8 seconds
-
+* Loaded + completely scored 2,708 toots for timeline in 204.1 seconds (1,594 home timeline toots covering 12 hours)
+* [RecentNotifications] Completing fetch at page 6, 80 in page, 480 records so far in 13.6 seconds
+* [RecentUserToots] Completing fetch at page 12, 40 in page, 480 records so far in 14.8 seconds
+* [FavouritedToots] Completing fetch at page 12, 40 in page, 480 records so far in 14.2 seconds
+* [HomeTimeline] Completing fetch at page 41, 0 in page, 1594 records so far in 111.2 seconds
 
 
 # Resources

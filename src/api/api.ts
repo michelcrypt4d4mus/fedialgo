@@ -434,7 +434,7 @@ export default class MastoApi {
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || shouldStop) {
-                    traceLog(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
+                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
                     break;
                 } else {
                     traceLog(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);

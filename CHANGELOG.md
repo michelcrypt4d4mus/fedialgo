@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.3
 * Special `mediaAttachment` repair for bluesky bridged toots
 * Add `TypeFilter` for `IMAGES`, `VIDEO`, and `AUDIO`
 * Add `numTriggers` counter
