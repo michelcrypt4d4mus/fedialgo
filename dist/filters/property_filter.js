@@ -128,7 +128,7 @@ class PropertyFilter extends toot_filter_1.default {
         return this.invertSelection ? !isMatched : isMatched;
     }
     setOptions(optionInfo) {
-        this.optionInfo = optionInfo;
+        this.optionInfo = { ...optionInfo }; // TODO: this is to trigger useMemo() in the demo app, not great
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         // Server side filters get all the options immediately set to filter out toots that come

@@ -152,7 +152,7 @@ export const Config: ConfigType = {
 
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough
     // servers to make for a good set of trending toots and hashtags.
-    // Culled from https://mastodonservers.net and https://joinmastodon.org/
+    // Culled from https://mastodonservers.net and https://joinmastodon.org/ and https://fedidb.com/software/mastodon?registration=open
     defaultServers: [
         "mastodon.social",
         "mastodon.cloud",
@@ -164,6 +164,7 @@ export const Config: ConfigType = {
         "infosec.exchange",
         "universeodon.com",
         "kolektiva.social",
+        "loforo.com",
         "mastodon.gamedev.place",
         "mastodonapp.uk",
         "ioc.exchange",
@@ -206,9 +207,11 @@ export const Config: ConfigType = {
             "piaille.fr",
             "pouet.chapril.org",
             "mastoot.fr",
+            "mamot.fr",
         ],
         "ja": [
             "mstdn.jp",
+            "m.cmx.im",
             "mastodon-japan.net",
             "famichiki.jp",
             // "pawoo.net",                  // (Maybe NSFW?)

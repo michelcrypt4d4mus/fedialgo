@@ -144,7 +144,7 @@ export default class PropertyFilter extends TootFilter {
     }
 
     setOptions(optionInfo: StringNumberDict) {
-        this.optionInfo = optionInfo;
+        this.optionInfo = {...optionInfo}; // TODO: this is to trigger useMemo() in the demo app, not great
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
 
