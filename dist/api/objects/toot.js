@@ -240,7 +240,7 @@ class Toot {
     }
     // Returns true if this toot is from a followed account or contains a followed tag
     isFollowed() {
-        return !!(this.account.isFollowed || this.realToot().account.isFollowed || this.realToot().followedTags?.length);
+        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
@@ -499,8 +499,6 @@ class Toot {
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo);
             const firstTrendingLinks = uriToots.find(toot => !!toot.trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.trendingRank);
-            // Account properties
-            const isAccountFollowed = uriToots.some(toot => toot.account.isFollowed);
             // Deal with tag arrays
             const allTrendingTags = uriToots.flatMap(toot => toot.trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
@@ -519,7 +517,7 @@ class Toot {
                 toot.reblogsCount = propsThatChange.reblogsCount;
                 toot.repliesCount = propsThatChange.repliesCount;
                 // booleans can be ORed
-                toot.account.isFollowed = isAccountFollowed;
+                toot.account.isFollowed = uriToots.some(toot => toot.account.isFollowed);
                 toot.muted = uriToots.some(toot => toot.muted);
                 toot.sources = (0, collection_helpers_1.uniquify)(uriToots.map(toot => toot.sources || []).flat());
                 // Set all toots to have all trending tags so when we uniquify we catch everything
