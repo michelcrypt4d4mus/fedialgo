@@ -282,6 +282,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
         this.hasProvidedAnyTootsToClient = false;
@@ -291,7 +292,6 @@ class TheAlgorithm {
         this.feed = [];
         await Storage_1.default.clearAll();
         await this.loadCachedData();
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
@@ -333,7 +333,7 @@ class TheAlgorithm {
             await this.prepareScorers(true);
             await this.scoreAndFilterFeed();
             if (!shouldContinue) {
-                console.log(`${poller_1.MOAR_DATA_PREFIX} stopping data poller...`);
+                (0, log_helpers_1.logInfo)(poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.Config.backgroundLoadIntervalSeconds * 1000);

@@ -123,7 +123,7 @@ export const Config: ConfigType = {
     maxConcurrentRequestsBackground: 3,     // How many toot requests to make in parallel once the initial load is done
     maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
     maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
-    minRecordsForFeatureScoring: 480,       // number of notifications, replies, etc. to pull in initial load
+    minRecordsForFeatureScoring: 320,       // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
     numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK

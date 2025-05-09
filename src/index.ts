@@ -295,6 +295,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller!);
         this.dataPoller = undefined;
         this.hasProvidedAnyTootsToClient = false;
@@ -304,7 +305,6 @@ class TheAlgorithm {
         this.feed = [];
         await Storage.clearAll();
         await this.loadCachedData();
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
     }
 
     // Merge a new batch of toots into the feed.
@@ -355,7 +355,7 @@ class TheAlgorithm {
                 await this.scoreAndFilterFeed();
 
                 if (!shouldContinue) {
-                    console.log(`${MOAR_DATA_PREFIX} stopping data poller...`);
+                    logInfo(MOAR_DATA_PREFIX, `stopping data poller...`);
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
