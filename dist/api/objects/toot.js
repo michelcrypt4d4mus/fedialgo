@@ -447,7 +447,7 @@ class Toot {
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         }
         else {
-            toot.trendingLinks = []; // Very slow to calculate so skip it unless isDeepInspect is true
+            toot.trendingLinks ||= []; // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
     // Returns true if the toot should be re-completed
