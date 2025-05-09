@@ -126,7 +126,7 @@ export function updatePropertyFilterOptions(
 
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));
-        console.debug(`Suppressed ${sumArray(languageCounts)} non-Latin filter options:`, suppressedNonLatinTags);
+        console.debug(`Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
     Storage.setFilters(filters);

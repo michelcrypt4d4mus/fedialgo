@@ -1,7 +1,7 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
-import { bracketed, hashObject, isNumber } from "./string_helpers";
+import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { Config, ConfigType } from "../config";
 import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { traceLog } from "./log_helpers";
@@ -191,7 +191,16 @@ export function shuffle<T extends (string | number | object)>(array: T[]): T[] {
 
 // Sort the keys of a dict by their values in descending order
 export function sortKeysByValue(dict: StringNumberDict): string[] {
-    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
+    return Object.keys(dict).sort((a, b) => {
+        const aVal = dict[a] || 0;
+        const bVal = dict[b] || 0;
+
+        if (aVal == bVal) {
+            return compareStr(a, b);
+        } else {
+            return bVal - aVal;
+        }
+    });
 };
 
 

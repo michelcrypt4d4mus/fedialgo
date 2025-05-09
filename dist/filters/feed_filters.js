@@ -123,7 +123,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
     });
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
-        console.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin filter options:`, suppressedNonLatinTags);
+        console.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
     Storage_1.default.setFilters(filters);
     (0, log_helpers_1.traceLog)(`[initializeFiltersWithSummaryInfo()] completed, built filters:`, filters);

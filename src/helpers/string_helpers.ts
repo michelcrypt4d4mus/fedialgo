@@ -45,7 +45,7 @@ export const RUSSIAN_LANGUAGE = RUSSIAN_LOCALE.split("-")[0];
 export const LANGUAGE_REGEXES = {
     [ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
-    [JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\d]+$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
+    [JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
     [KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),  // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
     [RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
@@ -56,6 +56,8 @@ export const bracketed = (str: string): string => str.startsWith('[') ? str : `[
 export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
 // Returns true if n is a number or a string that can be converted to a number
 export const isNumber = (n: string | number): boolean => (typeof n == "number") || /^[\d.]+$/.test(n);
+// for use with sort()
+export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
 
 
 // Return a string representation of a number of bytes

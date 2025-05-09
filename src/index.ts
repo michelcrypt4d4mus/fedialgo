@@ -36,7 +36,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG } from './config';
-import { filterWithLog, truncateToConfiguredLength } from "./helpers/collection_helpers";
+import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
@@ -499,4 +499,5 @@ export {
     extractDomain,
     isAccessTokenRevokedError,
     timeString,
+    sortKeysByValue,
 };

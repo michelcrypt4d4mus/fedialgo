@@ -25,6 +25,7 @@ export declare const LANGUAGE_REGEXES: {
 export declare const bracketed: (str: string) => string;
 export declare const quoted: (str: string | null) => string;
 export declare const isNumber: (n: string | number) => boolean;
+export declare const compareStr: (a: string, b: string) => number;
 export declare const byteString: (numBytes: number) => string;
 export declare function countInstances(str: string, substr: string): number;
 export declare function createRandomString(length: number): string;

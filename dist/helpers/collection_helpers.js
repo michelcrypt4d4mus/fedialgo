@@ -163,7 +163,16 @@ exports.shuffle = shuffle;
 ;
 // Sort the keys of a dict by their values in descending order
 function sortKeysByValue(dict) {
-    return Object.keys(dict).sort((a, b) => dict[b] - dict[a]);
+    return Object.keys(dict).sort((a, b) => {
+        const aVal = dict[a] || 0;
+        const bVal = dict[b] || 0;
+        if (aVal == bVal) {
+            return (0, string_helpers_1.compareStr)(a, b);
+        }
+        else {
+            return bVal - aVal;
+        }
+    });
 }
 exports.sortKeysByValue = sortKeysByValue;
 ;

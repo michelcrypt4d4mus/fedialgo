@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE = exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE = exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE = exports.GREEK_LANGUAGE = exports.GREEK_LOCALE = exports.ARABIC_LANGUAGE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE = exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE = exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE = exports.GREEK_LANGUAGE = exports.GREEK_LOCALE = exports.ARABIC_LANGUAGE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -43,7 +43,7 @@ exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE.split("-")[0];
 exports.LANGUAGE_REGEXES = {
     [exports.ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [exports.GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
-    [exports.JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\d]+$`, 'v'),
+    [exports.JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
     [exports.KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
     [exports.RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
@@ -56,6 +56,9 @@ exports.quoted = quoted;
 // Returns true if n is a number or a string that can be converted to a number
 const isNumber = (n) => (typeof n == "number") || /^[\d.]+$/.test(n);
 exports.isNumber = isNumber;
+// for use with sort()
+const compareStr = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
+exports.compareStr = compareStr;
 // Return a string representation of a number of bytes
 const byteString = (numBytes) => {
     if (numBytes < exports.KILOBYTE)

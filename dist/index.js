@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = void 0;
+exports.sortKeysByValue = exports.timeString = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -71,6 +71,7 @@ Object.defineProperty(exports, "timeString", { enumerable: true, get: function (
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const collection_helpers_1 = require("./helpers/collection_helpers");
+Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
 const poller_1 = require("./api/poller");
 const hashtags_1 = require("./feeds/hashtags");
 const string_helpers_1 = require("./helpers/string_helpers");
