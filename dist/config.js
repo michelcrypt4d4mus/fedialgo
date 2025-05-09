@@ -57,7 +57,7 @@ exports.Config = {
     maxConcurrentRequestsBackground: 3,
     maxFollowingAccountsToPull: 5000,
     maxRecordsForFeatureScoring: 1500,
-    minRecordsForFeatureScoring: 240,
+    minRecordsForFeatureScoring: 480,
     minServerMAU: 100,
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
