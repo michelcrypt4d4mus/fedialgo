@@ -135,6 +135,7 @@ class Toot {
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
+        // TODO: the reblogsBy don't have the isFollowed flag set correctly
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;

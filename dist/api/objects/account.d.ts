@@ -34,9 +34,9 @@ export default class Account implements AccountObj {
     suspended?: boolean | null;
     limited?: boolean | null;
     roles: mastodon.v1.Account["roles"];
-    isFollowed?: boolean;
+    isFollowed: boolean;
     webfingerURI: string;
-    static build(account: mastodon.v1.Account | Account): Account;
+    static build(account: mastodon.v1.Account): Account;
     describe(): string;
     displayNameWithEmojis(): string;
     homeserver(): string;

@@ -82,7 +82,7 @@ class Account {
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
-        accountObj.isFollowed = (account instanceof Account) ? account.isFollowed : false;
+        accountObj.isFollowed = false;
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }
