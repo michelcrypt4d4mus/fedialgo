@@ -625,6 +625,8 @@ export default class Toot implements TootObj {
             }
 
             uriToots.forEach((toot) => {
+                // if (uriToots.length == 1) return;
+
                 // Props that are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
@@ -640,12 +642,8 @@ export default class Toot implements TootObj {
                 // Account
                 toot.account.isFollowed = isFollowed(toot.account.webfingerURI);
 
-                if (toot.account.isFollowed) {
-                    if (toot.account.webfingerURI == "@Strandjunker@mstdn.social".toLowerCase()) {
-                        console.error(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
-                    } else {
-                        console.debug(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
-                    }
+                if (toot.account.isFollowed && uriToots.length > 1) {
+                    console.debug(`${logPrefix} ${toot.account.describe()} is followed according to these toots:`, uriToots);
                 }
 
                 // booleans can be ORed
