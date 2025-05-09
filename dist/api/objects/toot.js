@@ -51,7 +51,9 @@ const PROPS_THAT_CHANGE = [
 ];
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = [
+    "in",
     "it",
+    "ja",
     "us",
 ];
 ;

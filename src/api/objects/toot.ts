@@ -63,7 +63,9 @@ const PROPS_THAT_CHANGE: (keyof Toot)[] = [
 
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = [
+    "in",
     "it",
+    "ja",
     "us",
 ]
 
