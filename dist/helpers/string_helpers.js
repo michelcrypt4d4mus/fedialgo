@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.isJapanese = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.JAPANESE_LANGUAGE = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE = exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE = exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE = exports.GREEK_LANGUAGE = exports.GREEK_LOCALE = exports.ARABIC_LANGUAGE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.MEGABYTE = exports.KILOBYTE = exports.TELEMETRY = exports.NULL = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -15,9 +15,6 @@ exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
 exports.KILOBYTE = 1024;
 exports.MEGABYTE = exports.KILOBYTE * 1024;
-// Foreign languages
-exports.JAPANESE_LANGUAGE = "ja";
-const JAPANESE_REGEX = /^[一ー-龯ぁ-んァ-ン]{2,}/; // https://gist.github.com/terrancesnyder/1345094
 // Multimedia types
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
@@ -32,6 +29,24 @@ exports.MEDIA_TYPES = [
     types_1.MediaCategory.AUDIO,
     types_1.MediaCategory.IMAGE,
 ];
+// International locales, see: https://gist.github.com/wpsmith/7604842
+exports.ARABIC_LANGUAGE = "ar";
+exports.GREEK_LOCALE = "el-GR";
+exports.GREEK_LANGUAGE = exports.GREEK_LOCALE.split("-")[0];
+exports.JAPANESE_LOCALE = "ja-JP";
+exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE.split("-")[0];
+exports.KOREAN_LOCALE = "ko-KR";
+exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE.split("-")[0];
+exports.RUSSIAN_LOCALE = "ru-RU";
+exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE.split("-")[0];
+// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
+exports.LANGUAGE_REGEXES = {
+    [exports.ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
+    [exports.GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
+    [exports.JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\d]+$`, 'v'),
+    [exports.KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
+    [exports.RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+};
 // [Bracketed]
 const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
 exports.bracketed = bracketed;
@@ -39,11 +54,8 @@ exports.bracketed = bracketed;
 const quoted = (str) => str == null ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
 // Returns true if n is a number or a string that can be converted to a number
-const isNumber = (n) => (typeof n == "number" || /^[\d.]+$/.test(n));
+const isNumber = (n) => (typeof n == "number") || /^[\d.]+$/.test(n);
 exports.isNumber = isNumber;
-// Returns true if str is japanese
-const isJapanese = (str) => JAPANESE_REGEX.test(str);
-exports.isJapanese = isJapanese;
 // Return a string representation of a number of bytes
 const byteString = (numBytes) => {
     if (numBytes < exports.KILOBYTE)
@@ -70,6 +82,17 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
+// Returns the language code of the matched regex (if any)
+const detectLanguage = (str) => {
+    let language;
+    Object.entries(exports.LANGUAGE_REGEXES).forEach(([lang, regex]) => {
+        if (regex.test(str) && !(0, exports.isNumber)(str)) {
+            language = lang;
+        }
+    });
+    return language;
+};
+exports.detectLanguage = detectLanguage;
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";

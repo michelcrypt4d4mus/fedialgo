@@ -1,8 +1,9 @@
 # NEXT RELEASE
+* Suppress a bunch of language hashtags (japanese, russian, greek, korean, arabic) if they don't match the configured language
 
 ### v0.30.4
-* ChaosScorer._score() returns the existing raw score before computing a new one
-* Filter out Japanese hashtags unless Config.language is "ja"
+* `ChaosScorer._score()` returns the existing raw score before computing a new one
+* Filter out Japanese hashtags unless `Config.language` is "ja"
 
 ### v0.30.3
 * Special `mediaAttachment` repair for bluesky bridged toots

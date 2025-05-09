@@ -12,9 +12,6 @@ export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
 export const KILOBYTE = 1024;
 export const MEGABYTE = KILOBYTE * 1024;
-// Foreign languages
-export const JAPANESE_LANGUAGE = "ja"
-const JAPANESE_REGEX = /^[一ー-龯ぁ-んァ-ン]{2,}/;  // https://gist.github.com/terrancesnyder/1345094
 
 // Multimedia types
 export const GIFV = "gifv";
@@ -33,15 +30,33 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
     MediaCategory.IMAGE,
 ];
 
+// International locales, see: https://gist.github.com/wpsmith/7604842
+export const ARABIC_LANGUAGE = "ar";
+export const GREEK_LOCALE = "el-GR";
+export const GREEK_LANGUAGE = GREEK_LOCALE.split("-")[0];
+export const JAPANESE_LOCALE = "ja-JP";
+export const JAPANESE_LANGUAGE = JAPANESE_LOCALE.split("-")[0];
+export const KOREAN_LOCALE = "ko-KR"
+export const KOREAN_LANGUAGE = KOREAN_LOCALE.split("-")[0];
+export const RUSSIAN_LOCALE = "ru-RU";
+export const RUSSIAN_LANGUAGE = RUSSIAN_LOCALE.split("-")[0];
+
+// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
+export const LANGUAGE_REGEXES = {
+    [ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
+    [GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
+    [JAPANESE_LANGUAGE]: new RegExp(`^[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\d]+$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
+    [KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),  // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
+    [RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+};
 
 // [Bracketed]
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
 // Doublequotes
 export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
 // Returns true if n is a number or a string that can be converted to a number
-export const isNumber = (n: string | number): boolean => (typeof n == "number" || /^[\d.]+$/.test(n));
-// Returns true if str is japanese
-export const isJapanese = (str: string) => JAPANESE_REGEX.test(str);
+export const isNumber = (n: string | number): boolean => (typeof n == "number") || /^[\d.]+$/.test(n);
+
 
 // Return a string representation of a number of bytes
 export const byteString = (numBytes: number): string => {
@@ -67,6 +82,20 @@ export function createRandomString(length: number): string {
     }
 
     return result;
+};
+
+
+// Returns the language code of the matched regex (if any)
+export const detectLanguage = (str: string): string | undefined => {
+    let language: string | undefined;
+
+    Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
+        if (regex.test(str) && !isNumber(str)) {
+            language = lang;
+        }
+    });
+
+    return language;
 };
 
 

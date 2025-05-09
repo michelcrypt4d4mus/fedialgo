@@ -7,8 +7,8 @@ import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { Config } from "../config";
-import { incrementCount } from "../helpers/collection_helpers";
-import { JAPANESE_LANGUAGE, isJapanese } from "../helpers/string_helpers";
+import { detectLanguage } from "../helpers/string_helpers";
+import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
 import {
@@ -70,7 +70,7 @@ export function updatePropertyFilterOptions(
     toots: Toot[],
     userData: UserData
 ): FeedFilterSettings {
-    const suppressedJapanese: StringNumberDict = {};
+    const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
     const tootCounts = Object.values(PropertyName).reduce(
         (counts, propertyName) => {
@@ -89,10 +89,13 @@ export function updatePropertyFilterOptions(
 
         // Count tags
         toot.realToot().tags.forEach((tag) => {
-            if (isJapanese(tag.name) && Config.language != JAPANESE_LANGUAGE) {
-                suppressedJapanese[tag.name] = (suppressedJapanese[tag.name] || 0) + 1;
-                return false;
-            }
+            const language = detectLanguage(tag.name);
+
+            if (language && language != Config.language) {
+                suppressedNonLatinTags[language] ??= {};
+                incrementCount(suppressedNonLatinTags[language], tag.name);
+                return;
+            };
 
             incrementCount(tootCounts[PropertyName.HASHTAG], tag.name);
         });
@@ -121,8 +124,9 @@ export function updatePropertyFilterOptions(
         filters.filterSections[propertyName as PropertyName].setOptions(counts);
     });
 
-    if (Object.keys(suppressedJapanese).length) {
-        console.debug(`Suppressed ${Object.values(suppressedJapanese).length} Japanese filter options:`, suppressedJapanese);
+    if (Object.keys(suppressedNonLatinTags).length) {
+        const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));
+        console.debug(`Suppressed ${sumArray(languageCounts)} non-Latin filter options:`, suppressedNonLatinTags);
     }
 
     Storage.setFilters(filters);
