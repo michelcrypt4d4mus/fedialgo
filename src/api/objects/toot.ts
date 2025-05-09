@@ -527,7 +527,7 @@ export default class Toot implements TootObj {
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         } else {
-            toot.trendingLinks = [];  // Very slow to calculate so skip it unless isDeepInspect is true
+            toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
 
