@@ -1,7 +1,7 @@
 # NEXT RELEASE
 * Only penalize the "trending" parts of followed accounts & tags toots (last change was no penalty at all)
 * Set `isFollowed` in `getFollowedAccounts()`, always `Account.build()` starts `isFollowed` as false
-* Fixes to Toot.dedupeToots(), which was kind of broken because of uniquifying on retoot realURI()
+* Fixes to Toot.dedupeToots(), which was kind of broken because of uniquifying on retoot `realURI()` and randomly choosing retoots or real toots in final step
 * Lowercase `Account.buildWebfingerURI()`
 
 ### v0.30.1
