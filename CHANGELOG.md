@@ -1,6 +1,7 @@
 # NEXT RELEASE
 
 # v0.30.0
+* (Demo App) Implement viewing and voting in Mastodon polls
 * `timeString()` helper now puts "this coming" prefix for future days
 
 ### v0.29.7
