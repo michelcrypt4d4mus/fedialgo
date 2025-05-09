@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Only penalize the "trending" parts of followed accounts & tags toots (last change was no penalty at all)
+* Set `isFollowed` in `getFollowedAccounts()`, always `Account.build()` starts `isFollowed` as false
 
 ### v0.30.1
 * Call `Toot.complete()` in batches of 50 instead of 100, increase sleep time to 250ms from 200

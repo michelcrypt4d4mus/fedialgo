@@ -82,7 +82,7 @@ class Account {
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
-        accountObj.isFollowed = false;
+        accountObj.isFollowed = false; // Must be set later, in Toot.complete() etc.
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }
