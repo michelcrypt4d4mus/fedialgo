@@ -1,5 +1,5 @@
 import Toot from "./objects/toot";
-import { ApiMutex, InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TrendingTag } from "../types";
+import { ApiMutex, InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TagWithUsageCounts } from "../types";
 export declare enum FediverseTrendingType {
     STATUSES = "statuses",
     LINKS = "links",
@@ -17,14 +17,14 @@ export default class MastodonServer {
     fetchServerInfo(): Promise<InstanceResponse>;
     fetchTrendingStatuses(): Promise<Toot[]>;
     fetchTrendingLinks(): Promise<TrendingLink[]>;
-    fetchTrendingTags(): Promise<TrendingTag[]>;
+    fetchTrendingTags(): Promise<TagWithUsageCounts[]>;
     private fetchTrending;
     private fetchList;
     private fetch;
     static getTrendingData(): Promise<TrendingStorage>;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
-    static fediverseTrendingTags(): Promise<TrendingTag[]>;
+    static fediverseTrendingTags(): Promise<TagWithUsageCounts[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
     static isNoMauServer(domain: string): boolean;
     private static fetchMastodonInstances;

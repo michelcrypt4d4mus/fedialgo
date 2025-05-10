@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import Scorer from "../../scorer/scorer";
-import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TrendingTag } from "../../types";
+import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TagWithUsageCounts } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
     followedTags?: MastodonTag[];
@@ -12,7 +12,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     sources?: string[];
     trendingLinks?: TrendingLink[];
     trendingRank?: number;
-    trendingTags?: TrendingTag[];
+    trendingTags?: TagWithUsageCounts[];
     audioAttachments?: mastodon.v1.MediaAttachment[];
     imageAttachments?: mastodon.v1.MediaAttachment[];
     videoAttachments?: mastodon.v1.MediaAttachment[];
@@ -65,14 +65,14 @@ export default class Toot implements TootObj {
     url?: string | null;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];
-    participatedTags?: TrendingTag[];
+    participatedTags?: TagWithUsageCounts[];
     reblogsBy: Account[];
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     sources?: string[];
     trendingRank?: number;
     trendingLinks?: TrendingLink[];
-    trendingTags?: TrendingTag[];
+    trendingTags?: TagWithUsageCounts[];
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];

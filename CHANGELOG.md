@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename TrendingTag type to TagWithUsageCounts
 
 ### v0.30.8
 * Set `sideEffects: false` in `package.json` so webpack can tree shake

@@ -69,7 +69,7 @@ export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;
 export type ScorerDict = Record<WeightName, ScorerInfo>;
 export type StringNumberDict = Record<string, number>;
-export type TagNames = Record<string, TrendingTag>;
+export type TagNames = Record<string, TagWithUsageCounts>;
 export type Weights = Record<WeightName, number>;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
@@ -101,7 +101,7 @@ export type MastodonInstanceEmpty = {
     followedPctOfMAU?: number;
     MAU?: number;
 };
-export type MastodonTag = mastodon.v1.Tag | TrendingTag;
+export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
 export type ScorerInfo = {
     description: string;
     minValue?: number;
@@ -114,6 +114,10 @@ export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
 };
+export interface TagWithUsageCounts extends mastodon.v1.Tag {
+    numAccounts?: number;
+    numToots?: number;
+}
 export type TootScore = {
     rawScore: number;
     rawScores: Weights;
@@ -127,15 +131,10 @@ export interface TrendingLink extends mastodon.v1.TrendLink {
     numToots?: number;
     numAccounts?: number;
 }
-export interface TrendingTag extends mastodon.v1.Tag {
-    numAccounts?: number;
-    numToots?: number;
-    trendingRank?: number;
-}
 export interface TrendingStorage {
     links: TrendingLink[];
     toots: Toot[];
-    tags: TrendingTag[];
+    tags: TagWithUsageCounts[];
 }
-export type TrendingWithHistory = TrendingLink | TrendingTag;
+export type TrendingWithHistory = TrendingLink | TagWithUsageCounts;
 export type TrendingObj = TrendingWithHistory | Toot;

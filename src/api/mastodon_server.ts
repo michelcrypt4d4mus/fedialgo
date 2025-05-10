@@ -26,7 +26,7 @@ import {
     TrendingLink,
     TrendingObj,
     TrendingStorage,
-    TrendingTag,
+    TagWithUsageCounts,
     FEDIVERSE_KEYS,
 } from "../types";
 import {
@@ -125,9 +125,9 @@ export default class MastodonServer {
     }
 
     // Get the tags that are trending on 'server'
-    async fetchTrendingTags(): Promise<TrendingTag[]> {
+    async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = Config.numTrendingTagsPerServer;
-        const trendingTags = await this.fetchTrending<TrendingTag>(TAGS, numTags);
+        const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
         return trendingTags.filter(tag => !Config.invalidTrendingTags.includes(tag.name));
     }
@@ -218,12 +218,12 @@ export default class MastodonServer {
     }
 
     // Get the top trending tags from all servers
-    static async fediverseTrendingTags(): Promise<TrendingTag[]> {
-        return await this.fetchTrendingObjsFromAllServers<TrendingTag>({
+    static async fediverseTrendingTags(): Promise<TagWithUsageCounts[]> {
+        return await this.fetchTrendingObjsFromAllServers<TagWithUsageCounts>({
             key: StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                const uniqueTags = uniquifyTrendingObjs<TrendingTag>(tags, tag => (tag as TrendingTag).name);
+                const uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, tag => (tag as TagWithUsageCounts).name);
                 return truncateToConfiguredLength(uniqueTags, "numTrendingTags");
             }
         });

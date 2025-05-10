@@ -8,21 +8,21 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, StorageKey, StringNumberDict, TagNames, TootLike, TrendingTag } from "../types";
+import { AccountNames, StorageKey, StringNumberDict, TagNames, TootLike, TagWithUsageCounts } from "../types";
 import { buildTagNames } from "./objects/tag";
 import { Config } from "../config";
 import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 
 const SORT_TAGS_BY = [
-    "numToots" as keyof TrendingTag,
-    "name" as keyof TrendingTag
+    "numToots" as keyof TagWithUsageCounts,
+    "name" as keyof TagWithUsageCounts
 ];
 
 // Raw API data required to build UserData
 interface UserApiData {
     followedAccounts: Account[];
-    followedTags: TrendingTag[];
+    followedTags: TagWithUsageCounts[];
     mutedAccounts: Account[];
     recentToots: Toot[];
     serverSideFilters: mastodon.v2.Filter[];
@@ -83,7 +83,7 @@ export default class UserData {
     }
 
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
-    popularUserTags(): TrendingTag[] {
+    popularUserTags(): TagWithUsageCounts[] {
         return UserData.sortTrendingTags(this.participatedHashtags);
     }
 
@@ -101,7 +101,7 @@ export default class UserData {
     }
 
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]> {
+    static async getUserParticipatedHashtagsSorted(): Promise<TagWithUsageCounts[]> {
         const userTags = await UserData.getUserParticipatedTags();
         return this.sortTrendingTags(userTags);
     }
@@ -114,14 +114,14 @@ export default class UserData {
     }
 
     // Return array of TrendingTags sorted by numToots
-    static sortTrendingTags(userTags: TagNames): TrendingTag[] {
+    static sortTrendingTags(userTags: TagNames): TagWithUsageCounts[] {
         return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, false);
     }
 
     // Build a dict of tag names to the number of times the user tooted it from a list of toots
     private static buildUserParticipatedHashtags(userToots: TootLike[]): TagNames {
         // Ignores reblogs. Only counts toots authored by the user
-        const tags = userToots.flatMap(toot => toot.tags || []) as TrendingTag[];
+        const tags = userToots.flatMap(toot => toot.tags || []) as TagWithUsageCounts[];
 
         return tags.reduce(
             (tags, tag) => {

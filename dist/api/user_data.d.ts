@@ -1,10 +1,10 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from "./objects/toot";
-import { AccountNames, StringNumberDict, TagNames, TrendingTag } from "../types";
+import { AccountNames, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 interface UserApiData {
     followedAccounts: Account[];
-    followedTags: TrendingTag[];
+    followedTags: TagWithUsageCounts[];
     mutedAccounts: Account[];
     recentToots: Toot[];
     serverSideFilters: mastodon.v2.Filter[];
@@ -21,11 +21,11 @@ export default class UserData {
     static getUserData(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
     populate(): Promise<void>;
-    popularUserTags(): TrendingTag[];
+    popularUserTags(): TagWithUsageCounts[];
     static mutedKeywords(): Promise<string[]>;
-    static getUserParticipatedHashtagsSorted(): Promise<TrendingTag[]>;
+    static getUserParticipatedHashtagsSorted(): Promise<TagWithUsageCounts[]>;
     static getUserParticipatedTags(): Promise<TagNames>;
-    static sortTrendingTags(userTags: TagNames): TrendingTag[];
+    static sortTrendingTags(userTags: TagNames): TagWithUsageCounts[];
     private static buildUserParticipatedHashtags;
 }
 export {};

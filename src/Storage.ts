@@ -27,7 +27,7 @@ import {
     StorageKey,
     TrendingLink,
     TrendingStorage,
-    TrendingTag,
+    TagWithUsageCounts,
     WeightName,
     Weights,
 } from "./types";
@@ -174,7 +174,7 @@ export default class Storage {
     static async getTrendingData(): Promise<TrendingStorage> {
         return {
             links: await this.getCoerced<TrendingLink>(StorageKey.FEDIVERSE_TRENDING_LINKS),
-            tags: await this.getCoerced<TrendingTag>(StorageKey.FEDIVERSE_TRENDING_TAGS),
+            tags: await this.getCoerced<TagWithUsageCounts>(StorageKey.FEDIVERSE_TRENDING_TAGS),
             toots: await this.getCoerced<Toot>(StorageKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
