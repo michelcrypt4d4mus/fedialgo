@@ -495,6 +495,7 @@ export {
     // Helpers we also export
     extractDomain,
     isAccessTokenRevokedError,
+    isDebugMode,
     timeString,
     sortKeysByValue,
 };

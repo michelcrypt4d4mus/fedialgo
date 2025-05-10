@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortKeysByValue = exports.timeString = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = void 0;
+exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.TheAlgorithm = exports.PropertyName = exports.PropertyFilter = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -79,6 +79,7 @@ Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 const environment_helpers_1 = require("./helpers/environment_helpers");
+Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_1.PresetWeightLabel; } });
