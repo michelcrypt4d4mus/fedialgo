@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.31.1
 * Change DEBUG env var to FEDIALGO_DEBUG, export isDebugMode
 
 # v0.31.0
