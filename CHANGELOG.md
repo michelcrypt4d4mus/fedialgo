@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* QUICK_MODE env var limits initial data pull same as DEBUG env var
+* `QUICK_MODE` env var limits initial data pull same as `DEBUG` env var
 
 ### v0.30.10
 * Remove `sideEffects: false` from both fedialgo and demo app `package.json` and put back `<link>` tag in `index.html` because a lot of CSS disappeared
