@@ -20,7 +20,7 @@ function repairTag(tag) {
         tag.name = tag.name.toLowerCase();
     }
     if (api_1.default.instance) {
-        tag.url = api_1.default.instance.tagURL(tag);
+        tag.url = api_1.default.instance.tagUrl(tag);
     }
     else {
         console.warn(`MastoApi.instance is null!`);

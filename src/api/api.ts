@@ -68,7 +68,7 @@ export default class MastoApi {
     private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
 
     // URL for tag on the user's homeserver
-    tagURL = (tag: MastodonTag) => `${this.endpointURL(TAGS)}/${tag.name}`;
+    tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     static init(api: mastodon.rest.Client, user: Account): void {

@@ -16,7 +16,7 @@ export default class MastoApi {
     userData?: UserData;
     private mutexes;
     private requestSemphore;
-    tagURL: (tag: MastodonTag) => string;
+    tagUrl: (tag: MastodonTag | string) => string;
     endpointURL: (endpoint: string) => string;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;

@@ -61,7 +61,7 @@ class MastoApi {
     mutexes;
     requestSemphore; // Semaphore to limit concurrent requests
     // URL for tag on the user's homeserver
-    tagURL = (tag) => `${this.endpointURL(exports.TAGS)}/${tag.name}`;
+    tagUrl = (tag) => `${this.endpointURL(exports.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {

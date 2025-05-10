@@ -18,7 +18,7 @@ export function repairTag(tag: MastodonTag): MastodonTag {
     }
 
     if (MastoApi.instance) {
-        tag.url = MastoApi.instance.tagURL(tag)
+        tag.url = MastoApi.instance.tagUrl(tag)
     } else {
         console.warn(`MastoApi.instance is null!`);
         tag.url = tag.url.toLowerCase() || "";

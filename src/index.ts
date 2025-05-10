@@ -59,6 +59,7 @@ import {
     TrendingWithHistory,
     WeightName,
     Weights,
+    MastodonTag,
 } from "./types";
 
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
@@ -268,6 +269,25 @@ class TheAlgorithm {
         return feedAgeInSeconds;
     }
 
+    // Clear everything from browser storage except the user's identity and weightings
+    async reset(): Promise<void> {
+        console.warn(`reset() called, clearing all storage...`);
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
+        this.dataPoller && clearInterval(this.dataPoller!);
+        this.dataPoller = undefined;
+        this.hasProvidedAnyTootsToClient = false;
+        this.loadingStatus = READY_TO_LOAD_MSG;
+        this.loadStartedAt = null;
+        this.mastodonServers = {};
+        this.feed = [];
+        await Storage.clearAll();
+        await this.loadCachedData();
+    }
+
+    tagUrl(tag: string | MastodonTag): string {
+        return MastoApi.instance.tagUrl(tag);
+    }
+
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters: FeedFilterSettings): Toot[] {
         console.log(`updateFilters() called with newFilters:`, newFilters);
@@ -287,21 +307,6 @@ class TheAlgorithm {
     async updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]> {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(PresetWeights[presetName]);
-    }
-
-    // Clear everything from browser storage except the user's identity and weightings
-    async reset(): Promise<void> {
-        console.warn(`reset() called, clearing all storage...`);
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
-        this.dataPoller && clearInterval(this.dataPoller!);
-        this.dataPoller = undefined;
-        this.hasProvidedAnyTootsToClient = false;
-        this.loadingStatus = READY_TO_LOAD_MSG;
-        this.loadStartedAt = null;
-        this.mastodonServers = {};
-        this.feed = [];
-        await Storage.clearAll();
-        await this.loadCachedData();
     }
 
     // Merge a new batch of toots into the feed.

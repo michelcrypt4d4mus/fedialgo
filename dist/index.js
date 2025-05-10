@@ -260,6 +260,23 @@ class TheAlgorithm {
         (0, log_helpers_1.traceLog)(`feed is ${feedAgeInSeconds.toFixed(0)}s old, most recent from followed: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
+    // Clear everything from browser storage except the user's identity and weightings
+    async reset() {
+        console.warn(`reset() called, clearing all storage...`);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
+        this.dataPoller && clearInterval(this.dataPoller);
+        this.dataPoller = undefined;
+        this.hasProvidedAnyTootsToClient = false;
+        this.loadingStatus = READY_TO_LOAD_MSG;
+        this.loadStartedAt = null;
+        this.mastodonServers = {};
+        this.feed = [];
+        await Storage_1.default.clearAll();
+        await this.loadCachedData();
+    }
+    tagUrl(tag) {
+        return api_1.default.instance.tagUrl(tag);
+    }
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters) {
         console.log(`updateFilters() called with newFilters:`, newFilters);
@@ -277,20 +294,6 @@ class TheAlgorithm {
     async updateUserWeightsToPreset(presetName) {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(weight_presets_1.PresetWeights[presetName]);
-    }
-    // Clear everything from browser storage except the user's identity and weightings
-    async reset() {
-        console.warn(`reset() called, clearing all storage...`);
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
-        this.dataPoller && clearInterval(this.dataPoller);
-        this.dataPoller = undefined;
-        this.hasProvidedAnyTootsToClient = false;
-        this.loadingStatus = READY_TO_LOAD_MSG;
-        this.loadStartedAt = null;
-        this.mastodonServers = {};
-        this.feed = [];
-        await Storage_1.default.clearAll();
-        await this.loadCachedData();
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
