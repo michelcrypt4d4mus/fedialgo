@@ -4,6 +4,7 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
+    noteWithAccountInfo?: () => string;
     isFollowed?: boolean;
     webfingerURI: string;
 }
@@ -41,6 +42,7 @@ export default class Account implements AccountObj {
     displayNameWithEmojis(): string;
     homeserver(): string;
     homserverURL(): string;
+    noteWithAccountInfo: () => string;
     private buildWebfingerURI;
     static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict;
     static buildAccountNames(accounts: Account[]): AccountNames;

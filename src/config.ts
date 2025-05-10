@@ -4,12 +4,14 @@
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
-export const DEFAULT_LOCALE = "en-CA";
-export const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
-export const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * 60;
+// Locale
+const DEFAULT_LOCALE = "en-CA";
+const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
+const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
+const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 
 
 type StaleDataConfig = {
@@ -18,8 +20,10 @@ type StaleDataConfig = {
 
 // See Config for comments explaining these values
 export type ConfigType = {
+    country: string;
     defaultLanguage: string;
     language: string;
+    locale: string;
     // Timeline
     excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
@@ -77,8 +81,10 @@ export type ConfigType = {
 
 // App level config that is not user configurable
 export const Config: ConfigType = {
+    country: DEFAULT_COUNTRY,
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
+    locale: DEFAULT_LOCALE,
 
     // Timeline toots
     excessiveTags: 25,                      // Toots with more than this many tags will be penalized
@@ -271,6 +277,29 @@ export const Config: ConfigType = {
         "med-mastodon.com",
     ],
 };
+
+export function setLocale(locale?: string): void {
+    locale ??= DEFAULT_LOCALE;
+
+    if (!LOCALE_REGEX.test(locale)) {
+        console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+        return;
+    }
+
+    Config.locale = locale;
+    const [language, country] = locale.split("-");
+
+    if (language) {
+        if (language == DEFAULT_LANGUAGE || language in Config.foreignLanguageServers) {
+            Config.language = language;
+        } else {
+            console.warn(`Language "${language}" not supported, using default "${Config.defaultLanguage}"`);
+        }
+    }
+
+    Config.country = country || DEFAULT_COUNTRY;
+};
+
 
 // Debug mode settings
 if (isDebugMode || isQuickMode) {

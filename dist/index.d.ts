@@ -34,7 +34,7 @@ declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    language?: string;
+    locale?: string;
     setTimelineInApp?: (feed: Toot[]) => void;
 }
 declare class TheAlgorithm {

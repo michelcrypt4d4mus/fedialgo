@@ -35,7 +35,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInSeconds, ageString, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
-import { Config, SCORERS_CONFIG } from './config';
+import { Config, SCORERS_CONFIG, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -71,7 +71,7 @@ const READY_TO_LOAD_MSG = "Ready to load"
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    language?: string;  // Optional locale to use for date formatting
+    locale?: string;  // Optional locale to use for date formatting
     setTimelineInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
@@ -147,14 +147,7 @@ class TheAlgorithm {
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
-        if (params.language) {
-            if (params.language == Config.language || params.language in Config.foreignLanguageServers) {
-                Config.language = params.language;
-            } else {
-                console.warn(`Language "${params.language}" not supported, using default "${Config.defaultLanguage}"`);
-            }
-        }
-
+        setLocale(params.locale);
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();

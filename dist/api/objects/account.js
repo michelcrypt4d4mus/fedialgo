@@ -14,8 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const class_transformer_1 = require("class-transformer");
 const api_1 = __importDefault(require("../api"));
+const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const NBSP_REGEX = /&nbsp;/g;
+const ACCOUNT_JOINER = '  ●  ';
+const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" };
 ;
 class Account {
     id;
@@ -107,6 +111,17 @@ class Account {
             return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
+    // Returns HTML combining the "note" property with the creation date, followers and toots count
+    noteWithAccountInfo = () => {
+        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config_1.Config.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ];
+        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    };
     // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {

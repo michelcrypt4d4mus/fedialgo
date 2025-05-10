@@ -81,7 +81,8 @@ exports.quotedISOFmt = quotedISOFmt;
 const timeString = (_timestamp, locale) => {
     if (_timestamp == null)
         return string_helpers_1.NULL;
-    locale ||= config_1.DEFAULT_LOCALE;
+    locale ||= config_1.Config.locale;
+    ;
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
     const isToday = timestamp.getDate() == new Date().getDate();
     const seconds = ageInSeconds(timestamp);

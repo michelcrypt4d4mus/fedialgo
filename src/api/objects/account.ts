@@ -6,13 +6,19 @@ import { Type } from "class-transformer";
 
 import MastoApi from "../api";
 import { AccountNames, StringNumberDict } from "../../types";
+import { Config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+
+const NBSP_REGEX = /&nbsp;/g;
+const ACCOUNT_JOINER = '  ●  ';
+const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
+    noteWithAccountInfo?: () => string;
     isFollowed?: boolean;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
@@ -112,6 +118,20 @@ export default class Account implements AccountObj {
             return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
         }
     }
+
+    // Returns HTML combining the "note" property with the creation date, followers and toots count
+    noteWithAccountInfo = (): string => {
+        let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(Config.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ]
+
+        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    };
 
     // On the local server you just get the username so need to add the server domain
     private buildWebfingerURI(): string {

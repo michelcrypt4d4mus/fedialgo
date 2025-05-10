@@ -1,15 +1,14 @@
 import { ScorerDict, StorageKey } from "./types";
-export declare const DEFAULT_LOCALE = "en-CA";
-export declare const DEFAULT_LANGUAGE: string;
-export declare const DEFAULT_COUNTRY: string;
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const SECONDS_IN_HOUR: number;
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };
 export type ConfigType = {
+    country: string;
     defaultLanguage: string;
     language: string;
+    locale: string;
     excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
@@ -56,5 +55,6 @@ export type ConfigType = {
     isAppFilterVisible: boolean;
 };
 export declare const Config: ConfigType;
+export declare function setLocale(locale?: string): void;
 export declare const SCORERS_CONFIG: ScorerDict;
 export {};

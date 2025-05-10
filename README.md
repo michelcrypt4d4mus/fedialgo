@@ -61,7 +61,7 @@ const currentUser = await api.v1.accounts.verifyCredentials()
 const algorithm = await TheAlgorithm.create({
     api: api,
     user: currentUser,
-    language: "en",                // optional, defaults to English
+    locale: "en-GB",               // optional (available in navigator.language in browser)
     setTimelineInApp: setTimeline  // optional but encouraged, see below for details
 })
 ```

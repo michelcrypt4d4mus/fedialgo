@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Increase TIME_DECAY from 0.05 to 0.15
+* Increase default `TIME_DECAY` from 0.05 to 0.15
+* Change constructor argument from `language` to `locale`
+* Add `Account.noteWithAccountInfo()` method
 
 ### v0.30.12
 * Increase `Config.numParticipatedTagTootsPerTag` to 10

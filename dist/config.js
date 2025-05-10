@@ -1,21 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SCORERS_CONFIG = exports.Config = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.DEFAULT_COUNTRY = exports.DEFAULT_LANGUAGE = exports.DEFAULT_LOCALE = void 0;
+exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
-exports.DEFAULT_LOCALE = "en-CA";
-exports.DEFAULT_LANGUAGE = exports.DEFAULT_LOCALE.split("-")[0];
-exports.DEFAULT_COUNTRY = exports.DEFAULT_LOCALE.split("-")[1];
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * 60;
+// Locale
+const DEFAULT_LOCALE = "en-CA";
+const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
+const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
+const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 // App level config that is not user configurable
 exports.Config = {
-    defaultLanguage: exports.DEFAULT_LANGUAGE,
-    language: exports.DEFAULT_LANGUAGE,
+    country: DEFAULT_COUNTRY,
+    defaultLanguage: DEFAULT_LANGUAGE,
+    language: DEFAULT_LANGUAGE,
+    locale: DEFAULT_LOCALE,
     // Timeline toots
     excessiveTags: 25,
     hashtagTootRetrievalDelaySeconds: 5,
@@ -202,6 +206,26 @@ exports.Config = {
         "med-mastodon.com",
     ],
 };
+function setLocale(locale) {
+    locale ??= DEFAULT_LOCALE;
+    if (!LOCALE_REGEX.test(locale)) {
+        console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+        return;
+    }
+    exports.Config.locale = locale;
+    const [language, country] = locale.split("-");
+    if (language) {
+        if (language == DEFAULT_LANGUAGE || language in exports.Config.foreignLanguageServers) {
+            exports.Config.language = language;
+        }
+        else {
+            console.warn(`Language "${language}" not supported, using default "${exports.Config.defaultLanguage}"`);
+        }
+    }
+    exports.Config.country = country || DEFAULT_COUNTRY;
+}
+exports.setLocale = setLocale;
+;
 // Debug mode settings
 if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
     exports.Config.backgroundLoadIntervalSeconds = 120;

@@ -1,7 +1,7 @@
 /*
  * Helpers for time-related operations
  */
-import { Config, DEFAULT_LOCALE, SECONDS_IN_HOUR } from "../config";
+import { Config, SECONDS_IN_HOUR } from "../config";
 import { NULL, quoted} from "./string_helpers";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -81,7 +81,7 @@ export function quotedISOFmt(date: Date | string | null, withMilliseconds?: bool
 //    => 'Thursday, Sep 1, 2022'
 export const timeString = (_timestamp: Date | string | null, locale?: string): string => {
     if (_timestamp == null) return NULL;
-    locale ||= DEFAULT_LOCALE;
+    locale ||= Config.locale;;
     const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
     const isToday = timestamp.getDate() == new Date().getDate();
     const seconds = ageInSeconds(timestamp);
