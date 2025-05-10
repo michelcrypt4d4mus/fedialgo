@@ -76,6 +76,8 @@ function quotedISOFmt(date, withMilliseconds) {
 exports.quotedISOFmt = quotedISOFmt;
 ;
 // Generate a string representing a timestamp.
+// (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
+//    => 'Thursday, Sep 1, 2022'
 const timeString = (_timestamp, locale) => {
     if (_timestamp == null)
         return string_helpers_1.NULL;
