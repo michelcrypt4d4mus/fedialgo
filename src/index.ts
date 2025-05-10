@@ -489,7 +489,7 @@ export {
     Toot,
     TrendingLink,
     TrendingObj,
-    TagWithUsageCounts as TrendingTag,
+    TagWithUsageCounts,
     TrendingWithHistory,
     TypeFilterName,
     WeightName,

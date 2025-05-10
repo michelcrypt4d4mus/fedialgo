@@ -85,4 +85,4 @@ declare class TheAlgorithm {
     private setLoadingStateVariables;
     private statusDict;
 }
-export { GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts as TrendingTag, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, isAccessTokenRevokedError, timeString, sortKeysByValue, };
+export { GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, isAccessTokenRevokedError, timeString, sortKeysByValue, };

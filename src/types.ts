@@ -220,7 +220,7 @@ export interface TrendingStorage {
     tags: TagWithUsageCounts[];
 };
 
-export type TrendingWithHistory = TrendingLink | TagWithUsageCounts;
+export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
 
 

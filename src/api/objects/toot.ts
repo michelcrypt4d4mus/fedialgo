@@ -35,10 +35,10 @@ import {
     MediaCategory,
     StatusList,
     StringNumberDict,
+    TagWithUsageCounts,
     TootLike,
     TootScore,
     TrendingLink,
-    TagWithUsageCounts,
     WeightName
 } from "../../types";
 

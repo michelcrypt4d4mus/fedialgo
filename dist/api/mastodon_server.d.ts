@@ -1,5 +1,5 @@
 import Toot from "./objects/toot";
-import { ApiMutex, InstanceResponse, MastodonInstances, TrendingLink, TrendingStorage, TagWithUsageCounts } from "../types";
+import { ApiMutex, InstanceResponse, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingStorage } from "../types";
 export declare enum FediverseTrendingType {
     STATUSES = "statuses",
     LINKS = "links",

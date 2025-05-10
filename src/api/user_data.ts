@@ -8,7 +8,7 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, StorageKey, StringNumberDict, TagNames, TootLike, TagWithUsageCounts } from "../types";
+import { AccountNames, StorageKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
 import { buildTagNames } from "./objects/tag";
 import { Config } from "../config";
 import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";

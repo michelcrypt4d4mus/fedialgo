@@ -25,9 +25,9 @@ import {
     StorableObjWithCache,
     StorableWithTimestamp,
     StorageKey,
+    TagWithUsageCounts,
     TrendingLink,
     TrendingStorage,
-    TagWithUsageCounts,
     WeightName,
     Weights,
 } from "./types";

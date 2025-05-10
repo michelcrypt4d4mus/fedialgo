@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import Scorer from "../../scorer/scorer";
-import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TootLike, TootScore, TrendingLink, TagWithUsageCounts } from "../../types";
+import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
     followedTags?: MastodonTag[];

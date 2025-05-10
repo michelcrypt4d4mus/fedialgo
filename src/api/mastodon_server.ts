@@ -23,10 +23,10 @@ import {
     MastodonInstance,
     MastodonInstances,
     StorageKey,
+    TagWithUsageCounts,
     TrendingLink,
     TrendingObj,
     TrendingStorage,
-    TagWithUsageCounts,
     FEDIVERSE_KEYS,
 } from "../types";
 import {
