@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.31.2
+* (Demo App) fix icons
+
 ### v0.31.1
-* Change DEBUG env var to FEDIALGO_DEBUG, export isDebugMode
+* Change `DEBUG` env var to F`EDIALGO_DEBUG`, export `isDebugMode`
 
 # v0.31.0
 * Increase default `TIME_DECAY` from 0.05 to 0.15
