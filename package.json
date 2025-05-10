@@ -54,6 +54,5 @@
         "masto": "^7.0.0",
         "reflect-metadata": "^0.2.2",
         "regexp.escape": "^2.0.1"
-    },
-    "sideEffects": false
+    }
 }
