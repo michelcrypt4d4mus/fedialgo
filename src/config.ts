@@ -350,7 +350,7 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour accounts you often favourite",
     },
     [WeightName.FOLLOWED_TAGS]: {
-        description: "Favour toots that contain hashtags you are following",
+        description: "Favour toots containing hashtags you follow",
     },
     [WeightName.IMAGE_ATTACHMENTS]: {
         description: "Favour image attachments",
