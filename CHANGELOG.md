@@ -1,8 +1,9 @@
 # NEXT RELEASE
+* Increase TIME_DECAY from 0.05 to 0.15
 
 ### v0.30.12
-* Increase numParticipatedTagTootsPerTag to 10
-* TheAlgorithm.tagUrl() method
+* Increase `Config.numParticipatedTagTootsPerTag` to 10
+* `TheAlgorithm.tagUrl()` method
 
 ### v0.30.11
 * `QUICK_MODE` env var limits initial data pull same as `DEBUG` env var
