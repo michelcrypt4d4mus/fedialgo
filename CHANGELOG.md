@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set sideEffects=false in package.json
 
 ### v0.30.7
 * Add a way to do a second pass to get the HASHTAG counts right with `updateHashtagCounts()` (but don't actually use it)
