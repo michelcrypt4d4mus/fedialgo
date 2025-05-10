@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.30.10
+* Remove `sideEffects: false` from both fedialgo and demo app `package.json` and put back `<link>` tag in `index.html` because a lot of CSS disappeared
+
 ### v0.30.9
 * Rename `TrendingTag` type to `TagWithUsageCounts`
 
