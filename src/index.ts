@@ -365,6 +365,7 @@ class TheAlgorithm {
     private async loadCachedData(): Promise<void> {
         this.feed = await Storage.getCoerced<Toot>(StorageKey.TIMELINE);
         this.homeFeed = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
+        this.mastodonServers = (await Storage.get(StorageKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         // TODO: actually save filter settings to storage
