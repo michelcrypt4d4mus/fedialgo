@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.12
 * Increase numParticipatedTagTootsPerTag to 10
 * TheAlgorithm.tagUrl() method
 
