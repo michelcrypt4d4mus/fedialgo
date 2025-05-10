@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { isDebugMode, isLoadTest } from "./helpers/environment_helpers";
+import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 
 export const DEFAULT_LOCALE = "en-CA";
@@ -273,7 +273,7 @@ export const Config: ConfigType = {
 };
 
 // Debug mode settings
-if (isDebugMode) {
+if (isDebugMode || isQuickMode) {
     Config.backgroundLoadIntervalSeconds = 120;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;

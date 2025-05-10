@@ -203,7 +203,7 @@ exports.Config = {
     ],
 };
 // Debug mode settings
-if (environment_helpers_1.isDebugMode) {
+if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
     exports.Config.backgroundLoadIntervalSeconds = 120;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
