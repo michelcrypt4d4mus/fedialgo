@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.9
 * Rename `TrendingTag` type to `TagWithUsageCounts`
 
 ### v0.30.8
