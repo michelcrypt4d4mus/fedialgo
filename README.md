@@ -53,11 +53,17 @@ import { TheAlgorithm } from "fedialgo"
 import { useState } from React;
 const [timeline, setTimeline] = useState<Toot[]>([]);
 
-// Verify mastodon login and instantiate a TheAlgorithm object
+// Verify mastodon login
 const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
 const currentUser = await api.v1.accounts.verifyCredentials()
-// setTimelineInApp param is optional but encouraged
-const algorithm = await TheAlgorithm.create({api: api, user: currentUser, setTimelineInApp: setTimeline})
+
+// Instantiate a TheAlgorithm object
+const algorithm = await TheAlgorithm.create({
+    api: api,
+    user: currentUser,
+    language: "en",                // optional, defaults to English
+    setTimelineInApp: setTimeline  // optional but encouraged, see below for details
+})
 ```
 
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:

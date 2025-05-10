@@ -70,8 +70,8 @@ const READY_TO_LOAD_MSG = "Ready to load"
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
-    setTimelineInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
     language?: string;  // Optional locale to use for date formatting
+    setTimelineInApp?: (feed: Toot[]) => void;  // Optional callback to set the feed in the code using this package
 };
 
 
