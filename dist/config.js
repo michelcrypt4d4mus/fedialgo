@@ -48,7 +48,7 @@ exports.Config = {
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30,
     numParticipatedTagToots: 150,
-    numParticipatedTagTootsPerTag: 5,
+    numParticipatedTagTootsPerTag: 10,
     // API stuff
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
@@ -214,6 +214,7 @@ if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
     exports.Config.numParticipatedTagsToFetchTootsFor = 10;
     exports.Config.numTrendingTags = 5;
 }
+// Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
     exports.Config.maxCachedTimelineToots = 5000;
     exports.Config.maxRecordsForFeatureScoring = 1500;

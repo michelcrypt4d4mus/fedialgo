@@ -113,7 +113,7 @@ export const Config: ConfigType = {
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30, // Pull toots for this many of the user's most participated tags
     numParticipatedTagToots: 150,           // How many total toots to include for the user's most participated tags
-    numParticipatedTagTootsPerTag: 5,       // How many toots to pull for each participated tag
+    numParticipatedTagTootsPerTag: 10,       // How many toots to pull for each participated tag
 
     // API stuff
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
@@ -285,6 +285,7 @@ if (isDebugMode || isQuickMode) {
     Config.numTrendingTags = 5;
 }
 
+// Heavy load test settings
 if (isLoadTest) {
     Config.maxCachedTimelineToots = 5000;
     Config.maxRecordsForFeatureScoring = 1500;

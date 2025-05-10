@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Increase numParticipatedTagTootsPerTag to 10
 
 ### v0.30.11
 * `QUICK_MODE` env var limits initial data pull same as `DEBUG` env var
