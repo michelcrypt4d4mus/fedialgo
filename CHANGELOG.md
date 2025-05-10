@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Export isDebugMode
+* Change DEBUG env var to FEDIALGO_DEBUG, export isDebugMode
 
 # v0.31.0
 * Increase default `TIME_DECAY` from 0.05 to 0.15
