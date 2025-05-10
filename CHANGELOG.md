@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.30.11
 * `QUICK_MODE` env var limits initial data pull same as `DEBUG` env var
 * Fix bug where `TheAlgorithm.mastodonServers` were not loaded from cache
 * Lower `Config.OUTLIER_DAMPENER` to 1.6
