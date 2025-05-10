@@ -90,7 +90,7 @@ Object.defineProperty(exports, "WeightName", { enumerable: true, get: function (
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
-// TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
+const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
@@ -182,7 +182,7 @@ class TheAlgorithm {
         const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
         if (this.isLoading()) {
             console.warn(`[${log_helpers_1.TRIGGER_FEED}] Load in progress already!`, this.statusDict());
-            throw new Error(GET_FEED_BUSY_MSG);
+            throw new Error(`${log_helpers_1.TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         }
         else if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
             console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
@@ -190,9 +190,8 @@ class TheAlgorithm {
         }
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const initialLoads = [
+            api_1.default.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this)).then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
-            api_1.default.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this))
-                .then((homeFeed) => this.homeFeed = homeFeed),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await new Promise(r => setTimeout(r, config_1.Config.hashtagTootRetrievalDelaySeconds * 1000));
@@ -207,10 +206,10 @@ class TheAlgorithm {
         ];
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        this.loadingStatus = `Finalizing scores`;
+        this.loadingStatus = FINALIZING_SCORES_MSG;
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 300 toots)
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
     }
@@ -229,7 +228,7 @@ class TheAlgorithm {
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
-    async lockedMergeTootsToFeed(newToots, logPrefix) {
+    async lockedMergeToFeed(newToots, logPrefix) {
         newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
@@ -306,7 +305,7 @@ class TheAlgorithm {
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
-        await this.lockedMergeTootsToFeed(newToots, logPrefix);
+        await this.lockedMergeToFeed(newToots, logPrefix);
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
     // that will send the client using this library the filtered subset of Toots (this.feed will always maintain

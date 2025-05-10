@@ -61,9 +61,9 @@ import {
     Weights,
 } from "./types";
 
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`)
-const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`
-// TODO: The demo app prefixes these with "Loading (msg)..." which is not ideal
+const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
+const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
+const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const READY_TO_LOAD_MSG = "Ready to load"
 
@@ -178,7 +178,7 @@ class TheAlgorithm {
 
         if (this.isLoading()) {
             console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
-            throw new Error(GET_FEED_BUSY_MSG);
+            throw new Error(`${TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         } else if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
             return;
@@ -187,9 +187,8 @@ class TheAlgorithm {
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         const initialLoads = [
+            MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this)).then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
-            MastoApi.instance.fetchHomeFeed(this.lockedMergeTootsToFeed.bind(this))
-                .then((homeFeed) => this.homeFeed = homeFeed),
         ];
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
@@ -207,10 +206,10 @@ class TheAlgorithm {
 
         await Promise.all([...initialLoads, ...secondaryLoads]);
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        this.loadingStatus = `Finalizing scores`
+        this.loadingStatus = FINALIZING_SCORES_MSG;
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 300 toots)
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.finishFeedUpdate();
     }
@@ -233,7 +232,7 @@ class TheAlgorithm {
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
-    async lockedMergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
+    async lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
         newToots = filterWithLog(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
         const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
 
@@ -319,7 +318,7 @@ class TheAlgorithm {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
         }
 
-        await this.lockedMergeTootsToFeed(newToots, logPrefix);
+        await this.lockedMergeToFeed(newToots, logPrefix);
     }
 
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback

@@ -66,7 +66,7 @@ declare class TheAlgorithm {
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
-    lockedMergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void>;
+    lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
