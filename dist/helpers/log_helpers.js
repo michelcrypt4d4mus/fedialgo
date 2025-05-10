@@ -62,7 +62,7 @@ async function lockExecution(locker, logPrefix) {
 }
 exports.lockExecution = lockExecution;
 ;
-// Log only if DEBUG env var is set.
+// Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 function traceLog(msg, ...args) {
     if (!ENABLE_TRACE_LOG)
