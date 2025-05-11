@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.31.3
 * Set `sideEffects: false` in `package.json` so webpack can tree shake (again)
 
 ### v0.31.2
