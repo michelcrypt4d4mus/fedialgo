@@ -26,7 +26,7 @@ exports.Config = {
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     lookbackForUpdatesMinutes: 180,
-    maxCachedTimelineToots: 1600,
+    maxCachedTimelineToots: 2500,
     maxTimelineDaysToFetch: 7,
     numDesiredTimelineToots: 700,
     scoringBatchSize: 100,

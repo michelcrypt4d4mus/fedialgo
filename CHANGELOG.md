@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Up `Config.maxCachedTimelineToots` to 2,500
 
 ### v0.31.3
 * Set `sideEffects: false` in `package.json` so webpack can tree shake (again)

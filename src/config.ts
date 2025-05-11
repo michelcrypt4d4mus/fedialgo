@@ -92,7 +92,7 @@ export const Config: ConfigType = {
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
-    maxCachedTimelineToots: 1600,           // How many toots to keep in memory maximum
+    maxCachedTimelineToots: 2500,           // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     numDesiredTimelineToots: 700,           // How many home timeline toots to start with
     scoringBatchSize: 100,                  // How many toots to score at once
