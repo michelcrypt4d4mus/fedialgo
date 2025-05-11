@@ -9,14 +9,21 @@
         "test": "jest --coverage",
         "lint": "eslint ./src --fix"
     },
-    "keywords": [
-        "Algorithm",
-        "Mastodon",
-        "Fediverse",
-        "Home"
-    ],
-    "author": "michelcryptadamus",
-    "license": "GPL-3.0-only",
+    "dependencies": {
+        "@react-native-async-storage/async-storage": "^1.18.1",
+        "@types/blueimp-md5": "^2.18.2",
+        "async-mutex": "^0.5.0",
+        "axios": "^1.7.2",
+        "blueimp-md5": "^2.19.0",
+        "buffer": "^6.0.3",
+        "change-case": "^5.4.4",
+        "class-transformer": "^0.5.1",
+        "html-entities": "^2.6.0",
+        "localforage": "^1.10.0",
+        "masto": "^7.0.0",
+        "reflect-metadata": "^0.2.2",
+        "regexp.escape": "^2.0.1"
+    },
     "devDependencies": {
         "@eslint/compat": "^1.1.0",
         "@eslint/js": "^9.6.0",
@@ -40,19 +47,13 @@
     "overrides": {
         "eslint": "^9.6.0"
     },
-    "dependencies": {
-        "@react-native-async-storage/async-storage": "^1.18.1",
-        "@types/blueimp-md5": "^2.18.2",
-        "async-mutex": "^0.5.0",
-        "axios": "^1.7.2",
-        "blueimp-md5": "^2.19.0",
-        "buffer": "^6.0.3",
-        "change-case": "^5.4.4",
-        "class-transformer": "^0.5.1",
-        "html-entities": "^2.6.0",
-        "localforage": "^1.10.0",
-        "masto": "^7.0.0",
-        "reflect-metadata": "^0.2.2",
-        "regexp.escape": "^2.0.1"
-    }
+    "sideEffects": false,
+    "keywords": [
+        "Algorithm",
+        "Mastodon",
+        "Fediverse",
+        "Home"
+    ],
+    "author": "michelcryptadamus",
+    "license": "GPL-3.0-only"
 }

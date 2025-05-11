@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set `sideEffects: false` in `package.json` so webpack can tree shake (again)
 
 ### v0.31.2
 * (Demo App) fix icons
