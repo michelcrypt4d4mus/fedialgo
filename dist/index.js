@@ -205,12 +205,10 @@ class TheAlgorithm {
     async triggerHomeTimelineBackFill() {
         if (!this.feed.length)
             throw new Error(`triggerTootBackFill() called but feed is empty!`);
-        const logPrefix = (0, string_helpers_1.bracketed)(log_helpers_1.BACKFILL_FEED);
-        console.log(`${logPrefix} called, state:`, this.statusDict());
+        console.log(`${(0, string_helpers_1.bracketed)(log_helpers_1.BACKFILL_FEED)} called, state:`, this.statusDict());
         this.setLoadingStateVariables(log_helpers_1.BACKFILL_FEED);
         const toots = await api_1.default.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), true);
         this.homeFeed = toots;
-        (0, log_helpers_1.traceLog)(`${logPrefix} FINISHED promises, allResults:`, toots);
         await this.finishFeedUpdate();
     }
     // Return the current filtered timeline feed in weight order

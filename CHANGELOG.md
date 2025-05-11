@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Separate out the backfill functionality
 * Improve `Storage.dumpData()` method; remove unused `StorageKey`s
 
 # v0.32.0

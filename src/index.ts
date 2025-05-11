@@ -203,13 +203,11 @@ class TheAlgorithm {
     // Trigger the loading of additional toots, farther back on the home timeline
     async triggerHomeTimelineBackFill(): Promise<void> {
         if (!this.feed.length) throw new Error(`triggerTootBackFill() called but feed is empty!`);
-        const logPrefix = bracketed(BACKFILL_FEED);
-        console.log(`${logPrefix} called, state:`, this.statusDict());
+        console.log(`${bracketed(BACKFILL_FEED)} called, state:`, this.statusDict());
         this.setLoadingStateVariables(BACKFILL_FEED);
 
         const toots = await MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), true);
         this.homeFeed = toots
-        traceLog(`${logPrefix} FINISHED promises, allResults:`, toots);
         await this.finishFeedUpdate();
     }
 
