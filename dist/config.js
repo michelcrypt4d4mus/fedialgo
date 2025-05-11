@@ -233,7 +233,6 @@ if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;
-    exports.Config.maxCachedTimelineToots = 700;
     exports.Config.maxRecordsForFeatureScoring = 480;
     exports.Config.numDesiredTimelineToots = 500;
     exports.Config.numParticipatedTagsToFetchTootsFor = 10;

@@ -93,19 +93,26 @@ class MastoApi {
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
-    async fetchHomeFeed(mergeTootsToFeed, maxRecords, maxTootedAt, maxId) {
+    async fetchHomeFeed(mergeTootsToFeed, moreOldToots, maxId, // Optional maxId to use to start pagination
+    maxRecords, maxTootedAt) {
         maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
         let allNewToots = [];
+        let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
-        // Find most recent toot in HOME_TIMELINE cache to use as a cutoff checkpotint as we page toots
         let homeTimelineToots = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
-        maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-        // Look back an additional lookbackForUpdatesMinutes minutes to catch updates and edits to toots
-        let cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, LOOKBACK_SECONDS) : (0, time_helpers_1.timelineCutoffAt)();
-        cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
-        console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
+        if (moreOldToots) {
+            maxId = (0, collection_helpers_1.findMinId)(homeTimelineToots);
+            console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
+        }
+        else {
+            // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
+            maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
+            cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, LOOKBACK_SECONDS) : (0, time_helpers_1.timelineCutoffAt)();
+            cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
+            console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
+        }
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords({
@@ -158,11 +165,13 @@ class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
+                console.log([`[SET_LOADING_STATUS] ${logPrefix} built ${toots.length} toots`]);
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
                 }
                 await Storage_1.default.set(key, toots);
             }
+            (0, log_helpers_1.traceLog)(`[SET_LOADING_STATUS] ${logPrefix} finished retrieving ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         finally {

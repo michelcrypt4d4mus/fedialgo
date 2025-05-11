@@ -19,7 +19,7 @@ async function getParticipatedHashtagToots() {
     let tags = await user_data_1.default.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => api_1.default.instance.getStatusesForTags(tags, config_1.Config.numParticipatedTagTootsPerTag), "numParticipatedTagToots");
+    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.numParticipatedTagTootsPerTag), "numParticipatedTagToots");
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 ;
@@ -28,7 +28,7 @@ async function getRecentTootsForTrendingTags() {
     let tags = await mastodon_server_1.default.fediverseTrendingTags();
     // TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
     tags = await removeFollowedAndMutedTags(tags);
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => api_1.default.instance.getStatusesForTags(tags, config_1.Config.numTootsPerTrendingTag), "numTrendingTagsToots");
+    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.numTootsPerTrendingTag), "numTrendingTagsToots");
 }
 exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;

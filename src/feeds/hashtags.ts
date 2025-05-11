@@ -19,7 +19,7 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.PARTICIPATED_TAG_TOOTS,
-        async () => MastoApi.instance.getStatusesForTags(tags, Config.numParticipatedTagTootsPerTag),
+        async () => await MastoApi.instance.getStatusesForTags(tags, Config.numParticipatedTagTootsPerTag),
         "numParticipatedTagToots"
     );
 };
@@ -33,7 +33,7 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.TRENDING_TAG_TOOTS,
-        async () => MastoApi.instance.getStatusesForTags(tags, Config.numTootsPerTrendingTag),
+        async () => await MastoApi.instance.getStatusesForTags(tags, Config.numTootsPerTrendingTag),
         "numTrendingTagsToots"
     );
 };

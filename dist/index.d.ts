@@ -63,7 +63,7 @@ declare class TheAlgorithm {
     scorersDict: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
-    triggerFeedUpdate(): Promise<void>;
+    triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;

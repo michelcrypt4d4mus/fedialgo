@@ -38,6 +38,7 @@ export function ageString(date: Date | number | string | null): string {
 };
 
 
+// Recent the most recent of a list of dates
 export function mostRecent(...args: (Date | null)[]): Date | null {
     let mostRecentDate: Date | null = null;
 
@@ -50,6 +51,12 @@ export function mostRecent(...args: (Date | null)[]): Date | null {
     }
 
     return mostRecentDate;
+};
+
+
+// Sleep helper
+export async function sleep(seconds: number): Promise<void> {
+    await new Promise(r => setTimeout(r, seconds * 1000));
 };
 
 

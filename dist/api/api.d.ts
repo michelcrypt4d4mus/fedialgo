@@ -21,7 +21,8 @@ export default class MastoApi {
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
-    fetchHomeFeed(mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>, maxRecords?: number, maxTootedAt?: Date | null, maxId?: string | number): Promise<Toot[]>;
+    fetchHomeFeed(mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>, moreOldToots?: boolean, maxId?: string | number, // Optional maxId to use to start pagination
+    maxRecords?: number, maxTootedAt?: Date | null): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
     getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
     getFollowedAccounts(): Promise<Account[]>;
