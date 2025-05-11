@@ -93,21 +93,31 @@ class Storage {
     }
     // Dump information about the size of the data stored in localForage
     static async dumpData() {
-        (Object.values(types_1.StorageKey)).forEach((key) => {
-            this.buildKey(key).then((storageKey) => {
-                localforage_1.default.getItem(storageKey).then((value) => {
-                    let valStr = `Value at "${key}"`;
-                    if (value) {
-                        if (Array.isArray(value))
-                            valStr += ` (${value.length} items)`;
-                        log(`${valStr} is ${(0, string_helpers_1.byteString)(JSON.stringify(value).length)}`);
-                    }
-                    else {
-                        log(`${valStr} not found`);
-                    }
-                });
-            });
-        });
+        const keyStrings = Object.values(types_1.StorageKey);
+        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
+        const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
+        const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
+            // info[key] = {
+            //     bytes: value ? byteString(JSON.stringify(value).length) : null,
+            //     numElements: value && Array.isArray(value) ? value.length : null,
+            // }
+            if (obj) {
+                const value = obj.value;
+                info[key] = (0, string_helpers_1.byteString)(JSON.stringify(value).length);
+                if (Array.isArray(value)) {
+                    info[key] += ` (${value.length} items)`;
+                }
+                else {
+                    info[key] += ` (not an array)`;
+                    console.warn(`${LOG_PREFIX} Expected array at key "${key}", but got:`, value);
+                }
+            }
+            else {
+                info[key] = null;
+            }
+            return info;
+        }, {});
+        console.log(`${LOG_PREFIX} Storage info:`, storageInfo);
     }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {

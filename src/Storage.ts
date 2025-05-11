@@ -12,7 +12,7 @@ import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { byteString, toLocaleInt } from "./helpers/string_helpers";
-import { checkUniqueIDs } from "./helpers/collection_helpers";
+import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { Config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
@@ -85,20 +85,37 @@ export default class Storage {
 
     // Dump information about the size of the data stored in localForage
     static async dumpData(): Promise<void> {
-        (Object.values(StorageKey)).forEach((key) => {
-            this.buildKey(key as StorageKey).then((storageKey) => {
-                localForage.getItem(storageKey).then((value) => {
-                    let valStr = `Value at "${key}"`;
+        const keyStrings = Object.values(StorageKey);
+        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as StorageKey)));
+        const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
 
-                    if (value) {
-                        if (Array.isArray(value)) valStr += ` (${value.length} items)`;
-                        log(`${valStr} is ${byteString(JSON.stringify(value).length)}`);
+        const storageInfo = Object.entries(storedData).reduce(
+            (info, [key, obj]) => {
+                // info[key] = {
+                //     bytes: value ? byteString(JSON.stringify(value).length) : null,
+                //     numElements: value && Array.isArray(value) ? value.length : null,
+                // }
+
+                if (obj) {
+                    const value = (obj as StorableWithTimestamp).value;
+                    info[key] = byteString(JSON.stringify(value).length);
+
+                    if (Array.isArray(value)) {
+                        info[key] += ` (${value.length} items)`;
                     } else {
-                        log(`${valStr} not found`);
+                        info[key] += ` (not an array)`;
+                        console.warn(`${LOG_PREFIX} Expected array at key "${key}", but got:`, value);
                     }
-                });
-            });
-        });
+                } else {
+                    info[key] = null;
+                }
+
+                return info;
+            },
+            {} as Record<string, string | null>,
+        );
+
+        console.log(`${LOG_PREFIX} Storage info:`, storageInfo);
     }
 
     // Get the value at the given key (with the user ID as a prefix)

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Improve `Storage.dumpData()` method; remove unused `StorageKey`s
 
 # v0.32.0
 * Add `moreOldToots` parameter to `triggerFeedUpdate()`
