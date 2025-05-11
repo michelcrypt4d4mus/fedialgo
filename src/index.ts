@@ -424,7 +424,7 @@ class TheAlgorithm {
         this.loadingStatus = null;
 
         if (this.loadStartedAt) {
-            logInfo(TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
+            logInfo(TELEMETRY, `FINISHED home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
             console.warn(`[${TELEMETRY}] FINISHED LOAD... but loadStartedAt is null!`);

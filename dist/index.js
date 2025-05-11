@@ -392,7 +392,7 @@ class TheAlgorithm {
     finishFeedUpdate() {
         this.loadingStatus = null;
         if (this.loadStartedAt) {
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `Finished home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
+            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `FINISHED home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {

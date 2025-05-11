@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug where getParticipatedHashtag() toots wasn't returning a promise
 * Up `Config.maxCachedTimelineToots` to 2,500
 * Remove unused `Config.reloadFeaturesEveryNthOpen` param
 
