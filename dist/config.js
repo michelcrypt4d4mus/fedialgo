@@ -22,7 +22,7 @@ exports.Config = {
     locale: DEFAULT_LOCALE,
     // Number of toots config variables
     maxCachedTimelineToots: 2500,
-    numDesiredTimelineToots: 700,
+    numDesiredTimelineToots: 800,
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30,
     numParticipatedTagToots: 200,
