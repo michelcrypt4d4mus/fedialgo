@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.32.0
 * Add `moreOldToots` parameter to `triggerFeedUpdate()`
 * Fix bug where `getParticipatedHashtag()` toots wasn't returning a promise
 * Up `Config.maxCachedTimelineToots` to 2,500
