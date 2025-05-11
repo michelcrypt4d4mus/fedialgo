@@ -1,7 +1,8 @@
 # NEXT RELEASE
+* Increase default `FOLLOWED_TAGS` weight to 4
 
 ### v0.32.1
-* Separate out the backfill functionality
+* Separate out the backfill functionality to `TheAlgorithm.triggerHomeTimelineBackFill()`
 * Improve `Storage.dumpData()` method; remove unused `StorageKey`s
 
 # v0.32.0

@@ -24,7 +24,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.CHAOS]: 1.0,
     [types_1.WeightName.DIVERSITY]: 1.0,
     [types_1.WeightName.FAVOURITED_ACCOUNTS]: 1.0,
-    [types_1.WeightName.FOLLOWED_TAGS]: 2.0,
+    [types_1.WeightName.FOLLOWED_TAGS]: 4.0,
     [types_1.WeightName.IMAGE_ATTACHMENTS]: 0,
     [types_1.WeightName.INTERACTIONS]: 1.5,
     [types_1.WeightName.MENTIONS_FOLLOWED]: 2.0,

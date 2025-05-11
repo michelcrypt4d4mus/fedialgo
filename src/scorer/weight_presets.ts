@@ -25,7 +25,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [WeightName.CHAOS]: 1.0,
     [WeightName.DIVERSITY]: 1.0,
     [WeightName.FAVOURITED_ACCOUNTS]: 1.0,
-    [WeightName.FOLLOWED_TAGS]: 2.0,
+    [WeightName.FOLLOWED_TAGS]: 4.0,
     [WeightName.IMAGE_ATTACHMENTS]: 0,
     [WeightName.INTERACTIONS]: 1.5,
     [WeightName.MENTIONS_FOLLOWED]: 2.0,
