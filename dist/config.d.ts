@@ -31,7 +31,6 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    reloadFeaturesEveryNthOpen: number;
     sleepBetweenCompletionMS: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;

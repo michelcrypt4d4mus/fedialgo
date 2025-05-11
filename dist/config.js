@@ -20,18 +20,30 @@ exports.Config = {
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
     locale: DEFAULT_LOCALE,
+    // Number of toots config variables
+    maxCachedTimelineToots: 2500,
+    numDesiredTimelineToots: 700,
+    // Participated tags
+    numParticipatedTagsToFetchTootsFor: 30,
+    numParticipatedTagToots: 200,
+    numParticipatedTagTootsPerTag: 10,
+    // Trending tags
+    numTootsPerTrendingTag: 15,
+    numTrendingTags: 20,
+    numTrendingTagsToots: 200,
+    // Trending toots
+    numTrendingTootsPerServer: 30,
     // Timeline toots
     excessiveTags: 25,
     hashtagTootRetrievalDelaySeconds: 5,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     lookbackForUpdatesMinutes: 180,
-    maxCachedTimelineToots: 2500,
     maxTimelineDaysToFetch: 7,
-    numDesiredTimelineToots: 700,
     scoringBatchSize: 100,
-    staleDataDefaultSeconds: 10 * 60,
+    staleDataDefaultSeconds: 10 * exports.SECONDS_IN_MINUTE,
     staleDataTrendingSeconds: exports.SECONDS_IN_HOUR,
+    timelineDecayExponent: 1.2,
     staleDataSeconds: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * exports.SECONDS_IN_HOUR,
@@ -48,11 +60,6 @@ exports.Config = {
         [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.TRENDING_TAG_TOOTS]: 15 * exports.SECONDS_IN_MINUTE,
     },
-    timelineDecayExponent: 1.2,
-    // Participated tags
-    numParticipatedTagsToFetchTootsFor: 30,
-    numParticipatedTagToots: 150,
-    numParticipatedTagTootsPerTag: 10,
     // API stuff
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
@@ -65,7 +72,6 @@ exports.Config = {
     minServerMAU: 100,
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
-    reloadFeaturesEveryNthOpen: 9,
     sleepBetweenCompletionMS: 250,
     timeoutMS: 5000,
     // Trending tags and links
@@ -76,13 +82,8 @@ exports.Config = {
     ],
     minTrendingTagTootsForPenalty: 9,
     numDaysToCountTrendingTagData: 3,
-    numTootsPerTrendingTag: 15,
     numTrendingLinksPerServer: 20,
-    numTrendingTags: 20,
-    numTrendingTagsPerServer: 30,
-    numTrendingTagsToots: 200,
-    // Trending toots
-    numTrendingTootsPerServer: 30,
+    numTrendingTagsPerServer: 20,
     // Demo app GUI stuff
     isAppFilterVisible: false,
     // Popular servers that are used as fallbacks if the user isn't following accounts on enough

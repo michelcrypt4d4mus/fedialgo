@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Up `Config.maxCachedTimelineToots` to 2,500
+* Remove unused `Config.reloadFeaturesEveryNthOpen` param
 
 ### v0.31.3
 * Set `sideEffects: false` in `package.json` so webpack can tree shake (again)
@@ -8,7 +9,7 @@
 * (Demo App) fix icons
 
 ### v0.31.1
-* Change `DEBUG` env var to F`EDIALGO_DEBUG`, export `isDebugMode`
+* Change `DEBUG` env var to `FEDIALGO_DEBUG`, export `isDebugMode`
 
 # v0.31.0
 * Increase default `TIME_DECAY` from 0.05 to 0.15

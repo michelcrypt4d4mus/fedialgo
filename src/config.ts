@@ -13,10 +13,8 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 
+type StaleDataConfig = {[key in StorageKey]?: number};
 
-type StaleDataConfig = {
-    [key in StorageKey]?: number
-};
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -49,7 +47,6 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    reloadFeaturesEveryNthOpen: number;
     sleepBetweenCompletionMS: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
@@ -86,18 +83,31 @@ export const Config: ConfigType = {
     language: DEFAULT_LANGUAGE,
     locale: DEFAULT_LOCALE,
 
+    // Number of toots config variables
+    maxCachedTimelineToots: 2_500,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+    numDesiredTimelineToots: 700,           // How many home timeline toots to start with
+    // Participated tags
+    numParticipatedTagsToFetchTootsFor: 30, // Pull toots for this many of the user's most participated tags
+    numParticipatedTagToots: 200,           // How many total toots to include for the user's most participated tags
+    numParticipatedTagTootsPerTag: 10,      // How many toots to pull for each participated tag
+    // Trending tags
+    numTootsPerTrendingTag: 15,             // How many toots to pull for each trending tag
+    numTrendingTags: 20,                    // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+    numTrendingTagsToots: 200,              // Maximum number of toots with trending tags to push into the user's feed
+    // Trending toots
+    numTrendingTootsPerServer: 30,          // How many trending toots to pull per server
+
     // Timeline toots
     excessiveTags: 25,                      // Toots with more than this many tags will be penalized
     hashtagTootRetrievalDelaySeconds: 5,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
-    maxCachedTimelineToots: 2500,           // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
-    numDesiredTimelineToots: 700,           // How many home timeline toots to start with
     scoringBatchSize: 100,                  // How many toots to score at once
-    staleDataDefaultSeconds: 10 * 60,       // Default how long to wait before considering data stale
+    staleDataDefaultSeconds: 10 * SECONDS_IN_MINUTE, // Default how long to wait before considering data stale
     staleDataTrendingSeconds: SECONDS_IN_HOUR, // Default. is actually computed based on the FEDIVERSE_KEYS
+    timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
         [StorageKey.BLOCKED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
         [StorageKey.FAVOURITED_TOOTS]:          12 * SECONDS_IN_HOUR,
@@ -114,12 +124,6 @@ export const Config: ConfigType = {
         [StorageKey.SERVER_SIDE_FILTERS]:       24 * SECONDS_IN_HOUR,
         [StorageKey.TRENDING_TAG_TOOTS]:        15 * SECONDS_IN_MINUTE,
     },
-    timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
-
-    // Participated tags
-    numParticipatedTagsToFetchTootsFor: 30, // Pull toots for this many of the user's most participated tags
-    numParticipatedTagToots: 150,           // How many total toots to include for the user's most participated tags
-    numParticipatedTagTootsPerTag: 10,       // How many toots to pull for each participated tag
 
     // API stuff
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
@@ -133,7 +137,6 @@ export const Config: ConfigType = {
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
     numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
-    reloadFeaturesEveryNthOpen: 9,          // RELOAD_FEATURES_EVERY_NTH_OPEN
     sleepBetweenCompletionMS: 250,          // How long to wait between batches of Toot.completeToots() calls
     timeoutMS: 5_000,                       // Timeout for API calls
 
@@ -145,13 +148,8 @@ export const Config: ConfigType = {
     ],
     minTrendingTagTootsForPenalty: 9,       // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
     numDaysToCountTrendingTagData: 3,       // Look at this many days of user counts when assessing trending tags
-    numTootsPerTrendingTag: 15,             // How many toots to pull for each trending tag
     numTrendingLinksPerServer: 20,          // How many trending links to pull from each server
-    numTrendingTags: 20,                    // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
-    numTrendingTagsPerServer: 30,           // How many trending tags to pull from each server (Mastodon default is 10)
-    numTrendingTagsToots: 200,              // Maximum number of toots with trending tags to push into the user's feed
-    // Trending toots
-    numTrendingTootsPerServer: 30,          // How many trending toots to pull per server
+    numTrendingTagsPerServer: 20,           // How many trending tags to pull from each server (Mastodon default is 10)
 
     // Demo app GUI stuff
     isAppFilterVisible: false,              // 99% of toots don't have the app field set so don't show the filter section
@@ -278,6 +276,7 @@ export const Config: ConfigType = {
     ],
 };
 
+
 export function setLocale(locale?: string): void {
     locale ??= DEFAULT_LOCALE;
 
@@ -316,14 +315,14 @@ if (isDebugMode || isQuickMode) {
 
 // Heavy load test settings
 if (isLoadTest) {
-    Config.maxCachedTimelineToots = 5000;
-    Config.maxRecordsForFeatureScoring = 1500;
-    Config.numDesiredTimelineToots = 2500;
+    Config.maxCachedTimelineToots = 5_000;
+    Config.maxRecordsForFeatureScoring = 1_500;
+    Config.numDesiredTimelineToots = 2_500;
     Config.numParticipatedTagsToFetchTootsFor = 50;
     Config.numParticipatedTagToots = 500;
     Config.numParticipatedTagTootsPerTag = 10;
     Config.numTrendingTags = 40;
-    Config.numTrendingTagsToots = 1000;
+    Config.numTrendingTagsToots = 1_000;
 }
 
 
