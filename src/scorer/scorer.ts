@@ -46,6 +46,10 @@ export default abstract class Scorer {
     // This is the public API for scoring a toot
     async score(toot: Toot): Promise<number> {
         this.checkIsReady();
+        // if (!this.isReady) {
+        //     console.warn(`${this.name} not ready, scoring 0...`);
+        //     return 0;
+        // }
         return await this._score(toot);
     }
 
@@ -93,7 +97,7 @@ export default abstract class Scorer {
 
             // Sort feed based on score from high to low and return
             logDebug(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
-            toots = toots.toSorted((a, b) => (b.scoreInfo?.score ?? 0) - (a.scoreInfo?.score ?? 0));
+            toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         } catch (e) {
             if (e == E_CANCELED) {
                 logDebug(SCORE_PREFIX, `mutex cancellation`);

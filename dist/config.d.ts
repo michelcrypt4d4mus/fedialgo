@@ -1,6 +1,8 @@
 import { ScorerDict, StorageKey } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const SECONDS_IN_HOUR: number;
+export declare const SECONDS_IN_DAY: number;
+export declare const SECONDS_IN_WEEK: number;
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };

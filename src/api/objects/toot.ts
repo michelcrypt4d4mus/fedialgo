@@ -406,6 +406,10 @@ export default class Toot implements TootObj {
         return this.resolvedToot;
     }
 
+    getScore(): number {
+        return this.scoreInfo?.score || 0;
+    }
+
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt(): Date {
         return new Date(this.createdAt);

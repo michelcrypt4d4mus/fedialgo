@@ -99,6 +99,7 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
+    getScore(): number;
     tootedAt(): Date;
     private attachmentsOfType;
     private containsTagsOfTypeMsg;

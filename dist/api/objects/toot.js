@@ -334,6 +334,9 @@ class Toot {
         }
         return this.resolvedToot;
     }
+    getScore() {
+        return this.scoreInfo?.score || 0;
+    }
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt() {
         return new Date(this.createdAt);

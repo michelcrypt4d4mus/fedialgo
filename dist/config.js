@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -9,6 +9,8 @@ const types_1 = require("./types");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * 60;
+exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
+exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
@@ -20,7 +22,9 @@ exports.Config = {
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
     locale: DEFAULT_LOCALE,
-    // Number of toots config variables
+    //////////////////////////////////////
+    // Number of toots config variables //
+    ///////////////////////////////////////
     maxCachedTimelineToots: 2500,
     numDesiredTimelineToots: 800,
     // Participated tags

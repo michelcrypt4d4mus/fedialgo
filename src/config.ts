@@ -7,6 +7,8 @@ import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * 60;
+export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
+export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];

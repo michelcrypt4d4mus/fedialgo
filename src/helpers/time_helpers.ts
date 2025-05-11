@@ -1,13 +1,11 @@
 /*
  * Helpers for time-related operations
  */
-import { Config, SECONDS_IN_HOUR } from "../config";
+import { Config, SECONDS_IN_DAY } from "../config";
 import { NULL, quoted} from "./string_helpers";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
-const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 
 
 // Compute the difference from 'date' to now in seconds.

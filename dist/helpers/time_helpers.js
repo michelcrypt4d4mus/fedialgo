@@ -8,8 +8,6 @@ const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-const SECONDS_IN_DAY = 24 * config_1.SECONDS_IN_HOUR;
-const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date) {
@@ -97,10 +95,10 @@ const timeString = (_timestamp, locale) => {
     if (isToday) {
         str = "today";
     }
-    else if (seconds < 0 && seconds > (-1 * 7 * SECONDS_IN_DAY)) {
+    else if (seconds < 0 && seconds > (-1 * 7 * config_1.SECONDS_IN_DAY)) {
         str = `this coming ${DAY_NAMES[timestamp.getDay()]}`;
     }
-    else if (seconds < (SECONDS_IN_DAY * 6)) {
+    else if (seconds < (config_1.SECONDS_IN_DAY * 6)) {
         str = DAY_NAMES[timestamp.getDay()];
     }
     else {
@@ -120,7 +118,7 @@ exports.nowString = nowString;
 ;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
+    const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * config_1.SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
