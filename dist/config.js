@@ -229,7 +229,7 @@ exports.setLocale = setLocale;
 ;
 // Debug mode settings
 if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
-    exports.Config.backgroundLoadIntervalSeconds = 120;
+    exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;

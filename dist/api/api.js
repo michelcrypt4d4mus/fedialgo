@@ -93,8 +93,7 @@ class MastoApi {
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
-    async fetchHomeFeed(mergeTootsToFeed, moreOldToots, maxId, // Optional maxId to use to start pagination
-    maxRecords, maxTootedAt) {
+    async fetchHomeFeed(mergeTootsToFeed, moreOldToots, maxRecords, maxId) {
         maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -108,7 +107,7 @@ class MastoApi {
         }
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
-            maxTootedAt ||= (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
+            const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, LOOKBACK_SECONDS) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);

@@ -107,9 +107,8 @@ export default class MastoApi {
     async fetchHomeFeed(
         mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
         moreOldToots?: boolean,
-        maxId?: string | number,  // Optional maxId to use to start pagination
         maxRecords?: number,
-        maxTootedAt?: Date | null,
+        maxId?: string | number,  // Optional maxId to use to start pagination
     ): Promise<Toot[]> {
         maxRecords ||= Config.numDesiredTimelineToots;
         const logPrefix = bracketed(StorageKey.HOME_TIMELINE);
@@ -124,7 +123,7 @@ export default class MastoApi {
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         } else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
-            maxTootedAt ||= mostRecentTootedAt(homeTimelineToots);
+            const maxTootedAt = mostRecentTootedAt(homeTimelineToots);
             cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, LOOKBACK_SECONDS) : timelineCutoffAt();
             cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
             console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);

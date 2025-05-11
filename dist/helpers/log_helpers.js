@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.PREP_SCORERS = exports.TRIGGER_FEED = exports.CLEANUP_FEED = void 0;
+exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
+exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 exports.CLEANUP_FEED = "cleanupFeed()";
-exports.TRIGGER_FEED = "triggerFeedUpdate()";
 exports.PREP_SCORERS = "prepareScorers()";
+exports.TRIGGER_FEED = "triggerFeedUpdate()";
 // console.log methods with a prefix
 const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
 exports.logInfo = logInfo;

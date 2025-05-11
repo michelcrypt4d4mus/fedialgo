@@ -11,9 +11,10 @@ import { isDebugMode } from '../helpers/environment_helpers';
 const ENABLE_TRACE_LOG = isDebugMode;
 
 // Log prefixes
+export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export const CLEANUP_FEED = "cleanupFeed()";
-export const TRIGGER_FEED = "triggerFeedUpdate()";
 export const PREP_SCORERS = "prepareScorers()";
+export const TRIGGER_FEED = "triggerFeedUpdate()";
 
 
 // console.log methods with a prefix

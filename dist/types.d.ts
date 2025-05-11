@@ -50,9 +50,7 @@ export declare enum StorageKey {
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE = "Timeline",
     TRENDING_TAG_TOOTS = "TrendingTagToots",
-    TOOT_TESTER = "TootTester",
     USER = "FedialgoUser",
-    USER_DATA = "UserData",
     WEIGHTS = "Weights"
 }
 export declare const FEDIVERSE_KEYS: StorageKey[];

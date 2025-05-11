@@ -39,9 +39,9 @@ import { Config, SCORERS_CONFIG, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
-import { GIFV, TELEMETRY, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
+import { GIFV, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, traceLog } from './helpers/log_helpers';
+import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
     NON_SCORE_WEIGHTS,
@@ -61,6 +61,7 @@ import {
     Weights,
     MastodonTag,
 } from "./types";
+import { log } from 'console';
 
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
@@ -169,48 +170,47 @@ class TheAlgorithm {
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots?: boolean): Promise<void> {
         logInfo(TRIGGER_FEED, `called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
-        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
-
-        if (this.isLoading()) {
-            console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
-            throw new Error(`${TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
-        } else if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
-            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
-            return;
-        }
-
+        this.checkIfLoading();
+        if (moreOldToots) return await this.triggerHomeTimelineBackFill();
+        if (this.checkIfSkpping()) return;
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         let dataLoads: Promise<any>[] = [
-            MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), moreOldToots)
+            MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this))
                 .then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
         ];
 
-        if (!moreOldToots) {
-            // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-            await sleep(Config.hashtagTootRetrievalDelaySeconds);
+        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
+        // TODO: do we really need to do this sleeping?
+        await sleep(Config.hashtagTootRetrievalDelaySeconds);
 
-            dataLoads = dataLoads.concat([
-                this.fetchAndMergeToots(getParticipatedHashtagToots),
-                this.fetchAndMergeToots(getRecentTootsForTrendingTags),
-                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer)),
-                // Population of instance variables - these are not required to be done before the feed is loaded
-                MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
-                MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-                MastoApi.instance.getUserData().then((userData) => this.userData = userData),
-            ]);
-        }
+        dataLoads = dataLoads.concat([
+            this.fetchAndMergeToots(getParticipatedHashtagToots),
+            this.fetchAndMergeToots(getRecentTootsForTrendingTags),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer)),
+            // Population of instance variables - these are not required to be done before the feed is loaded
+            MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
+            MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
+            MastoApi.instance.getUserData().then((userData) => this.userData = userData),
+        ]);
 
         const allResults = await Promise.all(dataLoads);
         traceLog(`[${TRIGGER_FEED}] FINISHED promises, allResults:`, allResults);
-        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        this.loadingStatus = FINALIZING_SCORES_MSG;
-        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
-        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
-        await this.scoreAndFilterFeed();
-        this.finishFeedUpdate();
+        await this.finishFeedUpdate();
+    }
+
+    // Trigger the loading of additional toots, farther back on the home timeline
+    async triggerHomeTimelineBackFill(): Promise<void> {
+        if (!this.feed.length) throw new Error(`triggerTootBackFill() called but feed is empty!`);
+        const logPrefix = bracketed(BACKFILL_FEED);
+        console.log(`${logPrefix} called, state:`, this.statusDict());
+        this.setLoadingStateVariables(BACKFILL_FEED);
+
+        const toots = await MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), true);
+        this.homeFeed = toots
+        traceLog(`${logPrefix} FINISHED promises, allResults:`, toots);
+        await this.finishFeedUpdate();
     }
 
     // Return the current filtered timeline feed in weight order
@@ -279,6 +279,7 @@ class TheAlgorithm {
         this.loadStartedAt = null;
         this.mastodonServers = {};
         this.feed = [];
+        this.numTriggers = 0;
         await Storage.clearAll();
         await this.loadCachedData();
     }
@@ -306,6 +307,26 @@ class TheAlgorithm {
     async updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]> {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         return await this.updateUserWeights(PresetWeights[presetName]);
+    }
+
+    // Throw an error if the feed is loading
+    private checkIfLoading(): void {
+        if (this.isLoading()) {
+            console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
+            throw new Error(`${TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
+        }
+    }
+
+    // Return true if we're in quick mode and the feed is fresh enough that we don't need to update it (for dev)
+    private checkIfSkpping(): boolean {
+        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
+
+        if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
+            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // Merge a new batch of toots into the feed.
@@ -426,8 +447,14 @@ class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
 
-    // The "load is finished" version of setLoadingStateVariables(). // TODO: there's too many state variables
-    private finishFeedUpdate(): void {
+    // The "load is finished" version of setLoadingStateVariables().
+    private async finishFeedUpdate(): Promise<void> {
+        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        this.loadingStatus = FINALIZING_SCORES_MSG;
+        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
+        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
+        await this.scoreAndFilterFeed();
         this.loadingStatus = null;
 
         if (this.loadStartedAt) {
@@ -445,11 +472,13 @@ class TheAlgorithm {
 
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
-        if (logPrefix == TRIGGER_FEED) this.loadStartedAt = new Date();
+        if ([BACKFILL_FEED, TRIGGER_FEED].includes(logPrefix)) this.loadStartedAt = new Date();
 
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
+        } else if (logPrefix == BACKFILL_FEED) {
+            this.loadingStatus = `Loading older home timeline toots`;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');

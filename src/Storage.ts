@@ -104,7 +104,6 @@ export default class Storage {
                         info[key] += ` (${value.length} items)`;
                     } else {
                         info[key] += ` (not an array)`;
-                        console.warn(`${LOG_PREFIX} Expected array at key "${key}", but got:`, value);
                     }
                 } else {
                     info[key] = null;

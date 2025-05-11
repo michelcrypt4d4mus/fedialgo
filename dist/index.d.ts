@@ -64,6 +64,7 @@ declare class TheAlgorithm {
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
+    triggerHomeTimelineBackFill(): Promise<void>;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
@@ -75,6 +76,8 @@ declare class TheAlgorithm {
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
+    private checkIfLoading;
+    private checkIfSkpping;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
     private launchBackgroundPoller;

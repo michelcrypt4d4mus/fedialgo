@@ -1,7 +1,8 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const CLEANUP_FEED = "cleanupFeed()";
-export declare const TRIGGER_FEED = "triggerFeedUpdate()";
 export declare const PREP_SCORERS = "prepareScorers()";
+export declare const TRIGGER_FEED = "triggerFeedUpdate()";
 export declare const logInfo: (pfx: string, msg: string, ...args: any[]) => void;
 export declare const logDebug: (pfx: string, msg: string, ...args: any[]) => void;
 export declare function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void;

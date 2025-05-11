@@ -302,7 +302,7 @@ export function setLocale(locale?: string): void {
 
 // Debug mode settings
 if (isDebugMode || isQuickMode) {
-    Config.backgroundLoadIntervalSeconds = 120;
+    Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;
     Config.lookbackForUpdatesMinutes = 15;

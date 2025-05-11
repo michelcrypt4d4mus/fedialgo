@@ -109,7 +109,6 @@ class Storage {
                 }
                 else {
                     info[key] += ` (not an array)`;
-                    console.warn(`${LOG_PREFIX} Expected array at key "${key}", but got:`, value);
                 }
             }
             else {
