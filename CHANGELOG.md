@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Hide link previews checkbox
 
 ### v0.33.4
 * Set name and storeName of localForage browser storage (used by Storage)
