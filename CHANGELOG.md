@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.33.4
 * Set name and storeName of localForage browser storage (used by Storage)
 
 ### v0.33.3
