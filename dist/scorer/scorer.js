@@ -38,11 +38,17 @@ class Scorer {
     }
     // This is the public API for scoring a toot
     async score(toot) {
-        if (!this.isReady) {
-            console.warn(`${this.name} not ready, scoring 0...`);
+        if (this.isReady)
+            return await this._score(toot);
+        if (!toot.scoreInfo) {
+            console.warn(`${this.logPrefix()} not ready, scoring 0...`);
             return 0;
         }
-        return await this._score(toot);
+        else {
+            const existingScore = toot.scoreInfo.rawScores[this.name];
+            console.debug(`${this.logPrefix()} Not ready but toot already scored (existing score: ${existingScore})`);
+            return existingScore;
+        }
     }
     // Logging helper
     logPrefix() {

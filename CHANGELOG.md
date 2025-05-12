@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Return existing score instead of 0 if Scorer isn't ready yet (if it exists)
 
 # v0.33.0
 * Sort built toots by their preliminary score, not by their popularity
