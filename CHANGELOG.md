@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set name and storeName of localForage browser storage (used by Storage)
 
 ### v0.33.3
 * Rename `TypeFilterName.REPOSTS` to `RETOOTS`

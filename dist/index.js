@@ -424,6 +424,7 @@ class TheAlgorithm {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
         this.loadingStatus = FINALIZING_SCORES_MSG;
+        console.debug(`[${logPrefix}] ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
