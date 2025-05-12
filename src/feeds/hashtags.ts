@@ -16,6 +16,7 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
     let tags = await UserData.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
+    console.debug("[getParticipatedHashtagToots()] Gettings toots for participated tags:", tags);
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.PARTICIPATED_TAG_TOOTS,

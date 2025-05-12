@@ -69,6 +69,7 @@ declare class TheAlgorithm {
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
     lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void>;
+    logWithState(prefix: string, msg: string): void;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
     reset(): Promise<void>;
@@ -82,7 +83,6 @@ declare class TheAlgorithm {
     private filterFeedAndSetInApp;
     private launchBackgroundPoller;
     private loadCachedData;
-    logWithState(prefix: string, msg: string): void;
     private logTelemetry;
     private _mergeTootsToFeed;
     private prepareScorers;

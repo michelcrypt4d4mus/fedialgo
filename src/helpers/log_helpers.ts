@@ -4,9 +4,9 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
-import { bracketed } from './string_helpers';
 import { Config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
+import { TELEMETRY, bracketed } from './string_helpers';
 
 const ENABLE_TRACE_LOG = isDebugMode;
 
@@ -20,6 +20,24 @@ export const TRIGGER_FEED = "triggerFeedUpdate()";
 // console.log methods with a prefix
 export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
 export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.debug(prefixed(pfx, msg), ...args);
+
+
+// Log a message with a telemetry timing suffix
+export function logTelemetry(
+    logPrefix: string,
+    msg: string,
+    startedAt: Date,
+    ...args: any[]
+): void {
+    msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
+
+    // If there's ...args and first arg is a string, assume it's a label for any other arg objects
+    if (args.length && typeof args[0] == 'string') {
+        msg += `, ${args.shift()}`;
+    }
+
+    logInfo(logPrefix, msg, ...args);
+}
 
 
 // Simple log helper that only fires if numRemoved > 0

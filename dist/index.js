@@ -240,6 +240,11 @@ class TheAlgorithm {
         }
     }
     ;
+    // Log a message with the current state of TheAlgorithm instance
+    logWithState(prefix, msg) {
+        console.log(`${prefix} ${msg}. state:`, this.statusDict());
+        Storage_1.default.dumpData();
+    }
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt() {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
@@ -339,7 +344,8 @@ class TheAlgorithm {
         this.setTimelineInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            this.logTelemetry(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client`, this.loadStartedAt);
+            const msg = `First ${filteredFeed.length} toots sent to client`;
+            this.logTelemetry('filterFeedAndSetInApp', msg, this.loadStartedAt || new Date());
         }
         return filteredFeed;
     }
@@ -374,20 +380,14 @@ class TheAlgorithm {
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
-    // Log a message with the current state of the state variables
-    // TODO: should be private, public for debugging for now
-    logWithState(prefix, msg) {
-        console.log(`${prefix} ${msg}. state:`, this.statusDict());
-        Storage_1.default.dumpData();
-    }
+    // Log timing info
     logTelemetry(logPrefix, msg, startedAt) {
-        msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
-        (0, log_helpers_1.logInfo)(logPrefix, `${msg}, current state:`, this.statusDict());
+        (0, log_helpers_1.logTelemetry)(logPrefix, msg, startedAt, 'current state', this.statusDict());
     }
     // Merge newToots into this.feed, score, and filter the feed.
-    // Don't call this directly, use lockedMergeTootsToFeed() instead.
+    // Don't call this directly! Use lockedMergeTootsToFeed() instead.
     async _mergeTootsToFeed(newToots, logPrefix) {
-        const numTootsBefore = this.feed.length; // Good log filter for seeing the issue
+        const numTootsBefore = this.feed.length;
         const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
@@ -462,12 +462,14 @@ class TheAlgorithm {
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
-        const mostRecent = this.mostRecentHomeTootAt();
+        const mostRecentToot = this.mostRecentHomeTootAt();
+        const oldestToot = (0, toot_1.earliestTootedAt)(this.homeFeed);
         return {
             tootsInFeed: this.feed?.length,
             tootsInHomeFeed: this.homeFeed?.length,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: mostRecent ? (0, time_helpers_1.toISOFormat)(this.mostRecentHomeTootAt()) : null,
+            mostRecentHomeTootAt: mostRecentToot ? (0, time_helpers_1.toISOFormat)(mostRecentToot) : null,
+            oldestHomeTootAt: oldestToot ? (0, time_helpers_1.toISOFormat)(oldestToot) : null,
         };
     }
 }

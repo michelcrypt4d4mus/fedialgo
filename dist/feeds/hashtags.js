@@ -19,6 +19,7 @@ async function getParticipatedHashtagToots() {
     let tags = await user_data_1.default.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
+    console.debug("[getParticipatedHashtagToots()] Gettings toots for participated tags:", tags);
     return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.numParticipatedTagTootsPerTag), "numParticipatedTagToots");
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;

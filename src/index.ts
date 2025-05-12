@@ -28,7 +28,7 @@ import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
-import Toot, { mostRecentTootedAt } from './api/objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
@@ -42,7 +42,7 @@ import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { GIFV, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, traceLog } from './helpers/log_helpers';
+import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, logTelemetry, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import {
     NON_SCORE_WEIGHTS,
@@ -243,6 +243,12 @@ class TheAlgorithm {
         }
     };
 
+    // Log a message with the current state of TheAlgorithm instance
+    logWithState(prefix: string, msg: string): void {
+        console.log(`${prefix} ${msg}. state:`, this.statusDict());
+        Storage.dumpData();
+    }
+
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt(): Date | null {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
@@ -356,7 +362,8 @@ class TheAlgorithm {
 
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            this.logTelemetry(TELEMETRY, `First ${filteredFeed.length} toots sent to client`, this.loadStartedAt!);
+            const msg = `First ${filteredFeed.length} toots sent to client`;
+            this.logTelemetry('filterFeedAndSetInApp', msg, this.loadStartedAt || new Date());
         }
 
         return filteredFeed;
@@ -400,22 +407,15 @@ class TheAlgorithm {
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
 
-    // Log a message with the current state of the state variables
-    // TODO: should be private, public for debugging for now
-    logWithState(prefix: string, msg: string): void {
-        console.log(`${prefix} ${msg}. state:`, this.statusDict());
-        Storage.dumpData();
-    }
-
+    // Log timing info
     private logTelemetry(logPrefix: string, msg: string, startedAt: Date): void {
-        msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
-        logInfo(logPrefix, `${msg}, current state:`, this.statusDict());
+        logTelemetry(logPrefix, msg, startedAt, 'current state', this.statusDict());
     }
 
     // Merge newToots into this.feed, score, and filter the feed.
-    // Don't call this directly, use lockedMergeTootsToFeed() instead.
+    // Don't call this directly! Use lockedMergeTootsToFeed() instead.
     private async _mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
-        const numTootsBefore = this.feed.length;  // Good log filter for seeing the issue
+        const numTootsBefore = this.feed.length;
         const startedAt = new Date();
 
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
@@ -495,13 +495,15 @@ class TheAlgorithm {
 
     // Info about the state of this TheAlgorithm instance
     private statusDict(): Record<string, any> {
-        const mostRecent = this.mostRecentHomeTootAt();
+        const mostRecentToot = this.mostRecentHomeTootAt();
+        const oldestToot = earliestTootedAt(this.homeFeed);
 
         return {
             tootsInFeed: this.feed?.length,
             tootsInHomeFeed: this.homeFeed?.length,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: mostRecent ? toISOFormat(this.mostRecentHomeTootAt()) : null,
+            mostRecentHomeTootAt: mostRecentToot ? toISOFormat(mostRecentToot) : null,
+            oldestHomeTootAt: oldestToot ? toISOFormat(oldestToot) : null,
         };
     }
 };

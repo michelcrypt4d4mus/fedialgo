@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logDebug = exports.logInfo = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logDebug = exports.logInfo = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
-const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
+const string_helpers_1 = require("./string_helpers");
 const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -16,6 +16,16 @@ const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args)
 exports.logInfo = logInfo;
 const logDebug = (pfx, msg, ...args) => console.debug(prefixed(pfx, msg), ...args);
 exports.logDebug = logDebug;
+// Log a message with a telemetry timing suffix
+function logTelemetry(logPrefix, msg, startedAt, ...args) {
+    msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
+    // If there's ...args and first arg is a string, assume it's a label for any other arg objects
+    if (args.length && typeof args[0] == 'string') {
+        msg += `, ${args.shift()}`;
+    }
+    (0, exports.logInfo)(logPrefix, msg, ...args);
+}
+exports.logTelemetry = logTelemetry;
 // Simple log helper that only fires if numRemoved > 0
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)

@@ -5,6 +5,7 @@ export declare const PREP_SCORERS = "prepareScorers()";
 export declare const TRIGGER_FEED = "triggerFeedUpdate()";
 export declare const logInfo: (pfx: string, msg: string, ...args: any[]) => void;
 export declare const logDebug: (pfx: string, msg: string, ...args: any[]) => void;
+export declare function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ...args: any[]): void;
 export declare function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void;
 export declare function logAndThrowError(message: string, obj?: any): never;
 export declare function lockExecution(locker: Mutex | Semaphore, logPrefix: string): Promise<MutexInterface.Releaser | SemaphoreInterface.Releaser>;
