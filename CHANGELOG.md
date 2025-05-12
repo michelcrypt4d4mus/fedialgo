@@ -4,14 +4,14 @@
 * Keep `Toot.reblogsBy` sorted by `displayName`
 
 ### v0.33.1
-* Return existing score instead of 0 if Scorer isn't ready yet (if it exists)
+* Return existing score instead of 0 if `Scorer` isn't ready yet (if it exists)
 
 # v0.33.0
 * Sort built toots by their preliminary score, not by their popularity
 * Increase default `FOLLOWED_TAGS` weight to 4
 * Decrease default `TRENDING` weight to 0.15
 * Add `Toot.getScore()` method
-* Add batchCompleteTootsSize param, rename batchCompleteTootsSleepBetweenMS
+* Add `Config.batchCompleteTootsSize` param, rename `Config.batchCompleteTootsSleepBetweenMS`
 
 ### v0.32.1
 * Separate out the backfill functionality to `TheAlgorithm.triggerHomeTimelineBackFill()`
