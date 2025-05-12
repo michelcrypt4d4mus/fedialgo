@@ -1,40 +1,55 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.subtractSeconds = exports.timelineCutoffAt = exports.nowString = exports.timeString = exports.quotedISOFmt = exports.toISOFormat = exports.sleep = exports.mostRecent = exports.ageString = exports.ageInMinutes = exports.ageInSeconds = void 0;
+exports.timelineCutoffAt = exports.timeString = exports.toISOFormat = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 /*
  * Helpers for time-related operations
  */
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
+// TODO: use the formatting functions, don't do date lookup manually
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
-// Compute the difference from 'date' to now in seconds.
-// Accepts ISO format strings, millisecond timestamps, and Date objects.
-function ageInSeconds(date) {
-    if (date == null) {
-        console.warn("Invalid date passed to ageInSeconds():", date);
-        return -1;
-    }
-    let _date = PARSEABLE_DATE_TYPES.includes(typeof date) ? new Date(date) : date;
-    return (Date.now() - _date.getTime()) / 1000;
+// Compute the difference from 'date' to now in minutes
+function ageInHours(date, endTime) {
+    return ageInMinutes(date, endTime) / 60.0;
 }
-exports.ageInSeconds = ageInSeconds;
+exports.ageInHours = ageInHours;
 ;
 // Compute the difference from 'date' to now in minutes
-function ageInMinutes(date) {
-    return ageInSeconds(date) / 60.0;
+function ageInMinutes(date, endTime) {
+    return ageInSeconds(date, endTime) / 60.0;
 }
 exports.ageInMinutes = ageInMinutes;
 ;
+// Compute the difference from 'date' to now in seconds.
+// Accepts ISO format strings, millisecond timestamps, and Date objects.
+function ageInSeconds(date, endTime) {
+    if (!date) {
+        console.warn("Invalid date passed to ageInSeconds():", date);
+        return -1;
+    }
+    endTime = coerceDate(endTime || new Date());
+    return (endTime.getTime() - coerceDate(date).getTime()) / 1000;
+}
+exports.ageInSeconds = ageInSeconds;
+;
 // Make a nice string like "in 2.5 minutes"
 function ageString(date) {
-    if (date == null)
+    if (!date)
         return string_helpers_1.NULL;
     const seconds = ageInSeconds(date);
     const secondsStr = seconds < 0.1 ? seconds.toFixed(3) : seconds.toFixed(1);
     return `in ${secondsStr} seconds`;
 }
 exports.ageString = ageString;
+;
+// Coerce a string or number into a Date object.
+function coerceDate(date) {
+    if (!date)
+        return null;
+    return (PARSEABLE_DATE_TYPES.includes(typeof date) ? new Date(date) : date);
+}
+exports.coerceDate = coerceDate;
 ;
 // Recent the most recent of a list of dates
 function mostRecent(...args) {
@@ -50,27 +65,12 @@ function mostRecent(...args) {
 }
 exports.mostRecent = mostRecent;
 ;
-// Sleep helper
-async function sleep(seconds) {
-    await new Promise(r => setTimeout(r, seconds * 1000));
+// Timestamp string for the current time
+function nowString() {
+    const now = new Date();
+    return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
 }
-exports.sleep = sleep;
-;
-// To the format YYYY-MM-DDTHH:MM:SSZ
-function toISOFormat(date, withMilliseconds) {
-    let isoString;
-    if (!date) {
-        return string_helpers_1.NULL;
-    }
-    else if (typeof date === "string") {
-        isoString = new Date(date).toISOString();
-    }
-    else {
-        isoString = date.toISOString();
-    }
-    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
-}
-exports.toISOFormat = toISOFormat;
+exports.nowString = nowString;
 ;
 // toISOFormat() but with quotes around it.
 function quotedISOFmt(date, withMilliseconds) {
@@ -80,15 +80,36 @@ function quotedISOFmt(date, withMilliseconds) {
 }
 exports.quotedISOFmt = quotedISOFmt;
 ;
+// Sleep helper
+async function sleep(seconds) {
+    await new Promise(r => setTimeout(r, seconds * 1000));
+}
+exports.sleep = sleep;
+;
+// Subtract 'seconds' from 'date' and return the new Date
+function subtractSeconds(date, seconds) {
+    return new Date(date.getTime() - (seconds * 1000));
+}
+exports.subtractSeconds = subtractSeconds;
+;
+// To the format YYYY-MM-DDTHH:MM:SSZ
+function toISOFormat(date, withMilliseconds) {
+    if (!date)
+        return string_helpers_1.NULL;
+    const isoString = coerceDate(date).toISOString();
+    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
+}
+exports.toISOFormat = toISOFormat;
+;
 // Generate a string representing a timestamp.
 // (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
 //    => 'Thursday, Sep 1, 2022'
 const timeString = (_timestamp, locale) => {
-    if (_timestamp == null)
+    if (!_timestamp)
         return string_helpers_1.NULL;
     locale ||= config_1.Config.locale;
     ;
-    const timestamp = (typeof _timestamp == 'string') ? new Date(_timestamp) : _timestamp;
+    const timestamp = coerceDate(_timestamp);
     const isToday = timestamp.getDate() == new Date().getDate();
     const seconds = ageInSeconds(timestamp);
     let str;
@@ -109,24 +130,11 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
-// Timestamp string for the current time
-function nowString() {
-    const now = new Date();
-    return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
-}
-exports.nowString = nowString;
-;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
     const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * config_1.SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
-;
-// Subtract 'seconds' from 'date' and return the new Date
-function subtractSeconds(date, seconds) {
-    return new Date(date.getTime() - (seconds * 1000));
-}
-exports.subtractSeconds = subtractSeconds;
 ;
 //# sourceMappingURL=time_helpers.js.map

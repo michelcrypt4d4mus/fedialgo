@@ -462,14 +462,19 @@ class TheAlgorithm {
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
-        const mostRecentToot = this.mostRecentHomeTootAt();
-        const oldestToot = (0, toot_1.earliestTootedAt)(this.homeFeed);
+        const mostRecentTootAt = this.mostRecentHomeTootAt();
+        const oldestTootAt = (0, toot_1.earliestTootedAt)(this.homeFeed);
+        let numHoursInHomeFeed = null;
+        if (mostRecentTootAt && oldestTootAt) {
+            numHoursInHomeFeed = (0, time_helpers_1.ageInHours)(oldestTootAt, mostRecentTootAt);
+        }
         return {
-            tootsInFeed: this.feed?.length,
-            tootsInHomeFeed: this.homeFeed?.length,
+            feedNumToots: this.feed?.length,
+            homeFeedNumToots: this.homeFeed?.length,
+            homeFeedMostRecentAt: mostRecentTootAt ? (0, time_helpers_1.toISOFormat)(mostRecentTootAt) : null,
+            homeFeedOldestAt: oldestTootAt ? (0, time_helpers_1.toISOFormat)(oldestTootAt) : null,
+            homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: mostRecentToot ? (0, time_helpers_1.toISOFormat)(mostRecentToot) : null,
-            oldestHomeTootAt: oldestToot ? (0, time_helpers_1.toISOFormat)(oldestToot) : null,
         };
     }
 }

@@ -34,7 +34,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
 import { Config, SCORERS_CONFIG, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
@@ -495,15 +495,21 @@ class TheAlgorithm {
 
     // Info about the state of this TheAlgorithm instance
     private statusDict(): Record<string, any> {
-        const mostRecentToot = this.mostRecentHomeTootAt();
-        const oldestToot = earliestTootedAt(this.homeFeed);
+        const mostRecentTootAt = this.mostRecentHomeTootAt();
+        const oldestTootAt = earliestTootedAt(this.homeFeed);
+        let numHoursInHomeFeed: number | null = null;
+
+        if (mostRecentTootAt && oldestTootAt) {
+            numHoursInHomeFeed = ageInHours(oldestTootAt, mostRecentTootAt);
+        }
 
         return {
-            tootsInFeed: this.feed?.length,
-            tootsInHomeFeed: this.homeFeed?.length,
+            feedNumToots: this.feed?.length,
+            homeFeedNumToots: this.homeFeed?.length,
+            homeFeedMostRecentAt: mostRecentTootAt ? toISOFormat(mostRecentTootAt) : null,
+            homeFeedOldestAt: oldestTootAt ? toISOFormat(oldestTootAt) : null,
+            homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             loadingStatus: this.loadingStatus,
-            mostRecentHomeTootAt: mostRecentToot ? toISOFormat(mostRecentToot) : null,
-            oldestHomeTootAt: oldestToot ? toISOFormat(oldestToot) : null,
         };
     }
 };
