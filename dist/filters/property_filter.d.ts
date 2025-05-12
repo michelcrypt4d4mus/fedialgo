@@ -22,7 +22,7 @@ export declare enum TypeFilterName {
     POLLS = "polls",
     PARTICIPATED_HASHTAGS = "participatedHashtags",
     REPLIES = "replies",
-    REPOSTS = "reposts",
+    RETOOTS = "reposts",
     SENSITIVE = "sensitive",
     TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_LINKS = "trendingLinks",

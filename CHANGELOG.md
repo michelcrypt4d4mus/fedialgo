@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename TypeFilterName.REPOSTS to RETOOTS
 
 ### v0.33.2
 * Keep `Toot.reblogsBy` sorted by `displayName`
