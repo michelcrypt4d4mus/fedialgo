@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.33.3
 * Rename `TypeFilterName.REPOSTS` to `RETOOTS`
 * Add `ageInHours()` helper; allow age related fxns to take second arg; add `homeFeedTimespanHours` to `statusDict()`
 
