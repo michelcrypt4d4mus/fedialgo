@@ -417,7 +417,7 @@ class TheAlgorithm {
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
 
-        let msg = `${TELEMETRY} merge ${newToots.length} complete ${ageString(startedAt)},`;
+        let msg = `${TELEMETRY} merged ${newToots.length} new toots ${ageString(startedAt)},`;
         logInfo(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
         this.setLoadingStateVariables(logPrefix);
     }
@@ -430,7 +430,7 @@ class TheAlgorithm {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(TELEMETRY, `${PREP_SCORERS} ready in ${ageString(startedAt)}`);
+                logInfo(PREP_SCORERS, `${TELEMETRY} ready in ${ageString(startedAt)}`);
             }
         } finally {
             releaseMutex();
