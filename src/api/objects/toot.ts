@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, groupBy, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -467,6 +467,7 @@ export default class Toot implements TootObj {
 
             if (!reblogsByAccts.includes(this.account.webfingerURI)) {
                 this.reblog.reblogsBy.push(this.account);
+                this.reblog.reblogsBy = sortObjsByProps(this.reblog.reblogsBy, ["displayName"], true, true);
             }
         }
 
@@ -667,7 +668,7 @@ export default class Toot implements TootObj {
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
-                    toot.reblog.reblogsBy = reblogsBy;
+                    toot.reblog.reblogsBy = sortObjsByProps(reblogsBy, ["displayName"], true, true);
                     toot.reblog.sources = uniqueSources;
                 }
             });

@@ -177,14 +177,18 @@ function sortKeysByValue(dict) {
 exports.sortKeysByValue = sortKeysByValue;
 ;
 // Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
-// If ascending is true, sort in ascending order.
-function sortObjsByProps(array, prop, ascending = true) {
+// If ascending is true, sort in ascending order (low to high)
+function sortObjsByProps(array, prop, ascending, ignoreCase) {
     const props = Array.isArray(prop) ? prop : [prop];
     if (props.length > 2)
         throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
     return array.toSorted((a, b) => {
         let aVal = a[props[0]];
         let bVal = b[props[0]];
+        if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
         if (aVal < bVal)
             return ascending ? -1 : 1;
         if (aVal > bVal)
@@ -194,6 +198,10 @@ function sortObjsByProps(array, prop, ascending = true) {
         // Compare second propert
         aVal = a[props[1]];
         bVal = b[props[2]];
+        if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
         if (aVal < bVal)
             return ascending ? -1 : 1;
         if (aVal > bVal)

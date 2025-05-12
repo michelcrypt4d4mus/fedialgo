@@ -205,14 +205,24 @@ export function sortKeysByValue(dict: StringNumberDict): string[] {
 
 
 // Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
-// If ascending is true, sort in ascending order.
-export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending: boolean = true): T[] {
+// If ascending is true, sort in ascending order (low to high)
+export function sortObjsByProps<T>(
+    array: T[],
+    prop: keyof T | (keyof T)[],
+    ascending?: boolean,
+    ignoreCase?: boolean
+): T[] {
     const props = Array.isArray(prop) ? prop : [prop];
     if (props.length > 2) throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
 
     return array.toSorted((a: T, b: T) => {
-        let aVal = a[props[0]];
-        let bVal = b[props[0]];
+        let aVal: T[keyof T] | string = a[props[0]];
+        let bVal: T[keyof T] | string = b[props[0]];
+
+        if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
 
         if (aVal < bVal) return ascending ? -1 : 1;
         if (aVal > bVal) return ascending ? 1 : -1;
@@ -221,6 +231,12 @@ export function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], asce
         // Compare second propert
         aVal = a[props[1]];
         bVal = b[props[2]];
+
+        if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+
         if (aVal < bVal) return ascending ? -1 : 1;
         if (aVal > bVal) return ascending ? 1 : -1;
 

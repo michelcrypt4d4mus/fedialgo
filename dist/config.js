@@ -310,7 +310,7 @@ exports.SCORERS_CONFIG = {
         description: "Favour image attachments",
     },
     [types_1.WeightName.INTERACTIONS]: {
-        description: "Favour accounts that recently interacted with your toots",
+        description: "Favour accounts that interact with your toots",
     },
     [types_1.WeightName.MENTIONS_FOLLOWED]: {
         description: "Favour toots that mention accounts you follow",

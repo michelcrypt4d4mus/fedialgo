@@ -393,6 +393,7 @@ class Toot {
             const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
             if (!reblogsByAccts.includes(this.account.webfingerURI)) {
                 this.reblog.reblogsBy.push(this.account);
+                this.reblog.reblogsBy = (0, collection_helpers_1.sortObjsByProps)(this.reblog.reblogsBy, ["displayName"], true, true);
             }
         }
         // Check for weird media types
@@ -563,7 +564,7 @@ class Toot {
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
-                    toot.reblog.reblogsBy = reblogsBy;
+                    toot.reblog.reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
                     toot.reblog.sources = uniqueSources;
                 }
             });

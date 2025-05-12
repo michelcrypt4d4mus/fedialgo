@@ -390,7 +390,7 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour image attachments",
     },
     [WeightName.INTERACTIONS]: {
-        description: "Favour accounts that recently interacted with your toots",
+        description: "Favour accounts that interact with your toots",
     },
     [WeightName.MENTIONS_FOLLOWED]: {
         description: "Favour toots that mention accounts you follow",

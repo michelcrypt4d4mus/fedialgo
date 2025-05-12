@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Keep `Toot.reblogsBy` sorted by `displayName`
 
 ### v0.33.1
 * Return existing score instead of 0 if Scorer isn't ready yet (if it exists)
