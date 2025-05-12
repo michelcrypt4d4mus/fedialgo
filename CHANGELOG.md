@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.33.2
 * Keep `Toot.reblogsBy` sorted by `displayName`
 
 ### v0.33.1
