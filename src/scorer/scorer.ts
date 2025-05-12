@@ -1,10 +1,9 @@
 /*
  * Base class for Toot scorers.
  */
-import { E_CANCELED, Mutex } from 'async-mutex';
+import { E_CANCELED, Mutex, MutexInterface } from 'async-mutex';
 
-import FeatureScorer from './feature_scorer';
-import FeedScorer from './feed_scorer';
+import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
@@ -19,7 +18,7 @@ const SCORE_MUTEX = new Mutex();
 const SCORE_PREFIX = "scoreToots()";
 
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
-type AlternateScoreDict = Record<string, number | ScoreDisplayDict>
+type AlternateScoreDict = Record<string, number | ScoreDisplayDict>;
 
 
 export default abstract class Scorer {
@@ -45,11 +44,11 @@ export default abstract class Scorer {
 
     // This is the public API for scoring a toot
     async score(toot: Toot): Promise<number> {
-        this.checkIsReady();
-        // if (!this.isReady) {
-        //     console.warn(`${this.name} not ready, scoring 0...`);
-        //     return 0;
-        // }
+        if (!this.isReady) {
+            console.warn(`${this.name} not ready, scoring 0...`);
+            return 0;
+        }
+
         return await this._score(toot);
     }
 
@@ -71,28 +70,29 @@ export default abstract class Scorer {
     ///////////////////////////////
 
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
-    static async scoreToots(
-        toots: Toot[],
-        featureScorers: FeatureScorer[],
-        feedScorers: FeedScorer[]
-    ): Promise<Toot[]> {
-        const scorers = [...featureScorers, ...feedScorers];
+    // If 'isScoringFeed' is false the scores will be "best effort"
+    static async scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]> {
+        const scorers = ScorerCache.weightedScorers;
         const startedAt = new Date();
 
         try {
             // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
             // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
             // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
-            SCORE_MUTEX.cancel();
-            const releaseMutex = await SCORE_MUTEX.acquire();
+            let releaseMutex: MutexInterface.Releaser | undefined;
+
+            if (isScoringFeed) {
+                SCORE_MUTEX.cancel();
+                releaseMutex = await SCORE_MUTEX.acquire();
+                // Feed scorers' data must be refreshed each time the feed changes
+                ScorerCache.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+            }
 
             try {
-                // Feed scorers' data must be refreshed each time the feed changes
-                feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
                 // Score the toots asynchronously in batches
                 await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
             } finally {
-                releaseMutex();
+                releaseMutex?.();
             }
 
             // Sort feed based on score from high to low and return

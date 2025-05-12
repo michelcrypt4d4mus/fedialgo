@@ -26,6 +26,8 @@ export type ConfigType = {
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
     backgroundLoadIntervalSeconds: number;
+    batchCompleteTootsSize: number;
+    batchCompleteTootsSleepBetweenMS: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
@@ -33,7 +35,6 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    sleepBetweenCompletionMS: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
     staleDataTrendingSeconds: number;

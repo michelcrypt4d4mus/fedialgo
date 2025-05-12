@@ -42,6 +42,8 @@ export type ConfigType = {
     numParticipatedTagTootsPerTag: number;
     // API stuff
     backgroundLoadIntervalSeconds: number;
+    batchCompleteTootsSize: number;
+    batchCompleteTootsSleepBetweenMS: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
@@ -49,7 +51,6 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    sleepBetweenCompletionMS: number;
     staleDataSeconds: StaleDataConfig;
     timeoutMS: number;
     staleDataTrendingSeconds: number;
@@ -141,7 +142,8 @@ export const Config: ConfigType = {
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
     numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
-    sleepBetweenCompletionMS: 250,          // How long to wait between batches of Toot.completeToots() calls
+    batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeToots() calls
+    batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
     timeoutMS: 5_000,                       // Timeout for API calls
 
     // Trending tags and links

@@ -58,6 +58,7 @@ Object.defineProperty(exports, "PropertyName", { enumerable: true, get: function
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return property_filter_1.TypeFilterName; } });
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
+const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
@@ -162,6 +163,7 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen();
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
+        scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
     }
@@ -408,7 +410,7 @@ class TheAlgorithm {
     // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
         await this.prepareScorers(); // Make sure the scorers are ready to go
-        this.feed = await scorer_1.default.scoreToots(this.feed, this.featureScorers, this.feedScorers);
+        this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
         await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();

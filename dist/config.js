@@ -76,7 +76,8 @@ exports.Config = {
     minServerMAU: 100,
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
-    sleepBetweenCompletionMS: 250,
+    batchCompleteTootsSleepBetweenMS: 250,
+    batchCompleteTootsSize: 25,
     timeoutMS: 5000,
     // Trending tags and links
     excessiveTagsPenalty: 0.1,

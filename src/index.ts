@@ -26,6 +26,7 @@ import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
+import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
@@ -156,6 +157,7 @@ class TheAlgorithm {
 
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
+        ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
     }
@@ -439,7 +441,7 @@ class TheAlgorithm {
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();  // Make sure the scorers are ready to go
-        this.feed = await Scorer.scoreToots(this.feed, this.featureScorers, this.feedScorers);
+        this.feed = await Scorer.scoreToots(this.feed, true);
         this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
         await Storage.set(StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();

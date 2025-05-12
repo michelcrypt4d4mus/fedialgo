@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Base class for Toot scorers.
  */
 const async_mutex_1 = require("async-mutex");
+const scorer_cache_1 = __importDefault(require("./scorer_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -37,11 +38,10 @@ class Scorer {
     }
     // This is the public API for scoring a toot
     async score(toot) {
-        this.checkIsReady();
-        // if (!this.isReady) {
-        //     console.warn(`${this.name} not ready, scoring 0...`);
-        //     return 0;
-        // }
+        if (!this.isReady) {
+            console.warn(`${this.name} not ready, scoring 0...`);
+            return 0;
+        }
         return await this._score(toot);
     }
     // Logging helper
@@ -57,23 +57,27 @@ class Scorer {
     //   Static class methods  ////
     ///////////////////////////////
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
-    static async scoreToots(toots, featureScorers, feedScorers) {
-        const scorers = [...featureScorers, ...feedScorers];
+    // If 'isScoringFeed' is false the scores will be "best effort"
+    static async scoreToots(toots, isScoringFeed) {
+        const scorers = scorer_cache_1.default.weightedScorers;
         const startedAt = new Date();
         try {
             // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
             // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
             // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
-            SCORE_MUTEX.cancel();
-            const releaseMutex = await SCORE_MUTEX.acquire();
-            try {
+            let releaseMutex;
+            if (isScoringFeed) {
+                SCORE_MUTEX.cancel();
+                releaseMutex = await SCORE_MUTEX.acquire();
                 // Feed scorers' data must be refreshed each time the feed changes
-                feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+                scorer_cache_1.default.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+            }
+            try {
                 // Score the toots asynchronously in batches
                 await (0, collection_helpers_1.batchMap)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
             }
             finally {
-                releaseMutex();
+                releaseMutex?.();
             }
             // Sort feed based on score from high to low and return
             (0, log_helpers_1.logDebug)(SCORE_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);

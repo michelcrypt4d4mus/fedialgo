@@ -1,6 +1,9 @@
 # NEXT RELEASE
+* Sort built toots by their preliminary score, not by their popularity
 * Increase default `FOLLOWED_TAGS` weight to 4
-* Add Toot.getScore() method
+* Decrease default `TRENDING` weight to 0.15
+* Add `Toot.getScore()` method
+* Add batchCompleteTootsSize param, rename batchCompleteTootsSleepBetweenMS
 
 ### v0.32.1
 * Separate out the backfill functionality to `TheAlgorithm.triggerHomeTimelineBackFill()`

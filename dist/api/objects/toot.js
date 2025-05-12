@@ -269,9 +269,7 @@ class Toot {
     }
     // Return true if it's a trending toot or contains any trending hashtags or links
     isTrending() {
-        return !!(this.scoreInfo?.rawScores[types_1.WeightName.TRENDING_TOOTS]
-            || this.trendingLinks?.length
-            || this.trendingTags?.length);
+        return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length);
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     // Note that this is very different from being temporarily filtered out of the visible feed
@@ -464,7 +462,7 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
+    // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(statuses, source, // Where did these toots come from?
     logPrefix) {
         if (statuses.length == 0)
@@ -477,7 +475,9 @@ class Toot {
         let toots = await this.completeToots(statuses, logPrefix, false);
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
-        toots = toots.sort((a, b) => b.popularity() - a.popularity());
+        // Make a first pass at scoring with whatever scorers are ready to score
+        await scorer_1.default.scoreToots(toots, false);
+        toots.sort((a, b) => b.getScore() - a.getScore());
         console.debug(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
@@ -500,8 +500,7 @@ class Toot {
         };
         const completeToots = toots.filter(toot => toot instanceof Toot ? !toot.shouldComplete() : false);
         const tootsToComplete = toots.filter(toot => toot instanceof Toot ? toot.shouldComplete() : true);
-        const batchSleepMS = isDeepInspect ? config_1.Config.sleepBetweenCompletionMS : 0;
-        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, (t) => complete(t), "completeToots", 50, batchSleepMS);
+        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, (t) => complete(t), "completeToots", config_1.Config.batchCompleteTootsSize, isDeepInspect ? config_1.Config.batchCompleteTootsSleepBetweenMS : 0);
         toots = completeToots.concat(newCompleteToots);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;

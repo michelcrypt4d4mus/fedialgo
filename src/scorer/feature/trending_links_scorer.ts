@@ -14,6 +14,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
         super(WeightName.TRENDING_LINKS);
     }
 
+    // TODO: this is unnecessary as numAccounts should be stored in the TrendingLink objects
     async prepareScoreData(): Promise<StringNumberDict> {
         return (await MastodonServer.fediverseTrendingLinks()).reduce(
             (accountsPostingLinkCounts, link) => {

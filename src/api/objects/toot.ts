@@ -323,7 +323,7 @@ export default class Toot implements TootObj {
 
     // Returns true if this toot is from a followed account or contains a followed tag
     isFollowed(): boolean {
-        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length)
+        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);
     }
 
     // Return true if the toot has not been filtered out of the feed
@@ -334,11 +334,7 @@ export default class Toot implements TootObj {
 
     // Return true if it's a trending toot or contains any trending hashtags or links
     isTrending(): boolean {
-        return !!(
-               this.scoreInfo?.rawScores[WeightName.TRENDING_TOOTS]
-            || this.trendingLinks?.length
-            || this.trendingTags?.length
-        );
+        return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length);
     }
 
     // Return false if Toot should be discarded from feed altogether and permanently
@@ -548,7 +544,7 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    // TODO: Toots are sorted by popularity so callers can truncate unpopular toots but seems wrong place for it
+    // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(
         statuses: TootLike[],
         source: string,  // Where did these toots come from?
@@ -564,7 +560,9 @@ export default class Toot implements TootObj {
         let toots = await this.completeToots(statuses, logPrefix, false);
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
-        toots = toots.sort((a, b) => b.popularity() - a.popularity());
+        // Make a first pass at scoring with whatever scorers are ready to score
+        await Scorer.scoreToots(toots, false);
+        toots.sort((a, b) => b.getScore() - a.getScore());
         console.debug(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
@@ -592,10 +590,15 @@ export default class Toot implements TootObj {
         const completeToots = toots.filter(toot => toot instanceof Toot ? !toot.shouldComplete() : false);
         const tootsToComplete = toots.filter(toot => toot instanceof Toot ? toot.shouldComplete() : true);
 
-        const batchSleepMS = isDeepInspect ? Config.sleepBetweenCompletionMS : 0;
-        const newCompleteToots = await batchMap(tootsToComplete, (t) => complete(t), "completeToots", 50, batchSleepMS);
-        toots = completeToots.concat(newCompleteToots);
+        const newCompleteToots = await batchMap(
+            tootsToComplete,
+            (t) => complete(t),
+            "completeToots",
+            Config.batchCompleteTootsSize,
+            isDeepInspect ? Config.batchCompleteTootsSleepBetweenMS : 0
+        );
 
+        toots = completeToots.concat(newCompleteToots);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
         msg += ` ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
         console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
