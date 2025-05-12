@@ -15,6 +15,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.TRENDING_LINKS);
     }
+    // TODO: this is unnecessary as numAccounts should be stored in the TrendingLink objects
     async prepareScoreData() {
         return (await mastodon_server_1.default.fediverseTrendingLinks()).reduce((accountsPostingLinkCounts, link) => {
             accountsPostingLinkCounts[link.url] = link.numAccounts || 0;
