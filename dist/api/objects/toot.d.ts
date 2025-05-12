@@ -119,6 +119,4 @@ export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
 export declare const sortByCreatedAt: (toots: StatusList) => StatusList;
 export declare const earliestTootedAt: (toots: StatusList) => Date | null;
 export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;
-export declare const earliestTootedAtStr: (toots: StatusList) => string | null;
-export declare const mostRecentTootedAtStr: (toots: StatusList) => string | null;
 export {};

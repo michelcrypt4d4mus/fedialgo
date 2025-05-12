@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAtStr = exports.earliestTootedAtStr = exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -535,6 +535,7 @@ class Toot {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
+            reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
             // Counts may increase over time w/repeated fetches so we collate the max
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
                 props[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
@@ -564,7 +565,7 @@ class Toot {
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
-                    toot.reblog.reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
+                    toot.reblog.reblogsBy = reblogsBy;
                     toot.reblog.sources = uniqueSources;
                 }
             });
@@ -632,14 +633,4 @@ const mostRecentTootedAt = (toots) => {
     return newest ? (0, exports.tootedAt)(newest) : null;
 };
 exports.mostRecentTootedAt = mostRecentTootedAt;
-const earliestTootedAtStr = (toots) => {
-    const earliest = (0, exports.earliestTootedAt)(toots);
-    return earliest ? (0, time_helpers_1.toISOFormat)(earliest) : null;
-};
-exports.earliestTootedAtStr = earliestTootedAtStr;
-const mostRecentTootedAtStr = (toots) => {
-    const newest = (0, exports.mostRecentTootedAt)(toots);
-    return newest ? (0, time_helpers_1.toISOFormat)(newest) : null;
-};
-exports.mostRecentTootedAtStr = mostRecentTootedAtStr;
 //# sourceMappingURL=toot.js.map

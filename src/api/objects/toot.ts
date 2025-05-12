@@ -635,6 +635,7 @@ export default class Toot implements TootObj {
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = uniquifyByProp(reblogsBy, (account) => account.webfingerURI);
+            reblogsBy = sortObjsByProps(reblogsBy, ["displayName"], true, true);
 
             // Counts may increase over time w/repeated fetches so we collate the max
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
@@ -668,7 +669,7 @@ export default class Toot implements TootObj {
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
-                    toot.reblog.reblogsBy = sortObjsByProps(reblogsBy, ["displayName"], true, true);
+                    toot.reblog.reblogsBy = reblogsBy;
                     toot.reblog.sources = uniqueSources;
                 }
             });
@@ -719,14 +720,4 @@ export const earliestTootedAt = (toots: StatusList): Date | null => {
 export const mostRecentTootedAt = (toots: StatusList): Date | null => {
     const newest = mostRecentToot(toots);
     return newest ? tootedAt(newest) : null;
-};
-
-export const earliestTootedAtStr = (toots: StatusList): string | null => {
-    const earliest = earliestTootedAt(toots);
-    return earliest ? toISOFormat(earliest) : null;
-};
-
-export const mostRecentTootedAtStr = (toots: StatusList): string | null => {
-    const newest = mostRecentTootedAt(toots);
-    return newest ? toISOFormat(newest) : null;
 };
