@@ -83,6 +83,7 @@ declare class TheAlgorithm {
     private launchBackgroundPoller;
     private loadCachedData;
     logWithState(prefix: string, msg: string): void;
+    private logTelemetry;
     private _mergeTootsToFeed;
     private prepareScorers;
     private scoreAndFilterFeed;

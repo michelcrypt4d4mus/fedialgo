@@ -323,7 +323,7 @@ class TheAlgorithm {
         let newToots = [];
         try {
             newToots = await tootFetcher();
-            (0, log_helpers_1.logInfo)(logPrefix, `[${SET_LOADING_STATUS}] ${string_helpers_1.TELEMETRY} fetched ${newToots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
         }
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
@@ -339,7 +339,7 @@ class TheAlgorithm {
         this.setTimelineInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
+            this.logTelemetry(string_helpers_1.TELEMETRY, `First ${filteredFeed.length} toots sent to client`, this.loadStartedAt);
         }
         return filteredFeed;
     }
@@ -380,6 +380,10 @@ class TheAlgorithm {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
         Storage_1.default.dumpData();
     }
+    logTelemetry(logPrefix, msg, startedAt) {
+        msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
+        (0, log_helpers_1.logInfo)(logPrefix, `${msg}, current state:`, this.statusDict());
+    }
     // Merge newToots into this.feed, score, and filter the feed.
     // Don't call this directly, use lockedMergeTootsToFeed() instead.
     async _mergeTootsToFeed(newToots, logPrefix) {
@@ -388,8 +392,7 @@ class TheAlgorithm {
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
-        let msg = `${string_helpers_1.TELEMETRY} merge ${newToots.length} complete ${(0, time_helpers_1.ageString)(startedAt)},`;
-        (0, log_helpers_1.logInfo)(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
+        this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);
     }
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
@@ -399,7 +402,7 @@ class TheAlgorithm {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${log_helpers_1.PREP_SCORERS} ready in ${(0, time_helpers_1.ageString)(startedAt)}`);
+                this.logTelemetry(log_helpers_1.PREP_SCORERS, `${this.featureScorers.length} scorers ready`, startedAt);
             }
         }
         finally {
@@ -418,6 +421,7 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate() {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
         this.loadingStatus = FINALIZING_SCORES_MSG;
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
@@ -425,11 +429,11 @@ class TheAlgorithm {
         await this.scoreAndFilterFeed();
         this.loadingStatus = null;
         if (this.loadStartedAt) {
-            (0, log_helpers_1.logInfo)(string_helpers_1.TELEMETRY, `${SET_LOADING_STATUS} finishFeedUpdate() FINISHED home TL load w/ ${this.feed.length} toots ${(0, time_helpers_1.ageString)(this.loadStartedAt)}`);
+            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
-            console.warn(`[${string_helpers_1.TELEMETRY}] ${SET_LOADING_STATUS} finishFeedUpdate() finished... but loadStartedAt is null!`);
+            console.warn(`[${string_helpers_1.TELEMETRY}] ${logPrefix} finished but loadStartedAt is null!`);
             this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;

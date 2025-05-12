@@ -338,7 +338,7 @@ class TheAlgorithm {
 
         try {
             newToots = await tootFetcher();
-            logInfo(logPrefix, `[${SET_LOADING_STATUS}] ${TELEMETRY} fetched ${newToots.length} toots ${ageString(startedAt)}`);
+            this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);
         }
@@ -356,7 +356,7 @@ class TheAlgorithm {
 
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            logInfo(TELEMETRY, `First ${filteredFeed.length} toots sent to client ${ageString(this.loadStartedAt)}`);
+            this.logTelemetry(TELEMETRY, `First ${filteredFeed.length} toots sent to client`, this.loadStartedAt!);
         }
 
         return filteredFeed;
@@ -407,6 +407,11 @@ class TheAlgorithm {
         Storage.dumpData();
     }
 
+    private logTelemetry(logPrefix: string, msg: string, startedAt: Date): void {
+        msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
+        logInfo(logPrefix, `${msg}, current state:`, this.statusDict());
+    }
+
     // Merge newToots into this.feed, score, and filter the feed.
     // Don't call this directly, use lockedMergeTootsToFeed() instead.
     private async _mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
@@ -416,9 +421,7 @@ class TheAlgorithm {
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
-
-        let msg = `${TELEMETRY} merged ${newToots.length} new toots ${ageString(startedAt)},`;
-        logInfo(logPrefix, `${msg} numTootsBefore: ${numTootsBefore}, state:`, this.statusDict());
+        this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);
     }
 
@@ -430,7 +433,7 @@ class TheAlgorithm {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                logInfo(PREP_SCORERS, `${TELEMETRY} ready in ${ageString(startedAt)}`);
+                this.logTelemetry(PREP_SCORERS, `${this.featureScorers.length} scorers ready`, startedAt);
             }
         } finally {
             releaseMutex();
@@ -450,6 +453,7 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(): Promise<void> {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
         this.loadingStatus = FINALIZING_SCORES_MSG;
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
@@ -458,10 +462,10 @@ class TheAlgorithm {
         this.loadingStatus = null;
 
         if (this.loadStartedAt) {
-            logInfo(TELEMETRY, `${SET_LOADING_STATUS} finishFeedUpdate() FINISHED home TL load w/ ${this.feed.length} toots ${ageString(this.loadStartedAt)}`);
+            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
-            console.warn(`[${TELEMETRY}] ${SET_LOADING_STATUS} finishFeedUpdate() finished... but loadStartedAt is null!`);
+            console.warn(`[${TELEMETRY}] ${logPrefix} finished but loadStartedAt is null!`);
             this.lastLoadTimeInSeconds = null;
         }
 
