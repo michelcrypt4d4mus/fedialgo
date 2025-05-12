@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Language detection for toots that need it
+* Add toot.io to no trending link servers
 * (Demo App) Hide link previews checkbox
 
 ### v0.33.4

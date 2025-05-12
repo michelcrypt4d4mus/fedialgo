@@ -21,6 +21,9 @@ interface TootObj extends SerializableToot {
     ageInHours: () => number;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
+    contentString: () => string;
+    contentShortened: (maxChars?: number) => string;
+    contentWithEmojis: (fontSize?: number) => string;
     describe: () => string;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
@@ -84,6 +87,7 @@ export default class Toot implements TootObj {
     containsTagsMsg(): string | undefined;
     containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
     containsUserMention(): boolean;
+    contentString(): string;
     contentShortened(maxChars?: number): string;
     contentWithEmojis(fontSize?: number): string;
     describe(): string;
@@ -105,6 +109,7 @@ export default class Toot implements TootObj {
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
+    private determineLanguage;
     private completeProperties;
     private shouldComplete;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?

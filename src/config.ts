@@ -280,6 +280,7 @@ export const Config: ConfigType = {
         "mastodon.cloud",
         "mastodon.gamedev.place",
         "med-mastodon.com",
+        "toot.io",
     ],
 };
 

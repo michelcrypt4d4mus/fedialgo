@@ -16,6 +16,10 @@ export const MEGABYTE = KILOBYTE * 1024;
 export const FEDIALGO = 'FediAlgo';
 export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
+const EMOJI_REGEX = /\p{Emoji}/gu;
+const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
+const MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
+const OCTOTHORPE_REGEX = /#/gi;
 
 // Multimedia types
 export const GIFV = "gifv";
@@ -149,6 +153,18 @@ export function isVideo(uri: string | null | undefined): boolean {
 };
 
 
+// Remove any emojis
+export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, "");
+// Remove https links from string
+export const removeLinks = (str: string) => str.replace(LINK_REGEX, "");
+// Remove @username@domain from string
+export const removeMentions = (str: string) => str.replace(MENTION_REGEX, "");
+// Remove "#" chars from string
+export const removeOctothorpe = (str: string) => str.replace(OCTOTHORPE_REGEX, "");
+// Remove all tags from string
+export const removeTags = (str: string) => str.replace(/#\w+/g, "");
+
+
 // Replace custom emoji shortcodes like :smile: with <img> tags
 export function replaceEmojiShortcodesWithImageTags(
     html: string,
@@ -173,7 +189,7 @@ export function replaceEmojiShortcodesWithImageTags(
 // Replace https links with [link to DOMAIN], e.g.
 // "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
 export function replaceHttpsLinks(input: string): string {
-    return input.replace(/https:\/\/([\w.-]+)\S*/g, (_, domain) => `[${domain}]`);
+    return input.replace(LINK_REGEX, (_, domain) => `[${domain}]`);
 };
 
 

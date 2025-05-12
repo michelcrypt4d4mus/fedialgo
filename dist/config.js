@@ -210,6 +210,7 @@ exports.Config = {
         "mastodon.cloud",
         "mastodon.gamedev.place",
         "med-mastodon.com",
+        "toot.io",
     ],
 };
 function setLocale(locale) {
