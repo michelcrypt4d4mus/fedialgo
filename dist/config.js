@@ -233,7 +233,7 @@ function setLocale(locale) {
 exports.setLocale = setLocale;
 ;
 // Debug mode settings
-if (environment_helpers_1.isDebugMode || environment_helpers_1.isQuickMode) {
+if (environment_helpers_1.isQuickMode) {
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;

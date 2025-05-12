@@ -9,6 +9,7 @@ export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * 60;
 export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
 export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
+
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
@@ -307,7 +308,7 @@ export function setLocale(locale?: string): void {
 
 
 // Debug mode settings
-if (isDebugMode || isQuickMode) {
+if (isQuickMode) {
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;

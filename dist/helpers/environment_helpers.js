@@ -8,5 +8,5 @@ console.log(`[FediAlgo] NODE_ENV=`, process.env.NODE_ENV, `, FEDIALGO_DEBUG=`, p
 exports.isDebugMode = process.env.FEDIALGO_DEBUG === "true";
 exports.isLoadTest = process.env.LOAD_TEST === "true";
 exports.isProduction = process.env.NODE_ENV === "production";
-exports.isQuickMode = process.env.QUICK_MODE === "true";
+exports.isQuickMode = process.env.QUICK_MODE === "true" || exports.isDebugMode;
 //# sourceMappingURL=environment_helpers.js.map
