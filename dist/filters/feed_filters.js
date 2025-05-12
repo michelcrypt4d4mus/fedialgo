@@ -129,7 +129,6 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
         console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
-    console.log(`${logPrefx} Completed, storing filter options:`, filters.filterSections);
     Storage_1.default.setFilters(filters); // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;

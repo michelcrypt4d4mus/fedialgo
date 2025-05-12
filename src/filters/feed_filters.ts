@@ -133,7 +133,6 @@ export function updatePropertyFilterOptions(
         console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
-    console.log(`${logPrefx} Completed, storing filter options:`, filters.filterSections);
     Storage.setFilters(filters);  // TODO: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;

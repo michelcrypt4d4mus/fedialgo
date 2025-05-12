@@ -62,7 +62,6 @@ import {
     Weights,
     MastodonTag,
 } from "./types";
-import { log } from 'console';
 
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
