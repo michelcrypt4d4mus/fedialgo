@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.33.0
 * Sort built toots by their preliminary score, not by their popularity
 * Increase default `FOLLOWED_TAGS` weight to 4
 * Decrease default `TRENDING` weight to 0.15
