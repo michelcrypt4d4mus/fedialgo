@@ -34,7 +34,7 @@ var TypeFilterName;
     TypeFilterName["POLLS"] = "polls";
     TypeFilterName["PARTICIPATED_HASHTAGS"] = "participatedHashtags";
     TypeFilterName["REPLIES"] = "replies";
-    TypeFilterName["RETOOTS"] = "reposts";
+    TypeFilterName["RETOOTS"] = "retoots";
     TypeFilterName["SENSITIVE"] = "sensitive";
     TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
     TypeFilterName["TRENDING_LINKS"] = "trendingLinks";

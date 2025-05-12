@@ -40,7 +40,7 @@ export enum TypeFilterName {
     POLLS = 'polls',
     PARTICIPATED_HASHTAGS = 'participatedHashtags',
     REPLIES = 'replies',
-    RETOOTS = 'reposts',
+    RETOOTS = 'retoots',
     SENSITIVE = 'sensitive',
     TRENDING_HASHTAGS = 'trendingHashtags',
     TRENDING_LINKS = 'trendingLinks',

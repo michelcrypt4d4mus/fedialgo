@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Rename TypeFilterName.REPOSTS to RETOOTS
+* Rename `TypeFilterName.REPOSTS` to `RETOOTS`
+* Add `ageInHours()` helper; allow age related fxns to take second arg; add `homeFeedTimespanHours` to `statusDict()`
 
 ### v0.33.2
 * Keep `Toot.reblogsBy` sorted by `displayName`
