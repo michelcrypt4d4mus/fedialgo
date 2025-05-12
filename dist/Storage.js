@@ -74,6 +74,11 @@ const log = (s, ...args) => console.log(logMsg(s), ...args);
 const warn = (s, ...args) => console.warn(logMsg(s), ...args);
 const debug = (s, ...args) => console.debug(logMsg(s), ...args);
 const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
+// Configure localForage to use WebSQL as the driver
+localforage_1.default.config({
+    name: string_helpers_1.FEDIALGO,
+    storeName: `${string_helpers_1.FEDIALGO}_user_data`,
+});
 class Storage {
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {

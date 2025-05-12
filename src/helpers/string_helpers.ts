@@ -7,11 +7,15 @@ import { mastodon } from 'masto';
 
 import { MediaCategory } from '../types';
 
+// Number constants
 export const DEFAULT_FONT_SIZE = 15;
-export const NULL = "<<NULL>>";
-export const TELEMETRY = 'TELEMETRY';
 export const KILOBYTE = 1024;
 export const MEGABYTE = KILOBYTE * 1024;
+
+// String constants
+export const FEDIALGO = 'FediAlgo';
+export const NULL = "<<NULL>>";
+export const TELEMETRY = 'TELEMETRY';
 
 // Multimedia types
 export const GIFV = "gifv";

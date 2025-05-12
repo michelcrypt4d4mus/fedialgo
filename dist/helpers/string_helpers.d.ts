@@ -1,9 +1,10 @@
 import { mastodon } from 'masto';
 export declare const DEFAULT_FONT_SIZE = 15;
-export declare const NULL = "<<NULL>>";
-export declare const TELEMETRY = "TELEMETRY";
 export declare const KILOBYTE = 1024;
 export declare const MEGABYTE: number;
+export declare const FEDIALGO = "FediAlgo";
+export declare const NULL = "<<NULL>>";
+export declare const TELEMETRY = "TELEMETRY";
 export declare const GIFV = "gifv";
 export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO_EXTENSIONS: string[];

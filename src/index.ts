@@ -40,7 +40,7 @@ import { Config, SCORERS_CONFIG, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
-import { GIFV, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, logTelemetry, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -516,6 +516,7 @@ class TheAlgorithm {
 
 // Export types and constants needed by apps using this package
 export {
+    FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
     NON_SCORE_WEIGHTS,

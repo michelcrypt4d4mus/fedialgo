@@ -26,7 +26,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
 import { sortKeysByValue } from "./helpers/collection_helpers";
-import { GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { isDebugMode } from './helpers/environment_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
 import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, ScorerInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TagWithUsageCounts, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
@@ -91,4 +91,4 @@ declare class TheAlgorithm {
     private setLoadingStateVariables;
     private statusDict;
 }
-export { GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
+export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, ScorerInfo, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };

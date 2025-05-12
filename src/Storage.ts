@@ -11,7 +11,7 @@ import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
-import { byteString, toLocaleInt } from "./helpers/string_helpers";
+import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { Config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
@@ -64,6 +64,12 @@ const log = (s: string, ...args: any[]) => console.log(logMsg(s), ...args);
 const warn = (s: string, ...args: any[]) => console.warn(logMsg(s), ...args);
 const debug = (s: string, ...args: any[]) => console.debug(logMsg(s), ...args);
 const trace = (s: string, ...args: any[]) => traceLog(logMsg(s), ...args);
+
+// Configure localForage to use WebSQL as the driver
+localForage.config({
+    name        : FEDIALGO,
+    storeName   : `${FEDIALGO}_user_data`,
+});
 
 
 export default class Storage {
