@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.33.1
 * Return existing score instead of 0 if Scorer isn't ready yet (if it exists)
 
 # v0.33.0
