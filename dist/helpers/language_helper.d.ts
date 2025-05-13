@@ -1,10 +1,5 @@
-import LanguageDetect from 'languagedetect';
-export declare const MIN_TINYLD_ACCURACY = 0.4;
-export declare const MIN_LANG_DETECTOR_ACCURACY = 0.2;
-export declare const VERY_HIGH_LANG_ACCURACY = 0.7;
-export declare const LANGUAGE_DETECTOR: LanguageDetect;
 export declare const IGNORE_LANGUAGES: string[];
-export declare const OVERCONFIDENT_LANGUAGES: string[];
+export declare const LANG_DETECTOR_OVERCONFIDENT_LANGS: string[];
 export declare const LANGUAGE_CODES: Record<string, string>;
 export declare const FOREIGN_SCRIPTS: string[];
 export declare const GREEK_LOCALE: string;
@@ -19,7 +14,7 @@ type LangResult = {
     lang: string;
 }[];
 type LangDetectResult = {
-    allDetectResults: LangResult;
+    languageAccuracies: LangResult;
     detectedLang?: string;
     accuracy: number;
     isAccurate: boolean;

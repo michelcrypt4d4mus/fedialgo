@@ -484,7 +484,7 @@ class Toot {
         const langLogObj = { ...langDetectInfo, summary, text, toot: this };
         const logTrace = (msg) => (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
-        if ((tinyLD.allDetectResults.length + langDetector.allDetectResults.length) == 0) {
+        if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
                 console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }

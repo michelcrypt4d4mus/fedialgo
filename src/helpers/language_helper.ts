@@ -6,12 +6,11 @@ import { detectAll } from 'tinyld';
 
 import { NULL, isNumber } from './string_helpers';
 
-export const MIN_TINYLD_ACCURACY = 0.4;
-export const MIN_LANG_DETECTOR_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy
-export const VERY_HIGH_LANG_ACCURACY = 0.7;
-export const LANGUAGE_DETECTOR = new LanguageDetect();
+const LANG_DETECTOR = new LanguageDetect();
+const MIN_LANG_DETECTOR_ACCURACY = 0.2;  // LanguageDetect library never gets very high accuracy
+const MIN_TINYLD_ACCURACY = 0.4;  // TinyLD is better at some languages but can be overconfident
 const OVERRULE_LANG_ACCURACY = 0.03;
-const LOG_LANUAGE_DETECTOR = true;
+const VERY_HIGH_LANG_ACCURACY = 0.7;
 
 export const IGNORE_LANGUAGES = [
     "ber",  // Berber
@@ -20,7 +19,7 @@ export const IGNORE_LANGUAGES = [
     "tlh",  // Klingon
 ];
 
-export const OVERCONFIDENT_LANGUAGES = [
+export const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
     "da",
     "fr",
 ];
@@ -247,7 +246,7 @@ export const LANGUAGE_REGEXES = {
 type LangResult = {accuracy: number, lang: string}[];
 
 type LangDetectResult = {
-    allDetectResults: LangResult,
+    languageAccuracies: LangResult,
     detectedLang?: string,
     accuracy: number,
     isAccurate: boolean,
@@ -261,14 +260,14 @@ type LanguageDetectInfo = {
 };
 
 
-const buildLangDetectResult = (minAccuracy: number, allDetectResults?: LangResult): LangDetectResult => {
-    allDetectResults ||= [];
-    const firstResult = allDetectResults[0];
+const buildLangDetectResult = (minAccuracy: number, languageAccuracies?: LangResult): LangDetectResult => {
+    languageAccuracies ||= [];
+    const firstResult = languageAccuracies[0];
     const accuracy = firstResult?.accuracy || 0;
 
     return {
         accuracy,
-        allDetectResults,
+        languageAccuracies,
         detectedLang: firstResult?.lang,
         isAccurate: accuracy >= minAccuracy,
     }
@@ -277,7 +276,7 @@ const buildLangDetectResult = (minAccuracy: number, allDetectResults?: LangResul
 // Use the two different language detectors to guess a language
 export const detectLangInfo = (text: string): LanguageDetectInfo => {
     // Use LanguageDetector to get the langInfoFromTinyLD.detectedLang, Reshape it to look like detectedLangs
-    const langsFromLangDetector = LANGUAGE_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
+    const langsFromLangDetector = LANG_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
         let languageCode = LANGUAGE_CODES[language];
 
         if (!languageCode) {
@@ -301,22 +300,23 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
         }
 
         // tinyld is overconfident about some languages
-        if (   OVERCONFIDENT_LANGUAGES.includes(langInfoFromTinyLD.detectedLang || NULL)
-            && langInfoFromTinyLD.accuracy > VERY_HIGH_LANG_ACCURACY
-            && langInfoFromLangDetector.detectedLang
-            && langInfoFromLangDetector.detectedLang != langInfoFromTinyLD.detectedLang)
+        if (   LANG_DETECTOR_OVERCONFIDENT_LANGS.includes(langInfoFromTinyLD.detectedLang || NULL)
+            && langInfoFromLangDetector.detectedLang != langInfoFromTinyLD.detectedLang
+            && langInfoFromTinyLD.accuracy > VERY_HIGH_LANG_ACCURACY)
         {
             let msg = `"${langInfoFromTinyLD.detectedLang}" is overconfident (${langInfoFromTinyLD.accuracy}) for "${text}"!`;
-            console.warn(`${msg} tinyLD.detectedLang="${langInfoFromTinyLD.detectedLang}" (accuracy: ${langInfoFromTinyLD.accuracy.toPrecision(4)})`);
 
             // Use the 2nd language if available, otherwise set accuracy to 0.1
-            if (langInfoFromTinyLD.allDetectResults.length > 1) {
-                const newLangInfo = langInfoFromTinyLD.allDetectResults[1];
+            if (langInfoFromTinyLD.languageAccuracies.length > 1) {
+                const newLangInfo = langInfoFromTinyLD.languageAccuracies[1];
                 langInfoFromTinyLD.detectedLang = newLangInfo.lang;
                 langInfoFromTinyLD.accuracy = newLangInfo.accuracy;
+                msg += ` Replaced it with "${langInfoFromTinyLD.detectedLang}" (${langInfoFromTinyLD.accuracy})`;
             } else {
                 langInfoFromTinyLD.accuracy = 0.1;
             }
+
+            console.warn(msg, langInfoFromLangDetector);
         }
     }
 
@@ -331,28 +331,19 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
                 accuracies.some((a) => a > MIN_LANG_DETECTOR_ACCURACY) // TODO: use isaccurate?
                 ||
                 accuracies.every((a) => a > (MIN_TINYLD_ACCURACY / 2))
-            )
-    ) {
+            ))
+    {
         chosenLanguage = langInfoFromTinyLD.detectedLang;
     }
-
     else if (  langInfoFromTinyLD.detectedLang
             && langInfoFromLangDetector.detectedLang
             && langInfoFromTinyLD.detectedLang != langInfoFromLangDetector.detectedLang
     ) {
         // if firstLangFromLangDetector.accuracy is high enough and detectedLang is low enough
-        if (langInfoFromLangDetector.isAccurate) {
-            if (langInfoFromTinyLD.accuracy < OVERRULE_LANG_ACCURACY) {
-                chosenLanguage = langInfoFromLangDetector.detectedLang;
-            } else {
-                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
-            }
-        } else if (langInfoFromTinyLD.isAccurate) {
-            if (langInfoFromLangDetector.accuracy < OVERRULE_LANG_ACCURACY) {
-                chosenLanguage = langInfoFromTinyLD.detectedLang;
-            } else {
-                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
-            }
+        if (langInfoFromLangDetector.isAccurate && langInfoFromTinyLD.accuracy < OVERRULE_LANG_ACCURACY) {
+            chosenLanguage = langInfoFromLangDetector.detectedLang;
+        } else if (langInfoFromTinyLD.isAccurate && langInfoFromLangDetector.accuracy < OVERRULE_LANG_ACCURACY) {
+            chosenLanguage = langInfoFromTinyLD.detectedLang;
         }
     }
 
