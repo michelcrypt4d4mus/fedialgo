@@ -193,6 +193,7 @@ exports.LANGUAGE_CODES = {
 exports.FOREIGN_SCRIPTS = [
     exports.LANGUAGE_CODES.arabic,
     exports.LANGUAGE_CODES.chinese,
+    `${exports.LANGUAGE_CODES.chinese}-TW`,
     exports.LANGUAGE_CODES.japanese,
     exports.LANGUAGE_CODES.korean,
 ];

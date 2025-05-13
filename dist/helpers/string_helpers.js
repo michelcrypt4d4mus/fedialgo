@@ -23,7 +23,7 @@ exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
 exports.MIN_LANG_ACCURACY = 0.4;
 exports.MIN_ALT_LANG_ACCURACY = 0.2; // LanguageDetect never gets very high accuracy
-exports.VERY_HIGH_LANG_ACCURACY = 0.85;
+exports.VERY_HIGH_LANG_ACCURACY = 0.7;
 const LANGUAGE_DETECTOR = new languagedetect_1.default();
 const IGNORE_LANGUAGES = [
     "ber",
@@ -142,12 +142,13 @@ const detectLangInfo = (text) => {
             detectedLang = undefined;
             detectedLangAccuracy = 0;
         }
-        else if (OVERCONFIDENT_LANGUAGES.includes(detectedLang || exports.NULL)
+        // tinyld is overconfident about some languages
+        if (OVERCONFIDENT_LANGUAGES.includes(detectedLang || exports.NULL)
             && detectedLangAccuracy > exports.VERY_HIGH_LANG_ACCURACY
             && altLanguage
             && altLanguage != detectedLang) {
-            console.warn(`"${detectedLang}" is overconfident (${detectedLangAccuracy})! altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
-            // tinyld is overconfident about some languages
+            let warning = `"${detectedLang}" is overconfident (${detectedLangAccuracy}) for "${text}"!`;
+            console.warn(`${warning} altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
             if (detectedLangs.length > 1) {
                 detectedLang = detectedLangs[1].lang;
                 detectedLangAccuracy = detectedLangs[1].accuracy;

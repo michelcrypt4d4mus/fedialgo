@@ -16,7 +16,7 @@ import UserData from "../user_data";
 import { ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
-import { LANGUAGE_CODES } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_CODES } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import {
@@ -63,7 +63,6 @@ enum TootVisibility {
 const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
-const MIN_VERY_HIGH_ACCURACY_FOR_LANG_REPLACE = 0.9;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = bracketed("repairToot");
@@ -553,6 +552,11 @@ export default class Toot implements TootObj {
             }
 
             this.language = detectedLang;
+            return;
+        }
+
+        if (detectedLang && FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
+            console.debug(`Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
             return;
         }
 

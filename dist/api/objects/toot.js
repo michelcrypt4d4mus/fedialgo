@@ -44,7 +44,6 @@ var TootVisibility;
 const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
-const MIN_VERY_HIGH_ACCURACY_FOR_LANG_REPLACE = 0.9;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
@@ -437,7 +436,7 @@ class Toot {
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
         let text = (0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentString()))));
-        text = text.replace(/\s+/g, " ").trim();
+        text = text.replace(/\s+/gu, " ").trim();
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config_1.Config.defaultLanguage;
             return;
@@ -461,6 +460,10 @@ class Toot {
                 console.debug(`Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
             }
             this.language = detectedLang;
+            return;
+        }
+        if (detectedLang && language_helper_1.FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
+            console.debug(`Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
             return;
         }
         // If there's nothing detected log a warning (if text is long enough) and set language to default

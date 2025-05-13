@@ -192,6 +192,7 @@ export const LANGUAGE_CODES: Record<string, string> = {
 export const FOREIGN_SCRIPTS = [
     LANGUAGE_CODES.arabic,
     LANGUAGE_CODES.chinese,
+    `${LANGUAGE_CODES.chinese}-TW`,
     LANGUAGE_CODES.japanese,
     LANGUAGE_CODES.korean,
 ];

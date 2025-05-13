@@ -8,7 +8,7 @@ export declare const NULL = "<<NULL>>";
 export declare const TELEMETRY = "TELEMETRY";
 export declare const MIN_LANG_ACCURACY = 0.4;
 export declare const MIN_ALT_LANG_ACCURACY = 0.2;
-export declare const VERY_HIGH_LANG_ACCURACY = 0.85;
+export declare const VERY_HIGH_LANG_ACCURACY = 0.7;
 export declare const GIFV = "gifv";
 export declare const IMAGE_EXTENSIONS: string[];
 export declare const VIDEO_EXTENSIONS: string[];
