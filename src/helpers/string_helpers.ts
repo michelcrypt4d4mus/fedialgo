@@ -102,6 +102,7 @@ export function hashObject(obj: object | number | string): string {
 // Remove HTML tags and newlines from a string; decode HTML entities
 export function htmlToText(html: string): string {
     let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
+    txt = txt.replace(/<br\s*\/?>/gi, "\n");         // Turn <br> tags into newlines
     txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
     txt = txt.replace(/\n/g, " ");                   // Strip newlines
     return collapseWhitespace(decode(txt)).trim();   // Decode HTML entities lik '&amp;' etc. whitespace etc.

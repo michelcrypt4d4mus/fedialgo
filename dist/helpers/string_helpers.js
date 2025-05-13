@@ -97,6 +97,7 @@ exports.hashObject = hashObject;
 // Remove HTML tags and newlines from a string; decode HTML entities
 function htmlToText(html) {
     let txt = html.replace(/<\/p>/gi, "\n").trim(); // Turn closed <p> tags into newlines
+    txt = txt.replace(/<br\s*\/?>/gi, "\n"); // Turn <br> tags into newlines
     txt = txt.replace(/<[^>]+>/g, ""); // Strip HTML tags
     txt = txt.replace(/\n/g, " "); // Strip newlines
     return (0, exports.collapseWhitespace)((0, html_entities_1.decode)(txt)).trim(); // Decode HTML entities lik '&amp;' etc. whitespace etc.
