@@ -446,6 +446,41 @@ export default class Toot implements TootObj {
         return mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
 
+    // Some properties cannot be repaired and/or set until info about the user is available.
+    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
+    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
+    private completeProperties(
+        userData: UserData,
+        trendingLinks: TrendingLink[],
+        trendingTags: TagWithUsageCounts[],
+        isDeepInspect?: boolean
+    ): void {
+        if (!this.shouldComplete()) return;
+        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
+        this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
+
+        if (this.reblog) {
+            this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
+        }
+
+        // Retoots never have their own tags, etc.
+        const toot = this.realToot();
+        const allFollowedTags = Object.values(userData.followedTags);
+        // containsString() matched way too many toots so we use containsTag() for participated tags
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
+        // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
+        // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
+        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+
+        if (isDeepInspect) {
+            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
+        } else {
+            toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
+        }
+    }
+
     // Generate a string describing the followed and trending tags in the toot
     private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
         let tags: MastodonTag[] = [];
@@ -548,10 +583,12 @@ export default class Toot implements TootObj {
             this.language ??= Config.defaultLanguage;
             return;
         }
+
         // If either language detection matches this.language return
         if (this.language && (tinyLD.detectedLang == this.language || langDetector.detectedLang == this.language)) {
             return;
         }
+
         // Or if we have successfully detected a language assign it to this.language and return
         if (chosenLanguage) {
             // Don't overwrite "zh-TW" with "zh"
@@ -582,41 +619,6 @@ export default class Toot implements TootObj {
         } else {
             logTrace(`Defaulting language prop to "en"`);
             this.language ??= Config.defaultLanguage;
-        }
-    }
-
-    // Some properties cannot be repaired and/or set until info about the user is available.
-    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
-    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    private completeProperties(
-        userData: UserData,
-        trendingLinks: TrendingLink[],
-        trendingTags: TagWithUsageCounts[],
-        isDeepInspect?: boolean
-    ): void {
-        if (!this.shouldComplete()) return;
-        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
-        this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-
-        if (this.reblog) {
-            this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
-        }
-
-        // Retoots never have their own tags, etc.
-        const toot = this.realToot();
-        const allFollowedTags = Object.values(userData.followedTags);
-        // containsString() matched way too many toots so we use containsTag() for participated tags
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
-        // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
-        // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
-        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
-
-        if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
-            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
-        } else {
-            toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
 
