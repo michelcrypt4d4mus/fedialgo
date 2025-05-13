@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.33.6
 * Consolidate language detection stuff in `language_helper.ts`
 
 ### v0.33.5
