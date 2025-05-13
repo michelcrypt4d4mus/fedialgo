@@ -12,16 +12,8 @@ const PARSEABLE_DATE_TYPES = ["string", "number"];
 
 
 // Compute the difference from 'date' to now in minutes
-export function ageInHours(date: DateArg, endTime?: DateArg): number {
-    return ageInMinutes(date, endTime) / 60.0;
-};
-
-
-// Compute the difference from 'date' to now in minutes
-export function ageInMinutes(date: DateArg, endTime?: DateArg): number {
-    return ageInSeconds(date, endTime) / 60.0;
-};
-
+export const ageInHours = (date: DateArg, endTime?: DateArg) => ageInMinutes(date, endTime) / 60.0;
+export const ageInMinutes = (date: DateArg, endTime?: DateArg) => ageInSeconds(date, endTime) / 60.0;
 
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
@@ -94,15 +86,6 @@ export function subtractSeconds(date: Date, seconds: number): Date {
 };
 
 
-// To the format YYYY-MM-DDTHH:MM:SSZ
-export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
-    if (!date) return NULL;
-
-    const isoString = coerceDate(date)!.toISOString();
-    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
-};
-
-
 // Generate a string representing a timestamp.
 // (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
 //    => 'Thursday, Sep 1, 2022'
@@ -134,4 +117,13 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
 export function timelineCutoffAt(): Date {
     const timelineLookBackMS = Config.maxTimelineDaysToFetch * SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
+};
+
+
+// To the format YYYY-MM-DDTHH:MM:SSZ
+export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
+    if (!date) return NULL;
+
+    const isoString = coerceDate(date)!.toISOString();
+    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
 };

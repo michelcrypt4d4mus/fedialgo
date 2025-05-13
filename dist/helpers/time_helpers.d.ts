@@ -1,6 +1,6 @@
 type DateArg = Date | number | string | null | undefined;
-export declare function ageInHours(date: DateArg, endTime?: DateArg): number;
-export declare function ageInMinutes(date: DateArg, endTime?: DateArg): number;
+export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;
+export declare const ageInMinutes: (date: DateArg, endTime?: DateArg) => number;
 export declare function ageInSeconds(date: DateArg, endTime?: DateArg): number;
 export declare function ageString(date: DateArg): string;
 export declare function coerceDate(date: DateArg): Date | null;
@@ -9,7 +9,7 @@ export declare function nowString(): string;
 export declare function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string;
 export declare function sleep(seconds: number): Promise<void>;
 export declare function subtractSeconds(date: Date, seconds: number): Date;
-export declare function toISOFormat(date: DateArg, withMilliseconds?: boolean): string;
 export declare const timeString: (_timestamp: DateArg, locale?: string) => string;
 export declare function timelineCutoffAt(): Date;
+export declare function toISOFormat(date: DateArg, withMilliseconds?: boolean): string;
 export {};

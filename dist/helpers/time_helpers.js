@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timelineCutoffAt = exports.timeString = exports.toISOFormat = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -10,17 +10,10 @@ const string_helpers_1 = require("./string_helpers");
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = ["string", "number"];
 // Compute the difference from 'date' to now in minutes
-function ageInHours(date, endTime) {
-    return ageInMinutes(date, endTime) / 60.0;
-}
+const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
 exports.ageInHours = ageInHours;
-;
-// Compute the difference from 'date' to now in minutes
-function ageInMinutes(date, endTime) {
-    return ageInSeconds(date, endTime) / 60.0;
-}
+const ageInMinutes = (date, endTime) => ageInSeconds(date, endTime) / 60.0;
 exports.ageInMinutes = ageInMinutes;
-;
 // Compute the difference from 'date' to now in seconds.
 // Accepts ISO format strings, millisecond timestamps, and Date objects.
 function ageInSeconds(date, endTime) {
@@ -92,15 +85,6 @@ function subtractSeconds(date, seconds) {
 }
 exports.subtractSeconds = subtractSeconds;
 ;
-// To the format YYYY-MM-DDTHH:MM:SSZ
-function toISOFormat(date, withMilliseconds) {
-    if (!date)
-        return string_helpers_1.NULL;
-    const isoString = coerceDate(date).toISOString();
-    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
-}
-exports.toISOFormat = toISOFormat;
-;
 // Generate a string representing a timestamp.
 // (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
 //    => 'Thursday, Sep 1, 2022'
@@ -136,5 +120,14 @@ function timelineCutoffAt() {
     return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
+;
+// To the format YYYY-MM-DDTHH:MM:SSZ
+function toISOFormat(date, withMilliseconds) {
+    if (!date)
+        return string_helpers_1.NULL;
+    const isoString = coerceDate(date).toISOString();
+    return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
+}
+exports.toISOFormat = toISOFormat;
 ;
 //# sourceMappingURL=time_helpers.js.map
