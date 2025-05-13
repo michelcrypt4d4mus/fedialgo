@@ -1,2 +1,11 @@
+import LanguageDetect from 'languagedetect';
+import { LanguageDetectInfo } from '../types';
+export declare const MIN_LANG_ACCURACY = 0.4;
+export declare const MIN_ALT_LANG_ACCURACY = 0.2;
+export declare const VERY_HIGH_LANG_ACCURACY = 0.7;
+export declare const LANGUAGE_DETECTOR: LanguageDetect;
+export declare const IGNORE_LANGUAGES: string[];
+export declare const OVERCONFIDENT_LANGUAGES: string[];
 export declare const LANGUAGE_CODES: Record<string, string>;
 export declare const FOREIGN_SCRIPTS: string[];
+export declare const detectLangInfo: (text: string) => LanguageDetectInfo;

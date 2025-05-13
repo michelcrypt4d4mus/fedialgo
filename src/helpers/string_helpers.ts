@@ -1,14 +1,12 @@
 /*
  * Helpers for dealing with strings.
  */
-import LanguageDetect from 'languagedetect';
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
-import { detectAll } from 'tinyld';
 import { mastodon } from 'masto';
 
-import { FOREIGN_SCRIPTS, LANGUAGE_CODES } from './language_helper';
-import { LanguageDetectInfo, MediaCategory } from '../types';
+import { LANGUAGE_CODES } from "./language_helper";
+import { MediaCategory } from '../types';
 
 // Number constants
 export const DEFAULT_FONT_SIZE = 15;
@@ -19,23 +17,6 @@ export const MEGABYTE = KILOBYTE * 1024;
 export const FEDIALGO = 'FediAlgo';
 export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
-
-export const MIN_LANG_ACCURACY = 0.4;
-export const MIN_ALT_LANG_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy
-export const VERY_HIGH_LANG_ACCURACY = 0.7;
-const LANGUAGE_DETECTOR = new LanguageDetect();
-
-const IGNORE_LANGUAGES = [
-    "ber",  // Berber
-    "eo",   // Esperanto
-    "tk",   // Turkmen
-    "tlh",  // Klingon
-];
-
-const OVERCONFIDENT_LANGUAGES = [
-    "da",
-    "fr",
-];
 
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
@@ -60,23 +41,18 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 ];
 
 // International locales, see: https://gist.github.com/wpsmith/7604842
-export const ARABIC_LANGUAGE = "ar";
-export const GREEK_LOCALE = "el-GR";
-export const GREEK_LANGUAGE = GREEK_LOCALE.split("-")[0];
-export const JAPANESE_LOCALE = "ja-JP";
-export const JAPANESE_LANGUAGE = JAPANESE_LOCALE.split("-")[0];
-export const KOREAN_LOCALE = "ko-KR"
-export const KOREAN_LANGUAGE = KOREAN_LOCALE.split("-")[0];
-export const RUSSIAN_LOCALE = "ru-RU";
-export const RUSSIAN_LANGUAGE = RUSSIAN_LOCALE.split("-")[0];
+export const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
+export const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
+export const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
+export const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
 
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 export const LANGUAGE_REGEXES = {
-    [ARABIC_LANGUAGE]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
-    [GREEK_LANGUAGE]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
-    [JAPANESE_LANGUAGE]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
-    [KOREAN_LANGUAGE]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),  // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
-    [RUSSIAN_LANGUAGE]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+    [LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
+    [LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
+    [LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
+    [LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),  // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
+    [LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
 
 // [Bracketed]
@@ -127,81 +103,6 @@ export const detectLanguage = (str: string): string | undefined => {
     });
 
     return language;
-};
-
-
-// Use the two different language detectors to guess a language
-export const detectLangInfo = (text: string): LanguageDetectInfo => {
-    // Use the tinyld language detector to get the detectedLang
-    const detectedLangs = detectAll(text);
-    let detectedLang: string | undefined = detectedLangs[0]?.lang;
-    let detectedLangAccuracy = detectedLangs[0]?.accuracy || 0;
-
-    // Use LanguageDetector to get the altLanguage
-    const altDetectedLangs = LANGUAGE_DETECTOR.detect(text);
-    let altLanguage = altDetectedLangs.length ? altDetectedLangs[0][0] : undefined;
-    const altLangAccuracy = altDetectedLangs.length ? altDetectedLangs[0][1] : 0;
-
-    if (altLanguage && altLanguage in LANGUAGE_CODES) {
-        altLanguage = LANGUAGE_CODES[altLanguage];
-    } else if (altLanguage) {
-        console.warn(`[detectLangInfo()] altLanguage "${altLanguage}" found but not in LANGUAGE_CODES!"`);
-    }
-
-    // Ignore Klingon etc.
-    if (detectedLang) {
-        if (IGNORE_LANGUAGES.includes(detectedLang)) {
-            detectedLang = undefined;
-            detectedLangAccuracy = 0;
-        }
-
-        // tinyld is overconfident about some languages
-        if (
-               OVERCONFIDENT_LANGUAGES.includes(detectedLang || NULL)
-            && detectedLangAccuracy > VERY_HIGH_LANG_ACCURACY
-            && altLanguage
-            && altLanguage != detectedLang
-        ) {
-            let warning = `"${detectedLang}" is overconfident (${detectedLangAccuracy}) for "${text}"!`;
-            console.warn(`${warning} altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
-
-            if (detectedLangs.length > 1) {
-                detectedLang = detectedLangs[1].lang;
-                detectedLangAccuracy = detectedLangs[1].accuracy;
-            } else {
-                detectedLang = undefined;
-                detectedLangAccuracy = 0;
-            }
-        }
-    }
-
-    let determinedLang: string | undefined;
-    const accuracies = [detectedLangAccuracy, altLangAccuracy];
-    const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
-               `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`
-
-    // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
-    if (
-           detectedLang && detectedLang == altLanguage
-        && accuracies.some((a) => a > MIN_LANG_ACCURACY) || accuracies.every((a) => a > (MIN_LANG_ACCURACY / 2))
-    ) {
-        determinedLang = detectedLang;
-    } else if (detectedLangAccuracy >= VERY_HIGH_LANG_ACCURACY && FOREIGN_SCRIPTS.includes(detectedLang || NULL)) {
-        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
-        determinedLang = detectedLang;
-    }
-
-    return {
-        accuracies,
-        altDetectedLangs,
-        altLanguage,
-        altLangAccuracy,
-        detectedLangs,
-        detectedLang,
-        detectedLangAccuracy,
-        determinedLang,
-        summary,
-    }
 };
 
 

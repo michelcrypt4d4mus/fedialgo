@@ -1,6 +1,29 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = void 0;
+exports.detectLangInfo = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.OVERCONFIDENT_LANGUAGES = exports.IGNORE_LANGUAGES = exports.LANGUAGE_DETECTOR = exports.VERY_HIGH_LANG_ACCURACY = exports.MIN_ALT_LANG_ACCURACY = exports.MIN_LANG_ACCURACY = void 0;
+/*
+ * Detecting language etc.
+ */
+const languagedetect_1 = __importDefault(require("languagedetect"));
+const _1 = require("tinyld/*");
+const string_helpers_1 = require("./string_helpers");
+exports.MIN_LANG_ACCURACY = 0.4;
+exports.MIN_ALT_LANG_ACCURACY = 0.2; // LanguageDetect never gets very high accuracy
+exports.VERY_HIGH_LANG_ACCURACY = 0.7;
+exports.LANGUAGE_DETECTOR = new languagedetect_1.default();
+exports.IGNORE_LANGUAGES = [
+    "ber",
+    "eo",
+    "tk",
+    "tlh", // Klingon
+];
+exports.OVERCONFIDENT_LANGUAGES = [
+    "da",
+    "fr",
+];
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 exports.LANGUAGE_CODES = {
     afar: "aa",
@@ -197,4 +220,69 @@ exports.FOREIGN_SCRIPTS = [
     exports.LANGUAGE_CODES.japanese,
     exports.LANGUAGE_CODES.korean,
 ];
+// Use the two different language detectors to guess a language
+const detectLangInfo = (text) => {
+    // Use the tinyld language detector to get the detectedLang
+    const detectedLangs = (0, _1.detectAll)(text);
+    let detectedLang = detectedLangs[0]?.lang;
+    let detectedLangAccuracy = detectedLangs[0]?.accuracy || 0;
+    // Use LanguageDetector to get the altLanguage
+    const altDetectedLangs = exports.LANGUAGE_DETECTOR.detect(text);
+    let altLanguage = altDetectedLangs.length ? altDetectedLangs[0][0] : undefined;
+    const altLangAccuracy = altDetectedLangs.length ? altDetectedLangs[0][1] : 0;
+    if (altLanguage && altLanguage in exports.LANGUAGE_CODES) {
+        altLanguage = exports.LANGUAGE_CODES[altLanguage];
+    }
+    else if (altLanguage) {
+        console.warn(`[detectLangInfo()] altLanguage "${altLanguage}" found but not in LANGUAGE_CODES!"`);
+    }
+    // Ignore Klingon etc.
+    if (detectedLang) {
+        if (exports.IGNORE_LANGUAGES.includes(detectedLang)) {
+            detectedLang = undefined;
+            detectedLangAccuracy = 0;
+        }
+        // tinyld is overconfident about some languages
+        if (exports.OVERCONFIDENT_LANGUAGES.includes(detectedLang || string_helpers_1.NULL)
+            && detectedLangAccuracy > exports.VERY_HIGH_LANG_ACCURACY
+            && altLanguage
+            && altLanguage != detectedLang) {
+            let warning = `"${detectedLang}" is overconfident (${detectedLangAccuracy}) for "${text}"!`;
+            console.warn(`${warning} altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
+            if (detectedLangs.length > 1) {
+                detectedLang = detectedLangs[1].lang;
+                detectedLangAccuracy = detectedLangs[1].accuracy;
+            }
+            else {
+                detectedLang = undefined;
+                detectedLangAccuracy = 0;
+            }
+        }
+    }
+    let determinedLang;
+    const accuracies = [detectedLangAccuracy, altLangAccuracy];
+    const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
+        `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`;
+    // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
+    if (detectedLang && detectedLang == altLanguage
+        && accuracies.some((a) => a > exports.MIN_LANG_ACCURACY) || accuracies.every((a) => a > (exports.MIN_LANG_ACCURACY / 2))) {
+        determinedLang = detectedLang;
+    }
+    else if (detectedLangAccuracy >= exports.VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(detectedLang || string_helpers_1.NULL)) {
+        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
+        determinedLang = detectedLang;
+    }
+    return {
+        accuracies,
+        altDetectedLangs,
+        altLanguage,
+        altLangAccuracy,
+        detectedLangs,
+        detectedLang,
+        detectedLangAccuracy,
+        determinedLang,
+        summary,
+    };
+};
+exports.detectLangInfo = detectLangInfo;
 //# sourceMappingURL=language_helper.js.map

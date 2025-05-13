@@ -16,18 +16,14 @@ import UserData from "../user_data";
 import { ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
-import { FOREIGN_SCRIPTS, LANGUAGE_CODES } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_CODES, MIN_ALT_LANG_ACCURACY, MIN_LANG_ACCURACY, VERY_HIGH_LANG_ACCURACY } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
-    MIN_ALT_LANG_ACCURACY,
-    MIN_LANG_ACCURACY,
-    VERY_HIGH_LANG_ACCURACY,
     VIDEO_TYPES,
     bracketed,
-    detectLangInfo,
     extractDomain,
     htmlToText,
     isImage,
@@ -39,6 +35,7 @@ import {
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
+import { detectLangInfo } from '../../helpers/language_helper';
 import {
     FeedFilterSettings,
     MastodonTag,

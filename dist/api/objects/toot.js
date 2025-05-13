@@ -31,6 +31,7 @@ const language_helper_1 = require("../../helpers/language_helper");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const language_helper_2 = require("../../helpers/language_helper");
 const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
@@ -441,7 +442,7 @@ class Toot {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
-        const langDetectInfo = (0, string_helpers_1.detectLangInfo)(text);
+        const langDetectInfo = (0, language_helper_2.detectLangInfo)(text);
         const logStr = `toot.language="${this.language}", ${langDetectInfo.summary}`;
         const { detectedLang, detectedLangs, detectedLangAccuracy, determinedLang, altLanguage, altLangAccuracy, altDetectedLangs } = langDetectInfo;
         const langInfo = { ...langDetectInfo, text, toot: this };
@@ -473,24 +474,24 @@ class Toot {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
-        if (detectedLangAccuracy < string_helpers_1.MIN_LANG_ACCURACY) {
+        if (detectedLangAccuracy < language_helper_1.MIN_LANG_ACCURACY) {
             // If accuracy is low or ignorable but toot.language is English just use that
             if (this.language == language_helper_1.LANGUAGE_CODES.english) {
                 return;
             }
-            else if (altLanguage && altLangAccuracy && altLanguage == language_helper_1.LANGUAGE_CODES.english && altLangAccuracy > string_helpers_1.MIN_ALT_LANG_ACCURACY) {
+            else if (altLanguage && altLangAccuracy && altLanguage == language_helper_1.LANGUAGE_CODES.english && altLangAccuracy > language_helper_1.MIN_ALT_LANG_ACCURACY) {
                 // If detectedLang is low accuracy but altLanguage is English and decent accuracy, use that
                 console.debug(`Ignoring detected "${detectedLang}" and accepting english from altLanguage. ${logStr}`, langInfo);
                 this.language = language_helper_1.LANGUAGE_CODES.english;
                 return;
             }
         }
-        if (altLanguage && altLangAccuracy >= string_helpers_1.MIN_ALT_LANG_ACCURACY && altLanguage != detectedLang) {
+        if (altLanguage && altLangAccuracy >= language_helper_1.MIN_ALT_LANG_ACCURACY && altLanguage != detectedLang) {
             console.warn(`Want to replace language "${this.language}" but detectedLang != altLanguage. ${logStr} `, langInfo);
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
-        else if (altLangAccuracy >= string_helpers_1.VERY_HIGH_LANG_ACCURACY) {
+        else if (altLangAccuracy >= language_helper_1.VERY_HIGH_LANG_ACCURACY) {
             console.debug(`Accepting high accuracy altLanguage "${altLanguage}". ${logStr}`, langInfo);
             this.language = altLanguage;
             return;
