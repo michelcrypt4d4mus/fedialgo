@@ -498,7 +498,7 @@ class Toot {
         }
         let newLanguage = (altLanguage || detectedLang || config_1.Config.defaultLanguage);
         if (this.language) {
-            console.warn(`No language conditions met; replacing existing language with "${newLanguage}". ${logStr}`, langInfo);
+            console.info(`No language conditions met; not replacing existing language with "${newLanguage}". ${logStr}`, langInfo);
         }
         else {
             console.debug(`No language conditions met; setting empty language prop to "${newLanguage}". ${logStr}`, langInfo);

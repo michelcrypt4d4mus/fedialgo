@@ -589,7 +589,7 @@ export default class Toot implements TootObj {
         let newLanguage = (altLanguage || detectedLang || Config.defaultLanguage);
 
         if (this.language) {
-            console.warn(`No language conditions met; replacing existing language with "${newLanguage}". ${logStr}`, langInfo);
+            console.info(`No language conditions met; not replacing existing language with "${newLanguage}". ${logStr}`, langInfo);
         } else {
             console.debug(`No language conditions met; setting empty language prop to "${newLanguage}". ${logStr}`, langInfo);
         }
