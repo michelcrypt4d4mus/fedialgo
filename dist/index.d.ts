@@ -71,6 +71,7 @@ declare class TheAlgorithm {
     logWithState(prefix: string, msg: string): void;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
+    pullAllUserData(): Promise<void>;
     reset(): Promise<void>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
@@ -80,6 +81,7 @@ declare class TheAlgorithm {
     private checkIfSkpping;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
+    private finishFeedUpdate;
     private getHomeTimeline;
     private launchBackgroundPoller;
     private loadCachedData;
@@ -88,7 +90,6 @@ declare class TheAlgorithm {
     private _mergeTootsToFeed;
     private prepareScorers;
     private scoreAndFilterFeed;
-    private finishFeedUpdate;
     private setLoadingStateVariables;
     private statusDict;
 }

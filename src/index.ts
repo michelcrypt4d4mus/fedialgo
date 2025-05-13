@@ -67,6 +67,7 @@ const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default set
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
+const PULLING_HISTORY_MSG = `Pulling historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
 
 interface AlgorithmArgs {
@@ -254,6 +255,11 @@ class TheAlgorithm {
         return feedAgeInSeconds;
     }
 
+    // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+    async pullAllUserData(): Promise<void> {
+
+    }
+
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
@@ -347,6 +353,31 @@ class TheAlgorithm {
         }
 
         return filteredFeed;
+    }
+
+    // The "load is finished" version of setLoadingStateVariables().
+    private async finishFeedUpdate(): Promise<void> {
+        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
+        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
+        this.loadingStatus = FINALIZING_SCORES_MSG;
+        console.debug(`[${logPrefix}] ${FINALIZING_SCORES_MSG}...`);
+        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
+        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
+        await this.scoreAndFilterFeed();
+        this.loadingStatus = null;
+
+        if (this.loadStartedAt) {
+            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
+            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
+        } else {
+            console.warn(`[${TELEMETRY}] ${logPrefix} finished but loadStartedAt is null!`);
+            this.lastLoadTimeInSeconds = null;
+        }
+
+        this.loadStartedAt = null;
+        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
+        this.launchBackgroundPoller();
     }
 
     // Simple wrapper for triggering fetchHomeFeed()
@@ -453,31 +484,6 @@ class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
 
-    // The "load is finished" version of setLoadingStateVariables().
-    private async finishFeedUpdate(): Promise<void> {
-        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
-        this.loadingStatus = FINALIZING_SCORES_MSG;
-        console.debug(`[${logPrefix}] ${FINALIZING_SCORES_MSG}...`);
-        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
-        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
-        await this.scoreAndFilterFeed();
-        this.loadingStatus = null;
-
-        if (this.loadStartedAt) {
-            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
-            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
-        } else {
-            console.warn(`[${TELEMETRY}] ${logPrefix} finished but loadStartedAt is null!`);
-            this.lastLoadTimeInSeconds = null;
-        }
-
-        this.loadStartedAt = null;
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
-        this.launchBackgroundPoller();
-    }
-
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
         if ([BACKFILL_FEED, TRIGGER_FEED].includes(logPrefix)) this.loadStartedAt = new Date();
@@ -487,6 +493,8 @@ class TheAlgorithm {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         } else if (logPrefix == BACKFILL_FEED) {
             this.loadingStatus = `Loading older home timeline toots`;
+        } else if (logPrefix == PULLING_HISTORY_MSG) {
+            this.loadingStatus = PULLING_HISTORY_MSG;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
