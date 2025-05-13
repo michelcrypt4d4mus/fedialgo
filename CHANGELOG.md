@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.34.0
 * Use a value for the user displayed TIME_DECAY param that is 10x the value used in the calculation to make it more user friendly.
 * Increase cached toots default config to 3,500
 * `HomeTimelineParams` interface and helper in `TheAlgorithm`
