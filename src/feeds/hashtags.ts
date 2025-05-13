@@ -5,6 +5,7 @@ import MastoApi from "../api/api";
 import MastodonServer from "../api/mastodon_server";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
+import { bracketed } from "../helpers/string_helpers";
 import { Config } from "../config";
 import { MastodonTag, StorageKey } from "../types";
 import { traceLog } from "../helpers/log_helpers";
@@ -13,10 +14,13 @@ import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 
 // Get recent toots from hashtags the user has participated in frequently
 export async function getParticipatedHashtagToots(): Promise<Toot[]> {
+    const logPrefix = bracketed("getParticipatedHashtagToots()");
     let tags = await UserData.getUserParticipatedHashtagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
+    // Remove trending tags from the list of participated tags (we get them anyways)
+    tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);
     tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
-    console.debug("[getParticipatedHashtagToots()] Gettings toots for participated tags:", tags);
+    console.debug(`${logPrefix} Gettings toots for participated tags:`, tags);
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.PARTICIPATED_TAG_TOOTS,
@@ -28,15 +32,21 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
 
 // Get toots for the top trending tags via the search endpoint.
 export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
-    let tags = await MastodonServer.fediverseTrendingTags();
-    // TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
-    tags = await removeFollowedAndMutedTags(tags);
+    let tags = await getTrendingTags();
 
     return await MastoApi.instance.getCacheableToots(
         StorageKey.TRENDING_TAG_TOOTS,
         async () => await MastoApi.instance.getStatusesForTags(tags, Config.numTootsPerTrendingTag),
         "numTrendingTagsToots"
     );
+};
+
+
+// Get the trending tags across the fediverse
+// TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
+async function getTrendingTags(): Promise<MastodonTag[]> {
+    const tags = await MastodonServer.fediverseTrendingTags();
+    return await removeFollowedAndMutedTags(tags);
 };
 
 

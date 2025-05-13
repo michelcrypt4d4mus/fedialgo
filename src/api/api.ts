@@ -72,8 +72,8 @@ export default class MastoApi {
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
 
-    private mutexes: ApiMutex;  // Mutexes for blocking concurrent requests
-    private requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial); // Semaphore for limiting search & tag requests
+    private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
+    private requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
 
     // URL for tag on the user's homeserver
     tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TAGS)}/${typeof tag === "string" ? tag : tag.name}`;

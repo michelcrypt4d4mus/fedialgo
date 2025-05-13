@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove trending tags from the list of participated tags we're pulling toots for because we get them anyways
 
 # v0.34.0
 * Use a value for the user displayed TIME_DECAY param that is 10x the value used in the calculation to make it more user friendly.

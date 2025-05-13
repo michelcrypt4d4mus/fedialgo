@@ -223,21 +223,6 @@ class TheAlgorithm {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG)
     }
 
-    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
-    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
-    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
-    async lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
-        newToots = filterWithLog(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
-        const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
-
-        try {
-            await this._mergeTootsToFeed(newToots, logPrefix);
-            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
-        } finally {
-            releaseMutex();
-        }
-    };
-
     // Log a message with the current state of TheAlgorithm instance
     logWithState(prefix: string, msg: string): void {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
@@ -409,6 +394,21 @@ class TheAlgorithm {
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
+
+    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
+    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+    private async lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
+        newToots = filterWithLog(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
+        const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
+
+        try {
+            await this._mergeTootsToFeed(newToots, logPrefix);
+            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
+        } finally {
+            releaseMutex();
+        }
+    };
 
     // Log timing info
     private logTelemetry(logPrefix: string, msg: string, startedAt: Date): void {

@@ -59,8 +59,8 @@ class MastoApi {
     homeDomain;
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
-    mutexes; // Mutexes for blocking concurrent requests
-    requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial); // Semaphore for limiting search & tag requests
+    mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
+    requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     // URL for tag on the user's homeserver
     tagUrl = (tag) => `${this.endpointURL(exports.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;

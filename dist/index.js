@@ -223,21 +223,6 @@ class TheAlgorithm {
     isLoading() {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG);
     }
-    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
-    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
-    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
-    async lockedMergeToFeed(newToots, logPrefix) {
-        newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
-        try {
-            await this._mergeTootsToFeed(newToots, logPrefix);
-            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
-        }
-        finally {
-            releaseMutex();
-        }
-    }
-    ;
     // Log a message with the current state of TheAlgorithm instance
     logWithState(prefix, msg) {
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
@@ -385,6 +370,21 @@ class TheAlgorithm {
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
+    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
+    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+    async lockedMergeToFeed(newToots, logPrefix) {
+        newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
+        try {
+            await this._mergeTootsToFeed(newToots, logPrefix);
+            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
+        }
+        finally {
+            releaseMutex();
+        }
+    }
+    ;
     // Log timing info
     logTelemetry(logPrefix, msg, startedAt) {
         (0, log_helpers_1.logTelemetry)(logPrefix, msg, startedAt, 'current state', this.statusDict());
