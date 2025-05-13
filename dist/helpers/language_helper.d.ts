@@ -1,6 +1,6 @@
 import LanguageDetect from 'languagedetect';
-export declare const MIN_LANG_ACCURACY = 0.4;
-export declare const MIN_ALT_LANG_ACCURACY = 0.2;
+export declare const MIN_TINYLD_ACCURACY = 0.4;
+export declare const MIN_LANG_DETECTOR_ACCURACY = 0.2;
 export declare const VERY_HIGH_LANG_ACCURACY = 0.7;
 export declare const LANGUAGE_DETECTOR: LanguageDetect;
 export declare const IGNORE_LANGUAGES: string[];
@@ -14,18 +14,19 @@ export declare const RUSSIAN_LOCALE: string;
 export declare const LANGUAGE_REGEXES: {
     [x: string]: RegExp;
 };
-type LanguageDetectInfo = {
-    accuracies: number[];
-    altLanguage?: string;
-    altDetectedLangs: [string, number][];
-    altLangAccuracy: number;
+type LangResult = {
+    accuracy: number;
+    lang: string;
+}[];
+type LangDetectResult = {
+    allDetectResults: LangResult;
     detectedLang?: string;
-    detectedLangs: {
-        accuracy: number;
-        lang: string;
-    }[];
-    detectedLangAccuracy: number;
+    accuracy: number;
+};
+type LanguageDetectInfo = {
     determinedLang?: string;
+    langDetector: LangDetectResult;
+    tinyLD: LangDetectResult;
     summary: string;
 };
 export declare const detectLangInfo: (text: string) => LanguageDetectInfo;

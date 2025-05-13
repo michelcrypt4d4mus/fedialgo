@@ -442,53 +442,59 @@ class Toot {
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
         let text = this.contentStripped();
+        if (this.card?.description)
+            text = (0, string_helpers_1.collapseWhitespace)(`${text} ${this.card.description}`); // Use link description
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
         const langDetectInfo = (0, language_helper_2.detectLangInfo)(text);
-        const langData = { ...langDetectInfo, text: text, toot: this };
-        const logStr = `toot.language="${this.language}", ${langDetectInfo.summary}`;
-        const { altLanguage, altLangAccuracy, altDetectedLangs, detectedLang, detectedLangs, detectedLangAccuracy, determinedLang } = langDetectInfo;
+        const { determinedLang, langDetector, tinyLD } = langDetectInfo;
+        const langLogObj = { ...langDetectInfo, text: text, toot: this };
+        const langSummary = `toot.language="${this.language}", ${langDetectInfo.summary}`;
         // If there's nothing detected log a warning (if text is long enough) and set language to default
-        if ((detectedLangs.length + altDetectedLangs.length) == 0) {
+        if ((tinyLD.allDetectResults.length + langDetector.allDetectResults.length) == 0) {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2))
-                console.warn(`${REPAIR_TOOT} no language detected`, langData);
+                console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             this.language ??= config_1.Config.defaultLanguage;
             return;
-        } // Return if either language detection matches the toot's language
-        else if ((detectedLang && detectedLang == this.language) || (altLanguage && altLanguage == this.language)) {
-            return;
-        } // Or if we have successfully detected a language
-        else if (determinedLang) {
-            if (this.language && this.language != UNKNOWN) {
-                (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using determinedLang "${determinedLang}" to replace "${this.language}" \nfor "${text}"`, langData);
-            }
-            this.language = detectedLang;
+        }
+        // Return if either language detection matches the toot's language
+        if (this.language && (tinyLD.detectedLang == this.language || langDetector.detectedLang == this.language)) {
             return;
         }
-        if (detectedLang && language_helper_1.FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
-            (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using existing foreign script "${this.language}" even with low accuracy\n${logStr}`, langData);
+        // Or if we have successfully detected a language
+        if (determinedLang) {
+            if (this.language && this.language != UNKNOWN) {
+                (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using determinedLang "${determinedLang}" to replace "${this.language}" for "${text}"`, langLogObj);
+            }
+            // Don't overwrite "zh-TW" with "zh"
+            if (!this.language?.startsWith(determinedLang)) {
+                this.language = determinedLang;
+            }
+            return;
+        }
+        if (tinyLD.detectedLang && language_helper_1.FOREIGN_SCRIPTS.includes(tinyLD.detectedLang) && this.language?.startsWith(tinyLD.detectedLang)) {
+            (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using existing foreign script "${this.language}" even with low accuracy\n${langSummary}`, langLogObj);
             return;
         }
         // Prioritize English in edge cases
-        if (detectedLangAccuracy < language_helper_1.MIN_LANG_ACCURACY) {
+        if (tinyLD.accuracy < language_helper_1.MIN_TINYLD_ACCURACY) {
             // If accuracy is low or ignorable but toot.language is English just use that
             if (this.language == language_helper_1.LANGUAGE_CODES.english) {
                 return;
-            }
-            else if (altLanguage && altLangAccuracy && altLanguage == language_helper_1.LANGUAGE_CODES.english && altLangAccuracy > language_helper_1.MIN_ALT_LANG_ACCURACY) {
-                // If detectedLang is low accuracy but altLanguage is English and decent accuracy, use that
-                console.debug(`${REPAIR_TOOT} Accepting "en" from altLanguage for "${text}"`, langData);
+            } // If detectedLang is low accuracy but langDetector.detectedLang is English and decent accuracy, use that
+            else if (langDetector.detectedLang == language_helper_1.LANGUAGE_CODES.english && langDetector.accuracy >= language_helper_1.MIN_LANG_DETECTOR_ACCURACY) {
+                console.debug(`${REPAIR_TOOT} Accepting "en" from langDetector.detectedLang for "${text}"`, langLogObj);
                 this.language = language_helper_1.LANGUAGE_CODES.english;
                 return;
             }
         }
         if (this.language) {
-            console.info(`${REPAIR_TOOT} No guess good enough to override language "${this.language}" for "${text}"`, langData);
+            console.info(`${REPAIR_TOOT} No guess good enough to override language "${this.language}" for "${text}"`, langLogObj);
             return;
         }
-        console.debug(`${REPAIR_TOOT} No language conditions met; setting empty language prop to english`, langData);
+        console.debug(`${REPAIR_TOOT} Defaulting language prop to "en" for "${text}"`, langLogObj);
         this.language ??= config_1.Config.defaultLanguage;
     }
     // Some properties cannot be repaired and/or set until info about the user is available.
