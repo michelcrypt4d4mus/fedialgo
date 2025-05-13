@@ -164,15 +164,14 @@ class MastoApi {
             let toots = await Storage_1.default.getIfNotStale(key);
             if (!toots) {
                 const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
+                (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                console.log(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} built ${toots.length} toots`);
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
                 }
                 await Storage_1.default.set(key, toots);
             }
-            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} finished retrieving ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} Returning ${toots.length} in ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         finally {

@@ -196,9 +196,8 @@ export default class MastoApi {
 
             if (!toots) {
                 const statuses = await fetch();
-                console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
+                traceLog(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                console.log(`[${SET_LOADING_STATUS}] ${logPrefix} built ${toots.length} toots`);
 
                 if (maxRecordsConfigKey) {
                     toots = truncateToConfiguredLength(toots, maxRecordsConfigKey);
@@ -207,7 +206,7 @@ export default class MastoApi {
                 await Storage.set(key, toots);
             }
 
-            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} finished retrieving ${ageString(startedAt)}`);
+            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} Returning ${toots.length} in ${ageString(startedAt)}`);
             return toots;
         } finally {
             releaseMutex();

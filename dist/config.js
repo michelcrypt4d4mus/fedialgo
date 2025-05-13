@@ -241,8 +241,8 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.maxRecordsForFeatureScoring = 480;
     exports.Config.numDesiredTimelineToots = 500;
-    exports.Config.numParticipatedTagsToFetchTootsFor = 10;
-    exports.Config.numTrendingTags = 10;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 20;
+    exports.Config.numTrendingTags = 20;
 }
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
