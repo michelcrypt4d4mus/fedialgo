@@ -545,7 +545,7 @@ export default class Toot implements TootObj {
         // If both language tests agree w/ enough accuracy, use the detected language
         if (determinedLang) {
             if (this.language && this.language != UNKNOWN) {
-                traceLog(`Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
+                traceLog(`${REPAIR_TOOT} Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
             }
 
             this.language = detectedLang;
@@ -553,7 +553,7 @@ export default class Toot implements TootObj {
         }
 
         if (detectedLang && FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
-            traceLog(`Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
+            traceLog(`${REPAIR_TOOT} Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
             return;
         }
 
@@ -570,30 +570,27 @@ export default class Toot implements TootObj {
                 return;
             } else if (altLanguage && altLangAccuracy && altLanguage == LANGUAGE_CODES.english && altLangAccuracy > MIN_ALT_LANG_ACCURACY) {
                 // If detectedLang is low accuracy but altLanguage is English and decent accuracy, use that
-                console.debug(`Ignoring detected "${detectedLang}" and accepting english from altLanguage. ${logStr}`, langInfo);
+                console.debug(`${REPAIR_TOOT} Ignoring detected "${detectedLang}" and accepting english from altLanguage. ${logStr}`, langInfo);
                 this.language = LANGUAGE_CODES.english;
                 return;
             }
         }
 
         if (altLanguage && altLangAccuracy >= MIN_ALT_LANG_ACCURACY && altLanguage != detectedLang) {
-            console.warn(`Want to replace language "${this.language}" but detectedLang != altLanguage. ${logStr} `, langInfo);
+            console.warn(`${REPAIR_TOOT} Want to replace language "${this.language}" but detectedLang != altLanguage. ${logStr} `, langInfo);
             this.language ??= Config.defaultLanguage;
             return;
         } else if (altLangAccuracy >= VERY_HIGH_LANG_ACCURACY) {
-            console.debug(`Accepting high accuracy altLanguage "${altLanguage}". ${logStr}`, langInfo);
+            console.debug(`${REPAIR_TOOT} Accepting high accuracy altLanguage "${altLanguage}". ${logStr}`, langInfo);
             this.language = altLanguage;
+            return;
+        } else if (this.language) {
+            console.info(`${REPAIR_TOOT} No language conditions met; not replacing existing language". ${logStr}`, langInfo);
             return;
         }
 
-        let newLanguage = (altLanguage || detectedLang || Config.defaultLanguage);
-
-        if (this.language) {
-            console.info(`No language conditions met; not replacing existing language with "${newLanguage}". ${logStr}`, langInfo);
-        } else {
-            console.debug(`No language conditions met; setting empty language prop to "${newLanguage}". ${logStr}`, langInfo);
-        }
-
+        const newLanguage = (altLanguage || detectedLang || Config.defaultLanguage);
+        console.debug(`${REPAIR_TOOT} No language conditions met; setting empty language prop to "${newLanguage}". ${logStr}`, langInfo);
         this.language = newLanguage;
     }
 
