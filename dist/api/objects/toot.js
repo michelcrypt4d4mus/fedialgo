@@ -45,6 +45,7 @@ var TootVisibility;
 const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
+const OVERRULE_LANG_ACCURACY = 0.03;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
@@ -222,9 +223,14 @@ class Toot {
     containsUserMention() {
         return this.mentions.some((mention) => mention.acct == api_1.default.instance.user.webfingerURI);
     }
-    // Return the content field stripped of HTML tags
+    // Return the toot's 'content' field stripped of HTML tags
     contentString() {
-        return (0, string_helpers_1.htmlToText)(this.reblog?.content || this.content || "");
+        return (0, string_helpers_1.htmlToText)(this.realToot().content || "");
+    }
+    // Return the toot's content stripped of everything (links, mentions, tags, etc.)
+    contentStripped() {
+        let txt = (0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentString()))));
+        return (0, string_helpers_1.collapseWhitespace)(txt);
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
@@ -436,44 +442,39 @@ class Toot {
     }
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
-        let text = (0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentString()))));
-        text = text.replace(/\s+/gu, " ").trim();
+        let text = this.contentStripped();
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
         const langDetectInfo = (0, language_helper_2.detectLangInfo)(text);
+        const langData = { ...langDetectInfo, text: text, toot: this };
         const logStr = `toot.language="${this.language}", ${langDetectInfo.summary}`;
-        const { detectedLang, detectedLangs, detectedLangAccuracy, determinedLang, altLanguage, altLangAccuracy, altDetectedLangs } = langDetectInfo;
-        const langInfo = { ...langDetectInfo, text, toot: this };
+        const { altLanguage, altLangAccuracy, altDetectedLangs, detectedLang, detectedLangs, detectedLangAccuracy, determinedLang } = langDetectInfo;
+        // If there's nothing detected log a warning (if text is long enough) and set language to default
+        if ((detectedLangs.length + altDetectedLangs.length) == 0) {
+            if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2))
+                console.warn(`${REPAIR_TOOT} no language detected`, langData);
+            this.language ??= config_1.Config.defaultLanguage;
+            return;
+        }
         // Return if either language detection matches the toot's language
         if ((detectedLang && detectedLang == this.language) || (altLanguage && altLanguage == this.language)) {
             return;
         }
-        // If both detectors say english and we're not overwriting anything, use english
-        if (!this.language && detectedLang == altLanguage && altLanguage == language_helper_1.LANGUAGE_CODES.english) {
-            this.language = language_helper_1.LANGUAGE_CODES.english;
-            return;
-        }
-        // If both language tests agree w/ enough accuracy, use the detected language
+        // Or if we have successfully detected a language
         if (determinedLang) {
             if (this.language && this.language != UNKNOWN) {
-                (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
+                (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using determinedLang "${determinedLang}" to replace "${this.language}"\n${logStr}`, langData);
             }
             this.language = detectedLang;
             return;
         }
         if (detectedLang && language_helper_1.FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
-            (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
+            (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Using existing foreign script "${this.language}" even with low accuracy\n${logStr}`, langData);
             return;
         }
-        // If there's nothing detected log a warning (if text is long enough) and set language to default
-        if ((detectedLangs.length + altDetectedLangs.length) == 0) {
-            if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2))
-                console.warn(`${REPAIR_TOOT} no language detected`, langInfo);
-            this.language ??= config_1.Config.defaultLanguage;
-            return;
-        }
+        // Prioritize English in edge cases
         if (detectedLangAccuracy < language_helper_1.MIN_LANG_ACCURACY) {
             // If accuracy is low or ignorable but toot.language is English just use that
             if (this.language == language_helper_1.LANGUAGE_CODES.english) {
@@ -481,28 +482,17 @@ class Toot {
             }
             else if (altLanguage && altLangAccuracy && altLanguage == language_helper_1.LANGUAGE_CODES.english && altLangAccuracy > language_helper_1.MIN_ALT_LANG_ACCURACY) {
                 // If detectedLang is low accuracy but altLanguage is English and decent accuracy, use that
-                console.debug(`${REPAIR_TOOT} Ignoring detected "${detectedLang}" and accepting english from altLanguage. ${logStr}`, langInfo);
+                console.debug(`${REPAIR_TOOT} Ignoring detected "${detectedLang}" and accepting english from altLanguage\n${logStr}`, langData);
                 this.language = language_helper_1.LANGUAGE_CODES.english;
                 return;
             }
         }
-        if (altLanguage && altLangAccuracy >= language_helper_1.MIN_ALT_LANG_ACCURACY && altLanguage != detectedLang) {
-            console.warn(`${REPAIR_TOOT} Want to replace language "${this.language}" but detectedLang != altLanguage. ${logStr} `, langInfo);
-            this.language ??= config_1.Config.defaultLanguage;
+        if (this.language) {
+            console.info(`${REPAIR_TOOT} No guess good enough to override existing language for "${text}"\n${logStr}`, langData);
             return;
         }
-        else if (altLangAccuracy >= language_helper_1.VERY_HIGH_LANG_ACCURACY) {
-            console.debug(`${REPAIR_TOOT} Accepting high accuracy altLanguage "${altLanguage}". ${logStr}`, langInfo);
-            this.language = altLanguage;
-            return;
-        }
-        else if (this.language) {
-            console.info(`${REPAIR_TOOT} No language conditions met; not replacing existing language". ${logStr}`, langInfo);
-            return;
-        }
-        const newLanguage = (altLanguage || detectedLang || config_1.Config.defaultLanguage);
-        console.debug(`${REPAIR_TOOT} No language conditions met; setting empty language prop to "${newLanguage}". ${logStr}`, langInfo);
-        this.language = newLanguage;
+        console.debug(`${REPAIR_TOOT} No language conditions met; setting empty language prop to english`, langData);
+        this.language ??= config_1.Config.defaultLanguage;
     }
     // Some properties cannot be repaired and/or set until info about the user is available.
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.

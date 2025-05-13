@@ -14,6 +14,8 @@ exports.MIN_LANG_ACCURACY = 0.4;
 exports.MIN_ALT_LANG_ACCURACY = 0.2; // LanguageDetect never gets very high accuracy
 exports.VERY_HIGH_LANG_ACCURACY = 0.7;
 exports.LANGUAGE_DETECTOR = new languagedetect_1.default();
+const OVERRULE_LANG_ACCURACY = 0.03;
+const LOG_LANUAGE_DETECTOR = true;
 exports.IGNORE_LANGUAGES = [
     "ber",
     "eo",
@@ -273,16 +275,38 @@ const detectLangInfo = (text) => {
             }
         }
     }
-    let determinedLang;
     const accuracies = [detectedLangAccuracy, altLangAccuracy];
     const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
         `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`;
+    // We will set determinedLang to be a high confidence guess (if we find one)
+    let determinedLang;
     // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
-    if (detectedLang && detectedLang == altLanguage
-        && accuracies.some((a) => a > exports.MIN_LANG_ACCURACY) || accuracies.every((a) => a > (exports.MIN_LANG_ACCURACY / 2))) {
+    if (detectedLang
+        && detectedLang == altLanguage
+        && accuracies.some((a) => a > exports.MIN_ALT_LANG_ACCURACY) || accuracies.every((a) => a > (exports.MIN_LANG_ACCURACY / 2))) {
         determinedLang = detectedLang;
     }
-    else if (detectedLangAccuracy >= exports.VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(detectedLang || string_helpers_1.NULL)) {
+    else if (altLanguage && detectedLang && altLanguage != detectedLang) {
+        // if altLangAccuracy is high enough and detectedLang is low enough
+        if (altLangAccuracy >= exports.MIN_ALT_LANG_ACCURACY) {
+            if (detectedLangAccuracy < OVERRULE_LANG_ACCURACY) {
+                determinedLang = altLanguage;
+            }
+            else {
+                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
+            }
+        }
+        else if (detectedLangAccuracy >= exports.MIN_LANG_ACCURACY) {
+            if (altLangAccuracy < OVERRULE_LANG_ACCURACY) {
+                detectedLang = detectedLang;
+            }
+            else {
+                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
+            }
+        }
+    }
+    // tinyld is much better at detecting foreign scripts
+    if (detectedLangAccuracy >= exports.VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(detectedLang || string_helpers_1.NULL)) {
         // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
         determinedLang = detectedLang;
     }

@@ -88,6 +88,7 @@ export default class Toot implements TootObj {
     containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
     containsUserMention(): boolean;
     contentString(): string;
+    contentStripped(): string;
     contentShortened(maxChars?: number): string;
     contentWithEmojis(fontSize?: number): string;
     describe(): string;

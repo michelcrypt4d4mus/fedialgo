@@ -5,11 +5,14 @@ import LanguageDetect from 'languagedetect';
 import { detectAll } from 'tinyld';
 
 import { NULL, isNumber } from './string_helpers';
+import { traceLog } from './log_helpers';
 
 export const MIN_LANG_ACCURACY = 0.4;
 export const MIN_ALT_LANG_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy
 export const VERY_HIGH_LANG_ACCURACY = 0.7;
 export const LANGUAGE_DETECTOR = new LanguageDetect();
+const OVERRULE_LANG_ACCURACY = 0.03;
+const LOG_LANUAGE_DETECTOR = true;
 
 export const IGNORE_LANGUAGES = [
     "ber",  // Berber
@@ -297,16 +300,37 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
         }
     }
 
-    let determinedLang: string | undefined;
     const accuracies = [detectedLangAccuracy, altLangAccuracy];
     const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
-        `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`;
+                  `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`;
+
+    // We will set determinedLang to be a high confidence guess (if we find one)
+    let determinedLang: string | undefined;
 
     // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
-    if (detectedLang && detectedLang == altLanguage
-        && accuracies.some((a) => a > MIN_LANG_ACCURACY) || accuracies.every((a) => a > (MIN_LANG_ACCURACY / 2))) {
+    if (       detectedLang
+            && detectedLang == altLanguage
+            && accuracies.some((a) => a > MIN_ALT_LANG_ACCURACY) || accuracies.every((a) => a > (MIN_LANG_ACCURACY / 2))) {
         determinedLang = detectedLang;
-    } else if (detectedLangAccuracy >= VERY_HIGH_LANG_ACCURACY && FOREIGN_SCRIPTS.includes(detectedLang || NULL)) {
+    } else if (altLanguage && detectedLang && altLanguage != detectedLang) {
+        // if altLangAccuracy is high enough and detectedLang is low enough
+        if (altLangAccuracy >= MIN_ALT_LANG_ACCURACY) {
+            if (detectedLangAccuracy < OVERRULE_LANG_ACCURACY) {
+                determinedLang = altLanguage;
+            } else {
+                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
+            }
+        } else if (detectedLangAccuracy >= MIN_LANG_ACCURACY) {
+            if (altLangAccuracy < OVERRULE_LANG_ACCURACY) {
+                detectedLang = detectedLang;
+            } else {
+                // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
+            }
+        }
+    }
+
+    // tinyld is much better at detecting foreign scripts
+    if (detectedLangAccuracy >= VERY_HIGH_LANG_ACCURACY && FOREIGN_SCRIPTS.includes(detectedLang || NULL)) {
         // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
         determinedLang = detectedLang;
     }

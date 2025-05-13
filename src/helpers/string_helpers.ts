@@ -5,7 +5,6 @@ import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { mastodon } from 'masto';
 
-import { LANGUAGE_REGEXES } from "./language_helper";
 import { MediaCategory } from '../types';
 
 // Number constants
@@ -18,10 +17,12 @@ export const FEDIALGO = 'FediAlgo';
 export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
 
+// Regexes
+const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
+const HAHSTAG_REGEX = /#\w+/g;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
-const MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
-const OCTOTHORPE_REGEX = /#/gi;
+const WHITESPACE_REGEX = /\s+/g;
 
 // Multimedia types
 export const GIFV = "gifv";
@@ -103,8 +104,7 @@ export function htmlToText(html: string): string {
     let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
     txt = txt.replace(/<[^>]+>/g, "");               // Strip HTML tags
     txt = txt.replace(/\n/g, " ");                   // Strip newlines
-    txt = txt.replace(/\s+/g, " ");                  // Collapse multiple spaces
-    return decode(txt).trim();                       // Decode HTML entities lik '&amp;' etc.
+    return collapseWhitespace(decode(txt)).trim();   // Decode HTML entities lik '&amp;' etc. whitespace etc.
 };
 
 
@@ -122,16 +122,16 @@ export function isVideo(uri: string | null | undefined): boolean {
 };
 
 
+// Collapse whitespace in a string
+export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").trim();
 // Remove any emojis
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, "");
 // Remove https links from string
 export const removeLinks = (str: string) => str.replace(LINK_REGEX, "");
 // Remove @username@domain from string
-export const removeMentions = (str: string) => str.replace(MENTION_REGEX, "");
-// Remove "#" chars from string
-export const removeOctothorpe = (str: string) => str.replace(OCTOTHORPE_REGEX, "");
+export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, "");
 // Remove all tags from string
-export const removeTags = (str: string) => str.replace(/#\w+/g, "");
+export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, "");
 
 
 // Replace custom emoji shortcodes like :smile: with <img> tags

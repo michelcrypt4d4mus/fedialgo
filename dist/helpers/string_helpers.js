@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeOctothorpe = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.collapseWhitespace = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -18,10 +18,12 @@ exports.MEGABYTE = exports.KILOBYTE * 1024;
 exports.FEDIALGO = 'FediAlgo';
 exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
+// Regexes
+const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
+const HAHSTAG_REGEX = /#\w+/g;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
-const MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
-const OCTOTHORPE_REGEX = /#/gi;
+const WHITESPACE_REGEX = /\s+/g;
 // Multimedia types
 exports.GIFV = "gifv";
 exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
@@ -97,8 +99,7 @@ function htmlToText(html) {
     let txt = html.replace(/<\/p>/gi, "\n").trim(); // Turn closed <p> tags into newlines
     txt = txt.replace(/<[^>]+>/g, ""); // Strip HTML tags
     txt = txt.replace(/\n/g, " "); // Strip newlines
-    txt = txt.replace(/\s+/g, " "); // Collapse multiple spaces
-    return (0, html_entities_1.decode)(txt).trim(); // Decode HTML entities lik '&amp;' etc.
+    return (0, exports.collapseWhitespace)((0, html_entities_1.decode)(txt)).trim(); // Decode HTML entities lik '&amp;' etc. whitespace etc.
 }
 exports.htmlToText = htmlToText;
 ;
@@ -118,6 +119,9 @@ function isVideo(uri) {
 }
 exports.isVideo = isVideo;
 ;
+// Collapse whitespace in a string
+const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").trim();
+exports.collapseWhitespace = collapseWhitespace;
 // Remove any emojis
 const removeEmojis = (str) => str.replace(EMOJI_REGEX, "");
 exports.removeEmojis = removeEmojis;
@@ -125,13 +129,10 @@ exports.removeEmojis = removeEmojis;
 const removeLinks = (str) => str.replace(LINK_REGEX, "");
 exports.removeLinks = removeLinks;
 // Remove @username@domain from string
-const removeMentions = (str) => str.replace(MENTION_REGEX, "");
+const removeMentions = (str) => str.replace(ACCOUNT_MENTION_REGEX, "");
 exports.removeMentions = removeMentions;
-// Remove "#" chars from string
-const removeOctothorpe = (str) => str.replace(OCTOTHORPE_REGEX, "");
-exports.removeOctothorpe = removeOctothorpe;
 // Remove all tags from string
-const removeTags = (str) => str.replace(/#\w+/g, "");
+const removeTags = (str) => str.replace(HAHSTAG_REGEX, "");
 exports.removeTags = removeTags;
 // Replace custom emoji shortcodes like :smile: with <img> tags
 function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {
