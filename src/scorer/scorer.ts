@@ -153,9 +153,10 @@ export default abstract class Scorer {
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
         // Find non scorer weights
         const userWeights = await Storage.getWeights();
-        const outlierDampener = userWeights[WeightName.OUTLIER_DAMPENER] || DEFAULT_WEIGHTS[WeightName.OUTLIER_DAMPENER];
-        const timeDecayWeight = userWeights[WeightName.TIME_DECAY] || DEFAULT_WEIGHTS[WeightName.TIME_DECAY];
-        const trendingMultiplier = userWeights[WeightName.TRENDING] || DEFAULT_WEIGHTS[WeightName.TRENDING];
+        const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
+        const outlierDampener = getWeight(WeightName.OUTLIER_DAMPENER);
+        const timeDecayWeight = getWeight(WeightName.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
+        const trendingMultiplier = getWeight(WeightName.TRENDING);
         // Initialize variables
         const realToot = toot.realToot();
         const rawScores = {} as StringNumberDict;

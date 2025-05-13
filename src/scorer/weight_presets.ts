@@ -18,7 +18,7 @@ export enum PresetWeightLabel {
 
 export const DEFAULT_WEIGHTS: Weights = {
     // Global modifiers that affect all weighted scores
-    [WeightName.TIME_DECAY]: 0.15,
+    [WeightName.TIME_DECAY]: 1.5,
     [WeightName.TRENDING]: 0.15,
     [WeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
@@ -45,7 +45,7 @@ export const DEFAULT_WEIGHTS: Weights = {
 
 export const PresetWeights: WeightPresets = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
-        [WeightName.TIME_DECAY]: 1.0,
+        [WeightName.TIME_DECAY]: 10.0,
         [WeightName.TRENDING]: 0,
         [WeightName.OUTLIER_DAMPENER]: 0,
         [WeightName.CHAOS]: 0,

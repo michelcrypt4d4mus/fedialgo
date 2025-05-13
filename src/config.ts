@@ -346,9 +346,7 @@ function validateConfig(cfg: ConfigType | object): void {
         if (typeof value === "object") {
             validateConfig(value);
         } else if (typeof value == "number" && isNaN(value)) {
-            const msg = `Config value at ${key} is NaN`;
-            console.error(msg);
-            throw new Error(msg);
+            logAndThrowError(`Config value at ${key} is NaN`);
         }
     });
 };

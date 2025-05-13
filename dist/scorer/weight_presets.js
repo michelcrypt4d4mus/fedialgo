@@ -17,7 +17,7 @@ var PresetWeightLabel;
 ;
 exports.DEFAULT_WEIGHTS = {
     // Global modifiers that affect all weighted scores
-    [types_1.WeightName.TIME_DECAY]: 0.15,
+    [types_1.WeightName.TIME_DECAY]: 1.5,
     [types_1.WeightName.TRENDING]: 0.15,
     [types_1.WeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
@@ -42,7 +42,7 @@ exports.DEFAULT_WEIGHTS = {
 };
 exports.PresetWeights = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
-        [types_1.WeightName.TIME_DECAY]: 1.0,
+        [types_1.WeightName.TIME_DECAY]: 10.0,
         [types_1.WeightName.TRENDING]: 0,
         [types_1.WeightName.OUTLIER_DAMPENER]: 0,
         [types_1.WeightName.CHAOS]: 0,

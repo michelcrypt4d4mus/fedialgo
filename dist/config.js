@@ -269,9 +269,7 @@ function validateConfig(cfg) {
             validateConfig(value);
         }
         else if (typeof value == "number" && isNaN(value)) {
-            const msg = `Config value at ${key} is NaN`;
-            console.error(msg);
-            throw new Error(msg);
+            (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is NaN`);
         }
     });
 }
