@@ -3,12 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeOctothorpe = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE = exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE = exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE = exports.GREEK_LANGUAGE = exports.GREEK_LOCALE = exports.ARABIC_LANGUAGE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeOctothorpe = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLangInfo = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LANGUAGE = exports.RUSSIAN_LOCALE = exports.KOREAN_LANGUAGE = exports.KOREAN_LOCALE = exports.JAPANESE_LANGUAGE = exports.JAPANESE_LOCALE = exports.GREEK_LANGUAGE = exports.GREEK_LOCALE = exports.ARABIC_LANGUAGE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.VERY_HIGH_LANG_ACCURACY = exports.MIN_ALT_LANG_ACCURACY = exports.MIN_LANG_ACCURACY = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
+const languagedetect_1 = __importDefault(require("languagedetect"));
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
+const tinyld_1 = require("tinyld");
+const language_helper_1 = require("./language_helper");
 const types_1 = require("../types");
 // Number constants
 exports.DEFAULT_FONT_SIZE = 15;
@@ -18,6 +21,20 @@ exports.MEGABYTE = exports.KILOBYTE * 1024;
 exports.FEDIALGO = 'FediAlgo';
 exports.NULL = "<<NULL>>";
 exports.TELEMETRY = 'TELEMETRY';
+exports.MIN_LANG_ACCURACY = 0.4;
+exports.MIN_ALT_LANG_ACCURACY = 0.2; // LanguageDetect never gets very high accuracy
+exports.VERY_HIGH_LANG_ACCURACY = 0.85;
+const LANGUAGE_DETECTOR = new languagedetect_1.default();
+const IGNORE_LANGUAGES = [
+    "ber",
+    "eo",
+    "tk",
+    "tlh", // Klingon
+];
+const OVERCONFIDENT_LANGUAGES = [
+    "da",
+    "fr",
+];
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
 const MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
@@ -103,6 +120,70 @@ const detectLanguage = (str) => {
     return language;
 };
 exports.detectLanguage = detectLanguage;
+// Use the two different language detectors to guess a language
+const detectLangInfo = (text) => {
+    // Use the tinyld language detector to get the detectedLang
+    const detectedLangs = (0, tinyld_1.detectAll)(text);
+    let detectedLang = detectedLangs[0]?.lang;
+    let detectedLangAccuracy = detectedLangs[0]?.accuracy || 0;
+    // Use LanguageDetector to get the altLanguage
+    const altDetectedLangs = LANGUAGE_DETECTOR.detect(text);
+    let altLanguage = altDetectedLangs.length ? altDetectedLangs[0][0] : undefined;
+    const altLangAccuracy = altDetectedLangs.length ? altDetectedLangs[0][1] : 0;
+    if (altLanguage && altLanguage in language_helper_1.LANGUAGE_CODES) {
+        altLanguage = language_helper_1.LANGUAGE_CODES[altLanguage];
+    }
+    else if (altLanguage) {
+        console.warn(`[detectLangInfo()] altLanguage "${altLanguage}" found but not in LANGUAGE_CODES!"`);
+    }
+    // Ignore Klingon etc.
+    if (detectedLang) {
+        if (IGNORE_LANGUAGES.includes(detectedLang)) {
+            detectedLang = undefined;
+            detectedLangAccuracy = 0;
+        }
+        else if (OVERCONFIDENT_LANGUAGES.includes(detectedLang || exports.NULL)
+            && detectedLangAccuracy > exports.VERY_HIGH_LANG_ACCURACY
+            && altLanguage
+            && altLanguage != detectedLang) {
+            console.warn(`"${detectedLang}" is overconfident (${detectedLangAccuracy})! altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
+            // tinyld is overconfident about some languages
+            if (detectedLangs.length > 1) {
+                detectedLang = detectedLangs[1].lang;
+                detectedLangAccuracy = detectedLangs[1].accuracy;
+            }
+            else {
+                detectedLang = undefined;
+                detectedLangAccuracy = 0;
+            }
+        }
+    }
+    let determinedLang;
+    const accuracies = [detectedLangAccuracy, altLangAccuracy];
+    const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
+        `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`;
+    // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
+    if (detectedLang && detectedLang == altLanguage
+        && accuracies.some((a) => a > exports.MIN_LANG_ACCURACY) || accuracies.every((a) => a > (exports.MIN_LANG_ACCURACY / 2))) {
+        determinedLang = detectedLang;
+    }
+    else if (detectedLangAccuracy >= exports.VERY_HIGH_LANG_ACCURACY && language_helper_1.FOREIGN_SCRIPTS.includes(detectedLang || exports.NULL)) {
+        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
+        determinedLang = detectedLang;
+    }
+    return {
+        accuracies,
+        altDetectedLangs,
+        altLanguage,
+        altLangAccuracy,
+        detectedLangs,
+        detectedLang,
+        detectedLangAccuracy,
+        determinedLang,
+        summary,
+    };
+};
+exports.detectLangInfo = detectLangInfo;
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";

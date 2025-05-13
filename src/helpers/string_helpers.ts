@@ -1,11 +1,14 @@
 /*
  * Helpers for dealing with strings.
  */
+import LanguageDetect from 'languagedetect';
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
+import { detectAll } from 'tinyld';
 import { mastodon } from 'masto';
 
-import { MediaCategory } from '../types';
+import { FOREIGN_SCRIPTS, LANGUAGE_CODES } from './language_helper';
+import { LanguageDetectInfo, MediaCategory } from '../types';
 
 // Number constants
 export const DEFAULT_FONT_SIZE = 15;
@@ -16,6 +19,24 @@ export const MEGABYTE = KILOBYTE * 1024;
 export const FEDIALGO = 'FediAlgo';
 export const NULL = "<<NULL>>";
 export const TELEMETRY = 'TELEMETRY';
+
+export const MIN_LANG_ACCURACY = 0.4;
+export const MIN_ALT_LANG_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy
+export const VERY_HIGH_LANG_ACCURACY = 0.85;
+const LANGUAGE_DETECTOR = new LanguageDetect();
+
+const IGNORE_LANGUAGES = [
+    "ber",  // Berber
+    "eo",   // Esperanto
+    "tk",   // Turkmen
+    "tlh",  // Klingon
+];
+
+const OVERCONFIDENT_LANGUAGES = [
+    "da",
+    "fr",
+];
+
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
 const MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
@@ -106,6 +127,78 @@ export const detectLanguage = (str: string): string | undefined => {
     });
 
     return language;
+};
+
+
+// Use the two different language detectors to guess a language
+export const detectLangInfo = (text: string): LanguageDetectInfo => {
+    // Use the tinyld language detector to get the detectedLang
+    const detectedLangs = detectAll(text);
+    let detectedLang: string | undefined = detectedLangs[0]?.lang;
+    let detectedLangAccuracy = detectedLangs[0]?.accuracy || 0;
+
+    // Use LanguageDetector to get the altLanguage
+    const altDetectedLangs = LANGUAGE_DETECTOR.detect(text);
+    let altLanguage = altDetectedLangs.length ? altDetectedLangs[0][0] : undefined;
+    const altLangAccuracy = altDetectedLangs.length ? altDetectedLangs[0][1] : 0;
+
+    if (altLanguage && altLanguage in LANGUAGE_CODES) {
+        altLanguage = LANGUAGE_CODES[altLanguage];
+    } else if (altLanguage) {
+        console.warn(`[detectLangInfo()] altLanguage "${altLanguage}" found but not in LANGUAGE_CODES!"`);
+    }
+
+    // Ignore Klingon etc.
+    if (detectedLang) {
+        if (IGNORE_LANGUAGES.includes(detectedLang)) {
+            detectedLang = undefined;
+            detectedLangAccuracy = 0;
+        } else if (
+               OVERCONFIDENT_LANGUAGES.includes(detectedLang || NULL)
+            && detectedLangAccuracy > VERY_HIGH_LANG_ACCURACY
+            && altLanguage
+            && altLanguage != detectedLang
+        ) {
+            console.warn(`"${detectedLang}" is overconfident (${detectedLangAccuracy})! altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
+
+            // tinyld is overconfident about some languages
+            if (detectedLangs.length > 1) {
+                detectedLang = detectedLangs[1].lang;
+                detectedLangAccuracy = detectedLangs[1].accuracy;
+            } else {
+                detectedLang = undefined;
+                detectedLangAccuracy = 0;
+            }
+        }
+    }
+
+    let determinedLang: string | undefined;
+    const accuracies = [detectedLangAccuracy, altLangAccuracy];
+    const summary = `detectedLang="${detectedLang}" (accuracy: ${detectedLangAccuracy.toPrecision(4)})` +
+               `, altDetectedLang="${altLanguage}" (accuracy: ${altLangAccuracy?.toPrecision(4)})`
+
+    // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
+    if (
+           detectedLang && detectedLang == altLanguage
+        && accuracies.some((a) => a > MIN_LANG_ACCURACY) || accuracies.every((a) => a > (MIN_LANG_ACCURACY / 2))
+    ) {
+        determinedLang = detectedLang;
+    } else if (detectedLangAccuracy >= VERY_HIGH_LANG_ACCURACY && FOREIGN_SCRIPTS.includes(detectedLang || NULL)) {
+        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
+        determinedLang = detectedLang;
+    }
+
+    return {
+        accuracies,
+        altDetectedLangs,
+        altLanguage,
+        altLangAccuracy,
+        detectedLangs,
+        detectedLang,
+        detectedLangAccuracy,
+        determinedLang,
+        summary,
+    }
 };
 
 

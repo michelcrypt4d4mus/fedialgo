@@ -129,6 +129,18 @@ export type FilterArgs = {
 
 export type InstanceResponse = MastodonInstance | null;
 
+export type LanguageDetectInfo = {
+    accuracies: number[];
+    altLanguage?: string;
+    altDetectedLangs: [string, number][];
+    altLangAccuracy: number;
+    detectedLang?: string;
+    detectedLangs: {accuracy: number, lang: string}[];
+    detectedLangAccuracy: number;
+    determinedLang?: string;
+    summary: string;
+};
+
 export type MastodonApiObject = (
     MastodonObjWithID |
     mastodon.v1.Tag |
