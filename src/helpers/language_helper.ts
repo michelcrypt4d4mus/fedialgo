@@ -5,7 +5,6 @@ import LanguageDetect from 'languagedetect';
 import { detectAll } from 'tinyld';
 
 import { NULL, isNumber } from './string_helpers';
-import { traceLog } from './log_helpers';
 
 export const MIN_LANG_ACCURACY = 0.4;
 export const MIN_ALT_LANG_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy

@@ -58,10 +58,9 @@ enum TootVisibility {
     UNLISTED = "unlisted",
 };
 
-const MAX_ID_IDX = 2;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
+const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
-const OVERRULE_LANG_ACCURACY = 0.03;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = bracketed("repairToot");
@@ -548,15 +547,11 @@ export default class Toot implements TootObj {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) console.warn(`${REPAIR_TOOT} no language detected`, langData);
             this.language ??= Config.defaultLanguage;
             return;
-        }
-
-        // Return if either language detection matches the toot's language
-        if ((detectedLang && detectedLang == this.language) || (altLanguage && altLanguage == this.language)) {
+        } // Return if either language detection matches the toot's language
+        else if ((detectedLang && detectedLang == this.language) || (altLanguage && altLanguage == this.language)) {
             return;
-        }
-
-        // Or if we have successfully detected a language
-        if (determinedLang) {
+        } // Or if we have successfully detected a language
+        else if (determinedLang) {
             if (this.language && this.language != UNKNOWN) {
                 traceLog(`${REPAIR_TOOT} Using determinedLang "${determinedLang}" to replace "${this.language}" \nfor "${text}"`, langData);
             }
@@ -577,14 +572,14 @@ export default class Toot implements TootObj {
                 return;
             } else if (altLanguage && altLangAccuracy && altLanguage == LANGUAGE_CODES.english && altLangAccuracy > MIN_ALT_LANG_ACCURACY) {
                 // If detectedLang is low accuracy but altLanguage is English and decent accuracy, use that
-                console.debug(`${REPAIR_TOOT} Ignoring detected "${detectedLang}" and accepting english from altLanguage\n${logStr}`, langData);
+                console.debug(`${REPAIR_TOOT} Accepting "en" from altLanguage for "${text}"`, langData);
                 this.language = LANGUAGE_CODES.english;
                 return;
             }
         }
 
         if (this.language) {
-            console.info(`${REPAIR_TOOT} No guess good enough to override existing language for "${text}"\n${logStr}`, langData);
+            console.info(`${REPAIR_TOOT} No guess good enough to override language "${this.language}" for "${text}"`, langData);
             return;
         }
 
