@@ -4,6 +4,7 @@ export declare const KILOBYTE = 1024;
 export declare const MEGABYTE: number;
 export declare const FEDIALGO = "FediAlgo";
 export declare const NULL = "<<NULL>>";
+export declare const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 export declare const TELEMETRY = "TELEMETRY";
 export declare const GIFV = "gifv";
 export declare const IMAGE_EXTENSIONS: string[];

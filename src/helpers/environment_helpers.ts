@@ -12,4 +12,4 @@ console.log(
 export const isDebugMode = process.env.FEDIALGO_DEBUG === "true";
 export const isLoadTest = process.env.LOAD_TEST === "true";
 export const isProduction = process.env.NODE_ENV === "production";
-export const isQuickMode = process.env.QUICK_MODE === "true" || isDebugMode;
+export const isQuickMode = isDebugMode || (process.env.QUICK_MODE === "true");

@@ -13,11 +13,11 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
-import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { Config, ConfigType } from "../config";
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
+import { SET_LOADING_STATUS, bracketed, extractDomain } from '../helpers/string_helpers';
 
 export const INSTANCE = "instance";
 export const LINKS = "links";
@@ -54,6 +54,13 @@ interface FetchParams<T> {
     skipCache?: boolean,
     skipMutex?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
+};
+
+interface HomeTimelineParams {
+    mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
+    maxId?: string | number,  // Optional maxId to use to start pagination
+    maxRecords?: number,
+    moreOldToots?: boolean,   // True if we want to work backwards from toots we have in the cache
 };
 
 
@@ -106,12 +113,8 @@ export default class MastoApi {
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
-    async fetchHomeFeed(
-        mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
-        moreOldToots?: boolean,
-        maxRecords?: number,
-        maxId?: string | number,  // Optional maxId to use to start pagination
-    ): Promise<Toot[]> {
+    async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
+        let { maxId, maxRecords, mergeTootsToFeed, moreOldToots } = params;
         maxRecords ||= Config.numDesiredTimelineToots;
         const logPrefix = bracketed(StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -195,7 +198,7 @@ export default class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                console.log([`[SET_LOADING_STATUS] ${logPrefix} built ${toots.length} toots`])
+                console.log(`[${SET_LOADING_STATUS}] ${logPrefix} built ${toots.length} toots`);
 
                 if (maxRecordsConfigKey) {
                     toots = truncateToConfiguredLength(toots, maxRecordsConfigKey);
@@ -204,7 +207,7 @@ export default class MastoApi {
                 await Storage.set(key, toots);
             }
 
-            traceLog(`[SET_LOADING_STATUS] ${logPrefix} finished retrieving ${ageString(startedAt)}`);
+            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} finished retrieving ${ageString(startedAt)}`);
             return toots;
         } finally {
             releaseMutex();

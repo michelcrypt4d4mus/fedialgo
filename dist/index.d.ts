@@ -81,6 +81,7 @@ declare class TheAlgorithm {
     private checkIfSkpping;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
+    private getHomeTimeline;
     private launchBackgroundPoller;
     private loadCachedData;
     private logTelemetry;

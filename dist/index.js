@@ -97,7 +97,6 @@ const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
-const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 ;
 class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
@@ -184,8 +183,7 @@ class TheAlgorithm {
             return;
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         let dataLoads = [
-            api_1.default.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this))
-                .then((toots) => this.homeFeed = toots),
+            this.getHomeTimeline().then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
@@ -210,8 +208,7 @@ class TheAlgorithm {
             throw new Error(`triggerTootBackFill() called but feed is empty!`);
         console.log(`${(0, string_helpers_1.bracketed)(log_helpers_1.BACKFILL_FEED)} called, state:`, this.statusDict());
         this.setLoadingStateVariables(log_helpers_1.BACKFILL_FEED);
-        const toots = await api_1.default.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), true);
-        this.homeFeed = toots;
+        this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
     }
     // Return the current filtered timeline feed in weight order
@@ -234,7 +231,7 @@ class TheAlgorithm {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
             await this._mergeTootsToFeed(newToots, logPrefix);
-            (0, log_helpers_1.traceLog)(`[${SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
+            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
         }
         finally {
             releaseMutex();
@@ -350,6 +347,13 @@ class TheAlgorithm {
         }
         return filteredFeed;
     }
+    // Simple wrapper for triggering fetchHomeFeed()
+    async getHomeTimeline(moreOldToots) {
+        return await api_1.default.instance.fetchHomeFeed({
+            mergeTootsToFeed: this.lockedMergeToFeed.bind(this),
+            moreOldToots: moreOldToots
+        });
+    }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
         if (this.dataPoller) {
@@ -422,7 +426,7 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate() {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
+        const logPrefix = `${string_helpers_1.SET_LOADING_STATUS} finishFeedUpdate()`;
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`[${logPrefix}] ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
@@ -460,7 +464,7 @@ class TheAlgorithm {
         else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
-        (0, log_helpers_1.logDebug)(`[${SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
+        (0, log_helpers_1.logDebug)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {

@@ -8,6 +8,12 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
+interface HomeTimelineParams {
+    mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
+    maxId?: string | number;
+    maxRecords?: number;
+    moreOldToots?: boolean;
+}
 export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
@@ -21,7 +27,7 @@ export default class MastoApi {
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
-    fetchHomeFeed(mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>, moreOldToots?: boolean, maxRecords?: number, maxId?: string | number): Promise<Toot[]>;
+    fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
     getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
     getFollowedAccounts(): Promise<Account[]>;
@@ -44,3 +50,4 @@ export default class MastoApi {
     static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
 }
 export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;
+export {};

@@ -40,7 +40,7 @@ import { Config, SCORERS_CONFIG, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
-import { FEDIALGO, GIFV, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, logTelemetry, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
@@ -68,7 +68,6 @@ const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider usin
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const READY_TO_LOAD_MSG = "Ready to load"
-const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -177,8 +176,7 @@ class TheAlgorithm {
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         let dataLoads: Promise<any>[] = [
-            MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this))
-                .then((toots) => this.homeFeed = toots),
+            this.getHomeTimeline().then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
         ];
 
@@ -206,9 +204,7 @@ class TheAlgorithm {
         if (!this.feed.length) throw new Error(`triggerTootBackFill() called but feed is empty!`);
         console.log(`${bracketed(BACKFILL_FEED)} called, state:`, this.statusDict());
         this.setLoadingStateVariables(BACKFILL_FEED);
-
-        const toots = await MastoApi.instance.fetchHomeFeed(this.lockedMergeToFeed.bind(this), true);
-        this.homeFeed = toots
+        this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
     }
 
@@ -366,6 +362,14 @@ class TheAlgorithm {
         }
 
         return filteredFeed;
+    }
+
+    // Simple wrapper for triggering fetchHomeFeed()
+    private async getHomeTimeline(moreOldToots?: boolean): Promise<Toot[]> {
+        return await MastoApi.instance.fetchHomeFeed({
+            mergeTootsToFeed: this.lockedMergeToFeed.bind(this),
+            moreOldToots: moreOldToots
+        });
     }
 
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist

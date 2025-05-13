@@ -34,11 +34,11 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const types_1 = require("../types");
-const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
+const string_helpers_1 = require("../helpers/string_helpers");
 exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
@@ -51,6 +51,7 @@ const BATCH_SIZES = {
     [types_1.StorageKey.FOLLOWED_TAGS]: 100,
     [types_1.StorageKey.RECENT_NOTIFICATIONS]: 80, // https://docs.joinmastodon.org/methods/notifications/#get
 };
+;
 ;
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
@@ -93,7 +94,8 @@ class MastoApi {
     //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
-    async fetchHomeFeed(mergeTootsToFeed, moreOldToots, maxRecords, maxId) {
+    async fetchHomeFeed(params) {
+        let { maxId, maxRecords, mergeTootsToFeed, moreOldToots } = params;
         maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -164,13 +166,13 @@ class MastoApi {
                 const statuses = await fetch();
                 console.debug(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                console.log([`[SET_LOADING_STATUS] ${logPrefix} built ${toots.length} toots`]);
+                console.log(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} built ${toots.length} toots`);
                 if (maxRecordsConfigKey) {
                     toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
                 }
                 await Storage_1.default.set(key, toots);
             }
-            (0, log_helpers_1.traceLog)(`[SET_LOADING_STATUS] ${logPrefix} finished retrieving ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} finished retrieving ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         finally {

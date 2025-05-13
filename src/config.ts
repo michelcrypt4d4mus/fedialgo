@@ -316,8 +316,8 @@ if (isQuickMode) {
     Config.lookbackForUpdatesMinutes = 15;
     Config.maxRecordsForFeatureScoring = 480;
     Config.numDesiredTimelineToots = 500;
-    Config.numParticipatedTagsToFetchTootsFor = 10;
-    Config.numTrendingTags = 10;
+    Config.numParticipatedTagsToFetchTootsFor = 20;
+    Config.numTrendingTags = 20;
 }
 
 // Heavy load test settings
