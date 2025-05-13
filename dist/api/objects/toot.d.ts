@@ -107,11 +107,11 @@ export default class Toot implements TootObj {
     getScore(): number;
     tootedAt(): Date;
     private attachmentsOfType;
+    private completeProperties;
     private containsTagsOfTypeMsg;
     private isUsersOwnToot;
     private repair;
     private determineLanguage;
-    private completeProperties;
     private shouldComplete;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;

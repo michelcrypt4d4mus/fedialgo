@@ -3,7 +3,6 @@
  * for dealing with Toot objects.
  */
 import { capitalCase } from "change-case";
-import { detectAll } from 'tinyld';
 import { mastodon } from "masto";
 import { Type } from 'class-transformer';
 const escape = require('regexp.escape');
@@ -13,10 +12,10 @@ import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
-import { ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
+import { ageInHours, ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
-import { FOREIGN_SCRIPTS, LANGUAGE_CODES } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLangInfo } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import {
@@ -36,7 +35,6 @@ import {
     replaceEmojiShortcodesWithImageTags,
     replaceHttpsLinks
 } from "../../helpers/string_helpers";
-import { detectLangInfo } from '../../helpers/language_helper';
 import {
     FeedFilterSettings,
     MastodonTag,
@@ -81,6 +79,11 @@ const TAG_ONLY_STRINGS = [
     "un",
     "us",
 ];
+
+const TAG_ONLY_STRING_LOOKUP = TAG_ONLY_STRINGS.reduce((acc, str) => {
+    acc[str] = true;
+    return acc;
+}, {} as Record<string, boolean>);
 
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo
@@ -227,7 +230,7 @@ export default class Toot implements TootObj {
 
     // Time since this toot was sent in hours
     ageInHours(): number {
-        return ageInSeconds(this.tootedAt()) / 3600;
+        return ageInHours(this.tootedAt());
     }
 
     // Experimental alternative format for the scoreInfo property used in demo app
@@ -277,7 +280,7 @@ export default class Toot implements TootObj {
         let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
         if (tagName.startsWith("#")) tagName = tagName.slice(1);
 
-        if (fullScan && tagName.length > 1 && !TAG_ONLY_STRINGS.includes(tagName)) {
+        if (fullScan && (tagName.length > 1) && !(tagName in TAG_ONLY_STRING_LOOKUP)) {
             return this.containsString(tagName);
         } else {
             return this.tags.some((tag) => tag.name == tagName);

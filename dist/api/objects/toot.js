@@ -31,7 +31,6 @@ const language_helper_1 = require("../../helpers/language_helper");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
-const language_helper_2 = require("../../helpers/language_helper");
 const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
@@ -63,6 +62,10 @@ const TAG_ONLY_STRINGS = [
     "un",
     "us",
 ];
+const TAG_ONLY_STRING_LOOKUP = TAG_ONLY_STRINGS.reduce((acc, str) => {
+    acc[str] = true;
+    return acc;
+}, {});
 ;
 ;
 class Toot {
@@ -167,7 +170,7 @@ class Toot {
     }
     // Time since this toot was sent in hours
     ageInHours() {
-        return (0, time_helpers_1.ageInSeconds)(this.tootedAt()) / 3600;
+        return (0, time_helpers_1.ageInHours)(this.tootedAt());
     }
     // Experimental alternative format for the scoreInfo property used in demo app
     alternateScoreInfo() {
@@ -211,7 +214,7 @@ class Toot {
         let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
         if (tagName.startsWith("#"))
             tagName = tagName.slice(1);
-        if (fullScan && tagName.length > 1 && !TAG_ONLY_STRINGS.includes(tagName)) {
+        if (fullScan && (tagName.length > 1) && !(tagName in TAG_ONLY_STRING_LOOKUP)) {
             return this.containsString(tagName);
         }
         else {
@@ -361,6 +364,34 @@ class Toot {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
         return mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
+    // Some properties cannot be repaired and/or set until info about the user is available.
+    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
+    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
+    completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
+        if (!this.shouldComplete())
+            return;
+        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
+        this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
+        if (this.reblog) {
+            this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
+        }
+        // Retoots never have their own tags, etc.
+        const toot = this.realToot();
+        const allFollowedTags = Object.values(userData.followedTags);
+        // containsString() matched way too many toots so we use containsTag() for participated tags
+        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
+        // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
+        // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
+        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        if (isDeepInspect) {
+            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
+        }
+        else {
+            toot.trendingLinks ||= []; // Very slow to calculate so skip it unless isDeepInspect is true
+        }
+    }
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
@@ -447,7 +478,7 @@ class Toot {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
-        const langDetectInfo = (0, language_helper_2.detectLangInfo)(text);
+        const langDetectInfo = (0, language_helper_1.detectLangInfo)(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const summary = `toot.language="${this.language}", ${langDetectInfo.summary}`;
         const langLogObj = { ...langDetectInfo, summary, text, toot: this };
@@ -492,34 +523,6 @@ class Toot {
         else {
             logTrace(`Defaulting language prop to "en"`);
             this.language ??= config_1.Config.defaultLanguage;
-        }
-    }
-    // Some properties cannot be repaired and/or set until info about the user is available.
-    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
-    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
-        if (!this.shouldComplete())
-            return;
-        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
-        this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-        if (this.reblog) {
-            this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
-        }
-        // Retoots never have their own tags, etc.
-        const toot = this.realToot();
-        const allFollowedTags = Object.values(userData.followedTags);
-        // containsString() matched way too many toots so we use containsTag() for participated tags
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
-        // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
-        // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
-        toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
-        if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
-            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
-        }
-        else {
-            toot.trendingLinks ||= []; // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
     // Returns true if the toot should be re-completed
