@@ -2,10 +2,9 @@
  * Detecting language etc.
  */
 import LanguageDetect from 'languagedetect';
+import { detectAll } from 'tinyld';
 
-import { detectAll } from 'tinyld/*';
-import { LanguageDetectInfo } from '../types';
-import { NULL } from './string_helpers';
+import { NULL, isNumber } from './string_helpers';
 
 export const MIN_LANG_ACCURACY = 0.4;
 export const MIN_ALT_LANG_ACCURACY = 0.2;  // LanguageDetect never gets very high accuracy
@@ -219,10 +218,40 @@ export const LANGUAGE_CODES: Record<string, string> = {
 export const FOREIGN_SCRIPTS = [
     LANGUAGE_CODES.arabic,
     LANGUAGE_CODES.chinese,
+    `${LANGUAGE_CODES.chinese}-CN`,
     `${LANGUAGE_CODES.chinese}-TW`,
     LANGUAGE_CODES.japanese,
     LANGUAGE_CODES.korean,
 ];
+
+
+// International locales, see: https://gist.github.com/wpsmith/7604842
+export const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
+export const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
+export const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
+export const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
+
+// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
+export const LANGUAGE_REGEXES = {
+    [LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
+    [LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'), // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
+    [LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
+    [LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'), // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
+    [LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+};
+
+
+type LanguageDetectInfo = {
+    accuracies: number[];
+    altLanguage?: string;
+    altDetectedLangs: [string, number][];
+    altLangAccuracy: number;
+    detectedLang?: string;
+    detectedLangs: {accuracy: number, lang: string}[];
+    detectedLangAccuracy: number;
+    determinedLang?: string;
+    summary: string;
+};
 
 
 // Use the two different language detectors to guess a language
@@ -293,4 +322,18 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
         determinedLang,
         summary,
     };
+};
+
+
+// Returns the language code of the matched regex (if any). This is our janky version of language detection.
+export const detectHashtagLanguage = (str: string): string | undefined => {
+    let language: string | undefined;
+
+    Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
+        if (regex.test(str) && !isNumber(str)) {
+            language = lang;
+        }
+    });
+
+    return language;
 };

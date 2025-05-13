@@ -3,13 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeOctothorpe = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.detectLanguage = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LOCALE = exports.KOREAN_LOCALE = exports.JAPANESE_LOCALE = exports.GREEK_LOCALE = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeOctothorpe = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
-const language_helper_1 = require("./language_helper");
 const types_1 = require("../types");
 // Number constants
 exports.DEFAULT_FONT_SIZE = 15;
@@ -37,19 +36,6 @@ exports.MEDIA_TYPES = [
     types_1.MediaCategory.AUDIO,
     types_1.MediaCategory.IMAGE,
 ];
-// International locales, see: https://gist.github.com/wpsmith/7604842
-exports.GREEK_LOCALE = `${language_helper_1.LANGUAGE_CODES.greek}-GR`;
-exports.JAPANESE_LOCALE = `${language_helper_1.LANGUAGE_CODES.japanese}-JP`;
-exports.KOREAN_LOCALE = `${language_helper_1.LANGUAGE_CODES.korean}-KR`;
-exports.RUSSIAN_LOCALE = `${language_helper_1.LANGUAGE_CODES.russian}-${language_helper_1.LANGUAGE_CODES.russian.toUpperCase()}`;
-// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
-exports.LANGUAGE_REGEXES = {
-    [language_helper_1.LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
-    [language_helper_1.LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
-    [language_helper_1.LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
-    [language_helper_1.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
-    [language_helper_1.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
-};
 // [Bracketed]
 const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
 exports.bracketed = bracketed;
@@ -88,17 +74,6 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
-// Returns the language code of the matched regex (if any)
-const detectLanguage = (str) => {
-    let language;
-    Object.entries(exports.LANGUAGE_REGEXES).forEach(([lang, regex]) => {
-        if (regex.test(str) && !(0, exports.isNumber)(str)) {
-            language = lang;
-        }
-    });
-    return language;
-};
-exports.detectLanguage = detectLanguage;
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";

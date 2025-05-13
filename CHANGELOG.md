@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Consolidate language detection stuff in `language_helper.ts`
 
 ### v0.33.5
 * Language detection for toots that need it

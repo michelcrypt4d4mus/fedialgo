@@ -545,7 +545,7 @@ export default class Toot implements TootObj {
         // If both language tests agree w/ enough accuracy, use the detected language
         if (determinedLang) {
             if (this.language && this.language != UNKNOWN) {
-                console.debug(`Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
+                traceLog(`Using determinedLang to replace "${this.language}" w/ "${determinedLang}". ${logStr}`, langInfo);
             }
 
             this.language = detectedLang;
@@ -553,7 +553,7 @@ export default class Toot implements TootObj {
         }
 
         if (detectedLang && FOREIGN_SCRIPTS.includes(detectedLang) && this.language?.startsWith(detectedLang)) {
-            console.debug(`Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
+            traceLog(`Using existing foreign script "${this.language}" even with low accuracy. ${logStr}`, langInfo);
             return;
         }
 

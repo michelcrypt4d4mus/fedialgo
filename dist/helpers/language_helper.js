@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detectLangInfo = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.OVERCONFIDENT_LANGUAGES = exports.IGNORE_LANGUAGES = exports.LANGUAGE_DETECTOR = exports.VERY_HIGH_LANG_ACCURACY = exports.MIN_ALT_LANG_ACCURACY = exports.MIN_LANG_ACCURACY = void 0;
+exports.detectHashtagLanguage = exports.detectLangInfo = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LOCALE = exports.KOREAN_LOCALE = exports.JAPANESE_LOCALE = exports.GREEK_LOCALE = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.OVERCONFIDENT_LANGUAGES = exports.IGNORE_LANGUAGES = exports.LANGUAGE_DETECTOR = exports.VERY_HIGH_LANG_ACCURACY = exports.MIN_ALT_LANG_ACCURACY = exports.MIN_LANG_ACCURACY = void 0;
 /*
  * Detecting language etc.
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
-const _1 = require("tinyld/*");
+const tinyld_1 = require("tinyld");
 const string_helpers_1 = require("./string_helpers");
 exports.MIN_LANG_ACCURACY = 0.4;
 exports.MIN_ALT_LANG_ACCURACY = 0.2; // LanguageDetect never gets very high accuracy
@@ -216,14 +216,28 @@ exports.LANGUAGE_CODES = {
 exports.FOREIGN_SCRIPTS = [
     exports.LANGUAGE_CODES.arabic,
     exports.LANGUAGE_CODES.chinese,
+    `${exports.LANGUAGE_CODES.chinese}-CN`,
     `${exports.LANGUAGE_CODES.chinese}-TW`,
     exports.LANGUAGE_CODES.japanese,
     exports.LANGUAGE_CODES.korean,
 ];
+// International locales, see: https://gist.github.com/wpsmith/7604842
+exports.GREEK_LOCALE = `${exports.LANGUAGE_CODES.greek}-GR`;
+exports.JAPANESE_LOCALE = `${exports.LANGUAGE_CODES.japanese}-JP`;
+exports.KOREAN_LOCALE = `${exports.LANGUAGE_CODES.korean}-KR`;
+exports.RUSSIAN_LOCALE = `${exports.LANGUAGE_CODES.russian}-${exports.LANGUAGE_CODES.russian.toUpperCase()}`;
+// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
+exports.LANGUAGE_REGEXES = {
+    [exports.LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
+    [exports.LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
+    [exports.LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
+    [exports.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
+    [exports.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+};
 // Use the two different language detectors to guess a language
 const detectLangInfo = (text) => {
     // Use the tinyld language detector to get the detectedLang
-    const detectedLangs = (0, _1.detectAll)(text);
+    const detectedLangs = (0, tinyld_1.detectAll)(text);
     let detectedLang = detectedLangs[0]?.lang;
     let detectedLangAccuracy = detectedLangs[0]?.accuracy || 0;
     // Use LanguageDetector to get the altLanguage
@@ -285,4 +299,15 @@ const detectLangInfo = (text) => {
     };
 };
 exports.detectLangInfo = detectLangInfo;
+// Returns the language code of the matched regex (if any). This is our janky version of language detection.
+const detectHashtagLanguage = (str) => {
+    let language;
+    Object.entries(exports.LANGUAGE_REGEXES).forEach(([lang, regex]) => {
+        if (regex.test(str) && !(0, string_helpers_1.isNumber)(str)) {
+            language = lang;
+        }
+    });
+    return language;
+};
+exports.detectHashtagLanguage = detectHashtagLanguage;
 //# sourceMappingURL=language_helper.js.map

@@ -34,7 +34,7 @@ const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const config_1 = require("../config");
-const string_helpers_1 = require("../helpers/string_helpers");
+const language_helper_1 = require("../helpers/language_helper");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
@@ -95,7 +95,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
-            const language = (0, string_helpers_1.detectLanguage)(tag.name);
+            const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
             if (language && language != config_1.Config.language) {
                 suppressedNonLatinTags[language] ??= {};
                 (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[language], tag.name);

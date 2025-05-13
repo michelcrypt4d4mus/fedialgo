@@ -7,7 +7,7 @@ import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { Config } from "../config";
-import { detectLanguage } from "../helpers/string_helpers";
+import { detectHashtagLanguage } from "../helpers/language_helper";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
@@ -93,7 +93,7 @@ export function updatePropertyFilterOptions(
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
-            const language = detectLanguage(tag.name);
+            const language = detectHashtagLanguage(tag.name);
 
             if (language && language != Config.language) {
                 suppressedNonLatinTags[language] ??= {};

@@ -5,7 +5,7 @@ import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { mastodon } from 'masto';
 
-import { LANGUAGE_CODES } from "./language_helper";
+import { LANGUAGE_REGEXES } from "./language_helper";
 import { MediaCategory } from '../types';
 
 // Number constants
@@ -40,20 +40,6 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
     MediaCategory.IMAGE,
 ];
 
-// International locales, see: https://gist.github.com/wpsmith/7604842
-export const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
-export const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
-export const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
-export const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
-
-// See https://www.regular-expressions.info/unicode.html for unicode regex scripts
-export const LANGUAGE_REGEXES = {
-    [LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
-    [LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
-    [LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
-    [LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),  // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
-    [LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
-};
 
 // [Bracketed]
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
@@ -89,20 +75,6 @@ export function createRandomString(length: number): string {
     }
 
     return result;
-};
-
-
-// Returns the language code of the matched regex (if any)
-export const detectLanguage = (str: string): string | undefined => {
-    let language: string | undefined;
-
-    Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
-        if (regex.test(str) && !isNumber(str)) {
-            language = lang;
-        }
-    });
-
-    return language;
 };
 
 
