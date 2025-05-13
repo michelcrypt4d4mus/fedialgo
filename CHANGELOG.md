@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Increase cached toots default config to 3,500
 
 ### v0.33.8
 * More language detection cleanup

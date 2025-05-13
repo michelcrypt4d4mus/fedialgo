@@ -90,7 +90,7 @@ export const Config: ConfigType = {
     //////////////////////////////////////
     // Number of toots config variables //
     ///////////////////////////////////////
-    maxCachedTimelineToots: 2_500,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+    maxCachedTimelineToots: 3_500,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
     numDesiredTimelineToots: 800,           // How many home timeline toots to start with
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30, // Pull toots for this many of the user's most participated tags

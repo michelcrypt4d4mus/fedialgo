@@ -513,7 +513,7 @@ class Toot {
         }
         // Prioritize English in edge cases with low tinyLD accuracy but "en" either in toot or in LangDetector result
         if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == language_helper_1.LANGUAGE_CODES.english) {
-            logTrace(`Accepting "en" from langDetector.detectedLang"`);
+            logTrace(`Accepting "en" from langDetector.detectedLang`);
             this.language = language_helper_1.LANGUAGE_CODES.english;
             return;
         }

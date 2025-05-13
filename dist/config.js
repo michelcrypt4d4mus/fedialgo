@@ -25,7 +25,7 @@ exports.Config = {
     //////////////////////////////////////
     // Number of toots config variables //
     ///////////////////////////////////////
-    maxCachedTimelineToots: 2500,
+    maxCachedTimelineToots: 3500,
     numDesiredTimelineToots: 800,
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30,

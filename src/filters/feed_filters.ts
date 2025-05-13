@@ -6,6 +6,7 @@ import PropertyFilter, { PropertyName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
+import { ageString } from "../helpers/time_helpers";
 import { Config } from "../config";
 import { detectHashtagLanguage } from "../helpers/language_helper";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
@@ -18,7 +19,6 @@ import {
     StringNumberDict,
     WeightName,
 } from "../types";
-import { ageInSeconds, ageString } from "../helpers/time_helpers";
 
 export const DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
@@ -133,7 +133,7 @@ export function updatePropertyFilterOptions(
         console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
-    Storage.setFilters(filters);  // TODO: there's no "await" here...
+    Storage.setFilters(filters);  // NOTE: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };

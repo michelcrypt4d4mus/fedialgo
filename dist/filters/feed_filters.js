@@ -33,12 +33,12 @@ exports.updateHashtagCounts = exports.updatePropertyFilterOptions = exports.buil
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const property_filter_1 = __importStar(require("./property_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
+const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const language_helper_1 = require("../helpers/language_helper");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
-const time_helpers_1 = require("../helpers/time_helpers");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
     filterSections: {},
@@ -129,7 +129,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
         console.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
-    Storage_1.default.setFilters(filters); // TODO: there's no "await" here...
+    Storage_1.default.setFilters(filters); // NOTE: there's no "await" here...
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }

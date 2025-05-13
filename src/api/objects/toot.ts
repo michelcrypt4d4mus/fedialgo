@@ -614,7 +614,7 @@ export default class Toot implements TootObj {
 
         // Prioritize English in edge cases with low tinyLD accuracy but "en" either in toot or in LangDetector result
         if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == LANGUAGE_CODES.english) {
-            logTrace(`Accepting "en" from langDetector.detectedLang"`);
+            logTrace(`Accepting "en" from langDetector.detectedLang`);
             this.language = LANGUAGE_CODES.english;
             return;
         }
