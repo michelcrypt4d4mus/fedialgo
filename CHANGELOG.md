@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.33.8
+* More language detection cleanup
+
 ### v0.33.7
 * Fix language fall through logic, clean up code
 
