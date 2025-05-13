@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Increase cached toots default config to 3,500
+* `HomeTimelineParams` interface and helper in `TheAlgorithm`
 
 ### v0.33.8
 * More language detection cleanup
