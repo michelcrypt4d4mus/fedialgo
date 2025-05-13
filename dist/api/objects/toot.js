@@ -478,7 +478,7 @@ class Toot {
             this.language ??= config_1.Config.defaultLanguage;
             return;
         }
-        const langDetectInfo = (0, language_helper_1.detectLangInfo)(text);
+        const langDetectInfo = (0, language_helper_1.detectLanguage)(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const summary = `toot.language="${this.language}", ${langDetectInfo.summary}`;
         const langLogObj = { ...langDetectInfo, summary, text, toot: this };
@@ -492,7 +492,7 @@ class Toot {
             return;
         }
         // If either language detection matches this.language return
-        if (this.language && (tinyLD.detectedLang == this.language || langDetector.detectedLang == this.language)) {
+        if (this.language && (tinyLD.chosenLang == this.language || langDetector.chosenLang == this.language)) {
             return;
         }
         // Or if we have successfully detected a language assign it to this.language and return
@@ -507,12 +507,12 @@ class Toot {
             this.language = chosenLanguage;
             return;
         }
-        if (tinyLD.detectedLang && language_helper_1.FOREIGN_SCRIPTS.includes(tinyLD.detectedLang) && this.language?.startsWith(tinyLD.detectedLang)) {
+        if (tinyLD.chosenLang && language_helper_1.FOREIGN_SCRIPTS.includes(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang)) {
             logTrace(`Using existing foreign lang "${this.language}" even with low accuracy`);
             return;
         }
         // Prioritize English in edge cases with low tinyLD accuracy but "en" either in toot or in LangDetector result
-        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.detectedLang == language_helper_1.LANGUAGE_CODES.english) {
+        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == language_helper_1.LANGUAGE_CODES.english) {
             logTrace(`Accepting "en" from langDetector.detectedLang"`);
             this.language = language_helper_1.LANGUAGE_CODES.english;
             return;

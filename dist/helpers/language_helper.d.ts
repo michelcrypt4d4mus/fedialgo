@@ -9,22 +9,22 @@ export declare const RUSSIAN_LOCALE: string;
 export declare const LANGUAGE_REGEXES: {
     [x: string]: RegExp;
 };
-type LangResult = {
+type LanguageAccuracies = {
     accuracy: number;
     lang: string;
 }[];
-type LangDetectResult = {
-    languageAccuracies: LangResult;
-    detectedLang?: string;
+type DetectLangLibraryResult = {
     accuracy: number;
+    chosenLang?: string;
     isAccurate: boolean;
+    languageAccuracies: LanguageAccuracies;
 };
 type LanguageDetectInfo = {
     chosenLanguage?: string;
-    langDetector: LangDetectResult;
-    tinyLD: LangDetectResult;
+    langDetector: DetectLangLibraryResult;
+    tinyLD: DetectLangLibraryResult;
     summary: string;
 };
-export declare const detectLangInfo: (text: string) => LanguageDetectInfo;
-export declare const detectHashtagLanguage: (str: string) => string | undefined;
+export declare const detectLanguage: (text: string) => LanguageDetectInfo;
+export declare function detectHashtagLanguage(str: string): string | undefined;
 export {};

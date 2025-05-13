@@ -15,7 +15,7 @@ import UserData from "../user_data";
 import { ageInHours, ageInSeconds, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
-import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLangInfo } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import {
@@ -573,7 +573,7 @@ export default class Toot implements TootObj {
             return;
         }
 
-        const langDetectInfo = detectLangInfo(text);
+        const langDetectInfo = detectLanguage(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const summary = `toot.language="${this.language}", ${langDetectInfo.summary}`;
         const langLogObj = {...langDetectInfo, summary, text, toot: this};
@@ -590,7 +590,7 @@ export default class Toot implements TootObj {
         }
 
         // If either language detection matches this.language return
-        if (this.language && (tinyLD.detectedLang == this.language || langDetector.detectedLang == this.language)) {
+        if (this.language && (tinyLD.chosenLang == this.language || langDetector.chosenLang == this.language)) {
             return;
         }
 
@@ -607,13 +607,13 @@ export default class Toot implements TootObj {
             return;
         }
 
-        if (tinyLD.detectedLang && FOREIGN_SCRIPTS.includes(tinyLD.detectedLang) && this.language?.startsWith(tinyLD.detectedLang)) {
+        if (tinyLD.chosenLang && FOREIGN_SCRIPTS.includes(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang)) {
             logTrace(`Using existing foreign lang "${this.language}" even with low accuracy`);
             return;
         }
 
         // Prioritize English in edge cases with low tinyLD accuracy but "en" either in toot or in LangDetector result
-        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.detectedLang == LANGUAGE_CODES.english) {
+        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == LANGUAGE_CODES.english) {
             logTrace(`Accepting "en" from langDetector.detectedLang"`);
             this.language = LANGUAGE_CODES.english;
             return;
