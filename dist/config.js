@@ -4,8 +4,9 @@ exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN
 /*
  * Centralized location for non-user configurable settings.
  */
-const environment_helpers_1 = require("./helpers/environment_helpers");
 const types_1 = require("./types");
+const environment_helpers_1 = require("./helpers/environment_helpers");
+const log_helpers_1 = require("./helpers/log_helpers");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * 60;
@@ -221,6 +222,7 @@ function setLocale(locale) {
     }
     exports.Config.locale = locale;
     const [language, country] = locale.split("-");
+    exports.Config.country = country || DEFAULT_COUNTRY;
     if (language) {
         if (language == DEFAULT_LANGUAGE || language in exports.Config.foreignLanguageServers) {
             exports.Config.language = language;
@@ -229,7 +231,6 @@ function setLocale(locale) {
             console.warn(`Language "${language}" not supported, using default "${exports.Config.defaultLanguage}"`);
         }
     }
-    exports.Config.country = country || DEFAULT_COUNTRY;
 }
 exports.setLocale = setLocale;
 ;
@@ -255,12 +256,13 @@ if (environment_helpers_1.isLoadTest) {
     exports.Config.numTrendingTags = 40;
     exports.Config.numTrendingTagsToots = 1000;
 }
-// Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
-exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
-if (!exports.Config.staleDataTrendingSeconds)
-    throw new Error("Config.staleDataTrendingMin is NaN");
+;
+// Validate and set a few derived values in the config
 function validateConfig(cfg) {
+    (0, log_helpers_1.traceLog)(`[Config] Validating config:`, exports.Config);
+    // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+    const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
+    exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {
         if (typeof value === "object") {
@@ -274,7 +276,6 @@ function validateConfig(cfg) {
     });
 }
 ;
-console.debug(`[Config] Validating config:`, exports.Config);
 validateConfig(exports.Config);
 exports.SCORERS_CONFIG = {
     // Global modifiers that affect all weighted scores

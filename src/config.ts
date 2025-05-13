@@ -1,8 +1,9 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
+import { isLoadTest, isQuickMode } from "./helpers/environment_helpers";
+import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
@@ -295,6 +296,7 @@ export function setLocale(locale?: string): void {
 
     Config.locale = locale;
     const [language, country] = locale.split("-");
+    Config.country = country || DEFAULT_COUNTRY;
 
     if (language) {
         if (language == DEFAULT_LANGUAGE || language in Config.foreignLanguageServers) {
@@ -303,8 +305,6 @@ export function setLocale(locale?: string): void {
             console.warn(`Language "${language}" not supported, using default "${Config.defaultLanguage}"`);
         }
     }
-
-    Config.country = country || DEFAULT_COUNTRY;
 };
 
 
@@ -330,16 +330,17 @@ if (isLoadTest) {
     Config.numParticipatedTagTootsPerTag = 10;
     Config.numTrendingTags = 40;
     Config.numTrendingTagsToots = 1_000;
-}
+};
 
 
-// Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-const trendStaleness = FEDIVERSE_KEYS.map(k => Config.staleDataSeconds[k as StorageKey]);
-Config.staleDataTrendingSeconds = Math.min(...trendStaleness as number[]);
-if (!Config.staleDataTrendingSeconds) throw new Error("Config.staleDataTrendingMin is NaN");
-
-
+// Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
+    traceLog(`[Config] Validating config:`, Config);
+
+    // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+    const trendStaleness = FEDIVERSE_KEYS.map(k => Config.staleDataSeconds[k as StorageKey]);
+    Config.staleDataTrendingSeconds = Math.min(...trendStaleness as number[]);
+
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {
         if (typeof value === "object") {
@@ -352,7 +353,6 @@ function validateConfig(cfg: ConfigType | object): void {
     });
 };
 
-console.debug(`[Config] Validating config:`, Config);
 validateConfig(Config);
 
 
