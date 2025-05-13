@@ -2,10 +2,10 @@
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
+const escape = require('regexp.escape');
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 import { Type } from 'class-transformer';
-const escape = require('regexp.escape');
 
 import Account from "./account";
 import MastoApi from "../api";
@@ -47,6 +47,7 @@ import {
     TrendingLink,
     WeightName
 } from "../../types";
+
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -106,6 +107,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
+    attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
     contentString: () => string;
@@ -292,18 +294,6 @@ export default class Toot implements TootObj {
         return this.mentions.some((mention) => mention.acct == MastoApi.instance.user.webfingerURI);
     }
 
-     // Return the toot's 'content' field stripped of HTML tags
-    contentString(): string {
-        return htmlToText(this.realToot().content || "");
-    }
-
-    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
-    contentStripped(): string {
-        const contentWithCard = `${this.contentString()} (${this.card?.description ? htmlToText(this.card.description) : ""})`;
-        let txt = removeMentions(removeEmojis(removeTags(removeLinks(contentWithCard))));
-        return collapseWhitespace(txt);
-    }
-
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars?: number): string {
         maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
@@ -321,6 +311,18 @@ export default class Toot implements TootObj {
         return content;
     }
 
+     // Return the toot's 'content' field stripped of HTML tags
+    contentString(): string {
+        return htmlToText(this.realToot().content || "");
+    }
+
+    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+    contentStripped(): string {
+        const contentWithCard = `${this.contentString()} (${this.card?.description ? htmlToText(this.card.description) : ""})`;
+        let txt = removeMentions(removeEmojis(removeTags(removeLinks(contentWithCard))));
+        return collapseWhitespace(txt);
+    }
+
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
@@ -331,6 +333,10 @@ export default class Toot implements TootObj {
     describe(): string {
         let msg = `${this.account.describe()} [${toISOFormat(this.createdAt)}, ID=${this.id}]`;
         return `${msg}: "${this.contentShortened()}"`;
+    }
+
+    getScore(): number {
+        return this.scoreInfo?.score || 0;
     }
 
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
@@ -428,10 +434,6 @@ export default class Toot implements TootObj {
         }
 
         return this.resolvedToot;
-    }
-
-    getScore(): number {
-        return this.scoreInfo?.score || 0;
     }
 
     // TODO: this maybe needs to take into consideration reblogsBy??
@@ -636,7 +638,6 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects.
     // Toots returned by this method should have all their properties set correctly.
-    // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
     static async buildToots(
         statuses: TootLike[],
         source: string,  // Where did these toots come from?
@@ -654,6 +655,7 @@ export default class Toot implements TootObj {
         toots = Toot.dedupeToots(toots, logPrefix);
         // Make a first pass at scoring with whatever scorers are ready to score
         await Scorer.scoreToots(toots, false);
+        // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         toots.sort((a, b) => b.getScore() - a.getScore());
         console.debug(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
