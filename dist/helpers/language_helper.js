@@ -270,8 +270,7 @@ const detectLangInfo = (text) => {
                 detectedLangAccuracy = detectedLangs[1].accuracy;
             }
             else {
-                detectedLang = undefined;
-                detectedLangAccuracy = 0;
+                detectedLangAccuracy = 0.1;
             }
         }
     }

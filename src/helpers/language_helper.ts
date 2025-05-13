@@ -285,7 +285,8 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
         if (OVERCONFIDENT_LANGUAGES.includes(detectedLang || NULL)
             && detectedLangAccuracy > VERY_HIGH_LANG_ACCURACY
             && altLanguage
-            && altLanguage != detectedLang) {
+            && altLanguage != detectedLang)
+        {
             let warning = `"${detectedLang}" is overconfident (${detectedLangAccuracy}) for "${text}"!`;
             console.warn(`${warning} altLanguage="${altLanguage}" (accuracy: ${altLangAccuracy.toPrecision(4)})`);
 
@@ -293,8 +294,7 @@ export const detectLangInfo = (text: string): LanguageDetectInfo => {
                 detectedLang = detectedLangs[1].lang;
                 detectedLangAccuracy = detectedLangs[1].accuracy;
             } else {
-                detectedLang = undefined;
-                detectedLangAccuracy = 0;
+                detectedLangAccuracy = 0.1;
             }
         }
     }
