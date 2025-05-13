@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Fix language fall through logic
+
+### v0.33.7
+* Fix language fall through logic, clean up code
 
 ### v0.33.6
 * Consolidate language detection stuff in `language_helper.ts`
