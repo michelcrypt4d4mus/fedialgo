@@ -4,7 +4,6 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs, WeightName } from "../types";
-import { isDebugMode } from '../helpers/environment_helpers';
 
 export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_REPLIES,

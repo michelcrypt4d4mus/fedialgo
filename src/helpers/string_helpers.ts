@@ -125,13 +125,13 @@ export function isVideo(uri: string | null | undefined): boolean {
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
 // Remove any emojis
-export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, "");
+export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
 // Remove https links from string
-export const removeLinks = (str: string) => str.replace(LINK_REGEX, "");
+export const removeLinks = (str: string) => str.replace(LINK_REGEX, " ");
 // Remove @username@domain from string
-export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, "");
+export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, " ");
 // Remove all tags from string
-export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, "");
+export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, " ");
 
 
 // Replace custom emoji shortcodes like :smile: with <img> tags

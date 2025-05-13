@@ -123,16 +123,16 @@ exports.isVideo = isVideo;
 const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;
 // Remove any emojis
-const removeEmojis = (str) => str.replace(EMOJI_REGEX, "");
+const removeEmojis = (str) => str.replace(EMOJI_REGEX, " ");
 exports.removeEmojis = removeEmojis;
 // Remove https links from string
-const removeLinks = (str) => str.replace(LINK_REGEX, "");
+const removeLinks = (str) => str.replace(LINK_REGEX, " ");
 exports.removeLinks = removeLinks;
 // Remove @username@domain from string
-const removeMentions = (str) => str.replace(ACCOUNT_MENTION_REGEX, "");
+const removeMentions = (str) => str.replace(ACCOUNT_MENTION_REGEX, " ");
 exports.removeMentions = removeMentions;
 // Remove all tags from string
-const removeTags = (str) => str.replace(HAHSTAG_REGEX, "");
+const removeTags = (str) => str.replace(HAHSTAG_REGEX, " ");
 exports.removeTags = removeTags;
 // Replace custom emoji shortcodes like :smile: with <img> tags
 function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {

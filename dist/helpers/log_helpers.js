@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logDebug = exports.logInfo = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -12,10 +12,10 @@ exports.CLEANUP_FEED = "cleanupFeed()";
 exports.PREP_SCORERS = "prepareScorers()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 // console.log methods with a prefix
-const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
-exports.logInfo = logInfo;
 const logDebug = (pfx, msg, ...args) => console.debug(prefixed(pfx, msg), ...args);
 exports.logDebug = logDebug;
+const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
+exports.logInfo = logInfo;
 // Log a message with a telemetry timing suffix
 function logTelemetry(logPrefix, msg, startedAt, ...args) {
     msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
@@ -26,6 +26,7 @@ function logTelemetry(logPrefix, msg, startedAt, ...args) {
     (0, exports.logInfo)(logPrefix, msg, ...args);
 }
 exports.logTelemetry = logTelemetry;
+;
 // Simple log helper that only fires if numRemoved > 0
 function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)

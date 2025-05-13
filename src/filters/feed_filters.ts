@@ -13,8 +13,8 @@ import { traceLog } from "../helpers/log_helpers";
 import { TYPE_FILTERS } from "./property_filter";
 import {
     FeedFilterSettings,
-    PropertyFilters,
     NumericFilters,
+    PropertyFilters,
     StringNumberDict,
     WeightName,
 } from "../types";

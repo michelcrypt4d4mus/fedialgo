@@ -69,11 +69,11 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     types_1.StorageKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
-const logMsg = (s) => `${LOG_PREFIX} ${s}`;
-const log = (s, ...args) => console.log(logMsg(s), ...args);
-const warn = (s, ...args) => console.warn(logMsg(s), ...args);
-const debug = (s, ...args) => console.debug(logMsg(s), ...args);
-const trace = (s, ...args) => (0, log_helpers_1.traceLog)(logMsg(s), ...args);
+const buildLogMsg = (s) => `${LOG_PREFIX} ${s}`;
+const log = (s, ...args) => console.log(buildLogMsg(s), ...args);
+const warn = (s, ...args) => console.warn(buildLogMsg(s), ...args);
+const debug = (s, ...args) => console.debug(buildLogMsg(s), ...args);
+const trace = (s, ...args) => (0, log_helpers_1.traceLog)(buildLogMsg(s), ...args);
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,

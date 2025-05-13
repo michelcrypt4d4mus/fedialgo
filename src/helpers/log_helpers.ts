@@ -16,10 +16,9 @@ export const CLEANUP_FEED = "cleanupFeed()";
 export const PREP_SCORERS = "prepareScorers()";
 export const TRIGGER_FEED = "triggerFeedUpdate()";
 
-
 // console.log methods with a prefix
-export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
 export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.debug(prefixed(pfx, msg), ...args);
+export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
 
 
 // Log a message with a telemetry timing suffix
@@ -37,7 +36,7 @@ export function logTelemetry(
     }
 
     logInfo(logPrefix, msg, ...args);
-}
+};
 
 
 // Simple log helper that only fires if numRemoved > 0
