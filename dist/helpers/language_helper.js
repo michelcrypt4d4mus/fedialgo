@@ -236,13 +236,15 @@ exports.LANGUAGE_REGEXES = {
     [exports.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
-const buildLangDetectResult = (allDetectResults) => {
+const buildLangDetectResult = (minAccuracy, allDetectResults) => {
     allDetectResults ||= [];
     const firstResult = allDetectResults[0];
+    const accuracy = firstResult?.accuracy || 0;
     return {
+        accuracy,
         allDetectResults,
-        accuracy: firstResult?.accuracy || 0,
         detectedLang: firstResult?.lang,
+        isAccurate: accuracy >= minAccuracy,
     };
 };
 // Use the two different language detectors to guess a language
@@ -257,8 +259,10 @@ const detectLangInfo = (text) => {
         }
         return { accuracy: accuracy, lang: languageCode };
     });
-    const langInfoFromLangDetector = buildLangDetectResult(langsFromLangDetector);
-    const langInfoFromTinyLD = buildLangDetectResult((0, tinyld_1.detectAll)(text));
+    const langInfoFromLangDetector = buildLangDetectResult(exports.MIN_LANG_DETECTOR_ACCURACY, langsFromLangDetector);
+    const langInfoFromTinyLD = buildLangDetectResult(exports.MIN_TINYLD_ACCURACY, (0, tinyld_1.detectAll)(text));
+    // We will set determinedLang to be a high confidence guess (if we find one)
+    let chosenLanguage;
     if (langInfoFromTinyLD.detectedLang) {
         // Ignore Klingon etc.
         if (exports.IGNORE_LANGUAGES.includes(langInfoFromTinyLD.detectedLang)) {
@@ -286,31 +290,29 @@ const detectLangInfo = (text) => {
     const accuracies = [langInfoFromTinyLD.accuracy, langInfoFromLangDetector.accuracy];
     const summary = `tinyLD="${langInfoFromTinyLD.detectedLang}" (accuracy: ${langInfoFromTinyLD.accuracy.toPrecision(4)})` +
         `, langDetector="${langInfoFromLangDetector.detectedLang}" (accuracy: ${langInfoFromLangDetector.accuracy.toPrecision(4)})`;
-    // We will set determinedLang to be a high confidence guess (if we find one)
-    let determinedLang;
     // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
     if (langInfoFromTinyLD.detectedLang
         && langInfoFromTinyLD.detectedLang == langInfoFromLangDetector.detectedLang
-        && (accuracies.some((a) => a > exports.MIN_LANG_DETECTOR_ACCURACY)
+        && (accuracies.some((a) => a > exports.MIN_LANG_DETECTOR_ACCURACY) // TODO: use isaccurate?
             ||
                 accuracies.every((a) => a > (exports.MIN_TINYLD_ACCURACY / 2)))) {
-        determinedLang = langInfoFromTinyLD.detectedLang;
+        chosenLanguage = langInfoFromTinyLD.detectedLang;
     }
     else if (langInfoFromTinyLD.detectedLang
         && langInfoFromLangDetector.detectedLang
         && langInfoFromTinyLD.detectedLang != langInfoFromLangDetector.detectedLang) {
         // if firstLangFromLangDetector.accuracy is high enough and detectedLang is low enough
-        if (langInfoFromLangDetector.accuracy >= exports.MIN_LANG_DETECTOR_ACCURACY) {
+        if (langInfoFromLangDetector.isAccurate) {
             if (langInfoFromTinyLD.accuracy < OVERRULE_LANG_ACCURACY) {
-                determinedLang = langInfoFromLangDetector.detectedLang;
+                chosenLanguage = langInfoFromLangDetector.detectedLang;
             }
             else {
                 // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
             }
         }
-        else if (langInfoFromTinyLD.accuracy >= exports.MIN_TINYLD_ACCURACY) {
+        else if (langInfoFromTinyLD.isAccurate) {
             if (langInfoFromLangDetector.accuracy < OVERRULE_LANG_ACCURACY) {
-                determinedLang = langInfoFromTinyLD.detectedLang;
+                chosenLanguage = langInfoFromTinyLD.detectedLang;
             }
             else {
                 // traceLog(`[detectLangInfo()] languages disagree too much for "${text}". ${summary}`);
@@ -320,10 +322,10 @@ const detectLangInfo = (text) => {
     // tinyld is much better at detecting foreign scripts
     if (langInfoFromTinyLD.accuracy >= exports.VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(langInfoFromTinyLD.detectedLang || string_helpers_1.NULL)) {
         // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
-        determinedLang = langInfoFromTinyLD.detectedLang;
+        chosenLanguage = langInfoFromTinyLD.detectedLang;
     }
     return {
-        determinedLang,
+        chosenLanguage,
         langDetector: langInfoFromLangDetector,
         tinyLD: langInfoFromTinyLD,
         summary,

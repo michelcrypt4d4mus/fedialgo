@@ -120,7 +120,7 @@ function isVideo(uri) {
 exports.isVideo = isVideo;
 ;
 // Collapse whitespace in a string
-const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").trim();
+const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;
 // Remove any emojis
 const removeEmojis = (str) => str.replace(EMOJI_REGEX, "");

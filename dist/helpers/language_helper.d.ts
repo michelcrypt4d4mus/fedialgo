@@ -22,9 +22,10 @@ type LangDetectResult = {
     allDetectResults: LangResult;
     detectedLang?: string;
     accuracy: number;
+    isAccurate: boolean;
 };
 type LanguageDetectInfo = {
-    determinedLang?: string;
+    chosenLanguage?: string;
     langDetector: LangDetectResult;
     tinyLD: LangDetectResult;
     summary: string;

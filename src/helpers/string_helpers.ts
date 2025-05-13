@@ -123,7 +123,7 @@ export function isVideo(uri: string | null | undefined): boolean {
 
 
 // Collapse whitespace in a string
-export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").trim();
+export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
 // Remove any emojis
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, "");
 // Remove https links from string
