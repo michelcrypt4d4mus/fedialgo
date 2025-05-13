@@ -37,7 +37,7 @@ const BATCH_SIZES: BatchSizes = {
 };
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
-//   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF()
+//   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - maxId: optional maxId to use for pagination
@@ -64,8 +64,9 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    private mutexes: ApiMutex;
-    private requestSemphore: Semaphore;  // Semaphore to limit concurrent requests
+
+    private mutexes: ApiMutex;  // Mutexes for blocking concurrent requests
+    private requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial); // Semaphore for limiting search & tag requests
 
     // URL for tag on the user's homeserver
     tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
@@ -91,10 +92,11 @@ export default class MastoApi {
         this.user = user;
         this.homeDomain = extractDomain(user.url);
 
-        // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
-        this.mutexes = {} as ApiMutex;
-        for (const key in StorageKey) this.mutexes[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
-        this.requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial);
+        // Initialize mutexes for each StorageKey
+        this.mutexes = Object.keys(StorageKey).reduce((acc, key) => {
+            acc[StorageKey[key as keyof typeof StorageKey]] = new Mutex();
+            return acc;
+        }, {} as ApiMutex);
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).

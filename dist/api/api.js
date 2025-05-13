@@ -58,8 +58,8 @@ class MastoApi {
     homeDomain;
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
-    mutexes;
-    requestSemphore; // Semaphore to limit concurrent requests
+    mutexes; // Mutexes for blocking concurrent requests
+    requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial); // Semaphore for limiting search & tag requests
     // URL for tag on the user's homeserver
     tagUrl = (tag) => `${this.endpointURL(exports.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
@@ -80,11 +80,11 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
-        // Initialize mutexes for each StorageKey and a Semaphore for concurrent requests
-        this.mutexes = {};
-        for (const key in types_1.StorageKey)
-            this.mutexes[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
-        this.requestSemphore = new async_mutex_1.Semaphore(config_1.Config.maxConcurrentRequestsInitial);
+        // Initialize mutexes for each StorageKey
+        this.mutexes = Object.keys(types_1.StorageKey).reduce((acc, key) => {
+            acc[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
+            return acc;
+        }, {});
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
     // Pagination starts at the most recent toots and goes backwards in time.
