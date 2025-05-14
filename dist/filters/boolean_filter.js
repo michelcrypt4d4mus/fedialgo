@@ -160,4 +160,4 @@ class BooleanFilter extends toot_filter_1.default {
 }
 exports.default = BooleanFilter;
 ;
-//# sourceMappingURL=property_filter.js.map
+//# sourceMappingURL=boolean_filter.js.map

@@ -5,8 +5,8 @@ import { mastodon } from 'masto';
 import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
+import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 
@@ -96,8 +96,6 @@ export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMent
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
-export type NumericFilters = Record<WeightName, NumericFilter>;
-export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type ScorerDict = Record<WeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -110,13 +108,17 @@ export type FilterTitle = BooleanFilterName | WeightName;
 export type StatusList = TootLike[];
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 
-// To serialize TootFilters to browser storage we store the arguments required to reconstruct them
+
+// Filters
+export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
+export type NumericFilters = Record<WeightName, NumericFilter>;
+
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
 };
 
-// Same as FeedFilterSettingsSerialized but with the filter objects in addition to the args
+// Same as FeedFilterSettingsSerialized but with the filter objects as well as the args needed to construct them
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;

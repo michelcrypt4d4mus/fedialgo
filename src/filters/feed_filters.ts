@@ -1,8 +1,8 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
+import BooleanFilter, { BooleanFilterName, TYPE_FILTERS } from "./boolean_filter";
 import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
-import BooleanFilter, { BooleanFilterName } from "./property_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
@@ -11,7 +11,6 @@ import { Config } from "../config";
 import { detectHashtagLanguage } from "../helpers/language_helper";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
-import { TYPE_FILTERS } from "./property_filter";
 import {
     BooleanFilters,
     FeedFilterSettings,
