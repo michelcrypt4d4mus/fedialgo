@@ -64,13 +64,17 @@ import {
     MastodonTag,
 } from "./types";
 
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
+// Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
-const PULLING_HISTORY_MSG = `Pulling historical data`;
+const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
+
+// Constants
+const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const REALLY_BIG_NUMBER = 10_000_000_000;
+const PULL_USER_HISTORY_PARAMS = {maxRecords: REALLY_BIG_NUMBER, moar: true};
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -205,8 +209,8 @@ class TheAlgorithm {
 
     // Trigger the loading of additional toots, farther back on the home timeline
     async triggerHomeTimelineBackFill(): Promise<void> {
-        if (!this.feed.length) throw new Error(`triggerTootBackFill() called but feed is empty!`);
         console.log(`${bracketed(BACKFILL_FEED)} called, state:`, this.statusDict());
+        this.checkIfLoading();
         this.setLoadingStateVariables(BACKFILL_FEED);
         this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
@@ -215,28 +219,29 @@ class TheAlgorithm {
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
     // Use with caution!
     async triggerPullAllUserData(): Promise<void> {
-        this.setLoadingStateVariables(PULLING_HISTORY_MSG);
-        // Stop the dataPoller if it's running
-        this.dataPoller && clearInterval(this.dataPoller!);
-        const moarParams = {maxRecords: REALLY_BIG_NUMBER, moar: true};
+        const logPrefix = bracketed(`triggerPullAllUserData()`);
+        console.log(`${logPrefix} called, state:`, this.statusDict());
+        this.checkIfLoading();
+        this.setLoadingStateVariables(PULLING_USER_HISTORY);
+        this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
 
         try {
-            const backfillJobs = [
-                MastoApi.instance.getRecentFavourites(moarParams),
+            const allResults = await Promise.all([
+                MastoApi.instance.getRecentFavourites(PULL_USER_HISTORY_PARAMS),
                 MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
                 // MastoApi.instance.getRecentNotifications(moarParams),
-                MastoApi.instance.getRecentUserToots(moarParams),
-            ];
+                MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
+            ]);
 
-            const allResults = await Promise.all(backfillJobs);
-            traceLog(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
+            // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
+            await this.recomputeScorers();
         } catch (error) {
-            console.error(`[pullAllUserData] Error pulling user data:`, error);
+            console.error(`${logPrefix} Error pulling user data:`, error);
         }
 
         // TODO: should we restart the data poller?
-        await this.recomputeScorers();
-        console.log(`${PULLING_HISTORY_MSG} finished`);
+        this.loadingStatus = null;
+        console.log(`${logPrefix} finished`);
     }
 
     // Return the current filtered timeline feed in weight order
@@ -516,15 +521,15 @@ class TheAlgorithm {
 
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
-        if ([BACKFILL_FEED, TRIGGER_FEED].includes(logPrefix)) this.loadStartedAt = new Date();
+        if ([BACKFILL_FEED, PULLING_USER_HISTORY, TRIGGER_FEED].includes(logPrefix)) this.loadStartedAt = new Date();
 
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;
         } else if (logPrefix == BACKFILL_FEED) {
             this.loadingStatus = `Loading older home timeline toots`;
-        } else if (logPrefix == PULLING_HISTORY_MSG) {
-            this.loadingStatus = PULLING_HISTORY_MSG;
+        } else if (logPrefix == PULLING_USER_HISTORY) {
+            this.loadingStatus = PULLING_USER_HISTORY;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');

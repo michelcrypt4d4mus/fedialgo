@@ -49,6 +49,7 @@ exports.Config = {
     staleDataDefaultSeconds: 10 * exports.SECONDS_IN_MINUTE,
     staleDataTrendingSeconds: exports.SECONDS_IN_HOUR,
     timelineDecayExponent: 1.2,
+    // TODO: merge with API_DEFAULTS
     staleDataSeconds: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * exports.SECONDS_IN_HOUR,
         [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * exports.SECONDS_IN_HOUR,

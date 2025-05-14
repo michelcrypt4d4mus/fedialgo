@@ -123,6 +123,7 @@ export const Config: ConfigType = {
     staleDataDefaultSeconds: 10 * SECONDS_IN_MINUTE, // Default how long to wait before considering data stale
     staleDataTrendingSeconds: SECONDS_IN_HOUR, // Default. is actually computed based on the FEDIVERSE_KEYS
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
+    // TODO: merge with API_DEFAULTS
     staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
         [StorageKey.BLOCKED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
         [StorageKey.FAVOURITED_TOOTS]:          12 * SECONDS_IN_HOUR,
