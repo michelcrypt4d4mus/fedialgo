@@ -1,12 +1,12 @@
 # NEXT RELEASE
 
-# v0.39.0
+## v0.39.0
 * Rename `PresetWeights` constant to `WEIGHT_PRESETS`, stop exporting `PresetWeightLabel`, add `TheAlgorithm.weightPresets` property
 
 ### v0.38.1
 * Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception
 
-# v0.38.0
+## v0.38.0
 * **(BREAKING CHANGE)** Export `TheAlgorithm` as the default export from `fedialgo` package instead of a named export
 * Add `displayNameFullHTML()` to `Account` object
 * Fix bug with upgrading stored filter args
@@ -19,7 +19,7 @@
 * Change `Toot.alternateScoreInfo()` format
 * Rename `TheAlgorithm.logWithState()` to `logCurrentState()`
 
-# v0.37.0
+## v0.37.0
 * **(BREAKING CHANGE)** Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`
 
 ### v0.36.1
