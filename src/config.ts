@@ -23,10 +23,10 @@ export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
-    limit?: number;
-    initialMaxRecords?: number;
-    numMinutesUntilStale?: number;
-    supportsMinMaxId?: boolean;
+    limit?: number;                  // Max per page is usually 40
+    initialMaxRecords?: number;      // How many records to pull in the initial bootstrap
+    numMinutesUntilStale?: number;   // How long until the data is considered stale
+    supportsMinMaxId?: boolean;      // True if the endpoint supports min/maxId
 };
 
 
