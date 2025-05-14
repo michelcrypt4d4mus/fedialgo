@@ -32,6 +32,7 @@ export declare enum WeightName {
 export declare const NON_SCORE_WEIGHTS: WeightName[];
 export declare const TRENDING_WEIGHTS: WeightName[];
 export declare enum StorageKey {
+    APP_OPENS = "AppOpens",
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",
     FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
@@ -44,7 +45,6 @@ export declare enum StorageKey {
     HASHTAG_TOOTS = "HashtagToots",
     HOME_TIMELINE = "HomeTimeline",
     MUTED_ACCOUNTS = "MutedAccounts",
-    OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     RECENT_NOTIFICATIONS = "RecentNotifications",
     RECENT_USER_TOOTS = "RecentUserToots",

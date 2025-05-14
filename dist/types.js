@@ -43,6 +43,7 @@ exports.TRENDING_WEIGHTS = [
 // Keys that are valid for local browser storage.
 var StorageKey;
 (function (StorageKey) {
+    StorageKey["APP_OPENS"] = "AppOpens";
     StorageKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     StorageKey["FAVOURITED_TOOTS"] = "FavouritedToots";
     StorageKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
@@ -55,7 +56,6 @@ var StorageKey;
     StorageKey["HASHTAG_TOOTS"] = "HashtagToots";
     StorageKey["HOME_TIMELINE"] = "HomeTimeline";
     StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
-    StorageKey["OPENINGS"] = "Openings";
     StorageKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
     StorageKey["RECENT_NOTIFICATIONS"] = "RecentNotifications";
     StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";

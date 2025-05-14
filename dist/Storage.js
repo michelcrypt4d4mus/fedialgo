@@ -232,7 +232,7 @@ class Storage {
     }
     static async logAppOpen() {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
-        await this.set(types_1.StorageKey.OPENINGS, numAppOpens);
+        await this.set(types_1.StorageKey.APP_OPENS, numAppOpens);
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {
@@ -327,7 +327,7 @@ class Storage {
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
-        return await this.get(types_1.StorageKey.OPENINGS) ?? 0;
+        return await this.get(types_1.StorageKey.APP_OPENS) ?? 0;
     }
     // Get the raw StorableWithTimestamp object
     static async getStorableWithTimestamp(key) {
@@ -336,7 +336,7 @@ class Storage {
     }
     // Get the timestamp the app was last opened // TODO: currently unused
     static async lastOpenedAt() {
-        return await this.updatedAt(types_1.StorageKey.OPENINGS);
+        return await this.updatedAt(types_1.StorageKey.APP_OPENS);
     }
     // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {
