@@ -8,7 +8,7 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-export interface BackfillParams {
+interface BackfillParams {
     maxRecords?: number;
     moar?: boolean;
 }

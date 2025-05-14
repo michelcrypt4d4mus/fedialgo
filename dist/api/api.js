@@ -377,10 +377,10 @@ class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    async getApiRecords(fetchParams) {
-        let logPfx = (0, string_helpers_1.bracketed)(fetchParams.storageKey);
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, fetchParams);
-        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
+    async getApiRecords(params) {
+        let logPfx = (0, string_helpers_1.bracketed)(params.storageKey);
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, params);
+        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = params;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
@@ -416,7 +416,7 @@ class MastoApi {
                 }
                 ;
             }
-            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...fetchParams, batchSize, maxId, maxRecords });
+            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, batchSize, maxId, maxRecords });
             // buildParams will coerce maxRecords down to the max per page if it's larger
             for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {
                 rows = rows.concat(page);

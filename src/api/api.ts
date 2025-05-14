@@ -9,7 +9,7 @@ import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../Storage";
-import Toot, { earliestTootedAt, mostRecentTootedAt, SerializableToot } from './objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
@@ -70,7 +70,7 @@ const REQUEST_DEFAULTS: {[key in StorageKey]?: DefaultParmas} = {
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
-export interface BackfillParams {
+interface BackfillParams {
     maxRecords?: number,
     moar?: boolean,
 }
@@ -442,12 +442,10 @@ export default class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getApiRecords<T extends MastodonApiObject>(
-        fetchParams: FetchParams<T>
-    ): Promise<Account[] | Toot[] | MastodonApiObject[]> {
-        let logPfx = bracketed(fetchParams.storageKey);
-        traceLog(`${logPfx} fetchData() params:`, fetchParams);
-        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
+    private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastoApiObject[]> {
+        let logPfx = bracketed(params.storageKey);
+        traceLog(`${logPfx} fetchData() params:`, params);
+        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = params;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
         // Parse params and set defaults
@@ -485,7 +483,7 @@ export default class MastoApi {
                 };
             }
 
-            traceLog(`${logPfx} fetchData() params w/defaults:`, {...fetchParams, batchSize, maxId, maxRecords});
+            traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, batchSize, maxId, maxRecords});
 
             // buildParams will coerce maxRecords down to the max per page if it's larger
             for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {

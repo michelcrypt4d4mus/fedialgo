@@ -265,8 +265,8 @@ class TheAlgorithm {
         try {
             const backfillJobs = [
                 api_1.default.instance.getRecentFavourites(moarParams),
-                // MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
-                api_1.default.instance.getRecentNotifications(moarParams),
+                api_1.default.instance.getRecentNotifications({ maxRecords: config_1.Config.maxEndpointRecordsToPull, moar: true }),
+                // MastoApi.instance.getRecentNotifications(moarParams),
                 api_1.default.instance.getRecentUserToots(moarParams),
             ];
             const allResults = await Promise.all(backfillJobs);
