@@ -9,6 +9,8 @@ FediAlgo in action on YouTube:
 
 Fedialgo is a `node.js` package that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It should (hopefully) also work in React Native Projects but that's untested.
 
+### Usable Demo
+You can try FediAlgo out just by pointing your browser at [here](https://fedialgo.thms.uk/) thanks to @nanos.
 
 # Installation
 ### The Demo App
