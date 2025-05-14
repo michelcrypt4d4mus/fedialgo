@@ -469,8 +469,10 @@ export default class MastoApi {
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || shouldStop) {
-                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}`);
+                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar} (shouldStop=${shouldStop})`);
                     break;
+                } else if (rows.length == 0) {
+                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar} because got empty page`);
                 } else {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
                     (rows.length % (limit * 10) == 0) ? console.debug(msg) : traceLog(msg);
