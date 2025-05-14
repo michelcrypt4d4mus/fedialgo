@@ -210,6 +210,14 @@ export default class Storage {
     // Get the user's saved timeline filter settings
     static async getFilters(): Promise<FeedFilterSettings | null> {
         const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;
+
+        // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
+        if ("feedFilterSectionArgs" in filters) {
+            warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
+            await this.remove(StorageKey.FILTERS);
+            return null;
+        }
+
         // Filters are saved in a serialized format that requires deserialization
         return filters ? buildFiltersFromArgs(filters) : null;
     }
