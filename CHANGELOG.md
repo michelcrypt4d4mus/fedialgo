@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.38.0
 * **(BREAKING CHANGE)** Export `TheAlgorithm` as the default export from `fedialgo` package instead of a named export
 * Add `displayNameFullHTML()` to `Account` object
 * Fix bug with upgrading stored filter args
