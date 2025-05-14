@@ -12,7 +12,7 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "..
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
+import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
 import { Config, ConfigType, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
@@ -217,7 +217,6 @@ export default class MastoApi {
 
     // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
-    // TODO: rename getFavouritedToots
     async getFavouritedToots(params?: BackfillParams): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
@@ -401,7 +400,7 @@ export default class MastoApi {
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastoApiObject[]> {
+    private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
         let logPfx = `${bracketed(storageKey)}`;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
@@ -523,7 +522,7 @@ export default class MastoApi {
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    private buildFromApiObjects(key: StorageKey, objects: MastoApiObject[]):  MastoApiObject[] {
+    private buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]): MastodonApiObject[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => Account.build(o as mastodon.v1.Account));  // TODO: dedupe accounts?
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {

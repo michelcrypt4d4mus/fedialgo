@@ -91,7 +91,6 @@ export type FilterArgs = {
 };
 export type InstanceResponse = MastodonInstance | null;
 export type MastodonApiObject = (MastodonObjWithID | mastodon.v1.Tag | mastodon.v1.TrendLink);
-export type MastoApiObject = (Account | MastodonApiObject | Toot);
 export type MastodonObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
@@ -106,7 +105,7 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type StorableApiObject = (Account | MastodonObjWithID | MastodonApiObject | MastodonTag | Toot | TrendingLink);
+export type StorableApiObject = (MastodonObjWithID | MastodonTag | Toot | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);
 export type StorableWithTimestamp = {

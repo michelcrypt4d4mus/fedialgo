@@ -226,7 +226,7 @@ class TheAlgorithm {
         this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
 
         try {
-            const allResults = await Promise.all([
+            const _allResults = await Promise.all([
                 MastoApi.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
                 // MastoApi.instance.getNotifications(moarParams),

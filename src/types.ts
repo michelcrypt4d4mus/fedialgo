@@ -136,12 +136,6 @@ export type MastodonApiObject = (
     mastodon.v1.TrendLink
 );
 
-export type MastoApiObject = (
-    Account |
-    MastodonApiObject |
-    Toot
-);
-
 // All these types have an id property
 export type MastodonObjWithID = (
     Account |
@@ -170,9 +164,7 @@ export type MinMaxID = {
 };
 
 export type StorableApiObject = (
-    Account |
     MastodonObjWithID |
-    MastodonApiObject |
     MastodonTag |
     Toot |
     TrendingLink

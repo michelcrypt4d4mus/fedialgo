@@ -180,7 +180,6 @@ class MastoApi {
     }
     // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
-    // TODO: rename getFavouritedToots
     async getFavouritedToots(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
