@@ -228,8 +228,10 @@ class TheAlgorithm {
     }
 
     // Log a message with the current state of TheAlgorithm instance
-    logWithState(prefix: string, msg: string): void {
+    async logWithState(prefix: string, msg: string): Promise<void> {
+        prefix = bracketed(prefix)
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
+        console.log(`${prefix} current UserData:`, await MastoApi.instance.getUserData());
         Storage.dumpData();
     }
 
@@ -269,8 +271,9 @@ class TheAlgorithm {
         try {
             const backfillJobs = [
                 MastoApi.instance.getRecentFavourites(moarParams),
-                MastoApi.instance.getRecentUserToots(moarParams),
+                // MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
                 MastoApi.instance.getRecentNotifications(moarParams),
+                MastoApi.instance.getRecentUserToots(moarParams),
             ];
 
             const allResults = await Promise.all(backfillJobs);

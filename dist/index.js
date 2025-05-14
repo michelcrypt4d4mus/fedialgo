@@ -228,8 +228,10 @@ class TheAlgorithm {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG);
     }
     // Log a message with the current state of TheAlgorithm instance
-    logWithState(prefix, msg) {
+    async logWithState(prefix, msg) {
+        prefix = (0, string_helpers_1.bracketed)(prefix);
         console.log(`${prefix} ${msg}. state:`, this.statusDict());
+        console.log(`${prefix} current UserData:`, await api_1.default.instance.getUserData());
         Storage_1.default.dumpData();
     }
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
@@ -263,8 +265,9 @@ class TheAlgorithm {
         try {
             const backfillJobs = [
                 api_1.default.instance.getRecentFavourites(moarParams),
-                api_1.default.instance.getRecentUserToots(moarParams),
+                // MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
                 api_1.default.instance.getRecentNotifications(moarParams),
+                api_1.default.instance.getRecentUserToots(moarParams),
             ];
             const allResults = await Promise.all(backfillJobs);
             (0, log_helpers_1.traceLog)(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
