@@ -228,8 +228,8 @@ class TheAlgorithm {
         try {
             const allResults = await Promise.all([
                 MastoApi.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
-                MastoApi.instance.getRecentNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
-                // MastoApi.instance.getRecentNotifications(moarParams),
+                MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
+                // MastoApi.instance.getNotifications(moarParams),
                 MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
 

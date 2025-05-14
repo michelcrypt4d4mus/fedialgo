@@ -259,10 +259,10 @@ export default class MastoApi {
     }
 
     // Get the user's recent notifications
-    async getRecentNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
+    async getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
         return await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
-            storageKey: StorageKey.RECENT_NOTIFICATIONS,
+            storageKey: StorageKey.NOTIFICATIONS,
             ...(params || {})
         }) as mastodon.v1.Notification[];
     }

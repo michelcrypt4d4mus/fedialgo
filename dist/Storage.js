@@ -65,7 +65,7 @@ exports.STORAGE_KEYS_WITH_ACCOUNTS = [
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
-    types_1.StorageKey.RECENT_NOTIFICATIONS,
+    types_1.StorageKey.NOTIFICATIONS,
     types_1.StorageKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';

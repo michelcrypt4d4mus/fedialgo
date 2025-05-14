@@ -96,7 +96,7 @@ exports.Config = {
         [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
             numMinutesUntilStale: 15,
         },
-        [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
+        [types_1.StorageKey.NOTIFICATIONS]: {
             batchSize: 80,
             initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
             numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
@@ -371,7 +371,7 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.numTrendingTags = 20;
 }
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.apiDefaults[types_1.StorageKey.RECENT_NOTIFICATIONS].numMinutesUntilStale = 60;
+    exports.Config.apiDefaults[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 60;
     exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 60;
     exports.Config.maxRecordsForFeatureScoring = 20000;
 }

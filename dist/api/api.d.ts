@@ -38,7 +38,7 @@ export default class MastoApi {
     getFollowedAccounts(params?: BackfillParams): Promise<Account[]>;
     getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]>;
     getMutedAccounts(params?: BackfillParams): Promise<Account[]>;
-    getRecentNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
+    getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;

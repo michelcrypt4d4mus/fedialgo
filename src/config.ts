@@ -169,7 +169,7 @@ export const Config: ConfigType = {
         [StorageKey.PARTICIPATED_TAG_TOOTS]: {
             numMinutesUntilStale: 15,
         },
-        [StorageKey.RECENT_NOTIFICATIONS]: {
+        [StorageKey.NOTIFICATIONS]: {
             batchSize: 80,
             initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
             numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
@@ -454,7 +454,7 @@ if (isQuickMode) {
 }
 
 if (isDebugMode) {
-    Config.apiDefaults[StorageKey.RECENT_NOTIFICATIONS]!.numMinutesUntilStale = 60;
+    Config.apiDefaults[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 60;
     Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 60;
     Config.maxRecordsForFeatureScoring = 20_000;
 };

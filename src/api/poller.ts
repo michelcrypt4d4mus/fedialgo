@@ -24,7 +24,7 @@ export async function getMoarData(): Promise<boolean> {
     const releaseMutex = await lockExecution(MOAR_MUTEX, GET_MOAR_DATA);
 
     const pollers = [
-        MastoApi.instance.getRecentNotifications.bind(MastoApi.instance),
+        MastoApi.instance.getNotifications.bind(MastoApi.instance),
         MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
         // TODO: getFavouritedToots API doesn't use maxId argument BUT you can page as far back as you want
         // MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),

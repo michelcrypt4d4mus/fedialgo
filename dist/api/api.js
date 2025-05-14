@@ -217,10 +217,10 @@ class MastoApi {
         return mutedAccounts.concat(blockedAccounts);
     }
     // Get the user's recent notifications
-    async getRecentNotifications(params) {
+    async getNotifications(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
-            storageKey: types_1.StorageKey.RECENT_NOTIFICATIONS,
+            storageKey: types_1.StorageKey.NOTIFICATIONS,
             ...(params || {})
         });
     }
