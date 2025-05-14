@@ -18,7 +18,7 @@ class MostRetootedUsersScorer extends acccount_scorer_1.default {
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();
         const retootedAccounts = recentToots.filter(toot => toot?.reblog).map(toot => toot.reblog.account);
-        return account_1.default.buildWebfingerUriLookup(retootedAccounts);
+        return account_1.default.countAccounts(retootedAccounts);
     }
     ;
 }

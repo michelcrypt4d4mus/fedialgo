@@ -44,7 +44,7 @@ export default class Account implements AccountObj {
     homserverURL(): string;
     noteWithAccountInfo: () => string;
     private buildWebfingerURI;
-    static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict;
     static buildAccountNames(accounts: Account[]): AccountNames;
+    static countAccounts(accounts: Account[]): StringNumberDict;
 }
 export {};

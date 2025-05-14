@@ -383,6 +383,9 @@ export const SCORERS_CONFIG: ScorerDict = {
     [WeightName.FAVOURITED_ACCOUNTS]: {
         description: "Favour accounts you often favourite",
     },
+    [WeightName.FAVOURITED_TAGS]: {
+        description: "Favour toots containing hashtags you favourite",
+    },
     [WeightName.FOLLOWED_TAGS]: {
         description: "Favour toots containing hashtags you follow",
     },

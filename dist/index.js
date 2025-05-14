@@ -36,6 +36,7 @@ const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
+const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
@@ -124,6 +125,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new chaos_scorer_1.default(),
+        new favourited_tags_scorer_1.default(),
         new followed_tags_scorer_1.default(),
         new hashtag_participation_scorer_1.default(),
         new mentions_followed_scorer_1.default(),
@@ -251,7 +253,17 @@ class TheAlgorithm {
         return feedAgeInSeconds;
     }
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+    // Use with caution!
     async pullAllUserData() {
+        this.setLoadingStateVariables(PULLING_HISTORY_MSG);
+        // Stop the dataPoller if it's running
+        this.dataPoller && clearInterval(this.dataPoller);
+        api_1.default.instance.getRecentUserToots();
+        await this.userData.populate();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
+        this.loadingStatus = null;
+        console.log(`${PULLING_HISTORY_MSG} finished`);
     }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
@@ -363,7 +375,7 @@ class TheAlgorithm {
     async getHomeTimeline(moreOldToots) {
         return await api_1.default.instance.fetchHomeFeed({
             mergeTootsToFeed: this.lockedMergeToFeed.bind(this),
-            moreOldToots: moreOldToots
+            moar: moreOldToots
         });
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist

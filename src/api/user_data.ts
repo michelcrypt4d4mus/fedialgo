@@ -44,7 +44,7 @@ export default class UserData {
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.favouritedTagCounts = countTags(data.favouritedToots);
-        userData.followedAccounts = Account.buildWebfingerUriLookup(data.followedAccounts);
+        userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = buildTagNames(data.followedTags);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
@@ -80,7 +80,7 @@ export default class UserData {
         ]);
 
         this.favouritedTagCounts = countTags(responses[0]);
-        this.followedAccounts = Account.buildWebfingerUriLookup(responses[1]);
+        this.followedAccounts = Account.countAccounts(responses[1]);
         this.followedTags = buildTagNames(responses[2]);
         this.mutedAccounts = Account.buildAccountNames(responses[3]);
         this.participatedHashtags = responses[4];

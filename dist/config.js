@@ -303,6 +303,9 @@ exports.SCORERS_CONFIG = {
     [types_1.WeightName.FAVOURITED_ACCOUNTS]: {
         description: "Favour accounts you often favourite",
     },
+    [types_1.WeightName.FAVOURITED_TAGS]: {
+        description: "Favour toots containing hashtags you favourite",
+    },
     [types_1.WeightName.FOLLOWED_TAGS]: {
         description: "Favour toots containing hashtags you follow",
     },

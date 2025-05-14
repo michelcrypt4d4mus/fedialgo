@@ -197,16 +197,22 @@ class Storage {
             return { ...weight_presets_1.DEFAULT_WEIGHTS };
         let shouldSave = false;
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
-        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, value]) => {
+        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
+            const value = weights[key];
             if (!value && value !== 0) {
-                warn(`Missing value for "${key}" in saved weights, setting to default`);
+                warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;
             }
+            else {
+                debug(`Weight "${key}" is set to ${weights[key]} (value: "${defaultValue}")`);
+            }
         });
         // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSave)
+        if (shouldSave) {
+            log(`${LOG_PREFIX} Saving updated weights:`, weights);
             await Storage.setWeightings(weights);
+        }
         return weights;
     }
     // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
@@ -219,6 +225,7 @@ class Storage {
         const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
         return user_data_1.default.buildFromData({
+            favouritedToots: await this.getCoerced(types_1.StorageKey.FAVOURITED_TOOTS),
             followedAccounts: await this.getCoerced(types_1.StorageKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => account_1.default.build(a)),

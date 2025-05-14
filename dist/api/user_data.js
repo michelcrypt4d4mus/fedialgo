@@ -17,6 +17,7 @@ const SORT_TAGS_BY = [
 ];
 ;
 class UserData {
+    favouritedTagCounts = {};
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = {};
     languagesPostedIn = {};
@@ -27,7 +28,8 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
-        userData.followedAccounts = account_1.default.buildWebfingerUriLookup(data.followedAccounts);
+        userData.favouritedTagCounts = (0, tag_1.countTags)(data.favouritedToots);
+        userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = (0, tag_1.buildTagNames)(data.followedTags);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
@@ -51,17 +53,19 @@ class UserData {
     // Pull latest user's data from cache and/or API
     async populate() {
         const responses = await Promise.all([
+            api_1.default.instance.getRecentFavourites(),
             api_1.default.instance.getFollowedAccounts(),
             api_1.default.instance.getFollowedTags(),
             api_1.default.instance.getMutedAccounts(),
             UserData.getUserParticipatedTags(),
             api_1.default.instance.getServerSideFilters(),
         ]);
-        this.followedAccounts = account_1.default.buildWebfingerUriLookup(responses[0]);
-        this.followedTags = (0, tag_1.buildTagNames)(responses[1]);
-        this.mutedAccounts = account_1.default.buildAccountNames(responses[2]);
-        this.participatedHashtags = responses[3];
-        this.serverSideFilters = responses[4];
+        this.favouritedTagCounts = (0, tag_1.countTags)(responses[0]);
+        this.followedAccounts = account_1.default.countAccounts(responses[1]);
+        this.followedTags = (0, tag_1.buildTagNames)(responses[2]);
+        this.mutedAccounts = account_1.default.buildAccountNames(responses[3]);
+        this.participatedHashtags = responses[4];
+        this.serverSideFilters = responses[5];
     }
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {

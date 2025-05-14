@@ -134,14 +134,14 @@ class Account {
     ////////////////////////////
     //     Class Methods      //
     ////////////////////////////
-    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
-    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
-    static buildWebfingerUriLookup(accounts) {
-        return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
-    }
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     static buildAccountNames(accounts) {
         return (0, collection_helpers_1.keyByProperty)(accounts, acct => acct.webfingerURI);
+    }
+    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
+    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    static countAccounts(accounts) {
+        return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
     }
 }
 exports.default = Account;

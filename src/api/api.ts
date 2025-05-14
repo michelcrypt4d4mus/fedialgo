@@ -36,31 +36,34 @@ const BATCH_SIZES: BatchSizes = {
     [StorageKey.RECENT_NOTIFICATIONS]: 80,  // https://docs.joinmastodon.org/methods/notifications/#get
 };
 
+// Generic params that apply to a lot of methods in the MastoApi class
+//   - maxId: optional maxId to use for pagination
+//   - maxRecords: optional max number of records to fetch
+//   - moar: if true, continue fetching from the max_id found in the cache
+interface ApiParams {
+    maxId?: string | number,
+    maxRecords?: number,
+    moar?: boolean,
+};
+
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 //   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
-//   - maxId: optional maxId to use for pagination
-//   - maxRecords: optional max number of records to fetch
-//   - moar: if true, continue fetching from the max_id found in the cache
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
-interface FetchParams<T> {
+interface FetchParams<T> extends ApiParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     storageKey: StorageKey,  // Mutex will be skipped if label is a string not a StorageKey,
     batchSize?: number,
-    maxId?: string | number,
-    maxRecords?: number,
-    moar?: boolean,
     skipCache?: boolean,
     skipMutex?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
 };
 
-interface HomeTimelineParams {
+// Home timeline request params
+//   - mergeTootsToFeed: fxn to call to merge the fetched Toots into the main feed
+interface HomeTimelineParams extends ApiParams {
     mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
-    maxId?: string | number,  // Optional maxId to use to start pagination
-    maxRecords?: number,
-    moreOldToots?: boolean,   // True if we want to work backwards from toots we have in the cache
 };
 
 
@@ -114,7 +117,7 @@ export default class MastoApi {
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
-        let { maxId, maxRecords, mergeTootsToFeed, moreOldToots } = params;
+        let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         maxRecords ||= Config.numDesiredTimelineToots;
         const logPrefix = bracketed(StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -123,7 +126,7 @@ export default class MastoApi {
         let oldestTootStr = "no oldest toot";
         let homeTimelineToots = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
 
-        if (moreOldToots) {
+        if (moar) {
             maxId = findMinId(homeTimelineToots);
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         } else {
@@ -269,7 +272,9 @@ export default class MastoApi {
 
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
-    async getRecentUserToots(moar?: boolean): Promise<Toot[]> {
+    async getRecentUserToots(params?: ApiParams): Promise<Toot[]> {
+        const { maxId, maxRecords, moar } = params || {};
+
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             storageKey: StorageKey.RECENT_USER_TOOTS,

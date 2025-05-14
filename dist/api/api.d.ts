@@ -8,11 +8,13 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-interface HomeTimelineParams {
-    mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
+interface ApiParams {
     maxId?: string | number;
     maxRecords?: number;
-    moreOldToots?: boolean;
+    moar?: boolean;
+}
+interface HomeTimelineParams extends ApiParams {
+    mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
 }
 export default class MastoApi {
     #private;
@@ -35,7 +37,7 @@ export default class MastoApi {
     getMutedAccounts(): Promise<Account[]>;
     getRecentFavourites(moar?: boolean): Promise<Toot[]>;
     getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]>;
-    getRecentUserToots(moar?: boolean): Promise<Toot[]>;
+    getRecentUserToots(params?: ApiParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
     getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]>;

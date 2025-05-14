@@ -3,6 +3,7 @@ import Account from "./objects/account";
 import Toot from "./objects/toot";
 import { AccountNames, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 interface UserApiData {
+    favouritedToots: Toot[];
     followedAccounts: Account[];
     followedTags: TagWithUsageCounts[];
     mutedAccounts: Account[];
@@ -10,6 +11,7 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 }
 export default class UserData {
+    favouritedTagCounts: StringNumberDict;
     followedAccounts: StringNumberDict;
     followedTags: TagNames;
     languagesPostedIn: StringNumberDict;

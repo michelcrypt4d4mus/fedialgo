@@ -7,6 +7,7 @@ var WeightName;
     WeightName["CHAOS"] = "Chaos";
     WeightName["DIVERSITY"] = "Diversity";
     WeightName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
+    WeightName["FAVOURITED_TAGS"] = "FavouritedTags";
     WeightName["FOLLOWED_TAGS"] = "FollowedTags";
     WeightName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
     WeightName["INTERACTIONS"] = "Interactions";

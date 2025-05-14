@@ -53,6 +53,7 @@ const BATCH_SIZES = {
 };
 ;
 ;
+;
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
@@ -95,7 +96,7 @@ class MastoApi {
     //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params) {
-        let { maxId, maxRecords, mergeTootsToFeed, moreOldToots } = params;
+        let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.HOME_TIMELINE);
         const startedAt = new Date();
@@ -103,7 +104,7 @@ class MastoApi {
         let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
         let homeTimelineToots = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
-        if (moreOldToots) {
+        if (moar) {
             maxId = (0, collection_helpers_1.findMinId)(homeTimelineToots);
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         }
@@ -226,7 +227,8 @@ class MastoApi {
     }
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
-    async getRecentUserToots(moar) {
+    async getRecentUserToots(params) {
+        const { maxId, maxRecords, moar } = params || {};
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             storageKey: types_1.StorageKey.RECENT_USER_TOOTS,

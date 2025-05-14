@@ -1,4 +1,7 @@
 # NEXT RELEASE
+
+* Add a new FavouritedTagsScorer (and a new `UserData.favouritedTagCounts` property)
+* Fix bug where new scorer weights were not automatically getting set to defaults
 * Remove trending tags from the list of participated tags we're pulling toots for because we get them anyways
 
 # v0.34.0

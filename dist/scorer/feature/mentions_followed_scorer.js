@@ -17,7 +17,7 @@ class MentionsFollowedScorer extends feature_scorer_1.default {
     // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     async prepareScoreData() {
         // TODO: this is duplicative of the followedAccounts prop in UserData (wastes some memory, but not much)
-        return account_1.default.buildWebfingerUriLookup(await api_1.default.instance.getFollowedAccounts());
+        return account_1.default.countAccounts(await api_1.default.instance.getFollowedAccounts());
     }
     ;
     // Toot.repair() already made StatusMention.acct fields equivalent to Account.webfingerURI

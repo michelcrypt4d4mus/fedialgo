@@ -9,6 +9,7 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
+import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
@@ -105,6 +106,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new ChaosScorer(),
+        new FavouritedTagsScorer(),
         new FollowedTagsScorer(),
         new HashtagParticipationScorer(),
         new MentionsFollowedScorer(),
@@ -256,8 +258,17 @@ class TheAlgorithm {
     }
 
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+    // Use with caution!
     async pullAllUserData(): Promise<void> {
-
+        this.setLoadingStateVariables(PULLING_HISTORY_MSG);
+        // Stop the dataPoller if it's running
+        this.dataPoller && clearInterval(this.dataPoller!);
+        MastoApi.instance.getRecentUserToots();
+        await this.userData.populate();
+        await this.prepareScorers(true);
+        await this.scoreAndFilterFeed();
+        this.loadingStatus = null;
+        console.log(`${PULLING_HISTORY_MSG} finished`);
     }
 
     // Clear everything from browser storage except the user's identity and weightings
@@ -384,7 +395,7 @@ class TheAlgorithm {
     private async getHomeTimeline(moreOldToots?: boolean): Promise<Toot[]> {
         return await MastoApi.instance.fetchHomeFeed({
             mergeTootsToFeed: this.lockedMergeToFeed.bind(this),
-            moreOldToots: moreOldToots
+            moar: moreOldToots
         });
     }
 

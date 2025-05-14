@@ -16,6 +16,7 @@ export enum WeightName {
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
     FAVOURITED_ACCOUNTS = 'FavouritedAccounts',
+    FAVOURITED_TAGS = 'FavouritedTags',
     FOLLOWED_TAGS = 'FollowedTags',
     IMAGE_ATTACHMENTS = 'ImageAttachments',
     INTERACTIONS = 'Interactions',

@@ -17,7 +17,7 @@ class MostFavoritedAccountsScorer extends acccount_scorer_1.default {
     ;
     async prepareScoreData() {
         const recentFavourites = await api_1.default.instance.getRecentFavourites();
-        return account_1.default.buildWebfingerUriLookup(recentFavourites.map(toot => toot.account));
+        return account_1.default.countAccounts(recentFavourites.map(toot => toot.account));
     }
     ;
 }

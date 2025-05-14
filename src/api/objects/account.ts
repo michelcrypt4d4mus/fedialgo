@@ -146,14 +146,14 @@ export default class Account implements AccountObj {
     //     Class Methods      //
     ////////////////////////////
 
-    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
-    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
-    public static buildWebfingerUriLookup(accounts: Account[]): StringNumberDict {
-        return countValues<Account>(accounts, (account) => account.webfingerURI);
-    }
-
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     public static buildAccountNames(accounts: Account[]): AccountNames {
         return keyByProperty<Account>(accounts, acct => acct.webfingerURI);
+    }
+
+    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
+    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    public static countAccounts(accounts: Account[]): StringNumberDict {
+        return countValues<Account>(accounts, (account) => account.webfingerURI);
     }
 };
