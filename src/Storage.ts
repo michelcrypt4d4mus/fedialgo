@@ -208,16 +208,24 @@ export default class Storage {
         let shouldSave = false;
 
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
-        Object.entries(DEFAULT_WEIGHTS).forEach(([key, value]) => {
+        Object.entries(DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
+            const value = weights[key as WeightName]
+
             if (!value && value !== 0) {
-                warn(`Missing value for "${key}" in saved weights, setting to default`);
+                warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
                 shouldSave = true;
+            } else {
+                debug(`Weight "${key}" is set to ${weights[key as WeightName]} (value: "${defaultValue}")`);
             }
         });
 
         // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSave) await Storage.setWeightings(weights);
+        if (shouldSave) {
+            log(`Saving repaired user weights:`, weights);
+            await Storage.setWeightings(weights);
+        }
+
         return weights;
     }
 
