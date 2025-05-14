@@ -47,7 +47,7 @@ export const DEFAULT_WEIGHTS: Weights = {
 
 export const WEIGHT_PRESETS: WeightPresets = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
-        [WeightName.TIME_DECAY]: 10.0,
+        [WeightName.TIME_DECAY]: 9.99,
         [WeightName.TRENDING]: 0,
         [WeightName.OUTLIER_DAMPENER]: 0,
         [WeightName.CHAOS]: 0,

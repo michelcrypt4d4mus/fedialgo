@@ -61,7 +61,6 @@ import {
     MastodonInstances,
     MediaCategory,
     ScorerDict,
-    WeightInfo,
     StorageKey,
     StringNumberDict,
     TrendingLink,
@@ -607,7 +606,6 @@ export {
     TagWithUsageCounts,
     TrendingWithHistory,
     TypeFilterName,
-    WeightInfo,
     WeightName,
     Weights,
     // Helpers we also export
