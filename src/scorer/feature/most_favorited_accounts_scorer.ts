@@ -7,7 +7,7 @@ import MastoApi from '../../api/api';
 import { StringNumberDict, WeightName } from '../../types';
 
 
-export default class MostFavoritedAccountsScorer extends AccountScorer {
+export default class MostFavouritedAccountsScorer extends AccountScorer {
     constructor() {
         super(WeightName.FAVOURITED_ACCOUNTS);
     };
