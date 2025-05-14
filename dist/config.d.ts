@@ -8,7 +8,7 @@ type ApiRequestDefaults = {
     batchSize?: number;
     initialMaxRecords?: number;
     numMinutesUntilStale?: number;
-    supportsMaxId?: boolean;
+    supportsMinMaxId?: boolean;
 };
 export type ConfigType = {
     country: string;

@@ -350,7 +350,6 @@ class MastoApi {
     async getApiRecords(params) {
         let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
         let logPfx = `${(0, string_helpers_1.bracketed)(storageKey)}`;
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, params);
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
@@ -358,12 +357,12 @@ class MastoApi {
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.Config.minRecordsForFeatureScoring;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || config_1.Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;
+        let minId; // Used for incremental loading when data is stale (if supported)
         // Skip mutex for requests that aren't trying to get at the same data
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[storageKey], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
-        let minId;
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
@@ -374,7 +373,7 @@ class MastoApi {
                     if (!(cachedData.isStale || moar))
                         return cachedData.obj;
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    if (requestDefaults?.supportsMaxId && cachedData.obj.length) {
+                    if (requestDefaults?.supportsMinMaxId && cachedData.obj.length) {
                         rows = cachedData.obj;
                         const minMaxId = (0, collection_helpers_1.findMinMaxId)(rows);
                         // If we're pulling moar data we want the maxId for our request to be the minId of the cache
@@ -397,8 +396,7 @@ class MastoApi {
                 ;
             }
             (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, batchSize, minId, maxId, maxRecords });
-            // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(batchSize, logPfx, minId, maxId))) {
+            for await (const page of fetch(this.buildParams(batchSize, minId, maxId))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
@@ -455,14 +453,13 @@ class MastoApi {
         }
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(batchSize, logPfx, minId, maxId) {
+    buildParams(batchSize, minId, maxId) {
         let params = { limit: batchSize };
         if (minId)
             params = { ...params, minId: `${minId}` };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };
-        if (logPfx)
-            (0, log_helpers_1.traceLog)(`${logPfx} Fetching with params:`, params);
+        // if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params;
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)

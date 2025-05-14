@@ -24,7 +24,7 @@ type ApiRequestDefaults = {
     batchSize?: number;
     initialMaxRecords?: number;
     numMinutesUntilStale?: number;
-    supportsMaxId?: boolean;
+    supportsMinMaxId?: boolean;
 };
 
 
@@ -417,7 +417,7 @@ export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
     },
     [StorageKey.HOME_TIMELINE]: {
         initialMaxRecords: Config.numDesiredTimelineToots,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [StorageKey.MUTED_ACCOUNTS]: {
         initialMaxRecords: Config.maxEndpointRecordsToPull,
@@ -430,12 +430,12 @@ export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
         batchSize: 80,
         initialMaxRecords: Config.minRecordsForFeatureScoring,
         numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [StorageKey.RECENT_USER_TOOTS]: {
         initialMaxRecords: Config.minRecordsForFeatureScoring,
         numMinutesUntilStale: 2 * MINUTES_IN_HOUR,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [StorageKey.SERVER_SIDE_FILTERS]: {
         initialMaxRecords: Config.maxEndpointRecordsToPull,

@@ -406,7 +406,6 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastoApiObject[]> {
         let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
         let logPfx = `${bracketed(storageKey)}`;
-        traceLog(`${logPfx} fetchData() params:`, params);
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
         // Parse params and set defaults
@@ -414,13 +413,13 @@ export default class MastoApi {
         maxRecords ??= requestDefaults?.initialMaxRecords ?? Config.minRecordsForFeatureScoring;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;
+        let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
 
         // Skip mutex for requests that aren't trying to get at the same data
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[storageKey], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
-        let minId: string | undefined;
 
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
@@ -433,7 +432,7 @@ export default class MastoApi {
                     if (!(cachedData.isStale || moar)) return cachedData.obj as T[];
 
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    if (requestDefaults?.supportsMaxId && cachedData.obj.length) {
+                    if (requestDefaults?.supportsMinMaxId && cachedData.obj.length) {
                         rows = cachedData.obj as T[];
                         const minMaxId = findMinMaxId(rows as MastodonObjWithID[]);
 
@@ -456,8 +455,7 @@ export default class MastoApi {
 
             traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, batchSize, minId, maxId, maxRecords});
 
-            // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(batchSize, logPfx, minId, maxId))) {
+            for await (const page of fetch(this.buildParams(batchSize, minId, maxId))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
@@ -515,14 +513,13 @@ export default class MastoApi {
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(
         batchSize: number,
-        logPfx: string,
         minId?: number | string,
         maxId?: number | string,
     ): mastodon.DefaultPaginationParams {
         let params: mastodon.DefaultPaginationParams = {limit: batchSize};
         if (minId) params = {...params, minId: `${minId}`};
         if (maxId) params = {...params, maxId: `${maxId}`};
-        if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
+        // if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params as mastodon.DefaultPaginationParams;
     }
 

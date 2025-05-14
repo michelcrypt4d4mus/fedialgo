@@ -332,7 +332,7 @@ exports.API_DEFAULTS = {
     },
     [types_1.StorageKey.HOME_TIMELINE]: {
         initialMaxRecords: exports.Config.numDesiredTimelineToots,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [types_1.StorageKey.MUTED_ACCOUNTS]: {
         initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
@@ -345,12 +345,12 @@ exports.API_DEFAULTS = {
         batchSize: 80,
         initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
         numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [types_1.StorageKey.RECENT_USER_TOOTS]: {
         initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
         numMinutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
-        supportsMaxId: true,
+        supportsMinMaxId: true,
     },
     [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
         initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
