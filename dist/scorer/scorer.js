@@ -107,23 +107,15 @@ class Scorer {
             if (key == "rawScores") {
                 scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
                     const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
-                    if (scoreValue == 0) {
-                        scoreDetails[scoreKey] = 0;
-                    }
-                    else if (scoreValue == weightedScore) {
-                        scoreDetails[scoreKey] = toScoreFmt(scoreValue);
-                    }
-                    else {
-                        scoreDetails[scoreKey] = {
-                            unweighted: toScoreFmt(scoreValue),
-                            weighted: toScoreFmt(weightedScore),
-                        };
-                    }
+                    scoreDetails[scoreKey] = {
+                        unweighted: toScoreFmt(scoreValue),
+                        weighted: toScoreFmt(weightedScore),
+                    };
                     return scoreDetails;
                 }, {});
             }
             else if (key != "weightedScores") {
-                scoreDict[key] = value;
+                scoreDict[key] = toScoreFmt(value);
             }
             return scoreDict;
         }, {});
@@ -190,7 +182,11 @@ class Scorer {
 exports.default = Scorer;
 ;
 function toScoreFmt(score) {
-    if (score < Math.pow(10, -1 * SCORE_DIGITS))
+    if (typeof score != "number") {
+        console.warn(`${SCORE_PREFIX} toScoreFmt() called with non-number:`, score);
+        return score;
+    }
+    if (Math.abs(score) < Math.pow(10, -1 * SCORE_DIGITS))
         return score;
     return Number(score.toPrecision(SCORE_DIGITS));
 }

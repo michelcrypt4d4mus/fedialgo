@@ -443,10 +443,10 @@ export default class MastoApi {
                         if (moar) {
                             maxId = minMaxId.min;
                             maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to the rows we have now
-                            console.log(`${logPfx} Getting MOAR old data; loading backwards from maxId ${maxId}`);
+                            console.debug(`${logPfx} Getting MOAR old data; loading backwards from maxId ${maxId}`);
                         } else {
                             minId = minMaxId.max;
-                            console.log(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
+                            console.debug(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
                         }
                     } else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array

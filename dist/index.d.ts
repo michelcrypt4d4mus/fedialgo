@@ -70,7 +70,7 @@ declare class TheAlgorithm {
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
-    logWithState(prefix: string, msg: string): Promise<void>;
+    logCurrentState(): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
     reset(): Promise<void>;

@@ -255,11 +255,11 @@ class TheAlgorithm {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG);
     }
     // Log a message with the current state of TheAlgorithm instance
-    async logWithState(prefix, msg) {
-        prefix = (0, string_helpers_1.bracketed)(prefix);
-        console.log(`${prefix} ${msg}. state:`, this.statusDict());
-        console.log(`${prefix} current UserData:`, await api_1.default.instance.getUserData());
-        Storage_1.default.dumpData();
+    async logCurrentState() {
+        const log = (msg, ...args) => console.log(`${(0, string_helpers_1.bracketed)(string_helpers_1.FEDIALGO)} ${msg}`, ...args);
+        log(`Current state:`, this.statusDict());
+        log(`Current storage info:`, await Storage_1.default.storedObjsInfo());
+        log(`Current UserData:`, await api_1.default.instance.getUserData());
     }
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt() {
@@ -520,6 +520,7 @@ class TheAlgorithm {
             homeFeedMostRecentAt: mostRecentTootAt ? (0, time_helpers_1.toISOFormat)(mostRecentTootAt) : null,
             homeFeedOldestAt: oldestTootAt ? (0, time_helpers_1.toISOFormat)(oldestTootAt) : null,
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
+            isLoading: this.isLoading(),
             loadingStatus: this.loadingStatus,
         };
     }

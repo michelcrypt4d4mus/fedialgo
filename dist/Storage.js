@@ -96,33 +96,6 @@ class Storage {
             warn(`No user identity found, cleared storage anyways`);
         }
     }
-    // Dump information about the size of the data stored in localForage
-    static async dumpData() {
-        const keyStrings = Object.values(types_1.StorageKey);
-        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
-        const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
-        const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
-            // info[key] = {
-            //     bytes: value ? byteString(JSON.stringify(value).length) : null,
-            //     numElements: value && Array.isArray(value) ? value.length : null,
-            // }
-            if (obj) {
-                const value = obj.value;
-                info[key] = (0, string_helpers_1.byteString)(JSON.stringify(value).length);
-                if (Array.isArray(value)) {
-                    info[key] += ` (${value.length} items)`;
-                }
-                else {
-                    info[key] += ` (not an array)`;
-                }
-            }
-            else {
-                info[key] = null;
-            }
-            return info;
-        }, {});
-        console.log(`${LOG_PREFIX} Storage info:`, storageInfo);
-    }
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -163,7 +136,7 @@ class Storage {
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
         if (dataAgeInMinutes > staleAfterMinutes) {
-            log(`${logPrefix} Data is stale ${minutesMsg}`);
+            debug(`${logPrefix} Data is stale ${minutesMsg}`);
             isStale = true;
         }
         else {
@@ -288,6 +261,33 @@ class Storage {
     }
     static async setWeightings(userWeightings) {
         await this.set(types_1.StorageKey.WEIGHTS, userWeightings);
+    }
+    // Dump information about the size of the data stored in localForage
+    static async storedObjsInfo() {
+        const keyStrings = Object.values(types_1.StorageKey);
+        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
+        const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
+        return Object.entries(storedData).reduce((info, [key, obj]) => {
+            if (obj) {
+                const value = obj.value;
+                info[key] = (0, string_helpers_1.byteString)(JSON.stringify(value).length);
+                // Alternate format w/separated bytes/numElements values
+                // info[key] = {
+                //     bytes: value ? byteString(JSON.stringify(value).length) : null,
+                //     numElements: value && Array.isArray(value) ? value.length : null,
+                // }
+                if (Array.isArray(value)) {
+                    info[key] += ` (${value.length} items)`;
+                }
+                else {
+                    info[key] += ` (not an array)`;
+                }
+            }
+            else {
+                info[key] = null;
+            }
+            return info;
+        }, {});
     }
     //////////////////////////////
     //     Private methods      //

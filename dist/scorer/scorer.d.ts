@@ -1,7 +1,7 @@
 import Toot from '../api/objects/toot';
 import { WeightInfo, StringNumberDict, WeightName } from "../types";
-type ScoreDisplayDict = Record<string, number | StringNumberDict>;
-type AlternateScoreDict = Record<string, number | ScoreDisplayDict>;
+type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
+type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;
 export default abstract class Scorer {
     defaultWeight: number;
     description: string;

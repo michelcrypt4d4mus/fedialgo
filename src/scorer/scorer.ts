@@ -17,8 +17,8 @@ const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
 const SCORE_PREFIX = "scoreToots()";
 
-type ScoreDisplayDict = Record<string, number | StringNumberDict>;
-type AlternateScoreDict = Record<string, number | ScoreDisplayDict>;
+type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
+type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;
 
 
 export default abstract class Scorer {
@@ -124,23 +124,17 @@ export default abstract class Scorer {
                         (scoreDetails, [scoreKey, scoreValue]) => {
                             const weightedScore = toot.scoreInfo!.weightedScores[scoreKey as WeightName];
 
-                            if (scoreValue == 0) {
-                                scoreDetails[scoreKey] = 0;
-                            } else if (scoreValue == weightedScore) {
-                                scoreDetails[scoreKey] = toScoreFmt(scoreValue);
-                            } else {
-                                scoreDetails[scoreKey] = {
-                                    unweighted: toScoreFmt(scoreValue),
-                                    weighted: toScoreFmt(weightedScore),
-                                };
-                            }
+                            scoreDetails[scoreKey] = {
+                                unweighted: toScoreFmt(scoreValue),
+                                weighted: toScoreFmt(weightedScore),
+                            };
 
                             return scoreDetails;
                         },
-                        {} as ScoreDisplayDict
+                        {} as WeightedAndUnweightedScores
                     );
                 } else if (key != "weightedScores") {
-                    scoreDict[key] = value as number;
+                    scoreDict[key] = toScoreFmt(value as number);
                 }
 
                 return scoreDict;
@@ -218,6 +212,11 @@ export default abstract class Scorer {
 
 
 function toScoreFmt(score: number): number {
-    if (score < Math.pow(10, -1 * SCORE_DIGITS)) return score;
+    if (typeof score != "number") {
+        console.warn(`${SCORE_PREFIX} toScoreFmt() called with non-number:`, score);
+        return score;
+    }
+
+    if (Math.abs(score) < Math.pow(10, -1 * SCORE_DIGITS)) return score;
     return Number(score.toPrecision(SCORE_DIGITS));
 };

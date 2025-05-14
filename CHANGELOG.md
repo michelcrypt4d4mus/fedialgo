@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Change Toot.alternateScoreInfo() formate
+* Rename TheAlgorithm.logWithState() to logCurrentState()
 
 # v0.37.0
 * **(BREAKING CHANGE)** Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`

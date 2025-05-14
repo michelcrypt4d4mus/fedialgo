@@ -260,11 +260,11 @@ class TheAlgorithm {
     }
 
     // Log a message with the current state of TheAlgorithm instance
-    async logWithState(prefix: string, msg: string): Promise<void> {
-        prefix = bracketed(prefix)
-        console.log(`${prefix} ${msg}. state:`, this.statusDict());
-        console.log(`${prefix} current UserData:`, await MastoApi.instance.getUserData());
-        Storage.dumpData();
+    async logCurrentState(): Promise<void> {
+        const log = (msg: string, ...args: any[]) => console.log(`${bracketed(FEDIALGO)} ${msg}`, ...args);
+        log(`Current state:`, this.statusDict());
+        log(`Current storage info:`, await Storage.storedObjsInfo());
+        log(`Current UserData:`, await MastoApi.instance.getUserData());
     }
 
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
@@ -557,6 +557,7 @@ class TheAlgorithm {
             homeFeedMostRecentAt: mostRecentTootAt ? toISOFormat(mostRecentTootAt) : null,
             homeFeedOldestAt: oldestTootAt ? toISOFormat(oldestTootAt) : null,
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
+            isLoading: this.isLoading(),
             loadingStatus: this.loadingStatus,
         };
     }

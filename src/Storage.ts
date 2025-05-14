@@ -95,40 +95,6 @@ export default class Storage {
         }
     }
 
-    // Dump information about the size of the data stored in localForage
-    static async dumpData(): Promise<void> {
-        const keyStrings = Object.values(StorageKey);
-        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as StorageKey)));
-        const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
-
-        const storageInfo = Object.entries(storedData).reduce(
-            (info, [key, obj]) => {
-                // info[key] = {
-                //     bytes: value ? byteString(JSON.stringify(value).length) : null,
-                //     numElements: value && Array.isArray(value) ? value.length : null,
-                // }
-
-                if (obj) {
-                    const value = (obj as StorableWithTimestamp).value;
-                    info[key] = byteString(JSON.stringify(value).length);
-
-                    if (Array.isArray(value)) {
-                        info[key] += ` (${value.length} items)`;
-                    } else {
-                        info[key] += ` (not an array)`;
-                    }
-                } else {
-                    info[key] = null;
-                }
-
-                return info;
-            },
-            {} as Record<string, string | null>,
-        );
-
-        console.log(`${LOG_PREFIX} Storage info:`, storageInfo);
-    }
-
     // Get the value at the given key (with the user ID as a prefix)
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -174,7 +140,7 @@ export default class Storage {
         let isStale = false;
 
         if (dataAgeInMinutes > staleAfterMinutes) {
-            log(`${logPrefix} Data is stale ${minutesMsg}`);
+            debug(`${logPrefix} Data is stale ${minutesMsg}`);
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
@@ -319,6 +285,39 @@ export default class Storage {
 
     static async setWeightings(userWeightings: Weights): Promise<void> {
         await this.set(StorageKey.WEIGHTS, userWeightings);
+    }
+
+    // Dump information about the size of the data stored in localForage
+    static async storedObjsInfo(): Promise<Record<string, string | null>> {
+        const keyStrings = Object.values(StorageKey);
+        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as StorageKey)));
+        const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
+
+        return Object.entries(storedData).reduce(
+            (info, [key, obj]) => {
+                if (obj) {
+                    const value = (obj as StorableWithTimestamp).value;
+                    info[key] = byteString(JSON.stringify(value).length);
+
+                    // Alternate format w/separated bytes/numElements values
+                    // info[key] = {
+                    //     bytes: value ? byteString(JSON.stringify(value).length) : null,
+                    //     numElements: value && Array.isArray(value) ? value.length : null,
+                    // }
+
+                    if (Array.isArray(value)) {
+                        info[key] += ` (${value.length} items)`;
+                    } else {
+                        info[key] += ` (not an array)`;
+                    }
+                } else {
+                    info[key] = null;
+                }
+
+                return info;
+            },
+            {} as Record<string, string | null>,
+        );
     }
 
     //////////////////////////////
