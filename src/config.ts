@@ -7,7 +7,8 @@ import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
-export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * 60;
+export const MINUTES_IN_HOUR = 60;
+export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
 export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
 export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 
@@ -21,7 +22,8 @@ type StaleDataConfig = {[key in StorageKey]?: number};
 
 type ApiRequestDefaults = {
     batchSize?: number;
-    initialMaxRecords: number;
+    initialMaxRecords?: number;
+    numMinutesUntilStale?: number;
     supportsMaxId?: boolean;
 };
 
@@ -43,7 +45,6 @@ export type ConfigType = {
     maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;
     scoringBatchSize: number;
-    staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
     // Participated tags
     numParticipatedTagsToFetchTootsFor: number;
@@ -60,9 +61,9 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    staleDataSeconds: StaleDataConfig;
+    staleDataDefaultMinutes: number;
+    staleDataTrendingMinutes: number;
     timeoutMS: number;
-    staleDataTrendingSeconds: number;
     // Fedivere server scraping
     minServerMAU: number;
     numServersToCheck: number;
@@ -122,26 +123,9 @@ export const Config: ConfigType = {
     lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     scoringBatchSize: 100,                  // How many toots to score at once
-    staleDataDefaultSeconds: 10 * SECONDS_IN_MINUTE, // Default how long to wait before considering data stale
-    staleDataTrendingSeconds: SECONDS_IN_HOUR, // Default. is actually computed based on the FEDIVERSE_KEYS
+    staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
+    staleDataTrendingMinutes: 60,           // Default. is actually computed based on the FEDIVERSE_KEYS
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
-    // TODO: merge with API_DEFAULTS
-    staleDataSeconds: {                     // Dictionary to configure customized timeouts for different kinds of data
-        [StorageKey.BLOCKED_ACCOUNTS]:          12 * SECONDS_IN_HOUR,
-        [StorageKey.FAVOURITED_TOOTS]:          12 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_POPULAR_SERVERS]: 24 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_LINKS]:   4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TAGS]:    4 * SECONDS_IN_HOUR,
-        [StorageKey.FEDIVERSE_TRENDING_TOOTS]:   4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_ACCOUNTS]:          4 * SECONDS_IN_HOUR,
-        [StorageKey.FOLLOWED_TAGS]:              4 * SECONDS_IN_HOUR,
-        [StorageKey.MUTED_ACCOUNTS]:            12 * SECONDS_IN_HOUR,
-        [StorageKey.PARTICIPATED_TAG_TOOTS]:    15 * SECONDS_IN_MINUTE,
-        [StorageKey.RECENT_NOTIFICATIONS]:       6 * SECONDS_IN_HOUR,
-        [StorageKey.RECENT_USER_TOOTS]:          2 * SECONDS_IN_HOUR,
-        [StorageKey.SERVER_SIDE_FILTERS]:       24 * SECONDS_IN_HOUR,
-        [StorageKey.TRENDING_TAG_TOOTS]:        15 * SECONDS_IN_MINUTE,
-    },
 
     // API stuff
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
@@ -149,7 +133,7 @@ export const Config: ConfigType = {
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
     maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
-    maxEndpointRecordsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
+    maxEndpointRecordsToPull: 5_000,        // MAX_FOLLOWING_ACCOUNT_TO_PULL
     maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
     minRecordsForFeatureScoring: 320,       // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
@@ -428,11 +412,75 @@ if (isLoadTest) {
 };
 
 
+// Default params for usage with API requests
+export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
+    [StorageKey.BLOCKED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FAVOURITED_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
+        numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FEDIVERSE_TRENDING_LINKS]: {
+        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FEDIVERSE_TRENDING_TAGS]: {
+        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
+        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FOLLOWED_ACCOUNTS]: {
+        batchSize: 80,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.FOLLOWED_TAGS]: {
+        batchSize: 100,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.HOME_TIMELINE]: {
+        initialMaxRecords: Config.numDesiredTimelineToots,
+        supportsMaxId: true,
+    },
+    [StorageKey.MUTED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.PARTICIPATED_TAG_TOOTS]: {
+        numMinutesUntilStale: 15,
+    },
+    [StorageKey.RECENT_NOTIFICATIONS]: {
+        batchSize: 80,
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
+        supportsMaxId: true,
+    },
+    [StorageKey.RECENT_USER_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 2 * MINUTES_IN_HOUR,
+        supportsMaxId: true,
+    },
+    [StorageKey.SERVER_SIDE_FILTERS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+    },
+    [StorageKey.TRENDING_TAG_TOOTS]: {
+        numMinutesUntilStale: 15,
+    },
+};
+
+
 // Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStaleness = FEDIVERSE_KEYS.map(k => Config.staleDataSeconds[k as StorageKey]);
-    Config.staleDataTrendingSeconds = Math.min(...trendStaleness as number[]);
+    const trendStalenesses = FEDIVERSE_KEYS.map(k => API_DEFAULTS[k as StorageKey]?.numMinutesUntilStale);
+    Config.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
 
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {
@@ -446,38 +494,3 @@ function validateConfig(cfg: ConfigType | object): void {
 
 validateConfig(Config);
 traceLog("[Config] validated config:", Config);
-
-
-// Default params for usage with API requests
-export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
-    [StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-    },
-    [StorageKey.FOLLOWED_ACCOUNTS]: {
-        batchSize: 80,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.FOLLOWED_TAGS]: {
-        batchSize: 100,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: Config.numDesiredTimelineToots,
-        supportsMaxId: true,
-    },
-    [StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.RECENT_NOTIFICATIONS]: {
-        batchSize: 80,
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-    [StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-};

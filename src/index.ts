@@ -180,7 +180,7 @@ class TheAlgorithm {
         logInfo(TRIGGER_FEED, `called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
         if (moreOldToots) return await this.triggerHomeTimelineBackFill();
-        if (this.checkIfSkpping()) return;
+        if (this.checkIfSkipping()) return;
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         let dataLoads: Promise<any>[] = [
@@ -342,11 +342,12 @@ class TheAlgorithm {
     }
 
     // Return true if we're in quick mode and the feed is fresh enough that we don't need to update it (for dev)
-    private checkIfSkpping(): boolean {
-        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
+    private checkIfSkipping(): boolean {
+        let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
+        if (feedAgeInMinutes) feedAgeInMinutes /= 60;
 
-        if (isQuickMode && feedAgeInSeconds && feedAgeInSeconds < Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
-            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
+            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             return true;
         } else {
             return false;

@@ -144,7 +144,8 @@ export type MastoApiObject = (
 
 // All these types have an id property
 export type MastodonObjWithID = (
-    SerializableToot |
+    Account |
+    TootLike |
     mastodon.v1.Account |
     mastodon.v1.Notification |
     mastodon.v1.Status |

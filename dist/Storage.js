@@ -140,30 +140,47 @@ class Storage {
     }
     // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale(key) {
-        const logPrefix = `getIfNotStale("${key}"):`;
+        const withStaleness = await this.getWithStaleness(key);
+        if (!withStaleness || withStaleness.isStale) {
+            return null;
+        }
+        else {
+            return withStaleness.obj;
+        }
+    }
+    // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
+    static async getWithStaleness(key) {
+        const logPrefix = `getWithStaleness("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            (0, log_helpers_1.traceLog)(`${logPrefix} No data found, returning null`);
+            trace(`${logPrefix} No data found, returning null`);
             return null;
         }
         ;
-        const staleAfterSeconds = config_1.Config.staleDataSeconds[key] ?? config_1.Config.staleDataDefaultSeconds;
-        const dataAgeInSeconds = (0, time_helpers_1.ageInSeconds)(withTimestamp.updatedAt);
-        let secondsLogMsg = `(dataAgeInSeconds: ${(0, string_helpers_1.toLocaleInt)(dataAgeInSeconds)}`;
-        secondsLogMsg += `, staleAfterSeconds: ${(0, string_helpers_1.toLocaleInt)(staleAfterSeconds)})`;
-        if (dataAgeInSeconds > staleAfterSeconds) {
-            log(`${logPrefix} Data is stale ${secondsLogMsg}`);
-            return null;
+        const dataAgeInMinutes = (0, time_helpers_1.ageInMinutes)(withTimestamp.updatedAt);
+        const staleAfterMinutes = config_1.API_DEFAULTS[key]?.numMinutesUntilStale || config_1.Config.staleDataDefaultMinutes;
+        let minutesMsg = `(dataAgeInMinutes: ${(0, string_helpers_1.toLocaleInt)(dataAgeInMinutes)}`;
+        minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
+        let isStale = false;
+        if (dataAgeInMinutes > staleAfterMinutes) {
+            log(`${logPrefix} Data is stale ${minutesMsg}`);
+            isStale = true;
         }
-        let msg = `Cached data is still fresh ${secondsLogMsg}`;
-        if (Array.isArray(withTimestamp.value))
-            msg += ` (${withTimestamp.value.length} records)`;
-        trace(`${logPrefix} ${msg}`);
+        else {
+            let msg = `Cached data is still fresh ${minutesMsg}`;
+            if (Array.isArray(withTimestamp.value))
+                msg += ` (${withTimestamp.value.length} records)`;
+            trace(`${logPrefix} ${msg}`);
+        }
         // Check for unique IDs in the stored data if we're in debug mode
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && environment_helpers_1.isDebugMode) {
+        if (environment_helpers_1.isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }
-        return this.deserialize(key, withTimestamp.value);
+        return {
+            isStale,
+            obj: this.deserialize(key, withTimestamp.value),
+            updatedAt: new Date(withTimestamp.updatedAt),
+        };
     }
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
     static async getCoerced(key) {

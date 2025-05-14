@@ -529,7 +529,7 @@ class Toot {
     }
     // Returns true if the toot should be re-completed
     shouldComplete() {
-        return !this.completedAt || ((0, time_helpers_1.ageInSeconds)(this.completedAt) > (config_1.Config.staleDataTrendingSeconds || 3600));
+        return !this.completedAt || ((0, time_helpers_1.ageInMinutes)(this.completedAt) > config_1.Config.staleDataTrendingMinutes);
     }
     ///////////////////////////////
     //       Class methods       //

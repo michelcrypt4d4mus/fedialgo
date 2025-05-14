@@ -100,8 +100,11 @@ class MastoApi {
         let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
         let homeTimelineToots = await Storage_1.default.getCoerced(storageKey);
+        let _minId; // Unused param here
         if (moar) {
-            maxId = (0, collection_helpers_1.findMinId)(homeTimelineToots);
+            const minMaxId = (0, collection_helpers_1.findMinMaxId)(homeTimelineToots);
+            if (minMaxId)
+                maxId = minMaxId[0]; // Note that min/max are reversed on purpose when they become params!
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         }
         else {
@@ -360,33 +363,42 @@ class MastoApi {
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
+        let minId;
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
                 // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
-                const cachedRows = await Storage_1.default.getIfNotStale(storageKey);
-                if (cachedRows) {
-                    if (!moar)
-                        return cachedRows; // Return cached data unless moar=true
-                    logPfx += ` (MOAR)`;
+                const cachedData = await Storage_1.default.getWithStaleness(storageKey);
+                if (cachedData?.obj) {
+                    // Return cached data if the data is not stale unless moar=true
+                    if (!(cachedData.isStale || moar))
+                        return cachedData.obj;
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    // TODO: we could maybe use the min/max_id param in normal updates to stale data
-                    if (requestDefaults?.supportsMaxId) {
-                        maxId = (0, collection_helpers_1.findMinId)(cachedRows);
-                        maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to # of rows we have now
-                        console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId (maxRecords=${maxRecords})`);
-                        rows = cachedRows;
+                    if (requestDefaults?.supportsMaxId && cachedData.obj.length) {
+                        rows = cachedData.obj;
+                        const minMaxId = (0, collection_helpers_1.findMinMaxId)(rows);
+                        // If we're pulling moar data we want the maxId for our request to be the minId of the cache
+                        // If we're just dealing with stale data we want to use the maxId of the cache as our minId
+                        if (moar) {
+                            maxId = minMaxId[0];
+                            maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
+                            console.log(`${logPfx} getting MOAR data; loading backwards from maxId ${maxId}`);
+                        }
+                        else {
+                            minId = minMaxId[1];
+                            console.log(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
+                        }
                     }
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        console.debug(`${logPfx} maxId not supported for ${storageKey}`);
+                        console.debug(`${logPfx} maxId not supported or no results for ${storageKey}`);
                     }
                 }
                 ;
             }
-            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, batchSize, maxId, maxRecords });
+            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, batchSize, minId, maxId, maxRecords });
             // buildParams will coerce maxRecords down to the max per page if it's larger
-            for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {
+            for await (const page of fetch(this.buildParams(batchSize, logPfx, minId, maxId))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
@@ -443,8 +455,10 @@ class MastoApi {
         }
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(batchSize, logPfx, maxId) {
+    buildParams(batchSize, logPfx, minId, maxId) {
         let params = { limit: batchSize };
+        if (minId)
+            params = { ...params, minId: `${minId}` };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };
         if (logPfx)

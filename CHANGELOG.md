@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* (Demo App) Move the error modal up to `<App>` level; propagate setError
+* Storage.getWithStaleness(); move staleness config to API_DEFAULTS
 
 ### v0.35.3
 * (Demo App) mobile support

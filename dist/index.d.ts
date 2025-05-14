@@ -79,7 +79,7 @@ declare class TheAlgorithm {
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
     updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
     private checkIfLoading;
-    private checkIfSkpping;
+    private checkIfSkipping;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
     private finishFeedUpdate;

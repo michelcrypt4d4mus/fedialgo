@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isStorageKey = exports.isWeightName = exports.findMinId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isStorageKey = exports.isWeightName = exports.findMinMaxId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -109,7 +109,7 @@ exports.filterWithLog = filterWithLog;
 // the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
-function findMinId(array) {
+function findMinMaxId(array) {
     if (array.length == 0)
         return undefined;
     const idVals = array.map(e => e.id);
@@ -125,9 +125,9 @@ function findMinId(array) {
             return a > b ? 1 : -1;
         }
     });
-    return sortedIDs[0].toString();
+    return [sortedIDs[0].toString(), sortedIDs.slice(-1)[0].toString()];
 }
-exports.findMinId = findMinId;
+exports.findMinMaxId = findMinMaxId;
 ;
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x) {

@@ -10,7 +10,7 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
-export declare function findMinId(array: MastodonObjWithID[]): string | undefined;
+export declare function findMinMaxId(array: MastodonObjWithID[]): [string, string] | undefined;
 export declare const isWeightName: (value: string) => boolean;
 export declare const isStorageKey: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;

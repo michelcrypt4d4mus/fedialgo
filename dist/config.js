@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.API_DEFAULTS = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.API_DEFAULTS = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -9,7 +9,8 @@ const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
-exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * 60;
+exports.MINUTES_IN_HOUR = 60;
+exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * exports.MINUTES_IN_HOUR;
 exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
 exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
 // Locale
@@ -47,26 +48,9 @@ exports.Config = {
     lookbackForUpdatesMinutes: 180,
     maxTimelineDaysToFetch: 7,
     scoringBatchSize: 100,
-    staleDataDefaultSeconds: 10 * exports.SECONDS_IN_MINUTE,
-    staleDataTrendingSeconds: exports.SECONDS_IN_HOUR,
+    staleDataDefaultMinutes: 10,
+    staleDataTrendingMinutes: 60,
     timelineDecayExponent: 1.2,
-    // TODO: merge with API_DEFAULTS
-    staleDataSeconds: {
-        [types_1.StorageKey.BLOCKED_ACCOUNTS]: 12 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FAVOURITED_TOOTS]: 12 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: 24 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: 4 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: 4 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: 4 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: 4 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.FOLLOWED_TAGS]: 4 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.MUTED_ACCOUNTS]: 12 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: 15 * exports.SECONDS_IN_MINUTE,
-        [types_1.StorageKey.RECENT_NOTIFICATIONS]: 6 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.RECENT_USER_TOOTS]: 2 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.SERVER_SIDE_FILTERS]: 24 * exports.SECONDS_IN_HOUR,
-        [types_1.StorageKey.TRENDING_TAG_TOOTS]: 15 * exports.SECONDS_IN_MINUTE,
-    },
     // API stuff
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
@@ -341,11 +325,73 @@ if (environment_helpers_1.isLoadTest) {
     exports.Config.numTrendingTagsToots = 1000;
 }
 ;
+// Default params for usage with API requests
+exports.API_DEFAULTS = {
+    [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FAVOURITED_TOOTS]: {
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
+        numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: {
+        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: {
+        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
+        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
+        batchSize: 80,
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.FOLLOWED_TAGS]: {
+        batchSize: 100,
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.HOME_TIMELINE]: {
+        initialMaxRecords: exports.Config.numDesiredTimelineToots,
+        supportsMaxId: true,
+    },
+    [types_1.StorageKey.MUTED_ACCOUNTS]: {
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
+        numMinutesUntilStale: 15,
+    },
+    [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
+        batchSize: 80,
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+        supportsMaxId: true,
+    },
+    [types_1.StorageKey.RECENT_USER_TOOTS]: {
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+        numMinutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
+        supportsMaxId: true,
+    },
+    [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+        numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+    },
+    [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
+        numMinutesUntilStale: 15,
+    },
+};
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
-    exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
+    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.API_DEFAULTS[k]?.numMinutesUntilStale);
+    exports.Config.staleDataTrendingMinutes = Math.min(...trendStalenesses);
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {
         if (typeof value === "object") {
@@ -359,37 +405,4 @@ function validateConfig(cfg) {
 ;
 validateConfig(exports.Config);
 (0, log_helpers_1.traceLog)("[Config] validated config:", exports.Config);
-// Default params for usage with API requests
-exports.API_DEFAULTS = {
-    [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-    },
-    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
-        batchSize: 80,
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.FOLLOWED_TAGS]: {
-        batchSize: 100,
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: exports.Config.numDesiredTimelineToots,
-        supportsMaxId: true,
-    },
-    [types_1.StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
-        batchSize: 80,
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-    [types_1.StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-};
 //# sourceMappingURL=config.js.map

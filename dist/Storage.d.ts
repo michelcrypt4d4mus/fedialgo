@@ -1,6 +1,11 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
 import { FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingStorage, Weights } from "./types";
+type StorableObjWithStaleness = {
+    isStale: boolean;
+    obj: StorableObjWithCache;
+    updatedAt: Date;
+};
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
@@ -8,6 +13,7 @@ export default class Storage {
     static dumpData(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
+    static getWithStaleness(key: StorageKey): Promise<StorableObjWithStaleness | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getTrendingData(): Promise<TrendingStorage>;
@@ -31,3 +37,4 @@ export default class Storage {
     private static updatedAt;
     private static secondsSinceMostRecentToot;
 }
+export {};

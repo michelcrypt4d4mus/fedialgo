@@ -186,7 +186,7 @@ class TheAlgorithm {
         this.checkIfLoading();
         if (moreOldToots)
             return await this.triggerHomeTimelineBackFill();
-        if (this.checkIfSkpping())
+        if (this.checkIfSkipping())
             return;
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         let dataLoads = [
@@ -326,10 +326,12 @@ class TheAlgorithm {
         }
     }
     // Return true if we're in quick mode and the feed is fresh enough that we don't need to update it (for dev)
-    checkIfSkpping() {
-        const feedAgeInSeconds = this.mostRecentHomeTootAgeInSeconds();
-        if (environment_helpers_1.isQuickMode && feedAgeInSeconds && feedAgeInSeconds < config_1.Config.staleDataTrendingSeconds && this.numTriggers <= 1) {
-            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInSeconds.toFixed(0)}s old), not updating`);
+    checkIfSkipping() {
+        let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
+        if (feedAgeInMinutes)
+            feedAgeInMinutes /= 60;
+        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
+            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             return true;
         }
         else {

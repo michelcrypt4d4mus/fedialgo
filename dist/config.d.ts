@@ -1,14 +1,13 @@
 import { ScorerDict, StorageKey } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
+export declare const MINUTES_IN_HOUR = 60;
 export declare const SECONDS_IN_HOUR: number;
 export declare const SECONDS_IN_DAY: number;
 export declare const SECONDS_IN_WEEK: number;
-type StaleDataConfig = {
-    [key in StorageKey]?: number;
-};
 type ApiRequestDefaults = {
     batchSize?: number;
-    initialMaxRecords: number;
+    initialMaxRecords?: number;
+    numMinutesUntilStale?: number;
     supportsMaxId?: boolean;
 };
 export type ConfigType = {
@@ -25,7 +24,6 @@ export type ConfigType = {
     maxTimelineDaysToFetch: number;
     numDesiredTimelineToots: number;
     scoringBatchSize: number;
-    staleDataDefaultSeconds: number;
     timelineDecayExponent: number;
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
@@ -40,9 +38,9 @@ export type ConfigType = {
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
-    staleDataSeconds: StaleDataConfig;
+    staleDataDefaultMinutes: number;
+    staleDataTrendingMinutes: number;
     timeoutMS: number;
-    staleDataTrendingSeconds: number;
     minServerMAU: number;
     numServersToCheck: number;
     excessiveTagsPenalty: number;

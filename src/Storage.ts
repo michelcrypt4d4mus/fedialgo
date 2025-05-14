@@ -9,11 +9,11 @@ import Account from "./api/objects/account";
 import MastoApi from "./api/api";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
-import { ageInSeconds } from "./helpers/time_helpers";
+import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs } from "./filters/feed_filters";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { Config } from "./config";
+import { Config, API_DEFAULTS } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from './helpers/log_helpers';
@@ -31,6 +31,12 @@ import {
     WeightName,
     Weights,
 } from "./types";
+
+type StorableObjWithStaleness = {
+    isStale: boolean,
+    obj: StorableObjWithCache,
+    updatedAt: Date,
+};
 
 // The cache values at these keys contain SerializedToot objects
 export const STORAGE_KEYS_WITH_TOOTS = [
@@ -142,34 +148,50 @@ export default class Storage {
 
     // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null> {
-        const logPrefix = `getIfNotStale("${key}"):`;
+        const withStaleness = await this.getWithStaleness(key);
+
+        if (!withStaleness || withStaleness.isStale) {
+            return null;
+        } else {
+            return withStaleness.obj as T;
+        }
+    }
+
+    // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
+    static async getWithStaleness(key: StorageKey): Promise<StorableObjWithStaleness | null> {
+        const logPrefix = `getWithStaleness("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            traceLog(`${logPrefix} No data found, returning null`);
+            trace(`${logPrefix} No data found, returning null`);
             return null;
         };
 
-        const staleAfterSeconds = Config.staleDataSeconds[key] ?? Config.staleDataDefaultSeconds;
-        const dataAgeInSeconds = ageInSeconds(withTimestamp.updatedAt);
-        let secondsLogMsg = `(dataAgeInSeconds: ${toLocaleInt(dataAgeInSeconds)}`;
-        secondsLogMsg += `, staleAfterSeconds: ${toLocaleInt(staleAfterSeconds)})`;
+        const dataAgeInMinutes = ageInMinutes(withTimestamp.updatedAt);
+        const staleAfterMinutes = API_DEFAULTS[key]?.numMinutesUntilStale || Config.staleDataDefaultMinutes;
+        let minutesMsg = `(dataAgeInMinutes: ${toLocaleInt(dataAgeInMinutes)}`;
+        minutesMsg += `, staleAfterMinutes: ${toLocaleInt(staleAfterMinutes)})`;
+        let isStale = false;
 
-        if (dataAgeInSeconds > staleAfterSeconds) {
-            log(`${logPrefix} Data is stale ${secondsLogMsg}`);
-            return null;
+        if (dataAgeInMinutes > staleAfterMinutes) {
+            log(`${logPrefix} Data is stale ${minutesMsg}`);
+            isStale = true;
+        } else {
+            let msg = `Cached data is still fresh ${minutesMsg}`;
+            if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
+            trace(`${logPrefix} ${msg}`);
         }
 
-        let msg = `Cached data is still fresh ${secondsLogMsg}`;
-        if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-        trace(`${logPrefix} ${msg}`);
-
         // Check for unique IDs in the stored data if we're in debug mode
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key) && isDebugMode) {
+        if (isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], key);
         }
 
-        return this.deserialize(key, withTimestamp.value) as T;
+        return {
+            isStale,
+            obj: this.deserialize(key, withTimestamp.value) as StorableObjWithCache,
+            updatedAt: new Date(withTimestamp.updatedAt),
+        }
     }
 
     // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
