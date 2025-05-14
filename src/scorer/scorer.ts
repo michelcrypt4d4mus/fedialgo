@@ -8,7 +8,7 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumValues } from "../helpers/collection_helpers";
-import { Config, SCORERS_CONFIG } from '../config';
+import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError, logDebug, logInfo, traceLog } from '../helpers/log_helpers';
 import { TRENDING_WEIGHTS, WeightInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
@@ -30,7 +30,7 @@ export default abstract class Scorer {
 
     constructor(name: WeightName) {
         this.name = name;
-        this.description = SCORERS_CONFIG[name].description;
+        this.description = Config.scorersConfig[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 

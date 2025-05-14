@@ -346,9 +346,9 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(params) {
-        let logPfx = (0, string_helpers_1.bracketed)(params.storageKey);
-        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, params);
         let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = params;
+        let logPfx = `${(0, string_helpers_1.bracketed)(storageKey)}`;
+        (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, params);
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
@@ -364,22 +364,23 @@ class MastoApi {
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
+                // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
                 const cachedRows = await Storage_1.default.getIfNotStale(storageKey);
                 if (cachedRows) {
                     if (!moar)
                         return cachedRows; // Return cached data unless moar=true
-                    // Not all endpoints support maxId so we need to check if the endpoint supports it before using it
+                    logPfx += ` (MOAR)`;
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
+                    // TODO: we could maybe use the min/max_id param in normal updates to stale data
                     if (requestDefaults?.supportsMaxId) {
                         maxId = (0, collection_helpers_1.findMinId)(cachedRows);
                         maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to # of rows we have now
-                        console.log(`${logPfx} (MOAR) Found min ID ${maxId} in cache to use as maxId (maxRecords=${maxRecords})`);
+                        console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId (maxRecords=${maxRecords})`);
                         rows = cachedRows;
                     }
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        console.debug(`${logPfx} (MOAR) maxId not supported for ${storageKey}`);
+                        console.debug(`${logPfx} maxId not supported for ${storageKey}`);
                     }
                 }
                 ;
@@ -396,7 +397,8 @@ class MastoApi {
                     break;
                 }
                 else {
-                    (0, log_helpers_1.traceLog)(`${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`);
+                    const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
+                    (rows.length % (batchSize * 10) == 0) ? console.debug(msg) : (0, log_helpers_1.traceLog)(msg);
                 }
             }
         }

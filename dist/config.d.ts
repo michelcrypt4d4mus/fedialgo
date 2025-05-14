@@ -60,10 +60,10 @@ export type ConfigType = {
     noMauServers: string[];
     noTrendingLinksServers: string[];
     isAppFilterVisible: boolean;
+    scorersConfig: ScorerDict;
 };
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;
-export declare const SCORERS_CONFIG: ScorerDict;
 export declare const API_DEFAULTS: {
     [key in StorageKey]?: ApiRequestDefaults;
 };

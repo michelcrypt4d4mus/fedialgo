@@ -84,6 +84,8 @@ export type ConfigType = {
     noTrendingLinksServers: string[];
     // Demo app GUI stuff
     isAppFilterVisible: boolean;
+    // Scorers
+    scorersConfig: ScorerDict;
 };
 
 
@@ -289,6 +291,86 @@ export const Config: ConfigType = {
         "med-mastodon.com",
         "toot.io",
     ],
+
+    // Scorers
+    scorersConfig: {
+        // Global modifiers that affect all weighted scores
+        [WeightName.TIME_DECAY]: {
+            description: "Higher values favour recent toots more",
+            minValue: 0.001,
+        },
+        // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
+        // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
+        // TRENDING weighting value.
+        [WeightName.TRENDING]: {
+            description: "Multiplier applied to trending toots, tags, and links",
+            minValue: 0.001,
+        },
+        // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
+        [WeightName.OUTLIER_DAMPENER]: {
+            description: "Dampens the effect of outliers scores",
+            minValue: 0.001,
+        },
+
+        // Weighted scores
+        [WeightName.CHAOS]: {
+            description: "Insert Chaos into the scoring (social media ist krieg)",
+        },
+        [WeightName.DIVERSITY]: {
+            description: "Disfavour accounts that are tooting a lot right now",
+        },
+        [WeightName.FAVOURITED_ACCOUNTS]: {
+            description: "Favour accounts you often favourite",
+        },
+        [WeightName.FAVOURITED_TAGS]: {
+            description: "Favour toots containing hashtags you favourite",
+        },
+        [WeightName.FOLLOWED_TAGS]: {
+            description: "Favour toots containing hashtags you follow",
+        },
+        [WeightName.IMAGE_ATTACHMENTS]: {
+            description: "Favour image attachments",
+        },
+        [WeightName.INTERACTIONS]: {
+            description: "Favour accounts that interact with your toots",
+        },
+        [WeightName.MENTIONS_FOLLOWED]: {
+            description: "Favour toots that mention accounts you follow",
+        },
+        [WeightName.MOST_REPLIED_ACCOUNTS]: {
+            description: "Favour accounts you often reply to",
+        },
+        [WeightName.MOST_RETOOTED_ACCOUNTS]: {
+            description: "Favour accounts you often retoot",
+        },
+        [WeightName.NUM_FAVOURITES]: {
+            description: "Favour things favourited by your server's users",
+        },
+        [WeightName.NUM_REPLIES]: {
+            description: "Favour toots with lots of replies",
+        },
+        [WeightName.NUM_RETOOTS]: {
+            description: "Favour toots that are retooted a lot",
+        },
+        [WeightName.PARTICIPATED_TAGS]: {
+            description: "Favour hastags you've tooted about",
+        },
+        [WeightName.RETOOTED_IN_FEED]: {
+            description: "Favour toots retooted by accounts you follow",
+        },
+        [WeightName.TRENDING_LINKS]: {
+            description: "Favour links that are trending in the Fediverse",
+        },
+        [WeightName.TRENDING_TAGS]: {
+            description: "Favour hashtags that are trending in the Fediverse",
+        },
+        [WeightName.TRENDING_TOOTS]: {
+            description: "Favour toots that are trending in the Fediverse",
+        },
+        [WeightName.VIDEO_ATTACHMENTS]: {
+            description: "Favour video attachments",
+        },
+    },
 };
 
 
@@ -364,86 +446,7 @@ function validateConfig(cfg: ConfigType | object): void {
 validateConfig(Config);
 
 
-export const SCORERS_CONFIG: ScorerDict = {
-    // Global modifiers that affect all weighted scores
-    [WeightName.TIME_DECAY]: {
-        description: "Higher values favour recent toots more",
-        minValue: 0.001,
-    },
-    // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-    // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
-    // TRENDING weighting value.
-    [WeightName.TRENDING]: {
-        description: "Multiplier applied to trending toots, tags, and links",
-        minValue: 0.001,
-    },
-    // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-    [WeightName.OUTLIER_DAMPENER]: {
-        description: "Dampens the effect of outliers scores",
-        minValue: 0.001,
-    },
-
-    // Weighted scores
-    [WeightName.CHAOS]: {
-        description: "Insert Chaos into the scoring (social media ist krieg)",
-    },
-    [WeightName.DIVERSITY]: {
-        description: "Disfavour accounts that are tooting a lot right now",
-    },
-    [WeightName.FAVOURITED_ACCOUNTS]: {
-        description: "Favour accounts you often favourite",
-    },
-    [WeightName.FAVOURITED_TAGS]: {
-        description: "Favour toots containing hashtags you favourite",
-    },
-    [WeightName.FOLLOWED_TAGS]: {
-        description: "Favour toots containing hashtags you follow",
-    },
-    [WeightName.IMAGE_ATTACHMENTS]: {
-        description: "Favour image attachments",
-    },
-    [WeightName.INTERACTIONS]: {
-        description: "Favour accounts that interact with your toots",
-    },
-    [WeightName.MENTIONS_FOLLOWED]: {
-        description: "Favour toots that mention accounts you follow",
-    },
-    [WeightName.MOST_REPLIED_ACCOUNTS]: {
-        description: "Favour accounts you often reply to",
-    },
-    [WeightName.MOST_RETOOTED_ACCOUNTS]: {
-        description: "Favour accounts you often retoot",
-    },
-    [WeightName.NUM_FAVOURITES]: {
-        description: "Favour things favourited by your server's users",
-    },
-    [WeightName.NUM_REPLIES]: {
-        description: "Favour toots with lots of replies",
-    },
-    [WeightName.NUM_RETOOTS]: {
-        description: "Favour toots that are retooted a lot",
-    },
-    [WeightName.PARTICIPATED_TAGS]: {
-        description: "Favour hastags you've tooted about",
-    },
-    [WeightName.RETOOTED_IN_FEED]: {
-        description: "Favour toots retooted by accounts you follow",
-    },
-    [WeightName.TRENDING_LINKS]: {
-        description: "Favour links that are trending in the Fediverse",
-    },
-    [WeightName.TRENDING_TAGS]: {
-        description: "Favour hashtags that are trending in the Fediverse",
-    },
-    [WeightName.TRENDING_TOOTS]: {
-        description: "Favour toots that are trending in the Fediverse",
-    },
-    [WeightName.VIDEO_ATTACHMENTS]: {
-        description: "Favour video attachments",
-    },
-};
-
-
+// Default params for usage with API requests
 export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
     [StorageKey.BLOCKED_ACCOUNTS]: {
         initialMaxRecords: Config.maxEndpointRecordsToPull,

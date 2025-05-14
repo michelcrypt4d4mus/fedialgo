@@ -26,7 +26,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.description = config_1.SCORERS_CONFIG[name].description;
+        this.description = config_1.Config.scorersConfig[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
     // Return a ScorerInfo object with the description and the scorer itself

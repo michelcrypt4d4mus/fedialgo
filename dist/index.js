@@ -156,7 +156,7 @@ class TheAlgorithm {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, types_1.NON_SCORE_WEIGHTS.reduce((specialScoreInfos, weightName) => {
-        specialScoreInfos[weightName] = Object.assign({}, config_1.SCORERS_CONFIG[weightName]);
+        specialScoreInfos[weightName] = Object.assign({}, config_1.Config.scorersConfig[weightName]);
         return specialScoreInfos;
     }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.

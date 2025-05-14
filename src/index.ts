@@ -37,7 +37,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
-import { Config, SCORERS_CONFIG, setLocale } from './config';
+import { Config, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -143,7 +143,7 @@ class TheAlgorithm {
         },
         NON_SCORE_WEIGHTS.reduce(
             (specialScoreInfos, weightName) => {
-                specialScoreInfos[weightName] = Object.assign({}, SCORERS_CONFIG[weightName])
+                specialScoreInfos[weightName] = Object.assign({}, Config.scorersConfig[weightName])
                 return specialScoreInfos;
             },
             {} as ScorerDict
