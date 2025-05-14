@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.35.1
 * Fix bug where followed tags weren't being lowercased before ending up in `UserData` if they were loaded from the cache
 
 # v0.35.0
