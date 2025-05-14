@@ -210,7 +210,7 @@ class Storage {
         });
         // If any changes were made to the Storage weightings, save them back to storage
         if (shouldSave) {
-            log(`${LOG_PREFIX} Saving updated weights:`, weights);
+            log(`Saving repaired user weights:`, weights);
             await Storage.setWeightings(weights);
         }
         return weights;
