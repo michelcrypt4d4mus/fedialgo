@@ -267,20 +267,23 @@ class Storage {
         const keyStrings = Object.values(types_1.StorageKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
-        return Object.entries(storedData).reduce((info, [key, obj]) => {
+        let totalBytes = 0;
+        const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
                 const value = obj.value;
-                info[key] = (0, string_helpers_1.byteString)(JSON.stringify(value).length);
-                // Alternate format w/separated bytes/numElements values
-                // info[key] = {
-                //     bytes: value ? byteString(JSON.stringify(value).length) : null,
-                //     numElements: value && Array.isArray(value) ? value.length : null,
-                // }
+                const sizeInBytes = (0, log_helpers_1.sizeOf)(value);
+                totalBytes += sizeInBytes;
+                info[key] = {
+                    bytes: sizeInBytes,
+                    bytesStr: (0, string_helpers_1.byteString)(sizeInBytes),
+                };
                 if (Array.isArray(value)) {
-                    info[key] += ` (${value.length} items)`;
+                    info[key].numElements = value.length;
+                    info[key].type = 'array';
                 }
-                else {
-                    info[key] += ` (not an array)`;
+                else if (typeof value === 'object') {
+                    info[key].numKeys = Object.keys(value).length;
+                    info[key].type = 'object';
                 }
             }
             else {
@@ -288,6 +291,9 @@ class Storage {
             }
             return info;
         }, {});
+        storageInfo.totalBytes = totalBytes;
+        storageInfo.totalBytesStr = (0, string_helpers_1.byteString)(totalBytes);
+        return storageInfo;
     }
     //////////////////////////////
     //     Private methods      //

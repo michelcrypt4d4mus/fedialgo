@@ -6,6 +6,7 @@ import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mute
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
 import { Config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
+import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed } from './string_helpers';
 
 const ENABLE_TRACE_LOG = isDebugMode;
@@ -89,6 +90,42 @@ export async function lockExecution(
     return releaseLock;
 };
 
+// Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
+export function sizeOf(obj: any): number {
+    var bytes = 0;
+    if (obj === null || obj === undefined) return bytes;
+
+    switch (typeof obj) {
+        case "number":
+            bytes += 8;
+            break;
+        case "string":
+            bytes += strBytes(obj);
+            break;
+        case "boolean":
+            bytes += 4;
+            break;
+        case "function":
+            bytes += strBytes(obj.toString());
+        case "object":
+            if (Array.isArray(obj)) {
+                bytes += sumArray(obj.map(sizeOf));
+            } else {
+                Object.entries(obj).forEach(([key, value]) => {
+                    bytes += strBytes(key);
+                    bytes += sizeOf(value);
+                });
+            }
+
+            break;
+        default:
+            console.warn(`sizeOf() unknown type: ${typeof obj}`);
+            bytes += strBytes(obj.toString());
+            break;
+    }
+
+    return bytes;
+};
 
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
@@ -109,3 +146,7 @@ export function traceLog(msg: string, ...args: any[]): void {
 export function prefixed(prefix: string, msg: string): string {
     return `${bracketed(prefix)} ${msg}`;
 };
+
+
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+const strBytes = (str: string): number => str.length;

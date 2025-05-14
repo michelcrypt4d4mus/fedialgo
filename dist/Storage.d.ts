@@ -25,7 +25,7 @@ export default class Storage {
     static setFilters(filters: FeedFilterSettings): Promise<void>;
     static setIdentity(user: Account): Promise<void>;
     static setWeightings(userWeightings: Weights): Promise<void>;
-    static storedObjsInfo(): Promise<Record<string, string | null>>;
+    static storedObjsInfo(): Promise<Record<string, any>>;
     private static buildKey;
     private static deserialize;
     private static serialize;

@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prefixed = exports.traceLog = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.prefixed = exports.traceLog = exports.sizeOf = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
+const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
 const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
@@ -74,6 +75,43 @@ async function lockExecution(locker, logPrefix) {
 }
 exports.lockExecution = lockExecution;
 ;
+// Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
+function sizeOf(obj) {
+    var bytes = 0;
+    if (obj === null || obj === undefined)
+        return bytes;
+    switch (typeof obj) {
+        case "number":
+            bytes += 8;
+            break;
+        case "string":
+            bytes += strBytes(obj);
+            break;
+        case "boolean":
+            bytes += 4;
+            break;
+        case "function":
+            bytes += strBytes(obj.toString());
+        case "object":
+            if (Array.isArray(obj)) {
+                bytes += (0, collection_helpers_1.sumArray)(obj.map(sizeOf));
+            }
+            else {
+                Object.entries(obj).forEach(([key, value]) => {
+                    bytes += strBytes(key);
+                    bytes += sizeOf(value);
+                });
+            }
+            break;
+        default:
+            console.warn(`sizeOf() unknown type: ${typeof obj}`);
+            bytes += strBytes(obj.toString());
+            break;
+    }
+    return bytes;
+}
+exports.sizeOf = sizeOf;
+;
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 function traceLog(msg, ...args) {
@@ -94,4 +132,6 @@ function prefixed(prefix, msg) {
 }
 exports.prefixed = prefixed;
 ;
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+const strBytes = (str) => str.length;
 //# sourceMappingURL=log_helpers.js.map

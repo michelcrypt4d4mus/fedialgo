@@ -16,10 +16,11 @@ import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { Config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
-import { logAndThrowError, traceLog } from './helpers/log_helpers';
+import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
+    InfoDict,
     MastodonObjWithID,
     StorableObj,
     StorableObjWithCache,
@@ -288,27 +289,30 @@ export default class Storage {
     }
 
     // Dump information about the size of the data stored in localForage
-    static async storedObjsInfo(): Promise<Record<string, string | null>> {
+    static async storedObjsInfo(): Promise<Record<string, any>> {
         const keyStrings = Object.values(StorageKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as StorageKey)));
         const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
+        let totalBytes = 0;
 
-        return Object.entries(storedData).reduce(
+        const storageInfo = Object.entries(storedData).reduce(
             (info, [key, obj]) => {
                 if (obj) {
                     const value = (obj as StorableWithTimestamp).value;
-                    info[key] = byteString(JSON.stringify(value).length);
+                    const sizeInBytes = sizeOf(value);
+                    totalBytes += sizeInBytes;
 
-                    // Alternate format w/separated bytes/numElements values
-                    // info[key] = {
-                    //     bytes: value ? byteString(JSON.stringify(value).length) : null,
-                    //     numElements: value && Array.isArray(value) ? value.length : null,
-                    // }
+                    info[key] = {
+                        bytes: sizeInBytes,
+                        bytesStr: byteString(sizeInBytes),
+                    }
 
                     if (Array.isArray(value)) {
-                        info[key] += ` (${value.length} items)`;
-                    } else {
-                        info[key] += ` (not an array)`;
+                        info[key]!.numElements = value.length;
+                        info[key]!.type = 'array';
+                    } else if (typeof value === 'object') {
+                        info[key]!.numKeys = Object.keys(value).length;
+                        info[key]!.type = 'object';
                     }
                 } else {
                     info[key] = null;
@@ -316,8 +320,12 @@ export default class Storage {
 
                 return info;
             },
-            {} as Record<string, string | null>,
+            {} as Record<string, any>
         );
+
+        storageInfo.totalBytes = totalBytes;
+        storageInfo.totalBytesStr = byteString(totalBytes);
+        return storageInfo;
     }
 
     //////////////////////////////
