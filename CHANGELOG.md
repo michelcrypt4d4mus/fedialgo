@@ -1,9 +1,10 @@
 # NEXT RELEASE
+* (Demo App) user data view params
 
 ### v0.35.1
 * Fix bug where followed tags weren't being lowercased before ending up in `UserData` if they were loaded from the cache
 
-# v0.35.0
+## v0.35.0
 * Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)
 * Add `TheAlgorithm.pullAllUserData()` method to enable full backfill of user data
 * Fix bug where new scorer weights were not automatically getting set to defaults
@@ -13,7 +14,7 @@
 * Rename `ScoreInfo` type to `WeightInfo`, rename `TheAlgorithm.scorersDict` to `weightInfo`
 * Fix bug in `sortObjsByProps()` when called with multiple sort params
 
-# v0.34.0
+## v0.34.0
 * Use a value for the user displayed TIME_DECAY param that is 10x the value used in the calculation to make it more user friendly.
 * Increase cached toots default config to 3,500
 * `HomeTimelineParams` interface and helper in `TheAlgorithm`
