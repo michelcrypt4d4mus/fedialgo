@@ -47,8 +47,8 @@ import { Buffer } from 'buffer'; // Required for class-transformer to work
 The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running:
 
 ```typescript
+import TheAlgorithm from "fedialgo"
 import { login, mastodon } from "masto";
-import { TheAlgorithm } from "fedialgo"
 
 // Optionally (tho you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
 // to manage the state of the timeline in your app. In React this might look like:

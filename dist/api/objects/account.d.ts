@@ -2,6 +2,8 @@ import { mastodon } from "masto";
 import { AccountNames, StringNumberDict } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
+    displayNameFullHTML?: () => string;
+    displayNameWithEmojis?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
     noteWithAccountInfo?: () => string;
@@ -40,6 +42,7 @@ export default class Account implements AccountObj {
     static build(account: mastodon.v1.Account): Account;
     describe(): string;
     displayNameWithEmojis(): string;
+    displayNameFullHTML(): string;
     homeserver(): string;
     homserverURL(): string;
     noteWithAccountInfo: () => string;

@@ -12,6 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/*
+ * Helper methods for dealing with Mastodon's Account objects.
+ */
+const html_entities_1 = require("html-entities");
 const class_transformer_1 = require("class-transformer");
 const api_1 = __importDefault(require("../api"));
 const config_1 = require("../../config");
@@ -94,9 +98,13 @@ class Account {
     describe() {
         return `${this.displayName} (${this.webfingerURI})`;
     }
-    // displayName prop but with the custom emojis replaced with <img> tags
+    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis() {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
+    }
+    // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
+    displayNameFullHTML() {
+        return this.displayNameWithEmojis() + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
     }
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {

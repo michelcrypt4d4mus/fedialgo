@@ -1,6 +1,7 @@
 /*
  * Helper methods for dealing with Mastodon's Account objects.
  */
+import { encode } from 'html-entities';
 import { mastodon } from "masto";
 import { Type } from "class-transformer";
 
@@ -16,6 +17,8 @@ const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = { year: "numeric", mont
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
+    displayNameFullHTML?: () => string;
+    displayNameWithEmojis?: () => string;
     homeserver?: () => string;
     homserverURL?: () => string;
     noteWithAccountInfo?: () => string;
@@ -100,9 +103,14 @@ export default class Account implements AccountObj {
         return `${this.displayName} (${this.webfingerURI})`;
     }
 
-    // displayName prop but with the custom emojis replaced with <img> tags
+    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis(): string {
         return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || []);
+    }
+
+    // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
+    displayNameFullHTML(): string {
+        return this.displayNameWithEmojis() + encode(` (@${this.webfingerURI})`);
     }
 
     // 'https://journa.host/@dell' -> 'journa.host'

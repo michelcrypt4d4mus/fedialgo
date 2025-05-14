@@ -19,4 +19,5 @@ export default abstract class Scorer {
     private static decorateWithScoreInfo;
     private static sumScores;
 }
+export declare function formatScore(score: number): number;
 export {};

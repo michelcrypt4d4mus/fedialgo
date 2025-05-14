@@ -125,8 +125,8 @@ export default abstract class Scorer {
                             const weightedScore = toot.scoreInfo!.weightedScores[scoreKey as WeightName];
 
                             scoreDetails[scoreKey] = {
-                                unweighted: toScoreFmt(scoreValue),
-                                weighted: toScoreFmt(weightedScore),
+                                unweighted: formatScore(scoreValue),
+                                weighted: formatScore(weightedScore),
                             };
 
                             return scoreDetails;
@@ -134,7 +134,7 @@ export default abstract class Scorer {
                         {} as WeightedAndUnweightedScores
                     );
                 } else if (key != "weightedScores") {
-                    scoreDict[key] = toScoreFmt(value as number);
+                    scoreDict[key] = formatScore(value as number);
                 }
 
                 return scoreDict;
@@ -211,9 +211,9 @@ export default abstract class Scorer {
 };
 
 
-function toScoreFmt(score: number): number {
+export function formatScore(score: number): number {
     if (typeof score != "number") {
-        console.warn(`${SCORE_PREFIX} toScoreFmt() called with non-number:`, score);
+        console.warn(`${SCORE_PREFIX} formatScore() called with non-number:`, score);
         return score;
     }
 

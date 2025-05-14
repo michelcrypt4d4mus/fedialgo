@@ -26,7 +26,7 @@ import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
-import Scorer from "./scorer/scorer";
+import Scorer, { formatScore } from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
@@ -571,6 +571,8 @@ class TheAlgorithm {
 };
 
 
+export default TheAlgorithm;
+
 // Export types and constants needed by apps using this package
 export {
     FEDIALGO,
@@ -588,7 +590,6 @@ export {
     PresetWeightLabel,
     PresetWeights,
     StringNumberDict,
-    TheAlgorithm,
     Toot,
     TrendingLink,
     TrendingObj,
@@ -600,6 +601,7 @@ export {
     Weights,
     // Helpers we also export
     extractDomain,
+    formatScore,
     isAccessTokenRevokedError,
     isDebugMode,
     timeString,

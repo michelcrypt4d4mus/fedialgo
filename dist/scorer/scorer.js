@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatScore = void 0;
 /*
  * Base class for Toot scorers.
  */
@@ -108,14 +109,14 @@ class Scorer {
                 scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
                     const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
                     scoreDetails[scoreKey] = {
-                        unweighted: toScoreFmt(scoreValue),
-                        weighted: toScoreFmt(weightedScore),
+                        unweighted: formatScore(scoreValue),
+                        weighted: formatScore(weightedScore),
                     };
                     return scoreDetails;
                 }, {});
             }
             else if (key != "weightedScores") {
-                scoreDict[key] = toScoreFmt(value);
+                scoreDict[key] = formatScore(value);
             }
             return scoreDict;
         }, {});
@@ -181,14 +182,15 @@ class Scorer {
 }
 exports.default = Scorer;
 ;
-function toScoreFmt(score) {
+function formatScore(score) {
     if (typeof score != "number") {
-        console.warn(`${SCORE_PREFIX} toScoreFmt() called with non-number:`, score);
+        console.warn(`${SCORE_PREFIX} formatScore() called with non-number:`, score);
         return score;
     }
     if (Math.abs(score) < Math.pow(10, -1 * SCORE_DIGITS))
         return score;
     return Number(score.toPrecision(SCORE_DIGITS));
 }
+exports.formatScore = formatScore;
 ;
 //# sourceMappingURL=scorer.js.map
