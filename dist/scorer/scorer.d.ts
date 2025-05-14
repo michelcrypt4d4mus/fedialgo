@@ -1,5 +1,5 @@
 import Toot from '../api/objects/toot';
-import { ScorerInfo, StringNumberDict, WeightName } from "../types";
+import { WeightInfo, StringNumberDict, WeightName } from "../types";
 type ScoreDisplayDict = Record<string, number | StringNumberDict>;
 type AlternateScoreDict = Record<string, number | ScoreDisplayDict>;
 export default abstract class Scorer {
@@ -9,7 +9,7 @@ export default abstract class Scorer {
     name: WeightName;
     scoreData: StringNumberDict;
     constructor(name: WeightName);
-    getInfo(): ScorerInfo;
+    getInfo(): WeightInfo;
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;
     protected logPrefix(): string;

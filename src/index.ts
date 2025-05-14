@@ -51,7 +51,7 @@ import {
     MastodonInstances,
     MediaCategory,
     ScorerDict,
-    ScorerInfo,
+    WeightInfo,
     StorageKey,
     StringNumberDict,
     TrendingLink,
@@ -136,7 +136,7 @@ class TheAlgorithm {
         ...this.feedScorers,
     ];
 
-    scorersDict: ScorerDict = this.weightedScorers.reduce(
+    weightInfo: ScorerDict = this.weightedScorers.reduce(
         (scorerInfos, scorer) => {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
@@ -573,7 +573,6 @@ export {
     PresetWeights,
     PropertyFilter,
     PropertyName,
-    ScorerInfo,
     StringNumberDict,
     TheAlgorithm,
     Toot,
@@ -582,6 +581,7 @@ export {
     TagWithUsageCounts,
     TrendingWithHistory,
     TypeFilterName,
+    WeightInfo,
     WeightName,
     Weights,
     // Helpers we also export

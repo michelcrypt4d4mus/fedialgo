@@ -11,7 +11,7 @@ import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config, SCORERS_CONFIG } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { logAndThrowError, logDebug, logInfo, traceLog } from '../helpers/log_helpers';
-import { TRENDING_WEIGHTS, ScorerInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
+import { TRENDING_WEIGHTS, WeightInfo, StringNumberDict, TootScore, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -35,7 +35,7 @@ export default abstract class Scorer {
     }
 
     // Return a ScorerInfo object with the description and the scorer itself
-    getInfo(): ScorerInfo {
+    getInfo(): WeightInfo {
         return {
             description: this.description,
             scorer: this,

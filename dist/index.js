@@ -152,7 +152,7 @@ class TheAlgorithm {
         ...this.featureScorers,
         ...this.feedScorers,
     ];
-    scorersDict = this.weightedScorers.reduce((scorerInfos, scorer) => {
+    weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, types_1.NON_SCORE_WEIGHTS.reduce((specialScoreInfos, weightName) => {

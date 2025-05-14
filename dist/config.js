@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.REQUEST_DEFAULTS = exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -354,6 +354,38 @@ exports.SCORERS_CONFIG = {
     },
     [types_1.WeightName.VIDEO_ATTACHMENTS]: {
         description: "Favour video attachments",
+    },
+};
+exports.REQUEST_DEFAULTS = {
+    [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+    },
+    [types_1.StorageKey.FAVOURITED_TOOTS]: {
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+    },
+    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
+        batchSize: 80,
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+    },
+    [types_1.StorageKey.FOLLOWED_TAGS]: {
+        batchSize: 100,
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+    },
+    [types_1.StorageKey.HOME_TIMELINE]: {
+        initialMaxRecords: exports.Config.numDesiredTimelineToots,
+        supportsMaxId: true,
+    },
+    [types_1.StorageKey.MUTED_ACCOUNTS]: {
+        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
+    },
+    [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
+        batchSize: 80,
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
+    },
+    [types_1.StorageKey.RECENT_USER_TOOTS]: {
+        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
     },
 };
 //# sourceMappingURL=config.js.map

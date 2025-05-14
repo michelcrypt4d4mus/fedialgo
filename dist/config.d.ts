@@ -59,4 +59,12 @@ export type ConfigType = {
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;
 export declare const SCORERS_CONFIG: ScorerDict;
+type ApiRequestDefaults = {
+    batchSize?: number;
+    initialMaxRecords: number;
+    supportsMaxId?: boolean;
+};
+export declare const REQUEST_DEFAULTS: {
+    [key in StorageKey]?: ApiRequestDefaults;
+};
 export {};

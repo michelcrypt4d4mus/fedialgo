@@ -46,38 +46,6 @@ exports.TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
-const REQUEST_DEFAULTS = {
-    [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: config_1.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: config_1.Config.minRecordsForFeatureScoring,
-    },
-    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
-        batchSize: 80,
-        initialMaxRecords: config_1.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.FOLLOWED_TAGS]: {
-        batchSize: 100,
-        initialMaxRecords: config_1.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: config_1.Config.numDesiredTimelineToots,
-        supportsMaxId: true,
-    },
-    [types_1.StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: config_1.Config.maxEndpointRecordsToPull,
-    },
-    [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
-        batchSize: 80,
-        initialMaxRecords: config_1.Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-    [types_1.StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: config_1.Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-};
 ;
 ;
 ;
@@ -384,7 +352,7 @@ class MastoApi {
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
-        const requestDefaults = REQUEST_DEFAULTS[storageKey];
+        const requestDefaults = config_1.REQUEST_DEFAULTS[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.Config.minRecordsForFeatureScoring;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || config_1.Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;

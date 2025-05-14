@@ -13,7 +13,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
-import { Config, ConfigType } from "../config";
+import { Config, ConfigType, REQUEST_DEFAULTS } from "../config";
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -27,45 +27,6 @@ export const TAGS = "tags";
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
-
-type DefaultParmas = {
-    batchSize?: number,
-    initialMaxRecords: number,
-    supportsMaxId?: boolean,
-};
-
-const REQUEST_DEFAULTS: {[key in StorageKey]?: DefaultParmas} = {
-    [StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-    },
-    [StorageKey.FOLLOWED_ACCOUNTS]: {     // https://docs.joinmastodon.org/methods/accounts/#following
-        batchSize: 80,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.FOLLOWED_TAGS]: {        // https://docs.joinmastodon.org/methods/followed_tags/
-        batchSize: 100,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: Config.numDesiredTimelineToots,
-        supportsMaxId: true,
-    },
-    [StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-    },
-    [StorageKey.RECENT_NOTIFICATIONS]: {  // https://docs.joinmastodon.org/methods/notifications/#get
-        batchSize: 80,
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-    [StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        supportsMaxId: true,
-    },
-}
 
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination

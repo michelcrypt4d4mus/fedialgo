@@ -91,8 +91,8 @@ timelineFeed = await algorithm.updateUserWeights(weights);
 // Choose a preset weight configuration
 timelineFeed = await algorithm.updateUserWeightsToPreset(PresetWeightLabel.FRIENDS);
 
-// The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.scorersDict.
-for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.scorersDict[key]}`);
+// The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
+for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();

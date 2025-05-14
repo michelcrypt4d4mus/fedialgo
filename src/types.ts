@@ -98,7 +98,7 @@ export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
 export type PropertyFilters = Record<PropertyName, PropertyFilter>;
-export type ScorerDict = Record<WeightName, ScorerInfo>;
+export type ScorerDict = Record<WeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
 export type Weights = Record<WeightName, number>;
@@ -163,12 +163,6 @@ export type MastodonInstanceEmpty = {
 
 export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
 
-export type ScorerInfo = {
-    description: string;
-    minValue?: number;
-    scorer?: Scorer;
-};
-
 export type StorableApiObject = (
     Account |
     MastodonObjWithID |
@@ -227,6 +221,12 @@ export interface TrendingStorage {
 
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+
+export type WeightInfo = {
+    description: string;
+    minValue?: number;
+    scorer?: Scorer;
+};
 
 
 // TODO: unused stuff below here

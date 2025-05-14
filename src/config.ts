@@ -436,3 +436,43 @@ export const SCORERS_CONFIG: ScorerDict = {
         description: "Favour video attachments",
     },
 };
+
+type ApiRequestDefaults = {
+    batchSize?: number;
+    initialMaxRecords: number;
+    supportsMaxId?: boolean;
+};
+
+
+export const REQUEST_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
+    [StorageKey.BLOCKED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.FAVOURITED_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+    },
+    [StorageKey.FOLLOWED_ACCOUNTS]: {
+        batchSize: 80,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.FOLLOWED_TAGS]: {
+        batchSize: 100,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.HOME_TIMELINE]: {
+        initialMaxRecords: Config.numDesiredTimelineToots,
+        supportsMaxId: true,
+    },
+    [StorageKey.MUTED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.RECENT_NOTIFICATIONS]: {
+        batchSize: 80,
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
+    },
+    [StorageKey.RECENT_USER_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
+    },
+};
