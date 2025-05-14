@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.35.2
 * (Demo App) user data view params
 
 ### v0.35.1
