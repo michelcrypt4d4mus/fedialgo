@@ -1,6 +1,7 @@
 # NEXT RELEASE
-* **(BREAKING CHANGE)** Export TheAlgorithm as the default export from fedialgo instead of a named export
-* Add displayNameFullHTML() to Account object
+* **(BREAKING CHANGE)** Export `TheAlgorithm` as the default export from `fedialgo` package instead of a named export
+* Add `displayNameFullHTML()` to `Account` object
+* Fix bug with upgrading stored filter args
 * (Demo App) Add icon link to show the raw Toot JSON in a modal
 
 ### v0.37.2

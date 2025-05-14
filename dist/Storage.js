@@ -169,6 +169,8 @@ class Storage {
     // Get the user's saved timeline filter settings
     static async getFilters() {
         const filters = await this.get(types_1.StorageKey.FILTERS);
+        if (!filters)
+            return null;
         // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
         if ("feedFilterSectionArgs" in filters) {
             warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
@@ -176,7 +178,7 @@ class Storage {
             return null;
         }
         // Filters are saved in a serialized format that requires deserialization
-        return filters ? (0, feed_filters_1.buildFiltersFromArgs)(filters) : null;
+        return (0, feed_filters_1.buildFiltersFromArgs)(filters);
     }
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrendingData() {
