@@ -53,6 +53,7 @@ export const TRENDING_WEIGHTS = [
 
 // Keys that are valid for local browser storage.
 export enum StorageKey {
+    APP_OPENS = "AppOpens",
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_TOOTS = 'FavouritedToots',
     FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
@@ -65,7 +66,6 @@ export enum StorageKey {
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
     HOME_TIMELINE = 'HomeTimeline',  // Just toots that are in the home timeline (followed accounts + tags)
     MUTED_ACCOUNTS = 'MutedAccounts',
-    OPENINGS = "Openings",
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     RECENT_NOTIFICATIONS = 'RecentNotifications',
     RECENT_USER_TOOTS = 'RecentUserToots',

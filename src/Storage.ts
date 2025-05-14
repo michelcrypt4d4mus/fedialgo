@@ -250,7 +250,7 @@ export default class Storage {
 
     static async logAppOpen(): Promise<void> {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
-        await this.set(StorageKey.OPENINGS, numAppOpens);
+        await this.set(StorageKey.APP_OPENS, numAppOpens);
     }
 
     // Delete the value at the given key (with the user ID as a prefix)
@@ -353,7 +353,7 @@ export default class Storage {
 
     // Get the number of times the app has been opened by this user
     private static async getNumAppOpens(): Promise<number> {
-        return (await this.get(StorageKey.OPENINGS) as number) ?? 0;
+        return (await this.get(StorageKey.APP_OPENS) as number) ?? 0;
     }
 
     // Get the raw StorableWithTimestamp object
@@ -364,7 +364,7 @@ export default class Storage {
 
     // Get the timestamp the app was last opened // TODO: currently unused
     private static async lastOpenedAt(): Promise<Date | null> {
-        return await this.updatedAt(StorageKey.OPENINGS);
+        return await this.updatedAt(StorageKey.APP_OPENS);
     }
 
     // Return the seconds from the updatedAt stored at 'key' and now
