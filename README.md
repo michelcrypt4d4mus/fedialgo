@@ -153,6 +153,9 @@ Package configuration options can be found in [`src/config.ts`](src/config.ts). 
 ### Developer Setup
 If necessary install the dev dependencies with `npm install --include=dev`.
 
+### Debugging
+If you set the environment variable `FEDIALGO_DEBUG=true` a _lot_ more debugging info will be printed to the browser console. See [`.env.example`](./.env.example) for other environment variables you can play with.
+
 ### Deploying Changes
 For changes to propagate you must run `npm run build` to generate changes to files in `dist/` and then check those files into git.
 
@@ -170,10 +173,10 @@ npm link fedialgo
 ```
 
 ### Running Test Suite
-`npm run test`
+~~`npm run test`~~
 
 ### Miscellaneous
-Use // @ts-ignore if you run into Typescript warnings (because your project might also use masto)
+Use // @ts-ignore if you run into Typescript warnings (because your project might also use `masto`)
 
 ```bash
 npm run build
