@@ -30,7 +30,7 @@ import { timeString } from './helpers/time_helpers';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { sortKeysByValue } from "./helpers/collection_helpers";
 import { isDebugMode } from './helpers/environment_helpers';
-import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import { PresetWeightLabel } from './scorer/weight_presets';
 import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, WeightInfo, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TagWithUsageCounts, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
@@ -48,6 +48,7 @@ declare class TheAlgorithm {
     mastodonServers: MastodonInstances;
     trendingData: TrendingStorage;
     userData: UserData;
+    weightPresets: import("./scorer/weight_presets").WeightPresets;
     private api;
     private user;
     private setTimelineInApp;
@@ -79,7 +80,7 @@ declare class TheAlgorithm {
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
-    updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]>;
+    updateUserWeightsToPreset(presetName: PresetWeightLabel | string): Promise<Toot[]>;
     private checkIfLoading;
     private checkIfSkipping;
     private fetchAndMergeToots;
@@ -98,4 +99,4 @@ declare class TheAlgorithm {
     private statusDict;
 }
 export default TheAlgorithm;
-export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, BooleanFilterName, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, StringNumberDict, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightInfo, WeightName, Weights, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
+export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, BooleanFilterName, FeedFilterSettings, MediaCategory, NumericFilter, StringNumberDict, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightInfo, WeightName, Weights, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };

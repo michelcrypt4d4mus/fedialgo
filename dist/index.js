@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.PresetWeights = exports.PresetWeightLabel = exports.NumericFilter = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.NumericFilter = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -85,8 +85,6 @@ const hashtags_1 = require("./feeds/hashtags");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
 const weight_presets_1 = require("./scorer/weight_presets");
-Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_1.PresetWeightLabel; } });
-Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_1.PresetWeights; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "NON_SCORE_WEIGHTS", { enumerable: true, get: function () { return types_1.NON_SCORE_WEIGHTS; } });
@@ -114,6 +112,7 @@ class TheAlgorithm {
     mastodonServers = {};
     trendingData = { links: [], tags: [], toots: [] };
     userData = new user_data_1.default();
+    weightPresets = weight_presets_1.WEIGHT_PRESETS;
     // Constructor argument variables
     api;
     user;
@@ -326,7 +325,9 @@ class TheAlgorithm {
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName) {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
-        return await this.updateUserWeights(weight_presets_1.PresetWeights[presetName]);
+        if (!(0, weight_presets_1.isWeightPresetLabel)(presetName))
+            (0, log_helpers_1.logAndThrowError)(`Invalid weight preset: "${presetName}"`);
+        return await this.updateUserWeights(weight_presets_1.WEIGHT_PRESETS[presetName]);
     }
     // Throw an error if the feed is loading
     checkIfLoading() {

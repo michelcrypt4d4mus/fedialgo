@@ -1,9 +1,10 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WEIGHT_PRESETS = exports.DEFAULT_WEIGHTS = exports.isWeightPresetLabel = exports.PresetWeightLabel = void 0;
 /*
  * Preset configurations to simplify user weight management.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PresetWeights = exports.DEFAULT_WEIGHTS = exports.PresetWeightLabel = void 0;
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const types_1 = require("../types");
 var PresetWeightLabel;
 (function (PresetWeightLabel) {
@@ -15,6 +16,8 @@ var PresetWeightLabel;
     PresetWeightLabel["TRENDING"] = "Trending";
 })(PresetWeightLabel || (exports.PresetWeightLabel = PresetWeightLabel = {}));
 ;
+const isWeightPresetLabel = (value) => (0, collection_helpers_1.isValueInStringEnum)(PresetWeightLabel)(value);
+exports.isWeightPresetLabel = isWeightPresetLabel;
 exports.DEFAULT_WEIGHTS = {
     // Global modifiers that affect all weighted scores
     [types_1.WeightName.TIME_DECAY]: 1.5,
@@ -41,7 +44,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.TRENDING_TOOTS]: 1.0,
     [types_1.WeightName.VIDEO_ATTACHMENTS]: 0,
 };
-exports.PresetWeights = {
+exports.WEIGHT_PRESETS = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
         [types_1.WeightName.TIME_DECAY]: 10.0,
         [types_1.WeightName.TRENDING]: 0,

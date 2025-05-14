@@ -167,15 +167,16 @@ function isRecord(x: unknown): x is Record<string, unknown> {
 };
 
 
+{/* Mapping enums is annoying. See: https://www.typescriptlang.org/play/?ts=5.0.4#code/KYDwDg9gTgLgBMAdgVwLZwDIENEHNla7ADOAongDYCWxAFnAN4BQccA5EgKoDKbcAvO3K5qdNgBoW7AF60AEjhh9BbALI4AJlihVE4uABUoWDVRhUIiLBQlMAvkyYwAnmGBwwVAMYBrYFAB5MHNLAUYpLwgNYAAuOD9nCAAzOBc3ZMwcfEISYVFaAG4pCiwAI2AKOOw8AiIyShpC+yKmJORELxDEOCJEfywYYCCugAoEuISMtOAM6uy6vMaASjjPX39hi27mVihgGGQobalWSOiJ4GdJVlYS8srMmpz6kUaAbQSAXWu4OyKHJiRRDEeAQYJbYhhEZSAKlABWwE6ADoEsQRnNarkGnQlnAsJCxpcpq4ZikMc9Fji3p8mEskagsGARr1+oNNpYlkUgA */}
 // Generate a fxn to check if a string is in an enum.
 // From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
-function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
+export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
     const enumValues = Object.values(strEnum) as string[];
     return (value: string): value is E => enumValues.includes(value);
 };
 
-export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
 export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
+export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
 
 
 // Build a dictionary from the result of keyFxn() for each object in the array

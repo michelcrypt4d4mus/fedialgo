@@ -1,10 +1,8 @@
 /*
  * Preset configurations to simplify user weight management.
  */
-
+import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { WeightName, Weights } from "../types";
-
-export type WeightPresets = Record<PresetWeightLabel, Weights>;
 
 export enum PresetWeightLabel {
     CHRONOLOGICAL = 'Chronological',
@@ -14,6 +12,9 @@ export enum PresetWeightLabel {
     PICTURES = 'Pictures',
     TRENDING = 'Trending',
 };
+
+export type WeightPresets = Record<PresetWeightLabel, Weights>;
+export const isWeightPresetLabel = (value: string) => isValueInStringEnum(PresetWeightLabel)(value);
 
 
 export const DEFAULT_WEIGHTS: Weights = {
@@ -44,7 +45,7 @@ export const DEFAULT_WEIGHTS: Weights = {
 };
 
 
-export const PresetWeights: WeightPresets = {
+export const WEIGHT_PRESETS: WeightPresets = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
         [WeightName.TIME_DECAY]: 10.0,
         [WeightName.TRENDING]: 0,

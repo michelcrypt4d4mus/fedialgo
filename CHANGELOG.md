@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename PresetWeights constant to WEIGHT_PRESETS
 
 ### v0.38.1
 * Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception

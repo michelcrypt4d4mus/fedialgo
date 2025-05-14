@@ -11,8 +11,9 @@ export declare function decrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
 export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined;
-export declare const isWeightName: (value: string) => boolean;
+export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare const isStorageKey: (value: string) => boolean;
+export declare const isWeightName: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];

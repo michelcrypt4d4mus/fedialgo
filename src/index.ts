@@ -43,7 +43,7 @@ import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./he
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import { isWeightPresetLabel, PresetWeightLabel, WEIGHT_PRESETS } from './scorer/weight_presets';
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
@@ -53,7 +53,7 @@ import {
     logDebug,
     logTelemetry,
     traceLog,
-    logAndThrowError
+    logAndThrowError,
 } from './helpers/log_helpers';
 import {
     NON_SCORE_WEIGHTS,
@@ -103,6 +103,7 @@ class TheAlgorithm {
     mastodonServers: MastodonInstances = {};
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
     userData: UserData = new UserData();
+    weightPresets = WEIGHT_PRESETS;
 
     // Constructor argument variables
     private api: mastodon.rest.Client;
@@ -346,9 +347,10 @@ class TheAlgorithm {
     }
 
     // Update user weightings to one of the preset values and rescore / resort the feed.
-    async updateUserWeightsToPreset(presetName: PresetWeightLabel): Promise<Toot[]> {
+    async updateUserWeightsToPreset(presetName: PresetWeightLabel | string): Promise<Toot[]> {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
-        return await this.updateUserWeights(PresetWeights[presetName]);
+        if (!isWeightPresetLabel(presetName)) logAndThrowError(`Invalid weight preset: "${presetName}"`);
+        return await this.updateUserWeights(WEIGHT_PRESETS[presetName as PresetWeightLabel]);
     }
 
     // Throw an error if the feed is loading
@@ -598,8 +600,6 @@ export {
     FeedFilterSettings,
     MediaCategory,
     NumericFilter,
-    PresetWeightLabel,
-    PresetWeights,
     StringNumberDict,
     Toot,
     TrendingLink,

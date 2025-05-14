@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isStorageKey = exports.isWeightName = exports.findMinMaxId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.findMinMaxId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -140,17 +140,19 @@ function isRecord(x) {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
 }
 ;
+{ /* Mapping enums is annoying. See: https://www.typescriptlang.org/play/?ts=5.0.4#code/KYDwDg9gTgLgBMAdgVwLZwDIENEHNla7ADOAongDYCWxAFnAN4BQccA5EgKoDKbcAvO3K5qdNgBoW7AF60AEjhh9BbALI4AJlihVE4uABUoWDVRhUIiLBQlMAvkyYwAnmGBwwVAMYBrYFAB5MHNLAUYpLwgNYAAuOD9nCAAzOBc3ZMwcfEISYVFaAG4pCiwAI2AKOOw8AiIyShpC+yKmJORELxDEOCJEfywYYCCugAoEuISMtOAM6uy6vMaASjjPX39hi27mVihgGGQobalWSOiJ4GdJVlYS8srMmpz6kUaAbQSAXWu4OyKHJiRRDEeAQYJbYhhEZSAKlABWwE6ADoEsQRnNarkGnQlnAsJCxpcpq4ZikMc9Fji3p8mEskagsGARr1+oNNpYlkUgA */ }
 // Generate a fxn to check if a string is in an enum.
 // From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
 function isValueInStringEnum(strEnum) {
     const enumValues = Object.values(strEnum);
     return (value) => enumValues.includes(value);
 }
+exports.isValueInStringEnum = isValueInStringEnum;
 ;
-const isWeightName = (value) => isValueInStringEnum(types_1.WeightName)(value);
-exports.isWeightName = isWeightName;
 const isStorageKey = (value) => isValueInStringEnum(types_1.StorageKey)(value);
 exports.isStorageKey = isStorageKey;
+const isWeightName = (value) => isValueInStringEnum(types_1.WeightName)(value);
+exports.isWeightName = isWeightName;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {
     return array.reduce((keyedDict, obj) => {
