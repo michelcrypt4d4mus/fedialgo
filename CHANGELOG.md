@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.39.0
 * Rename `PresetWeights` constant to `WEIGHT_PRESETS`, stop exporting `PresetWeightLabel`, add `TheAlgorithm.weightPresets` property
 
 ### v0.38.1
