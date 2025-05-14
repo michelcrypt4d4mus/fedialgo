@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
-class NumFavoritesScorer extends feature_scorer_1.default {
+class NumFavouritesScorer extends feature_scorer_1.default {
     constructor() {
         super(types_1.WeightName.NUM_FAVOURITES);
     }
@@ -18,6 +18,6 @@ class NumFavoritesScorer extends feature_scorer_1.default {
         return toot.realToot().favouritesCount || 0;
     }
 }
-exports.default = NumFavoritesScorer;
+exports.default = NumFavouritesScorer;
 ;
-//# sourceMappingURL=num_favorites_scorer.js.map
+//# sourceMappingURL=num_favourites_scorer.js.map

@@ -54,7 +54,7 @@ const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature
 const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 exports.NumericFilter = numeric_filter_1.default;
-const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
+const num_favourites_scorer_1 = __importDefault(require("./scorer/feature/num_favourites_scorer"));
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
 const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoots_in_feed_scorer"));
@@ -139,7 +139,7 @@ class TheAlgorithm {
         new most_favourited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
         new most_retooted_accounts_scorer_1.default(),
-        new num_favorites_scorer_1.default(),
+        new num_favourites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),
         new retoots_in_feed_scorer_1.default(),
