@@ -71,7 +71,7 @@ const algorithm = await TheAlgorithm.create({
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
 ```typescript
-import { BooleanFilterName, PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
+import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
 
 // Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
 // in the constructor all you need to do is monitor the state of whatever variable contains the timeline
@@ -91,7 +91,8 @@ weights[WeightName.NUM_REPLIES] = 0.5;
 timelineFeed = await algorithm.updateUserWeights(weights);
 
 // Choose a preset weight configuration
-timelineFeed = await algorithm.updateUserWeightsToPreset(PresetWeightLabel.FRIENDS);
+const weightPresetNames = Object.keys(algorithm.weightPresets);
+timelineFeed = await algorithm.updateUserWeightsToPreset(weightPresetNames[0]);
 
 // The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
 for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);

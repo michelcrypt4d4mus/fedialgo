@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Rename PresetWeights constant to WEIGHT_PRESETS
+* Rename `PresetWeights` constant to `WEIGHT_PRESETS`, stop exporting `PresetWeightLabel`, add `TheAlgorithm.weightPresets` property
 
 ### v0.38.1
 * Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception
