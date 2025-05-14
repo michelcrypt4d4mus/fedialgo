@@ -570,8 +570,7 @@ export default class Toot implements TootObj {
 
         const langDetectInfo = detectLanguage(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
-        const summary = `toot.language="${this.language}", ${langDetectInfo.summary}`;
-        const langLogObj = {...langDetectInfo, summary, text, toot: this};
+        const langLogObj = {...langDetectInfo, text, toot: this, tootLanguage: this.language};
         const logTrace = (msg: string) => traceLog(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
 
         // If there's nothing detected log a warning (if text is long enough) and set language to default

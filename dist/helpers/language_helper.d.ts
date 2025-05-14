@@ -23,7 +23,6 @@ type LanguageDetectInfo = {
     chosenLanguage?: string;
     langDetector: DetectLangLibraryResult;
     tinyLD: DetectLangLibraryResult;
-    summary: string;
 };
 export declare const detectLanguage: (text: string) => LanguageDetectInfo;
 export declare function detectHashtagLanguage(str: string): string | undefined;

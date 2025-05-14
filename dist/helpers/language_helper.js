@@ -267,8 +267,6 @@ const detectLanguage = (text) => {
         }
     }
     const accuracies = [langInfoFromTinyLD.accuracy, langInfoFromLangDetector.accuracy];
-    const summary = `tinyLD="${langInfoFromTinyLD.chosenLang}" (accuracy: ${langInfoFromTinyLD.accuracy.toPrecision(4)})` +
-        `, langDetector="${langInfoFromLangDetector.chosenLang}" (accuracy: ${langInfoFromLangDetector.accuracy.toPrecision(4)})`;
     // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
     if (langInfoFromTinyLD.chosenLang
         && langInfoFromTinyLD.chosenLang == langInfoFromLangDetector.chosenLang
@@ -290,14 +288,13 @@ const detectLanguage = (text) => {
     }
     // tinyld is much better at detecting foreign scripts
     if (langInfoFromTinyLD.accuracy >= VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(langInfoFromTinyLD.chosenLang || string_helpers_1.NULL)) {
-        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}". ${summary}`);
+        // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}"`);
         chosenLanguage = langInfoFromTinyLD.chosenLang;
     }
     return {
         chosenLanguage,
         langDetector: langInfoFromLangDetector,
         tinyLD: langInfoFromTinyLD,
-        summary,
     };
 };
 exports.detectLanguage = detectLanguage;
