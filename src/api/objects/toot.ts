@@ -620,7 +620,9 @@ export default class Toot implements TootObj {
         }
 
         if (this.language) {
-            logTrace(`No guess good enough to override language "${this.language}" for "${text}"`);
+            if (text.length > (2 * MIN_CHARS_FOR_LANG_DETECT)) {
+                logTrace(`No guess good enough to override language "${this.language}" for "${text}"`);
+            }
         } else {
             logTrace(`Defaulting language prop to "en"`);
             this.language ??= Config.defaultLanguage;
