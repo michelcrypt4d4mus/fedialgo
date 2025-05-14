@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug where followed tags weren't being lowercased before ending up in `UserData` if they were loaded from the cache
 
 # v0.35.0
 * Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)

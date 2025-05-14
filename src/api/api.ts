@@ -46,6 +46,7 @@ interface MaxIdParams extends BackfillParams {
 //   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
+//   - processFxn: optional function to process the object before storing and returning it
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
 interface FetchParams<T> extends MaxIdParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
@@ -53,6 +54,7 @@ interface FetchParams<T> extends MaxIdParams {
     skipCache?: boolean,
     skipMutex?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
+    processFxn?: (obj: T) => void,
 };
 
 // Home timeline request params
@@ -214,25 +216,22 @@ export default class MastoApi {
 
     // Get accounts the user is following
     async getFollowedAccounts(params?: BackfillParams): Promise<Account[]> {
-        const accounts = await this.getApiRecords<mastodon.v1.Account>({
+        return await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
+            processFxn: (account) => (account as Account).isFollowed = true,
             ...(params || {})
         }) as Account[];
-
-        accounts.forEach(account => account.isFollowed = true);
-        return accounts;
     }
 
     // Get hashtags the user is following
     async getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]> {
-        const followedTags = await this.getApiRecords<mastodon.v1.Tag>({
+        return await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             storageKey: StorageKey.FOLLOWED_TAGS,
+            processFxn: (tag) => repairTag(tag),
             ...(params || {})
         }) as mastodon.v1.Tag[];
-
-        return followedTags.map(repairTag);
     }
 
     // Get all muted accounts (including accounts that are fully blocked)
@@ -404,7 +403,7 @@ export default class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastoApiObject[]> {
-        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = params;
+        let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
         let logPfx = `${bracketed(storageKey)}`;
         traceLog(`${logPfx} fetchData() params:`, params);
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
@@ -470,6 +469,7 @@ export default class MastoApi {
         }
 
         const objs = this.buildFromApiObjects(storageKey, rows);
+        if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
         if (!skipCache) await Storage.set(storageKey, objs);
         return objs;
     }

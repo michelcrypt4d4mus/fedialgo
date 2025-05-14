@@ -177,22 +177,21 @@ class MastoApi {
     }
     // Get accounts the user is following
     async getFollowedAccounts(params) {
-        const accounts = await this.getApiRecords({
+        return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
+            processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         });
-        accounts.forEach(account => account.isFollowed = true);
-        return accounts;
     }
     // Get hashtags the user is following
     async getFollowedTags(params) {
-        const followedTags = await this.getApiRecords({
+        return await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
             storageKey: types_1.StorageKey.FOLLOWED_TAGS,
+            processFxn: (tag) => (0, tag_1.repairTag)(tag),
             ...(params || {})
         });
-        return followedTags.map(tag_1.repairTag);
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(params) {
@@ -346,7 +345,7 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(params) {
-        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = params;
+        let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
         let logPfx = `${(0, string_helpers_1.bracketed)(storageKey)}`;
         (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params:`, params);
         if (moar && (skipCache || maxId))
@@ -410,6 +409,8 @@ class MastoApi {
             releaseMutex?.();
         }
         const objs = this.buildFromApiObjects(storageKey, rows);
+        if (processFxn)
+            objs.forEach(obj => obj && processFxn(obj));
         if (!skipCache)
             await Storage_1.default.set(storageKey, objs);
         return objs;
