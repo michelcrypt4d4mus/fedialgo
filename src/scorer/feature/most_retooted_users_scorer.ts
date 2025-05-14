@@ -8,7 +8,7 @@ import MastoApi from "../../api/api";
 import { StringNumberDict, WeightName } from "../../types";
 
 
-export default class MostRetootedUsersScorer extends AccountScorer {
+export default class MostRetootedAccountsScorer extends AccountScorer {
     constructor() {
         super(WeightName.MOST_RETOOTED_ACCOUNTS);
     }
