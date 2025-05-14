@@ -9,7 +9,7 @@ import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, StorageKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
-import { buildTagNames } from "./objects/tag";
+import { buildTagNames, countTags } from "./objects/tag";
 import { Config } from "../config";
 import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
@@ -21,6 +21,7 @@ const SORT_TAGS_BY = [
 
 // Raw API data required to build UserData
 interface UserApiData {
+    favouritedToots: Toot[];
     followedAccounts: Account[];
     followedTags: TagWithUsageCounts[];
     mutedAccounts: Account[];
@@ -30,6 +31,7 @@ interface UserApiData {
 
 
 export default class UserData {
+    favouritedTagCounts: StringNumberDict = {};
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagNames = {};
     languagesPostedIn: StringNumberDict = {};
@@ -41,6 +43,7 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
+        userData.favouritedTagCounts = countTags(data.favouritedToots);
         userData.followedAccounts = Account.buildWebfingerUriLookup(data.followedAccounts);
         userData.followedTags = buildTagNames(data.followedTags);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
@@ -68,6 +71,7 @@ export default class UserData {
     // Pull latest user's data from cache and/or API
     async populate(): Promise<void> {
         const responses = await Promise.all([
+            MastoApi.instance.getRecentFavourites(),
             MastoApi.instance.getFollowedAccounts(),
             MastoApi.instance.getFollowedTags(),
             MastoApi.instance.getMutedAccounts(),
@@ -75,11 +79,12 @@ export default class UserData {
             MastoApi.instance.getServerSideFilters(),
         ]);
 
-        this.followedAccounts = Account.buildWebfingerUriLookup(responses[0]);
-        this.followedTags = buildTagNames(responses[1]);
-        this.mutedAccounts = Account.buildAccountNames(responses[2]);
-        this.participatedHashtags = responses[3];
-        this.serverSideFilters = responses[4];
+        this.favouritedTagCounts = countTags(responses[0]);
+        this.followedAccounts = Account.buildWebfingerUriLookup(responses[1]);
+        this.followedTags = buildTagNames(responses[2]);
+        this.mutedAccounts = Account.buildAccountNames(responses[3]);
+        this.participatedHashtags = responses[4];
+        this.serverSideFilters = responses[5];
     }
 
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it

@@ -233,6 +233,7 @@ export default class Storage {
         const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(StorageKey.MUTED_ACCOUNTS);
 
         return UserData.buildFromData({
+            favouritedToots: await this.getCoerced<Toot>(StorageKey.FAVOURITED_TOOTS),
             followedAccounts: await this.getCoerced<Account>(StorageKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced<mastodon.v1.Tag>(StorageKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => Account.build(a)),

@@ -3,7 +3,10 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
+import Toot from "./toot";
+import { incrementCount } from "../../helpers/collection_helpers";
 import { MastodonTag, TagNames } from "../../types";
+import { StringNumberDict } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
@@ -34,4 +37,16 @@ export function buildTagNames(tags: MastodonTag[]): TagNames {
         tagNames[tag.name] = tag;
         return tagNames;
     }, {} as TagNames);
+};
+
+
+// Count up the number of tags that appear in a set of toots
+export function countTags(toots: Toot[]): StringNumberDict {
+    return toots.reduce(
+        (tagCounts: StringNumberDict, toot: Toot) => {
+            toot.realToot().tags?.forEach(tag => incrementCount(tagCounts, tag.name));
+            return tagCounts;
+        },
+        {} as StringNumberDict
+    );
 };
