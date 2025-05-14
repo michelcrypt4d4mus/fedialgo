@@ -215,6 +215,17 @@ export default class MastoApi {
         }
     }
 
+    // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
+    // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
+    // TODO: rename getFavouritedToots
+    async getFavouritedToots(params?: BackfillParams): Promise<Toot[]> {
+        return await this.getApiRecords<mastodon.v1.Status>({
+            fetch: this.api.v1.favourites.list,
+            storageKey: StorageKey.FAVOURITED_TOOTS,
+            ...(params || {})
+        }) as Toot[];
+    }
+
     // Get accounts the user is following
     async getFollowedAccounts(params?: BackfillParams): Promise<Account[]> {
         return await this.getApiRecords<mastodon.v1.Account>({
@@ -245,19 +256,6 @@ export default class MastoApi {
 
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.concat(blockedAccounts);
-    }
-
-    // Get an array of Toots the user has recently favourited
-    // https://docs.joinmastodon.org/methods/favourites/#get
-    // IDs of accounts ar enot monotonic so there's not really any way to
-    // incrementally load this endpoint (the only way is pagination)
-    // TODO: rename getFavouritedToots
-    async getRecentFavourites(params?: BackfillParams): Promise<Toot[]> {
-        return await this.getApiRecords<mastodon.v1.Status>({
-            fetch: this.api.v1.favourites.list,
-            storageKey: StorageKey.FAVOURITED_TOOTS,
-            ...(params || {})
-        }) as Toot[];
     }
 
     // Get the user's recent notifications

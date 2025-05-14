@@ -13,7 +13,7 @@ export default class MostFavoritedAccountsScorer extends AccountScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const recentFavourites = await MastoApi.instance.getRecentFavourites();
+        const recentFavourites = await MastoApi.instance.getFavouritedToots();
         return Account.countAccounts(recentFavourites.map(toot => toot.account));
     };
 };

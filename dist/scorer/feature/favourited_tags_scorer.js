@@ -17,7 +17,7 @@ class FavouritedTagsScorer extends feature_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        return (0, tag_1.countTags)(await api_1.default.instance.getRecentFavourites());
+        return (0, tag_1.countTags)(await api_1.default.instance.getFavouritedToots());
     }
     ;
     async _score(toot) {

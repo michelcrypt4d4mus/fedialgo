@@ -53,7 +53,7 @@ class UserData {
     // Pull latest user's data from cache and/or API
     async populate() {
         const responses = await Promise.all([
-            api_1.default.instance.getRecentFavourites(),
+            api_1.default.instance.getFavouritedToots(),
             api_1.default.instance.getFollowedAccounts(),
             api_1.default.instance.getFollowedTags(),
             api_1.default.instance.getMutedAccounts(),

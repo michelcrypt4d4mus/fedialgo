@@ -178,6 +178,16 @@ class MastoApi {
             releaseMutex();
         }
     }
+    // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
+    // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
+    // TODO: rename getFavouritedToots
+    async getFavouritedToots(params) {
+        return await this.getApiRecords({
+            fetch: this.api.v1.favourites.list,
+            storageKey: types_1.StorageKey.FAVOURITED_TOOTS,
+            ...(params || {})
+        });
+    }
     // Get accounts the user is following
     async getFollowedAccounts(params) {
         return await this.getApiRecords({
@@ -205,18 +215,6 @@ class MastoApi {
         });
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.concat(blockedAccounts);
-    }
-    // Get an array of Toots the user has recently favourited
-    // https://docs.joinmastodon.org/methods/favourites/#get
-    // IDs of accounts ar enot monotonic so there's not really any way to
-    // incrementally load this endpoint (the only way is pagination)
-    // TODO: rename getFavouritedToots
-    async getRecentFavourites(params) {
-        return await this.getApiRecords({
-            fetch: this.api.v1.favourites.list,
-            storageKey: types_1.StorageKey.FAVOURITED_TOOTS,
-            ...(params || {})
-        });
     }
     // Get the user's recent notifications
     async getRecentNotifications(params) {

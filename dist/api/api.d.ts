@@ -34,10 +34,10 @@ export default class MastoApi {
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
     getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
+    getFavouritedToots(params?: BackfillParams): Promise<Toot[]>;
     getFollowedAccounts(params?: BackfillParams): Promise<Account[]>;
     getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]>;
     getMutedAccounts(params?: BackfillParams): Promise<Account[]>;
-    getRecentFavourites(params?: BackfillParams): Promise<Toot[]>;
     getRecentNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;

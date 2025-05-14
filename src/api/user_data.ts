@@ -71,7 +71,7 @@ export default class UserData {
     // Pull latest user's data from cache and/or API
     async populate(): Promise<void> {
         const responses = await Promise.all([
-            MastoApi.instance.getRecentFavourites(),
+            MastoApi.instance.getFavouritedToots(),
             MastoApi.instance.getFollowedAccounts(),
             MastoApi.instance.getFollowedTags(),
             MastoApi.instance.getMutedAccounts(),

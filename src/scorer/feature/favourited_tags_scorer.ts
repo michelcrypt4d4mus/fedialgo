@@ -15,7 +15,7 @@ export default class FavouritedTagsScorer extends FeatureScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return countTags(await MastoApi.instance.getRecentFavourites());
+        return countTags(await MastoApi.instance.getFavouritedToots());
     };
 
     async _score(toot: Toot) {
