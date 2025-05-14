@@ -25,6 +25,7 @@ export const STATUSES = "statuses";
 export const TAGS = "tags";
 
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const RATE_LIMIT_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
@@ -430,25 +431,25 @@ export default class MastoApi {
                 if (cachedData?.obj) {
                     // Return cached data if the data is not stale unless moar=true
                     if (!(cachedData.isStale || moar)) return cachedData.obj as T[];
+                    const minMaxId = findMinMaxId(rows as MastodonObjWithID[]);
 
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    if (requestDefaults?.supportsMinMaxId && cachedData.obj.length) {
+                    if (requestDefaults?.supportsMinMaxId && minMaxId) {
                         rows = cachedData.obj as T[];
-                        const minMaxId = findMinMaxId(rows as MastodonObjWithID[]);
 
-                        // If we're pulling moar data we want the maxId for our request to be the minId of the cache
-                        // If we're just dealing with stale data we want to use the maxId of the cache as our minId
+                        // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
+                        // If we're incrementally updating stale data, use the max ID of the cache as the request minId
                         if (moar) {
-                            maxId = minMaxId!.min;
-                            maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
-                            console.log(`${logPfx} getting MOAR data; loading backwards from maxId ${maxId}`);
+                            maxId = minMaxId.min;
+                            maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to the rows we have now
+                            console.log(`${logPfx} Getting MOAR old data; loading backwards from maxId ${maxId}`);
                         } else {
-                            minId = minMaxId!.max;
+                            minId = minMaxId.max;
                             console.log(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
                         }
                     } else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        console.debug(`${logPfx} maxId not supported or no results for ${storageKey}`);
+                        console.debug(`${logPfx} maxId not supported or no cache (${cachedData.obj.length} records)`);
                     }
                 };
             }
@@ -470,6 +471,7 @@ export default class MastoApi {
                 }
             }
         } catch (e) {
+            // TODO: handle rate limiting errors
             // If the access token was not revoked whatever rows we've retrieved will be returned
             MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
         } finally {
