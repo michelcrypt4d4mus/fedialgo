@@ -164,6 +164,11 @@ export type MastodonInstanceEmpty = {
 
 export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
 
+export type MinMaxID = {
+    min: string;
+    max: string;
+};
+
 export type StorableApiObject = (
     Account |
     MastodonObjWithID |

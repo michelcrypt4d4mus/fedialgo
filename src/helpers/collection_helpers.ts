@@ -3,7 +3,7 @@
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { Config, ConfigType } from "../config";
-import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
+import { CountKey, MastodonObjWithID, MinMaxID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { traceLog } from "./log_helpers";
 
 
@@ -132,7 +132,7 @@ export function filterWithLog<T>(
 // the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
-export function findMinMaxId(array: MastodonObjWithID[]): [string, string] | undefined {
+export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
     if (array.length == 0) return undefined;
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
@@ -149,7 +149,7 @@ export function findMinMaxId(array: MastodonObjWithID[]): [string, string] | und
         }
     });
 
-    return [sortedIDs[0].toString(), sortedIDs.slice(-1)[0].toString()];
+    return {min: sortedIDs[0].toString(), max: sortedIDs.slice(-1)[0].toString()};
 };
 
 

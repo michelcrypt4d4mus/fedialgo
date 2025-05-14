@@ -104,7 +104,7 @@ class MastoApi {
         if (moar) {
             const minMaxId = (0, collection_helpers_1.findMinMaxId)(homeTimelineToots);
             if (minMaxId)
-                maxId = minMaxId[0]; // Note that min/max are reversed on purpose when they become params!
+                maxId = minMaxId.min; // Note that min/max are reversed on purpose when they become params!
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         }
         else {
@@ -380,12 +380,12 @@ class MastoApi {
                         // If we're pulling moar data we want the maxId for our request to be the minId of the cache
                         // If we're just dealing with stale data we want to use the maxId of the cache as our minId
                         if (moar) {
-                            maxId = minMaxId[0];
+                            maxId = minMaxId.min;
                             maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
                             console.log(`${logPfx} getting MOAR data; loading backwards from maxId ${maxId}`);
                         }
                         else {
-                            minId = minMaxId[1];
+                            minId = minMaxId.max;
                             console.log(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
                         }
                     }

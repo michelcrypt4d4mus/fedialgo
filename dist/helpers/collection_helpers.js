@@ -125,7 +125,7 @@ function findMinMaxId(array) {
             return a > b ? 1 : -1;
         }
     });
-    return [sortedIDs[0].toString(), sortedIDs.slice(-1)[0].toString()];
+    return { min: sortedIDs[0].toString(), max: sortedIDs.slice(-1)[0].toString() };
 }
 exports.findMinMaxId = findMinMaxId;
 ;

@@ -383,35 +383,6 @@ export function setLocale(locale?: string): void {
 };
 
 
-// Debug mode settings
-if (isQuickMode) {
-    Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
-    Config.hashtagTootRetrievalDelaySeconds = 2;
-    Config.incrementalLoadDelayMS = 100;
-    Config.lookbackForUpdatesMinutes = 15;
-    Config.maxRecordsForFeatureScoring = 480;
-    Config.numDesiredTimelineToots = 400;
-    Config.numParticipatedTagsToFetchTootsFor = 20;
-    Config.numTrendingTags = 20;
-}
-
-if (isDebugMode) {
-    Config.maxRecordsForFeatureScoring = 20_000;
-};
-
-// Heavy load test settings
-if (isLoadTest) {
-    Config.maxCachedTimelineToots = 5_000;
-    Config.maxRecordsForFeatureScoring = 1_500;
-    Config.numDesiredTimelineToots = 2_500;
-    Config.numParticipatedTagsToFetchTootsFor = 50;
-    Config.numParticipatedTagToots = 500;
-    Config.numParticipatedTagTootsPerTag = 10;
-    Config.numTrendingTags = 40;
-    Config.numTrendingTagsToots = 1_000;
-};
-
-
 // Default params for usage with API requests
 export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
     [StorageKey.BLOCKED_ACCOUNTS]: {
@@ -473,6 +444,37 @@ export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
     [StorageKey.TRENDING_TAG_TOOTS]: {
         numMinutesUntilStale: 15,
     },
+};
+
+
+// Debug mode settings
+if (isQuickMode) {
+    Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
+    Config.hashtagTootRetrievalDelaySeconds = 2;
+    Config.incrementalLoadDelayMS = 100;
+    Config.lookbackForUpdatesMinutes = 15;
+    Config.maxRecordsForFeatureScoring = 480;
+    Config.numDesiredTimelineToots = 400;
+    Config.numParticipatedTagsToFetchTootsFor = 20;
+    Config.numTrendingTags = 20;
+}
+
+if (isDebugMode) {
+    Config.maxRecordsForFeatureScoring = 20_000;
+    API_DEFAULTS[StorageKey.RECENT_NOTIFICATIONS]!.numMinutesUntilStale = 60;
+    API_DEFAULTS[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 60;
+};
+
+// Heavy load test settings
+if (isLoadTest) {
+    Config.maxCachedTimelineToots = 5_000;
+    Config.maxRecordsForFeatureScoring = 1_500;
+    Config.numDesiredTimelineToots = 2_500;
+    Config.numParticipatedTagsToFetchTootsFor = 50;
+    Config.numParticipatedTagToots = 500;
+    Config.numParticipatedTagTootsPerTag = 10;
+    Config.numTrendingTags = 40;
+    Config.numTrendingTagsToots = 1_000;
 };
 
 

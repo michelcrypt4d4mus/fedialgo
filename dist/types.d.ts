@@ -102,6 +102,10 @@ export type MastodonInstanceEmpty = {
     MAU?: number;
 };
 export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
+export type MinMaxID = {
+    min: string;
+    max: string;
+};
 export type StorableApiObject = (Account | MastodonObjWithID | MastodonApiObject | MastodonTag | Toot | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);

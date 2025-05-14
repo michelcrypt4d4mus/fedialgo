@@ -298,33 +298,6 @@ function setLocale(locale) {
 }
 exports.setLocale = setLocale;
 ;
-// Debug mode settings
-if (environment_helpers_1.isQuickMode) {
-    exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
-    exports.Config.hashtagTootRetrievalDelaySeconds = 2;
-    exports.Config.incrementalLoadDelayMS = 100;
-    exports.Config.lookbackForUpdatesMinutes = 15;
-    exports.Config.maxRecordsForFeatureScoring = 480;
-    exports.Config.numDesiredTimelineToots = 400;
-    exports.Config.numParticipatedTagsToFetchTootsFor = 20;
-    exports.Config.numTrendingTags = 20;
-}
-if (environment_helpers_1.isDebugMode) {
-    exports.Config.maxRecordsForFeatureScoring = 20000;
-}
-;
-// Heavy load test settings
-if (environment_helpers_1.isLoadTest) {
-    exports.Config.maxCachedTimelineToots = 5000;
-    exports.Config.maxRecordsForFeatureScoring = 1500;
-    exports.Config.numDesiredTimelineToots = 2500;
-    exports.Config.numParticipatedTagsToFetchTootsFor = 50;
-    exports.Config.numParticipatedTagToots = 500;
-    exports.Config.numParticipatedTagTootsPerTag = 10;
-    exports.Config.numTrendingTags = 40;
-    exports.Config.numTrendingTagsToots = 1000;
-}
-;
 // Default params for usage with API requests
 exports.API_DEFAULTS = {
     [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
@@ -387,6 +360,35 @@ exports.API_DEFAULTS = {
         numMinutesUntilStale: 15,
     },
 };
+// Debug mode settings
+if (environment_helpers_1.isQuickMode) {
+    exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
+    exports.Config.hashtagTootRetrievalDelaySeconds = 2;
+    exports.Config.incrementalLoadDelayMS = 100;
+    exports.Config.lookbackForUpdatesMinutes = 15;
+    exports.Config.maxRecordsForFeatureScoring = 480;
+    exports.Config.numDesiredTimelineToots = 400;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 20;
+    exports.Config.numTrendingTags = 20;
+}
+if (environment_helpers_1.isDebugMode) {
+    exports.Config.maxRecordsForFeatureScoring = 20000;
+    exports.API_DEFAULTS[types_1.StorageKey.RECENT_NOTIFICATIONS].numMinutesUntilStale = 60;
+    exports.API_DEFAULTS[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 60;
+}
+;
+// Heavy load test settings
+if (environment_helpers_1.isLoadTest) {
+    exports.Config.maxCachedTimelineToots = 5000;
+    exports.Config.maxRecordsForFeatureScoring = 1500;
+    exports.Config.numDesiredTimelineToots = 2500;
+    exports.Config.numParticipatedTagsToFetchTootsFor = 50;
+    exports.Config.numParticipatedTagToots = 500;
+    exports.Config.numParticipatedTagTootsPerTag = 10;
+    exports.Config.numTrendingTags = 40;
+    exports.Config.numTrendingTagsToots = 1000;
+}
+;
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object

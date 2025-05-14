@@ -1,5 +1,5 @@
 import { ConfigType } from "../config";
-import { CountKey, MastodonObjWithID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number | null, sleepBetweenMS?: number): Promise<any[]>;
@@ -10,7 +10,7 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
-export declare function findMinMaxId(array: MastodonObjWithID[]): [string, string] | undefined;
+export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined;
 export declare const isWeightName: (value: string) => boolean;
 export declare const isStorageKey: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
