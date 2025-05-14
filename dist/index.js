@@ -246,8 +246,8 @@ class TheAlgorithm {
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState() {
         return {
-            AlgorithmState: this.statusDict(),
-            StorageState: await Storage_1.default.storedObjsInfo(),
+            Algorithm: this.statusDict(),
+            Storage: await Storage_1.default.storedObjsInfo(),
             UserData: await api_1.default.instance.getUserData(),
         };
     }

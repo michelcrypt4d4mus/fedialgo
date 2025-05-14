@@ -247,8 +247,8 @@ class TheAlgorithm {
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState(): Promise<Record<string, any>> {
         return {
-            AlgorithmState: this.statusDict(),
-            StorageState: await Storage.storedObjsInfo(),
+            Algorithm: this.statusDict(),
+            Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };
     }

@@ -267,12 +267,14 @@ class Storage {
     // Dump information about the size of the data stored in localForage
     static async storedObjsInfo() {
         const keyStrings = Object.values(types_1.StorageKey);
-        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
+        const keys = await Promise.all(keyStrings.map(k => k == types_1.StorageKey.USER ? k : this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
+        storedData[types_1.StorageKey.USER] = await this.getIdentity(); // Stored differently
+        console.log(`Loaded user identity:`, storedData[types_1.StorageKey.USER]);
         let totalBytes = 0;
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
-                const value = obj.value;
+                const value = key == types_1.StorageKey.USER ? obj : obj.value;
                 const sizeInBytes = (0, log_helpers_1.sizeOf)(value);
                 totalBytes += sizeInBytes;
                 info[key] = {
@@ -286,6 +288,9 @@ class Storage {
                 else if (typeof value === 'object') {
                     info[key].numKeys = Object.keys(value).length;
                     info[key].type = 'object';
+                }
+                else {
+                    console.warn(`Unknown type for key "${key}":`, value);
                 }
             }
             else {
