@@ -42,7 +42,7 @@ export async function getMoarData(): Promise<boolean> {
                     return 0;
                 };
 
-                const newRecords = await pollers[i](true);  // Launch the puller with moar=true
+                const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
                 const newCount = (newRecords?.length || 0);
                 const extraCount = newCount - cacheSizes[i];
                 let msg = `${MOAR_DATA_PREFIX} ${pollers[i].name} oldCount=${cacheSizes[i]}`;

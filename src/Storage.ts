@@ -215,8 +215,6 @@ export default class Storage {
                 warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
                 shouldSave = true;
-            } else {
-                debug(`Weight "${key}" is set to ${weights[key as WeightName]} (value: "${defaultValue}")`);
             }
         });
 

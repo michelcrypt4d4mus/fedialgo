@@ -210,29 +210,29 @@ class MastoApi {
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
-    async getRecentFavourites(moar) {
+    // TODO: make moar flag work here
+    async getRecentFavourites(maxRecords) {
         return await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
             storageKey: types_1.StorageKey.FAVOURITED_TOOTS,
-            // moar: moar,
+            maxRecords: maxRecords || config_1.Config.minRecordsForFeatureScoring
         });
     }
     // Get the user's recent notifications
-    async getRecentNotifications(moar) {
+    async getRecentNotifications(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
             storageKey: types_1.StorageKey.RECENT_NOTIFICATIONS,
-            moar: moar,
+            ...(params || {})
         });
     }
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(params) {
-        const { maxId, maxRecords, moar } = params || {};
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             storageKey: types_1.StorageKey.RECENT_USER_TOOTS,
-            moar: moar,
+            ...(params || {})
         });
     }
     // Retrieve content based feed filters the user has set up on the server
@@ -371,10 +371,10 @@ class MastoApi {
                         return cachedRows; // Return cached data unless moar=true
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
-                    rows = cachedRows;
-                    maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to # of rows we have now
-                    maxId = (0, collection_helpers_1.findMinId)(rows);
+                    maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to # of rows we have now
+                    maxId = (0, collection_helpers_1.findMinId)(cachedRows);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
+                    rows = cachedRows;
                 }
                 ;
             }

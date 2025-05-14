@@ -253,32 +253,31 @@ export default class MastoApi {
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
-    async getRecentFavourites(moar?: boolean): Promise<Toot[]> {
+    // TODO: make moar flag work here
+    async getRecentFavourites(maxRecords?: number): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             storageKey: StorageKey.FAVOURITED_TOOTS,
-            // moar: moar,
+            maxRecords: maxRecords || Config.minRecordsForFeatureScoring
         }) as Toot[];
     }
 
     // Get the user's recent notifications
-    async getRecentNotifications(moar?: boolean): Promise<mastodon.v1.Notification[]> {
+    async getRecentNotifications(params?: ApiParams): Promise<mastodon.v1.Notification[]> {
         return await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             storageKey: StorageKey.RECENT_NOTIFICATIONS,
-            moar: moar,
+            ...(params || {})
         }) as mastodon.v1.Notification[];
     }
 
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(params?: ApiParams): Promise<Toot[]> {
-        const { maxId, maxRecords, moar } = params || {};
-
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             storageKey: StorageKey.RECENT_USER_TOOTS,
-            moar: moar,
+            ...(params || {})
         }) as Toot[];
     }
 
@@ -435,10 +434,10 @@ export default class MastoApi {
 
                     // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
-                    rows = cachedRows;
-                    maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to # of rows we have now
-                    maxId = findMinId(rows as MastodonObjWithID[]);
+                    maxRecords = maxRecords + cachedRows.length;  // Add another unit of maxRecords to # of rows we have now
+                    maxId = findMinId(cachedRows as MastodonObjWithID[]);
                     console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
+                    rows = cachedRows;
                 };
             }
 

@@ -90,6 +90,7 @@ declare class TheAlgorithm {
     private logTelemetry;
     private _mergeTootsToFeed;
     private prepareScorers;
+    private recomputeScorers;
     private scoreAndFilterFeed;
     private setLoadingStateVariables;
     private statusDict;

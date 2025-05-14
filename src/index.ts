@@ -70,6 +70,7 @@ const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_HISTORY_MSG = `Pulling historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
+const REALLY_BIG_NUMBER = 10_000_000_000;
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -263,11 +264,15 @@ class TheAlgorithm {
         this.setLoadingStateVariables(PULLING_HISTORY_MSG);
         // Stop the dataPoller if it's running
         this.dataPoller && clearInterval(this.dataPoller!);
-        MastoApi.instance.getRecentUserToots();
-        await this.userData.populate();
-        await this.prepareScorers(true);
-        await this.scoreAndFilterFeed();
-        this.loadingStatus = null;
+
+        try {
+            await MastoApi.instance.getRecentUserToots({maxRecords: REALLY_BIG_NUMBER, moar: true});
+        } catch (error) {
+            console.error(`[pullAllUserData] Error pulling user data:`, error);
+        }
+
+        // TODO: should we restart the data poller?
+        await this.recomputeScorers();
         console.log(`${PULLING_HISTORY_MSG} finished`);
     }
 
@@ -369,9 +374,9 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(): Promise<void> {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        const logPrefix = `${SET_LOADING_STATUS} finishFeedUpdate()`;
+        const logPrefix = bracketed(`${SET_LOADING_STATUS} finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        console.debug(`[${logPrefix}] ${FINALIZING_SCORES_MSG}...`);
+        console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
         updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
@@ -382,7 +387,7 @@ class TheAlgorithm {
             this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
-            console.warn(`[${TELEMETRY}] ${logPrefix} finished but loadStartedAt is null!`);
+            console.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
             this.lastLoadTimeInSeconds = null;
         }
 
@@ -409,10 +414,7 @@ class TheAlgorithm {
         this.dataPoller = setInterval(
             async () => {
                 const shouldContinue = await getMoarData();
-                // Force scorers to recompute data, rescore the feed
-                await this.userData.populate();
-                await this.prepareScorers(true);
-                await this.scoreAndFilterFeed();
+                await this.recomputeScorers();  // Force scorers to recompute data, rescore the feed
 
                 if (!shouldContinue) {
                     logInfo(MOAR_DATA_PREFIX, `stopping data poller...`);
@@ -483,6 +485,13 @@ class TheAlgorithm {
         } finally {
             releaseMutex();
         }
+    }
+
+    // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
+    private async recomputeScorers(): Promise<void> {
+        await this.userData.populate();
+        await this.prepareScorers(true);  // The "true" arg is the key here
+        await this.scoreAndFilterFeed();
     }
 
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app

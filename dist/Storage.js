@@ -204,9 +204,6 @@ class Storage {
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;
             }
-            else {
-                debug(`Weight "${key}" is set to ${weights[key]} (value: "${defaultValue}")`);
-            }
         });
         // If any changes were made to the Storage weightings, save them back to storage
         if (shouldSave) {

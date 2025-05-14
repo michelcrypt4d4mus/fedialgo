@@ -1,6 +1,6 @@
 # NEXT RELEASE
-
-* Add a new FavouritedTagsScorer (and a new `UserData.favouritedTagCounts` property)
+* Add TheAlgorithm.pullAllUserData() method to enable full backfill of user data
+* Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)
 * Fix bug where new scorer weights were not automatically getting set to defaults
 * Remove trending tags from the list of participated tags we're pulling toots for because we get them anyways
 
