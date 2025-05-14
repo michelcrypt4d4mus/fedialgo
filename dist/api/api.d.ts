@@ -51,7 +51,9 @@ export default class MastoApi {
     private hashtagTimelineToots;
     private buildParams;
     private buildFromApiObjects;
-    static throwIfAccessTokenRevoked(e: unknown, msg: string): void;
+    static throwIfAccessTokenRevoked(error: unknown, msg: string): void;
+    static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }
 export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;
+export declare function isRateLimitError(e: Error | unknown): boolean;
 export {};

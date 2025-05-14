@@ -20,7 +20,6 @@ import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
 import {
     FeedFilterSettings,
     FeedFilterSettingsSerialized,
-    InfoDict,
     MastodonObjWithID,
     StorableObj,
     StorableObjWithCache,

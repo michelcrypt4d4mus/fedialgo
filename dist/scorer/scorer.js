@@ -55,11 +55,6 @@ class Scorer {
     logPrefix() {
         return `[${this.constructor.name}]`;
     }
-    // Throw an error if the scorer is not ready to score
-    checkIsReady() {
-        if (!this.isReady)
-            (0, log_helpers_1.logAndThrowError)(`${this.name} scorer not ready!`);
-    }
     ///////////////////////////////
     //   Static class methods  ////
     ///////////////////////////////

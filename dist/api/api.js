@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isAccessTokenRevokedError = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -43,10 +43,12 @@ exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const RATE_LIMIT_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
+// Error messages for MastoHttpError
+const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
+const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 ;
 ;
 ;
@@ -479,10 +481,19 @@ class MastoApi {
     //     Static Methods     //
     ////////////////////////////
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
-    static throwIfAccessTokenRevoked(e, msg) {
-        console.error(`${msg}. Error:`, e);
-        if (isAccessTokenRevokedError(e)) {
-            throw e;
+    static throwIfAccessTokenRevoked(error, msg) {
+        console.error(`${msg}. Error:`, error);
+        if (isAccessTokenRevokedError(error))
+            throw error;
+    }
+    // Throw just a simple string as the error if it's a rate limit error; otherwise re-raise
+    static throwSanitizedRateLimitError(error, msg) {
+        if (isRateLimitError(error)) {
+            console.error(`Rate limit error:`, error);
+            throw RATE_LIMIT_USER_WARNING;
+        }
+        else {
+            (0, log_helpers_1.logAndThrowError)(msg, error);
         }
     }
 }
@@ -497,6 +508,16 @@ function isAccessTokenRevokedError(e) {
     return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
 }
 exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
+;
+// Return true if the error is an access token revoked error
+function isRateLimitError(e) {
+    if (!(e instanceof Error)) {
+        console.warn(`error 'e' is not an instance of Error:`, e);
+        return false;
+    }
+    return e.message.includes(RATE_LIMIT_ERROR_MSG);
+}
+exports.isRateLimitError = isRateLimitError;
 ;
 // TODO: get rid of this eventually
 const logTrendingTagResults = (logPrefix, searchMethod, toots) => {

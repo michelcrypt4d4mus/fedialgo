@@ -64,11 +64,6 @@ export default abstract class Scorer {
         return `[${this.constructor.name}]`;
     }
 
-    // Throw an error if the scorer is not ready to score
-    private checkIsReady(): void {
-        if (!this.isReady) logAndThrowError(`${this.name} scorer not ready!`);
-    }
-
     ///////////////////////////////
     //   Static class methods  ////
     ///////////////////////////////

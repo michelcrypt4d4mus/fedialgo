@@ -13,7 +13,6 @@ export default abstract class Scorer {
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;
     protected logPrefix(): string;
-    private checkIsReady;
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
     static alternateScoreInfo(toot: Toot): AlternateScoreDict;
     private static decorateWithScoreInfo;

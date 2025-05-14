@@ -24,10 +24,13 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const RATE_LIMIT_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
+
+// Error messages for MastoHttpError
+const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
+const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
@@ -548,11 +551,18 @@ export default class MastoApi {
     ////////////////////////////
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
-    static throwIfAccessTokenRevoked(e: unknown, msg: string): void {
-        console.error(`${msg}. Error:`, e);
+    static throwIfAccessTokenRevoked(error: unknown, msg: string): void {
+        console.error(`${msg}. Error:`, error);
+        if (isAccessTokenRevokedError(error)) throw error;
+    }
 
-        if (isAccessTokenRevokedError(e)) {
-            throw e;
+    // Throw just a simple string as the error if it's a rate limit error; otherwise re-raise
+    static throwSanitizedRateLimitError(error: unknown, msg: string): void {
+        if (isRateLimitError(error)) {
+            console.error(`Rate limit error:`, error);
+            throw RATE_LIMIT_USER_WARNING;
+        } else {
+            logAndThrowError(msg, error);
         }
     }
 };
@@ -566,6 +576,17 @@ export function isAccessTokenRevokedError(e: Error | unknown): boolean {
     }
 
     return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
+};
+
+
+// Return true if the error is an access token revoked error
+export function isRateLimitError(e: Error | unknown): boolean {
+    if (!(e instanceof Error)) {
+        console.warn(`error 'e' is not an instance of Error:`, e);
+        return false;
+    }
+
+    return e.message.includes(RATE_LIMIT_ERROR_MSG);
 };
 
 

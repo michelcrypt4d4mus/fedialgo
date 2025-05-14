@@ -206,6 +206,8 @@ class TheAlgorithm {
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
         ]);
+        // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
+        // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
         (0, log_helpers_1.traceLog)(`[${log_helpers_1.TRIGGER_FEED}] FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
@@ -238,7 +240,7 @@ class TheAlgorithm {
             console.log(`${logPrefix} finished`);
         }
         catch (error) {
-            (0, log_helpers_1.logAndThrowError)(`${logPrefix} Error pulling user data:`, error);
+            api_1.default.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
         }
         finally {
             this.loadingStatus = null; // TODO: should we restart the data poller?
@@ -287,7 +289,7 @@ class TheAlgorithm {
             return null;
         }
         const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
-        (0, log_helpers_1.traceLog)(`feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        (0, log_helpers_1.traceLog)(`TheAlgorithm.feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
     // Clear everything from browser storage except the user's identity and weightings

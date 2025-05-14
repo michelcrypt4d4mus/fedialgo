@@ -212,6 +212,8 @@ class TheAlgorithm {
             MastoApi.instance.getUserData().then((userData) => this.userData = userData),
         ]);
 
+        // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
+        // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
         traceLog(`[${TRIGGER_FEED}] FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
@@ -247,7 +249,7 @@ class TheAlgorithm {
             await this.recomputeScorers();
             console.log(`${logPrefix} finished`);
         } catch (error) {
-            logAndThrowError(`${logPrefix} Error pulling user data:`, error);
+            MastoApi.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
         } finally {
             this.loadingStatus = null;  // TODO: should we restart the data poller?
         }
@@ -304,7 +306,7 @@ class TheAlgorithm {
         }
 
         const feedAgeInSeconds = ageInSeconds(mostRecentAt);
-        traceLog(`feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
+        traceLog(`TheAlgorithm.feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
 
