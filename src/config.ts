@@ -454,8 +454,8 @@ if (isQuickMode) {
 }
 
 if (isDebugMode) {
-    Config.apiDefaults[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 10;
-    Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 10;
+    Config.apiDefaults[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
+    Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
     Config.maxRecordsForFeatureScoring = 20_000;
 };
 

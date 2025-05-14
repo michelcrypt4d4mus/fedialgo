@@ -7,6 +7,7 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const types_1 = require("../types");
+const log_helpers_1 = require("./log_helpers");
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
@@ -109,10 +110,13 @@ exports.filterWithLog = filterWithLog;
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
 function findMinMaxId(array) {
-    if (array.length == 0)
+    if (!array.length) {
+        console.warn(`[findMinMaxId()] called with 0 length array:`, array);
         return undefined;
+    }
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(string_helpers_1.isNumber);
+    (0, log_helpers_1.traceLog)(`[findMinMaxId()] isNumberArray=${isNumberArray}, idVals:`, idVals);
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {
         a = a.toString();
@@ -124,7 +128,10 @@ function findMinMaxId(array) {
             return a > b ? 1 : -1;
         }
     });
-    return { min: sortedIDs[0].toString(), max: sortedIDs.slice(-1)[0].toString() };
+    return {
+        min: sortedIDs[0].toString(),
+        max: sortedIDs.slice(-1)[0].toString()
+    };
 }
 exports.findMinMaxId = findMinMaxId;
 ;

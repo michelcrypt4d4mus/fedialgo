@@ -371,8 +371,8 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.numTrendingTags = 20;
 }
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.apiDefaults[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 10;
-    exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 10;
+    exports.Config.apiDefaults[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
+    exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
     exports.Config.maxRecordsForFeatureScoring = 20000;
 }
 ;

@@ -366,13 +366,15 @@ class MastoApi {
                 // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
                 const cachedData = await Storage_1.default.getWithStaleness(storageKey);
                 if (cachedData?.obj) {
+                    const cachedRows = cachedData.obj;
                     // Return cached data if the data is not stale unless moar=true
-                    if (!(cachedData.isStale || moar))
-                        return cachedData.obj;
-                    const minMaxId = (0, collection_helpers_1.findMinMaxId)(rows);
+                    if (!(cachedData.isStale || moar)) {
+                        return cachedRows;
+                    }
+                    const minMaxId = (0, collection_helpers_1.findMinMaxId)(cachedRows);
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
                     if (requestDefaults?.supportsMinMaxId && minMaxId) {
-                        rows = cachedData.obj;
+                        rows = cachedRows;
                         // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
                         // If we're incrementally updating stale data, use the max ID of the cache as the request minId
                         if (moar) {
@@ -387,7 +389,7 @@ class MastoApi {
                     }
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        console.debug(`${logPfx} maxId not supported or no cache, ${cachedData.obj.length} records, minMaxId:`, minMaxId, `\nrequestDefaults:`, requestDefaults);
+                        console.debug(`${logPfx} maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`, minMaxId, `\nrequestDefaults:`, requestDefaults);
                     }
                 }
                 ;

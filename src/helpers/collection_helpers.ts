@@ -133,9 +133,14 @@ export function filterWithLog<T>(
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
 export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
-    if (array.length == 0) return undefined;
+    if (!array.length) {
+        console.warn(`[findMinMaxId()] called with 0 length array:`, array);
+        return undefined;
+    }
+
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
+    traceLog(`[findMinMaxId()] isNumberArray=${isNumberArray}, idVals:`, idVals);
 
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {
@@ -149,7 +154,10 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
         }
     });
 
-    return {min: sortedIDs[0].toString(), max: sortedIDs.slice(-1)[0].toString()};
+    return {
+        min: sortedIDs[0].toString(),
+        max: sortedIDs.slice(-1)[0].toString()
+    };
 };
 
 
