@@ -421,10 +421,10 @@ export default class MastoApi {
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
                 const cachedData = await Storage.getWithStaleness(storageKey);
 
                 if (cachedData?.obj) {
+                    // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
                     const cachedRows = cachedData.obj as T[];
 
                     // Return cached data if the data is not stale unless moar=true
@@ -468,14 +468,12 @@ export default class MastoApi {
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
 
-                if (rows.length >= maxRecords || shouldStop) {
-                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar} (shouldStop=${shouldStop})`);
+                if (rows.length >= maxRecords || rows.length == 0 || shouldStop) {
+                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
-                } else if (rows.length == 0) {
-                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar} because got empty page`);
                 } else {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
-                    (rows.length % (limit * 10) == 0) ? console.debug(msg) : traceLog(msg);
+                    (pageNumber % 5 == 0) ? console.debug(msg) : traceLog(msg);
                 }
             }
         } catch (e) {
