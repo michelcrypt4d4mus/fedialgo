@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.38.1
 * Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception
 
 # v0.38.0
