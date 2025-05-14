@@ -321,7 +321,7 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.maxRecordsForFeatureScoring = 480;
-    exports.Config.numDesiredTimelineToots = 500;
+    exports.Config.numDesiredTimelineToots = 400;
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;
 }

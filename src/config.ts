@@ -406,7 +406,7 @@ if (isQuickMode) {
     Config.incrementalLoadDelayMS = 100;
     Config.lookbackForUpdatesMinutes = 15;
     Config.maxRecordsForFeatureScoring = 480;
-    Config.numDesiredTimelineToots = 500;
+    Config.numDesiredTimelineToots = 400;
     Config.numParticipatedTagsToFetchTootsFor = 20;
     Config.numTrendingTags = 20;
 }
