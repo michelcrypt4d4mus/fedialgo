@@ -8,7 +8,7 @@ import Toot from '../../api/objects/toot';
 import { WeightName } from "../../types";
 
 
-export default class NumFavoritesScorer extends FeatureScorer {
+export default class NumFavouritesScorer extends FeatureScorer {
     constructor() {
         super(WeightName.NUM_FAVOURITES);
     }

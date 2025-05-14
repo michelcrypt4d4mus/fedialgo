@@ -22,7 +22,7 @@ import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accou
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import MostRetootedAccountsScorer from "./scorer/feature/most_retooted_accounts_scorer";
 import NumericFilter from "./filters/numeric_filter";
-import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
+import NumFavouritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
@@ -130,7 +130,7 @@ class TheAlgorithm {
         new MostFavouritedAccountsScorer(),
         new MostRepliedAccountsScorer(),
         new MostRetootedAccountsScorer(),
-        new NumFavoritesScorer(),
+        new NumFavouritesScorer(),
         new NumRepliesScorer(),
         new NumRetootsScorer(),
         new RetootsInFeedScorer(),
