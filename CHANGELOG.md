@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.37.1
 * Change Toot.alternateScoreInfo() formate
 * Rename TheAlgorithm.logWithState() to logCurrentState()
 
