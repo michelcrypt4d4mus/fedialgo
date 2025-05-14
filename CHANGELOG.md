@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.35.0
 * Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)
 * Add `TheAlgorithm.pullAllUserData()` method to enable full backfill of user data
 * Fix bug where new scorer weights were not automatically getting set to defaults
