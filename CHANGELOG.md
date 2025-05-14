@@ -1,12 +1,12 @@
 # NEXT RELEASE
-* Add TheAlgorithm.pullAllUserData() method to enable full backfill of user data
 * Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)
+* Add `TheAlgorithm.pullAllUserData()` method to enable full backfill of user data
 * Fix bug where new scorer weights were not automatically getting set to defaults
 * Remove trending tags from the list of participated tags we're pulling toots for because we get them anyways
 * Fix bug where home timeline toot cache would just grow (dedupe on the way in)
-* Add DEFAULT_REQUESTS configuration
-* Rename ScoreInfo type to WeightInfo, rename TheAlgorithm.scorersDict to weightInfo
-* Fix bug in sortObjsByProps() when called with multiple sort params
+* Add `API_DEFAULTS` configuration
+* Rename `ScoreInfo` type to `WeightInfo`, rename `TheAlgorithm.scorersDict` to `weightInfo`
+* Fix bug in `sortObjsByProps()` when called with multiple sort params
 
 # v0.34.0
 * Use a value for the user displayed TIME_DECAY param that is 10x the value used in the calculation to make it more user friendly.
