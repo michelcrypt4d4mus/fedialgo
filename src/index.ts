@@ -212,6 +212,33 @@ class TheAlgorithm {
         await this.finishFeedUpdate();
     }
 
+    // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+    // Use with caution!
+    async triggerPullAllUserData(): Promise<void> {
+        this.setLoadingStateVariables(PULLING_HISTORY_MSG);
+        // Stop the dataPoller if it's running
+        this.dataPoller && clearInterval(this.dataPoller!);
+        const moarParams = {maxRecords: REALLY_BIG_NUMBER, moar: true};
+
+        try {
+            const backfillJobs = [
+                MastoApi.instance.getRecentFavourites(moarParams),
+                MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
+                // MastoApi.instance.getRecentNotifications(moarParams),
+                MastoApi.instance.getRecentUserToots(moarParams),
+            ];
+
+            const allResults = await Promise.all(backfillJobs);
+            traceLog(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
+        } catch (error) {
+            console.error(`[pullAllUserData] Error pulling user data:`, error);
+        }
+
+        // TODO: should we restart the data poller?
+        await this.recomputeScorers();
+        console.log(`${PULLING_HISTORY_MSG} finished`);
+    }
+
     // Return the current filtered timeline feed in weight order
     getTimeline(): Toot[] {
         return this.filterFeedAndSetInApp();
@@ -258,33 +285,6 @@ class TheAlgorithm {
         const feedAgeInSeconds = ageInSeconds(mostRecentAt);
         traceLog(`feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
         return feedAgeInSeconds;
-    }
-
-    // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
-    // Use with caution!
-    async pullAllUserData(): Promise<void> {
-        this.setLoadingStateVariables(PULLING_HISTORY_MSG);
-        // Stop the dataPoller if it's running
-        this.dataPoller && clearInterval(this.dataPoller!);
-        const moarParams = {maxRecords: REALLY_BIG_NUMBER, moar: true};
-
-        try {
-            const backfillJobs = [
-                MastoApi.instance.getRecentFavourites(moarParams),
-                MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
-                // MastoApi.instance.getRecentNotifications(moarParams),
-                MastoApi.instance.getRecentUserToots(moarParams),
-            ];
-
-            const allResults = await Promise.all(backfillJobs);
-            traceLog(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
-        } catch (error) {
-            console.error(`[pullAllUserData] Error pulling user data:`, error);
-        }
-
-        // TODO: should we restart the data poller?
-        await this.recomputeScorers();
-        console.log(`${PULLING_HISTORY_MSG} finished`);
     }
 
     // Clear everything from browser storage except the user's identity and weightings

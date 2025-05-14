@@ -66,13 +66,13 @@ declare class TheAlgorithm {
     private constructor();
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
     triggerHomeTimelineBackFill(): Promise<void>;
+    triggerPullAllUserData(): Promise<void>;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
     logWithState(prefix: string, msg: string): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
-    pullAllUserData(): Promise<void>;
     reset(): Promise<void>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
