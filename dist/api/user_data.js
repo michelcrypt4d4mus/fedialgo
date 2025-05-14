@@ -95,7 +95,7 @@ class UserData {
     }
     // Return array of TrendingTags sorted by numToots
     static sortTrendingTags(userTags) {
-        return (0, collection_helpers_1.sortObjsByProps)(Object.values(userTags), SORT_TAGS_BY, false);
+        return (0, collection_helpers_1.sortObjsByProps)(Object.values(userTags), SORT_TAGS_BY, [false, true]);
     }
     // Build a dict of tag names to the number of times the user tooted it from a list of toots
     static buildUserParticipatedHashtags(userToots) {

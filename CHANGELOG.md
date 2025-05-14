@@ -6,6 +6,7 @@
 * Fix bug where home timeline toot cache would just grow (dedupe on the way in)
 * Add DEFAULT_REQUESTS configuration
 * Rename ScoreInfo type to WeightInfo, rename TheAlgorithm.scorersDict to weightInfo
+* Fix bug in sortObjsByProps() when called with multiple sort params
 
 # v0.34.0
 * Use a value for the user displayed TIME_DECAY param that is 10x the value used in the calculation to make it more user friendly.

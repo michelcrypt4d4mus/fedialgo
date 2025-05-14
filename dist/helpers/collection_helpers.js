@@ -179,12 +179,15 @@ exports.sortKeysByValue = sortKeysByValue;
 // Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
 // If ascending is true, sort in ascending order (low to high)
 function sortObjsByProps(array, prop, ascending, ignoreCase) {
+    ascending ||= false;
     const props = Array.isArray(prop) ? prop : [prop];
+    const ascendings = Array.isArray(ascending) ? ascending : [ascending];
     if (props.length > 2)
         throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
     return array.toSorted((a, b) => {
         let aVal = a[props[0]];
         let bVal = b[props[0]];
+        let ascending = ascendings[0];
         if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
             aVal = aVal.toLowerCase();
             bVal = bVal.toLowerCase();
@@ -195,9 +198,10 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
             return ascending ? 1 : -1;
         if (props.length == 1)
             return 0;
-        // Compare second propert
+        // Compare second property
         aVal = a[props[1]];
-        bVal = b[props[2]];
+        bVal = b[props[1]];
+        ascending = ascendings.length > 1 ? ascendings[1] : ascendings[1];
         if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
             aVal = aVal.toLowerCase();
             bVal = bVal.toLowerCase();

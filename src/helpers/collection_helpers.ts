@@ -209,15 +209,18 @@ export function sortKeysByValue(dict: StringNumberDict): string[] {
 export function sortObjsByProps<T>(
     array: T[],
     prop: keyof T | (keyof T)[],
-    ascending?: boolean,
+    ascending?: boolean | boolean[],
     ignoreCase?: boolean
 ): T[] {
+    ascending ||= false;
     const props = Array.isArray(prop) ? prop : [prop];
+    const ascendings = Array.isArray(ascending) ? ascending : [ascending];
     if (props.length > 2) throw new Error("sortObjsByProps() only supports 2 properties for sorting for now");
 
     return array.toSorted((a: T, b: T) => {
         let aVal: T[keyof T] | string = a[props[0]];
         let bVal: T[keyof T] | string = b[props[0]];
+        let ascending = ascendings[0];
 
         if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
             aVal = aVal.toLowerCase();
@@ -228,9 +231,10 @@ export function sortObjsByProps<T>(
         if (aVal > bVal) return ascending ? 1 : -1;
         if (props.length == 1) return 0;
 
-        // Compare second propert
+        // Compare second property
         aVal = a[props[1]];
-        bVal = b[props[2]];
+        bVal = b[props[1]];
+        ascending = ascendings.length > 1 ? ascendings[1] : ascendings[1];
 
         if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
             aVal = aVal.toLowerCase();
