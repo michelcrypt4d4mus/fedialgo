@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.36.1
 * Remove diacritics from tag names
 
 ## v0.36.0
