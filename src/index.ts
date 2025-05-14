@@ -18,7 +18,7 @@ import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MastoApi, { isAccessTokenRevokedError } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
-import MostFavouritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
+import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import MostRetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import NumericFilter from "./filters/numeric_filter";

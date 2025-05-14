@@ -49,7 +49,7 @@ const api_1 = __importStar(require("./api/api"));
 Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return api_1.isAccessTokenRevokedError; } });
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
-const most_favorited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favorited_accounts_scorer"));
+const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favourited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const most_retooted_users_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_users_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
@@ -136,7 +136,7 @@ class TheAlgorithm {
         new mentions_followed_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
-        new most_favorited_accounts_scorer_1.default(),
+        new most_favourited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
         new most_retooted_users_scorer_1.default(),
         new num_favorites_scorer_1.default(),

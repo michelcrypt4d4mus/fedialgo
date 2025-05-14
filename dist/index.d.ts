@@ -11,7 +11,7 @@ import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import { isAccessTokenRevokedError } from "./api/api";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
-import MostFavoritedAccountsScorer from "./scorer/feature/most_favorited_accounts_scorer";
+import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
 import MostRetootedUsersScorer from "./scorer/feature/most_retooted_users_scorer";
 import NumericFilter from "./filters/numeric_filter";
@@ -61,7 +61,7 @@ declare class TheAlgorithm {
     private scoreMutex;
     private featureScorers;
     private feedScorers;
-    weightedScorers: (ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     weightInfo: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
