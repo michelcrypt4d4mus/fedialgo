@@ -67,6 +67,7 @@ declare class TheAlgorithm {
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
     triggerHomeTimelineBackFill(): Promise<void>;
     triggerPullAllUserData(): Promise<void>;
+    getCurrentState(): Promise<Record<string, any>>;
     getTimeline(): Toot[];
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;

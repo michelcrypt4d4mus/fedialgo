@@ -242,6 +242,14 @@ class TheAlgorithm {
         this.loadingStatus = null;
         console.log(`${logPrefix} finished`);
     }
+    // Return an object describing the state of the world. Mostly for debugging.
+    async getCurrentState() {
+        return {
+            AlgorithmState: this.statusDict(),
+            StorageState: await Storage_1.default.storedObjsInfo(),
+            UserData: await api_1.default.instance.getUserData(),
+        };
+    }
     // Return the current filtered timeline feed in weight order
     getTimeline() {
         return this.filterFeedAndSetInApp();
@@ -257,9 +265,7 @@ class TheAlgorithm {
     // Log a message with the current state of TheAlgorithm instance
     async logCurrentState() {
         const log = (msg, ...args) => console.log(`${(0, string_helpers_1.bracketed)(string_helpers_1.FEDIALGO)} ${msg}`, ...args);
-        log(`Current state:`, this.statusDict());
-        log(`Current storage info:`, await Storage_1.default.storedObjsInfo());
-        log(`Current UserData:`, await api_1.default.instance.getUserData());
+        Object.entries(await this.getCurrentState()).forEach(([key, value]) => log(key, value));
     }
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt() {

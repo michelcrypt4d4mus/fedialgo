@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add TheAlgorithm.getCurrentState() method
 
 ### v0.37.1
 * Change Toot.alternateScoreInfo() formate

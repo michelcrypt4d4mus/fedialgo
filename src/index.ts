@@ -244,6 +244,15 @@ class TheAlgorithm {
         console.log(`${logPrefix} finished`);
     }
 
+    // Return an object describing the state of the world. Mostly for debugging.
+    async getCurrentState(): Promise<Record<string, any>> {
+        return {
+            AlgorithmState: this.statusDict(),
+            StorageState: await Storage.storedObjsInfo(),
+            UserData: await MastoApi.instance.getUserData(),
+        };
+    }
+
     // Return the current filtered timeline feed in weight order
     getTimeline(): Toot[] {
         return this.filterFeedAndSetInApp();
@@ -262,9 +271,7 @@ class TheAlgorithm {
     // Log a message with the current state of TheAlgorithm instance
     async logCurrentState(): Promise<void> {
         const log = (msg: string, ...args: any[]) => console.log(`${bracketed(FEDIALGO)} ${msg}`, ...args);
-        log(`Current state:`, this.statusDict());
-        log(`Current storage info:`, await Storage.storedObjsInfo());
-        log(`Current UserData:`, await MastoApi.instance.getUserData());
+        Object.entries(await this.getCurrentState()).forEach(([key, value]) => log(key, value));
     }
 
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
