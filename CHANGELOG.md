@@ -1,11 +1,11 @@
 # NEXT RELEASE
 
 ### v0.37.2
-* Add TheAlgorithm.getCurrentState() method
+* Add `getCurrentState()` method to `TheAlgorithm`
 
 ### v0.37.1
-* Change Toot.alternateScoreInfo() formate
-* Rename TheAlgorithm.logWithState() to logCurrentState()
+* Change `Toot.alternateScoreInfo()` format
+* Rename `TheAlgorithm.logWithState()` to `logCurrentState()`
 
 # v0.37.0
 * **(BREAKING CHANGE)** Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`
