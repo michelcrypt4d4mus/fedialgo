@@ -23,7 +23,7 @@ export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
-    batchSize?: number;
+    limit?: number;
     initialMaxRecords?: number;
     numMinutesUntilStale?: number;
     supportsMinMaxId?: boolean;
@@ -149,13 +149,13 @@ export const Config: ConfigType = {
             numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FOLLOWED_ACCOUNTS]: {
-            batchSize: 80,
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            limit: 80,
             numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FOLLOWED_TAGS]: {
-            batchSize: 100,
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            limit: 100,
             numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.HOME_TIMELINE]: {
@@ -170,8 +170,8 @@ export const Config: ConfigType = {
             numMinutesUntilStale: 15,
         },
         [StorageKey.NOTIFICATIONS]: {
-            batchSize: 80,
             initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+            limit: 80,
             numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },

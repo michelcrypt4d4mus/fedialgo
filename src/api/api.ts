@@ -408,7 +408,7 @@ export default class MastoApi {
         // Parse params and set defaults
         const requestDefaults = Config.apiDefaults[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? MIN_RECORDS_FOR_FEATURE_SCORING;
-        const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || Config.defaultRecordsPerPage);
+        const limit = Math.min(maxRecords, requestDefaults?.limit || Config.defaultRecordsPerPage);  // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
         let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
 
@@ -450,9 +450,9 @@ export default class MastoApi {
                 };
             }
 
-            traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, batchSize, minId, maxId, maxRecords});
+            traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, limit, minId, maxId, maxRecords});
 
-            for await (const page of fetch(this.buildParams(batchSize, minId, maxId))) {
+            for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
@@ -463,7 +463,7 @@ export default class MastoApi {
                     break;
                 } else {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
-                    (rows.length % (batchSize * 10) == 0) ? console.debug(msg) : traceLog(msg);
+                    (rows.length % (limit * 10) == 0) ? console.debug(msg) : traceLog(msg);
                 }
             }
         } catch (e) {
@@ -510,11 +510,11 @@ export default class MastoApi {
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
     private buildParams(
-        batchSize: number,
+        limit: number,
         minId?: number | string,
         maxId?: number | string,
     ): mastodon.DefaultPaginationParams {
-        let params: mastodon.DefaultPaginationParams = {limit: batchSize};
+        let params: mastodon.DefaultPaginationParams = {limit: limit};
         if (minId) params = {...params, minId: `${minId}`};
         if (maxId) params = {...params, maxId: `${maxId}`};
         // if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);

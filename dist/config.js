@@ -76,13 +76,13 @@ exports.Config = {
             numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
-            batchSize: 80,
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            limit: 80,
             numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FOLLOWED_TAGS]: {
-            batchSize: 100,
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            limit: 100,
             numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.HOME_TIMELINE]: {
@@ -97,8 +97,8 @@ exports.Config = {
             numMinutesUntilStale: 15,
         },
         [types_1.StorageKey.NOTIFICATIONS]: {
-            batchSize: 80,
             initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+            limit: 80,
             numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },

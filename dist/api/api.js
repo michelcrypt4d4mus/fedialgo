@@ -352,7 +352,7 @@ class MastoApi {
         // Parse params and set defaults
         const requestDefaults = config_1.Config.apiDefaults[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-        const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || config_1.Config.defaultRecordsPerPage);
+        const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.Config.defaultRecordsPerPage); // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
         let minId; // Used for incremental loading when data is stale (if supported)
         // Skip mutex for requests that aren't trying to get at the same data
@@ -392,8 +392,8 @@ class MastoApi {
                 }
                 ;
             }
-            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, batchSize, minId, maxId, maxRecords });
-            for await (const page of fetch(this.buildParams(batchSize, minId, maxId))) {
+            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, limit, minId, maxId, maxRecords });
+            for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
@@ -404,7 +404,7 @@ class MastoApi {
                 }
                 else {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
-                    (rows.length % (batchSize * 10) == 0) ? console.debug(msg) : (0, log_helpers_1.traceLog)(msg);
+                    (rows.length % (limit * 10) == 0) ? console.debug(msg) : (0, log_helpers_1.traceLog)(msg);
                 }
             }
         }
@@ -451,8 +451,8 @@ class MastoApi {
         }
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(batchSize, minId, maxId) {
-        let params = { limit: batchSize };
+    buildParams(limit, minId, maxId) {
+        let params = { limit: limit };
         if (minId)
             params = { ...params, minId: `${minId}` };
         if (maxId)
