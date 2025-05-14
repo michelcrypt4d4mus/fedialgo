@@ -18,7 +18,9 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 
-type StaleDataConfig = {[key in StorageKey]?: number};
+// number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
+export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
     batchSize?: number;
@@ -43,7 +45,6 @@ export type ConfigType = {
     lookbackForUpdatesMinutes: number;
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
-    numDesiredTimelineToots: number;
     scoringBatchSize: number;
     timelineDecayExponent: number;
     // Participated tags
@@ -51,15 +52,14 @@ export type ConfigType = {
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
     // API stuff
+    apiDefaults: {[key in StorageKey]?: ApiRequestDefaults};
     backgroundLoadIntervalSeconds: number;
     batchCompleteTootsSize: number;
     batchCompleteTootsSleepBetweenMS: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
-    maxEndpointRecordsToPull: number;
     maxRecordsForFeatureScoring: number;
-    minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
     staleDataDefaultMinutes: number;
     staleDataTrendingMinutes: number;
@@ -103,7 +103,6 @@ export const Config: ConfigType = {
     // Number of toots config variables //
     ///////////////////////////////////////
     maxCachedTimelineToots: 3_500,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
-    numDesiredTimelineToots: 800,           // How many home timeline toots to start with
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30, // Pull toots for this many of the user's most participated tags
     numParticipatedTagToots: 200,           // How many total toots to include for the user's most participated tags
@@ -128,14 +127,73 @@ export const Config: ConfigType = {
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
+    apiDefaults: {
+        [StorageKey.BLOCKED_ACCOUNTS]: {
+            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FAVOURITED_TOOTS]: {
+            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
+            numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FEDIVERSE_TRENDING_LINKS]: {
+            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FEDIVERSE_TRENDING_TAGS]: {
+            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
+            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FOLLOWED_ACCOUNTS]: {
+            batchSize: 80,
+            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.FOLLOWED_TAGS]: {
+            batchSize: 100,
+            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.HOME_TIMELINE]: {
+            initialMaxRecords: 800,
+            supportsMinMaxId: true,
+        },
+        [StorageKey.MUTED_ACCOUNTS]: {
+            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.PARTICIPATED_TAG_TOOTS]: {
+            numMinutesUntilStale: 15,
+        },
+        [StorageKey.RECENT_NOTIFICATIONS]: {
+            batchSize: 80,
+            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
+            supportsMinMaxId: true,
+        },
+        [StorageKey.RECENT_USER_TOOTS]: {
+            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 2 * MINUTES_IN_HOUR,
+            supportsMinMaxId: true,
+        },
+        [StorageKey.SERVER_SIDE_FILTERS]: {
+            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+        },
+        [StorageKey.TRENDING_TAG_TOOTS]: {
+            numMinutesUntilStale: 15,
+        },
+    },
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
     defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
     maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
-    maxEndpointRecordsToPull: 5_000,        // MAX_FOLLOWING_ACCOUNT_TO_PULL
     maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
-    minRecordsForFeatureScoring: 320,       // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
     mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
     numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
@@ -383,93 +441,29 @@ export function setLocale(locale?: string): void {
 };
 
 
-// Default params for usage with API requests
-export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
-    [StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-        numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FOLLOWED_ACCOUNTS]: {
-        batchSize: 80,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.FOLLOWED_TAGS]: {
-        batchSize: 100,
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: Config.numDesiredTimelineToots,
-        supportsMinMaxId: true,
-    },
-    [StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.PARTICIPATED_TAG_TOOTS]: {
-        numMinutesUntilStale: 15,
-    },
-    [StorageKey.RECENT_NOTIFICATIONS]: {
-        batchSize: 80,
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
-        supportsMinMaxId: true,
-    },
-    [StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 2 * MINUTES_IN_HOUR,
-        supportsMinMaxId: true,
-    },
-    [StorageKey.SERVER_SIDE_FILTERS]: {
-        initialMaxRecords: Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
-    },
-    [StorageKey.TRENDING_TAG_TOOTS]: {
-        numMinutesUntilStale: 15,
-    },
-};
-
-
 // Debug mode settings
 if (isQuickMode) {
+    Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;
     Config.lookbackForUpdatesMinutes = 15;
     Config.maxRecordsForFeatureScoring = 480;
-    Config.numDesiredTimelineToots = 400;
     Config.numParticipatedTagsToFetchTootsFor = 20;
     Config.numTrendingTags = 20;
 }
 
 if (isDebugMode) {
+    Config.apiDefaults[StorageKey.RECENT_NOTIFICATIONS]!.numMinutesUntilStale = 60;
+    Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 60;
     Config.maxRecordsForFeatureScoring = 20_000;
-    API_DEFAULTS[StorageKey.RECENT_NOTIFICATIONS]!.numMinutesUntilStale = 60;
-    API_DEFAULTS[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 60;
 };
 
 // Heavy load test settings
 if (isLoadTest) {
+    Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
     Config.maxCachedTimelineToots = 5_000;
     Config.maxRecordsForFeatureScoring = 1_500;
-    Config.numDesiredTimelineToots = 2_500;
     Config.numParticipatedTagsToFetchTootsFor = 50;
     Config.numParticipatedTagToots = 500;
     Config.numParticipatedTagTootsPerTag = 10;
@@ -481,7 +475,7 @@ if (isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = FEDIVERSE_KEYS.map(k => API_DEFAULTS[k as StorageKey]?.numMinutesUntilStale);
+    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.apiDefaults[k as StorageKey]?.numMinutesUntilStale);
     Config.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
 
     // Check that all the values are valid

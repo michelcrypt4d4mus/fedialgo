@@ -93,7 +93,6 @@ class MastoApi {
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
-        maxRecords ||= config_1.Config.numDesiredTimelineToots;
         const storageKey = types_1.StorageKey.HOME_TIMELINE;
         const logPrefix = (0, string_helpers_1.bracketed)(storageKey);
         const startedAt = new Date();
@@ -354,8 +353,8 @@ class MastoApi {
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
-        const requestDefaults = config_1.API_DEFAULTS[storageKey];
-        maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.Config.minRecordsForFeatureScoring;
+        const requestDefaults = config_1.Config.apiDefaults[storageKey];
+        maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || config_1.Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;
         let minId; // Used for incremental loading when data is stale (if supported)

@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Incremental load of stale data when possible instead of complete refresh; move staleness config to `API_DEFAULTS`
+* Incremental load of stale data when possible instead of complete refresh; move staleness config to `Config.apiDefaults`
 * (Demo App) Move the error modal up to `<App>` level; propagate setError
 
 ### v0.35.3

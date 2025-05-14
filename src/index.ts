@@ -37,7 +37,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
-import { Config, setLocale } from './config';
+import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -228,7 +228,7 @@ class TheAlgorithm {
         try {
             const allResults = await Promise.all([
                 MastoApi.instance.getRecentFavourites(PULL_USER_HISTORY_PARAMS),
-                MastoApi.instance.getRecentNotifications({maxRecords: Config.maxEndpointRecordsToPull, moar: true}),
+                MastoApi.instance.getRecentNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
                 // MastoApi.instance.getRecentNotifications(moarParams),
                 MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.API_DEFAULTS = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.setLocale = exports.Config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -18,6 +18,9 @@ const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
+// number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
+exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 // App level config that is not user configurable
 exports.Config = {
     // Locale stuff
@@ -29,7 +32,6 @@ exports.Config = {
     // Number of toots config variables //
     ///////////////////////////////////////
     maxCachedTimelineToots: 3500,
-    numDesiredTimelineToots: 800,
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30,
     numParticipatedTagToots: 200,
@@ -52,14 +54,73 @@ exports.Config = {
     staleDataTrendingMinutes: 60,
     timelineDecayExponent: 1.2,
     // API stuff
+    apiDefaults: {
+        [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
+            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FAVOURITED_TOOTS]: {
+            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
+            numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: {
+            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: {
+            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
+            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
+            batchSize: 80,
+            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.FOLLOWED_TAGS]: {
+            batchSize: 100,
+            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.HOME_TIMELINE]: {
+            initialMaxRecords: 800,
+            supportsMinMaxId: true,
+        },
+        [types_1.StorageKey.MUTED_ACCOUNTS]: {
+            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
+            numMinutesUntilStale: 15,
+        },
+        [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
+            batchSize: 80,
+            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+            supportsMinMaxId: true,
+        },
+        [types_1.StorageKey.RECENT_USER_TOOTS]: {
+            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+            numMinutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
+            supportsMinMaxId: true,
+        },
+        [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
+            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+            numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+        },
+        [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
+            numMinutesUntilStale: 15,
+        },
+    },
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
     defaultRecordsPerPage: 40,
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,
     maxConcurrentRequestsBackground: 8,
-    maxEndpointRecordsToPull: 5000,
     maxRecordsForFeatureScoring: 1500,
-    minRecordsForFeatureScoring: 320,
     minServerMAU: 100,
     mutexWarnSeconds: 5,
     numServersToCheck: 30,
@@ -298,90 +359,28 @@ function setLocale(locale) {
 }
 exports.setLocale = setLocale;
 ;
-// Default params for usage with API requests
-exports.API_DEFAULTS = {
-    [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FAVOURITED_TOOTS]: {
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-        numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
-        batchSize: 80,
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.FOLLOWED_TAGS]: {
-        batchSize: 100,
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.HOME_TIMELINE]: {
-        initialMaxRecords: exports.Config.numDesiredTimelineToots,
-        supportsMinMaxId: true,
-    },
-    [types_1.StorageKey.MUTED_ACCOUNTS]: {
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
-        numMinutesUntilStale: 15,
-    },
-    [types_1.StorageKey.RECENT_NOTIFICATIONS]: {
-        batchSize: 80,
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
-        supportsMinMaxId: true,
-    },
-    [types_1.StorageKey.RECENT_USER_TOOTS]: {
-        initialMaxRecords: exports.Config.minRecordsForFeatureScoring,
-        numMinutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
-        supportsMinMaxId: true,
-    },
-    [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
-        initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
-        numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
-    },
-    [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
-        numMinutesUntilStale: 15,
-    },
-};
 // Debug mode settings
 if (environment_helpers_1.isQuickMode) {
+    exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.maxRecordsForFeatureScoring = 480;
-    exports.Config.numDesiredTimelineToots = 400;
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;
 }
 if (environment_helpers_1.isDebugMode) {
+    exports.Config.apiDefaults[types_1.StorageKey.RECENT_NOTIFICATIONS].numMinutesUntilStale = 60;
+    exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 60;
     exports.Config.maxRecordsForFeatureScoring = 20000;
-    exports.API_DEFAULTS[types_1.StorageKey.RECENT_NOTIFICATIONS].numMinutesUntilStale = 60;
-    exports.API_DEFAULTS[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 60;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
+    exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 2500;
     exports.Config.maxCachedTimelineToots = 5000;
     exports.Config.maxRecordsForFeatureScoring = 1500;
-    exports.Config.numDesiredTimelineToots = 2500;
     exports.Config.numParticipatedTagsToFetchTootsFor = 50;
     exports.Config.numParticipatedTagToots = 500;
     exports.Config.numParticipatedTagTootsPerTag = 10;
@@ -392,7 +391,7 @@ if (environment_helpers_1.isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.API_DEFAULTS[k]?.numMinutesUntilStale);
+    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.apiDefaults[k]?.numMinutesUntilStale);
     exports.Config.staleDataTrendingMinutes = Math.min(...trendStalenesses);
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {

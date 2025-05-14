@@ -4,6 +4,8 @@ export declare const MINUTES_IN_HOUR = 60;
 export declare const SECONDS_IN_HOUR: number;
 export declare const SECONDS_IN_DAY: number;
 export declare const SECONDS_IN_WEEK: number;
+export declare const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
+export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {
     batchSize?: number;
     initialMaxRecords?: number;
@@ -22,21 +24,21 @@ export type ConfigType = {
     lookbackForUpdatesMinutes: number;
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
-    numDesiredTimelineToots: number;
     scoringBatchSize: number;
     timelineDecayExponent: number;
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
+    apiDefaults: {
+        [key in StorageKey]?: ApiRequestDefaults;
+    };
     backgroundLoadIntervalSeconds: number;
     batchCompleteTootsSize: number;
     batchCompleteTootsSleepBetweenMS: number;
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
-    maxEndpointRecordsToPull: number;
     maxRecordsForFeatureScoring: number;
-    minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
     staleDataDefaultMinutes: number;
     staleDataTrendingMinutes: number;
@@ -62,7 +64,4 @@ export type ConfigType = {
 };
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;
-export declare const API_DEFAULTS: {
-    [key in StorageKey]?: ApiRequestDefaults;
-};
 export {};

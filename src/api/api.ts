@@ -13,7 +13,7 @@ import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt } from './
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
-import { API_DEFAULTS, Config, ConfigType } from "../config";
+import { Config, ConfigType, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -115,7 +115,6 @@ export default class MastoApi {
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
-        maxRecords ||= Config.numDesiredTimelineToots;
         const storageKey = StorageKey.HOME_TIMELINE;
         const logPrefix = bracketed(storageKey);
         const startedAt = new Date();
@@ -410,8 +409,8 @@ export default class MastoApi {
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
         // Parse params and set defaults
-        const requestDefaults = API_DEFAULTS[storageKey];
-        maxRecords ??= requestDefaults?.initialMaxRecords ?? Config.minRecordsForFeatureScoring;
+        const requestDefaults = Config.apiDefaults[storageKey];
+        maxRecords ??= requestDefaults?.initialMaxRecords ?? MIN_RECORDS_FOR_FEATURE_SCORING;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;
         let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
