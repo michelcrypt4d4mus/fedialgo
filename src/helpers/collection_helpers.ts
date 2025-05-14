@@ -53,7 +53,7 @@ export async function batchMap<T>(
 // Check if the elements of 'array' are as unique as they should be
 export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
     const logPrefix = `[${label}]`;
-    traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    // traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
 

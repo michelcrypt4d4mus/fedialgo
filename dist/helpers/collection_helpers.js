@@ -7,7 +7,6 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const types_1 = require("../types");
-const log_helpers_1 = require("./log_helpers");
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
@@ -46,7 +45,7 @@ exports.batchMap = batchMap;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
     const logPrefix = `[${label}]`;
-    (0, log_helpers_1.traceLog)(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
+    // traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
     if (uniqueIDs.length != array.length) {
