@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`
+
+# v0.37.0
+* **(BREAKING CHANGE)** Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`
 
 ### v0.36.1
 * Remove diacritics from tag names
