@@ -51,7 +51,7 @@ const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
 const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favourited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
-const most_retooted_users_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_users_scorer"));
+const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 exports.NumericFilter = numeric_filter_1.default;
 const num_favorites_scorer_1 = __importDefault(require("./scorer/feature/num_favorites_scorer"));
@@ -138,7 +138,7 @@ class TheAlgorithm {
         new interactions_scorer_1.default(),
         new most_favourited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
-        new most_retooted_users_scorer_1.default(),
+        new most_retooted_accounts_scorer_1.default(),
         new num_favorites_scorer_1.default(),
         new num_replies_scorer_1.default(),
         new num_retoots_scorer_1.default(),

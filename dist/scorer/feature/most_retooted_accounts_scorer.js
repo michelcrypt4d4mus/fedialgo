@@ -11,7 +11,7 @@ const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
-class MostRetootedUsersScorer extends acccount_scorer_1.default {
+class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     constructor() {
         super(types_1.WeightName.MOST_RETOOTED_ACCOUNTS);
     }
@@ -22,6 +22,6 @@ class MostRetootedUsersScorer extends acccount_scorer_1.default {
     }
     ;
 }
-exports.default = MostRetootedUsersScorer;
+exports.default = MostRetootedAccountsScorer;
 ;
-//# sourceMappingURL=most_retooted_users_scorer.js.map
+//# sourceMappingURL=most_retooted_accounts_scorer.js.map
