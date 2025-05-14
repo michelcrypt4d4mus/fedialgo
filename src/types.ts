@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import PropertyFilter, { PropertyFilterArgs, PropertyName } from './filters/property_filter';
+import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/property_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 
@@ -97,7 +97,7 @@ export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NumericFilters = Record<WeightName, NumericFilter>;
-export type PropertyFilters = Record<PropertyName, PropertyFilter>;
+export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type ScorerDict = Record<WeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -106,18 +106,18 @@ export type Weights = Record<WeightName, number>;
 // Misc
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = PropertyName | WeightName;
+export type FilterTitle = BooleanFilterName | WeightName;
 export type StatusList = TootLike[];
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
-    filterSections: PropertyFilters;
+    booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 };
 
 // To serialize TootFilters to browser storage we store the arguments required to reconstruct them
 export type FeedFilterSettingsSerialized = {
-    feedFilterSectionArgs: PropertyFilterArgs[];
+    feedFilterSectionArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
 };
 

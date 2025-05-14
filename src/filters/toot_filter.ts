@@ -3,8 +3,7 @@
  * to a Toot to determine if it should be included in the timeline feed.
  */
 import Toot from '../api/objects/toot';
-import { FilterArgs, FilterTitle} from "../types";
-import { PropertyName } from "./property_filter";
+import { FilterArgs, FilterTitle } from "../types";
 
 
 export default abstract class TootFilter {
@@ -16,10 +15,11 @@ export default abstract class TootFilter {
     constructor({ description, invertSelection, title, visible }: FilterArgs) {
         this.description = description ?? title as string;
         this.invertSelection = invertSelection ?? false;
-        this.title = title as PropertyName;
+        this.title = title;
         this.visible = visible ?? true;
     }
 
+    // Return true if the toot should appear in the timeline feed
     abstract isAllowed(toot: Toot): boolean;
 
     // Extend in subclasses. Required for serialization to local storage

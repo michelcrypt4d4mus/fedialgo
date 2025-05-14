@@ -3,7 +3,7 @@ import TootFilter from "./toot_filter";
 import { FilterArgs, StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 type TypeFilters = Record<TypeFilterName, TypeFilter>;
-export declare enum PropertyName {
+export declare enum BooleanFilterName {
     TYPE = "type",
     LANGUAGE = "language",
     HASHTAG = "hashtag",
@@ -29,21 +29,21 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trendingToots",
     VIDEOS = "videos"
 }
-export interface PropertyFilterArgs extends FilterArgs {
+export declare const TYPE_FILTERS: TypeFilters;
+export interface BooleanFilterArgs extends FilterArgs {
     optionInfo?: StringNumberDict;
     validValues?: string[];
 }
-export declare const TYPE_FILTERS: TypeFilters;
-export default class PropertyFilter extends TootFilter {
-    title: PropertyName;
+export default class BooleanFilter extends TootFilter {
+    title: BooleanFilterName;
     optionInfo: StringNumberDict;
     effectiveOptionInfo: StringNumberDict;
     validValues: string[];
     visible: boolean;
-    constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs);
+    constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;
     setOptions(optionInfo: StringNumberDict): void;
     updateValidOptions(element: string, isValidOption: boolean): void;
-    toArgs(): PropertyFilterArgs;
+    toArgs(): BooleanFilterArgs;
 }
 export {};

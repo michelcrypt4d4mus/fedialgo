@@ -17,7 +17,7 @@ import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
-import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
+import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/property_filter";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Toot from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
@@ -95,4 +95,4 @@ declare class TheAlgorithm {
     private setLoadingStateVariables;
     private statusDict;
 }
-export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, PropertyFilter, PropertyName, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightInfo, WeightName, Weights, extractDomain, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
+export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, BooleanFilterName, FeedFilterSettings, MediaCategory, NumericFilter, PresetWeightLabel, PresetWeights, StringNumberDict, TheAlgorithm, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightInfo, WeightName, Weights, extractDomain, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };

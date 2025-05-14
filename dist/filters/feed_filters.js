@@ -41,17 +41,17 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
     feedFilterSectionArgs: [],
-    filterSections: {},
+    booleanFilters: {},
     numericFilterArgs: [],
     numericFilters: {},
 };
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
 function buildFiltersFromArgs(serializedFilterSettings) {
-    serializedFilterSettings.filterSections ??= {};
+    serializedFilterSettings.booleanFilters ??= {};
     serializedFilterSettings.numericFilters ??= {};
     serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
-        serializedFilterSettings.filterSections[args.title] = new property_filter_1.default(args);
+        serializedFilterSettings.booleanFilters[args.title] = new property_filter_1.default(args);
     });
     serializedFilterSettings.numericFilterArgs.forEach((args) => {
         serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
@@ -65,11 +65,11 @@ function buildFiltersFromArgs(serializedFilterSettings) {
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
 ;
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & type filters. Other PropertyFilters depend on what's in the toots.
+// Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {
     // Stringify and parse to get a deep copy of the default filters
     const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
-    filters.filterSections[property_filter_1.PropertyName.TYPE] = new property_filter_1.default({ title: property_filter_1.PropertyName.TYPE });
+    filters.booleanFilters[property_filter_1.BooleanFilterName.TYPE] = new property_filter_1.default({ title: property_filter_1.BooleanFilterName.TYPE });
     numeric_filter_1.FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new numeric_filter_1.default({ title: f }));
     return filters;
 }
@@ -81,16 +81,16 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 function updatePropertyFilterOptions(filters, toots, userData) {
     const logPrefx = `[updatePropertyFilterOptions()]`;
     const suppressedNonLatinTags = {};
-    const tootCounts = Object.values(property_filter_1.PropertyName).reduce((counts, propertyName) => {
+    const tootCounts = Object.values(property_filter_1.BooleanFilterName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-        filters.filterSections[propertyName] ??= new property_filter_1.default({ title: propertyName });
+        filters.booleanFilters[propertyName] ??= new property_filter_1.default({ title: propertyName });
         counts[propertyName] = {};
         return counts;
     }, {});
     toots.forEach(toot => {
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.APP], toot.realToot().application.name);
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.LANGUAGE], toot.realToot().language);
-        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.USER], toot.realToot().account.webfingerURI);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.APP], toot.realToot().application.name);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
+        (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
         // Count tags
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
@@ -102,12 +102,12 @@ function updatePropertyFilterOptions(filters, toots, userData) {
                 return;
             }
             ;
-            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.HASHTAG], tag.name);
+            (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.HASHTAG], tag.name);
         });
         // Aggregate counts for each type of toot
         Object.entries(property_filter_2.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
-                (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.TYPE], name);
+                (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.TYPE], name);
             }
         });
         // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
@@ -115,7 +115,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
             filter.keywords.forEach((keyword) => {
                 if (toot.realToot().containsString(keyword.keyword)) {
                     (0, log_helpers_1.traceLog)(`Matched server filter (${toot.describe()}):`, filter);
-                    (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.PropertyName.SERVER_SIDE_FILTERS], keyword.keyword);
+                    (0, collection_helpers_1.incrementCount)(tootCounts[property_filter_1.BooleanFilterName.SERVER_SIDE_FILTERS], keyword.keyword);
                 }
             });
         });
@@ -123,7 +123,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
     // TODO: if there's a validValues element for a filter section that is no longer in the feed
     //       the user will not be presented with the option to turn it off. This is a bug.
     Object.entries(tootCounts).forEach(([propertyName, counts]) => {
-        filters.filterSections[propertyName].setOptions(counts);
+        filters.booleanFilters[propertyName].setOptions(counts);
     });
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
@@ -143,7 +143,7 @@ function updateHashtagCounts(filters, toots) {
     const newTootTagCounts = {};
     console.log(`${logPrefx} Launched...`);
     const startedAt = Date.now();
-    Object.keys(filters.filterSections[property_filter_1.PropertyName.HASHTAG].optionInfo).forEach((tagName) => {
+    Object.keys(filters.booleanFilters[property_filter_1.BooleanFilterName.HASHTAG].optionInfo).forEach((tagName) => {
         toots.forEach((toot) => {
             if (toot.realToot().containsTag(tagName, true)) {
                 (0, collection_helpers_1.incrementCount)(newTootTagCounts, tagName);
@@ -151,7 +151,7 @@ function updateHashtagCounts(filters, toots) {
         });
     });
     console.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
-    filters.filterSections[property_filter_1.PropertyName.HASHTAG].setOptions(newTootTagCounts);
+    filters.booleanFilters[property_filter_1.BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage_1.default.setFilters(filters);
 }
 exports.updateHashtagCounts = updateHashtagCounts;

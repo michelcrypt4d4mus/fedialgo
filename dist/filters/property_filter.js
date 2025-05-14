@@ -3,24 +3,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.TypeFilterName = exports.PropertyName = void 0;
+exports.TYPE_FILTERS = exports.TypeFilterName = exports.BooleanFilterName = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
-var PropertyName;
-(function (PropertyName) {
-    PropertyName["TYPE"] = "type";
-    PropertyName["LANGUAGE"] = "language";
-    PropertyName["HASHTAG"] = "hashtag";
-    PropertyName["USER"] = "user";
-    PropertyName["APP"] = "app";
+var BooleanFilterName;
+(function (BooleanFilterName) {
+    BooleanFilterName["TYPE"] = "type";
+    BooleanFilterName["LANGUAGE"] = "language";
+    BooleanFilterName["HASHTAG"] = "hashtag";
+    BooleanFilterName["USER"] = "user";
+    BooleanFilterName["APP"] = "app";
     // Server Side filters work a bit differently. The API doesn't return toots that match the filter
     // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
     // other servers) it does so we have to manually filter them out.
-    PropertyName["SERVER_SIDE_FILTERS"] = "ServerFilters";
-})(PropertyName || (exports.PropertyName = PropertyName = {}));
+    BooleanFilterName["SERVER_SIDE_FILTERS"] = "ServerFilters";
+})(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
 var TypeFilterName;
 (function (TypeFilterName) {
@@ -41,7 +41,6 @@ var TypeFilterName;
     TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
-;
 ;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
@@ -64,28 +63,29 @@ exports.TYPE_FILTERS = {
 };
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS = {
-    [PropertyName.APP]: (toot, validValues) => {
+    [BooleanFilterName.APP]: (toot, validValues) => {
         return validValues.includes(toot.realToot().application?.name);
     },
-    [PropertyName.LANGUAGE]: (toot, validValues) => {
+    [BooleanFilterName.LANGUAGE]: (toot, validValues) => {
         return validValues.includes(toot.realToot().language || config_1.Config.defaultLanguage);
     },
-    [PropertyName.HASHTAG]: (toot, validValues) => {
+    [BooleanFilterName.HASHTAG]: (toot, validValues) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [PropertyName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
+    [BooleanFilterName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [PropertyName.TYPE]: (toot, validValues) => {
+    [BooleanFilterName.TYPE]: (toot, validValues) => {
         return Object.entries(exports.TYPE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
     },
-    [PropertyName.USER]: (toot, validValues) => {
+    [BooleanFilterName.USER]: (toot, validValues) => {
         return validValues.includes(toot.realToot().account.webfingerURI);
     },
 };
-class PropertyFilter extends toot_filter_1.default {
+;
+class BooleanFilter extends toot_filter_1.default {
     title;
     optionInfo;
     effectiveOptionInfo = {}; // optionInfo with the counts of toots that match the filter
@@ -94,13 +94,13 @@ class PropertyFilter extends toot_filter_1.default {
     constructor({ title, invertSelection, optionInfo, validValues }) {
         optionInfo ??= {};
         let description;
-        if (title == PropertyName.TYPE) {
+        if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
             optionInfo = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
-            const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
+            const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
         }
         super({ description, invertSelection, title });
@@ -108,11 +108,11 @@ class PropertyFilter extends toot_filter_1.default {
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
         // Server side filters are invisible & inverted by default bc we don't want to show toots including them
-        if (title == PropertyName.SERVER_SIDE_FILTERS) {
+        if (title == BooleanFilterName.SERVER_SIDE_FILTERS) {
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
         }
-        else if (this.title == PropertyName.APP) {
+        else if (this.title == BooleanFilterName.APP) {
             this.visible = config_1.Config.isAppFilterVisible;
         }
     }
@@ -130,7 +130,7 @@ class PropertyFilter extends toot_filter_1.default {
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         // Server side filters get all the options immediately set to filter out toots that come
         // from trending and other sources where the user's server configuration is not applied.
-        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+        if (this.title == BooleanFilterName.SERVER_SIDE_FILTERS) {
             this.validValues = Object.keys(optionInfo);
         }
     }
@@ -158,6 +158,6 @@ class PropertyFilter extends toot_filter_1.default {
         return filterArgs;
     }
 }
-exports.default = PropertyFilter;
+exports.default = BooleanFilter;
 ;
 //# sourceMappingURL=property_filter.js.map

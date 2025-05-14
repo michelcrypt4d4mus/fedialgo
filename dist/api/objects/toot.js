@@ -281,7 +281,7 @@ class Toot {
     }
     // Return true if the toot has not been filtered out of the feed
     isInTimeline(filters) {
-        let isOK = Object.values(filters.filterSections).every((section) => section.isAllowed(this));
+        let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
     }
     // Return true if it's a trending toot or contains any trending hashtags or links

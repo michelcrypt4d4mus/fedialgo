@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename `PropertyFilter` to `BooleanFilter`, `PropertyName` to `BooleanFilterName`, `FeedFilterSettings.filterSections` to `FeedFilterSettings.booleanFilters`
 
 ### v0.36.1
 * Remove diacritics from tag names
@@ -19,6 +20,7 @@
 ## v0.35.0
 * Add a new `FavouritedTagsScorer` (and a new `UserData.favouritedTagCounts` property)
 * Add `TheAlgorithm.pullAllUserData()` method to enable full backfill of user data
+* Add "Experimental Features" section to the demo app
 * Fix bug where new scorer weights were not automatically getting set to defaults
 * Remove trending tags from the list of participated tags we're pulling toots for because we get them anyways
 * Fix bug where home timeline toot cache would just grow (dedupe on the way in)
@@ -209,8 +211,8 @@
 * Refactor `lockExecution()`
 
 ## v0.27.0
-* Add a Sensitive (NSFW) TYPE_FILTER
-* Add OutlierDampener weighting option
+* Add a Sensitive (NSFW) `TYPE_FILTER`
+* Add `OutlierDampener` weighting option
 
 ### v0.26.3
 * Add `Config.numParticipatedTagTootsPerTag` option and set it to 5 so we pull far less participated tag toots
@@ -262,7 +264,7 @@
 * Ignore retoots when computting users hashtag history
 
 ### v0.24.5
-* Remove blocked keywrods (no bueno) and followed tags (they show up on their own) from the list of tags to scan for new toots
+* Remove blocked keywords (no bueno) and followed tags (they show up on their own) from the list of tags to scan for new toots
 
 ### v0.24.4
 * Re-raise access token revoked errors in `mergePromisedTootsIntoFeed()`
@@ -294,7 +296,7 @@
 * Add `Toot.simplifiedScoreInfo()` method
 
 # v0.23.0
-* Add HashtagParticipationScorer and import recent toots that contain hashtags the user participates in often in the feed
+* Add `HashtagParticipationScorer` and import recent toots that contain hashtags the user participates in often in the feed
 * Poll for old records after initial load with `setInterval()`. Add `Config.backgroundLoadIntervalMS` and `Config.maxRecordsForFeatureScoring` variables
 
 ### v0.22.4

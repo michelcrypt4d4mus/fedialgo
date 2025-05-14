@@ -295,7 +295,7 @@ export default class Storage {
     // Serialize the FeedFilterSettings object
     static async setFilters(filters: FeedFilterSettings): Promise<void> {
         const filterSettings = {
-            feedFilterSectionArgs: Object.values(filters.filterSections).map(section => section.toArgs()),
+            feedFilterSectionArgs: Object.values(filters.booleanFilters).map(section => section.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         } as FeedFilterSettingsSerialized;
 

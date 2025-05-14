@@ -24,7 +24,7 @@ import NumericFilter from "./filters/numeric_filter";
 import NumFavoritesScorer from "./scorer/feature/num_favorites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
-import PropertyFilter, { PropertyName, TypeFilterName } from "./filters/property_filter";
+import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/property_filter";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
@@ -572,13 +572,13 @@ export {
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
     Account,
+    BooleanFilter,
+    BooleanFilterName,
     FeedFilterSettings,
     MediaCategory,
     NumericFilter,
     PresetWeightLabel,
     PresetWeights,
-    PropertyFilter,
-    PropertyName,
     StringNumberDict,
     TheAlgorithm,
     Toot,

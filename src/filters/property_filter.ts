@@ -12,12 +12,12 @@ import { FilterArgs, StorageKey, StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 type TypeFilters = Record<TypeFilterName, TypeFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
-type TootMatchers = Record<PropertyName, TootMatcher>;
+type TootMatchers = Record<BooleanFilterName, TootMatcher>;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 // This is the order the filters will appear in the UI in the demo app
-export enum PropertyName {
+export enum BooleanFilterName {
     TYPE = 'type',
     LANGUAGE = 'language',
     HASHTAG = 'hashtag',
@@ -48,11 +48,6 @@ export enum TypeFilterName {
     VIDEOS = 'videos',
 };
 
-export interface PropertyFilterArgs extends FilterArgs {
-    optionInfo?: StringNumberDict;  // e.g. counts of toots with this option
-    validValues?: string[];
-};
-
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.AUDIO]:                 (toot) => !!toot.audioAttachments.length,
@@ -75,59 +70,64 @@ export const TYPE_FILTERS: TypeFilters = {
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS: TootMatchers = {
-    [PropertyName.APP]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.APP]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().application?.name);
     },
-    [PropertyName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().language || Config.defaultLanguage);
     },
-    [PropertyName.HASHTAG]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [PropertyName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [PropertyName.TYPE]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.TYPE]: (toot: Toot, validValues: string[]) => {
         return Object.entries(TYPE_FILTERS).some(([filterName, filter]) => {
             return validValues.includes(filterName) && filter(toot);
         });
     },
-    [PropertyName.USER]: (toot: Toot, validValues: string[]) => {
+    [BooleanFilterName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().account.webfingerURI);
     },
 };
 
+export interface BooleanFilterArgs extends FilterArgs {
+    optionInfo?: StringNumberDict;  // e.g. counts of toots with this option
+    validValues?: string[];
+};
 
-export default class PropertyFilter extends TootFilter {
-    title: PropertyName
+
+export default class BooleanFilter extends TootFilter {
+    title: BooleanFilterName
     optionInfo: StringNumberDict;
     effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
-    constructor({ title, invertSelection, optionInfo, validValues }: PropertyFilterArgs) {
+    constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
         optionInfo ??= {};
         let description: string;
 
-        if (title == PropertyName.TYPE) {
+        if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
             optionInfo = countValues<TypeFilterName>(Object.values(TypeFilterName));
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
-            const descriptionWord = title == PropertyName.HASHTAG ? "including" : "from";
+            const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
         }
 
         super({ description, invertSelection, title });
-        this.title = title as PropertyName
+        this.title = title as BooleanFilterName
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
 
         // Server side filters are invisible & inverted by default bc we don't want to show toots including them
-        if (title == PropertyName.SERVER_SIDE_FILTERS) {
+        if (title == BooleanFilterName.SERVER_SIDE_FILTERS) {
             this.invertSelection = invertSelection ?? true;
             this.visible = false;
-        } else if (this.title == PropertyName.APP) {
+        } else if (this.title == BooleanFilterName.APP) {
             this.visible = Config.isAppFilterVisible;
         }
     }
@@ -147,7 +147,7 @@ export default class PropertyFilter extends TootFilter {
 
         // Server side filters get all the options immediately set to filter out toots that come
         // from trending and other sources where the user's server configuration is not applied.
-        if (this.title == PropertyName.SERVER_SIDE_FILTERS) {
+        if (this.title == BooleanFilterName.SERVER_SIDE_FILTERS) {
             this.validValues = Object.keys(optionInfo);
         }
     }
@@ -173,8 +173,8 @@ export default class PropertyFilter extends TootFilter {
     }
 
     // Required for serialization of settings to local storage
-    toArgs(): PropertyFilterArgs {
-        const filterArgs = super.toArgs() as PropertyFilterArgs;
+    toArgs(): BooleanFilterArgs {
+        const filterArgs = super.toArgs() as BooleanFilterArgs;
         filterArgs.validValues = this.validValues;
         return filterArgs;
     }
