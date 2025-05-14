@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.37.2
 * Add TheAlgorithm.getCurrentState() method
 
 ### v0.37.1
