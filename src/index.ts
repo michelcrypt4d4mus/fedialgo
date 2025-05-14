@@ -36,7 +36,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { buildNewFilterSettings, updateHashtagCounts, updatePropertyFilterOptions } from "./filters/feed_filters";
+import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
@@ -395,7 +395,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
-        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.loadingStatus = null;
@@ -450,7 +450,7 @@ class TheAlgorithm {
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
-        updatePropertyFilterOptions(this.filters, this.feed, this.userData);
+        updateBooleanFilterOptions(this.filters, this.feed, this.userData);
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
@@ -482,7 +482,7 @@ class TheAlgorithm {
         const startedAt = new Date();
 
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
-        updatePropertyFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         await this.scoreAndFilterFeed();
         this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);

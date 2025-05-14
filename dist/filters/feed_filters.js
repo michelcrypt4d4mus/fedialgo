@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateHashtagCounts = exports.updatePropertyFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
@@ -40,7 +40,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const property_filter_2 = require("./property_filter");
 exports.DEFAULT_FILTERS = {
-    feedFilterSectionArgs: [],
+    booleanFilterArgs: [],
     booleanFilters: {},
     numericFilterArgs: [],
     numericFilters: {},
@@ -50,7 +50,7 @@ exports.DEFAULT_FILTERS = {
 function buildFiltersFromArgs(serializedFilterSettings) {
     serializedFilterSettings.booleanFilters ??= {};
     serializedFilterSettings.numericFilters ??= {};
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+    serializedFilterSettings.booleanFilterArgs.forEach((args) => {
         serializedFilterSettings.booleanFilters[args.title] = new property_filter_1.default(args);
     });
     serializedFilterSettings.numericFilterArgs.forEach((args) => {
@@ -78,8 +78,8 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-function updatePropertyFilterOptions(filters, toots, userData) {
-    const logPrefx = `[updatePropertyFilterOptions()]`;
+function updateBooleanFilterOptions(filters, toots, userData) {
+    const logPrefx = `[updateBooleanFilterOptions()]`;
     const suppressedNonLatinTags = {};
     const tootCounts = Object.values(property_filter_1.BooleanFilterName).reduce((counts, propertyName) => {
         // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
@@ -133,7 +133,7 @@ function updatePropertyFilterOptions(filters, toots, userData) {
     console.debug(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }
-exports.updatePropertyFilterOptions = updatePropertyFilterOptions;
+exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 ;
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.

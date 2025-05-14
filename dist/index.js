@@ -374,7 +374,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
-        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.loadingStatus = null;
@@ -420,7 +420,7 @@ class TheAlgorithm {
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, this.userData);
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, this.userData);
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
@@ -449,7 +449,7 @@ class TheAlgorithm {
         const numTootsBefore = this.feed.length;
         const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
-        (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         await this.scoreAndFilterFeed();
         this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);

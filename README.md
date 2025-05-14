@@ -69,7 +69,7 @@ const algorithm = await TheAlgorithm.create({
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
 ```typescript
-import { PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
+import { BooleanFilterName, PresetWeightLabel, Toot, WeightName, Weights } from "fedialgo";
 
 // Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
 // in the constructor all you need to do is monitor the state of whatever variable contains the timeline
@@ -96,7 +96,7 @@ for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.wei
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
-filters.filterSections[PropertyName.LANGUAGE].updateValidOptions("de", true);
+filters.filterSections[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
 const filteredFeed = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies

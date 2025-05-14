@@ -110,15 +110,16 @@ export type FilterTitle = BooleanFilterName | WeightName;
 export type StatusList = TootLike[];
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 
+// To serialize TootFilters to browser storage we store the arguments required to reconstruct them
+export type FeedFilterSettingsSerialized = {
+    booleanFilterArgs: BooleanFilterArgs[];
+    numericFilterArgs: NumericFilterArgs[];
+};
+
+// Same as FeedFilterSettingsSerialized but with the filter objects in addition to the args
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
-};
-
-// To serialize TootFilters to browser storage we store the arguments required to reconstruct them
-export type FeedFilterSettingsSerialized = {
-    feedFilterSectionArgs: BooleanFilterArgs[];
-    numericFilterArgs: NumericFilterArgs[];
 };
 
 export type FilterArgs = {

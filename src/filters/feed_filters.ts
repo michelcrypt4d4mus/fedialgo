@@ -21,7 +21,7 @@ import {
 } from "../types";
 
 export const DEFAULT_FILTERS = {
-    feedFilterSectionArgs: [],
+    booleanFilterArgs: [],
     booleanFilters: {} as BooleanFilters,
     numericFilterArgs: [],
     numericFilters: {} as NumericFilters,
@@ -35,7 +35,7 @@ export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSetting
     serializedFilterSettings.booleanFilters ??= {} as BooleanFilters;
     serializedFilterSettings.numericFilters ??= {} as NumericFilters;
 
-    serializedFilterSettings.feedFilterSectionArgs.forEach((args) => {
+    serializedFilterSettings.booleanFilterArgs.forEach((args) => {
         serializedFilterSettings.booleanFilters[args.title as BooleanFilterName] = new BooleanFilter(args);
     });
 
@@ -66,12 +66,12 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-export function updatePropertyFilterOptions(
+export function updateBooleanFilterOptions(
     filters: FeedFilterSettings,
     toots: Toot[],
     userData: UserData
 ): FeedFilterSettings {
-    const logPrefx = `[updatePropertyFilterOptions()]`
+    const logPrefx = `[updateBooleanFilterOptions()]`
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
     const tootCounts = Object.values(BooleanFilterName).reduce(

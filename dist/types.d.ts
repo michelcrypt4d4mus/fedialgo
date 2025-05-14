@@ -75,14 +75,14 @@ export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | WeightName;
 export type StatusList = TootLike[];
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
+export type FeedFilterSettingsSerialized = {
+    booleanFilterArgs: BooleanFilterArgs[];
+    numericFilterArgs: NumericFilterArgs[];
+};
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 }
-export type FeedFilterSettingsSerialized = {
-    feedFilterSectionArgs: BooleanFilterArgs[];
-    numericFilterArgs: NumericFilterArgs[];
-};
 export type FilterArgs = {
     title: FilterTitle;
     description?: string;
