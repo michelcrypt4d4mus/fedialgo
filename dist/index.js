@@ -220,7 +220,7 @@ class TheAlgorithm {
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
     // Use with caution!
     async triggerPullAllUserData() {
-        const logPrefix = (0, string_helpers_1.bracketed)(PULLING_USER_HISTORY);
+        const logPrefix = (0, string_helpers_1.bracketed)(`triggerPullAllUserData()`);
         console.log(`${logPrefix} called, state:`, this.statusDict());
         this.checkIfLoading();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
@@ -233,12 +233,12 @@ class TheAlgorithm {
                 api_1.default.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
             // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
-            // TODO: should we restart the data poller?
             await this.recomputeScorers();
         }
         catch (error) {
             console.error(`${logPrefix} Error pulling user data:`, error);
         }
+        // TODO: should we restart the data poller?
         this.loadingStatus = null;
         console.log(`${logPrefix} finished`);
     }

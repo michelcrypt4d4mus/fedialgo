@@ -28,6 +28,7 @@ type ApiRequestDefaults = {
 
 // See Config for comments explaining these values
 export type ConfigType = {
+    // Locale stuff
     country: string;
     defaultLanguage: string;
     language: string;
@@ -91,6 +92,7 @@ export type ConfigType = {
 
 // App level config that is not user configurable
 export const Config: ConfigType = {
+    // Locale stuff
     country: DEFAULT_COUNTRY,
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
@@ -428,8 +430,6 @@ if (isLoadTest) {
 
 // Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
-    traceLog(`[Config] Validating config:`, Config);
-
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
     const trendStaleness = FEDIVERSE_KEYS.map(k => Config.staleDataSeconds[k as StorageKey]);
     Config.staleDataTrendingSeconds = Math.min(...trendStaleness as number[]);
@@ -445,6 +445,7 @@ function validateConfig(cfg: ConfigType | object): void {
 };
 
 validateConfig(Config);
+traceLog("[Config] validated config:", Config);
 
 
 // Default params for usage with API requests

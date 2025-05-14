@@ -19,6 +19,7 @@ const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 // App level config that is not user configurable
 exports.Config = {
+    // Locale stuff
     country: DEFAULT_COUNTRY,
     defaultLanguage: DEFAULT_LANGUAGE,
     language: DEFAULT_LANGUAGE,
@@ -342,7 +343,6 @@ if (environment_helpers_1.isLoadTest) {
 ;
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
-    (0, log_helpers_1.traceLog)(`[Config] Validating config:`, exports.Config);
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
     const trendStaleness = types_1.FEDIVERSE_KEYS.map(k => exports.Config.staleDataSeconds[k]);
     exports.Config.staleDataTrendingSeconds = Math.min(...trendStaleness);
@@ -358,6 +358,7 @@ function validateConfig(cfg) {
 }
 ;
 validateConfig(exports.Config);
+(0, log_helpers_1.traceLog)("[Config] validated config:", exports.Config);
 // Default params for usage with API requests
 exports.API_DEFAULTS = {
     [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
