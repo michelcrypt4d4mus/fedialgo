@@ -73,21 +73,21 @@ const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
-const collection_helpers_1 = require("./helpers/collection_helpers");
-Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
-const poller_1 = require("./api/poller");
-const hashtags_1 = require("./feeds/hashtags");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () { return string_helpers_1.FEDIALGO; } });
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const collection_helpers_1 = require("./helpers/collection_helpers");
+Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
+const poller_1 = require("./api/poller");
+const hashtags_1 = require("./feeds/hashtags");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
-const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "PresetWeightLabel", { enumerable: true, get: function () { return weight_presets_1.PresetWeightLabel; } });
 Object.defineProperty(exports, "PresetWeights", { enumerable: true, get: function () { return weight_presets_1.PresetWeights; } });
+const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "NON_SCORE_WEIGHTS", { enumerable: true, get: function () { return types_1.NON_SCORE_WEIGHTS; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
@@ -235,13 +235,14 @@ class TheAlgorithm {
             ]);
             // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
             await this.recomputeScorers();
+            console.log(`${logPrefix} finished`);
         }
         catch (error) {
-            console.error(`${logPrefix} Error pulling user data:`, error);
+            (0, log_helpers_1.logAndThrowError)(`${logPrefix} Error pulling user data:`, error);
         }
-        // TODO: should we restart the data poller?
-        this.loadingStatus = null;
-        console.log(`${logPrefix} finished`);
+        finally {
+            this.loadingStatus = null; // TODO: should we restart the data poller?
+        }
     }
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState() {

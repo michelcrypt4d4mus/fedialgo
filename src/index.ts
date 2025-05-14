@@ -38,13 +38,23 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
-import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution, logInfo, logDebug, logTelemetry, traceLog } from './helpers/log_helpers';
 import { PresetWeightLabel, PresetWeights } from './scorer/weight_presets';
+import {
+    BACKFILL_FEED,
+    PREP_SCORERS,
+    TRIGGER_FEED,
+    lockExecution,
+    logInfo,
+    logDebug,
+    logTelemetry,
+    traceLog,
+    logAndThrowError
+} from './helpers/log_helpers';
 import {
     NON_SCORE_WEIGHTS,
     FeedFilterSettings,
@@ -235,13 +245,12 @@ class TheAlgorithm {
 
             // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
             await this.recomputeScorers();
+            console.log(`${logPrefix} finished`);
         } catch (error) {
-            console.error(`${logPrefix} Error pulling user data:`, error);
+            logAndThrowError(`${logPrefix} Error pulling user data:`, error);
+        } finally {
+            this.loadingStatus = null;  // TODO: should we restart the data poller?
         }
-
-        // TODO: should we restart the data poller?
-        this.loadingStatus = null;
-        console.log(`${logPrefix} finished`);
     }
 
     // Return an object describing the state of the world. Mostly for debugging.

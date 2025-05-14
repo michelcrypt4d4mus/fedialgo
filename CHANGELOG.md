@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception
 
 # v0.38.0
 * **(BREAKING CHANGE)** Export `TheAlgorithm` as the default export from `fedialgo` package instead of a named export
