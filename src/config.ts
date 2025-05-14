@@ -19,6 +19,12 @@ const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 
 type StaleDataConfig = {[key in StorageKey]?: number};
 
+type ApiRequestDefaults = {
+    batchSize?: number;
+    initialMaxRecords: number;
+    supportsMaxId?: boolean;
+};
+
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -437,14 +443,8 @@ export const SCORERS_CONFIG: ScorerDict = {
     },
 };
 
-type ApiRequestDefaults = {
-    batchSize?: number;
-    initialMaxRecords: number;
-    supportsMaxId?: boolean;
-};
 
-
-export const REQUEST_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
+export const API_DEFAULTS: {[key in StorageKey]?: ApiRequestDefaults} = {
     [StorageKey.BLOCKED_ACCOUNTS]: {
         initialMaxRecords: Config.maxEndpointRecordsToPull,
     },

@@ -58,8 +58,8 @@ declare class TheAlgorithm {
     private numTriggers;
     private mergeMutex;
     private scoreMutex;
-    featureScorers: (ChaosScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
-    feedScorers: DiversityFeedScorer[];
+    private featureScorers;
+    private feedScorers;
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavoritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedUsersScorer | NumFavoritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     weightInfo: ScorerDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;

@@ -352,7 +352,7 @@ class MastoApi {
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
-        const requestDefaults = config_1.REQUEST_DEFAULTS[storageKey];
+        const requestDefaults = config_1.API_DEFAULTS[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.Config.minRecordsForFeatureScoring;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || config_1.Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;

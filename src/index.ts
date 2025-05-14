@@ -105,7 +105,7 @@ class TheAlgorithm {
     private scoreMutex = new Mutex();
 
     // These can score a toot without knowing about the rest of the toots in the feed
-    featureScorers = [
+    private featureScorers = [
         new ChaosScorer(),
         new FavouritedTagsScorer(),
         new FollowedTagsScorer(),
@@ -127,7 +127,7 @@ class TheAlgorithm {
     ];
 
     // These scorers require the complete feed to work properly
-    feedScorers = [
+    private feedScorers = [
         new DiversityFeedScorer(),
     ];
 

@@ -13,7 +13,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
-import { Config, ConfigType, REQUEST_DEFAULTS } from "../config";
+import { API_DEFAULTS, Config, ConfigType } from "../config";
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -410,7 +410,7 @@ export default class MastoApi {
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
         // Parse params and set defaults
-        const requestDefaults = REQUEST_DEFAULTS[storageKey];
+        const requestDefaults = API_DEFAULTS[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? Config.minRecordsForFeatureScoring;
         const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;

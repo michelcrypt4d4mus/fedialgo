@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REQUEST_DEFAULTS = exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.API_DEFAULTS = exports.SCORERS_CONFIG = exports.setLocale = exports.Config = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -356,7 +356,7 @@ exports.SCORERS_CONFIG = {
         description: "Favour video attachments",
     },
 };
-exports.REQUEST_DEFAULTS = {
+exports.API_DEFAULTS = {
     [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
         initialMaxRecords: exports.Config.maxEndpointRecordsToPull,
     },

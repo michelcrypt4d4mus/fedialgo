@@ -6,6 +6,11 @@ export declare const SECONDS_IN_WEEK: number;
 type StaleDataConfig = {
     [key in StorageKey]?: number;
 };
+type ApiRequestDefaults = {
+    batchSize?: number;
+    initialMaxRecords: number;
+    supportsMaxId?: boolean;
+};
 export type ConfigType = {
     country: string;
     defaultLanguage: string;
@@ -59,12 +64,7 @@ export type ConfigType = {
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;
 export declare const SCORERS_CONFIG: ScorerDict;
-type ApiRequestDefaults = {
-    batchSize?: number;
-    initialMaxRecords: number;
-    supportsMaxId?: boolean;
-};
-export declare const REQUEST_DEFAULTS: {
+export declare const API_DEFAULTS: {
     [key in StorageKey]?: ApiRequestDefaults;
 };
 export {};
