@@ -250,7 +250,7 @@ class TheAlgorithm {
             return null;
         }
         const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
-        (0, log_helpers_1.traceLog)(`feed is ${feedAgeInSeconds.toFixed(0)}s old, most recent from followed: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        (0, log_helpers_1.traceLog)(`feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
@@ -259,8 +259,15 @@ class TheAlgorithm {
         this.setLoadingStateVariables(PULLING_HISTORY_MSG);
         // Stop the dataPoller if it's running
         this.dataPoller && clearInterval(this.dataPoller);
+        const moarParams = { maxRecords: REALLY_BIG_NUMBER, moar: true };
         try {
-            await api_1.default.instance.getRecentUserToots({ maxRecords: REALLY_BIG_NUMBER, moar: true });
+            const backfillJobs = [
+                api_1.default.instance.getRecentFavourites(moarParams),
+                api_1.default.instance.getRecentUserToots(moarParams),
+                api_1.default.instance.getRecentNotifications(moarParams),
+            ];
+            const allResults = await Promise.all(backfillJobs);
+            (0, log_helpers_1.traceLog)(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
         }
         catch (error) {
             console.error(`[pullAllUserData] Error pulling user data:`, error);
@@ -404,7 +411,6 @@ class TheAlgorithm {
         this.mastodonServers = (await Storage_1.default.get(types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS) || {});
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
-        // TODO: actually save filter settings to storage
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         (0, feed_filters_1.updatePropertyFilterOptions)(this.filters, this.feed, this.userData);
         this.setTimelineInApp(this.feed);
@@ -417,7 +423,7 @@ class TheAlgorithm {
         newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
-            await this._mergeTootsToFeed(newToots, logPrefix);
+            await this.mergeTootsToFeed(newToots, logPrefix);
             (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
         }
         finally {
@@ -430,8 +436,8 @@ class TheAlgorithm {
         (0, log_helpers_1.logTelemetry)(logPrefix, msg, startedAt, 'current state', this.statusDict());
     }
     // Merge newToots into this.feed, score, and filter the feed.
-    // Don't call this directly! Use lockedMergeTootsToFeed() instead.
-    async _mergeTootsToFeed(newToots, logPrefix) {
+    // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+    async mergeTootsToFeed(newToots, logPrefix) {
         const numTootsBefore = this.feed.length;
         const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);

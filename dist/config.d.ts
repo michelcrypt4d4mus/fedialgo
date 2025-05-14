@@ -31,7 +31,7 @@ export type ConfigType = {
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
-    maxFollowingAccountsToPull: number;
+    maxEndpointRecordsToPull: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;

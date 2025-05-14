@@ -254,7 +254,7 @@ class TheAlgorithm {
         }
 
         const feedAgeInSeconds = ageInSeconds(mostRecentAt);
-        traceLog(`feed is ${feedAgeInSeconds.toFixed(0)}s old, most recent from followed: ${timeString(mostRecentAt)}`);
+        traceLog(`feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
 
@@ -264,9 +264,17 @@ class TheAlgorithm {
         this.setLoadingStateVariables(PULLING_HISTORY_MSG);
         // Stop the dataPoller if it's running
         this.dataPoller && clearInterval(this.dataPoller!);
+        const moarParams = {maxRecords: REALLY_BIG_NUMBER, moar: true};
 
         try {
-            await MastoApi.instance.getRecentUserToots({maxRecords: REALLY_BIG_NUMBER, moar: true});
+            const backfillJobs = [
+                MastoApi.instance.getRecentFavourites(moarParams),
+                MastoApi.instance.getRecentUserToots(moarParams),
+                MastoApi.instance.getRecentNotifications(moarParams),
+            ];
+
+            const allResults = await Promise.all(backfillJobs);
+            traceLog(`[${PULLING_HISTORY_MSG}] FINISHED, allResults:`, allResults);
         } catch (error) {
             console.error(`[pullAllUserData] Error pulling user data:`, error);
         }
@@ -432,7 +440,6 @@ class TheAlgorithm {
         this.mastodonServers = (await Storage.get(StorageKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
-        // TODO: actually save filter settings to storage
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         updatePropertyFilterOptions(this.filters, this.feed, this.userData);
         this.setTimelineInApp(this.feed);
@@ -447,7 +454,7 @@ class TheAlgorithm {
         const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
 
         try {
-            await this._mergeTootsToFeed(newToots, logPrefix);
+            await this.mergeTootsToFeed(newToots, logPrefix);
             traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
         } finally {
             releaseMutex();
@@ -460,8 +467,8 @@ class TheAlgorithm {
     }
 
     // Merge newToots into this.feed, score, and filter the feed.
-    // Don't call this directly! Use lockedMergeTootsToFeed() instead.
-    private async _mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
+    // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+    private async mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
         const numTootsBefore = this.feed.length;
         const startedAt = new Date();
 

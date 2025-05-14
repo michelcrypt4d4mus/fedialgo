@@ -2,7 +2,7 @@
  * Centralized location for non-user configurable settings.
  */
 import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
-import { isLoadTest, isQuickMode } from "./helpers/environment_helpers";
+import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
@@ -49,7 +49,7 @@ export type ConfigType = {
     defaultRecordsPerPage: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
-    maxFollowingAccountsToPull: number;
+    maxEndpointRecordsToPull: number;
     maxRecordsForFeatureScoring: number;
     minRecordsForFeatureScoring: number;
     mutexWarnSeconds: number;
@@ -138,7 +138,7 @@ export const Config: ConfigType = {
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
     maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
-    maxFollowingAccountsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
+    maxEndpointRecordsToPull: 5_000,      // MAX_FOLLOWING_ACCOUNT_TO_PULL
     maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
     minRecordsForFeatureScoring: 320,       // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
@@ -319,6 +319,10 @@ if (isQuickMode) {
     Config.numParticipatedTagsToFetchTootsFor = 20;
     Config.numTrendingTags = 20;
 }
+
+if (isDebugMode) {
+    Config.maxRecordsForFeatureScoring = 20_000;
+};
 
 // Heavy load test settings
 if (isLoadTest) {

@@ -88,7 +88,7 @@ declare class TheAlgorithm {
     private loadCachedData;
     private lockedMergeToFeed;
     private logTelemetry;
-    private _mergeTootsToFeed;
+    private mergeTootsToFeed;
     private prepareScorers;
     private recomputeScorers;
     private scoreAndFilterFeed;

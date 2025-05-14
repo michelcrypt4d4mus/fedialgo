@@ -8,12 +8,14 @@ export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
 export declare const TAGS = "tags";
-interface ApiParams {
-    maxId?: string | number;
+export interface BackfillParams {
     maxRecords?: number;
     moar?: boolean;
 }
-interface HomeTimelineParams extends ApiParams {
+interface MaxIdParams extends BackfillParams {
+    maxId?: string | number;
+}
+interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
 }
 export default class MastoApi {
@@ -32,12 +34,12 @@ export default class MastoApi {
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
     getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
-    getFollowedAccounts(): Promise<Account[]>;
-    getFollowedTags(): Promise<mastodon.v1.Tag[]>;
-    getMutedAccounts(): Promise<Account[]>;
-    getRecentFavourites(maxRecords?: number): Promise<Toot[]>;
-    getRecentNotifications(params?: ApiParams): Promise<mastodon.v1.Notification[]>;
-    getRecentUserToots(params?: ApiParams): Promise<Toot[]>;
+    getFollowedAccounts(params?: BackfillParams): Promise<Account[]>;
+    getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]>;
+    getMutedAccounts(params?: BackfillParams): Promise<Account[]>;
+    getRecentFavourites(params?: BackfillParams): Promise<Toot[]>;
+    getRecentNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
+    getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
     getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]>;

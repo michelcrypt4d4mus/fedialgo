@@ -9,10 +9,10 @@ import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS} from "../Storage";
-import Toot, { earliestTootedAt, mostRecentTootedAt } from './objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt, SerializableToot } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
+import { ApiMutex, MastoApiObject, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
 import { Config, ConfigType } from "../config";
 import { findMinId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
@@ -28,22 +28,57 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
-type BatchSizes = {[key in StorageKey]?: number};
-
-const BATCH_SIZES: BatchSizes = {
-    [StorageKey.FOLLOWED_ACCOUNTS]: 80,     // https://docs.joinmastodon.org/methods/accounts/#following
-    [StorageKey.FOLLOWED_TAGS]: 100,        // https://docs.joinmastodon.org/methods/followed_tags/
-    [StorageKey.RECENT_NOTIFICATIONS]: 80,  // https://docs.joinmastodon.org/methods/notifications/#get
+type DefaultParmas = {
+    batchSize?: number,
+    initialMaxRecords: number,
+    supportsMaxId?: boolean,
 };
 
-// Generic params that apply to a lot of methods in the MastoApi class
+const REQUEST_DEFAULTS: {[key in StorageKey]?: DefaultParmas} = {
+    [StorageKey.BLOCKED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.FAVOURITED_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+    },
+    [StorageKey.FOLLOWED_ACCOUNTS]: {     // https://docs.joinmastodon.org/methods/accounts/#following
+        batchSize: 80,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.FOLLOWED_TAGS]: {        // https://docs.joinmastodon.org/methods/followed_tags/
+        batchSize: 100,
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.HOME_TIMELINE]: {
+        initialMaxRecords: Config.numDesiredTimelineToots,
+        supportsMaxId: true,
+    },
+    [StorageKey.MUTED_ACCOUNTS]: {
+        initialMaxRecords: Config.maxEndpointRecordsToPull,
+    },
+    [StorageKey.RECENT_NOTIFICATIONS]: {  // https://docs.joinmastodon.org/methods/notifications/#get
+        batchSize: 80,
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
+    },
+    [StorageKey.RECENT_USER_TOOTS]: {
+        initialMaxRecords: Config.minRecordsForFeatureScoring,
+        supportsMaxId: true,
+    },
+}
+
+// Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
-//   - moar: if true, continue fetching from the max_id found in the cache
-interface ApiParams {
-    maxId?: string | number,
+export interface BackfillParams {
     maxRecords?: number,
     moar?: boolean,
+}
+
+// Generic params that apply to a lot of methods in the MastoApi class
+//   - moar: if true, continue fetching from the max_id found in the cache
+interface MaxIdParams extends BackfillParams {
+    maxId?: string | number,
 };
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -51,10 +86,9 @@ interface ApiParams {
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
-interface FetchParams<T> extends ApiParams {
+interface FetchParams<T> extends MaxIdParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     storageKey: StorageKey,  // Mutex will be skipped if label is a string not a StorageKey,
-    batchSize?: number,
     skipCache?: boolean,
     skipMutex?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
@@ -62,7 +96,7 @@ interface FetchParams<T> extends ApiParams {
 
 // Home timeline request params
 //   - mergeTootsToFeed: fxn to call to merge the fetched Toots into the main feed
-interface HomeTimelineParams extends ApiParams {
+interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>,
 };
 
@@ -119,12 +153,13 @@ export default class MastoApi {
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         maxRecords ||= Config.numDesiredTimelineToots;
-        const logPrefix = bracketed(StorageKey.HOME_TIMELINE);
+        const storageKey = StorageKey.HOME_TIMELINE;
+        const logPrefix = bracketed(storageKey);
         const startedAt = new Date();
         let allNewToots: Toot[] = [];
         let cutoffAt = timelineCutoffAt();
         let oldestTootStr = "no oldest toot";
-        let homeTimelineToots = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
+        let homeTimelineToots = await Storage.getCoerced<Toot>(storageKey);
 
         if (moar) {
             maxId = findMinId(homeTimelineToots);
@@ -141,7 +176,7 @@ export default class MastoApi {
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
-            storageKey: StorageKey.HOME_TIMELINE,
+            storageKey: storageKey,
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
@@ -156,7 +191,7 @@ export default class MastoApi {
 
                 oldestTootStr = `oldest toot: ${quotedISOFmt(oldestTootAt)}`;
                 console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
-                const newToots = await Toot.buildToots(newStatuses, StorageKey.HOME_TIMELINE);
+                const newToots = await Toot.buildToots(newStatuses, storageKey);
                 await mergeTootsToFeed(newToots, logPrefix);
                 allNewToots = allNewToots.concat(newToots)
 
@@ -168,10 +203,10 @@ export default class MastoApi {
             }
         }) as Toot[];
 
-        homeTimelineToots = Toot.dedupeToots([...allNewToots, ...homeTimelineToots], StorageKey.HOME_TIMELINE)
+        homeTimelineToots = Toot.dedupeToots([...allNewToots, ...homeTimelineToots], storageKey)
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
-        await Storage.set(StorageKey.HOME_TIMELINE, homeTimelineToots);
+        await Storage.set(storageKey, homeTimelineToots);
         return homeTimelineToots;
     }
 
@@ -217,11 +252,11 @@ export default class MastoApi {
     }
 
     // Get accounts the user is following
-    async getFollowedAccounts(): Promise<Account[]> {
+    async getFollowedAccounts(params?: BackfillParams): Promise<Account[]> {
         const accounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
-            maxRecords: Config.maxFollowingAccountsToPull,
+            ...(params || {})
         }) as Account[];
 
         accounts.forEach(account => account.isFollowed = true);
@@ -229,20 +264,22 @@ export default class MastoApi {
     }
 
     // Get hashtags the user is following
-    async getFollowedTags(): Promise<mastodon.v1.Tag[]> {
+    async getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]> {
         const followedTags = await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             storageKey: StorageKey.FOLLOWED_TAGS,
+            ...(params || {})
         }) as mastodon.v1.Tag[];
 
         return followedTags.map(repairTag);
     }
 
     // Get all muted accounts (including accounts that are fully blocked)
-    async getMutedAccounts(): Promise<Account[]> {
+    async getMutedAccounts(params?: BackfillParams): Promise<Account[]> {
         const mutedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
-            storageKey: StorageKey.MUTED_ACCOUNTS
+            storageKey: StorageKey.MUTED_ACCOUNTS,
+            ...(params || {})
         }) as Account[];
 
         const blockedAccounts = await this.getBlockedAccounts();
@@ -253,17 +290,17 @@ export default class MastoApi {
     // https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to
     // incrementally load this endpoint (the only way is pagination)
-    // TODO: make moar flag work here
-    async getRecentFavourites(maxRecords?: number): Promise<Toot[]> {
+    // TODO: rename getFavouritedToots
+    async getRecentFavourites(params?: BackfillParams): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             storageKey: StorageKey.FAVOURITED_TOOTS,
-            maxRecords: maxRecords || Config.minRecordsForFeatureScoring
+            ...(params || {})
         }) as Toot[];
     }
 
     // Get the user's recent notifications
-    async getRecentNotifications(params?: ApiParams): Promise<mastodon.v1.Notification[]> {
+    async getRecentNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
         return await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             storageKey: StorageKey.RECENT_NOTIFICATIONS,
@@ -273,7 +310,7 @@ export default class MastoApi {
 
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
-    async getRecentUserToots(params?: ApiParams): Promise<Toot[]> {
+    async getRecentUserToots(params?: MaxIdParams): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             storageKey: StorageKey.RECENT_USER_TOOTS,
@@ -410,12 +447,13 @@ export default class MastoApi {
     ): Promise<Account[] | Toot[] | MastodonApiObject[]> {
         let logPfx = bracketed(fetchParams.storageKey);
         traceLog(`${logPfx} fetchData() params:`, fetchParams);
-        let { batchSize, breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
+        let { breakIf, fetch, maxId, maxRecords, moar, skipCache, skipMutex, storageKey } = fetchParams;
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
-        maxRecords ??= Config.minRecordsForFeatureScoring;
-        batchSize ??= BATCH_SIZES[storageKey] || Config.defaultRecordsPerPage;
-        batchSize = Math.min(batchSize, maxRecords);
+        // Parse params and set defaults
+        const requestDefaults = REQUEST_DEFAULTS[storageKey];
+        maxRecords ??= requestDefaults?.initialMaxRecords ?? Config.minRecordsForFeatureScoring;
+        const batchSize = Math.min(maxRecords, requestDefaults?.batchSize || Config.defaultRecordsPerPage);
         breakIf ??= DEFAULT_BREAK_IF;
 
         // Skip mutex for requests that aren't trying to get at the same data
@@ -432,14 +470,22 @@ export default class MastoApi {
                 if (cachedRows) {
                     if (!moar) return cachedRows;  // Return cached data unless moar=true
 
-                    // IF MOAR!!!! then we want to find the minimum ID in the cached data and do a fetch from that point
+                    // Not all endpoints support maxId so we need to check if the endpoint supports it before using it
+                    // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
                     // TODO: a bit janky of an approach... we could maybe use the min/max_id param in normal request
-                    maxRecords = maxRecords + cachedRows.length;  // Add another unit of maxRecords to # of rows we have now
-                    maxId = findMinId(cachedRows as MastodonObjWithID[]);
-                    console.log(`${logPfx} Found min ID ${maxId} in cache to use as maxId request param`);
-                    rows = cachedRows;
+                    if (requestDefaults?.supportsMaxId) {
+                        maxId = findMinId(cachedRows as MastodonObjWithID[]);
+                        maxRecords = maxRecords + cachedRows.length;  // Add another unit of maxRecords to # of rows we have now
+                        console.log(`${logPfx} (MOAR) Found min ID ${maxId} in cache to use as maxId (maxRecords=${maxRecords})`);
+                        rows = cachedRows;
+                    } else {
+                        // If maxId isn't supported then we don't start with the cached data in the 'rows' array
+                        console.debug(`${logPfx} (MOAR) maxId not supported for ${storageKey}`);
+                    }
                 };
             }
+
+            traceLog(`${logPfx} fetchData() params w/defaults:`, {...fetchParams, batchSize, maxId, maxRecords});
 
             // buildParams will coerce maxRecords down to the max per page if it's larger
             for await (const page of fetch(this.buildParams(batchSize, logPfx, maxId))) {
@@ -508,11 +554,12 @@ export default class MastoApi {
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    private buildFromApiObjects(key: StorageKey, objects: MastodonApiObject[]):  Account[] | Toot[] | MastodonApiObject[] {
+    private buildFromApiObjects(key: StorageKey, objects: MastoApiObject[]):  MastoApiObject[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => Account.build(o as mastodon.v1.Account));
+            return objects.map(o => Account.build(o as mastodon.v1.Account));  // TODO: dedupe accounts?
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return objects.map(o => Toot.build(o as mastodon.v1.Status));
+            const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as mastodon.v1.Status));
+            return Toot.dedupeToots(toots, `${key} buildFromApiObjects`);
         } else {
             return objects;
         }

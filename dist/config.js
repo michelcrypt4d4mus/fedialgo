@@ -71,7 +71,7 @@ exports.Config = {
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
     maxConcurrentRequestsInitial: 15,
     maxConcurrentRequestsBackground: 8,
-    maxFollowingAccountsToPull: 5000,
+    maxEndpointRecordsToPull: 5000,
     maxRecordsForFeatureScoring: 1500,
     minRecordsForFeatureScoring: 320,
     minServerMAU: 100,
@@ -245,6 +245,10 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;
 }
+if (environment_helpers_1.isDebugMode) {
+    exports.Config.maxRecordsForFeatureScoring = 20000;
+}
+;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
     exports.Config.maxCachedTimelineToots = 5000;
