@@ -10,6 +10,7 @@ exports.countTags = exports.buildTagNames = exports.repairTag = void 0;
  */
 const api_1 = __importDefault(require("../../api/api"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name, replace URL with one on homeserver
 function repairTag(tag) {
@@ -18,7 +19,7 @@ function repairTag(tag) {
         tag.name = BROKEN_TAG;
     }
     else {
-        tag.name = tag.name.toLowerCase();
+        tag.name = (0, string_helpers_1.removeDiacritics)(tag.name.toLowerCase());
     }
     if (api_1.default.instance) {
         tag.url = api_1.default.instance.tagUrl(tag);

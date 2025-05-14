@@ -252,29 +252,12 @@ export default class Toot implements TootObj {
         }
     }
 
-    // True if toot contains 'str' in the content, the link preview card, or (if it starts with '#') the tags
+    // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
-
-        if (str.startsWith("#")) {
-            return this.tags.some((tag) => str.slice(1) == tag.name);
-        }
-
-        const regex = new RegExp(`\\b${escape(str)}\\b`);
         const contentStr = `${this.content} ${this.card?.description || ""} ${this.card?.title || ""}`;
-        return regex.test(contentStr.trim().toLowerCase());
-    }
-
-    // Generate a string describing the followed and trending tags in the toot
-    containsTagsMsg(): string | undefined {
-        let msgs = [
-            this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS),
-            this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS),
-            this.containsTagsOfTypeMsg(WeightName.PARTICIPATED_TAGS),
-        ];
-
-        msgs = msgs.filter((msg) => msg);
-        return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
+        const regex = new RegExp(`\\b${escape(str)}\\b`);
+        return this.containsTag(str) || regex.test(contentStr.trim().toLowerCase());
     }
 
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
@@ -287,6 +270,18 @@ export default class Toot implements TootObj {
         } else {
             return this.tags.some((tag) => tag.name == tagName);
         }
+    }
+
+    // Generate a string describing the followed and trending tags in the toot
+    containsTagsMsg(): string | undefined {
+        let msgs = [
+            this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS),
+            this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(WeightName.PARTICIPATED_TAGS),
+        ];
+
+        msgs = msgs.filter((msg) => msg);
+        return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
 
     // Returns true if the fedialgo user is mentioned in the toot

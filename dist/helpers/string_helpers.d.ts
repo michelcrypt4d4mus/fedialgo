@@ -24,6 +24,7 @@ export declare function htmlToText(html: string): string;
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function isVideo(uri: string | null | undefined): boolean;
 export declare const collapseWhitespace: (str: string) => string;
+export declare const removeDiacritics: (str: string) => string;
 export declare const removeEmojis: (str: string) => string;
 export declare const removeLinks: (str: string) => string;
 export declare const removeMentions: (str: string) => string;

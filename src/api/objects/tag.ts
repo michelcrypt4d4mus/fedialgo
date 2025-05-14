@@ -5,8 +5,8 @@
 import MastoApi from "../../api/api";
 import Toot from "./toot";
 import { incrementCount } from "../../helpers/collection_helpers";
-import { MastodonTag, TagNames } from "../../types";
-import { StringNumberDict } from "../../types";
+import { MastodonTag, StringNumberDict, TagNames } from "../../types";
+import { removeDiacritics } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
@@ -17,7 +17,7 @@ export function repairTag(tag: MastodonTag): MastodonTag {
         console.warn(`Broken tag object:`, tag);
         tag.name = BROKEN_TAG;
     } else {
-        tag.name = tag.name.toLowerCase();
+        tag.name = removeDiacritics(tag.name.toLowerCase());
     }
 
     if (MastoApi.instance) {

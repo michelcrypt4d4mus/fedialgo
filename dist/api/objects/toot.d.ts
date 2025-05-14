@@ -85,8 +85,8 @@ export default class Toot implements TootObj {
     alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
-    containsTagsMsg(): string | undefined;
     containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
+    containsTagsMsg(): string | undefined;
     containsUserMention(): boolean;
     contentShortened(maxChars?: number): string;
     contentString(): string;

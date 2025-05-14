@@ -126,6 +126,8 @@ export function isVideo(uri: string | null | undefined): boolean {
 
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
+// Remove diacritics ("ó" => "o", "é" => "e", etc.)
+export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // Remove any emojis
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
 // Remove https links from string

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove diacritics from tag names
 
 ## v0.36.0
 * Incremental load of stale data when possible instead of complete refresh; move staleness config to `Config.apiDefaults`
