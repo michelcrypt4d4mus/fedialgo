@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove HTML tags from `Toot.content` field when scanning for hashtags and keywords with `containsString()`
 
 ### v0.39.3
 * Stop exporting unnecessary `BooleanFilter` and `NumericFilter` type

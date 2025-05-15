@@ -255,7 +255,7 @@ export default class Toot implements TootObj {
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
-        const contentStr = `${this.content} ${this.card?.description || ""} ${this.card?.title || ""}`;
+        const contentStr = `${this.contentString()} ${this.card?.description || ""} ${this.card?.title || ""}`;
         const regex = new RegExp(`\\b${escape(str)}\\b`);
         return this.containsTag(str) || regex.test(contentStr.trim().toLowerCase());
     }
