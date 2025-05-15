@@ -10,9 +10,7 @@ import { countValues } from "../helpers/collection_helpers";
 import { FilterArgs, StorageKey, StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
-type TypeFilters = Record<TypeFilterName, TypeFilter>;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
-type TootMatchers = Record<BooleanFilterName, TootMatcher>;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
@@ -22,7 +20,7 @@ export enum BooleanFilterName {
     LANGUAGE = 'language',
     HASHTAG = 'hashtag',
     USER = 'user',
-    APP = 'app',
+    APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
     // Server Side filters work a bit differently. The API doesn't return toots that match the filter
     // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
     // other servers) it does so we have to manually filter them out.
@@ -51,7 +49,7 @@ export enum TypeFilterName {
 };
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
-export const TYPE_FILTERS: TypeFilters = {
+export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.AUDIO]:                 (toot) => !!toot.realToot().audioAttachments.length,
     [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
@@ -73,7 +71,7 @@ export const TYPE_FILTERS: TypeFilters = {
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
-const TOOT_MATCHERS: TootMatchers = {
+const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().application?.name);
     },
