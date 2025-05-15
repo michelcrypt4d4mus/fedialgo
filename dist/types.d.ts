@@ -105,7 +105,7 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type StorableApiObject = (MastodonObjWithID | MastodonTag | Toot | TrendingLink);
+export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);
 export type StorableWithTimestamp = {

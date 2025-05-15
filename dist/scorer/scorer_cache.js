@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// import Scorer from "./scorer";
 class ScorerCache {
     // These can score a toot without knowing about the rest of the toots in the feed
     static featureScorers = [];

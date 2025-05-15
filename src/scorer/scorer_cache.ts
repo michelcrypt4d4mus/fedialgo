@@ -3,7 +3,6 @@
  */
 import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";
-// import Scorer from "./scorer";
 
 
 export default class ScorerCache {

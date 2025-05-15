@@ -65,7 +65,7 @@ export const TYPE_FILTERS: TypeFilters = {
     [TypeFilterName.TRENDING_HASHTAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]:        (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]:        (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]:                 (toot) => !!toot.videoAttachments.length,
+    [TypeFilterName.VIDEOS]:                (toot) => !!toot.videoAttachments.length,
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS

@@ -169,7 +169,6 @@ export type MinMaxID = {
 export type StorableApiObject = (
     MastodonObjWithID |
     MastodonTag |
-    Toot |
     TrendingLink
 );
 
