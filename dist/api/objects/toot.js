@@ -254,7 +254,7 @@ class Toot {
     }
     // String that describes the toot in not so many characters
     describe() {
-        let msg = `${this.account.describe()} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID=${this.id}]`;
+        let msg = `${this.account.describe()} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
     getScore() {

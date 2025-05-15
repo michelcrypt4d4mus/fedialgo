@@ -326,7 +326,7 @@ export default class Toot implements TootObj {
 
     // String that describes the toot in not so many characters
     describe(): string {
-        let msg = `${this.account.describe()} [${toISOFormat(this.createdAt)}, ID=${this.id}]`;
+        let msg = `${this.account.describe()} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
 
