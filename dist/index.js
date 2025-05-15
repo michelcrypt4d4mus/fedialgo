@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -95,6 +95,11 @@ const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
+const LOAD_STARTED_MSGS = [
+    log_helpers_1.BACKFILL_FEED,
+    PULLING_USER_HISTORY,
+    log_helpers_1.TRIGGER_FEED,
+];
 // Constants
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const REALLY_BIG_NUMBER = 10000000000;
@@ -493,7 +498,7 @@ class TheAlgorithm {
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
     setLoadingStateVariables(logPrefix) {
-        if ([log_helpers_1.BACKFILL_FEED, PULLING_USER_HISTORY, log_helpers_1.TRIGGER_FEED].includes(logPrefix))
+        if (LOAD_STARTED_MSGS.includes(logPrefix))
             this.loadStartedAt = new Date();
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {

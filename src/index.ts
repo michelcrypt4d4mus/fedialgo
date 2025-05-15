@@ -77,6 +77,12 @@ const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
 
+const LOAD_STARTED_MSGS = [
+    BACKFILL_FEED,
+    PULLING_USER_HISTORY,
+    TRIGGER_FEED,
+];
+
 // Constants
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const REALLY_BIG_NUMBER = 10_000_000_000;
@@ -538,7 +544,7 @@ class TheAlgorithm {
 
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
-        if ([BACKFILL_FEED, PULLING_USER_HISTORY, TRIGGER_FEED].includes(logPrefix)) this.loadStartedAt = new Date();
+        if (LOAD_STARTED_MSGS.includes(logPrefix)) this.loadStartedAt = new Date();
 
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
@@ -604,6 +610,6 @@ export {
     formatScore,
     isAccessTokenRevokedError,
     isDebugMode,
-    timeString,
     sortKeysByValue,
+    timeString,
 };
