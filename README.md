@@ -76,13 +76,16 @@ import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
 // Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
 // in the constructor all you need to do is monitor the state of whatever variable contains the timeline
 // (in the React example above that variable would be 'timeline').
+let timeline: Toot[];
 algorithm.triggerFeedUpdate();
 
 // algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
 // Note there won't be anything in there until the timeilne is at least partially done being built!
-const timeline: Toot[] = algorithm.getTimeline();
-// You can check if there is a timeline load in progress. Calling treggerFeedUpdate() before the load is done
-// will throw an error.
+let timeline: Toot[] = algorithm.getTimeline();
+// If you wanted to wait until the feed was fully constructed, wait for the Promise:
+algorithm.triggerFeedUpdate().then((timelineToots) => timeline = timelineToots);
+
+// Check if loading is in progress before calling, otherwise you might get thrown an exception
 if (!algorithm.isLoading()) algorithm.triggerFeedUpdate();
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
