@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.39.4
 * Remove HTML tags from `Toot.content` field when scanning for hashtags and keywords with `containsString()`
 
 ### v0.39.3
