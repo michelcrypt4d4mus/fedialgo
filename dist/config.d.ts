@@ -7,8 +7,8 @@ export declare const SECONDS_IN_WEEK: number;
 export declare const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {
-    limit?: number;
     initialMaxRecords?: number;
+    limit?: number;
     numMinutesUntilStale?: number;
     supportsMinMaxId?: boolean;
 };

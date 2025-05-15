@@ -111,6 +111,31 @@ class Storage {
         }
         return this.deserialize(key, withTimestamp.value);
     }
+    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
+    static async getCoerced(key) {
+        let value = await this.get(key);
+        if (!value) {
+            value = [];
+        }
+        else if (!Array.isArray(value)) {
+            (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
+        }
+        return value;
+    }
+    // Get the user's saved timeline filter settings
+    static async getFilters() {
+        const filters = await this.get(types_1.StorageKey.FILTERS);
+        if (!filters)
+            return null;
+        // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
+        if ("feedFilterSectionArgs" in filters) {
+            warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
+            await this.remove(types_1.StorageKey.FILTERS);
+            return null;
+        }
+        // Filters are saved in a serialized format that requires deserialization
+        return (0, feed_filters_1.buildFiltersFromArgs)(filters);
+    }
     // Return null if the data is in storage is stale or doesn't exist
     static async getIfNotStale(key) {
         const withStaleness = await this.getWithStaleness(key);
@@ -120,6 +145,36 @@ class Storage {
         else {
             return withStaleness.obj;
         }
+    }
+    // Get trending tags, toots, and links as a single TrendingStorage object
+    static async getTrendingData() {
+        return {
+            links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
+            tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
+            toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
+        };
+    }
+    // Return the user's stored timeline weightings or the default weightings if none are found
+    static async getWeights() {
+        let weights = await this.get(types_1.StorageKey.WEIGHTS);
+        if (!weights)
+            return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
+        let shouldSave = false;
+        // If there are stored weights set any missing values to the default (possible in case of upgrades)
+        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
+            const value = weights[key];
+            if (!value && value !== 0) {
+                warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
+                weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
+                shouldSave = true;
+            }
+        });
+        // If any changes were made to the Storage weightings, save them back to storage
+        if (shouldSave) {
+            log(`Saving repaired user weights:`, weights);
+            await Storage.setWeightings(weights);
+        }
+        return weights;
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
@@ -154,61 +209,6 @@ class Storage {
             obj: this.deserialize(key, withTimestamp.value),
             updatedAt: new Date(withTimestamp.updatedAt),
         };
-    }
-    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
-    static async getCoerced(key) {
-        let value = await this.get(key);
-        if (!value) {
-            value = [];
-        }
-        else if (!Array.isArray(value)) {
-            (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
-        }
-        return value;
-    }
-    // Get the user's saved timeline filter settings
-    static async getFilters() {
-        const filters = await this.get(types_1.StorageKey.FILTERS);
-        if (!filters)
-            return null;
-        // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
-        if ("feedFilterSectionArgs" in filters) {
-            warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
-            await this.remove(types_1.StorageKey.FILTERS);
-            return null;
-        }
-        // Filters are saved in a serialized format that requires deserialization
-        return (0, feed_filters_1.buildFiltersFromArgs)(filters);
-    }
-    // Get trending tags, toots, and links as a single TrendingStorage object
-    static async getTrendingData() {
-        return {
-            links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
-            tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
-            toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
-        };
-    }
-    // Return the user's stored timeline weightings or the default weightings if none are found
-    static async getWeights() {
-        let weights = await this.get(types_1.StorageKey.WEIGHTS);
-        if (!weights)
-            return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
-        let shouldSave = false;
-        // If there are stored weights set any missing values to the default (possible in case of upgrades)
-        Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
-            const value = weights[key];
-            if (!value && value !== 0) {
-                warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
-                weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
-                shouldSave = true;
-            }
-        });
-        // If any changes were made to the Storage weightings, save them back to storage
-        if (shouldSave) {
-            log(`Saving repaired user weights:`, weights);
-            await Storage.setWeightings(weights);
-        }
-        return weights;
     }
     // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
     static async isDataStale(key) {

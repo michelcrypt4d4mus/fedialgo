@@ -23,8 +23,8 @@ export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
-    limit?: number;                  // Max per page is usually 40
     initialMaxRecords?: number;      // How many records to pull in the initial bootstrap
+    limit?: number;                  // Max per page is usually 40
     numMinutesUntilStale?: number;   // How long until the data is considered stale
     supportsMinMaxId?: boolean;      // True if the endpoint supports min/maxId
 };
@@ -123,7 +123,7 @@ export const Config: ConfigType = {
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
-    staleDataTrendingMinutes: 60,           // Default. is actually computed based on the FEDIVERSE_KEYS
+    staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff

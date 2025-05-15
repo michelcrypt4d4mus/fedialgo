@@ -11,12 +11,12 @@ export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
-    static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
-    static getWithStaleness(key: StorageKey): Promise<StorableObjWithStaleness | null>;
     static getCoerced<T>(key: StorageKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
+    static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
     static getTrendingData(): Promise<TrendingStorage>;
     static getWeights(): Promise<Weights>;
+    static getWithStaleness(key: StorageKey): Promise<StorableObjWithStaleness | null>;
     static isDataStale(key: StorageKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;
     static logAppOpen(): Promise<void>;
