@@ -39,7 +39,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [WeightName.PARTICIPATED_TAGS]: 0.3,
     [WeightName.RETOOTED_IN_FEED]: 2.0,
     [WeightName.TRENDING_LINKS]: 0.7,
-    [WeightName.TRENDING_TAGS]: 0.5,
+    [WeightName.TRENDING_TAGS]: 0.2,
     [WeightName.TRENDING_TOOTS]: 1.0,
     [WeightName.VIDEO_ATTACHMENTS]: 0,
 };

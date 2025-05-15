@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.NumericFilter = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -52,8 +52,6 @@ const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/men
 const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favourited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
 const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_accounts_scorer"));
-const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
-exports.NumericFilter = numeric_filter_1.default;
 const num_favourites_scorer_1 = __importDefault(require("./scorer/feature/num_favourites_scorer"));
 const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
 const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));

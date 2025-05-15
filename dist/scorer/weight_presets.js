@@ -40,7 +40,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.PARTICIPATED_TAGS]: 0.3,
     [types_1.WeightName.RETOOTED_IN_FEED]: 2.0,
     [types_1.WeightName.TRENDING_LINKS]: 0.7,
-    [types_1.WeightName.TRENDING_TAGS]: 0.5,
+    [types_1.WeightName.TRENDING_TAGS]: 0.2,
     [types_1.WeightName.TRENDING_TOOTS]: 1.0,
     [types_1.WeightName.VIDEO_ATTACHMENTS]: 0,
 };

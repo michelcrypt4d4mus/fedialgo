@@ -598,7 +598,6 @@ export {
     BooleanFilterName,
     FeedFilterSettings,
     MediaCategory,
-    NumericFilter,
     StringNumberDict,
     Toot,
     TrendingLink,

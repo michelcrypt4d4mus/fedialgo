@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Stop exporting NumericFilter type
+* Drop TrendingTags weight to 0.2
 
 ### v0.39.2
 * Filter out zero weighted scores from `Toot.alternateScoreInfo()`
