@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.39.3
 * Stop exporting unnecessary `BooleanFilter` and `NumericFilter` type
 * `Drop `TrendingTags` weight to 0.2`
 
