@@ -1,7 +1,9 @@
 # NEXT RELEASE
+* Turn on minor `Toot.dedupeToots()` optimization
+* Fix collation of `favourited`, `reblogged`, and `bookmarked` flags in `dedupeToots()`, add collation of `filtered` property
 
 ### v0.39.9
-* Make `TheAlgorithm.isDebugMode` a static
+* Make `TheAlgorithm.isDebugMode` a static variable set at run time
 
 ### v0.39.8
 * More futzing with type exports
@@ -13,13 +15,13 @@
 * Fix toot type filtering for retooted audio/image/video attachments and sensitive toots
 
 ### v0.39.5
-* Remove unnecessary exports of `TrendingLink`, `TagWithUsageCounts`, `FeedFilterSettings`, `Weights` types
+* ~~Remove unnecessary exports of `TrendingLink`, `TagWithUsageCounts`, `FeedFilterSettings`, `Weights` types~~
 
 ### v0.39.4
 * Remove HTML tags from `Toot.content` field when scanning for hashtags and keywords with `containsString()`
 
 ### v0.39.3
-* Stop exporting unnecessary `BooleanFilter` and `NumericFilter` type
+* ~~Stop exporting unnecessary `BooleanFilter` and `NumericFilter` type~~
 * `Drop `TrendingTags` weight to 0.2`
 
 ### v0.39.2

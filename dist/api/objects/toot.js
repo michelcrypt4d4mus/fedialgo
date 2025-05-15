@@ -587,34 +587,38 @@ class Toot {
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
-            // if (uriToots.length == 1) return;  // TODO: turn on this optimization
+            if (uriToots.length == 1)
+                return; // If there's only one toot, nothing to do
             const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
             const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
-            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably be Math.max()
-            // Deal with tag arrays
+            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably use most recent toot
+            // Deal with tag and filter arrays
             const allTrendingTags = uriToots.flatMap(toot => toot.realToot().trendingTags || []);
             const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
             const allFollowedTags = uriToots.flatMap(toot => toot.realToot().followedTags || []);
             const uniqueFollowedTags = (0, collection_helpers_1.uniquifyByProp)(allFollowedTags, (tag) => tag.name);
-            // Collate accounts - reblogs and realToot accounts
-            const allAccounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? [t.reblog.account] : []));
-            const sources = uriToots.flatMap(t => (t.sources || []).concat(t.reblog?.sources || []));
-            const uniqueSources = (0, collection_helpers_1.uniquify)(sources);
+            const allFilterMatches = uriToots.flatMap(toot => toot.realToot().filtered || []);
+            const uniqueFilterMatches = (0, collection_helpers_1.uniquifyByProp)(allFilterMatches, (filter) => filter.filter.id);
             // Collate multiple retooters if they exist
             let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
             reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
             reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
+            const sources = uriToots.flatMap(t => (t.sources || []).concat(t.reblog?.sources || []));
+            const uniqueSources = (0, collection_helpers_1.uniquify)(sources);
             // Counts may increase over time w/repeated fetches so we collate the max
             const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
                 props[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
                 return props;
             }, {});
+            // Collate accounts - reblogs and realToot accounts
+            const allAccounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? [t.reblog.account] : []));
+            // Helper method to collate the isFollowed property
             const isFollowed = (webfingerURI) => {
                 return allAccounts.some((a) => a.isFollowed && (a.webfingerURI == webfingerURI));
             };
             uriToots.forEach((toot) => {
-                // Props that are only set on the realToot
+                // propsThatChange are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
                 toot.realToot().repliesCount = propsThatChange.repliesCount;
@@ -623,13 +627,17 @@ class Toot {
                 toot.realToot().trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
-                // Tags
+                // Tags + sources + server side filter matches
                 toot.realToot().trendingTags = uniqueTrendingTags;
                 toot.realToot().followedTags = uniqueFollowedTags;
-                // Booleans etc
-                toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
-                toot.muted = uriToots.some(toot => toot.muted);
+                toot.filtered = uniqueFilterMatches;
                 toot.sources = uniqueSources;
+                // Booleans usually only set on the realToot
+                toot.realToot().bookmarked = uriToots.some(toot => toot.realToot().bookmarked);
+                toot.realToot().favourited = uriToots.some(toot => toot.realToot().favourited);
+                toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
+                toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
+                toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
@@ -639,15 +647,16 @@ class Toot {
                 }
             });
         });
+        // Choose the most recent retoot from the group of toots with the same realURI() value
         const deduped = Object.values(tootsByURI).map((toots) => {
             const mostRecent = (0, exports.mostRecentToot)(toots);
+            // Log when we are collating retoots and toots with the same realURI()
             if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                console.debug(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                (0, log_helpers_1.traceLog)(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
             }
             return mostRecent;
         });
         (0, log_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
-        // console.info(`${logPrefix} deduped ${toots.length} toots to ${deduped.length} ${ageString(startedAt)}`);
         return deduped;
     }
     ;

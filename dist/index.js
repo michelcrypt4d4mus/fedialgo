@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.MediaCategory = exports.BooleanFilterName = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -112,7 +112,6 @@ class TheAlgorithm {
     static isDebugMode = environment_helpers_1.isDebugMode;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
-    // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
     mastodonServers = {};
     trendingData = { links: [], tags: [], toots: [] };
