@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.39.1
 * Stop exporting unnecessary `WeightName` type
 
 ## v0.39.0
