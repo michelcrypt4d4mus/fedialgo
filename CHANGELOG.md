@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* FIlter out zero weighted scores from alternateScoreInfo()
+
+### v0.39.2
+* Filter out zero weighted scores from `Toot.alternateScoreInfo()`
 
 ### v0.39.1
 * Stop exporting unnecessary `WeightName` type
