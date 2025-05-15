@@ -4,7 +4,7 @@
 * Fix type filtering for retooted audio/image/video attachments and sensitive toots
 
 ### v0.39.5
-* Remove unnecessary exports of TrendingLink, TagWithUsageCounts, FeedFilterSettings, Weights types
+* Remove unnecessary exports of `TrendingLink`, `TagWithUsageCounts`, `FeedFilterSettings`, `Weights` types
 
 ### v0.39.4
 * Remove HTML tags from `Toot.content` field when scanning for hashtags and keywords with `containsString()`
