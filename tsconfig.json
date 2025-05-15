@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "declaration": true,
-        // "forceConsistentCasingInFileNames": false,
-        "esModuleInterop": true,
         "emitDecoratorMetadata": true,  // Required for class-transformer @Type(() => SomeClass)
+        "esModuleInterop": true,
         "experimentalDecorators": true,  // Required for class-transformer @Type(() => SomeClass)
+        // "forceConsistentCasingInFileNames": false,
         "lib": [
             "ESNext",
         ],

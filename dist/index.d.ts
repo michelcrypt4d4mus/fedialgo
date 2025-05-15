@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
+import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
@@ -25,12 +26,11 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
-import { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { sortKeysByValue } from "./helpers/collection_helpers";
 import { isDebugMode } from './helpers/environment_helpers';
 import { PresetWeightLabel, WeightPresets } from './scorer/weight_presets';
-import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, StringNumberDict, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
+import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, StringNumberDict, TagWithUsageCounts, TrendingLink, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -98,4 +98,4 @@ declare class TheAlgorithm {
     private statusDict;
 }
 export default TheAlgorithm;
-export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilterName, MediaCategory, StringNumberDict, TrendingObj, TrendingWithHistory, TypeFilterName, WeightName, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, sortKeysByValue, timeString, };
+export { type Account, type BooleanFilter, type FeedFilterSettings, type StringNumberDict, type TagWithUsageCounts, type Toot, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, BooleanFilterName, MediaCategory, TypeFilterName, WeightName, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, sortKeysByValue, timeString, };

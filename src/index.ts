@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
+import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
@@ -34,7 +35,6 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
@@ -62,6 +62,8 @@ import {
     ScorerDict,
     StorageKey,
     StringNumberDict,
+    TagWithUsageCounts,
+    TrendingLink,
     TrendingObj,
     TrendingStorage,
     TrendingWithHistory,
@@ -590,19 +592,24 @@ export default TheAlgorithm;
 
 // Export types and constants needed by apps using this package
 export {
+    type Account,
+    type BooleanFilter,
+    type FeedFilterSettings,
+    type StringNumberDict,
+    type TagWithUsageCounts,
+    type Toot,
+    type TrendingLink,
+    type TrendingObj,
+    type TrendingWithHistory,
+    type Weights,
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
     NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
-    Account,
     BooleanFilterName,
     MediaCategory,
-    StringNumberDict,
-    Toot,
-    TrendingObj,
-    TrendingWithHistory,
     TypeFilterName,
     WeightName,
     // Helpers we also export
