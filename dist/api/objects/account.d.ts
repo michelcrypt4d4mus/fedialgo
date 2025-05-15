@@ -45,7 +45,7 @@ export default class Account implements AccountObj {
     displayNameFullHTML(): string;
     homeserver(): string;
     homserverURL(): string;
-    noteWithAccountInfo: () => string;
+    noteWithAccountInfo(): string;
     private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
     static countAccounts(accounts: Account[]): StringNumberDict;

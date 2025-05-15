@@ -120,7 +120,7 @@ class Account {
         }
     }
     // Returns HTML combining the "note" property with the creation date, followers and toots count
-    noteWithAccountInfo = () => {
+    noteWithAccountInfo() {
         let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
         const accountStats = [
@@ -129,7 +129,8 @@ class Account {
             `${this.statusesCount.toLocaleString()} Toots`,
         ];
         return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
-    };
+    }
+    ;
     // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {
