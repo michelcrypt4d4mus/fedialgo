@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* FIlter out zero weighted scores from alternateScoreInfo()
 
 ### v0.39.1
 * Stop exporting unnecessary `WeightName` type

@@ -119,10 +119,13 @@ export default abstract class Scorer {
                         (scoreDetails, [scoreKey, scoreValue]) => {
                             const weightedScore = toot.scoreInfo!.weightedScores[scoreKey as WeightName];
 
-                            scoreDetails[scoreKey] = {
-                                unweighted: formatScore(scoreValue),
-                                weighted: formatScore(weightedScore),
-                            };
+                            // Only add non-zero scores to the dict
+                            if (scoreValue != 0) {
+                                scoreDetails[scoreKey] = {
+                                    unweighted: formatScore(scoreValue),
+                                    weighted: formatScore(weightedScore),
+                                };
+                            }
 
                             return scoreDetails;
                         },
@@ -140,14 +143,14 @@ export default abstract class Scorer {
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
-        // Find non scorer weights
+        const realToot = toot.realToot();
         const userWeights = await Storage.getWeights();
+        // Find non scorer weights
         const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
         const outlierDampener = getWeight(WeightName.OUTLIER_DAMPENER);
         const timeDecayWeight = getWeight(WeightName.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
         const trendingMultiplier = getWeight(WeightName.TRENDING);
         // Initialize variables
-        const realToot = toot.realToot();
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;
         // Do scoring
