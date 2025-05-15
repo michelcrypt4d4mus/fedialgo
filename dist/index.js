@@ -26,14 +26,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.MediaCategory = exports.BooleanFilterName = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
 require("reflect-metadata"); // Required for class-transformer
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
-const boolean_filter_1 = require("./filters/boolean_filter");
+const boolean_filter_1 = __importStar(require("./filters/boolean_filter"));
+exports.BooleanFilter = boolean_filter_1.default;
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return boolean_filter_1.TypeFilterName; } });
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
@@ -59,6 +60,7 @@ Object.defineProperty(exports, "formatScore", { enumerable: true, get: function 
 const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
+exports.Toot = toot_1.default;
 const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));

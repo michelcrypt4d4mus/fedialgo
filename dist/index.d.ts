@@ -98,4 +98,4 @@ declare class TheAlgorithm {
     private statusDict;
 }
 export default TheAlgorithm;
-export { type Account, type BooleanFilter, type FeedFilterSettings, type StringNumberDict, type TagWithUsageCounts, type Toot, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, BooleanFilterName, MediaCategory, TypeFilterName, WeightName, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, sortKeysByValue, timeString, };
+export { type Account, type FeedFilterSettings, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, BooleanFilter, BooleanFilterName, MediaCategory, Toot, TypeFilterName, WeightName, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, sortKeysByValue, timeString, };

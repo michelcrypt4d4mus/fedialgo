@@ -4,7 +4,7 @@
 * Export types with `export type`
 
 ### v0.39.6
-* Fix type filtering for retooted audio/image/video attachments and sensitive toots
+* Fix toot type filtering for retooted audio/image/video attachments and sensitive toots
 
 ### v0.39.5
 * Remove unnecessary exports of `TrendingLink`, `TagWithUsageCounts`, `FeedFilterSettings`, `Weights` types
