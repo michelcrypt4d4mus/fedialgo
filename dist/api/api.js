@@ -87,26 +87,20 @@ class MastoApi {
         }, {});
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
-    // Pagination starts at the most recent toots and goes backwards in time.
-    //    - mergeTootsToFeed: fxn to call to merge the fetched toots into the feed
-    //    - numToots:         maximum number of toots to fetch
-    //    - maxTootedAt:      optional date to use as the cutoff (stop fetch if we find older toots)
-    //    - maxId:            optional maxId to start the fetch from (works backwards)
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const storageKey = types_1.StorageKey.HOME_TIMELINE;
         const logPrefix = (0, string_helpers_1.bracketed)(storageKey);
         const startedAt = new Date();
+        let homeTimelineToots = await Storage_1.default.getCoerced(storageKey);
         let allNewToots = [];
         let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
-        let homeTimelineToots = await Storage_1.default.getCoerced(storageKey);
-        let _minId; // Unused param here
         if (moar) {
             const minMaxId = (0, collection_helpers_1.findMinMaxId)(homeTimelineToots);
             if (minMaxId)
-                maxId = minMaxId.min; // Note that min/max are reversed on purpose when they become params!
+                maxId = minMaxId.min; // Use the min ID in the cache as the maxId for the MOAR request
             console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
         }
         else {
@@ -294,7 +288,7 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
         maxRecords = maxRecords || config_1.Config.defaultRecordsPerPage;
-        let logPrefix = `[hashtagTimelineToots("#${tag.name}")] (semaphore)`;
+        const logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
         const startedAt = new Date();
         try {
@@ -394,12 +388,10 @@ class MastoApi {
             if (!skipCache) {
                 const cachedData = await Storage_1.default.getWithStaleness(storageKey);
                 if (cachedData?.obj) {
-                    // TODO: is there a typing issue where coercing to e.g. mastodon.v1.Status[] loses information?
+                    // Return the cachedRows if they exist, the data is not stale, and moar is false
                     const cachedRows = cachedData.obj;
-                    // Return cached data if the data is not stale unless moar=true
-                    if (!(cachedData.isStale || moar)) {
+                    if (!cachedData.isStale && !moar)
                         return cachedRows;
-                    }
                     const minMaxId = (0, collection_helpers_1.findMinMaxId)(cachedRows);
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
                     if (requestDefaults?.supportsMinMaxId && minMaxId) {
@@ -418,7 +410,8 @@ class MastoApi {
                     }
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        console.debug(`${logPfx} maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`, minMaxId, `\nrequestDefaults:`, requestDefaults);
+                        let msg = `${logPfx} maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
+                        console.debug(msg, minMaxId, `\nrequestDefaults:`, requestDefaults);
                     }
                 }
                 ;

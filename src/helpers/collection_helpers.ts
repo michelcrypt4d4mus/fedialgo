@@ -140,7 +140,11 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
 
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(isNumber);
-    traceLog(`[findMinMaxId()] isNumberArray=${isNumberArray}, idVals:`, idVals);
+
+    if (idVals.some((id) => id === null || id === undefined)) {
+        console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
+        return undefined;
+    }
 
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {

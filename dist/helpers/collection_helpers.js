@@ -7,7 +7,6 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const types_1 = require("../types");
-const log_helpers_1 = require("./log_helpers");
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
@@ -116,7 +115,10 @@ function findMinMaxId(array) {
     }
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(string_helpers_1.isNumber);
-    (0, log_helpers_1.traceLog)(`[findMinMaxId()] isNumberArray=${isNumberArray}, idVals:`, idVals);
+    if (idVals.some((id) => id === null || id === undefined)) {
+        console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
+        return undefined;
+    }
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {
         a = a.toString();
