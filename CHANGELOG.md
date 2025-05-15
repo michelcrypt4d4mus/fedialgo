@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.39.8
+* More futzing with type exports
+
 ### v0.39.7
 * Export types with `export type`
 
