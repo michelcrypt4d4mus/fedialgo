@@ -381,6 +381,7 @@ class Toot {
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
         toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        // Only set the completedAt field if isDeepInspect is true
         if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!

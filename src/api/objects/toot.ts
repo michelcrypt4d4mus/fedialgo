@@ -473,6 +473,7 @@ export default class Toot implements TootObj {
         toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
 
+        // Only set the completedAt field if isDeepInspect is true
         if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!

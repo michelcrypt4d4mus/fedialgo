@@ -36,6 +36,7 @@ var TypeFilterName;
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["RETOOTS"] = "retoots";
     TypeFilterName["SENSITIVE"] = "sensitive";
+    TypeFilterName["SPOILERED"] = "spoilered";
     TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
     TypeFilterName["TRENDING_LINKS"] = "trendingLinks";
     TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
@@ -56,6 +57,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
+    [TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
