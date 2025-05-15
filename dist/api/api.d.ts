@@ -44,11 +44,11 @@ export default class MastoApi {
     getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
     getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
+    hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     setSemaphoreConcurrency(concurrency: number): void;
     private getApiRecords;
-    private hashtagTimelineToots;
     private buildParams;
     private buildFromApiObjects;
     static throwIfAccessTokenRevoked(error: unknown, msg: string): void;

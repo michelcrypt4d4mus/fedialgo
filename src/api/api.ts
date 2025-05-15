@@ -342,6 +342,34 @@ export default class MastoApi {
         return this.userData;
     }
 
+    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // See https://docs.joinmastodon.org/methods/timelines/#tag
+    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
+        maxRecords = maxRecords || Config.defaultRecordsPerPage;
+        let logPrefix = `[hashtagTimelineToots("#${tag.name}")] (semaphore)`;
+        const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
+        const startedAt = new Date();
+
+        try {
+            const toots = await this.getApiRecords<mastodon.v1.Status>({
+                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
+                storageKey: StorageKey.HASHTAG_TOOTS,
+                maxRecords: maxRecords,
+                skipCache: true,
+                skipMutex: true,
+            });
+
+            traceLog(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
+            return toots as Toot[];
+        } catch (e) {
+            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
+            return [];
+        } finally {
+            releaseSemaphore();
+        }
+    }
+
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //
@@ -491,34 +519,6 @@ export default class MastoApi {
         if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
         if (!skipCache) await Storage.set(storageKey, objs);
         return objs;
-    }
-
-    // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
-    // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    private async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
-        maxRecords = maxRecords || Config.defaultRecordsPerPage;
-        let logPrefix = `[hashtagTimelineToots("#${tag.name}")] (semaphore)`;
-        const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
-        const startedAt = new Date();
-
-        try {
-            const toots = await this.getApiRecords<mastodon.v1.Status>({
-                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                storageKey: StorageKey.HASHTAG_TOOTS,
-                maxRecords: maxRecords,
-                skipCache: true,
-                skipMutex: true,
-            });
-
-            traceLog(`${logPrefix} Retrieved ${toots.length} toots ${ageString(startedAt)}`);
-            return toots as Toot[];
-        } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${ageString(startedAt)}`);
-            return [];
-        } finally {
-            releaseSemaphore();
-        }
     }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
