@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Export types with export type
+* Export types with `export type`
 
 ### v0.39.6
 * Fix type filtering for retooted audio/image/video attachments and sensitive toots
