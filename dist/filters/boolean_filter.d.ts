@@ -21,6 +21,7 @@ export declare enum TypeFilterName {
     MENTIONS = "mentions",
     POLLS = "polls",
     PARTICIPATED_HASHTAGS = "participatedHashtags",
+    PRIVATE = "private",
     REPLIES = "replies",
     RETOOTS = "retoots",
     SENSITIVE = "sensitive",

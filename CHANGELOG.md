@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add a "Spoilered" filter for toots with spoiler_text
+* Add a "private" filter for non public, followers only toots
 * Turn on minor `Toot.dedupeToots()` optimization
 * Fix collation of `favourited`, `reblogged`, and `bookmarked` flags in `dedupeToots()`, add collation of `filtered` property
 

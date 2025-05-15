@@ -350,6 +350,11 @@ export default class Toot implements TootObj {
         return this.visibility === TootVisibility.DIRECT_MSG;
     }
 
+    // Return true if it's for followers only
+    isPrivate(): boolean {
+        return this.visibility === TootVisibility.PRIVATE;
+    }
+
     // Returns true if this toot is from a followed account or contains a followed tag
     isFollowed(): boolean {
         return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);

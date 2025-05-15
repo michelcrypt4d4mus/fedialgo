@@ -33,6 +33,7 @@ var TypeFilterName;
     TypeFilterName["MENTIONS"] = "mentions";
     TypeFilterName["POLLS"] = "polls";
     TypeFilterName["PARTICIPATED_HASHTAGS"] = "participatedHashtags";
+    TypeFilterName["PRIVATE"] = "private";
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["RETOOTS"] = "retoots";
     TypeFilterName["SENSITIVE"] = "sensitive";
@@ -54,6 +55,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
     [TypeFilterName.PARTICIPATED_HASHTAGS]: (toot) => !!toot.realToot().participatedTags?.length,
+    [TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate,
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,

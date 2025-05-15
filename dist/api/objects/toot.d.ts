@@ -96,6 +96,7 @@ export default class Toot implements TootObj {
     getScore(): number;
     homeserverURL(): Promise<string>;
     isDM(): boolean;
+    isPrivate(): boolean;
     isFollowed(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isTrending(): boolean;
