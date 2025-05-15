@@ -83,7 +83,7 @@ algorithm.triggerFeedUpdate();
 // Note there won't be anything in there until the timeilne is at least partially done being built!
 let timeline: Toot[] = algorithm.getTimeline();
 // If you wanted to wait until the feed was fully constructed, wait for the Promise:
-algorithm.triggerFeedUpdate().then((timelineToots) => timeline = timelineToots);
+algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
 
 // Check if loading is in progress before calling, otherwise you might get thrown an exception
 if (!algorithm.isLoading()) algorithm.triggerFeedUpdate();
