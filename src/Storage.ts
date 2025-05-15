@@ -201,7 +201,7 @@ export default class Storage {
     // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeights(): Promise<Weights> {
         let weights = await this.get(StorageKey.WEIGHTS) as Weights;
-        if (!weights) return {...DEFAULT_WEIGHTS} as Weights;
+        if (!weights) return JSON.parse(JSON.stringify(DEFAULT_WEIGHTS)) as Weights;
         let shouldSave = false;
 
         // If there are stored weights set any missing values to the default (possible in case of upgrades)

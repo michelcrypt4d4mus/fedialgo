@@ -112,7 +112,7 @@ class TheAlgorithm {
     mastodonServers = {};
     trendingData = { links: [], tags: [], toots: [] };
     userData = new user_data_1.default();
-    weightPresets = weight_presets_1.WEIGHT_PRESETS;
+    weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     // Constructor argument variables
     api;
     user;

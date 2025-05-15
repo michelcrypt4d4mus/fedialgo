@@ -192,7 +192,7 @@ class Storage {
     static async getWeights() {
         let weights = await this.get(types_1.StorageKey.WEIGHTS);
         if (!weights)
-            return { ...weight_presets_1.DEFAULT_WEIGHTS };
+            return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
         let shouldSave = false;
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {

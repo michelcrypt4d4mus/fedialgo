@@ -43,7 +43,7 @@ import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./he
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { isWeightPresetLabel, PresetWeightLabel, WEIGHT_PRESETS } from './scorer/weight_presets';
+import { isWeightPresetLabel, PresetWeightLabel, WEIGHT_PRESETS, WeightPresets } from './scorer/weight_presets';
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
@@ -102,7 +102,7 @@ class TheAlgorithm {
     mastodonServers: MastodonInstances = {};
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
     userData: UserData = new UserData();
-    weightPresets = WEIGHT_PRESETS;
+    weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
     // Constructor argument variables
     private api: mastodon.rest.Client;

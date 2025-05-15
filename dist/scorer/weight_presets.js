@@ -46,7 +46,7 @@ exports.DEFAULT_WEIGHTS = {
 };
 exports.WEIGHT_PRESETS = {
     [PresetWeightLabel.CHRONOLOGICAL]: {
-        [types_1.WeightName.TIME_DECAY]: 10.0,
+        [types_1.WeightName.TIME_DECAY]: 9.99,
         [types_1.WeightName.TRENDING]: 0,
         [types_1.WeightName.OUTLIER_DAMPENER]: 0,
         [types_1.WeightName.CHAOS]: 0,
