@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Make TheAlgorithm.isDebugMode a static
+
+### v0.39.9
+* Make `TheAlgorithm.isDebugMode` a static
 
 ### v0.39.8
 * More futzing with type exports
