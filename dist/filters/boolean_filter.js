@@ -80,9 +80,7 @@ const TOOT_MATCHERS = {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
     [BooleanFilterName.TYPE]: (toot, validValues) => {
-        return Object.entries(exports.TYPE_FILTERS).some(([filterName, filter]) => {
-            return validValues.includes(filterName) && filter(toot);
-        });
+        return validValues.every((v) => exports.TYPE_FILTERS[v](toot));
     },
     [BooleanFilterName.USER]: (toot, validValues) => {
         return validValues.includes(toot.realToot().account.webfingerURI);

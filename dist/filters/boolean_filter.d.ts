@@ -2,7 +2,6 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs, StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
-type TypeFilters = Record<TypeFilterName, TypeFilter>;
 export declare enum BooleanFilterName {
     TYPE = "type",
     LANGUAGE = "language",
@@ -31,7 +30,7 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trendingToots",
     VIDEOS = "videos"
 }
-export declare const TYPE_FILTERS: TypeFilters;
+export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
     optionInfo?: StringNumberDict;
     validValues?: string[];

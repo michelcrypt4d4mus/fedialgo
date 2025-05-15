@@ -3,6 +3,7 @@
 * Add a "private" filter for non public, followers only toots
 * Turn on minor `Toot.dedupeToots()` optimization
 * Fix collation of `favourited`, `reblogged`, and `bookmarked` flags in `dedupeToots()`, add collation of `filtered` property
+* Optimize type filter matching
 
 ### v0.39.9
 * Make `TheAlgorithm.isDebugMode` a static variable set at run time

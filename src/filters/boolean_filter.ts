@@ -85,9 +85,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
     [BooleanFilterName.TYPE]: (toot: Toot, validValues: string[]) => {
-        return Object.entries(TYPE_FILTERS).some(([filterName, filter]) => {
-            return validValues.includes(filterName) && filter(toot);
-        });
+        return validValues.every((v) => TYPE_FILTERS[v as TypeFilterName](toot));
     },
     [BooleanFilterName.USER]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().account.webfingerURI);
