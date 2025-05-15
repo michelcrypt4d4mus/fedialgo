@@ -44,22 +44,22 @@ var TypeFilterName;
 ;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
-    [TypeFilterName.AUDIO]: (toot) => !!toot.audioAttachments.length,
+    [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments.length,
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]: (toot) => !!toot.imageAttachments.length,
+    [TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments.length,
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
     [TypeFilterName.PARTICIPATED_HASHTAGS]: (toot) => !!toot.realToot().participatedTags?.length,
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
-    [TypeFilterName.SENSITIVE]: (toot) => !!toot.sensitive,
+    [TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
     [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]: (toot) => !!toot.videoAttachments.length,
+    [TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments.length,
 };
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS = {
