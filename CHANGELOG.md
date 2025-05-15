@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.39.7
 * Export types with `export type`
 
 ### v0.39.6
