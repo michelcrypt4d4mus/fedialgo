@@ -109,8 +109,8 @@ const REALLY_BIG_NUMBER = 10000000000;
 const PULL_USER_HISTORY_PARAMS = { maxRecords: REALLY_BIG_NUMBER, moar: true };
 ;
 class TheAlgorithm {
+    static isDebugMode = environment_helpers_1.isDebugMode;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
-    isDebug = environment_helpers_1.isDebugMode;
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)

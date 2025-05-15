@@ -53,9 +53,9 @@ exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
     types_1.StorageKey.TIMELINE,
     types_1.StorageKey.TRENDING_TAG_TOOTS,
-    // These don't have completeProperties, but they are still toots
+    // These don't have completeProperties() called on them, but they are still toots
     types_1.StorageKey.FAVOURITED_TOOTS,
-    types_1.StorageKey.RECENT_USER_TOOTS, // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
+    types_1.StorageKey.RECENT_USER_TOOTS,
 ];
 exports.STORAGE_KEYS_WITH_ACCOUNTS = [
     types_1.StorageKey.BLOCKED_ACCOUNTS,
@@ -70,8 +70,8 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
 ];
 const LOG_PREFIX = '[STORAGE]';
 const buildLogMsg = (s) => `${LOG_PREFIX} ${s}`;
-const log = (s, ...args) => console.log(buildLogMsg(s), ...args);
 const warn = (s, ...args) => console.warn(buildLogMsg(s), ...args);
+const log = (s, ...args) => console.log(buildLogMsg(s), ...args);
 const debug = (s, ...args) => console.debug(buildLogMsg(s), ...args);
 const trace = (s, ...args) => (0, log_helpers_1.traceLog)(buildLogMsg(s), ...args);
 // Configure localForage to use WebSQL as the driver

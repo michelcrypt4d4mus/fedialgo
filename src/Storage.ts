@@ -46,9 +46,9 @@ export const STORAGE_KEYS_WITH_TOOTS = [
     StorageKey.PARTICIPATED_TAG_TOOTS,
     StorageKey.TIMELINE,
     StorageKey.TRENDING_TAG_TOOTS,
-    // These don't have completeProperties, but they are still toots
-    StorageKey.FAVOURITED_TOOTS,   // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
-    StorageKey.RECENT_USER_TOOTS,  // TODO: should probably be in STORAGE_KEYS_WITH_TOOTS
+    // These don't have completeProperties() called on them, but they are still toots
+    StorageKey.FAVOURITED_TOOTS,
+    StorageKey.RECENT_USER_TOOTS,
 ];
 
 export const STORAGE_KEYS_WITH_ACCOUNTS = [
@@ -66,8 +66,8 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
 
 const LOG_PREFIX = '[STORAGE]';
 const buildLogMsg = (s: string) => `${LOG_PREFIX} ${s}`;
-const log = (s: string, ...args: any[]) => console.log(buildLogMsg(s), ...args);
 const warn = (s: string, ...args: any[]) => console.warn(buildLogMsg(s), ...args);
+const log = (s: string, ...args: any[]) => console.log(buildLogMsg(s), ...args);
 const debug = (s: string, ...args: any[]) => console.debug(buildLogMsg(s), ...args);
 const trace = (s: string, ...args: any[]) => traceLog(buildLogMsg(s), ...args);
 

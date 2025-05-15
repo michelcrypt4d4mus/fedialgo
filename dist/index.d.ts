@@ -41,8 +41,8 @@ interface AlgorithmArgs {
     setTimelineInApp?: (feed: Toot[]) => void;
 }
 declare class TheAlgorithm {
+    static isDebugMode: boolean;
     filters: FeedFilterSettings;
-    isDebug: boolean;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
     mastodonServers: MastodonInstances;
