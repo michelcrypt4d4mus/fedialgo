@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.sortKeysByValue = exports.timeString = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightName = exports.TypeFilterName = exports.Toot = exports.MediaCategory = exports.BooleanFilterName = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -34,10 +34,6 @@ require("reflect-metadata"); // Required for class-transformer
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
-const boolean_filter_1 = __importStar(require("./filters/boolean_filter"));
-exports.BooleanFilter = boolean_filter_1.default;
-Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
-Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return boolean_filter_1.TypeFilterName; } });
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
@@ -69,6 +65,9 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
+const boolean_filter_1 = require("./filters/boolean_filter");
+Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
+Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return boolean_filter_1.TypeFilterName; } });
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");

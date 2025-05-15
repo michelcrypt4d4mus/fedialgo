@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
-import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
@@ -26,6 +25,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
+import { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { sortKeysByValue } from "./helpers/collection_helpers";
 import { isDebugMode } from './helpers/environment_helpers';
@@ -98,4 +98,4 @@ declare class TheAlgorithm {
     private statusDict;
 }
 export default TheAlgorithm;
-export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, BooleanFilterName, FeedFilterSettings, MediaCategory, StringNumberDict, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
+export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilterName, FeedFilterSettings, MediaCategory, StringNumberDict, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
