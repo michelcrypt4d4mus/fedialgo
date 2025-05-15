@@ -104,7 +104,6 @@ class TheAlgorithm {
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
-    // TODO: loadingStatus has become the main flag for whether the feed is loading or not. Not great.
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     mastodonServers: MastodonInstances = {};
     trendingData: TrendingStorage = {links: [], tags: [], toots: []};
