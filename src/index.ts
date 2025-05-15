@@ -592,7 +592,7 @@ export default TheAlgorithm;
 
 // Export types and constants needed by apps using this package
 export {
-    type Account,
+    // Types
     type FeedFilterSettings,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -600,19 +600,23 @@ export {
     type TrendingObj,
     type TrendingWithHistory,
     type Weights,
+    // Classes
+    Account,
+    BooleanFilter,
+    Toot,
+    // Constants
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
     NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
-    BooleanFilter,
+    // Enums
     BooleanFilterName,
     MediaCategory,
-    Toot,
     TypeFilterName,
     WeightName,
-    // Helpers we also export
+    // Helpers
     extractDomain,
     formatScore,
     isAccessTokenRevokedError,
