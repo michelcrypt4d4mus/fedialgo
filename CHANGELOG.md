@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Add a "Spoilered" filter for toots with `spoiler_text`
+
+# v0.40.0
+* Add a "spoilered" filter for toots with `spoiler_text`
 * Add a "private" filter for non public, followers only toots
 * Turn on minor `Toot.dedupeToots()` optimization
 * Fix collation of `favourited`, `reblogged`, and `bookmarked` flags in `dedupeToots()`, add collation of `filtered` property
@@ -37,7 +39,7 @@
 * Rename `PresetWeights` constant to `WEIGHT_PRESETS`, stop exporting `PresetWeightLabel`, add `TheAlgorithm.weightPresets` property
 
 ### v0.38.1
-* Ensure triggerPullAllUserData() sets loadingStatus to null if there's an exception
+* Ensure `triggerPullAllUserData()` sets `loadingStatus` to null if there's an exception
 
 ## v0.38.0
 * **(BREAKING CHANGE)** Export `TheAlgorithm` as the default export from `fedialgo` package instead of a named export
