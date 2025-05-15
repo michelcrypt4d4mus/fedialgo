@@ -30,7 +30,7 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { sortKeysByValue } from "./helpers/collection_helpers";
 import { isDebugMode } from './helpers/environment_helpers';
 import { PresetWeightLabel, WeightPresets } from './scorer/weight_presets';
-import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, StringNumberDict, TrendingLink, TrendingObj, TrendingStorage, TagWithUsageCounts, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
+import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, StringNumberDict, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -98,4 +98,4 @@ declare class TheAlgorithm {
     private statusDict;
 }
 export default TheAlgorithm;
-export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilterName, FeedFilterSettings, MediaCategory, StringNumberDict, Toot, TrendingLink, TrendingObj, TagWithUsageCounts, TrendingWithHistory, TypeFilterName, WeightName, Weights, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
+export { FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilterName, MediaCategory, StringNumberDict, Toot, TrendingObj, TrendingWithHistory, TypeFilterName, WeightName, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, timeString, sortKeysByValue, };
