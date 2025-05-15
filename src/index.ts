@@ -602,11 +602,6 @@ export {
     type TrendingObj,
     type TrendingWithHistory,
     type Weights,
-    // Classes
-    Account,
-    BooleanFilter,
-    NumericFilter,
-    Toot,
     // Constants
     FEDIALGO,
     GET_FEED_BUSY_MSG,
@@ -614,6 +609,11 @@ export {
     NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
+    // Classes
+    Account,
+    BooleanFilter,
+    NumericFilter,
+    Toot,
     // Enums
     BooleanFilterName,
     MediaCategory,
