@@ -255,7 +255,7 @@ class TheAlgorithm {
     }
     // Return the current filtered timeline feed in weight order
     getTimeline() {
-        return this.filterFeedAndSetInApp();
+        return this.feed;
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {

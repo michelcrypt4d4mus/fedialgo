@@ -402,7 +402,7 @@ class MastoApi {
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
-                if (rows.length >= maxRecords || rows.length == 0 || shouldStop) {
+                if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
                     console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 }
