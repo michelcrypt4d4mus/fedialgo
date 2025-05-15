@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.39.5
 * Remove unnecessary exports of TrendingLink, TagWithUsageCounts, FeedFilterSettings, Weights types
 
 ### v0.39.4
