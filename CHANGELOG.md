@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.40.3
 * (Demo App) Extract the `REPO_NAME` and `REPO_URL` from `package.json`
 
 ### v0.40.2
