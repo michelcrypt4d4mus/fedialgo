@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.40.2
 * Add Config to getCurrentState() response
 
 ### v0.40.1
