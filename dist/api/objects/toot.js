@@ -532,13 +532,12 @@ class Toot {
     shouldComplete() {
         if (!this.completedAt)
             return true; // If we haven't completed it yet, do it now
-        const tootAgeInMinutes = (0, time_helpers_1.ageInMinutes)(this.tootedAt());
-        const minutesSinceCompleted = (0, time_helpers_1.ageInMinutes)(this.completedAt);
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
-        return ((0, time_helpers_1.ageInMinutes)(this.completedAt) > config_1.Config.staleDataTrendingMinutes // Check if toot was completed long enough ago
-            &&
-                (0, time_helpers_1.ageInMinutes)(this.tootedAt()) < config_1.Config.tootsCompleteAfterMinutes // But not tooted so long ago that there's little chance of new data
-        );
+        return (
+        // Check if toot was completed long enough ago that we might want to re-evaluate it
+        (0, time_helpers_1.ageInMinutes)(this.completedAt) > config_1.Config.staleDataTrendingMinutes
+            // But not tooted so long ago that there's little chance of new data
+            && (0, time_helpers_1.ageInMinutes)(this.tootedAt()) < config_1.Config.tootsCompleteAfterMinutes);
     }
     ///////////////////////////////
     //       Class methods       //

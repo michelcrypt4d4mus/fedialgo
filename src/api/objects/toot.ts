@@ -632,14 +632,13 @@ export default class Toot implements TootObj {
     // Returns true if the toot should be re-completed
     private shouldComplete(): boolean {
         if (!this.completedAt) return true;  // If we haven't completed it yet, do it now
-        const tootAgeInMinutes = ageInMinutes(this.tootedAt());
-        const minutesSinceCompleted = ageInMinutes(this.completedAt);
 
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
-            ageInMinutes(this.completedAt) > Config.staleDataTrendingMinutes  // Check if toot was completed long enough ago
-            &&
-            ageInMinutes(this.tootedAt()) < Config.tootsCompleteAfterMinutes  // But not tooted so long ago that there's little chance of new data
+               // Check if toot was completed long enough ago that we might want to re-evaluate it
+               ageInMinutes(this.completedAt) > Config.staleDataTrendingMinutes
+               // But not tooted so long ago that there's little chance of new data
+            && ageInMinutes(this.tootedAt()) < Config.tootsCompleteAfterMinutes
         );
     }
 
