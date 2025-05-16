@@ -3,6 +3,9 @@
 (Forked from [pkreissel's original implementation](https://github.com/pkreissel/fedialgo))
 
 # `fedialgo`
+
+* Try the demo [here](https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/)!
+
 FediAlgo in action on YouTube:
 
 [![FediAlgo in action](https://img.youtube.com/vi/tR35bUHzJdk/0.jpg)](https://www.youtube.com/watch?v=tR35bUHzJdk)

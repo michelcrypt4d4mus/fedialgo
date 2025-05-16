@@ -3,10 +3,10 @@
  */
 
 console.log(
-    `[FediAlgo] NODE_ENV=`, process.env.NODE_ENV,
-    `, FEDIALGO_DEBUG=`, process.env.FEDIALGO_DEBUG,
-    `, QUICK_MODE=`, process.env.QUICK_MODE,
-    `, LOAD_TEST=`, process.env.LOAD_TEST
+    `[FediAlgo] NODE_ENV="${process.env.NODE_ENV}"`,
+    `, FEDIALGO_DEBUG="${process.env.FEDIALGO_DEBUG}"`,
+    `, QUICK_MODE=${process.env.QUICK_MODE}`,
+    `, LOAD_TEST=${process.env.LOAD_TEST}`
 );
 
 export const isDebugMode = process.env.FEDIALGO_DEBUG === "true";
