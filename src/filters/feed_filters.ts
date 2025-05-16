@@ -30,24 +30,23 @@ export const DEFAULT_FILTERS = {
 
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
-export function buildFiltersFromArgs(serializedFilterSettings: FeedFilterSettings): FeedFilterSettings {
-    serializedFilterSettings.booleanFilters ??= {} as BooleanFilters;
-    serializedFilterSettings.numericFilters ??= {} as NumericFilters;
+export function buildFiltersFromArgs(filterSettings: FeedFilterSettings): FeedFilterSettings {
+    filterSettings.booleanFilters = filterSettings.booleanFilterArgs.reduce((filters, args) => {
+        filters[args.title as BooleanFilterName] = new BooleanFilter(args);
+        return filters
+    }, {} as BooleanFilters);
 
-    serializedFilterSettings.booleanFilterArgs.forEach((args) => {
-        serializedFilterSettings.booleanFilters[args.title as BooleanFilterName] = new BooleanFilter(args);
-    });
-
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title as WeightName] = new NumericFilter(args);
-    });
+    filterSettings.numericFilters = filterSettings.numericFilterArgs.reduce((filters, args) => {
+        filters[args.title as WeightName] = new NumericFilter(args);
+        return filters
+    }, {} as NumericFilters);
 
     // Fill in any missing values
     FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
+        filterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
     });
 
-    return serializedFilterSettings;
+    return filterSettings;
 };
 
 
