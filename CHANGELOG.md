@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.40.6
+* (Demo App) minimally validate server URLs on LoginPage
+
 ### v0.40.5
-* Add getFavouritedToots() to moar_data_poller call
+* Add `getFavouritedToots()` to `moar_data_poller` call
 
 ### v0.40.4
 * Add `Config.tootsCompleteAfterMinutes` to set an upper bound on how old toots can be before we assume there will be no new info about trending tags/links/etc to re-evaluate for them
