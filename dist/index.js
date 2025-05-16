@@ -80,7 +80,7 @@ Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function 
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
-const poller_1 = require("./api/poller");
+const moar_data_poller_1 = require("./api/moar_data_poller");
 const hashtags_1 = require("./feeds/hashtags");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
@@ -415,14 +415,14 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
         if (this.dataPoller) {
-            console.log(`${poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
             return;
         }
         this.dataPoller = setInterval(async () => {
-            const shouldContinue = await (0, poller_1.getMoarData)();
+            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
             await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
             if (!shouldContinue) {
-                (0, log_helpers_1.logInfo)(poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
+                (0, log_helpers_1.logInfo)(moar_data_poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.Config.backgroundLoadIntervalSeconds * 1000);

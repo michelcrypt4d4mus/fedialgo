@@ -154,4 +154,5 @@ function updateHashtagCounts(filters, toots) {
     Storage_1.default.setFilters(filters);
 }
 exports.updateHashtagCounts = updateHashtagCounts;
+;
 //# sourceMappingURL=feed_filters.js.map

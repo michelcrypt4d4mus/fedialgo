@@ -157,4 +157,4 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
     console.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage.setFilters(filters);
-}
+};

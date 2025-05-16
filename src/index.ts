@@ -40,7 +40,7 @@ import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
-import { getMoarData, MOAR_DATA_PREFIX } from "./api/poller";
+import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, PresetWeightLabel, WEIGHT_PRESETS, WeightPresets } from './scorer/weight_presets';

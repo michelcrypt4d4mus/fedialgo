@@ -62,4 +62,4 @@ async function getMoarData() {
     }
 }
 exports.getMoarData = getMoarData;
-//# sourceMappingURL=poller.js.map
+//# sourceMappingURL=moar_data_poller.js.map
