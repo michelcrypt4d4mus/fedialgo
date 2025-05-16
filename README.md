@@ -47,8 +47,7 @@ import { Buffer } from 'buffer'; // Required for class-transformer to work
 # Usage
 The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running.
 
-This code assumes you already have an access token for a user and a registered Mastodon "application" on the Mastodon server.
-If you don't have one see [the `masto.js` documentation](https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start).
+This code assumes you already have an access token for a user and a registered Mastodon "application" on the Mastodon server allowing `read` scope access. If you don't have one see [the `masto.js` documentation](https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start) for how to get one.
 
 The FediAlgo demo app also contains a working example of how to execute the OAuth flow for a user:
 * [Login page](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/LoginPage.tsx)
@@ -59,7 +58,7 @@ import TheAlgorithm from "fedialgo"
 import { createRestAPIClient, mastodon } from "masto";
 
 const accessToken = getTheUserAccessTokenSomehow();
-const mastodonServer = "mastodon.social"
+const mastodonServer = "https://mastodon.social"
 const api = createRestAPIClient({accessToken: accessToken, url: app.website});
 const currentUser = await api.v1.accounts.verifyCredentials()
 
