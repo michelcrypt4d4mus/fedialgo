@@ -49,11 +49,11 @@ import {
     PREP_SCORERS,
     TRIGGER_FEED,
     lockExecution,
+    logAndThrowError,
     logInfo,
     logDebug,
     logTelemetry,
     traceLog,
-    logAndThrowError,
 } from './helpers/log_helpers';
 import {
     NON_SCORE_WEIGHTS,
@@ -373,6 +373,7 @@ class TheAlgorithm {
 
         if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
+            this.filterFeedAndSetInApp();  // Needs to be called to update the feed in the app
             return true;
         } else {
             return false;
