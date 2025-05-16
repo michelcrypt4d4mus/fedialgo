@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.40.1
+
 # v0.40.0
 * Add a "spoilered" filter for toots with `spoiler_text`
 * Add a "private" filter for non public, followers only toots
