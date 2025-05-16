@@ -6,9 +6,7 @@
 
 * Try the demo [here](https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/)!
 
-FediAlgo in action on YouTube:
-
-[![FediAlgo in action](https://img.youtube.com/vi/tR35bUHzJdk/0.jpg)](https://www.youtube.com/watch?v=tR35bUHzJdk)
+Video of the FediAlgo demo in action [on YouTube](https://www.youtube.com/watch?v=tR35bUHzJdk).
 
 Fedialgo is a `node.js` package that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It should (hopefully) also work in React Native Projects but that's untested.
 
@@ -25,13 +23,13 @@ If you're not developing your own app there's a simple demo app that can spin up
 You can install from github with `npm`:
 
 ```bash
-npm install --save github:michelcrypt4d4mus/fedialgo#stable
+npm install --save github:michelcrypt4d4mus/fedialgo
 ```
 
 Or with `yarn`:
 
 ```bash
-yarn add https://github.com/michelcrypt4d4mus/fedialgo#stable
+yarn add https://github.com/michelcrypt4d4mus/fedialgo
 ```
 
 If you're using the library in a browser you may also need the `buffer` package if you get a `Buffer is not a function` error:
