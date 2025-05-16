@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.40.7
+* (Demo App) Error handling around initial app registrations
+
 ### v0.40.6
 * (Demo App) minimally validate server URLs on LoginPage
 
