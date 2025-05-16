@@ -44,7 +44,7 @@ exports.Config = {
     numTrendingTootsPerServer: 30,
     // Timeline toots
     excessiveTags: 25,
-    hashtagTootRetrievalDelaySeconds: 5,
+    hashtagTootRetrievalDelaySeconds: 3,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     lookbackForUpdatesMinutes: 180,
@@ -363,7 +363,6 @@ exports.setLocale = setLocale;
 if (environment_helpers_1.isQuickMode) {
     exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
-    exports.Config.hashtagTootRetrievalDelaySeconds = 2;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.maxRecordsForFeatureScoring = 480;

@@ -116,7 +116,7 @@ export const Config: ConfigType = {
 
     // Timeline toots
     excessiveTags: 25,                      // Toots with more than this many tags will be penalized
-    hashtagTootRetrievalDelaySeconds: 5,    // Delay before pulling trending & participated hashtag toots
+    hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
@@ -188,6 +188,7 @@ export const Config: ConfigType = {
             numMinutesUntilStale: 15,
         },
     },
+
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
     defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
     // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
@@ -445,7 +446,6 @@ export function setLocale(locale?: string): void {
 if (isQuickMode) {
     Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
-    Config.hashtagTootRetrievalDelaySeconds = 2;
     Config.incrementalLoadDelayMS = 100;
     Config.lookbackForUpdatesMinutes = 15;
     Config.maxRecordsForFeatureScoring = 480;

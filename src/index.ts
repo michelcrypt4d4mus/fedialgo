@@ -205,8 +205,7 @@ class TheAlgorithm {
         ];
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        // TODO: do we really need to do this sleeping?
-        await sleep(Config.hashtagTootRetrievalDelaySeconds);
+        await sleep(Config.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(getParticipatedHashtagToots),
