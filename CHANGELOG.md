@@ -1,7 +1,8 @@
 # NEXT RELEASE
+* (Demo App) Extract the `REPO_NAME` and `REPO_URL` from `package.json`
 
 ### v0.40.2
-* Add Config to getCurrentState() response
+* Add `Config` to `getCurrentState()` response
 
 ### v0.40.1
 * Decrease production logging

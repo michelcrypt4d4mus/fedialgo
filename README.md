@@ -49,7 +49,7 @@ The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_f
 
 ```typescript
 import TheAlgorithm from "fedialgo"
-import { login, mastodon } from "masto";
+import { createRestAPIClient, mastodon } from "masto";
 
 // Optionally (tho you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
 // to manage the state of the timeline in your app. In React this might look like:
@@ -57,7 +57,7 @@ import { useState } from React;
 const [timeline, setTimeline] = useState<Toot[]>([]);
 
 // Verify mastodon login
-const api: mastodon.Client = await login({url: user.server, accessToken: user.access_token});
+const api: mastodon.Client = await createRestAPIClient({url: user.server, accessToken: user.access_token});
 const currentUser = await api.v1.accounts.verifyCredentials()
 
 // Instantiate a TheAlgorithm object
