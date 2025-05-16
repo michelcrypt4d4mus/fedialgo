@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.40.5
 * Add getFavouritedToots() to moar_data_poller call
 
 ### v0.40.4
