@@ -455,6 +455,10 @@ export default class MastoApi {
                     if (!cachedData.isStale && !moar) return cachedRows;
                     const minMaxId = findMinMaxId(cachedRows as MastodonObjWithID[]);
 
+                    if (moar) {
+                        maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to the rows we have now
+                    }
+
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
                     if (requestDefaults?.supportsMinMaxId && minMaxId) {
                         rows = cachedRows;
@@ -463,7 +467,6 @@ export default class MastoApi {
                         // If we're incrementally updating stale data, use the max ID of the cache as the request minId
                         if (moar) {
                             maxId = minMaxId.min;
-                            maxRecords = maxRecords + rows.length;  // Add another unit of maxRecords to the rows we have now
                             console.debug(`${logPfx} Getting MOAR old data; loading backwards from maxId ${maxId}`);
                         } else {
                             minId = minMaxId.max;

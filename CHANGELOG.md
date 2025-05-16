@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add getFavouritedToots() to moar_data_poller call
 
 ### v0.40.4
 * Add `Config.tootsCompleteAfterMinutes` to set an upper bound on how old toots can be before we assume there will be no new info about trending tags/links/etc to re-evaluate for them

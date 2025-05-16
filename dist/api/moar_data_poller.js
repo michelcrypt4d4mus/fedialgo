@@ -25,10 +25,10 @@ async function getMoarData() {
     const startedAt = new Date();
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const pollers = [
+        // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
+        api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
         api_1.default.instance.getNotifications.bind(api_1.default.instance),
         api_1.default.instance.getRecentUserToots.bind(api_1.default.instance),
-        // TODO: getFavouritedToots API doesn't use maxId argument BUT you can page as far back as you want
-        // MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
     ];
     try {
         // Call without moar boolean to check how big the cache is
