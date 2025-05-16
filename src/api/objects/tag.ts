@@ -11,26 +11,6 @@ import { removeDiacritics } from "../../helpers/string_helpers";
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
-// Lowercase the tag name, replace URL with one on homeserver
-export function repairTag(tag: MastodonTag): MastodonTag {
-    if (!tag.name?.length) {
-        console.warn(`Broken tag object:`, tag);
-        tag.name = BROKEN_TAG;
-    } else {
-        tag.name = removeDiacritics(tag.name.toLowerCase());
-    }
-
-    if (MastoApi.instance) {
-        tag.url = MastoApi.instance.tagUrl(tag)
-    } else {
-        console.warn(`MastoApi.instance is null!`);
-        tag.url = tag.url.toLowerCase() || "";
-    }
-
-    return tag;
-};
-
-
 // Build a lookup table of tag names to tag objects
 export function buildTagNames(tags: MastodonTag[]): TagNames {
     return tags.reduce((tagNames: TagNames, tag: MastodonTag) => {
@@ -49,4 +29,24 @@ export function countTags(toots: Toot[]): StringNumberDict {
         },
         {} as StringNumberDict
     );
+};
+
+
+// Lowercase the tag name, replace URL with one on homeserver
+export function repairTag(tag: MastodonTag): MastodonTag {
+    if (!tag.name?.length) {
+        console.warn(`Broken tag object:`, tag);
+        tag.name = BROKEN_TAG;
+    } else {
+        tag.name = removeDiacritics(tag.name.toLowerCase());
+    }
+
+    if (MastoApi.instance) {
+        tag.url = MastoApi.instance.tagUrl(tag)
+    } else {
+        console.warn(`MastoApi.instance is null!`);
+        tag.url = tag.url.toLowerCase() || "";
+    }
+
+    return tag;
 };
