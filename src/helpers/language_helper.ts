@@ -6,25 +6,6 @@ import { detectAll } from 'tinyld';
 
 import { NULL, isNumber } from './string_helpers';
 
-const LANG_DETECTOR = new LanguageDetect();
-const MIN_LANG_DETECTOR_ACCURACY = 0.2;  // LanguageDetect library never gets very high accuracy
-const MIN_TINYLD_ACCURACY = 0.4;  // TinyLD is better at some languages but can be overconfident
-const OVERRULE_LANG_ACCURACY = 0.03;
-const VERY_HIGH_LANG_ACCURACY = 0.7;
-
-export const IGNORE_LANGUAGES = [
-    "ber",  // Berber
-    "eo",   // Esperanto
-    "tk",   // Turkmen
-    "tlh",  // Klingon
-];
-
-export const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
-    "da",
-    "fr",
-];
-
-
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 export const LANGUAGE_CODES: Record<string, string> = {
     afar: "aa",
@@ -215,7 +196,6 @@ export const LANGUAGE_CODES: Record<string, string> = {
     zulu: "zu",
 };
 
-
 // The tinyld library is better at detecting these languages than the LanguageDetector.
 export const FOREIGN_SCRIPTS = [
     LANGUAGE_CODES.arabic,
@@ -226,15 +206,8 @@ export const FOREIGN_SCRIPTS = [
     LANGUAGE_CODES.korean,
 ];
 
-
-// International locales, see: https://gist.github.com/wpsmith/7604842
-export const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
-export const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
-export const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
-export const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
-
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
-export const LANGUAGE_REGEXES = {
+const LANGUAGE_REGEXES = {
     [LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'), // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
     [LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'), //    /^[一ー-龯ぁ-んァ-ン]{2,}/,         // https://gist.github.com/terrancesnyder/1345094
@@ -242,6 +215,29 @@ export const LANGUAGE_REGEXES = {
     [LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
 
+const LANG_DETECTOR = new LanguageDetect();
+const MIN_LANG_DETECTOR_ACCURACY = 0.2;  // LanguageDetect library never gets very high accuracy
+const MIN_TINYLD_ACCURACY = 0.4;  // TinyLD is better at some languages but can be overconfident
+const OVERRULE_LANG_ACCURACY = 0.03;
+const VERY_HIGH_LANG_ACCURACY = 0.7;
+
+// International locales, see: https://gist.github.com/wpsmith/7604842
+const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
+const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
+const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
+const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
+
+const IGNORE_LANGUAGES = [
+    "ber",  // Berber
+    "eo",   // Esperanto
+    "tk",   // Turkmen
+    "tlh",  // Klingon
+];
+
+const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
+    "da",
+    "fr",
+];
 
 // Arrives ordered by accuracy
 type LanguageAccuracies = {accuracy: number, lang: string}[];
@@ -261,7 +257,7 @@ type LanguageDetectInfo = {
 
 
 // Use the two different language detectors to guess a language
-export const detectLanguage = (text: string): LanguageDetectInfo => {
+export function detectLanguage(text: string): LanguageDetectInfo {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
     const langInfoFromTinyLD = detectLangWithTinyLD(text);
     // We will set determinedLang to be a high confidence guess (if we find one)
@@ -335,7 +331,7 @@ export const detectLanguage = (text: string): LanguageDetectInfo => {
 
 
 // Returns the language code of the matched regex (if any). This is our janky version of language detection.
-export function detectHashtagLanguage (str: string): string | undefined {
+export function detectHashtagLanguage(str: string): string | undefined {
     let language: string | undefined;
 
     Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
