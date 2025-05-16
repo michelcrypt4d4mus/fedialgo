@@ -61,7 +61,7 @@ export default abstract class Scorer {
 
     // Logging helper
     protected logPrefix(): string {
-        return `[${this.constructor.name}]`;
+        return `[${this.name} Scorer]`;
     }
 
     ///////////////////////////////
@@ -95,11 +95,11 @@ export default abstract class Scorer {
             }
 
             // Sort feed based on score from high to low and return
-            logDebug(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            traceLog(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         } catch (e) {
             if (e == E_CANCELED) {
-                logDebug(SCORE_PREFIX, `mutex cancellation`);
+                traceLog(SCORE_PREFIX, `mutex cancellation`);
             } else {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);
             }

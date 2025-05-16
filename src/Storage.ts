@@ -280,7 +280,7 @@ export default class Storage {
     // Store the fedialgo user's Account object
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user: Account) {
-        debug(`Setting fedialgo user identity to:`, user);
+        trace(`Setting fedialgo user identity to:`, user);
         await localForage.setItem(StorageKey.USER, instanceToPlain(user));
     }
 

@@ -258,7 +258,7 @@ class Storage {
     // Store the fedialgo user's Account object
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
-        debug(`Setting fedialgo user identity to:`, user);
+        trace(`Setting fedialgo user identity to:`, user);
         await localforage_1.default.setItem(types_1.StorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
     }
     static async setWeightings(userWeightings) {

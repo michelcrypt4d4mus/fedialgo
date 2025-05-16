@@ -132,7 +132,7 @@ export function updateBooleanFilterOptions(
     }
 
     Storage.setFilters(filters);  // NOTE: there's no "await" here...
-    console.debug(`${logPrefx} completed, built filters:`, filters);
+    traceLog(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };
 

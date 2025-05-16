@@ -53,7 +53,7 @@ class Scorer {
     }
     // Logging helper
     logPrefix() {
-        return `[${this.constructor.name}]`;
+        return `[${this.name} Scorer]`;
     }
     ///////////////////////////////
     //   Static class methods  ////
@@ -82,12 +82,12 @@ class Scorer {
                 releaseMutex?.();
             }
             // Sort feed based on score from high to low and return
-            (0, log_helpers_1.logDebug)(SCORE_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
+            (0, log_helpers_1.traceLog)(SCORE_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                (0, log_helpers_1.logDebug)(SCORE_PREFIX, `mutex cancellation`);
+                (0, log_helpers_1.traceLog)(SCORE_PREFIX, `mutex cancellation`);
             }
             else {
                 console.warn(`${SCORE_PREFIX} caught error:`, e);

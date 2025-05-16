@@ -659,7 +659,7 @@ export default class Toot implements TootObj {
         await Scorer.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         toots.sort((a, b) => b.getScore() - a.getScore());
-        console.debug(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
+        traceLog(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 

@@ -553,7 +553,7 @@ class Toot {
         await scorer_1.default.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         toots.sort((a, b) => b.getScore() - a.getScore());
-        console.debug(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        (0, log_helpers_1.traceLog)(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
