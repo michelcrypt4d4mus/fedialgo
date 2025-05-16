@@ -45,38 +45,22 @@ import { Buffer } from 'buffer'; // Required for class-transformer to work
 ```
 
 # Usage
-The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running:
+The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) component demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running.
+
+This code assumes you already have an access token for a user and a registered Mastodon "application" on the Mastodon server.
+If you don't have one see [the `masto.js` documentation](https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start).
+
+The FediAlgo demo app also contains a working example of how to execute the OAuth flow for a user:
+* [Login page](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/LoginPage.tsx)
+* [OAuth callback page](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/CallbackPage.tsx)
 
 ```typescript
 import TheAlgorithm from "fedialgo"
 import { createRestAPIClient, mastodon } from "masto";
-import { stringifyQuery } from 'ufo';
 
-// Register an Application with the Mastodon server and authenticate the user to it.
-// You can do this manually or programatically via OAuth. There's some documentation on doing
-// it manually at https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start
-// Doing it programatically requires going through the OAuth flow.
+const accessToken = getTheUserAccessTokenSomehow();
 const mastodonServer = "mastodon.social"
-const api = createRestAPIClient({url: mastodonServer});
-
-// Register your app
-const app = await api.v1.apps.create({
-    clientName: "my_app,
-    redirectUris: MY_OAUTH_REDIRECT_URL,  // The URL where your app will accept OAuth callbacks
-    scopes: "read",  // FediAlgo requires only read access
-    website: mastodonServer,
-});
-
-
-// Go through the OAuth flow
-const oauthURL = `${mastodonServer}/oauth/authorize?` + stringifyQuery({
-    client_id: app.clientId,
-    redirect_uri: MY_OAUTH_REDIRECT_URL,
-    response_type: 'code',
-    scope: "read,
-});
-
-
+const api = createRestAPIClient({accessToken: accessToken, url: app.website});
 const currentUser = await api.v1.accounts.verifyCredentials()
 
 // Instantiate a TheAlgorithm object
@@ -84,7 +68,7 @@ const algorithm = await TheAlgorithm.create({
     api: api,
     user: currentUser,
     locale: "en-GB",     // optional (available in navigator.language in browser)
-})
+});
 ```
 
 Optionally (though you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
