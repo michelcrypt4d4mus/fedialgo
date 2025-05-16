@@ -50,23 +50,55 @@ The demo app's [`Feed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_f
 ```typescript
 import TheAlgorithm from "fedialgo"
 import { createRestAPIClient, mastodon } from "masto";
+import { stringifyQuery } from 'ufo';
 
-// Optionally (tho you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
-// to manage the state of the timeline in your app. In React this might look like:
-import { useState } from React;
-const [timeline, setTimeline] = useState<Toot[]>([]);
+// Register an Application with the Mastodon server and authenticate the user to it.
+// You can do this manually or programatically via OAuth. There's some documentation on doing
+// it manually at https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start
+// Doing it programatically requires going through the OAuth flow.
+const mastodonServer = "mastodon.social"
+const api = createRestAPIClient({url: mastodonServer});
 
-// Verify mastodon login
-const api: mastodon.Client = await createRestAPIClient({url: user.server, accessToken: user.access_token});
+// Register your app
+const app = await api.v1.apps.create({
+    clientName: "my_app,
+    redirectUris: MY_OAUTH_REDIRECT_URL,  // The URL where your app will accept OAuth callbacks
+    scopes: "read",  // FediAlgo requires only read access
+    website: mastodonServer,
+});
+
+
+// Go through the OAuth flow
+const oauthURL = `${mastodonServer}/oauth/authorize?` + stringifyQuery({
+    client_id: app.clientId,
+    redirect_uri: MY_OAUTH_REDIRECT_URL,
+    response_type: 'code',
+    scope: "read,
+});
+
+
 const currentUser = await api.v1.accounts.verifyCredentials()
 
 // Instantiate a TheAlgorithm object
 const algorithm = await TheAlgorithm.create({
     api: api,
     user: currentUser,
-    locale: "en-GB",               // optional (available in navigator.language in browser)
-    setTimelineInApp: setTimeline  // optional but encouraged, see below for details
+    locale: "en-GB",     // optional (available in navigator.language in browser)
 })
+```
+
+Optionally (though you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
+to manage the state of the timeline in your app. In React this might look like:
+
+```typescript
+import { useState } from React;
+const [timeline, setTimeline] = useState<Toot[]>([]);
+
+const algorithm = await TheAlgorithm.create({
+    api: api,
+    user: currentUser,
+    setTimelineInApp: setTimeline  // optional but encouraged
+});
 ```
 
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
