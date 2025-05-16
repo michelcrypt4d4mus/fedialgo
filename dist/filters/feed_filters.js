@@ -46,20 +46,20 @@ exports.DEFAULT_FILTERS = {
 };
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
-function buildFiltersFromArgs(serializedFilterSettings) {
-    serializedFilterSettings.booleanFilters ??= {};
-    serializedFilterSettings.numericFilters ??= {};
-    serializedFilterSettings.booleanFilterArgs.forEach((args) => {
-        serializedFilterSettings.booleanFilters[args.title] = new boolean_filter_1.default(args);
-    });
-    serializedFilterSettings.numericFilterArgs.forEach((args) => {
-        serializedFilterSettings.numericFilters[args.title] = new numeric_filter_1.default(args);
-    });
+function buildFiltersFromArgs(filterSettings) {
+    filterSettings.booleanFilters = filterSettings.booleanFilterArgs.reduce((filters, args) => {
+        filters[args.title] = new boolean_filter_1.default(args);
+        return filters;
+    }, {});
+    filterSettings.numericFilters = filterSettings.numericFilterArgs.reduce((filters, args) => {
+        filters[args.title] = new numeric_filter_1.default(args);
+        return filters;
+    }, {});
     // Fill in any missing values
     numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
-        serializedFilterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
+        filterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
     });
-    return serializedFilterSettings;
+    return filterSettings;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
 ;

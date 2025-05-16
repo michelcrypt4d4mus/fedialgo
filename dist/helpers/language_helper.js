@@ -3,28 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detectHashtagLanguage = exports.detectLanguage = exports.LANGUAGE_REGEXES = exports.RUSSIAN_LOCALE = exports.KOREAN_LOCALE = exports.JAPANESE_LOCALE = exports.GREEK_LOCALE = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANG_DETECTOR_OVERCONFIDENT_LANGS = exports.IGNORE_LANGUAGES = void 0;
+exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = void 0;
 /*
  * Detecting language etc.
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
 const tinyld_1 = require("tinyld");
 const string_helpers_1 = require("./string_helpers");
-const LANG_DETECTOR = new languagedetect_1.default();
-const MIN_LANG_DETECTOR_ACCURACY = 0.2; // LanguageDetect library never gets very high accuracy
-const MIN_TINYLD_ACCURACY = 0.4; // TinyLD is better at some languages but can be overconfident
-const OVERRULE_LANG_ACCURACY = 0.03;
-const VERY_HIGH_LANG_ACCURACY = 0.7;
-exports.IGNORE_LANGUAGES = [
-    "ber",
-    "eo",
-    "tk",
-    "tlh", // Klingon
-];
-exports.LANG_DETECTOR_OVERCONFIDENT_LANGS = [
-    "da",
-    "fr",
-];
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 exports.LANGUAGE_CODES = {
     afar: "aa",
@@ -223,33 +208,48 @@ exports.FOREIGN_SCRIPTS = [
     exports.LANGUAGE_CODES.japanese,
     exports.LANGUAGE_CODES.korean,
 ];
-// International locales, see: https://gist.github.com/wpsmith/7604842
-exports.GREEK_LOCALE = `${exports.LANGUAGE_CODES.greek}-GR`;
-exports.JAPANESE_LOCALE = `${exports.LANGUAGE_CODES.japanese}-JP`;
-exports.KOREAN_LOCALE = `${exports.LANGUAGE_CODES.korean}-KR`;
-exports.RUSSIAN_LOCALE = `${exports.LANGUAGE_CODES.russian}-${exports.LANGUAGE_CODES.russian.toUpperCase()}`;
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
-exports.LANGUAGE_REGEXES = {
+const LANGUAGE_REGEXES = {
     [exports.LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'v'),
     [exports.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
+const LANG_DETECTOR = new languagedetect_1.default();
+const MIN_LANG_DETECTOR_ACCURACY = 0.2; // LanguageDetect library never gets very high accuracy
+const MIN_TINYLD_ACCURACY = 0.4; // TinyLD is better at some languages but can be overconfident
+const OVERRULE_LANG_ACCURACY = 0.03;
+const VERY_HIGH_LANG_ACCURACY = 0.7;
+// International locales, see: https://gist.github.com/wpsmith/7604842
+const GREEK_LOCALE = `${exports.LANGUAGE_CODES.greek}-GR`;
+const JAPANESE_LOCALE = `${exports.LANGUAGE_CODES.japanese}-JP`;
+const KOREAN_LOCALE = `${exports.LANGUAGE_CODES.korean}-KR`;
+const RUSSIAN_LOCALE = `${exports.LANGUAGE_CODES.russian}-${exports.LANGUAGE_CODES.russian.toUpperCase()}`;
+const IGNORE_LANGUAGES = [
+    "ber",
+    "eo",
+    "tk",
+    "tlh", // Klingon
+];
+const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
+    "da",
+    "fr",
+];
 // Use the two different language detectors to guess a language
-const detectLanguage = (text) => {
+function detectLanguage(text) {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
     const langInfoFromTinyLD = detectLangWithTinyLD(text);
     // We will set determinedLang to be a high confidence guess (if we find one)
     let chosenLanguage;
     if (langInfoFromTinyLD.chosenLang) {
         // Ignore Klingon etc.
-        if (exports.IGNORE_LANGUAGES.includes(langInfoFromTinyLD.chosenLang)) {
+        if (IGNORE_LANGUAGES.includes(langInfoFromTinyLD.chosenLang)) {
             langInfoFromTinyLD.chosenLang = undefined;
             langInfoFromTinyLD.accuracy = 0;
         }
         // tinyld is overconfident about some languages
-        if (exports.LANG_DETECTOR_OVERCONFIDENT_LANGS.includes(langInfoFromTinyLD.chosenLang || string_helpers_1.NULL)
+        if (LANG_DETECTOR_OVERCONFIDENT_LANGS.includes(langInfoFromTinyLD.chosenLang || string_helpers_1.NULL)
             && langInfoFromLangDetector.chosenLang != langInfoFromTinyLD.chosenLang
             && langInfoFromTinyLD.accuracy > VERY_HIGH_LANG_ACCURACY) {
             let msg = `"${langInfoFromTinyLD.chosenLang}" is overconfident (${langInfoFromTinyLD.accuracy}) for "${text}"!`;
@@ -296,12 +296,13 @@ const detectLanguage = (text) => {
         langDetector: langInfoFromLangDetector,
         tinyLD: langInfoFromTinyLD,
     };
-};
+}
 exports.detectLanguage = detectLanguage;
+;
 // Returns the language code of the matched regex (if any). This is our janky version of language detection.
 function detectHashtagLanguage(str) {
     let language;
-    Object.entries(exports.LANGUAGE_REGEXES).forEach(([lang, regex]) => {
+    Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
         if (regex.test(str) && !(0, string_helpers_1.isNumber)(str)) {
             language = lang;
         }

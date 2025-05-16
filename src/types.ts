@@ -51,6 +51,7 @@ export const TRENDING_WEIGHTS = [
     WeightName.TRENDING_TOOTS,
 ];
 
+
 // Keys that are valid for local browser storage.
 export enum StorageKey {
     APP_OPENS = "AppOpens",
@@ -82,6 +83,7 @@ export const FEDIVERSE_KEYS = [
     StorageKey.FEDIVERSE_TRENDING_TAGS,
     StorageKey.FEDIVERSE_TRENDING_TOOTS,
 ];
+
 
 // Self explanatory
 export enum MediaCategory {
