@@ -43,6 +43,7 @@ export type ConfigType = {
     staleDataDefaultMinutes: number;
     staleDataTrendingMinutes: number;
     timeoutMS: number;
+    tootsCompleteAfterMinutes: number;
     minServerMAU: number;
     numServersToCheck: number;
     excessiveTagsPenalty: number;

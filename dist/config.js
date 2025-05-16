@@ -52,6 +52,7 @@ exports.Config = {
     scoringBatchSize: 100,
     staleDataDefaultMinutes: 10,
     staleDataTrendingMinutes: 60,
+    tootsCompleteAfterMinutes: 48 * exports.MINUTES_IN_HOUR,
     timelineDecayExponent: 1.2,
     // API stuff
     apiDefaults: {

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add Config.tootsCompleteAfterMinutes to set an upper bound on how old toots can be before we assume there will be no new info about trending tags/links/etc to re-evaluate for them
 
 ### v0.40.3
 * (Demo App) Extract the `REPO_NAME` and `REPO_URL` from `package.json`
