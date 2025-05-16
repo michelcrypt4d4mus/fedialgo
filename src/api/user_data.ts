@@ -51,7 +51,7 @@ export default class UserData {
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || Config.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        console.debug("[UserData] built from data:", userData);
+        traceLog("[UserData] built from data:", userData);
         return userData;
     }
 

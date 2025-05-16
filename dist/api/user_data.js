@@ -36,7 +36,7 @@ class UserData {
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.Config.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        console.debug("[UserData] built from data:", userData);
+        (0, log_helpers_1.traceLog)("[UserData] built from data:", userData);
         return userData;
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)

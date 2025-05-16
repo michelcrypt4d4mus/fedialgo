@@ -264,6 +264,7 @@ class TheAlgorithm {
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
+            Config: Config,
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };

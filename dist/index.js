@@ -252,6 +252,7 @@ class TheAlgorithm {
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
+            Config: config_1.Config,
             Storage: await Storage_1.default.storedObjsInfo(),
             UserData: await api_1.default.instance.getUserData(),
         };
