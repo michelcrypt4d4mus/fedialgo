@@ -384,7 +384,8 @@ class TheAlgorithm {
 
         if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
-            this.filterFeedAndSetInApp();  // Needs to be called to update the feed in the app
+            // Needs to be called to update the feed in the app
+            this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
         } else {
             return false;
