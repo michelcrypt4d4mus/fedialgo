@@ -1,7 +1,9 @@
 # NEXT RELEASE
+* (Demo App) Fix account tooltip when control panel isn't sticking to top by moving it into the feed `<div>`
 
 # v0.41.0
-* Add refreshMutedAccounts() method to TheAlgorithm
+* (Demo App) Add mute and follow account buttons
+* Add `refreshMutedAccounts()` method to `TheAlgorithm`
 
 ### v0.40.8
 * (Demo App) link to repo in header
