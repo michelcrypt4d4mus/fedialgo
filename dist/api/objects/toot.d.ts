@@ -114,7 +114,7 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     private repair;
     private determineLanguage;
-    private shouldComplete;
+    private isComplete;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;

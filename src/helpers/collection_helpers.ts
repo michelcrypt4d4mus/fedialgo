@@ -262,6 +262,16 @@ export function sortObjsByProps<T>(
 };
 
 
+// Return a two element array of arrays, the first of which contains all elements that match
+// the condition and the second contains all elements that do not match.
+export function split<T>(array: T[], condition: (element: T) => boolean): [T[], T[]] {
+    return [
+        array.filter((element) => condition(element)),
+        array.filter((element) => !condition(element)),
+    ];
+};
+
+
 // Sum the elements of an array
 export function sumArray(arr: (number | null | undefined)[]): number {
     const numArray: number[] = arr.map((x) => (x ?? 0));

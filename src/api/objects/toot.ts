@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, groupBy, sortObjsByProps, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
@@ -463,7 +463,7 @@ export default class Toot implements TootObj {
         // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-        if (!this.shouldComplete()) return;
+        if (this.isComplete()) return;
 
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
@@ -631,15 +631,15 @@ export default class Toot implements TootObj {
     }
 
     // Returns true if the toot should be re-completed
-    private shouldComplete(): boolean {
-        if (!this.completedAt) return true;  // If we haven't completed it yet, do it now
+    private isComplete(): boolean {
+        if (!this.completedAt) return false;  // If we haven't completed it yet, do it now
 
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
                // Check if toot was completed long enough ago that we might want to re-evaluate it
-               ageInMinutes(this.completedAt) > Config.staleDataTrendingMinutes
+               ageInMinutes(this.completedAt) < Config.staleDataTrendingMinutes
                // But not tooted so long ago that there's little chance of new data
-            && ageInMinutes(this.tootedAt()) < Config.tootsCompleteAfterMinutes
+            || ageInMinutes(this.createdAt) > Config.tootsCompleteAfterMinutes
         );
     }
 
@@ -680,28 +680,28 @@ export default class Toot implements TootObj {
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
         startedAt = new Date();
         let tootsToComplete = toots;
-        let completeToots: Toot[] = [];
+        let completeToots: TootLike[] = [];
 
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
         if (isDeepInspect) {
-            tootsToComplete = toots.filter((toot) => !(toot instanceof Toot) || toot.shouldComplete());
-            completeToots = toots.filter((toot) => (toot instanceof Toot) && !toot.shouldComplete()) as Toot[];
+            [completeToots, tootsToComplete] = (split(toots, (t) => t instanceof Toot && t.isComplete()));
         }
 
-        const newCompleteToots = await batchMap(
+        const newCompleteToots: Toot[] = await batchMap(
             tootsToComplete,
             async (tootLike: TootLike) => {
                 const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
                 toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
-                return toot;
+                return toot as Toot;
             },
             "completeToots",
             Config.batchCompleteTootsSize,
             isDeepInspect ? Config.batchCompleteTootsSleepBetweenMS : 0
         );
 
-        console.debug(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`);
-        return newCompleteToots.concat(completeToots);
+        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;
+        console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
+        return newCompleteToots.concat(completeToots as Toot[]);
     }
 
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry

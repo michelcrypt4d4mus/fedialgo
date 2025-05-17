@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.findMinMaxId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.findMinMaxId = exports.filterWithLog = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -224,6 +224,16 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
     });
 }
 exports.sortObjsByProps = sortObjsByProps;
+;
+// Return a two element array of arrays, the first of which contains all elements that match
+// the condition and the second contains all elements that do not match.
+function split(array, condition) {
+    return [
+        array.filter((element) => condition(element)),
+        array.filter((element) => !condition(element)),
+    ];
+}
+exports.split = split;
 ;
 // Sum the elements of an array
 function sumArray(arr) {

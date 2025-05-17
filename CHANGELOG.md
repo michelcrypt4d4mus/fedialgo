@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use split() method to separate Toots needing completion from those that are complete
 
 ### v0.41.3
 * Re-optimize toot completion

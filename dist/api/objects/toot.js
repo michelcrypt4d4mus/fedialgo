@@ -372,7 +372,7 @@ class Toot {
         // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-        if (!this.shouldComplete())
+        if (this.isComplete())
             return;
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
@@ -530,15 +530,15 @@ class Toot {
         }
     }
     // Returns true if the toot should be re-completed
-    shouldComplete() {
+    isComplete() {
         if (!this.completedAt)
-            return true; // If we haven't completed it yet, do it now
+            return false; // If we haven't completed it yet, do it now
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
         // Check if toot was completed long enough ago that we might want to re-evaluate it
-        (0, time_helpers_1.ageInMinutes)(this.completedAt) > config_1.Config.staleDataTrendingMinutes
+        (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.Config.staleDataTrendingMinutes
             // But not tooted so long ago that there's little chance of new data
-            && (0, time_helpers_1.ageInMinutes)(this.tootedAt()) < config_1.Config.tootsCompleteAfterMinutes);
+            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.Config.tootsCompleteAfterMinutes);
     }
     ///////////////////////////////
     //       Class methods       //
@@ -575,15 +575,15 @@ class Toot {
         let completeToots = [];
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
         if (isDeepInspect) {
-            tootsToComplete = toots.filter((toot) => !(toot instanceof Toot) || toot.shouldComplete());
-            completeToots = toots.filter((toot) => (toot instanceof Toot) && !toot.shouldComplete());
+            [completeToots, tootsToComplete] = ((0, collection_helpers_1.split)(toots, (t) => t instanceof Toot && t.isComplete()));
         }
         const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, async (tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         }, "completeToots", config_1.Config.batchCompleteTootsSize, isDeepInspect ? config_1.Config.batchCompleteTootsSleepBetweenMS : 0);
-        console.debug(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+        console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
