@@ -20,7 +20,7 @@ Or with `yarn`:
 yarn add https://github.com/michelcrypt4d4mus/fedialgo
 ```
 
-#### Troubleshooting
+### Troubleshooting
 If you're using the library outside a browser and get a `Buffer is not a function` error you may also need the `buffer` package to simulate the one provided by most browsers (it's required by the `class-transformer` library FediAlgo uses to serialize data to browser storage):
 ```bash
 npm install --save buffer
