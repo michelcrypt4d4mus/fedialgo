@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.41.1
 * (Demo App) Fix account tooltip when control panel isn't sticking to top by moving it into the feed `<div>`
 
 # v0.41.0
