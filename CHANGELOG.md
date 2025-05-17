@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.41.3
 * Re-optimize toot completion
 
 ### v0.41.2
