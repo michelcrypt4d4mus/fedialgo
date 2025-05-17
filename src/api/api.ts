@@ -35,14 +35,16 @@ const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too m
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
-interface BackfillParams {
+//   - skipCache: if true, don't use cached data
+interface ApiParams {
     maxRecords?: number,
     moar?: boolean,
+    skipCache?: boolean,
 }
 
 // Generic params that apply to a lot of methods in the MastoApi class
 //   - moar: if true, continue fetching from the max_id found in the cache
-interface MaxIdParams extends BackfillParams {
+interface MaxIdParams extends ApiParams {
     maxId?: string | number,
 };
 
@@ -55,7 +57,6 @@ interface MaxIdParams extends BackfillParams {
 interface FetchParams<T> extends MaxIdParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     storageKey: StorageKey,  // Mutex will be skipped if label is a string not a StorageKey,
-    skipCache?: boolean,
     skipMutex?: boolean,
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     processFxn?: (obj: T) => void,
@@ -215,7 +216,7 @@ export default class MastoApi {
 
     // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
-    async getFavouritedToots(params?: BackfillParams): Promise<Toot[]> {
+    async getFavouritedToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             storageKey: StorageKey.FAVOURITED_TOOTS,
@@ -224,7 +225,7 @@ export default class MastoApi {
     }
 
     // Get accounts the user is following
-    async getFollowedAccounts(params?: BackfillParams): Promise<Account[]> {
+    async getFollowedAccounts(params?: ApiParams): Promise<Account[]> {
         return await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             storageKey: StorageKey.FOLLOWED_ACCOUNTS,
@@ -234,7 +235,7 @@ export default class MastoApi {
     }
 
     // Get hashtags the user is following
-    async getFollowedTags(params?: BackfillParams): Promise<mastodon.v1.Tag[]> {
+    async getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]> {
         return await this.getApiRecords<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             storageKey: StorageKey.FOLLOWED_TAGS,
@@ -244,7 +245,7 @@ export default class MastoApi {
     }
 
     // Get all muted accounts (including accounts that are fully blocked)
-    async getMutedAccounts(params?: BackfillParams): Promise<Account[]> {
+    async getMutedAccounts(params?: ApiParams): Promise<Account[]> {
         const mutedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
             storageKey: StorageKey.MUTED_ACCOUNTS,

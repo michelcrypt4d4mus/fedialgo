@@ -295,6 +295,16 @@ class TheAlgorithm {
         (0, log_helpers_1.traceLog)(`TheAlgorithm.feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
+    // Doesn't actually mute the account, just marks it as muted in the userData object
+    async refreshMutedAccounts() {
+        const logPrefix = (0, string_helpers_1.bracketed)(`refreshMutedAccounts()`);
+        console.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const mutedAccounts = await api_1.default.instance.getMutedAccounts({ skipCache: true });
+        console.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
+        (await api_1.default.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
+        await this.finishFeedUpdate();
+    }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
@@ -390,6 +400,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
+        this.feed = (0, collection_helpers_1.filterWithLog)(this.feed, t => t.isValidForFeed(), 'finishFeedUpdate()', 'invalid', 'Toot');
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
@@ -400,7 +411,7 @@ class TheAlgorithm {
         }
         else {
             console.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
-            this.lastLoadTimeInSeconds = null;
+            // this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;
         api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
@@ -436,9 +447,9 @@ class TheAlgorithm {
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, this.userData);
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         this.setTimelineInApp(this.feed);
-        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        console.log(`[fedialgo] loadCachedData() oaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.

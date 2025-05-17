@@ -316,6 +316,17 @@ class TheAlgorithm {
         return feedAgeInSeconds;
     }
 
+    // Doesn't actually mute the account, just marks it as muted in the userData object
+    async refreshMutedAccounts(): Promise<void> {
+        const logPrefix = bracketed(`refreshMutedAccounts()`);
+        console.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const mutedAccounts = await MastoApi.instance.getMutedAccounts({skipCache: true});
+        console.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
+        (await MastoApi.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
+        await this.finishFeedUpdate();
+    }
+
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
@@ -421,6 +432,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", true);
+        this.feed = filterWithLog(this.feed, t => t.isValidForFeed(), 'finishFeedUpdate()', 'invalid', 'Toot');
         updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
@@ -431,7 +443,7 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
             console.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
-            this.lastLoadTimeInSeconds = null;
+            // this.lastLoadTimeInSeconds = null;
         }
 
         this.loadStartedAt = null;
@@ -476,9 +488,9 @@ class TheAlgorithm {
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
-        updateBooleanFilterOptions(this.filters, this.feed, this.userData);
+        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
         this.setTimelineInApp(this.feed);
-        console.log(`[fedialgo] loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        console.log(`[fedialgo] loadCachedData() oaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
 
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent

@@ -76,6 +76,7 @@ declare class TheAlgorithm {
     logCurrentState(): Promise<void>;
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
+    refreshMutedAccounts(): Promise<void>;
     reset(): Promise<void>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];

@@ -460,9 +460,10 @@ export default class Toot implements TootObj {
         trendingTags: TagWithUsageCounts[],
         isDeepInspect?: boolean
     ): void {
-        if (!this.shouldComplete()) return;
+        // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
+        if (!this.shouldComplete()) return;
 
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
@@ -680,33 +681,22 @@ export default class Toot implements TootObj {
         const fetchAgeStr = ageString(startedAt);
         startedAt = new Date();
 
-        // TODO: remove this at some point, just here for logging info about instanceof usage
-        const tootObjs = toots.filter(toot => toot instanceof Toot) as Toot[];
-        const numCompletedToots = tootObjs.filter(t => t.completedAt).length;
-        const numRecompletingToots = tootObjs.filter(t => t.shouldComplete()).length;
-
         const complete = async (tootLike: TootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot as Toot;
         }
 
-        const completeToots = toots.filter(toot => toot instanceof Toot ? !toot.shouldComplete() : false);
-        const tootsToComplete = toots.filter(toot => toot instanceof Toot ? toot.shouldComplete() : true);
-
         const newCompleteToots = await batchMap(
-            tootsToComplete,
+            toots,
             (t) => complete(t),
             "completeToots",
             Config.batchCompleteTootsSize,
             isDeepInspect ? Config.batchCompleteTootsSleepBetweenMS : 0
         );
 
-        toots = completeToots.concat(newCompleteToots);
-        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) on ${toots.length} toots`;
-        msg += ` ${ageString(startedAt)} (data fetched ${fetchAgeStr}, ${tootObjs.length} were already toots,`;
-        console.info(`${msg} ${numCompletedToots} were already completed, ${numRecompletingToots} need recompleting)`);
-        return toots as Toot[];
+        console.debug(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`);
+        return newCompleteToots;
     }
 
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
