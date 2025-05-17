@@ -43,7 +43,7 @@ import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./he
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { isWeightPresetLabel, PresetWeightLabel, WEIGHT_PRESETS, WeightPresets } from './scorer/weight_presets';
+import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
@@ -363,10 +363,10 @@ class TheAlgorithm {
     }
 
     // Update user weightings to one of the preset values and rescore / resort the feed.
-    async updateUserWeightsToPreset(presetName: PresetWeightLabel | string): Promise<Toot[]> {
+    async updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]> {
         console.log("updateUserWeightsToPreset() called with presetName:", presetName);
         if (!isWeightPresetLabel(presetName)) logAndThrowError(`Invalid weight preset: "${presetName}"`);
-        return await this.updateUserWeights(WEIGHT_PRESETS[presetName as PresetWeightLabel]);
+        return await this.updateUserWeights(WEIGHT_PRESETS[presetName as WeightPresetLabel]);
     }
 
     // Throw an error if the feed is loading
@@ -631,6 +631,7 @@ export {
     MediaCategory,
     TypeFilterName,
     WeightName,
+    WeightPresetLabel,
     // Helpers
     extractDomain,
     formatScore,

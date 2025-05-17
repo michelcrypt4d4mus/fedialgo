@@ -4,7 +4,7 @@
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { WeightName, Weights } from "../types";
 
-export enum PresetWeightLabel {
+export enum WeightPresetLabel {
     CHRONOLOGICAL = 'Chronological',
     DISCUSSIONS = 'Discussions',
     DEFAULT = 'Default',
@@ -13,8 +13,8 @@ export enum PresetWeightLabel {
     TRENDING = 'Trending',
 };
 
-export type WeightPresets = Record<PresetWeightLabel, Weights>;
-export const isWeightPresetLabel = (value: string) => isValueInStringEnum(PresetWeightLabel)(value);
+export type WeightPresets = Record<WeightPresetLabel, Weights>;
+export const isWeightPresetLabel = (value: string) => isValueInStringEnum(WeightPresetLabel)(value);
 
 
 export const DEFAULT_WEIGHTS: Weights = {
@@ -46,7 +46,7 @@ export const DEFAULT_WEIGHTS: Weights = {
 
 
 export const WEIGHT_PRESETS: WeightPresets = {
-    [PresetWeightLabel.CHRONOLOGICAL]: {
+    [WeightPresetLabel.CHRONOLOGICAL]: {
         [WeightName.TIME_DECAY]: 9.99,
         [WeightName.TRENDING]: 0,
         [WeightName.OUTLIER_DAMPENER]: 0,
@@ -71,9 +71,9 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [WeightName.VIDEO_ATTACHMENTS]: 0,
     },
 
-    [PresetWeightLabel.DEFAULT]: DEFAULT_WEIGHTS,
+    [WeightPresetLabel.DEFAULT]: DEFAULT_WEIGHTS,
 
-    [PresetWeightLabel.DISCUSSIONS]: {
+    [WeightPresetLabel.DISCUSSIONS]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.01,
         [WeightName.CHAOS]: 0,
@@ -81,7 +81,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [WeightName.NUM_REPLIES]: 50.0,
     },
 
-    [PresetWeightLabel.FRIENDS]: {
+    [WeightPresetLabel.FRIENDS]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.02,
         [WeightName.INTERACTIONS]: 2.5,
@@ -90,13 +90,13 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [WeightName.MOST_RETOOTED_ACCOUNTS]: 3.0,
     },
 
-    [PresetWeightLabel.PICTURES]: {
+    [WeightPresetLabel.PICTURES]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.IMAGE_ATTACHMENTS]: 5.0,
         [WeightName.VIDEO_ATTACHMENTS]: 5.0,
     },
 
-    [PresetWeightLabel.TRENDING]: {
+    [WeightPresetLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.5,
         [WeightName.TRENDING_LINKS]: DEFAULT_WEIGHTS[WeightName.TRENDING_LINKS] * 3,

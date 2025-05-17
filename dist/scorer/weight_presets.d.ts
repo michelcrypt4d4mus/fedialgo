@@ -1,5 +1,5 @@
 import { Weights } from "../types";
-export declare enum PresetWeightLabel {
+export declare enum WeightPresetLabel {
     CHRONOLOGICAL = "Chronological",
     DISCUSSIONS = "Discussions",
     DEFAULT = "Default",
@@ -7,7 +7,7 @@ export declare enum PresetWeightLabel {
     PICTURES = "Pictures",
     TRENDING = "Trending"
 }
-export type WeightPresets = Record<PresetWeightLabel, Weights>;
+export type WeightPresets = Record<WeightPresetLabel, Weights>;
 export declare const isWeightPresetLabel: (value: string) => boolean;
 export declare const DEFAULT_WEIGHTS: Weights;
 export declare const WEIGHT_PRESETS: WeightPresets;

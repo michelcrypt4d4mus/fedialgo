@@ -58,7 +58,7 @@ const algorithm = await TheAlgorithm.create({
 });
 ```
 
-#### The `setTimelineInApp` Callback
+### The `setTimelineInApp` Callback
 You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be called whenever the feed is changed. Specifically the callback will be invoked when:
 
 * An incremental batch of toots is retrieved from the fediverse and integrated into the timeline
@@ -106,18 +106,20 @@ if (!algorithm.isLoading()) {
 
 #### Setting Weights For The Various Feed Scorers
 ```typescript
-import { Toot, Weights } from "fedialgo";
+import { Toot, Weights, WeightPresetLabel } from "fedialgo";
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
 const weights: Weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
-timelineFeed: Toot[] = await algorithm.updateUserWeights(weights);
+let timelineFeed: Toot[] = await algorithm.updateUserWeights(weights);
 
-// Choose a preset weight configuration
-const weightPresetNames = Object.keys(algorithm.weightPresets);
-timelineFeed = await algorithm.updateUserWeightsToPreset(weightPresetNames[0]);
+// Choose a preset weight configuration using the WeightPresetLabel enum
+timelineFeed = await algorithm.updateUserWeightsToPreset(WeightPresetLabel.CHRONOLOGICAL);
+// All the preset can be found in algorithm.weightPresets
+Object.entries(algorithm.weightPresets).forEach(([preset, weights]) => console.log(`${preset}:`, weights));
 
-// The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
+// The names of the weights that can be adjusted are exported as the WeightName enum.
+// Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
 for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
 ```
 
