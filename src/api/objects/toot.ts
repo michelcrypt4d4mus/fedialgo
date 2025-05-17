@@ -678,18 +678,15 @@ export default class Toot implements TootObj {
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = await MastodonServer.fediverseTrendingTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        const fetchAgeStr = ageString(startedAt);
         startedAt = new Date();
-
-        const complete = async (tootLike: TootLike) => {
-            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
-            return toot as Toot;
-        }
 
         const newCompleteToots = await batchMap(
             toots,
-            (t) => complete(t),
+            async (tootLike: TootLike) => {
+                const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+                toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+                return toot as Toot;
+            },
             "completeToots",
             Config.batchCompleteTootsSize,
             isDeepInspect ? Config.batchCompleteTootsSleepBetweenMS : 0

@@ -304,7 +304,7 @@ class TheAlgorithm {
         console.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
         (await api_1.default.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
-        await this.finishFeedUpdate();
+        await this.finishFeedUpdate(false);
     }
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
@@ -395,12 +395,12 @@ class TheAlgorithm {
         return filteredFeed;
     }
     // The "load is finished" version of setLoadingStateVariables().
-    async finishFeedUpdate() {
+    async finishFeedUpdate(isDeepInspect = true) {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         const logPrefix = (0, string_helpers_1.bracketed)(`${string_helpers_1.SET_LOADING_STATUS} finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
-        await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", true);
+        await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", isDeepInspect);
         this.feed = (0, collection_helpers_1.filterWithLog)(this.feed, t => t.isValidForFeed(), 'finishFeedUpdate()', 'invalid', 'Toot');
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
