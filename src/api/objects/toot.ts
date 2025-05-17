@@ -679,13 +679,21 @@ export default class Toot implements TootObj {
         const trendingTags = await MastodonServer.fediverseTrendingTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
         startedAt = new Date();
+        let tootsToComplete = toots;
+        let completeToots: Toot[] = [];
+
+        // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
+        if (isDeepInspect) {
+            tootsToComplete = toots.filter((toot) => !(toot instanceof Toot) || toot.shouldComplete());
+            completeToots = toots.filter((toot) => (toot instanceof Toot) && !toot.shouldComplete()) as Toot[];
+        }
 
         const newCompleteToots = await batchMap(
-            toots,
+            tootsToComplete,
             async (tootLike: TootLike) => {
                 const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
                 toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
-                return toot as Toot;
+                return toot;
             },
             "completeToots",
             Config.batchCompleteTootsSize,
@@ -693,7 +701,7 @@ export default class Toot implements TootObj {
         );
 
         console.debug(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`);
-        return newCompleteToots;
+        return newCompleteToots.concat(completeToots);
     }
 
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry

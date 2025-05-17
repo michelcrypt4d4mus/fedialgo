@@ -571,13 +571,20 @@ class Toot {
         const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
         startedAt = new Date();
-        const newCompleteToots = await (0, collection_helpers_1.batchMap)(toots, async (tootLike) => {
+        let tootsToComplete = toots;
+        let completeToots = [];
+        // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
+        if (isDeepInspect) {
+            tootsToComplete = toots.filter((toot) => !(toot instanceof Toot) || toot.shouldComplete());
+            completeToots = toots.filter((toot) => (toot instanceof Toot) && !toot.shouldComplete());
+        }
+        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, async (tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         }, "completeToots", config_1.Config.batchCompleteTootsSize, isDeepInspect ? config_1.Config.batchCompleteTootsSleepBetweenMS : 0);
         console.debug(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
-        return newCompleteToots;
+        return newCompleteToots.concat(completeToots);
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots, logPrefix) {
