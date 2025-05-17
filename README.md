@@ -87,9 +87,9 @@ Once you've instantiated a `TheAlgorithm` object there's three primary ways of i
 ```typescript
 import { Toot } from "fedialgo";
 
-// Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
-// in the constructor all you need to do is monitor the state of whatever variable contains the timeline
-// (in the React example above that variable would be 'timeline').
+// Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed
+// setTimelineInApp in the constructor all you need to do is monitor the state of whatever
+// variable contains the timeline (in the React example above that would be 'timeline').
 algorithm.triggerFeedUpdate();
 
 // algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
