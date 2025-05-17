@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.40.8
+* (Demo App) link to repo in header
+
 ### v0.40.7
 * (Demo App) Error handling around initial app registrations
 
