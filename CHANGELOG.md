@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.41.2
 * Speed up re-filtering of the feed during refreshMutedAccounts()
 * Export `WeightPresetLabel` enum
 
