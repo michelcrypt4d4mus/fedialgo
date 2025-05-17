@@ -1,6 +1,7 @@
 # NEXT RELEASE
-* Add refreshMutedAccounts() method
-* **(BREAKING CHANGE)** Remove TheAlgorithm's userData property; add a getUserData() method that defers to MastoApi
+
+# v0.41.0
+* Add refreshMutedAccounts() method to TheAlgorithm
 
 ### v0.40.8
 * (Demo App) link to repo in header
