@@ -142,7 +142,8 @@ The timeline is returned as an array of `Toot` objects which are a minimal exten
 
 
 ## Other Data Available From `TheAlgorithm`
-FediAlgo provides a bunch of other data besides the timeline should you choose to access it.
+FediAlgo exports a number of types and enums; check the bottom of [`index.ts`](src/index.ts) for details on what is available.
+`TheAlgorithm` objects also provide a bunch of data besides the timeline should you choose to access it.
 
 #### Fediverse Trending Data
 Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.js`](src/types.ts) for info on the data type.
