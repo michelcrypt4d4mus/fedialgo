@@ -1,26 +1,16 @@
 <!-- [![Fedialgo Build and Test](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml/badge.svg)](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml) -->
 
-(Forked from [pkreissel's original implementation](https://github.com/pkreissel/fedialgo))
+()
 
 # `fedialgo`
-
-* Try the demo [here](https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/)!
-
-Video of the FediAlgo demo in action [on YouTube](https://www.youtube.com/watch?v=tR35bUHzJdk).
-
-Fedialgo is a `node.js` package that can be used to produce an algorithmic fediverse experience. This will replace the project "fedifeed" and make it possible to implement the idea into all kinds of other projects. It should (hopefully) also work in React Native Projects but that's untested.
+Fedialgo is a `node.js` library offering a customizable algorithm for the federated social media platform [Mastodon](https://joinmastodon.org/) that can free you from the tyranny of Mastodon's reverse chronological order timeline. It's based on [pkreissel's original implementation](https://github.com/pkreissel/fedialgo) and ideas though it has more or less been completely rewritten and has many more features like filtering of the feed.
 
 ### Usable Demo
-You can try FediAlgo out just by pointing your browser at [here](https://fedialgo.thms.uk/) thanks to @nanos.
+* Try the demo [here](https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/)! (The code for the demo app is [here](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed)).
+* Video of the FediAlgo demo in action [on YouTube](https://www.youtube.com/watch?v=tR35bUHzJdk).
 
 # Installation
-### The Demo App
-`fedialgo` is just a `node.js` package. You don't use it on its own; it can only function when used inside of a larger application.
-
-If you're not developing your own app there's a simple demo app that can spin up a webserver, score and order a curated "For You" style Mastodon feed, and present it to your browser at `http://localhost:3000/`. The demo app is incredibly easy to setup; you can find it over in the [`fedialgo_demo_app_foryoufeed`](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed) repo.
-
-### In A `node.js` Project
-You can install from github with `npm`:
+You can install this library from github with `npm`:
 
 ```bash
 npm install --save github:michelcrypt4d4mus/fedialgo
@@ -32,7 +22,8 @@ Or with `yarn`:
 yarn add https://github.com/michelcrypt4d4mus/fedialgo
 ```
 
-If you're using the library in a browser you may also need the `buffer` package if you get a `Buffer is not a function` error:
+### `Buffer is not a function` Errors
+If you're using the library outside a browser and get a `Buffer is not a function` error you may also need the `buffer` package to simulate the one provided by most browsers (it's required by the `class-transformer` library FediAlgo uses to serialize data to browser storage):
 ```bash
 npm install --save buffer
 ```
@@ -53,6 +44,7 @@ The FediAlgo demo app also contains a working example of how to execute the OAut
 * [Login page](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/LoginPage.tsx)
 * [OAuth callback page](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/CallbackPage.tsx)
 
+
 ```typescript
 import TheAlgorithm from "fedialgo"
 import { createRestAPIClient, mastodon } from "masto";
@@ -70,29 +62,38 @@ const algorithm = await TheAlgorithm.create({
 });
 ```
 
-Optionally (though you are encouraged to use FediAlgo this way) you can set up a callback for FediAlgo to use
-to manage the state of the timeline in your app. In React this might look like:
+#### The `setTimelineInApp` Callback
+You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be called whenever the feed is changed. Specifically the callback will be invoked when:
+
+* An incremental batch of toots is retrieved from the fediverse and integrated into the timeline
+* You make a call to `algorithm.updateUserWeights()` (see below)
+* You make a call to `algorithm.updateFilters()` (see below)
+
+An example involving storing the timeline in a React component's state:
 
 ```typescript
 import { useState } from React;
+import TheAlgorithm, { Toot } from "fedialgo"
+
 const [timeline, setTimeline] = useState<Toot[]>([]);
 
 const algorithm = await TheAlgorithm.create({
     api: api,
     user: currentUser,
-    setTimelineInApp: setTimeline  // optional but encouraged
+    setTimelineInApp: setTimeline
 });
 ```
 
+## Functionality
 Once you've instantiated a `TheAlgorithm` object there's three primary ways of interacting with it:
 
+#### Triggering Construction Of The Timeline
 ```typescript
-import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
+import { Toot } from "fedialgo";
 
 // Trigger the feed builder. FediAlgo will start doing stuff asynchronously. If you passed setTimelineInApp
 // in the constructor all you need to do is monitor the state of whatever variable contains the timeline
 // (in the React example above that variable would be 'timeline').
-let timeline: Toot[];
 algorithm.triggerFeedUpdate();
 
 // algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
@@ -102,12 +103,19 @@ let timeline: Toot[] = algorithm.getTimeline();
 algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
 
 // Check if loading is in progress before calling, otherwise you might get thrown an exception
-if (!algorithm.isLoading()) algorithm.triggerFeedUpdate();
+if (!algorithm.isLoading()) {
+    algorithm.triggerFeedUpdate();
+}
+```
+
+#### Setting Weights For The Various Feed Scorers
+```typescript
+import { Toot, Weights } from "fedialgo";
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
 const weights: Weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
-timelineFeed = await algorithm.updateUserWeights(weights);
+timelineFeed: Toot[] = await algorithm.updateUserWeights(weights);
 
 // Choose a preset weight configuration
 const weightPresetNames = Object.keys(algorithm.weightPresets);
@@ -115,34 +123,28 @@ timelineFeed = await algorithm.updateUserWeightsToPreset(weightPresetNames[0]);
 
 // The names of the weights that can be adjusted are exported as the WeightName enum. Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
 for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
+```
+
+#### Filtering The Feed
+```typescript
+import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
 filters.filterSections[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
-const filteredFeed = algorithm.updateFilters(filters);
+const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies
 filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
-const filteredFeed = algorithm.updateFilters(filters);
+const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 ```
-
-#### More On The `setTimelineInApp` Callback
-You can optionally pass a `setTimelineInApp()` callback to `TheAlgorithm.create()` that will be called whenever the feed is changed. Specifically the callback will be invoked when:
-
-* An incremental batch of toots is retrieved from the fediverse and integrated into the timeline
-* You make a call to `algorithm.updateUserWeights()`
-* You make a call to `algorithm.updateFilters()`.
-
-An example involving React component state:
-
 
 ## `Toot` API
 The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
 
 
-## Other Data Available In `TheAlgorithm`
+## Other Data Available From `TheAlgorithm`
 FediAlgo provides a bunch of other data besides the timeline should you choose to access it.
-
 
 #### Fediverse Trending Data
 Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.js`](src/types.ts) for info on the data type.
@@ -179,7 +181,7 @@ If you set the environment variable `FEDIALGO_DEBUG=true` a _lot_ more debugging
 ### Deploying Changes
 For changes to propagate you must run `npm run build` to generate changes to files in `dist/` and then check those files into git.
 
-### Developing Against a Local Repo
+### Developing Against a Local Project
 Clone this repo and cd into it. Then run:
 
 ```bash
@@ -193,6 +195,7 @@ npm link fedialgo
 ```
 
 ### Running Test Suite
+(The test suite is kind of useless unfortnately.)
 ~~`npm run test`~~
 
 ### Miscellaneous
@@ -205,9 +208,12 @@ in `fedialgo` directory after changes and they will automatically be detected.
 
 There's a pre-commit git hook that runs `npm run build` but unfortunately it doesn't seem to actually run _before_ the commit :(
 
+### Resources
+* [`masto.js` documentation](https://neet.github.io/masto.js)
+* [Compiling and bundling TypeScript libraries with Webpack](https://marcobotto.com/blog/compiling-and-bundling-typescript-libraries-with-webpack/)
+
 
 # TODO
-1. Add scoring for links similar to `onlyLinks` filter
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 
 ### What's slow:
@@ -218,8 +224,3 @@ Some recent stats from a LOAD_TEST
 * [RecentUserToots] Completing fetch at page 12, 40 in page, 480 records so far in 14.8 seconds
 * [FavouritedToots] Completing fetch at page 12, 40 in page, 480 records so far in 14.2 seconds
 * [HomeTimeline] Completing fetch at page 41, 0 in page, 1594 records so far in 111.2 seconds
-
-
-# Resources
-* [`masto.js` documentation](https://neet.github.io/masto.js)
-* [Compiling and bundling TypeScript libraries with Webpack](https://marcobotto.com/blog/compiling-and-bundling-typescript-libraries-with-webpack/)
