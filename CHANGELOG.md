@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Add mastodon.gamedev.place to the list of noMauServers
+* Add `mastodon.gamedev.place` to the list of `noMauServers`
+* Remove invalid toots in `Toot.buildToots()`
 
 ### v0.41.5
 * (Demo App) Add missing `Confirmation.tsx` file
@@ -18,7 +19,7 @@
 ### v0.41.1
 * (Demo App) Fix account tooltip when control panel isn't sticking to top by moving it into the feed `<div>`
 
-# v0.41.0
+## v0.41.0
 * (Demo App) Add mute and follow account buttons
 * Add `refreshMutedAccounts()` method to `TheAlgorithm`
 
