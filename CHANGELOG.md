@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.43.0
 * Add filter for TypeFilterName.BOT
 * Export isValueInStringEnum() helper, `KeysOfValueType` type
 * (Demo App) Enable unfollowing accounts
