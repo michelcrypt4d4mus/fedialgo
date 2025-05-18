@@ -47,6 +47,7 @@ import {
     TrendingLink,
     WeightName
 } from "../../types";
+import { TypeFilterName } from "../../filters/boolean_filter";
 
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -275,9 +276,9 @@ export default class Toot implements TootObj {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsMsg(): string | undefined {
         let msgs = [
-            this.containsTagsOfTypeMsg(WeightName.FOLLOWED_TAGS),
-            this.containsTagsOfTypeMsg(WeightName.TRENDING_TAGS),
-            this.containsTagsOfTypeMsg(WeightName.PARTICIPATED_TAGS),
+            this.containsTagsOfTypeMsg(TypeFilterName.FOLLOWED_HASHTAGS),
+            this.containsTagsOfTypeMsg(TypeFilterName.TRENDING_HASHTAGS),
+            this.containsTagsOfTypeMsg(TypeFilterName.PARTICIPATED_HASHTAGS),
         ];
 
         msgs = msgs.filter((msg) => msg);
@@ -497,18 +498,18 @@ export default class Toot implements TootObj {
     }
 
     // Generate a string describing the followed and trending tags in the toot
-    private containsTagsOfTypeMsg(tagType: WeightName): string | undefined {
+    private containsTagsOfTypeMsg(tagType: TypeFilterName): string | undefined {
         let tags: MastodonTag[] = [];
 
-        // TODO: The tagType argument should probably be a TypeFilterName type...
-        if (tagType == WeightName.FOLLOWED_TAGS) {
+        if (tagType == TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
-        } else if (tagType == WeightName.PARTICIPATED_TAGS) {
+        } else if (tagType == TypeFilterName.PARTICIPATED_HASHTAGS) {
             tags = this.participatedTags || [];
-        } else if (tagType == WeightName.TRENDING_TAGS) {
+        } else if (tagType == TypeFilterName.TRENDING_HASHTAGS) {
             tags = this.trendingTags || [];
         } else {
             console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
+            return;
         }
 
         if (!tags.length) return;

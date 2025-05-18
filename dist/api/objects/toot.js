@@ -32,6 +32,7 @@ const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
+const boolean_filter_1 = require("../../filters/boolean_filter");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -211,9 +212,9 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsMsg() {
         let msgs = [
-            this.containsTagsOfTypeMsg(types_1.WeightName.FOLLOWED_TAGS),
-            this.containsTagsOfTypeMsg(types_1.WeightName.TRENDING_TAGS),
-            this.containsTagsOfTypeMsg(types_1.WeightName.PARTICIPATED_TAGS),
+            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS),
+            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.TRENDING_HASHTAGS),
+            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.PARTICIPATED_HASHTAGS),
         ];
         msgs = msgs.filter((msg) => msg);
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
@@ -404,18 +405,18 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
-        // TODO: The tagType argument should probably be a TypeFilterName type...
-        if (tagType == types_1.WeightName.FOLLOWED_TAGS) {
+        if (tagType == boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
         }
-        else if (tagType == types_1.WeightName.PARTICIPATED_TAGS) {
+        else if (tagType == boolean_filter_1.TypeFilterName.PARTICIPATED_HASHTAGS) {
             tags = this.participatedTags || [];
         }
-        else if (tagType == types_1.WeightName.TRENDING_TAGS) {
+        else if (tagType == boolean_filter_1.TypeFilterName.TRENDING_HASHTAGS) {
             tags = this.trendingTags || [];
         }
         else {
             console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
+            return;
         }
         if (!tags.length)
             return;
