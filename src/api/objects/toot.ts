@@ -471,12 +471,12 @@ export default class Toot implements TootObj {
         // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
-        if (this.isComplete()) return;
 
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
         }
 
+        if (this.isComplete()) return;
         // Retoots never have their own tags, etc.
         const toot = this.realToot();
         const allFollowedTags = Object.values(userData.followedTags);
