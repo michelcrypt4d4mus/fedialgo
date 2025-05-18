@@ -141,10 +141,11 @@ export default class BooleanFilter extends TootFilter {
         return this.invertSelection ? !isMatched : isMatched;
     }
 
+    // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo: StringNumberDict) {
-        this.optionInfo = {...optionInfo}; // TODO: this is to trigger useMemo() in the demo app, not great
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
+        this.optionInfo = {...optionInfo}; // TODO: this is to trigger useMemo() in the demo app, not great
 
         // Server side filters get all the options immediately set to filter out toots that come
         // from trending and other sources where the user's server configuration is not applied.
