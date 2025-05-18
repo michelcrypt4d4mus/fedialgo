@@ -1,8 +1,11 @@
 # NEXT RELEASE
 
-# v0.43.0
-* Add filter for TypeFilterName.BOT
-* Export isValueInStringEnum() helper, `KeysOfValueType` type
+### v0.43.1
+* (Demo App) Fix bug with action button count comparison
+
+## v0.43.0
+* Add filter for `TypeFilterName.BOT`
+* Export `isValueInStringEnum()` helper, `KeysOfValueType` type
 * (Demo App) Enable unfollowing accounts
 
 ### v0.42.1
