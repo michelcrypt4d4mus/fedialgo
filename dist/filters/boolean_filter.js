@@ -16,11 +16,6 @@ var BooleanFilterName;
     BooleanFilterName["HASHTAG"] = "hashtag";
     BooleanFilterName["USER"] = "user";
     BooleanFilterName["APP"] = "app";
-    // Server Side filters work a bit differently. The API doesn't return toots that match the filter
-    // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
-    // other servers) it does so we have to manually filter them out.
-    // TODO: we now filter these out in isValidForFeed() so this stuff is probably not needed
-    BooleanFilterName["SERVER_SIDE_FILTERS"] = "ServerFilters";
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
 var TypeFilterName;
@@ -77,9 +72,6 @@ const TOOT_MATCHERS = {
     [BooleanFilterName.HASHTAG]: (toot, validValues) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [BooleanFilterName.SERVER_SIDE_FILTERS]: (toot, validValues) => {
-        return !!validValues.find((v) => toot.realToot().containsTag(v, true));
-    },
     [BooleanFilterName.TYPE]: (toot, validValues) => {
         return validValues.every((v) => exports.TYPE_FILTERS[v](toot));
     },
@@ -110,12 +102,8 @@ class BooleanFilter extends toot_filter_1.default {
         this.title = title;
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
-        // Server side filters are invisible & inverted by default bc we don't want to show toots including them
-        if (title == BooleanFilterName.SERVER_SIDE_FILTERS) {
-            this.invertSelection = invertSelection ?? true;
-            this.visible = false;
-        }
-        else if (this.title == BooleanFilterName.APP) {
+        // The app filter is kind of useless so we mark it as invisible via config option
+        if (this.title == BooleanFilterName.APP) {
             this.visible = config_1.Config.isAppFilterVisible;
         }
     }
@@ -132,11 +120,6 @@ class BooleanFilter extends toot_filter_1.default {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = { ...optionInfo }; // TODO: this is to trigger useMemo() in the demo app, not great
-        // Server side filters get all the options immediately set to filter out toots that come
-        // from trending and other sources where the user's server configuration is not applied.
-        if (this.title == BooleanFilterName.SERVER_SIDE_FILTERS) {
-            this.validValues = Object.keys(optionInfo);
-        }
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it

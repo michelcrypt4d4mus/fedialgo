@@ -7,8 +7,7 @@ export declare enum BooleanFilterName {
     LANGUAGE = "language",
     HASHTAG = "hashtag",
     USER = "user",
-    APP = "app",
-    SERVER_SIDE_FILTERS = "ServerFilters"
+    APP = "app"
 }
 export declare enum TypeFilterName {
     AUDIO = "audio",

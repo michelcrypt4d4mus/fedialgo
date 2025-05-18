@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Rename `ScorerDict` type to `WeightInfoDict`
+* Remove `BooleanFilterName.SERVER_SIDE_FILTERS` (toots that match server side filters are now stripped out as invalid in `buildToots()`)
 
 ## v0.42.0
 * Sort trending toots by `trendingRank`

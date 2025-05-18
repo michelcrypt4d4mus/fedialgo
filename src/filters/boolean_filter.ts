@@ -7,7 +7,7 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { Config } from '../config';
 import { countValues } from "../helpers/collection_helpers";
-import { FilterArgs, StorageKey, StringNumberDict } from "../types";
+import { FilterArgs, StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -21,11 +21,6 @@ export enum BooleanFilterName {
     HASHTAG = 'hashtag',
     USER = 'user',
     APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
-    // Server Side filters work a bit differently. The API doesn't return toots that match the filter
-    // for authenticated requests but for unauthenticated requests (e.g. pulling trending toots from
-    // other servers) it does so we have to manually filter them out.
-    // TODO: we now filter these out in isValidForFeed() so this stuff is probably not needed
-    SERVER_SIDE_FILTERS = StorageKey.SERVER_SIDE_FILTERS,
 };
 
 export enum TypeFilterName {
@@ -82,9 +77,6 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
-    [BooleanFilterName.SERVER_SIDE_FILTERS]: (toot: Toot, validValues: string[]) => {
-        return !!validValues.find((v) => toot.realToot().containsTag(v, true));
-    },
     [BooleanFilterName.TYPE]: (toot: Toot, validValues: string[]) => {
         return validValues.every((v) => TYPE_FILTERS[v as TypeFilterName](toot));
     },
@@ -124,11 +116,8 @@ export default class BooleanFilter extends TootFilter {
         this.optionInfo = optionInfo ?? {};
         this.validValues = validValues ?? [];
 
-        // Server side filters are invisible & inverted by default bc we don't want to show toots including them
-        if (title == BooleanFilterName.SERVER_SIDE_FILTERS) {
-            this.invertSelection = invertSelection ?? true;
-            this.visible = false;
-        } else if (this.title == BooleanFilterName.APP) {
+        // The app filter is kind of useless so we mark it as invisible via config option
+        if (this.title == BooleanFilterName.APP) {
             this.visible = Config.isAppFilterVisible;
         }
     }
@@ -146,12 +135,6 @@ export default class BooleanFilter extends TootFilter {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = {...optionInfo}; // TODO: this is to trigger useMemo() in the demo app, not great
-
-        // Server side filters get all the options immediately set to filter out toots that come
-        // from trending and other sources where the user's server configuration is not applied.
-        if (this.title == BooleanFilterName.SERVER_SIDE_FILTERS) {
-            this.validValues = Object.keys(optionInfo);
-        }
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is
