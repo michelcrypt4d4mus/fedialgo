@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.41.4
 * Filter out toots matching the server side filters altogether (in particular from the list of trending toots)
 * Use split() method to separate `Toot`s needing completion from those that are complete
 
