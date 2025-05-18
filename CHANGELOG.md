@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.41.6
 * Add `mastodon.gamedev.place` to the list of `noMauServers`
 * Remove invalid toots in `Toot.buildToots()`
 * Refactor `Toot.uniqFlatMap()` method
