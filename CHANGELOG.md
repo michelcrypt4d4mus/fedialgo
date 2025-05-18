@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Sort trending toots by `trendingRank`
 
 ### v0.41.6
 * Add `mastodon.gamedev.place` to the list of `noMauServers`
