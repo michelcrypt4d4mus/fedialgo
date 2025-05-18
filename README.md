@@ -61,7 +61,7 @@ const algorithm = await TheAlgorithm.create({
 ### The `setTimelineInApp` Callback
 You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be called whenever the feed is changed. Specifically the callback will be invoked when:
 
-* An incremental batch of toots is retrieved from the fediverse and integrated into the timeline
+* A batch of toots is retrieved from the fediverse and integrated into the timeline
 * You make a call to `algorithm.updateUserWeights()` (see below)
 * You make a call to `algorithm.updateFilters()` (see below)
 
@@ -92,7 +92,7 @@ import { Toot } from "fedialgo";
 // variable contains the timeline (in the React example above that would be 'timeline').
 algorithm.triggerFeedUpdate();
 
-// Check if loading is in progress before calling, otherwise you might get thrown an exception
+// After first invocation check if loading is in progress before calling to avoid exceptions
 if (!algorithm.isLoading()) {
     algorithm.triggerFeedUpdate();
 }
@@ -102,6 +102,9 @@ if (!algorithm.isLoading()) {
 let timeline: Toot[] = algorithm.getTimeline();
 // If you wanted to wait until the feed was fully constructed, wait for the Promise:
 algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
+
+// You can pull additional past timeline toots beyond the configured initial amount:
+algorithm.triggerHomeTimelineBackFill();
 ```
 
 #### Setting Weights For The Various Feed Scorers
@@ -139,6 +142,12 @@ const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 // Set a filter for only toots with at least 3 replies
 filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
+```
+
+#### Resetting Everything
+You can also wipe the browser storage and reset all variables if needed.
+```typescript
+await algorithm.reset();
 ```
 
 ## `Toot` API

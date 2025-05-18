@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove `TheAlgorithm.logCurrentState()` method
 
 ### v0.43.1
 * (Demo App) Fix bug with action button count comparison

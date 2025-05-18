@@ -286,12 +286,6 @@ class TheAlgorithm {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG)
     }
 
-    // Log a message with the current state of TheAlgorithm instance
-    async logCurrentState(): Promise<void> {
-        const log = (msg: string, ...args: any[]) => console.log(`${bracketed(FEDIALGO)} ${msg}`, ...args);
-        Object.entries(await this.getCurrentState()).forEach(([key, value]) => log(key, value));
-    }
-
     // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
     mostRecentHomeTootAt(): Date | null {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
