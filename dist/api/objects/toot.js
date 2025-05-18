@@ -549,8 +549,8 @@ class Toot {
     ///////////////////////////////
     //       Class methods       //
     ///////////////////////////////
-    // Build array of new Toot objects from an array of Status objects.
-    // Toots returned by this method should have all their properties set correctly.
+    // Build array of new Toot objects from an array of Status objects (or Toots).
+    // Toots returned by this method should have most of their properties set correctly.
     static async buildToots(statuses, source, // Where did these toots come from?
     logPrefix) {
         if (statuses.length == 0)
@@ -561,6 +561,7 @@ class Toot {
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
         let toots = await this.completeToots(statuses, logPrefix, false);
+        toots = await this.removeInvalidToots(toots, logPrefix);
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         // Make a first pass at scoring with whatever scorers are ready to score

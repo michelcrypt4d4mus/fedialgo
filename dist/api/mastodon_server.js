@@ -174,15 +174,14 @@ class MastodonServer {
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
-        const toots = await this.fetchTrendingObjsFromAllServers({
+        return await this.fetchTrendingObjsFromAllServers({
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
                 return await toot_1.default.buildToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
-            },
+            }
         });
-        return await toot_1.default.removeInvalidToots(toots, '[fediverseTrendingToots()]');
     }
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
@@ -200,7 +199,7 @@ class MastodonServer {
             key: types_1.StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, tag => tag.name);
+                const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
                 return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, "numTrendingTags");
             }
         });

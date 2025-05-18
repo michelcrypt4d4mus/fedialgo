@@ -402,7 +402,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", isDeepInspect);
-        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix);
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix); // Required for refreshing muted accounts
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
@@ -476,7 +476,6 @@ class TheAlgorithm {
     async mergeTootsToFeed(newToots, logPrefix) {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
-        newToots = await toot_1.default.removeInvalidToots(newToots, logPrefix);
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();

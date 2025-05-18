@@ -196,16 +196,14 @@ export default class MastodonServer {
 
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        const toots = await this.fetchTrendingObjsFromAllServers<Toot>({
+        return await this.fetchTrendingObjsFromAllServers<Toot>({
             key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
                 return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
-            },
+            }
         });
-
-        return await Toot.removeInvalidToots(toots, '[fediverseTrendingToots()]');
     }
 
     // Get the top trending links from all servers
@@ -225,7 +223,7 @@ export default class MastodonServer {
             key: StorageKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                const uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, tag => (tag as TagWithUsageCounts).name);
+                const uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
                 return truncateToConfiguredLength(uniqueTags, "numTrendingTags");
             }
         });
