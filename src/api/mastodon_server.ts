@@ -201,7 +201,8 @@ export default class MastodonServer {
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
-                return await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                const trendingToots = await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
             }
         });
     }

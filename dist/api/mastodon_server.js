@@ -179,7 +179,8 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                return await toot_1.default.buildToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                const trendingToots = await toot_1.default.buildToots(toots, types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
             }
         });
     }
