@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import { AccountNames, StringNumberDict } from "../../types";
+import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
@@ -39,7 +39,7 @@ export default class Account implements AccountObj {
     roles: mastodon.v1.Account["roles"];
     isFollowed: boolean;
     webfingerURI: string;
-    static build(account: mastodon.v1.Account): Account;
+    static build(account: AccountLike): Account;
     describe(): string;
     displayNameWithEmojis(): string;
     displayNameFullHTML(): string;

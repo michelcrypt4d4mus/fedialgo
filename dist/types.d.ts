@@ -60,7 +60,7 @@ export declare enum MediaCategory {
     IMAGE = "image",
     VIDEO = "video"
 }
-export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;
+export type AccountLike = Account | mastodon.v1.Account;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
@@ -90,6 +90,9 @@ export type FilterArgs = {
     visible?: boolean;
 };
 export type InstanceResponse = MastodonInstance | null;
+export type KeysOfValueType<T, SuperClass> = Exclude<{
+    [K in keyof T]: T[K] extends SuperClass ? K : never;
+}[keyof T], undefined>;
 export type MastodonApiObject = (MastodonObjWithID | mastodon.v1.Tag | mastodon.v1.TrendLink);
 export type MastodonObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 export interface MastodonInstance extends mastodon.v2.Instance {

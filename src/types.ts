@@ -94,7 +94,7 @@ export enum MediaCategory {
 
 
 // Records
-export type AccountLike = Account | mastodon.v1.Account | mastodon.v1.StatusMention;  // TODO: unused
+export type AccountLike = Account | mastodon.v1.Account;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;

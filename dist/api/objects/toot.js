@@ -30,9 +30,9 @@ const config_1 = require("../../config");
 const language_helper_1 = require("../../helpers/language_helper");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
+const boolean_filter_1 = require("../../filters/boolean_filter");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
-const boolean_filter_1 = require("../../filters/boolean_filter");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -309,9 +309,10 @@ class Toot {
             console.warn(`Removing toot with future timestamp:`, this);
             return false;
         }
-        else if (this.filtered?.length) {
+        else if (this.filtered?.length || this.reblog?.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
-            const filterMatchStr = this.filtered[0].keywordMatches?.join(' ');
+            const filterMatches = (this.filtered || []).concat(this.reblog?.filtered || []);
+            const filterMatchStr = filterMatches[0].keywordMatches?.join(' ');
             (0, log_helpers_1.traceLog)(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
@@ -552,8 +553,7 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects (or Toots).
     // Toots returned by this method should have most of their properties set correctly.
-    static async buildToots(statuses, source, // Where did these toots come from?
-    logPrefix) {
+    static async buildToots(statuses, source, logPrefix) {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
@@ -598,9 +598,6 @@ class Toot {
     static dedupeToots(toots, logPrefix) {
         logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix || "dedupeToots")} dedupeToots()`;
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
-        // If there's the same # of URIs as toots there's nothing to dedupe
-        // THIS COULD BE UNSAFE BECAUSE OF RETOOTS
-        // if (Object.keys(tootsByURI).length == toots.length) return toots;
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
@@ -611,29 +608,22 @@ class Toot {
             const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably use most recent toot
             // Deal with tag and filter arrays
-            const allTrendingTags = uriToots.flatMap(toot => toot.realToot().trendingTags || []);
-            const uniqueTrendingTags = (0, collection_helpers_1.uniquifyByProp)(allTrendingTags, (tag) => tag.name);
-            const allFollowedTags = uriToots.flatMap(toot => toot.realToot().followedTags || []);
-            const uniqueFollowedTags = (0, collection_helpers_1.uniquifyByProp)(allFollowedTags, (tag) => tag.name);
-            const allFilterMatches = uriToots.flatMap(toot => toot.realToot().filtered || []);
-            const uniqueFilterMatches = (0, collection_helpers_1.uniquifyByProp)(allFilterMatches, (filter) => filter.filter.id);
+            const uniqFiltered = this.uniqFlatMap(uriToots, "filtered", (f) => f.filter.id);
+            const uniqFollowedTags = this.uniqFlatMap(uriToots, "followedTags", (t) => t.name);
+            const uniqTrendingTags = this.uniqFlatMap(uriToots, "trendingTags", (t) => t.name);
+            const uniqSources = this.uniqFlatMap(uriToots, "sources", (source) => source);
             // Collate multiple retooters if they exist
-            let reblogsBy = uriToots.flatMap(toot => toot.reblog?.reblogsBy ?? []);
-            reblogsBy = (0, collection_helpers_1.uniquifyByProp)(reblogsBy, (account) => account.webfingerURI);
+            let reblogsBy = this.uniqFlatMap(uriToots, "reblogsBy", (account) => account.webfingerURI);
             reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
-            const sources = uriToots.flatMap(t => (t.sources || []).concat(t.reblog?.sources || []));
-            const uniqueSources = (0, collection_helpers_1.uniquify)(sources);
-            // Counts may increase over time w/repeated fetches so we collate the max
-            const propsThatChange = PROPS_THAT_CHANGE.reduce((props, propName) => {
-                props[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
-                return props;
-            }, {});
             // Collate accounts - reblogs and realToot accounts
             const allAccounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? [t.reblog.account] : []));
-            // Helper method to collate the isFollowed property
-            const isFollowed = (webfingerURI) => {
-                return allAccounts.some((a) => a.isFollowed && (a.webfingerURI == webfingerURI));
-            };
+            // Helper method to collate the isFollowed property for the accounts
+            const isFollowed = (uri) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
+            // Counts may increase over time w/repeated fetches so we collate the max
+            const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
+                propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
+                return propValues;
+            }, {});
             uriToots.forEach((toot) => {
                 // propsThatChange are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
@@ -645,22 +635,23 @@ class Toot {
                 toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags + sources + server side filter matches
-                toot.realToot().trendingTags = uniqueTrendingTags;
-                toot.realToot().followedTags = uniqueFollowedTags;
-                toot.filtered = uniqueFilterMatches;
-                toot.sources = uniqueSources;
+                toot.realToot().followedTags = uniqFollowedTags;
+                toot.realToot().trendingTags = uniqTrendingTags;
+                toot.filtered = uniqFiltered;
+                toot.sources = uniqSources;
                 // Booleans usually only set on the realToot
                 toot.realToot().bookmarked = uriToots.some(toot => toot.realToot().bookmarked);
                 toot.realToot().favourited = uriToots.some(toot => toot.realToot().favourited);
                 toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
-                toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
+                toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= firstCompleted?.completedAt;
+                    toot.reblog.filtered = uniqFiltered;
                     toot.reblog.reblogsBy = reblogsBy;
-                    toot.reblog.sources = uniqueSources;
+                    toot.reblog.sources = uniqSources;
                 }
             });
         });
@@ -689,6 +680,13 @@ class Toot {
     static async removeInvalidToots(toots, logPrefix) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
         return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logPrefix, 'invalid', 'Toot');
+    }
+    // Return a new array of a toot property collected and uniquified from an array of toots
+    // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]
+    static uniqFlatMap(toots, property, uniqFxn) {
+        const mappedReblogs = toots.flatMap(toot => toot.reblog?.[property] ?? []);
+        const mapped = (toots.flatMap(toot => toot[property] ?? [])).concat(mappedReblogs);
+        return (0, collection_helpers_1.uniquifyByProp)(mapped, uniqFxn);
     }
 }
 exports.default = Toot;

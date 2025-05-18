@@ -1,12 +1,13 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import Scorer from "../../scorer/scorer";
-import { FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink } from "../../types";
+import { AccountLike, FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
     followedTags?: MastodonTag[];
+    participatedTags?: TagWithUsageCounts[];
     reblog?: SerializableToot | null;
-    reblogsBy?: mastodon.v1.Account[];
+    reblogsBy?: AccountLike[];
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     sources?: string[];
@@ -115,12 +116,12 @@ export default class Toot implements TootObj {
     private isComplete;
     private isUsersOwnToot;
     private repair;
-    static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
-    logPrefix?: string): Promise<Toot[]>;
+    static buildToots(statuses: TootLike[], source: string, logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
     static removeInvalidToots(toots: Toot[], logPrefix: string): Promise<Toot[]>;
+    private static uniqFlatMap;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;

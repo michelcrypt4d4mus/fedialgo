@@ -451,7 +451,7 @@ class TheAlgorithm {
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
-        console.log(`[fedialgo] loadCachedData() oaded ${this.feed.length} timeline toots from cache, trendingData`);
+        console.log(`[fedialgo] loadCachedData() loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.

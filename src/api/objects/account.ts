@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 import { Type } from "class-transformer";
 
 import MastoApi from "../api";
-import { AccountNames, StringNumberDict } from "../../types";
+import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 import { Config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
@@ -62,7 +62,7 @@ export default class Account implements AccountObj {
     webfingerURI!: string;
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
-    static build(account: mastodon.v1.Account): Account {
+    static build(account: AccountLike): Account {
         const accountObj = new Account();
         accountObj.id = account.id;
         accountObj.username = account.username;
