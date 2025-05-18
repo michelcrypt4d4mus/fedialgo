@@ -457,7 +457,6 @@ class TheAlgorithm {
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     async lockedMergeToFeed(newToots, logPrefix) {
-        newToots = await toot_1.default.removeInvalidToots(newToots, logPrefix);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
             await this.mergeTootsToFeed(newToots, logPrefix);
@@ -475,8 +474,9 @@ class TheAlgorithm {
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     async mergeTootsToFeed(newToots, logPrefix) {
-        const numTootsBefore = this.feed.length;
         const startedAt = new Date();
+        const numTootsBefore = this.feed.length;
+        newToots = await toot_1.default.removeInvalidToots(newToots, logPrefix);
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
