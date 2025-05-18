@@ -13,7 +13,7 @@ import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
+import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { Config } from "../../config";
 import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
@@ -373,7 +373,7 @@ export default class Toot implements TootObj {
 
     // Return false if Toot should be discarded from feed altogether and permanently
     // Note that this is very different from being temporarily filtered out of the visible feed
-    isValidForFeed(): boolean {
+    isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
         if (this.isUsersOwnToot()) {
             traceLog(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
@@ -394,7 +394,15 @@ export default class Toot implements TootObj {
             return false;
         }
 
-        return true;
+        // Return false if toot matches any server side filters
+        return !serverSideFilters.some((filter) => (
+            filter.keywords.some((keyword) => {
+                if (this.realToot().containsString(keyword.keyword)) {
+                    traceLog(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                    return true;
+                }
+            })
+        ));
     }
 
     // Sum of the trendingRank, numReblogs, replies, and local server favourites
@@ -795,7 +803,7 @@ export default class Toot implements TootObj {
 
         logTootRemoval(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
-    };
+    }
 
     // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
     // for a call to the mastodon API to get the next page of toots.
@@ -805,6 +813,11 @@ export default class Toot implements TootObj {
         if (toots.length == 0) return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return sortByCreatedAt(toots)[idx].id;
+    }
+
+    static async removeInvalidToots(toots: Toot[], logPrefix: string): Promise<Toot[]> {
+        const serverSideFilters = (await MastoApi.instance.getServerSideFilters()) || [];
+        return filterWithLog(toots, t => t.isValidForFeed(serverSideFilters), logPrefix, 'invalid', 'Toot');
     }
 };
 

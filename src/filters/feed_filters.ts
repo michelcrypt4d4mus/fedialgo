@@ -64,11 +64,7 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-export function updateBooleanFilterOptions(
-    filters: FeedFilterSettings,
-    toots: Toot[],
-    userData: UserData
-): FeedFilterSettings {
+export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): FeedFilterSettings {
     const logPrefx = `[updateBooleanFilterOptions()]`
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
@@ -107,16 +103,6 @@ export function updateBooleanFilterOptions(
             if (typeFilter(toot)) {
                 incrementCount(tootCounts[BooleanFilterName.TYPE], name);
             }
-        });
-
-        // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
-        userData.serverSideFilters.forEach((filter) => {
-            filter.keywords.forEach((keyword) => {
-                if (toot.realToot().containsString(keyword.keyword)) {
-                    traceLog(`Matched server filter (${toot.describe()}):`, filter);
-                    incrementCount(tootCounts[BooleanFilterName.SERVER_SIDE_FILTERS], keyword.keyword);
-                }
-            });
         });
     });
 

@@ -294,7 +294,7 @@ class Toot {
     }
     // Return false if Toot should be discarded from feed altogether and permanently
     // Note that this is very different from being temporarily filtered out of the visible feed
-    isValidForFeed() {
+    isValidForFeed(serverSideFilters) {
         if (this.isUsersOwnToot()) {
             (0, log_helpers_1.traceLog)(`Removing fedialgo user's own toot: ${this.describe()}`);
             return false;
@@ -318,7 +318,13 @@ class Toot {
             (0, log_helpers_1.traceLog)(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
             return false;
         }
-        return true;
+        // Return false if toot matches any server side filters
+        return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
+            if (this.realToot().containsString(keyword.keyword)) {
+                (0, log_helpers_1.traceLog)(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                return true;
+            }
+        })));
     }
     // Sum of the trendingRank, numReblogs, replies, and local server favourites
     popularity() {
@@ -668,7 +674,6 @@ class Toot {
         (0, log_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     }
-    ;
     // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
     // for a call to the mastodon API to get the next page of toots.
     // Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
@@ -678,6 +683,10 @@ class Toot {
             return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return (0, exports.sortByCreatedAt)(toots)[idx].id;
+    }
+    static async removeInvalidToots(toots, logPrefix) {
+        const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
+        return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logPrefix, 'invalid', 'Toot');
     }
 }
 exports.default = Toot;

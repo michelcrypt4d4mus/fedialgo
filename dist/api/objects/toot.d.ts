@@ -100,7 +100,7 @@ export default class Toot implements TootObj {
     isFollowed(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
     isTrending(): boolean;
-    isValidForFeed(): boolean;
+    isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
     popularity(): number;
     realAccount(): Account;
     realToot(): Toot;
@@ -120,6 +120,7 @@ export default class Toot implements TootObj {
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
+    static removeInvalidToots(toots: Toot[], logPrefix: string): Promise<Toot[]>;
 }
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;

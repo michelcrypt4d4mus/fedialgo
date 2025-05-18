@@ -402,8 +402,8 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await toot_1.default.completeToots(this.feed, log_helpers_1.TRIGGER_FEED + " DEEP", isDeepInspect);
-        this.feed = (0, collection_helpers_1.filterWithLog)(this.feed, t => t.isValidForFeed(), 'finishFeedUpdate()', 'invalid', 'Toot');
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix);
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.loadingStatus = null;
@@ -449,7 +449,7 @@ class TheAlgorithm {
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loadCachedData() oaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
@@ -457,7 +457,7 @@ class TheAlgorithm {
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     async lockedMergeToFeed(newToots, logPrefix) {
-        newToots = (0, collection_helpers_1.filterWithLog)(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
+        newToots = await toot_1.default.removeInvalidToots(newToots, logPrefix);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
             await this.mergeTootsToFeed(newToots, logPrefix);
@@ -478,7 +478,7 @@ class TheAlgorithm {
         const numTootsBefore = this.feed.length;
         const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, await api_1.default.instance.getUserData());
+        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);

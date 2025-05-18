@@ -77,7 +77,7 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-function updateBooleanFilterOptions(filters, toots, userData) {
+function updateBooleanFilterOptions(filters, toots) {
     const logPrefx = `[updateBooleanFilterOptions()]`;
     const suppressedNonLatinTags = {};
     const tootCounts = Object.values(boolean_filter_1.BooleanFilterName).reduce((counts, propertyName) => {
@@ -108,15 +108,6 @@ function updateBooleanFilterOptions(filters, toots, userData) {
             if (typeFilter(toot)) {
                 (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.TYPE], name);
             }
-        });
-        // Aggregate server-side filter counts (toots matching server side filters are hidden by default)
-        userData.serverSideFilters.forEach((filter) => {
-            filter.keywords.forEach((keyword) => {
-                if (toot.realToot().containsString(keyword.keyword)) {
-                    (0, log_helpers_1.traceLog)(`Matched server filter (${toot.describe()}):`, filter);
-                    (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.SERVER_SIDE_FILTERS], keyword.keyword);
-                }
-            });
         });
     });
     // TODO: if there's a validValues element for a filter section that is no longer in the feed

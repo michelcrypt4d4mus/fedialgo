@@ -433,8 +433,8 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", isDeepInspect);
-        this.feed = filterWithLog(this.feed, t => t.isValidForFeed(), 'finishFeedUpdate()', 'invalid', 'Toot');
-        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);
+        updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
         await this.scoreAndFilterFeed();
         this.loadingStatus = null;
@@ -489,7 +489,7 @@ class TheAlgorithm {
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
-        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        updateBooleanFilterOptions(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
         console.log(`[fedialgo] loadCachedData() oaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
@@ -498,7 +498,6 @@ class TheAlgorithm {
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     private async lockedMergeToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
-        newToots = filterWithLog(newToots, t => t.isValidForFeed(), logPrefix, 'invalid', 'Toot');
         const releaseMutex = await lockExecution(this.mergeMutex, logPrefix);
 
         try {
@@ -517,11 +516,11 @@ class TheAlgorithm {
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     private async mergeTootsToFeed(newToots: Toot[], logPrefix: string): Promise<void> {
-        const numTootsBefore = this.feed.length;
         const startedAt = new Date();
-
+        const numTootsBefore = this.feed.length;
+        newToots = await Toot.removeInvalidToots(newToots, logPrefix);
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logPrefix);
-        updateBooleanFilterOptions(this.filters, this.feed, await MastoApi.instance.getUserData());
+        updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);
