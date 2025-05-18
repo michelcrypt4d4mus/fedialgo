@@ -141,7 +141,7 @@ class BooleanFilter extends toot_filter_1.default {
     // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element, isValidOption) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
-        if (isValidOption) {
+        if (isValidOption && !this.validValues.includes(element)) {
             this.validValues.push(element);
         }
         else {

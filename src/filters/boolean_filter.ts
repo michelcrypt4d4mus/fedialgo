@@ -158,7 +158,7 @@ export default class BooleanFilter extends TootFilter {
     updateValidOptions(element: string, isValidOption: boolean) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
 
-        if (isValidOption) {
+        if (isValidOption && !this.validValues.includes(element)) {
             this.validValues.push(element);
         } else {
             if (!this.validValues.includes(element)) {
