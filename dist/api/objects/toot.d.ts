@@ -111,10 +111,10 @@ export default class Toot implements TootObj {
     private attachmentsOfType;
     private completeProperties;
     private containsTagsOfTypeMsg;
-    private isUsersOwnToot;
-    private repair;
     private determineLanguage;
     private isComplete;
+    private isUsersOwnToot;
+    private repair;
     static buildToots(statuses: TootLike[], source: string, // Where did these toots come from?
     logPrefix?: string): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;

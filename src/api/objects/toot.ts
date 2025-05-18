@@ -516,64 +516,6 @@ export default class Toot implements TootObj {
         return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
 
-    // Returns true if this toot is by the fedialgo user
-    private isUsersOwnToot(): boolean {
-        const fedialgoUserWebfingerURI = MastoApi.instance.user.webfingerURI;
-        if (this.account.webfingerURI == fedialgoUserWebfingerURI) return true;
-        if (this.reblog && this.reblog.account.webfingerURI == fedialgoUserWebfingerURI) return true;
-        return false;
-    }
-
-    // Repair toot properties:
-    //   - Set toot.application.name to UNKNOWN if missing
-    //   - Set toot.language to defaultLanguage if missing
-    //   - Lowercase all tags
-    //   - Repair mediaAttachment types if reparable based on URL file extension
-    //   - Repair StatusMention objects for users on home server
-    private repair(): void {
-        this.application ??= {name: UNKNOWN};
-        this.application.name ??= UNKNOWN;
-        this.tags.forEach(repairTag);  // Repair Tags
-        this.determineLanguage();      // Repair language
-
-        if (this.reblog){
-            this.trendingRank ||= this.reblog.trendingRank;
-            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
-
-            if (!reblogsByAccts.includes(this.account.webfingerURI)) {
-                this.reblog.reblogsBy.push(this.account);
-                this.reblog.reblogsBy = sortObjsByProps(this.reblog.reblogsBy, ["displayName"], true, true);
-            }
-        }
-
-        // Check for weird media types
-        this.mediaAttachments.forEach((media) => {
-            if (media.type == UNKNOWN) {
-                if (isImage(media.remoteUrl)) {
-                    console.info(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
-                    media.type = MediaCategory.IMAGE;
-                } else if (isVideo(media.remoteUrl)) {
-                    console.info(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
-                    media.type = MediaCategory.VIDEO;
-                } else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
-                    console.info(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
-                    media.type = MediaCategory.IMAGE;
-                } else {
-                    console.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
-                }
-            } else if (!MEDIA_TYPES.includes(media.type)) {
-                console.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
-            }
-        });
-
-        // Repair StatusMention.acct field for users on the home server by appending @serverDomain
-        this.mentions.forEach((mention) => {
-            if (mention.acct && !mention.acct.includes("@")) {
-                mention.acct += `@${extractDomain(mention.url)}`;
-            }
-        })
-    }
-
     // Figure out an appropriate language for the toot based on the content.
     private determineLanguage(): void {
         let text = this.contentStripped();
@@ -638,7 +580,7 @@ export default class Toot implements TootObj {
         }
     }
 
-    // Returns true if the toot should be re-completed
+   // Returns true if the toot should be re-completed
     private isComplete(): boolean {
         if (!this.completedAt) return false;  // If we haven't completed it yet, do it now
 
@@ -649,6 +591,64 @@ export default class Toot implements TootObj {
                // But not tooted so long ago that there's little chance of new data
             || ageInMinutes(this.createdAt) > Config.tootsCompleteAfterMinutes
         );
+    }
+
+    // Returns true if this toot is by the fedialgo user
+    private isUsersOwnToot(): boolean {
+        const fedialgoUserWebfingerURI = MastoApi.instance.user.webfingerURI;
+        if (this.account.webfingerURI == fedialgoUserWebfingerURI) return true;
+        if (this.reblog && this.reblog.account.webfingerURI == fedialgoUserWebfingerURI) return true;
+        return false;
+    }
+
+    // Repair toot properties:
+    //   - Set toot.application.name to UNKNOWN if missing
+    //   - Call determineLanguage() to set the language
+    //   - Lowercase all tags
+    //   - Repair mediaAttachment types if reparable based on URL file extension
+    //   - Repair StatusMention objects for users on home server
+    private repair(): void {
+        this.application ??= {name: UNKNOWN};
+        this.application.name ??= UNKNOWN;
+        this.tags.forEach(repairTag);  // Repair Tags
+        this.determineLanguage();      // Determine language
+
+        if (this.reblog) {
+            this.trendingRank ||= this.reblog.trendingRank;
+            const reblogsByAccts = this.reblogsBy.map((account) => account.webfingerURI);
+
+            if (!reblogsByAccts.includes(this.account.webfingerURI)) {
+                this.reblog.reblogsBy.push(this.account);
+                this.reblog.reblogsBy = sortObjsByProps(this.reblog.reblogsBy, ["displayName"], true, true);
+            }
+        }
+
+        // Check for weird media types
+        this.mediaAttachments.forEach((media) => {
+            if (media.type == UNKNOWN) {
+                if (isImage(media.remoteUrl)) {
+                    console.debug(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
+                    media.type = MediaCategory.IMAGE;
+                } else if (isVideo(media.remoteUrl)) {
+                    console.debug(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
+                    media.type = MediaCategory.VIDEO;
+                } else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
+                    console.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
+                    media.type = MediaCategory.IMAGE;
+                } else {
+                    console.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                }
+            } else if (!MEDIA_TYPES.includes(media.type)) {
+                console.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
+            }
+        });
+
+        // Repair StatusMention.acct field for users on the home server by appending @serverDomain
+        this.mentions.forEach((mention) => {
+            if (mention.acct && !mention.acct.includes("@")) {
+                mention.acct += `@${extractDomain(mention.url)}`;
+            }
+        })
     }
 
     ///////////////////////////////
