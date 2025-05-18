@@ -45,8 +45,8 @@ The FediAlgo demo app also contains a working example of how to execute the OAut
 import TheAlgorithm from "fedialgo"
 import { createRestAPIClient, mastodon } from "masto";
 
+const mastodonServer = "https://mastodon.social";
 const accessToken = getTheUserAccessTokenSomehow();
-const mastodonServer = "https://mastodon.social"
 const api = createRestAPIClient({accessToken: accessToken, url: mastodonServer});
 const currentUser = await api.v1.accounts.verifyCredentials();
 
