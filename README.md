@@ -47,8 +47,8 @@ import { createRestAPIClient, mastodon } from "masto";
 
 const accessToken = getTheUserAccessTokenSomehow();
 const mastodonServer = "https://mastodon.social"
-const api = createRestAPIClient({accessToken: accessToken, url: app.website});
-const currentUser = await api.v1.accounts.verifyCredentials()
+const api = createRestAPIClient({accessToken: accessToken, url: mastodonServer});
+const currentUser = await api.v1.accounts.verifyCredentials();
 
 // Instantiate a TheAlgorithm object
 const algorithm = await TheAlgorithm.create({
@@ -92,16 +92,16 @@ import { Toot } from "fedialgo";
 // variable contains the timeline (in the React example above that would be 'timeline').
 algorithm.triggerFeedUpdate();
 
-// algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
-// Note there won't be anything in there until the timeilne is at least partially done being built!
-let timeline: Toot[] = algorithm.getTimeline();
-// If you wanted to wait until the feed was fully constructed, wait for the Promise:
-algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
-
 // Check if loading is in progress before calling, otherwise you might get thrown an exception
 if (!algorithm.isLoading()) {
     algorithm.triggerFeedUpdate();
 }
+
+// algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
+// Note there won't be anything there until the timeilne is at least partially built!
+let timeline: Toot[] = algorithm.getTimeline();
+// If you wanted to wait until the feed was fully constructed, wait for the Promise:
+algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
 ```
 
 #### Setting Weights For The Various Feed Scorers
@@ -113,14 +113,18 @@ const weights: Weights = await algorithm.getUserWeights();
 weights[WeightName.NUM_REPLIES] = 0.5;
 let timelineFeed: Toot[] = await algorithm.updateUserWeights(weights);
 
-// Choose a preset weight configuration using the WeightPresetLabel enum
-timelineFeed = await algorithm.updateUserWeightsToPreset(WeightPresetLabel.CHRONOLOGICAL);
-// All the preset can be found in algorithm.weightPresets
-Object.entries(algorithm.weightPresets).forEach(([preset, weights]) => console.log(`${preset}:`, weights));
-
 // The names of the weights that can be adjusted are exported as the WeightName enum.
 // Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
-for (const key in WeightName) console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
+for (const key in WeightName) {
+    console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
+}
+
+// Or choose a preset weight configuration using the WeightPresetLabel enum
+timelineFeed = await algorithm.updateUserWeightsToPreset(WeightPresetLabel.CHRONOLOGICAL);
+// All the presets can be found in algorithm.weightPresets
+Object.entries(algorithm.weightPresets).forEach(([presetName, weights]) => {
+    console.log(`${presetName}:`, weights)
+});
 ```
 
 #### Filtering The Feed
@@ -129,7 +133,7 @@ import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
-filters.filterSections[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
+filters.booleanFilters[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies
@@ -167,7 +171,7 @@ The user's followed accounts, muted accounts, followed tags, and a few other bit
 
 
 ## Package Configuration
-Package configuration options can be found in [`src/config.ts`](src/config.ts). You can't change these via the API currently.
+Package configuration options can be found in [`src/config.ts`](src/config.ts). These can't currently be changed via the API though feel free to experiment with your local copy of the repo.
 
 
 # Contributing
