@@ -1,8 +1,8 @@
 # NEXT RELEASE
-* Use split() method to separate Toots needing completion from those that are complete
+* Use split() method to separate `Toot`s needing completion from those that are complete
 
 ### v0.41.3
-* Re-optimize toot completion
+* Re-optimize `Toot` completion
 
 ### v0.41.2
 * Speed up re-filtering of the feed during refreshMutedAccounts()
