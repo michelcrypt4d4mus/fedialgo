@@ -1,14 +1,17 @@
 # NEXT RELEASE
 
+### v0.41.5
+* (Demo App) Add missing `Confirmation.tsx` file
+
 ### v0.41.4
 * Filter out toots matching the server side filters altogether (in particular from the list of trending toots)
-* Use split() method to separate `Toot`s needing completion from those that are complete
+* Use `split()` method to separate `Toot`s needing completion from those that are complete
 
 ### v0.41.3
 * Re-optimize `Toot` completion
 
 ### v0.41.2
-* Speed up re-filtering of the feed during refreshMutedAccounts()
+* Speed up re-filtering of the feed during `refreshMutedAccounts()`
 * Export `WeightPresetLabel` enum
 
 ### v0.41.1
