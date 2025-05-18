@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add mastodon.gamedev.place to the list of noMauServers
 
 ### v0.41.5
 * (Demo App) Add missing `Confirmation.tsx` file

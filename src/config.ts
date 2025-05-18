@@ -233,7 +233,6 @@ export const Config: ConfigType = {
         "infosec.exchange",
         "universeodon.com",
         "kolektiva.social",
-        "mastodon.gamedev.place",
         "mastodonapp.uk",
         "ioc.exchange",
         "tech.lgbt",
@@ -325,6 +324,7 @@ export const Config: ConfigType = {
         "fediverse.one",
         "flipboard.com",
         "mastodon.art",
+        "mastodon.gamedev.place",
         "mastodon.sdf.org",
         'mathstodon.xyz',
         "mstdn.social",    // blocked by CORS
@@ -335,7 +335,6 @@ export const Config: ConfigType = {
         "chaos.social",
         "fediscience.org",
         "mastodon.cloud",
-        "mastodon.gamedev.place",
         "med-mastodon.com",
         "toot.io",
     ],
