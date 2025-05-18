@@ -1,7 +1,7 @@
 # NEXT RELEASE
 * Add `mastodon.gamedev.place` to the list of `noMauServers`
 * Remove invalid toots in `Toot.buildToots()`
-* 
+* Refactor `Toot.uniqFlatMap()` method
 
 ### v0.41.5
 * (Demo App) Add missing `Confirmation.tsx` file
