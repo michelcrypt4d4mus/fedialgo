@@ -1,6 +1,7 @@
 # NEXT RELEASE
+* Rename `ScorerDict` type to `WeightInfoDict`
 
-# v0.42.0
+## v0.42.0
 * Sort trending toots by `trendingRank`
 * (Demo App) Render the trending toots using the `StatusComponent`
 

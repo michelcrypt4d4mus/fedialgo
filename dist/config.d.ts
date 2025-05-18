@@ -1,4 +1,4 @@
-import { ScorerDict, StorageKey } from "./types";
+import { StorageKey, WeightInfoDict } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const SECONDS_IN_HOUR: number;
@@ -61,7 +61,7 @@ export type ConfigType = {
     noMauServers: string[];
     noTrendingLinksServers: string[];
     isAppFilterVisible: boolean;
-    scorersConfig: ScorerDict;
+    weightsConfig: WeightInfoDict;
 };
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;

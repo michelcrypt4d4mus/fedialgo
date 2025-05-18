@@ -60,7 +60,7 @@ import {
     FeedFilterSettings,
     MastodonInstances,
     MediaCategory,
-    ScorerDict,
+    WeightInfoDict,
     StorageKey,
     StringNumberDict,
     TagWithUsageCounts,
@@ -156,17 +156,17 @@ class TheAlgorithm {
         ...this.feedScorers,
     ];
 
-    weightInfo: ScorerDict = this.weightedScorers.reduce(
+    weightInfo: WeightInfoDict = this.weightedScorers.reduce(
         (scorerInfos, scorer) => {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
         NON_SCORE_WEIGHTS.reduce(
             (specialScoreInfos, weightName) => {
-                specialScoreInfos[weightName] = Object.assign({}, Config.scorersConfig[weightName])
+                specialScoreInfos[weightName] = Object.assign({}, Config.weightsConfig[weightName])
                 return specialScoreInfos;
             },
-            {} as ScorerDict
+            {} as WeightInfoDict
         )
     );
 

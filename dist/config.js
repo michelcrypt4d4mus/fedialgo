@@ -261,7 +261,7 @@ exports.Config = {
         "toot.io",
     ],
     // Scorers
-    scorersConfig: {
+    weightsConfig: {
         // Global modifiers that affect all weighted scores
         [types_1.WeightName.TIME_DECAY]: {
             description: "Higher values favour recent toots more",

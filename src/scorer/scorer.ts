@@ -30,7 +30,7 @@ export default abstract class Scorer {
 
     constructor(name: WeightName) {
         this.name = name;
-        this.description = Config.scorersConfig[name].description;
+        this.description = Config.weightsConfig[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 

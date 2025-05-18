@@ -31,7 +31,7 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { sortKeysByValue } from "./helpers/collection_helpers";
 import { isDebugMode } from './helpers/environment_helpers';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
-import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, ScorerDict, StringNumberDict, TagWithUsageCounts, TrendingLink, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
+import { NON_SCORE_WEIGHTS, FeedFilterSettings, MastodonInstances, MediaCategory, WeightInfoDict, StringNumberDict, TagWithUsageCounts, TrendingLink, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -63,7 +63,7 @@ declare class TheAlgorithm {
     private featureScorers;
     private feedScorers;
     weightedScorers: (ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
-    weightInfo: ScorerDict;
+    weightInfo: WeightInfoDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;

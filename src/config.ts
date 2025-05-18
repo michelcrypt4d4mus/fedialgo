@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { FEDIVERSE_KEYS, ScorerDict, StorageKey, WeightName } from "./types";
+import { FEDIVERSE_KEYS, StorageKey, WeightInfoDict, WeightName } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
@@ -87,8 +87,8 @@ export type ConfigType = {
     noTrendingLinksServers: string[];
     // Demo app GUI stuff
     isAppFilterVisible: boolean;
-    // Scorers
-    scorersConfig: ScorerDict;
+    // Scoring weights
+    weightsConfig: WeightInfoDict;
 };
 
 
@@ -340,7 +340,7 @@ export const Config: ConfigType = {
     ],
 
     // Scorers
-    scorersConfig: {
+    weightsConfig: {
         // Global modifiers that affect all weighted scores
         [WeightName.TIME_DECAY]: {
             description: "Higher values favour recent toots more",

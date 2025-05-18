@@ -94,16 +94,16 @@ export enum MediaCategory {
 
 
 // Records
-export type AccountLike = Account | mastodon.v1.Account;
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
-export type ScorerDict = Record<WeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
 export type Weights = Record<WeightName, number>;
+export type WeightInfoDict = Record<WeightName, WeightInfo>;
 
 // Misc
+export type AccountLike = Account | mastodon.v1.Account;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | WeightName;
