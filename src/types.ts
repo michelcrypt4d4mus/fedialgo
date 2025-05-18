@@ -135,6 +135,13 @@ export type FilterArgs = {
 
 export type InstanceResponse = MastodonInstance | null;
 
+// Extract the keys of SerializableToot that are of a type that's a subclsas of TypeCondition
+// https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
+export type KeysOfValueType<T, SuperClass> = Exclude<
+    {[K in keyof T]: T[K] extends SuperClass ? K : never}[keyof T],
+    undefined
+>;
+
 export type MastodonApiObject = (
     MastodonObjWithID |
     mastodon.v1.Tag |
