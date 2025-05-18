@@ -1,4 +1,7 @@
 # NEXT RELEASE
+* Add filter for TypeFilterName.BOT
+* Export isValueInStringEnum() helper, `KeysOfValueType` type
+* (Demo App) Enable unfollowing accounts
 
 ### v0.42.1
 * Rename `ScorerDict` type to `WeightInfoDict`

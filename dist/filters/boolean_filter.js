@@ -21,6 +21,7 @@ var BooleanFilterName;
 var TypeFilterName;
 (function (TypeFilterName) {
     TypeFilterName["AUDIO"] = "audio";
+    TypeFilterName["BOT"] = "bot";
     TypeFilterName["DIRECT_MESSAGE"] = "directMessages";
     TypeFilterName["FOLLOWED_ACCOUNTS"] = "followedAccounts";
     TypeFilterName["FOLLOWED_HASHTAGS"] = "followedHashtags";
@@ -43,6 +44,7 @@ var TypeFilterName;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
     [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments.length,
+    [TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,

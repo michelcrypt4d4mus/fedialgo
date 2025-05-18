@@ -11,6 +11,7 @@ export declare enum BooleanFilterName {
 }
 export declare enum TypeFilterName {
     AUDIO = "audio",
+    BOT = "bot",
     DIRECT_MESSAGE = "directMessages",
     FOLLOWED_ACCOUNTS = "followedAccounts",
     FOLLOWED_HASHTAGS = "followedHashtags",

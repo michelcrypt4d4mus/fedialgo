@@ -39,10 +39,10 @@ import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } f
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
-import { filterWithLog, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
+import { isValueInStringEnum, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import {
     BACKFILL_FEED,
@@ -58,6 +58,7 @@ import {
 import {
     NON_SCORE_WEIGHTS,
     FeedFilterSettings,
+    KeysOfValueType,
     MastodonInstances,
     MediaCategory,
     WeightInfoDict,
@@ -607,6 +608,7 @@ export default TheAlgorithm;
 export {
     // Types
     type FeedFilterSettings,
+    type KeysOfValueType,
     type StringNumberDict,
     type TagWithUsageCounts,
     type TrendingLink,
@@ -636,6 +638,7 @@ export {
     formatScore,
     isAccessTokenRevokedError,
     isDebugMode,
+    isValueInStringEnum,
     sortKeysByValue,
     timeString,
 };

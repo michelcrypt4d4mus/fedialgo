@@ -25,6 +25,7 @@ export enum BooleanFilterName {
 
 export enum TypeFilterName {
     AUDIO = 'audio',
+    BOT = 'bot',
     DIRECT_MESSAGE = 'directMessages',
     FOLLOWED_ACCOUNTS = 'followedAccounts',
     FOLLOWED_HASHTAGS = 'followedHashtags',
@@ -47,6 +48,7 @@ export enum TypeFilterName {
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.AUDIO]:                 (toot) => !!toot.realToot().audioAttachments.length,
+    [TypeFilterName.BOT]:                   (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
     [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]:     (toot) => !!toot.realToot().followedTags?.length,
