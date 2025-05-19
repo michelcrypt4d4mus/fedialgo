@@ -79,7 +79,7 @@ const TOOT_MATCHERS = {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
     },
     [BooleanFilterName.TYPE]: (toot, validValues) => {
-        return validValues.every((v) => exports.TYPE_FILTERS[v](toot));
+        return validValues.some((v) => exports.TYPE_FILTERS[v](toot));
     },
     [BooleanFilterName.USER]: (toot, validValues) => {
         return validValues.includes(toot.realToot().account.webfingerURI);
