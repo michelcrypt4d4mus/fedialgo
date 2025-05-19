@@ -3,7 +3,7 @@
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { Config, ConfigType } from "../config";
-import { CountKey, MastodonObjWithID, MinMaxID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
 import { traceLog } from "./log_helpers";
 
 
@@ -80,32 +80,6 @@ export function countValues<T>(
 };
 
 
-// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
-export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
-    return array.reduce(
-        (grouped, item) => {
-            const group = makeKey(item);
-            grouped[group] ||= [];
-            grouped[group].push(item);
-            return grouped;
-        },
-        {} as Record<string, T[]>
-    );
-};
-
-
-// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
-export function incrementCount(counts: StringNumberDict, k?: CountKey | null, increment: number = 1): StringNumberDict {
-    k = k ?? "unknown";
-    counts[k] = (counts[k] || 0) + increment;
-    return counts;
-};
-
-export function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment: number = 1): StringNumberDict {
-    return incrementCount(counts, k, -1 * increment);
-};
-
-
 // Basic collection filter but logs the numebr of elements removed
 export function filterWithLog<T>(
     array: T[],
@@ -165,6 +139,32 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
 };
 
 
+// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
+export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
+    return array.reduce(
+        (grouped, item) => {
+            const group = makeKey(item);
+            grouped[group] ||= [];
+            grouped[group].push(item);
+            return grouped;
+        },
+        {} as Record<string, T[]>
+    );
+};
+
+
+// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
+export function incrementCount(counts: StringNumberDict, k?: CountKey | null, increment: number = 1): StringNumberDict {
+    k = k ?? "unknown";
+    counts[k] = (counts[k] || 0) + increment;
+    return counts;
+};
+
+export function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment: number = 1): StringNumberDict {
+    return incrementCount(counts, k, -1 * increment);
+};
+
+
 // Mastodon does not support top posts from foreign servers, so we have to do it manually
 function isRecord(x: unknown): x is Record<string, unknown> {
     return typeof x === "object" && x !== null && x.constructor.name === "Object";
@@ -191,6 +191,26 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
             return keyedDict;
         },
         {} as Record<string, T>
+    );
+};
+
+
+// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
+export function getMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null {
+    if (array.length == 0) return null;
+
+    return array.reduce(
+        (minMax: MinMax, obj: T) => {
+            const value = valueFxn(obj);
+
+            if (value) {
+                if (value < minMax.min) minMax.min = value;
+                if (value > minMax.max) minMax.max = value;
+            }
+
+            return minMax;
+        },
+        {min: Number.MAX_VALUE, max: Number.MIN_VALUE} as MinMax
     );
 };
 

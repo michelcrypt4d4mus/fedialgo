@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add min/max score to TheAlgorithm.statusDict()
 
 ### v0.43.2
 * Remove `TheAlgorithm.logCurrentState()` method

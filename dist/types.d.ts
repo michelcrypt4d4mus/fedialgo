@@ -104,6 +104,10 @@ export type MastodonInstanceEmpty = {
     MAU?: number;
 };
 export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
+export type MinMax = {
+    min: number;
+    max: number;
+};
 export type MinMaxID = {
     min: string;
     max: string;

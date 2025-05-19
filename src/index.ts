@@ -42,7 +42,7 @@ import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, 
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { isValueInStringEnum, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
+import { isValueInStringEnum, getMinMax, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import {
     BACKFILL_FEED,
@@ -591,6 +591,7 @@ class TheAlgorithm {
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             isLoading: this.isLoading(),
             loadingStatus: this.loadingStatus,
+            minMaxScores: getMinMax(this.feed, (toot) => toot.scoreInfo?.score),
         };
     }
 };
