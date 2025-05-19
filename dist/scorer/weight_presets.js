@@ -72,18 +72,20 @@ exports.WEIGHT_PRESETS = {
     [WeightPresetLabel.DEFAULT]: exports.DEFAULT_WEIGHTS,
     [WeightPresetLabel.DISCUSSIONS]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.WeightName.TRENDING]: 0.01,
+        [types_1.WeightName.TRENDING]: 0.001,
         [types_1.WeightName.CHAOS]: 0,
         [types_1.WeightName.DIVERSITY]: 0,
+        [types_1.WeightName.INTERACTIONS]: 2.5,
         [types_1.WeightName.NUM_REPLIES]: 50.0,
+        [types_1.WeightName.PARTICIPATED_TAGS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.PARTICIPATED_TAGS] * 2,
     },
     [WeightPresetLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: 0.02,
-        [types_1.WeightName.INTERACTIONS]: 2.5,
-        [types_1.WeightName.MENTIONS_FOLLOWED]: 3.0,
-        [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 3.0,
-        [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: 3.0,
+        [types_1.WeightName.INTERACTIONS]: 4,
+        [types_1.WeightName.MENTIONS_FOLLOWED]: 3,
+        [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 3,
+        [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: 3,
     },
     [WeightPresetLabel.PICTURES]: {
         ...exports.DEFAULT_WEIGHTS,
@@ -93,6 +95,7 @@ exports.WEIGHT_PRESETS = {
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: 0.5,
+        [types_1.WeightName.CHAOS]: 5,
         [types_1.WeightName.FOLLOWED_TAGS]: 0.1,
         [types_1.WeightName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_REPLIES] * 3,
         [types_1.WeightName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_RETOOTS] * 3,

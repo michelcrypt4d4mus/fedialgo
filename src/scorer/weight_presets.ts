@@ -75,19 +75,21 @@ export const WEIGHT_PRESETS: WeightPresets = {
 
     [WeightPresetLabel.DISCUSSIONS]: {
         ...DEFAULT_WEIGHTS,
-        [WeightName.TRENDING]: 0.01,
+        [WeightName.TRENDING]: 0.001,
         [WeightName.CHAOS]: 0,
         [WeightName.DIVERSITY]: 0,
+        [WeightName.INTERACTIONS]: 2.5,
         [WeightName.NUM_REPLIES]: 50.0,
+        [WeightName.PARTICIPATED_TAGS]: DEFAULT_WEIGHTS[WeightName.PARTICIPATED_TAGS] * 2,
     },
 
     [WeightPresetLabel.FRIENDS]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.02,
-        [WeightName.INTERACTIONS]: 2.5,
-        [WeightName.MENTIONS_FOLLOWED]: 3.0,
-        [WeightName.MOST_REPLIED_ACCOUNTS]: 3.0,
-        [WeightName.MOST_RETOOTED_ACCOUNTS]: 3.0,
+        [WeightName.INTERACTIONS]: 4,
+        [WeightName.MENTIONS_FOLLOWED]: 3,
+        [WeightName.MOST_REPLIED_ACCOUNTS]: 3,
+        [WeightName.MOST_RETOOTED_ACCOUNTS]: 3,
     },
 
     [WeightPresetLabel.PICTURES]: {
@@ -99,6 +101,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
     [WeightPresetLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.5,
+        [WeightName.CHAOS]: 5,
         [WeightName.FOLLOWED_TAGS]: 0.1,
         [WeightName.NUM_REPLIES]: DEFAULT_WEIGHTS[WeightName.NUM_REPLIES] * 3,
         [WeightName.NUM_RETOOTS]: DEFAULT_WEIGHTS[WeightName.NUM_RETOOTS] * 3,
