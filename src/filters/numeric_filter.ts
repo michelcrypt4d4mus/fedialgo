@@ -11,6 +11,8 @@ export const FILTERABLE_SCORES: WeightName[] = [
     WeightName.NUM_FAVOURITES,
 ];
 
+export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as WeightName);
+
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
 };

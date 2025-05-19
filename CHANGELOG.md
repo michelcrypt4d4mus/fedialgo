@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Standardize upgrade repair of user's filter settings
 
 ### v0.43.6
 * Generalize upgrading stored boolean filter settings

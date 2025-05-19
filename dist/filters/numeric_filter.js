@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FILTERABLE_SCORES = void 0;
+exports.isNumericFilterName = exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const types_1 = require("../types");
 exports.FILTERABLE_SCORES = [
@@ -11,6 +11,8 @@ exports.FILTERABLE_SCORES = [
     types_1.WeightName.NUM_RETOOTS,
     types_1.WeightName.NUM_FAVOURITES,
 ];
+const isNumericFilterName = (name) => exports.FILTERABLE_SCORES.includes(name);
+exports.isNumericFilterName = isNumericFilterName;
 ;
 class NumericFilter extends toot_filter_1.default {
     title;

@@ -1,19 +1,19 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
-import BooleanFilter, { BooleanFilterName, TYPE_FILTERS } from "./boolean_filter";
-import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterName, isBooleanFilterName } from "./boolean_filter";
+import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import UserData from "../api/user_data";
 import { ageString } from "../helpers/time_helpers";
 import { Config } from "../config";
 import { detectHashtagLanguage } from "../helpers/language_helper";
-import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
+import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import {
     BooleanFilters,
     FeedFilterSettings,
+    FilterArgs,
     NumericFilters,
     StringNumberDict,
     WeightName,
@@ -58,6 +58,29 @@ export function buildNewFilterSettings(): FeedFilterSettings {
     filters.booleanFilters[BooleanFilterName.TYPE] = new BooleanFilter({title: BooleanFilterName.TYPE});
     FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
     return filters;
+};
+
+
+// Removes filter args with invalid titles. Returns true if the filter settings were changed.
+// Used for upgrading existing users who may have invalid filter args in their settings.
+export function repairFilterSettings(filters: FeedFilterSettings): boolean {
+    let wasChanged = false;
+
+    // For upgrades of existing users for the rename of booleanFilterArgs
+    if ("feedFilterSectionArgs" in filters) {
+        console.warn(`Found old filter format feedFilterSectionArgs, converting to booleanFilterArgs...`);
+        filters.booleanFilterArgs = filters.feedFilterSectionArgs as BooleanFilterArgs[];
+        delete filters.feedFilterSectionArgs;
+        wasChanged = true;
+    }
+
+    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, isBooleanFilterName);
+    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, isNumericFilterName);
+    wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
+    wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
+    filters.booleanFilterArgs = validBooleanFilterArgs;
+    filters.numericFilterArgs = validNumericFilterArgs;
+    return wasChanged;
 };
 
 
@@ -143,4 +166,16 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
     console.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage.setFilters(filters);
+};
+
+
+// Remove any filter args from the list whose title is invalid
+function removeInvalidFilterArgs(args: FilterArgs[], titleValidator: (title: string) => boolean): FilterArgs[] {
+    const [validArgs, invalidArgs] = split(args, arg => titleValidator(arg.title));
+
+    if (invalidArgs.length > 0) {
+        console.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+    }
+
+    return validArgs;
 };

@@ -10,14 +10,12 @@ import MastoApi from "./api/api";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { buildFiltersFromArgs } from "./filters/feed_filters";
+import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { Config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
-import { FILTERABLE_SCORES } from "./filters/numeric_filter";
 import { isDebugMode } from "./helpers/environment_helpers";
-import { isBooleanFilterName } from "./filters/boolean_filter";
 import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
 import {
     FeedFilterSettings,
@@ -132,34 +130,9 @@ export default class Storage {
         const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;
         if (!filters) return null;
 
-        // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
-        if ("feedFilterSectionArgs" in filters) {
-            warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
-            await this.remove(StorageKey.FILTERS);
-            return null;
-        }
-
-        // TODO: also required for upgrades of existing users for the removal of server side filters
-        try {
-            let validBooleanFilterArgs = (filters.booleanFilterArgs as any[]).filter(f => isBooleanFilterName(f.title));
-
-            if (validBooleanFilterArgs.length !== filters.booleanFilterArgs.length) {
-                warn(`Found old sever filters, deleting from storage...`);
-                filters.booleanFilterArgs = validBooleanFilterArgs;
-                await this.set(StorageKey.FILTERS, filters);
-            }
-
-            let validNumericFilterArgs = (filters.numericFilterArgs as any[]).filter(f => FILTERABLE_SCORES.includes(f.title));
-
-            if (validNumericFilterArgs.length !== filters.numericFilterArgs.length) {
-                warn(`Found old sever filters, deleting from storage...`);
-                filters.numericFilterArgs = validNumericFilterArgs;
-                await this.set(StorageKey.FILTERS, filters);
-            }
-        } catch (e) {
-            console.error(`Error while trying to filter out server side filters from the stored filters:`, e);
-            await this.remove(StorageKey.FILTERS);
-            return null;
+        if (repairFilterSettings(filters)) {
+            warn(`Repaired old filter settings, updating...`);
+            await this.set(StorageKey.FILTERS, filters);
         }
 
         // Filters are saved in a serialized format that requires deserialization

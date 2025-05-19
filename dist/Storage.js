@@ -42,9 +42,7 @@ const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
-const numeric_filter_1 = require("./filters/numeric_filter");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const boolean_filter_1 = require("./filters/boolean_filter");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
@@ -129,31 +127,9 @@ class Storage {
         const filters = await this.get(types_1.StorageKey.FILTERS);
         if (!filters)
             return null;
-        // TODO: this is required for upgrades of existing users for the rename of booleanFilterArgs
-        if ("feedFilterSectionArgs" in filters) {
-            warn(`Found old filter format, deleting from storage and constructing new FeedFilterSettings...`);
-            await this.remove(types_1.StorageKey.FILTERS);
-            return null;
-        }
-        // TODO: also required for upgrades of existing users for the removal of server side filters
-        try {
-            let validBooleanFilterArgs = filters.booleanFilterArgs.filter(f => (0, boolean_filter_1.isBooleanFilterName)(f.title));
-            if (validBooleanFilterArgs.length !== filters.booleanFilterArgs.length) {
-                warn(`Found old sever filters, deleting from storage...`);
-                filters.booleanFilterArgs = validBooleanFilterArgs;
-                await this.set(types_1.StorageKey.FILTERS, filters);
-            }
-            let validNumericFilterArgs = filters.numericFilterArgs.filter(f => numeric_filter_1.FILTERABLE_SCORES.includes(f.title));
-            if (validNumericFilterArgs.length !== filters.numericFilterArgs.length) {
-                warn(`Found old sever filters, deleting from storage...`);
-                filters.numericFilterArgs = validNumericFilterArgs;
-                await this.set(types_1.StorageKey.FILTERS, filters);
-            }
-        }
-        catch (e) {
-            console.error(`Error while trying to filter out server side filters from the stored filters:`, e);
-            await this.remove(types_1.StorageKey.FILTERS);
-            return null;
+        if ((0, feed_filters_1.repairFilterSettings)(filters)) {
+            warn(`Repaired old filter settings, updating...`);
+            await this.set(types_1.StorageKey.FILTERS, filters);
         }
         // Filters are saved in a serialized format that requires deserialization
         return (0, feed_filters_1.buildFiltersFromArgs)(filters);

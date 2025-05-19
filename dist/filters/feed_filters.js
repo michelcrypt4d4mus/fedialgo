@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
@@ -73,6 +73,27 @@ function buildNewFilterSettings() {
     return filters;
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
+;
+// Removes filter args with invalid titles. Returns true if the filter settings were changed.
+// Used for upgrading existing users who may have invalid filter args in their settings.
+function repairFilterSettings(filters) {
+    let wasChanged = false;
+    // For upgrades of existing users for the rename of booleanFilterArgs
+    if ("feedFilterSectionArgs" in filters) {
+        console.warn(`Found old filter format feedFilterSectionArgs, converting to booleanFilterArgs...`);
+        filters.booleanFilterArgs = filters.feedFilterSectionArgs;
+        delete filters.feedFilterSectionArgs;
+        wasChanged = true;
+    }
+    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.isBooleanFilterName);
+    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.isNumericFilterName);
+    wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
+    wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
+    filters.booleanFilterArgs = validBooleanFilterArgs;
+    filters.numericFilterArgs = validNumericFilterArgs;
+    return wasChanged;
+}
+exports.repairFilterSettings = repairFilterSettings;
 ;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
@@ -145,5 +166,14 @@ function updateHashtagCounts(filters, toots) {
     Storage_1.default.setFilters(filters);
 }
 exports.updateHashtagCounts = updateHashtagCounts;
+;
+// Remove any filter args from the list whose title is invalid
+function removeInvalidFilterArgs(args, titleValidator) {
+    const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => titleValidator(arg.title));
+    if (invalidArgs.length > 0) {
+        console.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+    }
+    return validArgs;
+}
 ;
 //# sourceMappingURL=feed_filters.js.map
