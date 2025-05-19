@@ -355,7 +355,7 @@ export const Config: ConfigType = {
         },
         // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
         [WeightName.OUTLIER_DAMPENER]: {
-            description: "Dampens the effect of outliers scores",
+            description: "Dampens the effect of outlier scores",
             minValue: 0.001,
         },
 

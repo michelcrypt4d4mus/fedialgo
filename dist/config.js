@@ -276,7 +276,7 @@ exports.Config = {
         },
         // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
         [types_1.WeightName.OUTLIER_DAMPENER]: {
-            description: "Dampens the effect of outliers scores",
+            description: "Dampens the effect of outlier scores",
             minValue: 0.001,
         },
         // Weighted scores

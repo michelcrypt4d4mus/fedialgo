@@ -99,6 +99,9 @@ export const WEIGHT_PRESETS: WeightPresets = {
     [WeightPresetLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
         [WeightName.TRENDING]: 0.5,
+        [WeightName.FOLLOWED_TAGS]: 0.1,
+        [WeightName.NUM_REPLIES]: DEFAULT_WEIGHTS[WeightName.NUM_REPLIES] * 3,
+        [WeightName.NUM_RETOOTS]: DEFAULT_WEIGHTS[WeightName.NUM_RETOOTS] * 3,
         [WeightName.TRENDING_LINKS]: DEFAULT_WEIGHTS[WeightName.TRENDING_LINKS] * 3,
         [WeightName.TRENDING_TAGS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TAGS] * 3,
         [WeightName.TRENDING_TOOTS]: DEFAULT_WEIGHTS[WeightName.TRENDING_TOOTS] * 3,

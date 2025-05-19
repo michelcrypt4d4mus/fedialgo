@@ -93,6 +93,9 @@ exports.WEIGHT_PRESETS = {
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
         [types_1.WeightName.TRENDING]: 0.5,
+        [types_1.WeightName.FOLLOWED_TAGS]: 0.1,
+        [types_1.WeightName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_REPLIES] * 3,
+        [types_1.WeightName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_RETOOTS] * 3,
         [types_1.WeightName.TRENDING_LINKS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_LINKS] * 3,
         [types_1.WeightName.TRENDING_TAGS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TAGS] * 3,
         [types_1.WeightName.TRENDING_TOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.TRENDING_TOOTS] * 3,

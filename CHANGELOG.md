@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Adjust the TRENDING preset to more heavily weight number of replies and retoots, less heavily weight followed tags
 
 ### v0.43.3
 * Add min/max score to `TheAlgorithm.statusDict()`
