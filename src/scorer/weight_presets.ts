@@ -88,6 +88,8 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [WeightName.TRENDING]: 0.02,
         [WeightName.INTERACTIONS]: 4,
         [WeightName.MENTIONS_FOLLOWED]: 3,
+        [WeightName.NUM_REPLIES]: DEFAULT_WEIGHTS[WeightName.NUM_REPLIES] * 0.3,
+        [WeightName.NUM_RETOOTS]: DEFAULT_WEIGHTS[WeightName.NUM_RETOOTS] * 0.3,
         [WeightName.MOST_REPLIED_ACCOUNTS]: 3,
         [WeightName.MOST_RETOOTED_ACCOUNTS]: 3,
     },

@@ -84,6 +84,8 @@ exports.WEIGHT_PRESETS = {
         [types_1.WeightName.TRENDING]: 0.02,
         [types_1.WeightName.INTERACTIONS]: 4,
         [types_1.WeightName.MENTIONS_FOLLOWED]: 3,
+        [types_1.WeightName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_REPLIES] * 0.3,
+        [types_1.WeightName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[types_1.WeightName.NUM_RETOOTS] * 0.3,
         [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: 3,
         [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: 3,
     },
