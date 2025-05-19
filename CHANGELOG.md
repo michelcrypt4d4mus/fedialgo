@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+### v0.43.8
 * `tootFetcher.name` yields empty string in production so use a logPrefix argument
+* (Demo App) Allow multiple filter accordion sections to stay open at the same time
 
 ### v0.43.7
 * Standardize upgrade repair of all user's filter settings
