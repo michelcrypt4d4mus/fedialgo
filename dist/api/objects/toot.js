@@ -48,7 +48,7 @@ const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
-const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="mention hashtag" rel="nofollow noopener noreferrer" target="_blank">#<span>[\w]+<\/span><\/a>/i;
+const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="mention hashtag" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = [
     "favouritesCount",
@@ -227,10 +227,14 @@ class Toot {
     }
     // Return all but the last paragraph if that last paragraph is just hashtag links
     contentNonTagsParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.contentWithEmojis(fontSize));
+        const paragraphs = this.contentParagraphs(fontSize);
         if (this.contentTagsParagraph())
             paragraphs.pop(); // Remove the last paragraph if it's just hashtags
         return paragraphs.join("\n");
+    }
+    // Break up the content into paragraphs and add <img> tags for custom emojis
+    contentParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        return (0, string_helpers_1.htmlToParagraphs)(this.contentWithEmojis(fontSize));
     }
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
@@ -253,8 +257,7 @@ class Toot {
     }
     // If the final <p> paragraph of the content is just hashtags, return it
     contentTagsParagraph() {
-        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.content || "");
-        const finalParagraph = paragraphs.slice(-1)[0];
+        const finalParagraph = this.contentParagraphs().slice(-1)[0];
         if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
             return finalParagraph;
         }
@@ -292,10 +295,6 @@ class Toot {
     isDM() {
         return this.visibility === TootVisibility.DIRECT_MSG;
     }
-    // Return true if it's for followers only
-    isPrivate() {
-        return this.visibility === TootVisibility.PRIVATE;
-    }
     // Returns true if this toot is from a followed account or contains a followed tag
     isFollowed() {
         return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);
@@ -304,6 +303,10 @@ class Toot {
     isInTimeline(filters) {
         let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
+    }
+    // Return true if it's for followers only
+    isPrivate() {
+        return this.visibility === TootVisibility.PRIVATE;
     }
     // Return true if it's a trending toot or contains any trending hashtags or links
     isTrending() {

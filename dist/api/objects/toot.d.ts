@@ -20,15 +20,27 @@ export interface SerializableToot extends mastodon.v1.Status {
 }
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
+    alternateScoreInfo: () => ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
+    containsTagsMsg: () => string | undefined;
     contentString: () => string;
+    contentStripped: () => string;
+    contentNonTagsParagraphs: (fontSize?: number) => string;
+    contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
+    contentTagsParagraph: () => string | undefined;
     contentWithEmojis: (fontSize?: number) => string;
     describe: () => string;
+    getScore: () => number;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
+    isFollowed: () => boolean;
+    isInTimeline: (filters: FeedFilterSettings) => boolean;
+    isPrivate: () => boolean;
+    isTrending: () => boolean;
+    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     popularity: () => number;
     realAccount: () => Account;
     realToot: () => Toot;
@@ -90,6 +102,7 @@ export default class Toot implements TootObj {
     containsTagsMsg(): string | undefined;
     containsUserMention(): boolean;
     contentNonTagsParagraphs(fontSize?: number): string;
+    contentParagraphs(fontSize?: number): string[];
     contentShortened(maxChars?: number): string;
     contentString(): string;
     contentTagsParagraph(): string | undefined;
@@ -99,9 +112,9 @@ export default class Toot implements TootObj {
     getScore(): number;
     homeserverURL(): Promise<string>;
     isDM(): boolean;
-    isPrivate(): boolean;
     isFollowed(): boolean;
     isInTimeline(filters: FeedFilterSettings): boolean;
+    isPrivate(): boolean;
     isTrending(): boolean;
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
     popularity(): number;
