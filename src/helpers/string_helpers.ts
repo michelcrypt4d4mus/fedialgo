@@ -52,6 +52,19 @@ export const isNumber = (n: string | number): boolean => (typeof n == "number") 
 // for use with sort()
 export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
 
+// Collapse whitespace in a string
+export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
+// Remove diacritics ("ó" => "o", "é" => "e", etc.)
+export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// Remove any emojis
+export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
+// Remove https links from string
+export const removeLinks = (str: string) => str.replace(LINK_REGEX, " ");
+// Remove @username@domain from string
+export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, " ");
+// Remove all tags from string
+export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, " ");
+
 
 // Return a string representation of a number of bytes
 export const byteString = (numBytes: number): string => {
@@ -129,20 +142,6 @@ export function isVideo(uri: string | null | undefined): boolean {
     if (!uri) return false;
     return VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 };
-
-
-// Collapse whitespace in a string
-export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
-// Remove diacritics ("ó" => "o", "é" => "e", etc.)
-export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-// Remove any emojis
-export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
-// Remove https links from string
-export const removeLinks = (str: string) => str.replace(LINK_REGEX, " ");
-// Remove @username@domain from string
-export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, " ");
-// Remove all tags from string
-export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, " ");
 
 
 // Replace custom emoji shortcodes like :smile: with <img> tags
