@@ -164,14 +164,14 @@ export default class Toot implements TootObj {
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
-    participatedTags?: TagWithUsageCounts[];            // Array of tags that the user has participated in that exist in this toot
+    participatedTags?: TagWithUsageCounts[];     // Array of tags that the user has participated in that exist in this toot
     @Type(() => Account) reblogsBy!: Account[];  // The accounts that retooted this toot
     @Type(() => Toot) resolvedToot?: Toot;       // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;                       // Scoring info for weighting/sorting this toot
     sources?: string[];                          // Source of the toot (e.g. trending tag toots, home timeline, etc.)
-    trendingRank?: number;                       // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks?: TrendingLink[];              // Links that are trending in this toot
-    trendingTags?: TagWithUsageCounts[];                // Tags that are trending that appear in this toot
+    trendingRank?: number;                       // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TagWithUsageCounts[];         // Tags that are trending that appear in this toot
     audioAttachments!: mastodon.v1.MediaAttachment[];
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
@@ -214,13 +214,13 @@ export default class Toot implements TootObj {
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
-        // TODO: the reblogsBy don't have the isFollowed flag set correctly
+        // TODO: the reblogsBy don't necessarily have the isFollowed flag set correctly
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
         tootObj.sources = toot.sources;
-        tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingLinks = toot.trendingLinks;
+        tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingTags = toot.trendingTags;
 
         tootObj.repair();
