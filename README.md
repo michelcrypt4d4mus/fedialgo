@@ -211,7 +211,7 @@ npm link fedialgo
 ~~`npm run test`~~
 
 ### Miscellaneous
-Use // @ts-ignore if you run into Typescript warnings (because your project might also use `masto`)
+Use `// @ts-ignore` if you run into Typescript warnings (because your project might also use `masto`)
 
 ```bash
 npm run build
