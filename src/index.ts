@@ -209,9 +209,9 @@ class TheAlgorithm {
         await sleep(Config.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(getParticipatedHashtagToots),
-            this.fetchAndMergeToots(getRecentTootsForTrendingTags),
-            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer)),
+            this.fetchAndMergeToots(getParticipatedHashtagToots, "getParticipatedHashtagToots"),
+            this.fetchAndMergeToots(getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer), "fediverseTrendingToots"),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -389,8 +389,8 @@ class TheAlgorithm {
 
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>): Promise<Toot[]> {
-        const logPrefix = tootFetcher.name;
+    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>, logPrefix: string): Promise<Toot[]> {
+        logPrefix = bracketed(logPrefix); // tootFetcher.name yield empty string in production :(
         const startedAt = new Date();
         let newToots: Toot[] = [];
 

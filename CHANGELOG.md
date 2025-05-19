@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* tootFetcher.name yields empty string in production so use a logPrefix argument
 
 ### v0.43.7
 * Standardize upgrade repair of all user's filter settings

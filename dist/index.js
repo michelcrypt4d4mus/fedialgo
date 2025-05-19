@@ -202,9 +202,9 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.Config.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots),
-            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default)),
+            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
+            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), "fediverseTrendingToots"),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -364,8 +364,8 @@ class TheAlgorithm {
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    async fetchAndMergeToots(tootFetcher) {
-        const logPrefix = tootFetcher.name;
+    async fetchAndMergeToots(tootFetcher, logPrefix) {
+        logPrefix = (0, string_helpers_1.bracketed)(logPrefix); // tootFetcher.name yield empty string in production :(
         const startedAt = new Date();
         let newToots = [];
         try {
