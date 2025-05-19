@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.44.5
+* Fix boolean logic for multiple type filters
+
 ### v0.44.4
 * (Demo App) Use a color gradient for participated hashtag filter coloring
 
