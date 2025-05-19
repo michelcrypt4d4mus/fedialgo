@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.TypeFilterName = exports.BooleanFilterName = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -41,6 +41,10 @@ var TypeFilterName;
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
+const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(BooleanFilterName)(value);
+exports.isBooleanFilterName = isBooleanFilterName;
+const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(TypeFilterName)(value);
+exports.isTypeFilterName = isTypeFilterName;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
     [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments.length,

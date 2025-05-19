@@ -6,7 +6,7 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { Config } from '../config';
-import { countValues } from "../helpers/collection_helpers";
+import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
 import { FilterArgs, StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
@@ -44,6 +44,9 @@ export enum TypeFilterName {
     TRENDING_TOOTS = 'trendingToots',
     VIDEOS = 'videos',
 };
+
+export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
+export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {

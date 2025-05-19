@@ -4,6 +4,7 @@ export declare function atLeastValues(obj: StringNumberDict, minValue: number): 
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number | null, sleepBetweenMS?: number): Promise<any[]>;
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void;
+export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
@@ -15,7 +16,6 @@ export declare function isValueInStringEnum<E extends string>(strEnum: Record<st
 export declare const isStorageKey: (value: string) => boolean;
 export declare const isWeightName: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
-export declare function getMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];

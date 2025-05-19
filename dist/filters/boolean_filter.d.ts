@@ -30,6 +30,8 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trendingToots",
     VIDEOS = "videos"
 }
+export declare const isBooleanFilterName: (value: string) => boolean;
+export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
     optionInfo?: StringNumberDict;

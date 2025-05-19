@@ -63,6 +63,26 @@ export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): v
 };
 
 
+// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
+export function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null {
+    if (array.length == 0) return null;
+
+    return array.reduce(
+        (minMax: MinMax, obj: T) => {
+            const value = valueFxn(obj);
+
+            if (value) {
+                if (value < minMax.min) minMax.min = value;
+                if (value > minMax.max) minMax.max = value;
+            }
+
+            return minMax;
+        },
+        {min: Number.MAX_VALUE, max: Number.MIN_VALUE} as MinMax
+    );
+};
+
+
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 export function countValues<T>(
     items: T[],
@@ -191,26 +211,6 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
             return keyedDict;
         },
         {} as Record<string, T>
-    );
-};
-
-
-// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
-export function getMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null {
-    if (array.length == 0) return null;
-
-    return array.reduce(
-        (minMax: MinMax, obj: T) => {
-            const value = valueFxn(obj);
-
-            if (value) {
-                if (value < minMax.min) minMax.min = value;
-                if (value > minMax.max) minMax.max = value;
-            }
-
-            return minMax;
-        },
-        {min: Number.MAX_VALUE, max: Number.MIN_VALUE} as MinMax
     );
 };
 

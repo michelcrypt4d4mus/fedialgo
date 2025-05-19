@@ -15,7 +15,9 @@ import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { Config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
+import { FILTERABLE_SCORES } from "./filters/numeric_filter";
 import { isDebugMode } from "./helpers/environment_helpers";
+import { isBooleanFilterName } from "./filters/boolean_filter";
 import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
 import {
     FeedFilterSettings,
@@ -139,11 +141,19 @@ export default class Storage {
 
         // TODO: also required for upgrades of existing users for the removal of server side filters
         try {
-            let validBooleanFilterArgs = (filters.booleanFilterArgs as any[]).filter(f => f.title !== "ServerFilters");
+            let validBooleanFilterArgs = (filters.booleanFilterArgs as any[]).filter(f => isBooleanFilterName(f.title));
 
             if (validBooleanFilterArgs.length !== filters.booleanFilterArgs.length) {
                 warn(`Found old sever filters, deleting from storage...`);
                 filters.booleanFilterArgs = validBooleanFilterArgs;
+                await this.set(StorageKey.FILTERS, filters);
+            }
+
+            let validNumericFilterArgs = (filters.numericFilterArgs as any[]).filter(f => FILTERABLE_SCORES.includes(f.title));
+
+            if (validNumericFilterArgs.length !== filters.numericFilterArgs.length) {
+                warn(`Found old sever filters, deleting from storage...`);
+                filters.numericFilterArgs = validNumericFilterArgs;
                 await this.set(StorageKey.FILTERS, filters);
             }
         } catch (e) {

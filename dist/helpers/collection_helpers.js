@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.getMinMax = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -53,6 +53,23 @@ function checkUniqueIDs(array, label) {
     }
 }
 exports.checkUniqueIDs = checkUniqueIDs;
+;
+// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
+function computeMinMax(array, valueFxn) {
+    if (array.length == 0)
+        return null;
+    return array.reduce((minMax, obj) => {
+        const value = valueFxn(obj);
+        if (value) {
+            if (value < minMax.min)
+                minMax.min = value;
+            if (value > minMax.max)
+                minMax.max = value;
+        }
+        return minMax;
+    }, { min: Number.MAX_VALUE, max: Number.MIN_VALUE });
+}
+exports.computeMinMax = computeMinMax;
 ;
 // Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
 function countValues(items, getKey = (item) => item, countNulls) {
@@ -163,23 +180,6 @@ function keyByProperty(array, keyFxn) {
     }, {});
 }
 exports.keyByProperty = keyByProperty;
-;
-// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
-function getMinMax(array, valueFxn) {
-    if (array.length == 0)
-        return null;
-    return array.reduce((minMax, obj) => {
-        const value = valueFxn(obj);
-        if (value) {
-            if (value < minMax.min)
-                minMax.min = value;
-            if (value > minMax.max)
-                minMax.max = value;
-        }
-        return minMax;
-    }, { min: Number.MAX_VALUE, max: Number.MIN_VALUE });
-}
-exports.getMinMax = getMinMax;
 ;
 // Randomize the order of an array
 function shuffle(array) {

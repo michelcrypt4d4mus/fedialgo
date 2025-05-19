@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Generalize upgrading stored boolean filter settings
 
 ### v0.43.5
 * Handle upgrading stored filter settings (remove deprecated server side filters)

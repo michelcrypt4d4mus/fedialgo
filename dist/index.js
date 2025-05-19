@@ -546,7 +546,7 @@ class TheAlgorithm {
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             isLoading: this.isLoading(),
             loadingStatus: this.loadingStatus,
-            minMaxScores: (0, collection_helpers_1.getMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
+            minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
         };
     }
 }
