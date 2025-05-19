@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Improve hashtag paragraph detector regex
 
 ### v0.44.1
 * (Demo App) Tweak CSS for tag paragraph

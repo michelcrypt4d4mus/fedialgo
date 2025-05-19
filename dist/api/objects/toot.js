@@ -48,7 +48,7 @@ const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
-const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="mention hashtag" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
+const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = [
     "favouritesCount",
