@@ -1,6 +1,8 @@
 # NEXT RELEASE
+
+### v0.43.2
 * Remove `TheAlgorithm.logCurrentState()` method
-* Drop Config.maxCachedTimelineToots to 3,000
+* Drop `Config.maxCachedTimelineToots` to 3,000
 
 ### v0.43.1
 * (Demo App) Fix bug with action button count comparison
