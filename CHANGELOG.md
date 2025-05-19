@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.43.6
 * Generalize upgrading stored boolean filter settings
 
 ### v0.43.5
