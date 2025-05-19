@@ -80,7 +80,7 @@ function repairFilterSettings(filters) {
     let wasChanged = false;
     // For upgrades of existing users for the rename of booleanFilterArgs
     if ("feedFilterSectionArgs" in filters) {
-        console.warn(`Found old filter format feedFilterSectionArgs, converting to booleanFilterArgs...`);
+        console.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs;
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
@@ -89,6 +89,9 @@ function repairFilterSettings(filters) {
     const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.isNumericFilterName);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
+    if (wasChanged) {
+        console.warn(`Repaired invalid filter args:`, filters);
+    }
     filters.booleanFilterArgs = validBooleanFilterArgs;
     filters.numericFilterArgs = validNumericFilterArgs;
     return wasChanged;
