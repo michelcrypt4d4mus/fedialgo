@@ -135,7 +135,7 @@ class Storage {
             }
         }
         catch (e) {
-            (0, console_1.error)(`Error repairing filter settings:`, e);
+            (0, console_1.error)(`Error repairing filter settings, returning null:`, e);
             await this.remove(types_1.StorageKey.FILTERS);
             return null;
         }
