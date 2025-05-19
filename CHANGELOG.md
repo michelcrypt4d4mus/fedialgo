@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* Add min/max score to TheAlgorithm.statusDict()
+
+### v0.43.3
+* Add min/max score to `TheAlgorithm.statusDict()`
+* (Demo App) Add icon for bot account toots
 
 ### v0.43.2
 * Remove `TheAlgorithm.logCurrentState()` method
