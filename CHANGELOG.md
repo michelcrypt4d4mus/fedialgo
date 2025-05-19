@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.43.5
 * Handle upgrading stored filter settings (remove deprecated server side filters)
 
 ### v0.43.4
