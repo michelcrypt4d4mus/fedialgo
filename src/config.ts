@@ -125,7 +125,7 @@ export const Config: ConfigType = {
     scoringBatchSize: 100,                  // How many toots to score at once
     staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
     staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
-    tootsCompleteAfterMinutes: 48 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+    tootsCompleteAfterMinutes: 24 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff

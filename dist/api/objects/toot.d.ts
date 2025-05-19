@@ -75,8 +75,8 @@ export default class Toot implements TootObj {
     resolvedToot?: Toot;
     scoreInfo?: TootScore;
     sources?: string[];
-    trendingRank?: number;
     trendingLinks?: TrendingLink[];
+    trendingRank?: number;
     trendingTags?: TagWithUsageCounts[];
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];

@@ -111,8 +111,8 @@ class Toot {
     resolvedToot; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
     sources; // Source of the toot (e.g. trending tag toots, home timeline, etc.)
-    trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingLinks; // Links that are trending in this toot
+    trendingRank; // Most trending on a server gets a 10, next is a 9, etc.
     trendingTags; // Tags that are trending that appear in this toot
     audioAttachments;
     imageAttachments;
@@ -154,13 +154,13 @@ class Toot {
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
-        // TODO: the reblogsBy don't have the isFollowed flag set correctly
+        // TODO: the reblogsBy don't necessarily have the isFollowed flag set correctly
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
         tootObj.resolvedToot = toot.resolvedToot;
         tootObj.scoreInfo = toot.scoreInfo;
         tootObj.sources = toot.sources;
-        tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingLinks = toot.trendingLinks;
+        tootObj.trendingRank = toot.trendingRank;
         tootObj.trendingTags = toot.trendingTags;
         tootObj.repair();
         // These must be set after repair() has a chance to fix any broken media types
