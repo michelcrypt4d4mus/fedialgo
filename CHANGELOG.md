@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Handle upgrading stored filter settings (remove deprecated server side filters)
 
 ### v0.43.4
 * Adjust the `TRENDING` preset to more heavily weight number of replies and retoots, `DISCUSSIONS` preset to more heavily weight `PARTICIPATED_TAGS` and `INTERACTIONS`, and bump up a lot of `FRIENDS` preset related weights

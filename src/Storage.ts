@@ -137,6 +137,21 @@ export default class Storage {
             return null;
         }
 
+        // TODO: also required for upgrades of existing users for the removal of server side filters
+        try {
+            let validBooleanFilterArgs = (filters.booleanFilterArgs as any[]).filter(f => f.title !== "ServerFilters");
+
+            if (validBooleanFilterArgs.length !== filters.booleanFilterArgs.length) {
+                warn(`Found old sever filters, deleting from storage...`);
+                filters.booleanFilterArgs = validBooleanFilterArgs;
+                await this.set(StorageKey.FILTERS, filters);
+            }
+        } catch (e) {
+            console.error(`Error while trying to filter out server side filters from the stored filters:`, e);
+            await this.remove(StorageKey.FILTERS);
+            return null;
+        }
+
         // Filters are saved in a serialized format that requires deserialization
         return buildFiltersFromArgs(filters);
     }
