@@ -31,6 +31,7 @@ import {
     WeightName,
     Weights,
 } from "./types";
+import { error } from "console";
 
 type StorableObjWithStaleness = {
     isStale: boolean,
@@ -130,9 +131,15 @@ export default class Storage {
         const filters = await this.get(StorageKey.FILTERS) as FeedFilterSettings;
         if (!filters) return null;
 
-        if (repairFilterSettings(filters)) {
-            warn(`Repaired old filter settings, updating...`);
-            await this.set(StorageKey.FILTERS, filters);
+        try {
+            if (repairFilterSettings(filters)) {
+                warn(`Repaired old filter settings, updating...`);
+                await this.set(StorageKey.FILTERS, filters);
+            }
+        } catch (e) {
+            error(`Error repairing filter settings, returning null:`, e);
+            await this.remove(StorageKey.FILTERS);
+            return null;
         }
 
         // Filters are saved in a serialized format that requires deserialization

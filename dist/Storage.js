@@ -45,6 +45,7 @@ const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
+const console_1 = require("console");
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
@@ -127,9 +128,16 @@ class Storage {
         const filters = await this.get(types_1.StorageKey.FILTERS);
         if (!filters)
             return null;
-        if ((0, feed_filters_1.repairFilterSettings)(filters)) {
-            warn(`Repaired old filter settings, updating...`);
-            await this.set(types_1.StorageKey.FILTERS, filters);
+        try {
+            if ((0, feed_filters_1.repairFilterSettings)(filters)) {
+                warn(`Repaired old filter settings, updating...`);
+                await this.set(types_1.StorageKey.FILTERS, filters);
+            }
+        }
+        catch (e) {
+            (0, console_1.error)(`Error repairing filter settings:`, e);
+            await this.remove(types_1.StorageKey.FILTERS);
+            return null;
         }
         // Filters are saved in a serialized format that requires deserialization
         return (0, feed_filters_1.buildFiltersFromArgs)(filters);
