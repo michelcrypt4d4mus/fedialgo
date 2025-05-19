@@ -31,7 +31,7 @@ exports.Config = {
     //////////////////////////////////////
     // Number of toots config variables //
     ///////////////////////////////////////
-    maxCachedTimelineToots: 3500,
+    maxCachedTimelineToots: 3000,
     // Participated tags
     numParticipatedTagsToFetchTootsFor: 30,
     numParticipatedTagToots: 200,
@@ -359,7 +359,7 @@ function setLocale(locale) {
 }
 exports.setLocale = setLocale;
 ;
-// Debug mode settings
+// Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
     exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
@@ -369,6 +369,7 @@ if (environment_helpers_1.isQuickMode) {
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;
 }
+// Debug mode settings
 if (environment_helpers_1.isDebugMode) {
     exports.Config.apiDefaults[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
     exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
