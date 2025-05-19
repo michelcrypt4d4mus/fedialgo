@@ -69,7 +69,7 @@ async function lockExecution(locker, logPrefix) {
         console.warn(logMsg);
     }
     else if (waitSeconds > 2) {
-        console.debug(logMsg);
+        traceLog(logMsg);
     }
     return releaseLock;
 }

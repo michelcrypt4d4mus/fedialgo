@@ -261,11 +261,12 @@ class MastoApi {
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
     async getStatusesForTag(tag, numToots) {
         numToots ||= config_1.Config.numTootsPerTrendingTag;
+        const startedAt = new Date();
         const tagToots = await Promise.all([
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
         ]);
-        logTrendingTagResults(`[getStatusesForTag(#${tag.name})]`, "both hashtag searches", tagToots.flat());
+        logTrendingTagResults(`[getStatusesForTag(#${tag.name})]`, "both hashtag searches", tagToots.flat(), startedAt);
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags
@@ -515,8 +516,8 @@ function isRateLimitError(e) {
 exports.isRateLimitError = isRateLimitError;
 ;
 // TODO: get rid of this eventually
-const logTrendingTagResults = (logPrefix, searchMethod, toots) => {
-    let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots`;
+const logTrendingTagResults = (logPrefix, searchMethod, toots, startedAt) => {
+    let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
     msg += ` (oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))}):`;
     console.debug(msg);
 };

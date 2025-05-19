@@ -84,7 +84,7 @@ export async function lockExecution(
     if (waitSeconds > Config.mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (waitSeconds > 2) {
-        console.debug(logMsg);
+        traceLog(logMsg);
     }
 
     return releaseLock;
