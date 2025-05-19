@@ -110,6 +110,13 @@ export function htmlToText(html: string): string {
 };
 
 
+// Break up an HTML string into paragraphs
+export function htmlToParagraphs(html: string): string[] {
+    if (!(html.includes("</p>") || html.includes("</P>"))) return [html];
+    return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
+};
+
+
 // Return true if uri ends with an image extension like .jpg or .png
 export function isImage(uri: string | null | undefined): boolean {
     if (!uri) return false;

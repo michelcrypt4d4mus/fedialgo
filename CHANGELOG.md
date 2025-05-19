@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add contentNonTagsParagraphs() and contentTagsParagraph() methods to Toot object
 
 ### v0.43.8
 * `tootFetcher.name` yields empty string in production so use a logPrefix argument

@@ -21,6 +21,7 @@ export declare function createRandomString(length: number): string;
 export declare function extractDomain(url: string): string;
 export declare function hashObject(obj: object | number | string): string;
 export declare function htmlToText(html: string): string;
+export declare function htmlToParagraphs(html: string): string[];
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function isVideo(uri: string | null | undefined): boolean;
 export declare const collapseWhitespace: (str: string) => string;

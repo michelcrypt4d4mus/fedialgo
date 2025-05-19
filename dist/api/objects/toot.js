@@ -48,6 +48,8 @@ const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
+const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="mention hashtag" rel="nofollow noopener noreferrer" target="_blank">#<span>[\w]+<\/span><\/a>/i;
+const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = [
     "favouritesCount",
     "repliesCount",
@@ -223,6 +225,13 @@ class Toot {
     containsUserMention() {
         return this.mentions.some((mention) => mention.acct == api_1.default.instance.user.webfingerURI);
     }
+    // Return all but the last paragraph if that last paragraph is just hashtag links
+    contentNonTagsParagraphs() {
+        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.content);
+        if (this.contentTagsParagraph())
+            paragraphs.pop(); // Remove the last paragraph if it's just hashtags
+        return paragraphs.join("\n");
+    }
     // Shortened string of content property stripped of HTML tags
     contentShortened(maxChars) {
         maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
@@ -241,6 +250,14 @@ class Toot {
     // Return the toot's 'content' field stripped of HTML tags
     contentString() {
         return (0, string_helpers_1.htmlToText)(this.realToot().content || "");
+    }
+    // If the final <p> paragraph of the content is just hashtags, return it
+    contentTagsParagraph() {
+        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.content || "");
+        const finalParagraph = paragraphs.slice(-1)[0];
+        if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
+            return finalParagraph;
+        }
     }
     // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
     contentStripped() {

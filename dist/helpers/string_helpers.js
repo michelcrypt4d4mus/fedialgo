@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.isVideo = exports.isImage = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.compareStr = exports.isNumber = exports.quoted = exports.bracketed = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -104,6 +104,14 @@ function htmlToText(html) {
     return (0, exports.collapseWhitespace)((0, html_entities_1.decode)(txt)).trim(); // Decode HTML entities lik '&amp;' etc. whitespace etc.
 }
 exports.htmlToText = htmlToText;
+;
+// Break up an HTML string into paragraphs
+function htmlToParagraphs(html) {
+    if (!(html.includes("</p>") || html.includes("</P>")))
+        return [html];
+    return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
+}
+exports.htmlToParagraphs = htmlToParagraphs;
 ;
 // Return true if uri ends with an image extension like .jpg or .png
 function isImage(uri) {
