@@ -1,5 +1,5 @@
 /*
- * To avoid circular dependencies.
+ * Exists to avoid circular dependencies so Scorer can access the weights in TheAlgorithm instance.
  */
 import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";

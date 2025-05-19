@@ -443,7 +443,7 @@ export function setLocale(locale?: string): void {
 };
 
 
-// Debug mode settings
+// Quick load mode settings
 if (isQuickMode) {
     Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
@@ -454,6 +454,7 @@ if (isQuickMode) {
     Config.numTrendingTags = 20;
 }
 
+// Debug mode settings
 if (isDebugMode) {
     Config.apiDefaults[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
     Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
