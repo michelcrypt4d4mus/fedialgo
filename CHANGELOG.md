@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add contentNonTagsParagraphs() and contentTagsParagraph() methods to Toot object
+* Remove emoji short codes from strings used for language detection
 
 ### v0.43.8
 * `tootFetcher.name` yields empty string in production so use a logPrefix argument

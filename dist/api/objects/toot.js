@@ -226,8 +226,8 @@ class Toot {
         return this.mentions.some((mention) => mention.acct == api_1.default.instance.user.webfingerURI);
     }
     // Return all but the last paragraph if that last paragraph is just hashtag links
-    contentNonTagsParagraphs() {
-        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.content);
+    contentNonTagsParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        const paragraphs = (0, string_helpers_1.htmlToParagraphs)(this.contentWithEmojis(fontSize));
         if (this.contentTagsParagraph())
             paragraphs.pop(); // Remove the last paragraph if it's just hashtags
         return paragraphs.join("\n");
@@ -247,9 +247,9 @@ class Toot {
         }
         return content;
     }
-    // Return the toot's 'content' field stripped of HTML tags
+    // Return the toot's 'content' field stripped of HTML tags and emojis
     contentString() {
-        return (0, string_helpers_1.htmlToText)(this.realToot().content || "");
+        return (0, string_helpers_1.htmlToText)(this.realToot().contentWithEmojis());
     }
     // If the final <p> paragraph of the content is just hashtags, return it
     contentTagsParagraph() {
@@ -267,8 +267,7 @@ class Toot {
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.content, emojis, fontSize);
+        return this.addEmojiHtmlTags(this.content, fontSize);
     }
     // String that describes the toot in not so many characters
     describe() {
@@ -385,6 +384,11 @@ class Toot {
     //////////////////////////////
     //     Private methods      //
     //////////////////////////////
+    // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
+    addEmojiHtmlTags(str, fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        const emojis = (this.emojis || []).concat(this.account.emojis || []);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(str, emojis, fontSize);
+    }
     // return MediaAttachmentType objects with type == attachmentType
     attachmentsOfType(attachmentType) {
         const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
