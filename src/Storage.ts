@@ -31,7 +31,6 @@ import {
     WeightName,
     Weights,
 } from "./types";
-import { error } from "console";
 
 type StorableObjWithStaleness = {
     isStale: boolean,
@@ -67,6 +66,7 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
 
 const LOG_PREFIX = '[STORAGE]';
 const buildLogMsg = (s: string) => `${LOG_PREFIX} ${s}`;
+const error = (s: string, ...args: any[]) => console.error(buildLogMsg(s), ...args);
 const warn = (s: string, ...args: any[]) => console.warn(buildLogMsg(s), ...args);
 const log = (s: string, ...args: any[]) => console.log(buildLogMsg(s), ...args);
 const debug = (s: string, ...args: any[]) => console.debug(buildLogMsg(s), ...args);

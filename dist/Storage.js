@@ -45,7 +45,6 @@ const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
-const console_1 = require("console");
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
     types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
@@ -71,6 +70,7 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
 ];
 const LOG_PREFIX = '[STORAGE]';
 const buildLogMsg = (s) => `${LOG_PREFIX} ${s}`;
+const error = (s, ...args) => console.error(buildLogMsg(s), ...args);
 const warn = (s, ...args) => console.warn(buildLogMsg(s), ...args);
 const log = (s, ...args) => console.log(buildLogMsg(s), ...args);
 const debug = (s, ...args) => console.debug(buildLogMsg(s), ...args);
@@ -135,7 +135,7 @@ class Storage {
             }
         }
         catch (e) {
-            (0, console_1.error)(`Error repairing filter settings, returning null:`, e);
+            error(`Error repairing filter settings, returning null:`, e);
             await this.remove(types_1.StorageKey.FILTERS);
             return null;
         }
