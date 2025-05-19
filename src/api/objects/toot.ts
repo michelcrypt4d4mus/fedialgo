@@ -112,15 +112,27 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
+    alternateScoreInfo: () => ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
+    containsTagsMsg: () => string | undefined;
     contentString: () => string;
+    contentStripped: () => string;
+    contentNonTagsParagraphs: (fontSize?: number) => string;
+    contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
+    contentTagsParagraph: () => string | undefined;
     contentWithEmojis: (fontSize?: number) => string;
     describe: () => string;
+    getScore: () => number;
     homeserverURL: () => Promise<string>;
     isDM: () => boolean;
+    isFollowed: () => boolean;
+    isInTimeline: (filters: FeedFilterSettings) => boolean;
+    isPrivate: () => boolean;
+    isTrending: () => boolean;
+    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     popularity: () => number;
     realAccount: () => Account;
     realToot: () => Toot;
@@ -128,6 +140,7 @@ interface TootObj extends SerializableToot {
     resolve: () => Promise<Toot>;
     tootedAt: () => Date;
 };
+
 
 export default class Toot implements TootObj {
     // Props from mastodon.v1.Status
@@ -295,9 +308,14 @@ export default class Toot implements TootObj {
 
     // Return all but the last paragraph if that last paragraph is just hashtag links
     contentNonTagsParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string {
-        const paragraphs = htmlToParagraphs(this.contentWithEmojis(fontSize));
+        const paragraphs = this.contentParagraphs(fontSize);
         if (this.contentTagsParagraph()) paragraphs.pop();  // Remove the last paragraph if it's just hashtags
         return paragraphs.join("\n");
+    }
+
+    // Break up the content into paragraphs and add <img> tags for custom emojis
+    contentParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string[] {
+        return htmlToParagraphs(this.contentWithEmojis(fontSize));
     }
 
     // Shortened string of content property stripped of HTML tags
@@ -324,8 +342,7 @@ export default class Toot implements TootObj {
 
     // If the final <p> paragraph of the content is just hashtags, return it
     contentTagsParagraph(): string | undefined {
-        const paragraphs = htmlToParagraphs(this.content || "");
-        const finalParagraph = paragraphs.slice(-1)[0];
+        const finalParagraph = this.contentParagraphs().slice(-1)[0];
 
         if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
             return finalParagraph;
@@ -370,11 +387,6 @@ export default class Toot implements TootObj {
         return this.visibility === TootVisibility.DIRECT_MSG;
     }
 
-    // Return true if it's for followers only
-    isPrivate(): boolean {
-        return this.visibility === TootVisibility.PRIVATE;
-    }
-
     // Returns true if this toot is from a followed account or contains a followed tag
     isFollowed(): boolean {
         return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);
@@ -384,6 +396,11 @@ export default class Toot implements TootObj {
     isInTimeline(filters: FeedFilterSettings): boolean {
         let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
+    }
+
+    // Return true if it's for followers only
+    isPrivate(): boolean {
+        return this.visibility === TootVisibility.PRIVATE;
     }
 
     // Return true if it's a trending toot or contains any trending hashtags or links
