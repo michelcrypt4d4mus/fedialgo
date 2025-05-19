@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.44.4
+* (Demo App) Use a color gradient for participated hashtag filter coloring
+
 ### v0.44.3
 * (Demo app) Fix alt text on images
 
