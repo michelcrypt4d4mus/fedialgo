@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.44.0
 * Add `contentParagraphs()`, `contentNonTagsParagraphs()`, and `contentTagsParagraph()` methods to Toot object
 * Remove emoji short codes from strings used for language detection
 * (Demo App) Display contentTagsParagraph() in smaller font and below images/polls/etc (if it exists)
