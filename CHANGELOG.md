@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.44.1
+* (Demo App) Tweak CSS for tag paragraph
+
 # v0.44.0
 * Add `contentParagraphs()`, `contentNonTagsParagraphs()`, and `contentTagsParagraph()` methods to Toot object
 * Remove emoji short codes from strings used for language detection
