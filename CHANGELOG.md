@@ -1,12 +1,15 @@
 # NEXT RELEASE
 
+### v0.44.3
+* (Demo app) Fix alt text on images
+
 ### v0.44.2
 * Improve hashtag paragraph detector regex
 
 ### v0.44.1
 * (Demo App) Tweak CSS for tag paragraph
 
-# v0.44.0
+## v0.44.0
 * Add `contentParagraphs()`, `contentNonTagsParagraphs()`, and `contentTagsParagraph()` methods to Toot object
 * Remove emoji short codes from strings used for language detection
 * (Demo App) Display contentTagsParagraph() in smaller font and below images/polls/etc (if it exists)
