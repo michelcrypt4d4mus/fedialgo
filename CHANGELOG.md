@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.44.2
 * Improve hashtag paragraph detector regex
 
 ### v0.44.1
