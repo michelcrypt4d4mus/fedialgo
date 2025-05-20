@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.46.0
 * Consolidate API config stuff to Config.api property / ApiConfig type
 * (Demo App) Fix bug with hashtag color gradient at startup
 
