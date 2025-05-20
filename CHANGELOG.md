@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.46.1
 * Set up a poller to periodically save changes to toots' `numTimesShown` property to the cache
 
 # v0.46.0
