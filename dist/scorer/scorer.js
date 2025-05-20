@@ -27,7 +27,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.description = config_1.Config.weightsConfig[name].description;
+        this.description = config_1.Config.scoring.weightsConfig[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
     // Return a ScorerInfo object with the description and the scorer itself
@@ -156,7 +156,7 @@ class Scorer {
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.Config.timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.Config.scoring.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

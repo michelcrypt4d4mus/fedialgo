@@ -17,7 +17,9 @@ type ApiConfigBase = {
     [key in StorageKey]?: ApiRequestDefaults;
 };
 interface ApiConfig extends ApiConfigBase {
+    backgroundLoadIntervalSeconds: number;
     defaultRecordsPerPage: number;
+    hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
     maxRecordsForFeatureScoring: number;
@@ -26,45 +28,68 @@ interface ApiConfig extends ApiConfigBase {
     staleDataTrendingMinutes: number;
     timeoutMS: number;
 }
-export type ConfigType = {
+type FediverseConfig = {
+    defaultServers: string[];
+    foreignLanguageServers: Record<string, string[]>;
+    minServerMAU: number;
+    noMauServers: string[];
+    noTrendingLinksServers: string[];
+    numServersToCheck: number;
+};
+type GuiConfig = {
+    isAppFilterVisible: boolean;
+};
+type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    hashtagTootRetrievalDelaySeconds: number;
-    homeTimelineBatchSize: number;
-    incrementalLoadDelayMS: number;
-    maxCachedTimelineToots: number;
-    maxTimelineDaysToFetch: number;
-    scoringBatchSize: number;
-    timelineDecayExponent: number;
-    numParticipatedTagsToFetchTootsFor: number;
-    numParticipatedTagToots: number;
-    numParticipatedTagTootsPerTag: number;
-    api: ApiConfig;
-    backgroundLoadIntervalSeconds: number;
-    batchCompleteTootsSize: number;
-    batchCompleteTootsSleepBetweenMS: number;
-    tootsCompleteAfterMinutes: number;
-    minServerMAU: number;
-    numServersToCheck: number;
+};
+type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
-    invalidTrendingTags: string[];
     minTrendingTagTootsForPenalty: number;
-    numTootsPerTrendingTag: number;
-    numDaysToCountTrendingTagData: number;
-    numTrendingLinksPerServer: number;
-    numTrendingTags: number;
-    numTrendingTagsPerServer: number;
-    numTrendingTagsToots: number;
-    numTrendingTootsPerServer: number;
-    defaultServers: string[];
-    foreignLanguageServers: Record<string, string[]>;
-    noMauServers: string[];
-    noTrendingLinksServers: string[];
-    isAppFilterVisible: boolean;
+    scoringBatchSize: number;
+    timelineDecayExponent: number;
     weightsConfig: WeightInfoDict;
+};
+interface TagTootsConfig {
+    maxToots: number;
+    numTags: number;
+    numTootsPerTag: number;
+}
+type TootsConfig = {
+    batchCompleteTootsSleepBetweenMS: number;
+    batchCompleteTootsSize: number;
+    maxAgeInDays: number;
+    maxCachedTimelineToots: number;
+    tootsCompleteAfterMinutes: number;
+};
+type TrendingLinksConfig = {
+    numTrendingLinksPerServer: number;
+};
+interface TrendingTagsConfig extends TagTootsConfig {
+    invalidTrendingTags: string[];
+    numDaysToCountTrendingTagData: number;
+    numTagsPerServer: number;
+}
+type TrendingTootsConfig = {
+    numTrendingTootsPerServer: number;
+};
+type TrendingConfig = {
+    links: TrendingLinksConfig;
+    tags: TrendingTagsConfig;
+    toots: TrendingTootsConfig;
+};
+export type ConfigType = {
+    api: ApiConfig;
+    fediverse: FediverseConfig;
+    gui: GuiConfig;
+    locale: LocaleConfig;
+    participatedTags: TagTootsConfig;
+    scoring: ScoringConfig;
+    toots: TootsConfig;
+    trending: TrendingConfig;
 };
 export declare const Config: ConfigType;
 export declare function setLocale(locale?: string): void;

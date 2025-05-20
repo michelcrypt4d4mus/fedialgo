@@ -77,7 +77,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
         return validValues.includes(toot.realToot().application?.name);
     },
     [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().language || Config.defaultLanguage);
+        return validValues.includes(toot.realToot().language || Config.locale.defaultLanguage);
     },
     [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
@@ -123,7 +123,7 @@ export default class BooleanFilter extends TootFilter {
 
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
-            this.visible = Config.isAppFilterVisible;
+            this.visible = Config.gui.isAppFilterVisible;
         }
     }
 

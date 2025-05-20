@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Consolidate API config stuff to Config.api property / ApiConfig type
+* (Demo App) Fix bug with hashtag color gradient at startup
 
 ### v0.45.1
 * Truncate the stored home timeline toots array to the same max length as the overall timeline so it doesn't grow forever
@@ -51,7 +52,7 @@
 
 ### v0.43.2
 * Remove `TheAlgorithm.logCurrentState()` method
-* Drop `Config.maxCachedTimelineToots` to 3,000
+* Drop `Config.toots.maxCachedTimelineToots` to 3,000
 
 ### v0.43.1
 * (Demo App) Fix bug with action button count comparison
@@ -249,7 +250,7 @@
 # v0.32.0
 * Add `moreOldToots` parameter to `triggerFeedUpdate()`
 * Fix bug where `getParticipatedHashtag()` toots wasn't returning a promise
-* Up `Config.maxCachedTimelineToots` to 2,500
+* Up `Config.toots.maxCachedTimelineToots` to 2,500
 * Remove unused `Config.reloadFeaturesEveryNthOpen` param
 
 ### v0.31.3
@@ -301,7 +302,7 @@
 
 ### v0.30.4
 * `ChaosScorer._score()` returns the existing raw score before computing a new one
-* Filter out Japanese hashtags unless `Config.language` is "ja"
+* Filter out Japanese hashtags unless `Config.locale.language` is "ja"
 
 ### v0.30.3
 * Special `mediaAttachment` repair for bluesky bridged toots
@@ -350,7 +351,7 @@
 ### v0.29.2
 * Add `Config.lookbackForUpdatesMinutes` param and scan backwards from the `maxUpdatedAt` that many more minutes to catch changes
 * Add a check for `LOAD_TEST=true` env var that dramatically bumps up the number of toots to retrieve
-* Rename `Config.maxTimelineDaysToFetch` (was hours increment), add age check to `Toot.isValidForFeed()`
+* Rename `Config.toots.maxAgeInDays` (was hours increment), add age check to `Toot.isValidForFeed()`
 
 ### v0.29.1
 * Add `Config.isAppFilterVisible` boolean
@@ -361,7 +362,7 @@
 * Defer processing of the most expensive `Toot` properties (`trendingLinks`, mostly, but other tag stuff too) until all data has arrived
 * `fetchHomeFeed()` now infers the `maxTootedAt` param from the cached `HOME_TIMELINE` toots
 * New private property `TheAlgorithm.homeFeed: Toot[]`
-* Rename `Config.backgroundLoadIntervalSeconds`
+* Rename `Config.api.backgroundLoadIntervalSeconds`
 * Add `validateConfig()`
 
 ### v0.28.1
@@ -431,7 +432,7 @@
 * UserData object now just stores a lookup dict for `followedAccounts` instead of all the actual followed `Account` objects
 * Refactor generic `Account.buildWebfingerUriLookup()` method
 * Refactor `TheAlgorithm.setCheckpointAndLoadingStatus()` method
-* Add delay of `Config.hashtagTootRetrievalDelaySeconds` to the initial loading of the trending and participated hashtag toots
+* Add delay of `Config.api.hashtagTootRetrievalDelaySeconds` to the initial loading of the trending and participated hashtag toots
 * Rename `setLoadingStateVariables()` and `setLoadCompleteStateVariables()`
 
 ### v0.24.6

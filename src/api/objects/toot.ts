@@ -569,7 +569,7 @@ export default class Toot implements TootObj {
         let text = this.contentStripped();
 
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
-            this.language ??= Config.defaultLanguage;
+            this.language ??= Config.locale.defaultLanguage;
             return;
         }
 
@@ -584,7 +584,7 @@ export default class Toot implements TootObj {
                 console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }
 
-            this.language ??= Config.defaultLanguage;
+            this.language ??= Config.locale.defaultLanguage;
             return;
         }
 
@@ -624,7 +624,7 @@ export default class Toot implements TootObj {
             }
         } else {
             logTrace(`Defaulting language prop to "en"`);
-            this.language ??= Config.defaultLanguage;
+            this.language ??= Config.locale.defaultLanguage;
         }
     }
 
@@ -637,7 +637,7 @@ export default class Toot implements TootObj {
                // Check if toot was completed long enough ago that we might want to re-evaluate it
                ageInMinutes(this.completedAt) < Config.api.staleDataTrendingMinutes
                // But not tooted so long ago that there's little chance of new data
-            || ageInMinutes(this.createdAt) > Config.tootsCompleteAfterMinutes
+            || ageInMinutes(this.createdAt) > Config.toots.tootsCompleteAfterMinutes
         );
     }
 
@@ -748,8 +748,8 @@ export default class Toot implements TootObj {
                 return toot as Toot;
             },
             "completeToots",
-            Config.batchCompleteTootsSize,
-            isDeepInspect ? Config.batchCompleteTootsSleepBetweenMS : 0
+            Config.toots.batchCompleteTootsSize,
+            isDeepInspect ? Config.toots.batchCompleteTootsSleepBetweenMS : 0
         );
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;

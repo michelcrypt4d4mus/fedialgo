@@ -166,7 +166,7 @@ class TheAlgorithm {
         },
         NON_SCORE_WEIGHTS.reduce(
             (specialScoreInfos, weightName) => {
-                specialScoreInfos[weightName] = Object.assign({}, Config.weightsConfig[weightName])
+                specialScoreInfos[weightName] = Object.assign({}, Config.scoring.weightsConfig[weightName])
                 return specialScoreInfos;
             },
             {} as WeightInfoDict
@@ -208,7 +208,7 @@ class TheAlgorithm {
         ];
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await sleep(Config.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
+        await sleep(Config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(getParticipatedHashtagToots, "getParticipatedHashtagToots"),
@@ -474,7 +474,7 @@ class TheAlgorithm {
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
-            Config.backgroundLoadIntervalSeconds * 1000
+            Config.api.backgroundLoadIntervalSeconds * 1000
         );
     }
 
@@ -549,7 +549,7 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, true);
-        this.feed = truncateToConfiguredLength(this.feed, "maxCachedTimelineToots");
+        this.feed = truncateToConfiguredLength(this.feed, Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
         await Storage.set(StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }

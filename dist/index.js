@@ -167,7 +167,7 @@ class TheAlgorithm {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, types_1.NON_SCORE_WEIGHTS.reduce((specialScoreInfos, weightName) => {
-        specialScoreInfos[weightName] = Object.assign({}, config_1.Config.weightsConfig[weightName]);
+        specialScoreInfos[weightName] = Object.assign({}, config_1.Config.scoring.weightsConfig[weightName]);
         return specialScoreInfos;
     }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
@@ -202,7 +202,7 @@ class TheAlgorithm {
             this.prepareScorers(),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await (0, time_helpers_1.sleep)(config_1.Config.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
+        await (0, time_helpers_1.sleep)(config_1.Config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
             this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
@@ -437,7 +437,7 @@ class TheAlgorithm {
                 (0, log_helpers_1.logInfo)(moar_data_poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
-        }, config_1.Config.backgroundLoadIntervalSeconds * 1000);
+        }, config_1.Config.api.backgroundLoadIntervalSeconds * 1000);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -505,7 +505,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
-        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, "maxCachedTimelineToots");
+        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
         await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }

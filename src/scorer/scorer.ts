@@ -30,7 +30,7 @@ export default abstract class Scorer {
 
     constructor(name: WeightName) {
         this.name = name;
-        this.description = Config.weightsConfig[name].description;
+        this.description = Config.scoring.weightsConfig[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 
@@ -182,7 +182,7 @@ export default abstract class Scorer {
         });
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), Config.timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), Config.scoring.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

@@ -91,7 +91,7 @@ exports.subtractSeconds = subtractSeconds;
 const timeString = (_timestamp, locale) => {
     if (!_timestamp)
         return string_helpers_1.NULL;
-    locale ||= config_1.Config.locale;
+    locale ||= config_1.Config.locale.locale;
     ;
     const timestamp = coerceDate(_timestamp);
     const isToday = timestamp.getDate() == new Date().getDate();
@@ -116,7 +116,7 @@ const timeString = (_timestamp, locale) => {
 exports.timeString = timeString;
 // Return the oldest timestamp we should feed timeline toots until
 function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.Config.maxTimelineDaysToFetch * config_1.SECONDS_IN_DAY * 1000;
+    const timelineLookBackMS = config_1.Config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;

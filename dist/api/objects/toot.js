@@ -454,7 +454,7 @@ class Toot {
     determineLanguage() {
         let text = this.contentStripped();
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
-            this.language ??= config_1.Config.defaultLanguage;
+            this.language ??= config_1.Config.locale.defaultLanguage;
             return;
         }
         const langDetectInfo = (0, language_helper_1.detectLanguage)(text);
@@ -466,7 +466,7 @@ class Toot {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
                 console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }
-            this.language ??= config_1.Config.defaultLanguage;
+            this.language ??= config_1.Config.locale.defaultLanguage;
             return;
         }
         // If either language detection matches this.language return
@@ -502,7 +502,7 @@ class Toot {
         }
         else {
             logTrace(`Defaulting language prop to "en"`);
-            this.language ??= config_1.Config.defaultLanguage;
+            this.language ??= config_1.Config.locale.defaultLanguage;
         }
     }
     // Returns true if the toot should be re-completed
@@ -514,7 +514,7 @@ class Toot {
         // Check if toot was completed long enough ago that we might want to re-evaluate it
         (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.Config.api.staleDataTrendingMinutes
             // But not tooted so long ago that there's little chance of new data
-            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.Config.tootsCompleteAfterMinutes);
+            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.Config.toots.tootsCompleteAfterMinutes);
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {
@@ -615,7 +615,7 @@ class Toot {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
-        }, "completeToots", config_1.Config.batchCompleteTootsSize, isDeepInspect ? config_1.Config.batchCompleteTootsSleepBetweenMS : 0);
+        }, "completeToots", config_1.Config.toots.batchCompleteTootsSize, isDeepInspect ? config_1.Config.toots.batchCompleteTootsSleepBetweenMS : 0);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
         console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);

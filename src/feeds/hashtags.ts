@@ -19,13 +19,13 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);
-    tags = truncateToConfiguredLength(tags, "numParticipatedTagsToFetchTootsFor");
+    tags = truncateToConfiguredLength(tags, Config.participatedTags.numTags, logPrefix);
     console.debug(`${logPrefix} Gettings toots for participated tags:`, tags);
 
     return await MastoApi.instance.getCacheableToots(
+        async () => await MastoApi.instance.getStatusesForTags(tags, Config.participatedTags.numTootsPerTag),
         StorageKey.PARTICIPATED_TAG_TOOTS,
-        async () => await MastoApi.instance.getStatusesForTags(tags, Config.numParticipatedTagTootsPerTag),
-        "numParticipatedTagToots"
+        Config.participatedTags.maxToots,
     );
 };
 
@@ -35,15 +35,15 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
     let tags = await getTrendingTags();
 
     return await MastoApi.instance.getCacheableToots(
+        async () => await MastoApi.instance.getStatusesForTags(tags, Config.trending.tags.numTootsPerTag),
         StorageKey.TRENDING_TAG_TOOTS,
-        async () => await MastoApi.instance.getStatusesForTags(tags, Config.numTootsPerTrendingTag),
-        "numTrendingTagsToots"
+        Config.trending.tags.maxToots,
     );
 };
 
 
 // Get the trending tags across the fediverse
-// TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
+// TODO: stripping out followed/muted tags here can result in less than Config.trending.tags.numTags tags
 async function getTrendingTags(): Promise<MastodonTag[]> {
     const tags = await MastodonServer.fediverseTrendingTags();
     return await removeFollowedAndMutedTags(tags);

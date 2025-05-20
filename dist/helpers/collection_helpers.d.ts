@@ -1,4 +1,3 @@
-import { ConfigType } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
@@ -23,7 +22,7 @@ export declare function split<T>(array: T[], condition: (element: T) => boolean)
 export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
-export declare function truncateToConfiguredLength(array: any[], key: keyof ConfigType, label?: string): any[];
+export declare function truncateToConfiguredLength(array: any[], maxRecords: number, label?: string): any[];
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;

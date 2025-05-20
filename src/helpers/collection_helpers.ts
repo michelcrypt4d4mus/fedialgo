@@ -30,7 +30,7 @@ export async function batchMap<T>(
     batchSize?: number | null,
     sleepBetweenMS?: number
 ): Promise<any[]> {
-    batchSize ||= Config.scoringBatchSize;
+    batchSize ||= Config.scoring.scoringBatchSize;
     const startTime = new Date();
     let results: any[] = [];
     let logPrefix = `[${label || 'batchMap'}]`;
@@ -325,20 +325,12 @@ export function transformKeys<T>(data: T, transform: (key: string) => string): T
 
 
 // Find the configured value at configKey and truncate array to that length
-export function truncateToConfiguredLength(array: any[], key: keyof ConfigType, label?: string): any[] {
-    const logPfx = label ? `[${label}] ` : "";
-    const configValue = Config[key] as number;
-
-    if (!configValue) {
-        console.error(`${logPfx}No configured value for ${key}! Not truncating.`);
-        return array;
-    } else if (array.length <= configValue) {
-        return array;
-    }
-
+export function truncateToConfiguredLength(array: any[], maxRecords: number, label?: string): any[] {
+    if (array.length <= maxRecords) return array;
+    const logPfx = bracketed(label || "truncateToConfiguredLength()");
     const startLen = array.length;
-    array = array.slice(0, configValue);
-    console.log(`${logPfx}Truncated array of ${startLen} to ${array.length} to ${key}: ${configValue}`);
+    array = array.slice(0, maxRecords);
+    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} to ${maxRecords}`);
     return array;
 };
 

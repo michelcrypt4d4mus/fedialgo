@@ -25,7 +25,7 @@ exports.average = average;
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
 async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
-    batchSize ||= config_1.Config.scoringBatchSize;
+    batchSize ||= config_1.Config.scoring.scoringBatchSize;
     const startTime = new Date();
     let results = [];
     let logPrefix = `[${label || 'batchMap'}]`;
@@ -281,19 +281,13 @@ function transformKeys(data, transform) {
 exports.transformKeys = transformKeys;
 ;
 // Find the configured value at configKey and truncate array to that length
-function truncateToConfiguredLength(array, key, label) {
-    const logPfx = label ? `[${label}] ` : "";
-    const configValue = config_1.Config[key];
-    if (!configValue) {
-        console.error(`${logPfx}No configured value for ${key}! Not truncating.`);
+function truncateToConfiguredLength(array, maxRecords, label) {
+    if (array.length <= maxRecords)
         return array;
-    }
-    else if (array.length <= configValue) {
-        return array;
-    }
+    const logPfx = (0, string_helpers_1.bracketed)(label || "truncateToConfiguredLength()");
     const startLen = array.length;
-    array = array.slice(0, configValue);
-    console.log(`${logPfx}Truncated array of ${startLen} to ${array.length} to ${key}: ${configValue}`);
+    array = array.slice(0, maxRecords);
+    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} to ${maxRecords}`);
     return array;
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;

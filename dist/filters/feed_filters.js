@@ -119,7 +119,7 @@ function updateBooleanFilterOptions(filters, toots) {
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
             const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
-            if (language && language != config_1.Config.language) {
+            if (language && language != config_1.Config.locale.language) {
                 suppressedNonLatinTags[language] ??= {};
                 (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[language], tag.name);
                 return;

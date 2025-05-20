@@ -11,7 +11,7 @@ function decorateHistoryScores(_obj) {
         console.warn(`decorateHistoryScores() found no history for:`, obj);
         obj.history = [];
     }
-    const recentHistory = obj.history.slice(0, config_1.Config.numDaysToCountTrendingTagData);
+    const recentHistory = obj.history.slice(0, config_1.Config.trending.tags.numDaysToCountTrendingTagData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 }

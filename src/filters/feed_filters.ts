@@ -117,7 +117,7 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
         toot.realToot().tags.forEach((tag) => {
             const language = detectHashtagLanguage(tag.name);
 
-            if (language && language != Config.language) {
+            if (language && language != Config.locale.language) {
                 suppressedNonLatinTags[language] ??= {};
                 incrementCount(suppressedNonLatinTags[language], tag.name);
                 return;

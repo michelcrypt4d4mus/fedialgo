@@ -37,7 +37,7 @@ export default class UserData {
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
     participatedHashtags: TagNames = {};
-    preferredLanguage: string = Config.defaultLanguage;
+    preferredLanguage: string = Config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];
 
     // Alternate constructor to build UserData from raw API data
@@ -49,7 +49,7 @@ export default class UserData {
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
-        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || Config.defaultLanguage;
+        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || Config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         traceLog("[UserData] built from data:", userData);
         return userData;

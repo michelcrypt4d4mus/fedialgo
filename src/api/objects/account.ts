@@ -133,7 +133,7 @@ export default class Account implements AccountObj {
         const createdAt = new Date(this.createdAt);
 
         const accountStats = [
-            `Created ${createdAt.toLocaleDateString(Config.locale, ACCOUNT_CREATION_FMT)}`,
+            `Created ${createdAt.toLocaleDateString(Config.locale.locale, ACCOUNT_CREATION_FMT)}`,
             `${this.followersCount.toLocaleString()} Followers`,
             `${this.statusesCount.toLocaleString()} Toots`,
         ]

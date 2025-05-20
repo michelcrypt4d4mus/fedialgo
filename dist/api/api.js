@@ -141,7 +141,7 @@ class MastoApi {
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, "maxCachedTimelineToots", logPrefix);
+        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.Config.toots.maxCachedTimelineToots, logPrefix);
         await Storage_1.default.set(storageKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -154,7 +154,7 @@ class MastoApi {
     }
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
-    async getCacheableToots(key, fetch, maxRecordsConfigKey) {
+    async getCacheableToots(fetch, key, maxRecords) {
         const logPrefix = `[${key} getCacheableToots()]`;
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logPrefix);
         const startedAt = new Date();
@@ -163,10 +163,8 @@ class MastoApi {
             if (!toots) {
                 const statuses = await fetch();
                 (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
-                toots = await toot_1.default.buildToots(statuses, maxRecordsConfigKey.replace(/^num/, ""), logPrefix);
-                if (maxRecordsConfigKey) {
-                    toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecordsConfigKey);
-                }
+                toots = await toot_1.default.buildToots(statuses, key, logPrefix);
+                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords);
                 await Storage_1.default.set(key, toots);
             }
             (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} Returning ${toots.length} in ${(0, time_helpers_1.ageString)(startedAt)}`);
@@ -262,7 +260,7 @@ class MastoApi {
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
     async getStatusesForTag(tag, numToots) {
-        numToots ||= config_1.Config.numTootsPerTrendingTag;
+        numToots ||= config_1.Config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const tagToots = await Promise.all([
             this.searchForToots(tag.name, numToots),

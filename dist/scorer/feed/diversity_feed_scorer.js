@@ -66,7 +66,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 if (toot.account.isFollowed || toot.reblog?.account.isFollowed) {
                     // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
                 }
-                else if (tootsWithTagScoredSoFar[tag.name] > config_1.Config.minTrendingTagTootsForPenalty) {
+                else if (tootsWithTagScoredSoFar[tag.name] > config_1.Config.scoring.minTrendingTagTootsForPenalty) {
                     // TODO: this suddenly applies a massive penalty to the first toot beyond the threshold
                     // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
                     scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;

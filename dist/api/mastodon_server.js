@@ -101,21 +101,21 @@ class MastodonServer {
     }
     // Get the links that are trending on this server
     async fetchTrendingLinks() {
-        if (config_1.Config.noTrendingLinksServers.includes(this.domain)) {
+        if (config_1.Config.fediverse.noTrendingLinksServers.includes(this.domain)) {
             console.debug(`Trending links are not available for '${this.domain}', skipping...`);
             return [];
         }
-        const numLinks = config_1.Config.numTrendingLinksPerServer;
+        const numLinks = config_1.Config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(api_1.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
-        const numTags = config_1.Config.numTrendingTagsPerServer;
+        const numTags = config_1.Config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending(api_1.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
-        return trendingTags.filter(tag => !config_1.Config.invalidTrendingTags.includes(tag.name));
+        return trendingTags.filter(tag => !config_1.Config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
     ///////////////////////////////////
     //        Private Methods       //
@@ -201,7 +201,7 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
-                return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, "numTrendingTags");
+                return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, config_1.Config.trending.tags.numTags);
             }
         });
     }
@@ -223,7 +223,7 @@ class MastodonServer {
     }
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {
-        return config_1.Config.noMauServers.some(s => domain == s);
+        return config_1.Config.fediverse.noMauServers.some(s => domain == s);
     }
     ///////////////////////////////////////
     //      Private Static Methods       //
@@ -239,23 +239,23 @@ class MastodonServer {
         const followedUserDomainCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver());
         let mostFollowedDomains = (0, collection_helpers_1.sortKeysByValue)(followedUserDomainCounts);
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
-        mostFollowedDomains = mostFollowedDomains.slice(0, config_1.Config.numServersToCheck);
+        mostFollowedDomains = mostFollowedDomains.slice(0, config_1.Config.fediverse.numServersToCheck);
         // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
         // current Fedialgo. Filter out those below the userminServerMAU threshold
         let serverDict = await this.callForServers(mostFollowedDomains, (s) => s.fetchServerInfo());
-        serverDict = filterMinMAU(serverDict, config_1.Config.minServerMAU);
+        serverDict = filterMinMAU(serverDict, config_1.Config.fediverse.minServerMAU);
         const numActiveServers = Object.keys(serverDict).length;
-        const numServersToAdd = config_1.Config.numServersToCheck - numActiveServers; // Number of default servers to add
+        const numServersToAdd = config_1.Config.fediverse.numServersToCheck - numActiveServers; // Number of default servers to add
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config_1.Config.minServerMAU} MAU, adding some`);
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config_1.Config.fediverse.minServerMAU} MAU, adding some`);
             let extraDomains = [];
-            if (config_1.Config.language != config_1.Config.defaultLanguage) {
-                extraDomains = extraDomains.concat(config_1.Config.foreignLanguageServers[config_1.Config.language] || []);
-                console.log(`${logPrefix} Using ${extraDomains.length} custom "${config_1.Config.language}" servers`);
+            if (config_1.Config.locale.language != config_1.Config.locale.defaultLanguage) {
+                extraDomains = extraDomains.concat(config_1.Config.fediverse.foreignLanguageServers[config_1.Config.locale.language] || []);
+                console.log(`${logPrefix} Using ${extraDomains.length} custom "${config_1.Config.locale.language}" servers`);
             }
-            extraDomains = extraDomains.concat((0, collection_helpers_1.shuffle)(config_1.Config.defaultServers));
+            extraDomains = extraDomains.concat((0, collection_helpers_1.shuffle)(config_1.Config.fediverse.defaultServers));
             extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
             const extraServerInfos = await this.callForServers(extraDomains, (s) => s.fetchServerInfo());

@@ -22,21 +22,21 @@ async function getParticipatedHashtagToots() {
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);
-    tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, "numParticipatedTagsToFetchTootsFor");
+    tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, config_1.Config.participatedTags.numTags, logPrefix);
     console.debug(`${logPrefix} Gettings toots for participated tags:`, tags);
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.PARTICIPATED_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.numParticipatedTagTootsPerTag), "numParticipatedTagToots");
+    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.participatedTags.numTootsPerTag), types_1.StorageKey.PARTICIPATED_TAG_TOOTS, config_1.Config.participatedTags.maxToots);
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 ;
 // Get toots for the top trending tags via the search endpoint.
 async function getRecentTootsForTrendingTags() {
     let tags = await getTrendingTags();
-    return await api_1.default.instance.getCacheableToots(types_1.StorageKey.TRENDING_TAG_TOOTS, async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.numTootsPerTrendingTag), "numTrendingTagsToots");
+    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.trending.tags.numTootsPerTag), types_1.StorageKey.TRENDING_TAG_TOOTS, config_1.Config.trending.tags.maxToots);
 }
 exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;
 // Get the trending tags across the fediverse
-// TODO: stripping out followed/muted tags here can result in less than Config.numTrendingTags tags
+// TODO: stripping out followed/muted tags here can result in less than Config.trending.tags.numTags tags
 async function getTrendingTags() {
     const tags = await mastodon_server_1.default.fediverseTrendingTags();
     return await removeFollowedAndMutedTags(tags);

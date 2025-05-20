@@ -3,7 +3,6 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { MastodonTag, StorageKey } from "../types";
-import { ConfigType } from "../config";
 export declare const INSTANCE = "instance";
 export declare const LINKS = "links";
 export declare const STATUSES = "statuses";
@@ -34,7 +33,7 @@ export default class MastoApi {
     private constructor();
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
-    getCacheableToots(key: StorageKey, fetch: () => Promise<mastodon.v1.Status[]>, maxRecordsConfigKey: keyof ConfigType): Promise<Toot[]>;
+    getCacheableToots(fetch: () => Promise<mastodon.v1.Status[]>, key: StorageKey, maxRecords: number): Promise<Toot[]>;
     getFavouritedToots(params?: ApiParams): Promise<Toot[]>;
     getFollowedAccounts(params?: ApiParams): Promise<Account[]>;
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;
