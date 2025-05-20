@@ -8,6 +8,7 @@ import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
 export const MINUTES_IN_HOUR = 60;
+export const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
 export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
 export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
 export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
@@ -18,7 +19,7 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 
-// number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
@@ -34,6 +35,7 @@ type ApiConfigBase = {
     [key in StorageKey]?: ApiRequestDefaults;
 };
 
+// See Config object for comments explaining these and other values
 interface ApiConfig extends ApiConfigBase {
     backgroundLoadIntervalSeconds: number;
     defaultRecordsPerPage: number;
@@ -57,7 +59,7 @@ type FediverseConfig = {
 };
 
 type GuiConfig = {
-    isAppFilterVisible: boolean; // 99% of toots don't have the app field set so don't show the filter section
+    isAppFilterVisible: boolean;
 };
 
 type LocaleConfig = {
@@ -83,11 +85,11 @@ interface TagTootsConfig {
 };
 
 type TootsConfig = {
-    batchCompleteTootsSleepBetweenMS: number,  // How long to wait between batches of Toot.completeToots() calls
-    batchCompleteTootsSize: number,            // How many toots call completeToot() on at once
+    batchCompleteTootsSleepBetweenMS: number,
+    batchCompleteTootsSize: number,
     maxAgeInDays: number;
-    maxCachedTimelineToots: number,            // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
-    saveChangesIntervalSeconds: number;        // How often to check for updates to toots' numTimesShown
+    maxCachedTimelineToots: number,
+    saveChangesIntervalSeconds: number;
     tootsCompleteAfterMinutes: number;
 };
 
@@ -96,9 +98,9 @@ type TrendingLinksConfig = {
 };
 
 interface TrendingTagsConfig extends TagTootsConfig {
-    invalidTrendingTags: string[]        // Tags that are too generic to be considered trending
-    numDaysToCountTrendingTagData: number,    // Look at this many days of user counts when assessing trending tags
-    numTagsPerServer: number,        // How many trending tags to pull from each server (Mastodon default is 10)
+    invalidTrendingTags: string[],
+    numDaysToCountTrendingTagData: number,
+    numTagsPerServer: number,
 };
 
 type TrendingTootsConfig = {
@@ -160,7 +162,7 @@ export const Config: ConfigType = {
         },
         [StorageKey.HOME_TIMELINE]: {
             initialMaxRecords: 800,
-            lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
+            lookbackForUpdatesMinutes: 180,    // How long to look back for updates (edits, increased reblogs, etc.)
             supportsMinMaxId: true,
         },
         [StorageKey.MUTED_ACCOUNTS]: {
@@ -189,16 +191,15 @@ export const Config: ConfigType = {
             numMinutesUntilStale: 15,
         },
         backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
-        defaultRecordsPerPage: 40,            // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-        hashtagTootRetrievalDelaySeconds: 3,  // Delay before pulling trending & participated hashtag toots
-        // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
-        maxConcurrentRequestsInitial: 15,     // How many toot requests to make in parallel
-        maxConcurrentRequestsBackground: 8,   // How many toot requests to make in parallel once the initial load is done
-        maxRecordsForFeatureScoring: 1_500,   // number of notifications, replies, etc. to pull slowly in background for scoring
-        mutexWarnSeconds: 5,                  // How long to wait before warning about a mutex lock
-        staleDataDefaultMinutes: 10,          // Default how long to wait before considering data stale
-        staleDataTrendingMinutes: 60,         // Default. but is later computed based on the FEDIVERSE_KEYS
-        timeoutMS: 5_000,                     // Timeout for API calls
+        defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+        hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
+        maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
+        maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
+        maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
+        mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
+        staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
+        staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
+        timeoutMS: 5_000,                       // Timeout for API calls
     },
     fediverse: {
         minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
@@ -242,7 +243,7 @@ export const Config: ConfigType = {
             // "mastodon.technology",        // Doesn't return MAU data
             // "mathstodon.xyz",             // Doesn't return MAU data
         ],
-        // Currently unused. Theoretically for non english users we would prefer these servers
+        // Servers chosen first for non english users
         foreignLanguageServers: {
             "de": [
                 "troet.cafe",
@@ -325,7 +326,7 @@ export const Config: ConfigType = {
         ],
     },
     gui: {
-        isAppFilterVisible: false,         // 99% of toots don't have the app field set so don't show the filter section
+        isAppFilterVisible: false,              // 99% of toots don't have the app field set so don't show the filter section
     },
     locale: {
         country: DEFAULT_COUNTRY,
@@ -334,9 +335,9 @@ export const Config: ConfigType = {
         locale: DEFAULT_LOCALE,
     },
     participatedTags: {
-        maxToots: 200,           // How many total toots to include for the user's most participated tags
-        numTags: 30,             // Pull toots for this many of the user's most participated tags
-        numTootsPerTag: 10,      // How many toots to pull for each participated tag
+        maxToots: 200,                          // How many total toots to include for the user's most participated tags
+        numTags: 30,                            // Pull toots for this many of the user's most participated tags
+        numTootsPerTag: 10,                     // How many toots to pull for each participated tag
     },
     scoring: {
         excessiveTags: 25,                      // Toots with more than this many tags will be penalized
@@ -432,7 +433,7 @@ export const Config: ConfigType = {
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
         maxCachedTimelineToots: 3_000,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
-        tootsCompleteAfterMinutes: 24 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+        tootsCompleteAfterMinutes: MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     },
     trending: {
         links: {
