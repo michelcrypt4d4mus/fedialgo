@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.45.1
 * Truncate the stored home timeline toots array to the same max length as the overall timeline so it doesn't grow forever
 
 # v0.45.0
