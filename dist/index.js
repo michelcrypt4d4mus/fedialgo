@@ -307,7 +307,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsInitial);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
         this.hasProvidedAnyTootsToClient = false;
@@ -354,7 +354,7 @@ class TheAlgorithm {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
-        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
+        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.Config.api.staleDataTrendingMinutes && this.numTriggers <= 1) {
             console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
@@ -414,7 +414,7 @@ class TheAlgorithm {
             // this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.maxConcurrentRequestsBackground);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
     // Simple wrapper for triggering fetchHomeFeed()

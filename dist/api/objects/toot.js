@@ -512,7 +512,7 @@ class Toot {
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
         // Check if toot was completed long enough ago that we might want to re-evaluate it
-        (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.Config.staleDataTrendingMinutes
+        (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.Config.api.staleDataTrendingMinutes
             // But not tooted so long ago that there's little chance of new data
             || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.Config.tootsCompleteAfterMinutes);
     }

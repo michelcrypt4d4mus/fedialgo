@@ -29,6 +29,21 @@ type ApiRequestDefaults = {
     supportsMinMaxId?: boolean;      // True if the endpoint supports min/maxId
 };
 
+type ApiConfigBase = {
+    [key in StorageKey]?: ApiRequestDefaults;
+};
+
+interface ApiConfig extends ApiConfigBase {
+    defaultRecordsPerPage: number;
+    maxConcurrentRequestsBackground: number;
+    maxConcurrentRequestsInitial: number;
+    maxRecordsForFeatureScoring: number;
+    mutexWarnSeconds: number;
+    staleDataDefaultMinutes: number;
+    staleDataTrendingMinutes: number;
+    timeoutMS: number;
+};
+
 
 // See Config for comments explaining these values
 export type ConfigType = {
@@ -38,7 +53,6 @@ export type ConfigType = {
     language: string;
     locale: string;
     // Timeline
-    excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
@@ -52,23 +66,16 @@ export type ConfigType = {
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
     // API stuff
-    apiDefaults: {[key in StorageKey]?: ApiRequestDefaults};
+    api: ApiConfig;
     backgroundLoadIntervalSeconds: number;
     batchCompleteTootsSize: number;
     batchCompleteTootsSleepBetweenMS: number;
-    defaultRecordsPerPage: number;
-    maxConcurrentRequestsBackground: number;
-    maxConcurrentRequestsInitial: number;
-    maxRecordsForFeatureScoring: number;
-    mutexWarnSeconds: number;
-    staleDataDefaultMinutes: number;
-    staleDataTrendingMinutes: number;
-    timeoutMS: number;
     tootsCompleteAfterMinutes: number;
     // Fedivere server scraping
     minServerMAU: number;
     numServersToCheck: number;
     // Trending tags
+    excessiveTags: number;
     excessiveTagsPenalty: number;
     invalidTrendingTags: string[];
     minTrendingTagTootsForPenalty: number,
@@ -116,20 +123,17 @@ export const Config: ConfigType = {
     numTrendingTootsPerServer: 30,          // How many trending toots to pull per server
 
     // Timeline toots
-    excessiveTags: 25,                      // Toots with more than this many tags will be penalized
     hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
     lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     scoringBatchSize: 100,                  // How many toots to score at once
-    staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
-    staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
     tootsCompleteAfterMinutes: 24 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
 
     // API stuff
-    apiDefaults: {
+    api: {
         [StorageKey.BLOCKED_ACCOUNTS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
             numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
@@ -189,22 +193,25 @@ export const Config: ConfigType = {
         [StorageKey.TRENDING_TAG_TOOTS]: {
             numMinutesUntilStale: 15,
         },
+        defaultRecordsPerPage: 40,          // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+        // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
+        maxConcurrentRequestsInitial: 15,   // How many toot requests to make in parallel
+        maxConcurrentRequestsBackground: 8, // How many toot requests to make in parallel once the initial load is done
+        maxRecordsForFeatureScoring: 1_500, // number of notifications, replies, etc. to pull slowly in background for scoring
+        mutexWarnSeconds: 5,                // How long to wait before warning about a mutex lock
+        staleDataDefaultMinutes: 10,        // Default how long to wait before considering data stale
+        staleDataTrendingMinutes: 60,       // Default. but is later computed based on the FEDIVERSE_KEYS
+        timeoutMS: 5_000,                   // Timeout for API calls
     },
 
     backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
-    defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-    // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
-    maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel
-    maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
-    maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
     minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
-    mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
     numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
     batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeToots() calls
     batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
-    timeoutMS: 5_000,                       // Timeout for API calls
 
     // Trending tags and links
+    excessiveTags: 25,                      // Toots with more than this many tags will be penalized
     excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
     invalidTrendingTags: [                  // Tags that are too generic to be considered trending
         "news",
@@ -448,27 +455,27 @@ export function setLocale(locale?: string): void {
 
 // Quick load mode settings
 if (isQuickMode) {
-    Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
+    Config.api[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.incrementalLoadDelayMS = 100;
     Config.lookbackForUpdatesMinutes = 15;
-    Config.maxRecordsForFeatureScoring = 480;
+    Config.api.maxRecordsForFeatureScoring = 480;
     Config.numParticipatedTagsToFetchTootsFor = 20;
     Config.numTrendingTags = 20;
 }
 
 // Debug mode settings
 if (isDebugMode) {
-    Config.apiDefaults[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
-    Config.apiDefaults[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
-    Config.maxRecordsForFeatureScoring = 20_000;
+    Config.api[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
+    Config.api[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
+    Config.api.maxRecordsForFeatureScoring = 20_000;
 };
 
 // Heavy load test settings
 if (isLoadTest) {
-    Config.apiDefaults[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
+    Config.api[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
     Config.maxCachedTimelineToots = 5_000;
-    Config.maxRecordsForFeatureScoring = 1_500;
+    Config.api.maxRecordsForFeatureScoring = 1_500;
     Config.numParticipatedTagsToFetchTootsFor = 50;
     Config.numParticipatedTagToots = 500;
     Config.numParticipatedTagTootsPerTag = 10;
@@ -480,8 +487,8 @@ if (isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.apiDefaults[k as StorageKey]?.numMinutesUntilStale);
-    Config.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
+    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.api[k as StorageKey]?.numMinutesUntilStale);
+    Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
 
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {

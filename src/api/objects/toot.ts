@@ -635,7 +635,7 @@ export default class Toot implements TootObj {
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
                // Check if toot was completed long enough ago that we might want to re-evaluate it
-               ageInMinutes(this.completedAt) < Config.staleDataTrendingMinutes
+               ageInMinutes(this.completedAt) < Config.api.staleDataTrendingMinutes
                // But not tooted so long ago that there's little chance of new data
             || ageInMinutes(this.createdAt) > Config.tootsCompleteAfterMinutes
         );

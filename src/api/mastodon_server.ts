@@ -169,7 +169,7 @@ export default class MastodonServer {
         if (limit) url += `?limit=${limit}`;
         traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
-        const json = await axios.get<T>(url, { timeout: Config.timeoutMS });
+        const json = await axios.get<T>(url, { timeout: Config.api.timeoutMS });
 
         if (json.status === 200 && json.data) {
             traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);

@@ -65,7 +65,7 @@ async function lockExecution(locker, logPrefix) {
         releaseLock = acquireLock;
     }
     logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (waitSeconds > config_1.Config.mutexWarnSeconds) {
+    if (waitSeconds > config_1.Config.api.mutexWarnSeconds) {
         console.warn(logMsg);
     }
     else if (waitSeconds > 2) {

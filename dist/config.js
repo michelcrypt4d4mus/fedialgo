@@ -21,6 +21,7 @@ const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 // number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
+;
 // App level config that is not user configurable
 exports.Config = {
     // Locale stuff
@@ -43,19 +44,16 @@ exports.Config = {
     // Trending toots
     numTrendingTootsPerServer: 30,
     // Timeline toots
-    excessiveTags: 25,
     hashtagTootRetrievalDelaySeconds: 3,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
     lookbackForUpdatesMinutes: 180,
     maxTimelineDaysToFetch: 7,
     scoringBatchSize: 100,
-    staleDataDefaultMinutes: 10,
-    staleDataTrendingMinutes: 60,
     tootsCompleteAfterMinutes: 24 * exports.MINUTES_IN_HOUR,
     timelineDecayExponent: 1.2,
     // API stuff
-    apiDefaults: {
+    api: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
             numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
@@ -115,20 +113,23 @@ exports.Config = {
         [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
             numMinutesUntilStale: 15,
         },
+        defaultRecordsPerPage: 40,
+        // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
+        maxConcurrentRequestsInitial: 15,
+        maxConcurrentRequestsBackground: 8,
+        maxRecordsForFeatureScoring: 1500,
+        mutexWarnSeconds: 5,
+        staleDataDefaultMinutes: 10,
+        staleDataTrendingMinutes: 60,
+        timeoutMS: 5000, // Timeout for API calls
     },
     backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
-    defaultRecordsPerPage: 40,
-    // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
-    maxConcurrentRequestsInitial: 15,
-    maxConcurrentRequestsBackground: 8,
-    maxRecordsForFeatureScoring: 1500,
     minServerMAU: 100,
-    mutexWarnSeconds: 5,
     numServersToCheck: 30,
     batchCompleteTootsSleepBetweenMS: 250,
     batchCompleteTootsSize: 25,
-    timeoutMS: 5000,
     // Trending tags and links
+    excessiveTags: 25,
     excessiveTagsPenalty: 0.1,
     invalidTrendingTags: [
         "news",
@@ -364,26 +365,26 @@ exports.setLocale = setLocale;
 ;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
+    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.incrementalLoadDelayMS = 100;
     exports.Config.lookbackForUpdatesMinutes = 15;
-    exports.Config.maxRecordsForFeatureScoring = 480;
+    exports.Config.api.maxRecordsForFeatureScoring = 480;
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.apiDefaults[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
-    exports.Config.apiDefaults[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
-    exports.Config.maxRecordsForFeatureScoring = 20000;
+    exports.Config.api[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
+    exports.Config.api[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
+    exports.Config.api.maxRecordsForFeatureScoring = 20000;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    exports.Config.apiDefaults[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 2500;
+    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 2500;
     exports.Config.maxCachedTimelineToots = 5000;
-    exports.Config.maxRecordsForFeatureScoring = 1500;
+    exports.Config.api.maxRecordsForFeatureScoring = 1500;
     exports.Config.numParticipatedTagsToFetchTootsFor = 50;
     exports.Config.numParticipatedTagToots = 500;
     exports.Config.numParticipatedTagTootsPerTag = 10;
@@ -394,8 +395,8 @@ if (environment_helpers_1.isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.apiDefaults[k]?.numMinutesUntilStale);
-    exports.Config.staleDataTrendingMinutes = Math.min(...trendStalenesses);
+    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.api[k]?.numMinutesUntilStale);
+    exports.Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses);
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {
         if (typeof value === "object") {

@@ -327,7 +327,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsInitial);
+        MastoApi.instance.setSemaphoreConcurrency(Config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller!);
         this.dataPoller = undefined;
         this.hasProvidedAnyTootsToClient = false;
@@ -379,7 +379,7 @@ class TheAlgorithm {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes) feedAgeInMinutes /= 60;
 
-        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.staleDataTrendingMinutes && this.numTriggers <= 1) {
+        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.api.staleDataTrendingMinutes && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
@@ -445,7 +445,7 @@ class TheAlgorithm {
         }
 
         this.loadStartedAt = null;
-        MastoApi.instance.setSemaphoreConcurrency(Config.maxConcurrentRequestsBackground);
+        MastoApi.instance.setSemaphoreConcurrency(Config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
 

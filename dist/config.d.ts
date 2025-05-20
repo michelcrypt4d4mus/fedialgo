@@ -12,12 +12,24 @@ type ApiRequestDefaults = {
     numMinutesUntilStale?: number;
     supportsMinMaxId?: boolean;
 };
+type ApiConfigBase = {
+    [key in StorageKey]?: ApiRequestDefaults;
+};
+interface ApiConfig extends ApiConfigBase {
+    defaultRecordsPerPage: number;
+    maxConcurrentRequestsBackground: number;
+    maxConcurrentRequestsInitial: number;
+    maxRecordsForFeatureScoring: number;
+    mutexWarnSeconds: number;
+    staleDataDefaultMinutes: number;
+    staleDataTrendingMinutes: number;
+    timeoutMS: number;
+}
 export type ConfigType = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    excessiveTags: number;
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
@@ -29,23 +41,14 @@ export type ConfigType = {
     numParticipatedTagsToFetchTootsFor: number;
     numParticipatedTagToots: number;
     numParticipatedTagTootsPerTag: number;
-    apiDefaults: {
-        [key in StorageKey]?: ApiRequestDefaults;
-    };
+    api: ApiConfig;
     backgroundLoadIntervalSeconds: number;
     batchCompleteTootsSize: number;
     batchCompleteTootsSleepBetweenMS: number;
-    defaultRecordsPerPage: number;
-    maxConcurrentRequestsBackground: number;
-    maxConcurrentRequestsInitial: number;
-    maxRecordsForFeatureScoring: number;
-    mutexWarnSeconds: number;
-    staleDataDefaultMinutes: number;
-    staleDataTrendingMinutes: number;
-    timeoutMS: number;
     tootsCompleteAfterMinutes: number;
     minServerMAU: number;
     numServersToCheck: number;
+    excessiveTags: number;
     excessiveTagsPenalty: number;
     invalidTrendingTags: string[];
     minTrendingTagTootsForPenalty: number;

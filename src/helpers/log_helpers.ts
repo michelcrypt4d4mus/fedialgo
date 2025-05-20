@@ -81,7 +81,7 @@ export async function lockExecution(
 
     logMsg += ` lock acquired ${ageString(startedAt)}`;
 
-    if (waitSeconds > Config.mutexWarnSeconds) {
+    if (waitSeconds > Config.api.mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (waitSeconds > 2) {
         traceLog(logMsg);

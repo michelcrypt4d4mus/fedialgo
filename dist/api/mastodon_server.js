@@ -151,7 +151,7 @@ class MastodonServer {
             url += `?limit=${limit}`;
         (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
-        const json = await axios_1.default.get(url, { timeout: config_1.Config.timeoutMS });
+        const json = await axios_1.default.get(url, { timeout: config_1.Config.api.timeoutMS });
         if (json.status === 200 && json.data) {
             (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetch response ${(0, time_helpers_1.ageString)(startedAt)}:`, json.data);
             return (0, collection_helpers_1.transformKeys)(json.data, change_case_1.camelCase);

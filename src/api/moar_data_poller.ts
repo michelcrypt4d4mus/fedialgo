@@ -19,7 +19,7 @@ const MOAR_MUTEX = new Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
     console.log(`${MOAR_DATA_PREFIX} triggered by timer...`);
-    const maxRecordsForFeatureScoring = Config.maxRecordsForFeatureScoring;
+    const maxRecordsForFeatureScoring = Config.api.maxRecordsForFeatureScoring;
     const startedAt = new Date();
     const releaseMutex = await lockExecution(MOAR_MUTEX, GET_MOAR_DATA);
 

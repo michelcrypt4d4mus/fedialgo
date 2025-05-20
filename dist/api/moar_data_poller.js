@@ -21,7 +21,7 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
-    const maxRecordsForFeatureScoring = config_1.Config.maxRecordsForFeatureScoring;
+    const maxRecordsForFeatureScoring = config_1.Config.api.maxRecordsForFeatureScoring;
     const startedAt = new Date();
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const pollers = [

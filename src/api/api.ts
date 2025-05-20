@@ -77,7 +77,7 @@ export default class MastoApi {
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
-    private requestSemphore = new Semaphore(Config.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+    private requestSemphore = new Semaphore(Config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
 
     // URL for tag on the user's homeserver
     tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
@@ -345,7 +345,7 @@ export default class MastoApi {
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
-        maxRecords = maxRecords || Config.defaultRecordsPerPage;
+        maxRecords = maxRecords || Config.api.defaultRecordsPerPage;
         const logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
         const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
         const startedAt = new Date();
@@ -395,7 +395,7 @@ export default class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
-        maxRecords = maxRecords || Config.defaultRecordsPerPage;
+        maxRecords = maxRecords || Config.api.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
@@ -436,9 +436,9 @@ export default class MastoApi {
         if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
 
         // Parse params and set defaults
-        const requestDefaults = Config.apiDefaults[storageKey];
+        const requestDefaults = Config.api[storageKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? MIN_RECORDS_FOR_FEATURE_SCORING;
-        const limit = Math.min(maxRecords, requestDefaults?.limit || Config.defaultRecordsPerPage);  // max records per page
+        const limit = Math.min(maxRecords, requestDefaults?.limit || Config.api.defaultRecordsPerPage);  // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
         let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
 
