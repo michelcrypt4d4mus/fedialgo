@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Add AlreadyShownScorer and Toot.numTimesShown property (managed by the client app)
+
+# v0.45.0
+* Add `AlreadyShownScorer` and `Toot.numTimesShown` property (managed by the client app)
 * Drop `WeightName.PARTICIPATED_TAGS` default weight to 0.15
 
 ### v0.44.5
