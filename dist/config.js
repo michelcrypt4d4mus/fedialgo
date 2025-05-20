@@ -47,7 +47,6 @@ exports.Config = {
     hashtagTootRetrievalDelaySeconds: 3,
     homeTimelineBatchSize: 80,
     incrementalLoadDelayMS: 500,
-    lookbackForUpdatesMinutes: 180,
     maxTimelineDaysToFetch: 7,
     scoringBatchSize: 100,
     tootsCompleteAfterMinutes: 24 * exports.MINUTES_IN_HOUR,
@@ -86,6 +85,7 @@ exports.Config = {
         },
         [types_1.StorageKey.HOME_TIMELINE]: {
             initialMaxRecords: 800,
+            lookbackForUpdatesMinutes: 180,
             supportsMinMaxId: true,
         },
         [types_1.StorageKey.MUTED_ACCOUNTS]: {
@@ -366,9 +366,9 @@ exports.setLocale = setLocale;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
     exports.Config.api[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
+    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
     exports.Config.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.incrementalLoadDelayMS = 100;
-    exports.Config.lookbackForUpdatesMinutes = 15;
     exports.Config.api.maxRecordsForFeatureScoring = 480;
     exports.Config.numParticipatedTagsToFetchTootsFor = 20;
     exports.Config.numTrendingTags = 20;

@@ -1,9 +1,10 @@
 # NEXT RELEASE
+* Consolidate API config stuff to Config.api property / ApiConfig type
 
 ### v0.45.1
 * Truncate the stored home timeline toots array to the same max length as the overall timeline so it doesn't grow forever
 
-# v0.45.0
+## v0.45.0
 * Add `AlreadyShownScorer` and `Toot.numTimesShown` property (managed by the client app)
 * Drop `WeightName.PARTICIPATED_TAGS` default weight to 0.15
 

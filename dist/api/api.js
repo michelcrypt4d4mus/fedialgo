@@ -43,7 +43,6 @@ exports.INSTANCE = "instance";
 exports.LINKS = "links";
 exports.STATUSES = "statuses";
 exports.TAGS = "tags";
-const LOOKBACK_SECONDS = config_1.Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -106,7 +105,8 @@ class MastoApi {
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-            cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, LOOKBACK_SECONDS) : (0, time_helpers_1.timelineCutoffAt)();
+            const lookbackSeconds = config_1.Config.api[types_1.StorageKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes * 60;
+            cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
         }

@@ -23,10 +23,11 @@ export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
-    initialMaxRecords?: number;      // How many records to pull in the initial bootstrap
-    limit?: number;                  // Max per page is usually 40
-    numMinutesUntilStale?: number;   // How long until the data is considered stale
-    supportsMinMaxId?: boolean;      // True if the endpoint supports min/maxId
+    initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
+    limit?: number;                     // Max per page is usually 40
+    lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
+    numMinutesUntilStale?: number;      // How long until the data is considered stale
+    supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
 };
 
 type ApiConfigBase = {
@@ -56,7 +57,7 @@ export type ConfigType = {
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
-    lookbackForUpdatesMinutes: number;
+
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
     scoringBatchSize: number;
@@ -126,7 +127,6 @@ export const Config: ConfigType = {
     hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
     homeTimelineBatchSize: 80,              // How many toots to pull in the first fetch
     incrementalLoadDelayMS: 500,            // Delay between incremental loads of toots
-    lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
     maxTimelineDaysToFetch: 7,              // Maximum length of time to pull timeline toots for
     scoringBatchSize: 100,                  // How many toots to score at once
     tootsCompleteAfterMinutes: 24 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
@@ -166,6 +166,7 @@ export const Config: ConfigType = {
         },
         [StorageKey.HOME_TIMELINE]: {
             initialMaxRecords: 800,
+            lookbackForUpdatesMinutes: 180,         // How long to look back for updates (edits, increased reblogs, etc.)
             supportsMinMaxId: true,
         },
         [StorageKey.MUTED_ACCOUNTS]: {
@@ -456,9 +457,9 @@ export function setLocale(locale?: string): void {
 // Quick load mode settings
 if (isQuickMode) {
     Config.api[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
+    Config.api[StorageKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
     Config.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.incrementalLoadDelayMS = 100;
-    Config.lookbackForUpdatesMinutes = 15;
     Config.api.maxRecordsForFeatureScoring = 480;
     Config.numParticipatedTagsToFetchTootsFor = 20;
     Config.numTrendingTags = 20;

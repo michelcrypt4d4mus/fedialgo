@@ -24,7 +24,6 @@ export const LINKS = "links";
 export const STATUSES = "statuses";
 export const TAGS = "tags";
 
-const LOOKBACK_SECONDS = Config.lookbackForUpdatesMinutes * 60;
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
 // Error messages for MastoHttpError
@@ -130,7 +129,8 @@ export default class MastoApi {
         } else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = mostRecentTootedAt(homeTimelineToots);
-            cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, LOOKBACK_SECONDS) : timelineCutoffAt();
+            const lookbackSeconds = Config.api[StorageKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes! * 60;
+            cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, lookbackSeconds) : timelineCutoffAt();
             cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
             console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);
         }

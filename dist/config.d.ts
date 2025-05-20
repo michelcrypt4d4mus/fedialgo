@@ -9,6 +9,7 @@ export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {
     initialMaxRecords?: number;
     limit?: number;
+    lookbackForUpdatesMinutes?: number;
     numMinutesUntilStale?: number;
     supportsMinMaxId?: boolean;
 };
@@ -33,7 +34,6 @@ export type ConfigType = {
     hashtagTootRetrievalDelaySeconds: number;
     homeTimelineBatchSize: number;
     incrementalLoadDelayMS: number;
-    lookbackForUpdatesMinutes: number;
     maxCachedTimelineToots: number;
     maxTimelineDaysToFetch: number;
     scoringBatchSize: number;
