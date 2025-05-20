@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Drop `WeightName.PARTICIPATED_TAGS` default weight to 0.15
 
 ### v0.44.5
 * Fix boolean logic for multiple type filters
