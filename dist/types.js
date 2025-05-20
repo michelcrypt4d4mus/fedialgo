@@ -4,6 +4,7 @@ exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TR
 // Names of the user adjustable score weightings
 var WeightName;
 (function (WeightName) {
+    WeightName["ALREADY_SHOWN"] = "AlreadyShown";
     WeightName["CHAOS"] = "Chaos";
     WeightName["DIVERSITY"] = "Diversity";
     WeightName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";

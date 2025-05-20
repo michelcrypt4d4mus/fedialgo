@@ -94,6 +94,7 @@ const TAG_ONLY_STRING_LOOKUP = TAG_ONLY_STRINGS.reduce((acc, str) => {
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo
 export interface SerializableToot extends mastodon.v1.Status {
+    numTimesShown?: number;            // Count of times the Toot has been shown to the user. Managed in client app.
     completedAt?: string;              // Timestamp a full deep inspection of the toot was completed
     followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
     participatedTags?: TagWithUsageCounts[]; // Array of tags that the user has participated in that exist in this toot
@@ -178,6 +179,7 @@ export default class Toot implements TootObj {
     url?: string | null;
 
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
+    numTimesShown?: number;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
     participatedTags?: TagWithUsageCounts[];     // Array of tags that the user has participated in that exist in this toot
@@ -227,6 +229,7 @@ export default class Toot implements TootObj {
         tootObj.visibility = toot.visibility;
 
         // Unique to fedialgo
+        tootObj.numTimesShown = toot.numTimesShown || 0;
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
@@ -808,6 +811,7 @@ export default class Toot implements TootObj {
                 toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted);  // Liberally set muted on retoots and real toots
+                toot.realToot().numTimesShown = Math.max(...uriToots.map(t => t.realToot().numTimesShown || 0));
 
                 // Reblog props
                 if (toot.reblog) {

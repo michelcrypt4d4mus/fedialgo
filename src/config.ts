@@ -360,6 +360,9 @@ export const Config: ConfigType = {
         },
 
         // Weighted scores
+        [WeightName.ALREADY_SHOWN]: {
+            description: 'Disfavour toots that have been marked as shown.'
+        },
         [WeightName.CHAOS]: {
             description: "Insert Chaos into the scoring (social media ist krieg)",
         },

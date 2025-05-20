@@ -280,6 +280,9 @@ exports.Config = {
             minValue: 0.001,
         },
         // Weighted scores
+        [types_1.WeightName.ALREADY_SHOWN]: {
+            description: 'Disfavour toots that have been marked as shown.'
+        },
         [types_1.WeightName.CHAOS]: {
             description: "Insert Chaos into the scoring (social media ist krieg)",
         },

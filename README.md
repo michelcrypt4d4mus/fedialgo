@@ -151,8 +151,11 @@ await algorithm.reset();
 ```
 
 ## `Toot` API
-The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details.
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
 
+```typescript
+timelineFeed[0].numTimesShown = 1;
+```
 
 ## Other Data Available From `TheAlgorithm`
 FediAlgo exports a number of types and enums; check the bottom of [`index.ts`](src/index.ts) for details on what is available.

@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
+import AlreadyShownScorer from './scorer/feature/already_seen_scorer';
 import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
@@ -127,6 +128,7 @@ class TheAlgorithm {
 
     // These can score a toot without knowing about the rest of the toots in the feed
     private featureScorers = [
+        new AlreadyShownScorer(),
         new ChaosScorer(),
         new FavouritedTagsScorer(),
         new FollowedTagsScorer(),

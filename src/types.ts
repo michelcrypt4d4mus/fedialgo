@@ -13,6 +13,7 @@ import Toot, { SerializableToot } from './api/objects/toot';
 
 // Names of the user adjustable score weightings
 export enum WeightName {
+    ALREADY_SHOWN = 'AlreadyShown',
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
     FAVOURITED_ACCOUNTS = 'FavouritedAccounts',

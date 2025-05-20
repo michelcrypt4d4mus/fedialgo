@@ -23,6 +23,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [WeightName.TRENDING]: 0.15,
     [WeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
+    [WeightName.ALREADY_SHOWN]: 5,
     [WeightName.CHAOS]: 1.0,
     [WeightName.DIVERSITY]: 1.0,
     [WeightName.FAVOURITED_ACCOUNTS]: 1.0,
@@ -50,6 +51,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [WeightName.TIME_DECAY]: 9.99,
         [WeightName.TRENDING]: 0,
         [WeightName.OUTLIER_DAMPENER]: 0,
+        [WeightName.ALREADY_SHOWN]: 0,
         [WeightName.CHAOS]: 0,
         [WeightName.DIVERSITY]: 0,
         [WeightName.FAVOURITED_ACCOUNTS]: 0,

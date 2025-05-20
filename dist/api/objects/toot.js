@@ -106,6 +106,7 @@ class Toot {
     text;
     url;
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
+    numTimesShown;
     completedAt;
     followedTags; // Array of tags that the user follows that exist in this toot
     participatedTags; // Array of tags that the user has participated in that exist in this toot
@@ -153,6 +154,7 @@ class Toot {
         tootObj.url = toot.url;
         tootObj.visibility = toot.visibility;
         // Unique to fedialgo
+        tootObj.numTimesShown = toot.numTimesShown || 0;
         tootObj.completedAt = toot.completedAt;
         tootObj.followedTags = toot.followedTags;
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
@@ -669,6 +671,7 @@ class Toot {
                 toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
+                toot.realToot().numTimesShown = Math.max(...uriToots.map(t => t.realToot().numTimesShown || 0));
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);

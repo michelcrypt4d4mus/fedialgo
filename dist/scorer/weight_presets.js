@@ -24,6 +24,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.WeightName.TRENDING]: 0.15,
     [types_1.WeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
+    [types_1.WeightName.ALREADY_SHOWN]: 5,
     [types_1.WeightName.CHAOS]: 1.0,
     [types_1.WeightName.DIVERSITY]: 1.0,
     [types_1.WeightName.FAVOURITED_ACCOUNTS]: 1.0,
@@ -49,6 +50,7 @@ exports.WEIGHT_PRESETS = {
         [types_1.WeightName.TIME_DECAY]: 9.99,
         [types_1.WeightName.TRENDING]: 0,
         [types_1.WeightName.OUTLIER_DAMPENER]: 0,
+        [types_1.WeightName.ALREADY_SHOWN]: 0,
         [types_1.WeightName.CHAOS]: 0,
         [types_1.WeightName.DIVERSITY]: 0,
         [types_1.WeightName.FAVOURITED_ACCOUNTS]: 0,

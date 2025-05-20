@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
+import AlreadyShownScorer from './scorer/feature/already_seen_scorer';
 import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
@@ -62,7 +63,7 @@ declare class TheAlgorithm {
     private scoreMutex;
     private featureScorers;
     private feedScorers;
-    weightedScorers: (ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (AlreadyShownScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     weightInfo: WeightInfoDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

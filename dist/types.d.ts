@@ -6,6 +6,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 export declare enum WeightName {
+    ALREADY_SHOWN = "AlreadyShown",
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
     FAVOURITED_ACCOUNTS = "FavouritedAccounts",

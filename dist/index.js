@@ -34,6 +34,7 @@ require("reflect-metadata"); // Required for class-transformer
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
+const already_seen_scorer_1 = __importDefault(require("./scorer/feature/already_seen_scorer"));
 const boolean_filter_1 = __importStar(require("./filters/boolean_filter"));
 exports.BooleanFilter = boolean_filter_1.default;
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
@@ -134,6 +135,7 @@ class TheAlgorithm {
     scoreMutex = new async_mutex_1.Mutex();
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
+        new already_seen_scorer_1.default(),
         new chaos_scorer_1.default(),
         new favourited_tags_scorer_1.default(),
         new followed_tags_scorer_1.default(),
