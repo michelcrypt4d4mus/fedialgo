@@ -84,9 +84,10 @@ interface TagTootsConfig {
 
 type TootsConfig = {
     batchCompleteTootsSleepBetweenMS: number,  // How long to wait between batches of Toot.completeToots() calls
-    batchCompleteTootsSize: number,             // How many toots call completeToot() on at once
+    batchCompleteTootsSize: number,            // How many toots call completeToot() on at once
     maxAgeInDays: number;
-    maxCachedTimelineToots: number,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+    maxCachedTimelineToots: number,            // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+    saveChangesIntervalSeconds: number;        // How often to check for updates to toots' numTimesShown
     tootsCompleteAfterMinutes: number;
 };
 
@@ -430,6 +431,7 @@ export const Config: ConfigType = {
         batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
         maxCachedTimelineToots: 3_000,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+        saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         tootsCompleteAfterMinutes: 24 * MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     },
     trending: {
@@ -491,6 +493,7 @@ if (isDebugMode) {
     Config.api[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
     Config.api[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
     Config.api.maxRecordsForFeatureScoring = 20_000;
+    Config.toots.saveChangesIntervalSeconds = 5;
 };
 
 // Heavy load test settings

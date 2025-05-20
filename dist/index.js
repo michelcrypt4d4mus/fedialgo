@@ -128,9 +128,11 @@ class TheAlgorithm {
     feed = [];
     homeFeed = []; // Just the toots pulled from the home timeline
     dataPoller;
+    cacheUpdater;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     loadStartedAt = null; // Timestamp of when the feed started loading
     numTriggers = 0;
+    totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     mergeMutex = new async_mutex_1.Mutex();
     scoreMutex = new async_mutex_1.Mutex();
     // These can score a toot without knowing about the rest of the toots in the feed
@@ -438,6 +440,11 @@ class TheAlgorithm {
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.Config.api.backgroundLoadIntervalSeconds * 1000);
+        if (this.cacheUpdater) {
+            console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            return;
+        }
+        this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.Config.toots.saveChangesIntervalSeconds * 1000);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -550,6 +557,18 @@ class TheAlgorithm {
             loadingStatus: this.loadingStatus,
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
         };
+    }
+    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+    // TODO: this kind of sucks.
+    async updateTootCache() {
+        if (this.isLoading())
+            return;
+        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+        if (this.totalNumTimesShown == newTotalNumTimesShown)
+            return;
+        console.debug(`[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown (old: ${this.totalNumTimesShown})`);
+        await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
+        this.totalNumTimesShown = newTotalNumTimesShown;
     }
 }
 ;

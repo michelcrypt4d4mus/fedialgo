@@ -63,6 +63,7 @@ type TootsConfig = {
     batchCompleteTootsSize: number;
     maxAgeInDays: number;
     maxCachedTimelineToots: number;
+    saveChangesIntervalSeconds: number;
     tootsCompleteAfterMinutes: number;
 };
 type TrendingLinksConfig = {

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set up a poller to periodically save changes to toots' `numTimesShown` property to the cache
 
 # v0.46.0
 * Consolidate API config stuff to Config.api property / ApiConfig type

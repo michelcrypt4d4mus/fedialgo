@@ -56,9 +56,11 @@ declare class TheAlgorithm {
     private feed;
     private homeFeed;
     private dataPoller?;
+    private cacheUpdater?;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
     private numTriggers;
+    private totalNumTimesShown;
     private mergeMutex;
     private scoreMutex;
     private featureScorers;
@@ -98,6 +100,7 @@ declare class TheAlgorithm {
     private scoreAndFilterFeed;
     private setLoadingStateVariables;
     private statusDict;
+    updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
 export { type FeedFilterSettings, type KeysOfValueType, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, NON_SCORE_WEIGHTS, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, sortKeysByValue, timeString, };

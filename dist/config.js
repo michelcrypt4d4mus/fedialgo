@@ -329,6 +329,7 @@ exports.Config = {
         batchCompleteTootsSize: 25,
         maxAgeInDays: 7,
         maxCachedTimelineToots: 3000,
+        saveChangesIntervalSeconds: 30,
         tootsCompleteAfterMinutes: 24 * exports.MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     },
     trending: {
@@ -385,6 +386,7 @@ if (environment_helpers_1.isDebugMode) {
     exports.Config.api[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
     exports.Config.api[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
     exports.Config.api.maxRecordsForFeatureScoring = 20000;
+    exports.Config.toots.saveChangesIntervalSeconds = 5;
 }
 ;
 // Heavy load test settings

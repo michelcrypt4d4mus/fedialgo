@@ -120,9 +120,11 @@ class TheAlgorithm {
     private feed: Toot[] = [];
     private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
     private dataPoller?: ReturnType<typeof setInterval>;
+    private cacheUpdater?: ReturnType<typeof setInterval>;
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
     private numTriggers = 0;
+    private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     private mergeMutex = new Mutex();
     private scoreMutex = new Mutex();
 
@@ -476,6 +478,16 @@ class TheAlgorithm {
             },
             Config.api.backgroundLoadIntervalSeconds * 1000
         );
+
+        if (this.cacheUpdater) {
+            console.log(`${MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            return;
+        }
+
+        this.cacheUpdater = setInterval(
+            async () => await this.updateTootCache(),
+            Config.toots.saveChangesIntervalSeconds * 1000
+        );
     }
 
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
@@ -595,6 +607,17 @@ class TheAlgorithm {
             loadingStatus: this.loadingStatus,
             minMaxScores: computeMinMax(this.feed, (toot) => toot.scoreInfo?.score),
         };
+    }
+
+    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+    // TODO: this kind of sucks.
+    async updateTootCache(): Promise<void> {
+        if (this.isLoading()) return;
+        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
+        console.debug(`[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown (old: ${this.totalNumTimesShown})`);
+        await Storage.set(StorageKey.TIMELINE, this.feed);
+        this.totalNumTimesShown = newTotalNumTimesShown;
     }
 };
 
