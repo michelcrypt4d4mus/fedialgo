@@ -140,6 +140,8 @@ class MastoApi {
         homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], storageKey);
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
+        homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots); // TODO: should we sort by score?
+        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, "maxCachedTimelineToots", logPrefix);
         await Storage_1.default.set(storageKey, homeTimelineToots);
         return homeTimelineToots;
     }

@@ -875,8 +875,8 @@ export const earliestToot = (toots: StatusList): TootLike | null => sortByCreate
 export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
 
 // Returns array with oldest toot first
-export const sortByCreatedAt = (toots: StatusList): StatusList => {
-    return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
+export function sortByCreatedAt<T extends StatusList>(toots: T): T {
+    return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1) as T;
 };
 
 export const earliestTootedAt = (toots: StatusList): Date | null => {

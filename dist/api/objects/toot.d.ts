@@ -144,7 +144,7 @@ export default class Toot implements TootObj {
 export declare const tootedAt: (toot: TootLike) => Date;
 export declare const earliestToot: (toots: StatusList) => TootLike | null;
 export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
-export declare const sortByCreatedAt: (toots: StatusList) => StatusList;
+export declare function sortByCreatedAt<T extends StatusList>(toots: T): T;
 export declare const earliestTootedAt: (toots: StatusList) => Date | null;
 export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;
 export {};

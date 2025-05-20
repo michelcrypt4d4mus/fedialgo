@@ -702,7 +702,7 @@ class Toot {
         if (toots.length == 0)
             return null;
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
-        return (0, exports.sortByCreatedAt)(toots)[idx].id;
+        return sortByCreatedAt(toots)[idx].id;
     }
     static async removeInvalidToots(toots, logPrefix) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
@@ -737,15 +737,16 @@ __decorate([
 // Methods for dealing with toot timestamps
 const tootedAt = (toot) => new Date(toot.createdAt);
 exports.tootedAt = tootedAt;
-const earliestToot = (toots) => (0, exports.sortByCreatedAt)(toots)[0];
+const earliestToot = (toots) => sortByCreatedAt(toots)[0];
 exports.earliestToot = earliestToot;
-const mostRecentToot = (toots) => (0, exports.sortByCreatedAt)(toots).slice(-1)[0];
+const mostRecentToot = (toots) => sortByCreatedAt(toots).slice(-1)[0];
 exports.mostRecentToot = mostRecentToot;
 // Returns array with oldest toot first
-const sortByCreatedAt = (toots) => {
+function sortByCreatedAt(toots) {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
-};
+}
 exports.sortByCreatedAt = sortByCreatedAt;
+;
 const earliestTootedAt = (toots) => {
     const earliest = (0, exports.earliestToot)(toots);
     return earliest ? (0, exports.tootedAt)(earliest) : null;

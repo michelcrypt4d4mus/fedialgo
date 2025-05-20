@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Truncate the stored home timeline toots array to the same max length as the overall timeline so it doesn't grow forever
 
 # v0.45.0
 * Add `AlreadyShownScorer` and `Toot.numTimesShown` property (managed by the client app)
@@ -20,9 +21,9 @@
 * (Demo App) Tweak CSS for tag paragraph
 
 ## v0.44.0
-* Add `contentParagraphs()`, `contentNonTagsParagraphs()`, and `contentTagsParagraph()` methods to Toot object
+* Add `contentParagraphs()`, `contentNonTagsParagraphs()`, and `contentTagsParagraph()` methods to `Toot` object
 * Remove emoji short codes from strings used for language detection
-* (Demo App) Display contentTagsParagraph() in smaller font and below images/polls/etc (if it exists)
+* (Demo App) Display `contentTagsParagraph()` in smaller font and below images/polls/etc (if it exists)
 
 ### v0.43.8
 * `tootFetcher.name` yields empty string in production so use a logPrefix argument

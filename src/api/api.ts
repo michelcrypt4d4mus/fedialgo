@@ -9,7 +9,7 @@ import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "../Storage";
-import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt } from './objects/toot';
+import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, StorageKey } from "../types";
@@ -169,6 +169,8 @@ export default class MastoApi {
         homeTimelineToots = Toot.dedupeToots([...allNewToots, ...homeTimelineToots], storageKey)
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
+        homeTimelineToots = sortByCreatedAt(homeTimelineToots); // TODO: should we sort by score?
+        homeTimelineToots = truncateToConfiguredLength(homeTimelineToots, "maxCachedTimelineToots", logPrefix);
         await Storage.set(storageKey, homeTimelineToots);
         return homeTimelineToots;
     }

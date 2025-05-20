@@ -281,7 +281,7 @@ exports.Config = {
         },
         // Weighted scores
         [types_1.WeightName.ALREADY_SHOWN]: {
-            description: 'Disfavour toots that have been marked as shown.'
+            description: 'Disfavour toots that have been marked as already seen'
         },
         [types_1.WeightName.CHAOS]: {
             description: "Insert Chaos into the scoring (social media ist krieg)",
