@@ -9,6 +9,8 @@ import { ScoreName, StringNumberDict } from "../../types";
 
 
 export default class MostRetootedAccountsScorer extends AccountScorer {
+    description = "Favour accounts you often retoot";
+
     constructor() {
         super(ScoreName.MOST_RETOOTED_ACCOUNTS);
     }

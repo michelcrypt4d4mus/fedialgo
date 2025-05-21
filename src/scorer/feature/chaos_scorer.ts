@@ -7,6 +7,8 @@ import { ScoreName } from '../../types';
 
 
 export default class ChaosScorer extends FeatureScorer {
+    description = "Insert Chaos into the scoring (social media ist krieg)";
+
     constructor() {
         super(ScoreName.CHAOS);
     }

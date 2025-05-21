@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class ChaosScorer extends feature_scorer_1.default {
+    description = "Insert Chaos into the scoring (social media ist krieg)";
     constructor() {
         super(types_1.ScoreName.CHAOS);
     }

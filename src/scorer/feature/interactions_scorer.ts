@@ -8,6 +8,8 @@ import { ScoreName, StringNumberDict } from "../../types";
 
 
 export default class InteractionsScorer extends AccountScorer {
+    description = "Favour accounts that interact with your toots";
+
     constructor() {
         super(ScoreName.INTERACTIONS);
     }

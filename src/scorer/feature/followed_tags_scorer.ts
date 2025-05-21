@@ -8,6 +8,8 @@ import { ScoreName } from '../../types';
 
 
 export default class FollowedTagsScorer extends FeatureScorer {
+    description = "Favour toots containing hashtags you follow";
+
     constructor() {
         super(ScoreName.FOLLOWED_TAGS);
     }

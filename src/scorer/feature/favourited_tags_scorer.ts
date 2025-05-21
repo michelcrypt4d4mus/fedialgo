@@ -10,6 +10,8 @@ import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class FavouritedTagsScorer extends FeatureScorer {
+    description = "Favour toots containing hashtags you favourite";
+
     constructor() {
         super(ScoreName.FAVOURITED_TAGS);
     };

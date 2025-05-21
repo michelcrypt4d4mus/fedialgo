@@ -9,6 +9,8 @@ import { ScoreName, StringNumberDict } from '../../types';
 
 
 export default class MentionsFollowedScorer extends FeatureScorer {
+    description = "Favour toots that mention accounts you follow";
+
     constructor() {
         super(ScoreName.MENTIONS_FOLLOWED);
     }

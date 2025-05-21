@@ -171,7 +171,7 @@ class TheAlgorithm {
         },
         Object.values(NonScoreWeightName).reduce(
             (specialScoreInfos, weightName) => {
-                specialScoreInfos[weightName] = Object.assign({}, Config.scoring.weightsConfig[weightName])
+                specialScoreInfos[weightName] = Object.assign({}, Config.scoring.nonScoreWeightsConfig[weightName])
                 return specialScoreInfos;
             },
             {} as WeightInfoDict

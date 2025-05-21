@@ -7,6 +7,8 @@ import { ScoreName } from "../../types";
 
 
 export default class NumRetootsScorer extends FeatureScorer {
+    description = "Favour toots that are retooted a lot";
+
     constructor() {
         super(ScoreName.NUM_RETOOTS);
     }

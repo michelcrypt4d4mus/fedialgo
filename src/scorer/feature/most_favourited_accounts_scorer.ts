@@ -8,6 +8,8 @@ import { ScoreName, StringNumberDict } from '../../types';
 
 
 export default class MostFavouritedAccountsScorer extends AccountScorer {
+    description = "Favour accounts you often favourite";
+
     constructor() {
         super(ScoreName.FAVOURITED_ACCOUNTS);
     };

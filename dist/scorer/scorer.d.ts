@@ -3,8 +3,8 @@ import { ScoreName, ScoresStats, StringNumberDict, WeightInfo } from "../types";
 type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
 type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;
 export default abstract class Scorer {
+    abstract description: string;
     defaultWeight: number;
-    description: string;
     isReady: boolean;
     name: ScoreName;
     scoreData: StringNumberDict;

@@ -13,6 +13,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
 class TrendingTagsScorer extends feature_scorer_1.default {
+    description = "Favour hashtags that are trending in the Fediverse";
     constructor() {
         super(types_1.ScoreName.TRENDING_TAGS);
     }

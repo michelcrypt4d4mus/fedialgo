@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { FEDIVERSE_KEYS, NonScoreWeightName, ScoreName, StorageKey, WeightInfoDict, WeightName } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, NonScoreWeightName, ScoreName, StorageKey, WeightInfoDict, WeightName } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
@@ -75,7 +75,7 @@ type ScoringConfig = {
     minTrendingTagTootsForPenalty: number,
     scoringBatchSize: number;
     timelineDecayExponent: number;
-    weightsConfig: WeightInfoDict;
+    nonScoreWeightsConfig: NonScoreWeightInfoDict;
 };
 
 interface TagTootsConfig {
@@ -345,7 +345,7 @@ export const Config: ConfigType = {
         minTrendingTagTootsForPenalty: 9,       // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
         scoringBatchSize: 100,                  // How many toots to score at once
         timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
-        weightsConfig: {
+        nonScoreWeightsConfig: {
             // Global modifiers that affect all weighted scores
             [NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
@@ -362,68 +362,6 @@ export const Config: ConfigType = {
             [NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
                 minValue: 0.001,
-            },
-
-            // Weighted scores
-            [ScoreName.ALREADY_SHOWN]: {
-                description: 'Disfavour toots marked as already seen'
-            },
-            [ScoreName.CHAOS]: {
-                description: "Insert Chaos into the scoring (social media ist krieg)",
-            },
-            [ScoreName.DIVERSITY]: {
-                description: "Disfavour accounts that are tooting a lot right now",
-            },
-            [ScoreName.FAVOURITED_ACCOUNTS]: {
-                description: "Favour accounts you often favourite",
-            },
-            [ScoreName.FAVOURITED_TAGS]: {
-                description: "Favour toots containing hashtags you favourite",
-            },
-            [ScoreName.FOLLOWED_TAGS]: {
-                description: "Favour toots containing hashtags you follow",
-            },
-            [ScoreName.IMAGE_ATTACHMENTS]: {
-                description: "Favour image attachments",
-            },
-            [ScoreName.INTERACTIONS]: {
-                description: "Favour accounts that interact with your toots",
-            },
-            [ScoreName.MENTIONS_FOLLOWED]: {
-                description: "Favour toots that mention accounts you follow",
-            },
-            [ScoreName.MOST_REPLIED_ACCOUNTS]: {
-                description: "Favour accounts you often reply to",
-            },
-            [ScoreName.MOST_RETOOTED_ACCOUNTS]: {
-                description: "Favour accounts you often retoot",
-            },
-            [ScoreName.NUM_FAVOURITES]: {
-                description: "Favour things favourited by your server's users",
-            },
-            [ScoreName.NUM_REPLIES]: {
-                description: "Favour toots with lots of replies",
-            },
-            [ScoreName.NUM_RETOOTS]: {
-                description: "Favour toots that are retooted a lot",
-            },
-            [ScoreName.PARTICIPATED_TAGS]: {
-                description: "Favour hastags you've tooted about",
-            },
-            [ScoreName.RETOOTED_IN_FEED]: {
-                description: "Favour toots retooted by accounts you follow",
-            },
-            [ScoreName.TRENDING_LINKS]: {
-                description: "Favour links that are trending in the Fediverse",
-            },
-            [ScoreName.TRENDING_TAGS]: {
-                description: "Favour hashtags that are trending in the Fediverse",
-            },
-            [ScoreName.TRENDING_TOOTS]: {
-                description: "Favour toots that are trending in the Fediverse",
-            },
-            [ScoreName.VIDEO_ATTACHMENTS]: {
-                description: "Favour video attachments",
             },
         },
     },

@@ -11,6 +11,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
+    description = "Favour toots that mention accounts you follow";
     constructor() {
         super(types_1.ScoreName.MENTIONS_FOLLOWED);
     }

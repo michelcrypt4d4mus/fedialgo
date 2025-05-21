@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class VideoAttachmentScorer extends feature_scorer_1.default {
+    description = "Favour video attachments";
     constructor() {
         super(types_1.ScoreName.VIDEO_ATTACHMENTS);
     }

@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class FollowedTagsScorer extends feature_scorer_1.default {
+    description = "Favour toots containing hashtags you follow";
     constructor() {
         super(types_1.ScoreName.FOLLOWED_TAGS);
     }

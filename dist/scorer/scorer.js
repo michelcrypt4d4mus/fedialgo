@@ -26,13 +26,11 @@ const TRENDING_WEIGHTS = [
 ];
 class Scorer {
     defaultWeight;
-    description;
     isReady = false; // Set to true when the scorer is ready to score
     name;
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.description = config_1.Config.scoring.weightsConfig[name].description;
         this.defaultWeight = weight_presets_1.DEFAULT_WEIGHTS[name] ?? 1;
     }
     // Return a ScorerInfo object with the description and the scorer itself

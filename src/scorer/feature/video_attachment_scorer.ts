@@ -7,6 +7,8 @@ import { ScoreName } from "../../types";
 
 
 export default class VideoAttachmentScorer extends FeatureScorer {
+    description = "Favour video attachments";
+
     constructor() {
         super(ScoreName.VIDEO_ATTACHMENTS);
     }

@@ -9,6 +9,8 @@ import { ScoreName } from "../../types";
 
 
 export default class NumFavouritesScorer extends FeatureScorer {
+    description = "Favour toots favourited by your server's users";
+
     constructor() {
         super(ScoreName.NUM_FAVOURITES);
     }

@@ -9,6 +9,8 @@ import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class HashtagParticipationScorer extends FeatureScorer {
+    description = "Favour hastags you've tooted about";
+
     constructor() {
         super(ScoreName.PARTICIPATED_TAGS);
     }

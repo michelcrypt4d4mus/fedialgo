@@ -11,6 +11,8 @@ import { traceLog } from "../../helpers/log_helpers";
 
 
 export default class DiversityFeedScorer extends FeedScorer {
+    description = "Disfavour accounts that are tooting a lot right now";
+
     constructor() {
         super(ScoreName.DIVERSITY);
     }

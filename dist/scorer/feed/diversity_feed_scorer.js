@@ -14,6 +14,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
 const log_helpers_1 = require("../../helpers/log_helpers");
 class DiversityFeedScorer extends feed_scorer_1.default {
+    description = "Disfavour accounts that are tooting a lot right now";
     constructor() {
         super(types_1.ScoreName.DIVERSITY);
     }

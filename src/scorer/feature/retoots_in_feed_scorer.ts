@@ -7,6 +7,8 @@ import { ScoreName } from "../../types";
 
 
 export default class RetootsInFeedScorer extends FeatureScorer {
+    description = "Favour toots retooted by accounts you follow";
+
     constructor() {
         super(ScoreName.RETOOTED_IN_FEED);
     }

@@ -243,7 +243,7 @@ exports.Config = {
         minTrendingTagTootsForPenalty: 9,
         scoringBatchSize: 100,
         timelineDecayExponent: 1.2,
-        weightsConfig: {
+        nonScoreWeightsConfig: {
             // Global modifiers that affect all weighted scores
             [types_1.NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
@@ -260,67 +260,6 @@ exports.Config = {
             [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
                 minValue: 0.001,
-            },
-            // Weighted scores
-            [types_1.ScoreName.ALREADY_SHOWN]: {
-                description: 'Disfavour toots marked as already seen'
-            },
-            [types_1.ScoreName.CHAOS]: {
-                description: "Insert Chaos into the scoring (social media ist krieg)",
-            },
-            [types_1.ScoreName.DIVERSITY]: {
-                description: "Disfavour accounts that are tooting a lot right now",
-            },
-            [types_1.ScoreName.FAVOURITED_ACCOUNTS]: {
-                description: "Favour accounts you often favourite",
-            },
-            [types_1.ScoreName.FAVOURITED_TAGS]: {
-                description: "Favour toots containing hashtags you favourite",
-            },
-            [types_1.ScoreName.FOLLOWED_TAGS]: {
-                description: "Favour toots containing hashtags you follow",
-            },
-            [types_1.ScoreName.IMAGE_ATTACHMENTS]: {
-                description: "Favour image attachments",
-            },
-            [types_1.ScoreName.INTERACTIONS]: {
-                description: "Favour accounts that interact with your toots",
-            },
-            [types_1.ScoreName.MENTIONS_FOLLOWED]: {
-                description: "Favour toots that mention accounts you follow",
-            },
-            [types_1.ScoreName.MOST_REPLIED_ACCOUNTS]: {
-                description: "Favour accounts you often reply to",
-            },
-            [types_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: {
-                description: "Favour accounts you often retoot",
-            },
-            [types_1.ScoreName.NUM_FAVOURITES]: {
-                description: "Favour things favourited by your server's users",
-            },
-            [types_1.ScoreName.NUM_REPLIES]: {
-                description: "Favour toots with lots of replies",
-            },
-            [types_1.ScoreName.NUM_RETOOTS]: {
-                description: "Favour toots that are retooted a lot",
-            },
-            [types_1.ScoreName.PARTICIPATED_TAGS]: {
-                description: "Favour hastags you've tooted about",
-            },
-            [types_1.ScoreName.RETOOTED_IN_FEED]: {
-                description: "Favour toots retooted by accounts you follow",
-            },
-            [types_1.ScoreName.TRENDING_LINKS]: {
-                description: "Favour links that are trending in the Fediverse",
-            },
-            [types_1.ScoreName.TRENDING_TAGS]: {
-                description: "Favour hashtags that are trending in the Fediverse",
-            },
-            [types_1.ScoreName.TRENDING_TOOTS]: {
-                description: "Favour toots that are trending in the Fediverse",
-            },
-            [types_1.ScoreName.VIDEO_ATTACHMENTS]: {
-                description: "Favour video attachments",
             },
         },
     },

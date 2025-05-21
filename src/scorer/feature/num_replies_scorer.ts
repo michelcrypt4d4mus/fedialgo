@@ -7,6 +7,8 @@ import { ScoreName } from "../../types";
 
 
 export default class NumRepliesScorer extends FeatureScorer {
+    description = "Favour toots with lots of replies";
+
     constructor() {
         super(ScoreName.NUM_REPLIES);
     }

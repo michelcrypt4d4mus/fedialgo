@@ -65,6 +65,7 @@ export declare enum MediaCategory {
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<StorageKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
+export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
 export type Weights = Record<WeightName, number>;

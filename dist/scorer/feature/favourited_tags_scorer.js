@@ -12,6 +12,7 @@ const tag_1 = require("../../api/objects/tag");
 const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class FavouritedTagsScorer extends feature_scorer_1.default {
+    description = "Favour toots containing hashtags you favourite";
     constructor() {
         super(types_1.ScoreName.FAVOURITED_TAGS);
     }

@@ -8,6 +8,8 @@ import { ScoreName } from "../../types";
 
 
 export default class TrendingTootScorer extends FeatureScorer {
+    description = "Favour toots that are trending in the Fediverse";
+
     constructor() {
         super(ScoreName.TRENDING_TOOTS);
     }

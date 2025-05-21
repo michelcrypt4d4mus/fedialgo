@@ -7,6 +7,8 @@ import { ScoreName } from "../../types";
 
 
 export default class ImageAttachmentScorer extends FeatureScorer {
+    description = "Favour toots with images";
+
     constructor() {
         super(ScoreName.IMAGE_ATTACHMENTS);
     }

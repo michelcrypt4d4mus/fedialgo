@@ -9,6 +9,8 @@ import { ScoreName, StringNumberDict } from '../../types';
 
 
 export default class MostRepliedAccountsScorer extends FeatureScorer {
+    description = "Favour accounts you often reply to";
+
     constructor() {
         super(ScoreName.MOST_REPLIED_ACCOUNTS);
     }

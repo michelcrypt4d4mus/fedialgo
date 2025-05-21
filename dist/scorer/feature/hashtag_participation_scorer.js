@@ -11,6 +11,7 @@ const user_data_1 = __importDefault(require("../../api/user_data"));
 const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class HashtagParticipationScorer extends feature_scorer_1.default {
+    description = "Favour hastags you've tooted about";
     constructor() {
         super(types_1.ScoreName.PARTICIPATED_TAGS);
     }

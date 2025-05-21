@@ -1,4 +1,4 @@
-import { StorageKey, WeightInfoDict } from "./types";
+import { NonScoreWeightInfoDict, StorageKey } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -52,7 +52,7 @@ type ScoringConfig = {
     minTrendingTagTootsForPenalty: number;
     scoringBatchSize: number;
     timelineDecayExponent: number;
-    weightsConfig: WeightInfoDict;
+    nonScoreWeightsConfig: NonScoreWeightInfoDict;
 };
 interface TagTootsConfig {
     maxToots: number;

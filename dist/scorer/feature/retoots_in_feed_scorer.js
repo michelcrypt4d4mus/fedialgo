@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class RetootsInFeedScorer extends feature_scorer_1.default {
+    description = "Favour toots retooted by accounts you follow";
     constructor() {
         super(types_1.ScoreName.RETOOTED_IN_FEED);
     }

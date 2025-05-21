@@ -10,6 +10,8 @@ import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class TrendingLinksScorer extends FeatureScorer {
+    description = "Favour links that are trending in the Fediverse";
+
     constructor() {
         super(ScoreName.TRENDING_LINKS);
     }

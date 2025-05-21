@@ -7,6 +7,8 @@ import { ScoreName } from '../../types';
 
 
 export default class AlreadyShownScorer extends FeatureScorer {
+    description = 'Disfavour toots marked as already seen';
+
     constructor() {
         super(ScoreName.ALREADY_SHOWN);
     }

@@ -11,6 +11,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {
+    description = "Favour accounts you often reply to";
     constructor() {
         super(types_1.ScoreName.MOST_REPLIED_ACCOUNTS);
     }

@@ -11,6 +11,8 @@ import { ScoreName } from "../../types";
 
 
 export default class TrendingTagsScorer extends FeatureScorer {
+    description = "Favour hashtags that are trending in the Fediverse";
+
     constructor() {
         super(ScoreName.TRENDING_TAGS);
     }

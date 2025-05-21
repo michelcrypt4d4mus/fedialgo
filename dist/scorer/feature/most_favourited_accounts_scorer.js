@@ -11,6 +11,7 @@ const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
+    description = "Favour accounts you often favourite";
     constructor() {
         super(types_1.ScoreName.FAVOURITED_ACCOUNTS);
     }
