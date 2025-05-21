@@ -421,6 +421,7 @@ class Config implements ConfigType {
         }
     }
 
+    // Set the locale, language, and country if we have anything configured to support that language
     setLocale(locale?: string): void {
         locale ??= DEFAULT_LOCALE;
 
@@ -442,6 +443,7 @@ class Config implements ConfigType {
         }
     }
 
+    // Check for NaN values in number fields
     validate(cfg?: ConfigType | object): void {
         cfg ??= this;
 
