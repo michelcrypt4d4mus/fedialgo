@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.47.5
+* (Demo App) Fix build
+
 ### v0.47.4
 * Compute the average final score per decile of raw/weighted score
 
