@@ -74,6 +74,7 @@ declare class TheAlgorithm {
     triggerPullAllUserData(): Promise<void>;
     getCurrentState(): Promise<Record<string, any>>;
     getTimeline(): Toot[];
+    getTimelineStats(): Record<string, any>;
     getUserWeights(): Promise<Weights>;
     isLoading(): boolean;
     mostRecentHomeTootAt(): Date | null;

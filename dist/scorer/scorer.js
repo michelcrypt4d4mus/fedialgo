@@ -61,9 +61,9 @@ class Scorer {
     logPrefix() {
         return `[${this.name} Scorer]`;
     }
-    ///////////////////////////////
-    //   Static class methods  ////
-    ///////////////////////////////
+    //////////////////////////////
+    //   Static class methods   //
+    //////////////////////////////
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     // If 'isScoringFeed' is false the scores will be "best effort"
     static async scoreToots(toots, isScoringFeed) {
@@ -102,6 +102,7 @@ class Scorer {
         return toots;
     }
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
+    // TODO: alphabetize
     static alternateScoreInfo(toot) {
         if (!toot.scoreInfo)
             return {};
@@ -123,6 +124,16 @@ class Scorer {
                 scoreDict[key] = formatScore(value);
             }
             return scoreDict;
+        }, {});
+    }
+    // Compute stats about the scores of a list of toots
+    static computeScoreStats(toots, numPercentiles = 5) {
+        return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
+            stats[scoreName] = {
+                raw: (0, collection_helpers_1.percentiles)(toots.map((t) => t.scoreInfo?.rawScores[scoreName] ?? 0), numPercentiles),
+                weighted: (0, collection_helpers_1.percentiles)(toots.map((t) => t.scoreInfo?.weightedScores[scoreName] ?? 0), numPercentiles),
+            };
+            return stats;
         }, {});
     }
     // Add all the score info to a Toot's scoreInfo property

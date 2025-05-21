@@ -2,8 +2,8 @@
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
-import { Config, ConfigType } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StorageKey, StringNumberDict, Weights, WeightName } from "../types";
+import { Config } from "../config";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxAvg, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
 import { traceLog } from "./log_helpers";
 
 
@@ -15,7 +15,7 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 export function average(values: number[]): number {
-    values = values.filter(v => !!v);
+    values = values.filter(v => v || v == 0);
     if (values.length == 0) return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
 };
@@ -211,6 +211,31 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
         },
         {} as Record<string, T>
     );
+};
+
+
+// Divide array into numPercentiles sections and return an array of objects with min,
+// max, and average values for each section. Last section may be smaller than the others.
+export function percentiles(array: number[], numPercentiles: number): MinMaxAvg[] {
+    let batchSize = array.length / numPercentiles;
+    if (batchSize % 1 != 0) batchSize += 1;
+    batchSize = Math.floor(batchSize);
+    array = array.toSorted((a, b) => a - b);
+    const percentileStats: MinMaxAvg[] = [];
+
+    for (let start = 0; start < array.length; start += batchSize) {
+        const end = start + batchSize > array.length ? array.length : start + batchSize;
+        const section = array.slice(start, end);
+
+        percentileStats.push({
+            average: average(section),
+            count: section.length,
+            min: section[0],
+            max: section.slice(-1)[0],
+        });
+    }
+
+    return percentileStats;
 };
 
 

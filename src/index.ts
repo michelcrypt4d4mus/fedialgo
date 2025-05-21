@@ -270,6 +270,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: Config,
+            Scores: Scorer.computeScoreStats(this.feed),
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };
@@ -367,6 +368,10 @@ class TheAlgorithm {
         if (!isWeightPresetLabel(presetName)) logAndThrowError(`Invalid weight preset: "${presetName}"`);
         return await this.updateUserWeights(WEIGHT_PRESETS[presetName as WeightPresetLabel]);
     }
+
+    ///////////////////////////////
+    //      Private Methods      //
+    ///////////////////////////////
 
     // Throw an error if the feed is loading
     private checkIfLoading(): void {

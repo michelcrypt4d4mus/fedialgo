@@ -1,4 +1,4 @@
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxAvg, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number | null, sleepBetweenMS?: number): Promise<any[]>;
@@ -14,6 +14,7 @@ export declare function decrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare const isStorageKey: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
+export declare function percentiles(array: number[], numPercentiles: number): MinMaxAvg[];
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];

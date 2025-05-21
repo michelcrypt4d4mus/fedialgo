@@ -258,6 +258,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config_1.Config,
+            Scores: scorer_1.default.computeScoreStats(this.feed),
             Storage: await Storage_1.default.storedObjsInfo(),
             UserData: await api_1.default.instance.getUserData(),
         };
@@ -265,6 +266,10 @@ class TheAlgorithm {
     // Return the current filtered timeline feed in weight order
     getTimeline() {
         return this.feed;
+    }
+    // Get stats about the scores of the toots in the feed
+    getTimelineStats() {
+        return scorer_1.default.computeScoreStats(this.feed);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {
@@ -343,6 +348,9 @@ class TheAlgorithm {
             (0, log_helpers_1.logAndThrowError)(`Invalid weight preset: "${presetName}"`);
         return await this.updateUserWeights(weight_presets_1.WEIGHT_PRESETS[presetName]);
     }
+    ///////////////////////////////
+    //      Private Methods      //
+    ///////////////////////////////
     // Throw an error if the feed is loading
     checkIfLoading() {
         if (this.isLoading()) {

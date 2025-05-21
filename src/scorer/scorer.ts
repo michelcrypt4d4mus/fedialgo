@@ -7,11 +7,11 @@ import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
-import { batchMap, sumValues } from "../helpers/collection_helpers";
+import { batchMap, percentiles, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { NonScoreWeightName, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
+import { MinMaxAvg, NonScoreWeightName, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -70,9 +70,9 @@ export default abstract class Scorer {
         return `[${this.name} Scorer]`;
     }
 
-    ///////////////////////////////
-    //   Static class methods  ////
-    ///////////////////////////////
+    //////////////////////////////
+    //   Static class methods   //
+    //////////////////////////////
 
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     // If 'isScoringFeed' is false the scores will be "best effort"
@@ -115,6 +115,7 @@ export default abstract class Scorer {
     }
 
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
+    // TODO: alphabetize
     static alternateScoreInfo(toot: Toot): AlternateScoreDict {
         if (!toot.scoreInfo) return {};
 
@@ -145,6 +146,18 @@ export default abstract class Scorer {
             },
             {} as AlternateScoreDict
         );
+    }
+
+    // Compute stats about the scores of a list of toots
+    static computeScoreStats(toots: Toot[], numPercentiles: number = 5): Record<ScoreName, any> {
+        return Object.values(ScoreName).reduce((stats, scoreName) => {
+            stats[scoreName] = {
+                raw: percentiles(toots.map((t) => t.scoreInfo?.rawScores[scoreName] ?? 0), numPercentiles),
+                weighted: percentiles(toots.map((t) => t.scoreInfo?.weightedScores[scoreName] ?? 0), numPercentiles),
+            };
+
+            return stats;
+        }, {} as Record<ScoreName, any>);
     }
 
     // Add all the score info to a Toot's scoreInfo property
