@@ -355,7 +355,8 @@ class Config implements ConfigType {
     scoring = {
         excessiveTags: 25,                      // Toots with more than this many tags will be penalized
         excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
-        nonScoreWeightMinValue: 0.001,          // Minimum value for non-score weights (trending, time decay, etc.)
+        minTrendingTagTootsForPenalty: 9,       // Min number of toots w/a trending tag before DiversityFeedScorer applies a penalty
+        nonScoreWeightMinValue: 0.001,          // Min value for non-score weights (trending, time decay, etc.)
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
             [NonScoreWeightName.TIME_DECAY]: {
@@ -371,16 +372,15 @@ class Config implements ConfigType {
                 description: "Dampens the effect of outlier scores",
             },
         },
-        minTrendingTagTootsForPenalty: 9,       // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
         scoringBatchSize: 100,                  // How many toots to score at once
         timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
     }
 
     toots = {
-        batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeToots() calls
+        batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeProperties() calls
         batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
-        maxCachedTimelineToots: 3_000,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
+        maxCachedTimelineToots: 3_000,          // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         tootsCompleteAfterMinutes: MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     }
@@ -396,9 +396,9 @@ class Config implements ConfigType {
             ],
             maxToots: 200,                      // Max number of toots with trending tags to push into the user's feed
             numDaysToCountTrendingTagData: 3,   // Look at this many days of user counts when assessing trending tags
-            numTootsPerTag: 15,                 // How many toots to pull for each trending tag
             numTagsPerServer: 20,               // How many trending tags to pull from each server (Mastodon default is 10)
             numTags: 20,                        // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+            numTootsPerTag: 15,                 // How many toots to pull for each trending tag
         },
         toots: {
             numTrendingTootsPerServer: 30,      // How many trending toots to pull per server // TODO: unused?
@@ -443,7 +443,7 @@ class Config implements ConfigType {
         }
     }
 
-    // Check for NaN values in number fields
+    // Check for NaN values in number fields and emptry strings in string fields
     validate(cfg?: ConfigType | object): void {
         cfg ??= this;
 
@@ -453,6 +453,8 @@ class Config implements ConfigType {
                 this.validate(value);
             } else if (typeof value == "number" && isNaN(value)) {
                 logAndThrowError(`Config value at ${key} is NaN`);
+            } else if (typeof value == "string" && value.length == 0) {
+                logAndThrowError(`Config value at ${key} is empty string`);
             }
         });
 

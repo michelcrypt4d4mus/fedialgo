@@ -248,6 +248,7 @@ class Config {
     scoring = {
         excessiveTags: 25,
         excessiveTagsPenalty: 0.1,
+        minTrendingTagTootsForPenalty: 9,
         nonScoreWeightMinValue: 0.001,
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
@@ -264,7 +265,6 @@ class Config {
                 description: "Dampens the effect of outlier scores",
             },
         },
-        minTrendingTagTootsForPenalty: 9,
         scoringBatchSize: 100,
         timelineDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
     };
@@ -287,9 +287,9 @@ class Config {
             ],
             maxToots: 200,
             numDaysToCountTrendingTagData: 3,
-            numTootsPerTag: 15,
             numTagsPerServer: 20,
-            numTags: 20, // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+            numTags: 20,
+            numTootsPerTag: 15, // How many toots to pull for each trending tag
         },
         toots: {
             numTrendingTootsPerServer: 30, // How many trending toots to pull per server // TODO: unused?
@@ -329,7 +329,7 @@ class Config {
             }
         }
     }
-    // Check for NaN values in number fields
+    // Check for NaN values in number fields and emptry strings in string fields
     validate(cfg) {
         cfg ??= this;
         // Check that all the values are valid
@@ -339,6 +339,9 @@ class Config {
             }
             else if (typeof value == "number" && isNaN(value)) {
                 (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is NaN`);
+            }
+            else if (typeof value == "string" && value.length == 0) {
+                (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is empty string`);
             }
         });
         (0, log_helpers_1.traceLog)("[Config] validated config:", exports.config);

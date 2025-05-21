@@ -132,6 +132,7 @@ declare class Config implements ConfigType {
     scoring: {
         excessiveTags: number;
         excessiveTagsPenalty: number;
+        minTrendingTagTootsForPenalty: number;
         nonScoreWeightMinValue: number;
         nonScoreWeightsConfig: {
             TimeDecay: {
@@ -144,7 +145,6 @@ declare class Config implements ConfigType {
                 description: string;
             };
         };
-        minTrendingTagTootsForPenalty: number;
         scoringBatchSize: number;
         timelineDecayExponent: number;
     };
@@ -164,9 +164,9 @@ declare class Config implements ConfigType {
             invalidTrendingTags: string[];
             maxToots: number;
             numDaysToCountTrendingTagData: number;
-            numTootsPerTag: number;
             numTagsPerServer: number;
             numTags: number;
+            numTootsPerTag: number;
         };
         toots: {
             numTrendingTootsPerServer: number;
