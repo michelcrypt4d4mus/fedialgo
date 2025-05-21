@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.47.1
 * Add TheAlgorithm.getRechartsStatsData() method to prepare data about score statistics for Recharts presentation
 * (Demo App) Add show stats button to experimental section
 
