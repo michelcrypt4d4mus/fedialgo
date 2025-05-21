@@ -26,7 +26,7 @@ exports.DEFAULT_WEIGHTS = {
     // Weighted scores
     [types_1.ScoreName.ALREADY_SHOWN]: 5,
     [types_1.ScoreName.CHAOS]: 1.0,
-    [types_1.ScoreName.DIVERSITY]: 1.0,
+    [types_1.ScoreName.DIVERSITY]: 2.0,
     [types_1.ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [types_1.ScoreName.FAVOURITED_TAGS]: 0.1,
     [types_1.ScoreName.FOLLOWED_TAGS]: 4.0,
