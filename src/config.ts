@@ -22,6 +22,7 @@ const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
+const LOG_PREFIX = "[Config]";
 
 type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
@@ -407,7 +408,7 @@ class Config implements ConfigType {
 
     constructor() {
         this.validate();
-        traceLog("[Config] validated config:", this);
+        traceLog(`${LOG_PREFIX} validated:`, this);
     };
 
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
@@ -415,7 +416,7 @@ class Config implements ConfigType {
         const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
 
         if (trendStalenesses.length != FEDIVERSE_KEYS.length) {
-            console.warn("Not all FEDIVERSE_KEYS have minutesUntilStale configured!");
+            console.warn(`${LOG_PREFIX} Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
             return 60;
         } else {
             return Math.min(...trendStalenesses as number[]);
@@ -427,7 +428,7 @@ class Config implements ConfigType {
         locale ??= DEFAULT_LOCALE;
 
         if (!LOCALE_REGEX.test(locale)) {
-            console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            console.warn(`${LOG_PREFIX} Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
             return;
         }
 
@@ -439,7 +440,7 @@ class Config implements ConfigType {
             if (language == DEFAULT_LANGUAGE || language in this.fediverse.foreignLanguageServers) {
                 this.locale.language = language;
             } else {
-                console.warn(`Language "${language}" not supported, using default "${this.locale.defaultLanguage}"`);
+                console.warn(`${LOG_PREFIX} Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
             }
         }
     }
@@ -453,9 +454,9 @@ class Config implements ConfigType {
             if (typeof value === "object") {
                 this.validate(value);
             } else if (typeof value == "number" && isNaN(value)) {
-                logAndThrowError(`Config value at ${key} is NaN`);
+                logAndThrowError(`${LOG_PREFIX} value at ${key} is NaN`);
             } else if (typeof value == "string" && value.length == 0) {
-                logAndThrowError(`Config value at ${key} is empty string`);
+                logAndThrowError(`${LOG_PREFIX} value at ${key} is empty string`);
             }
         });
     }
