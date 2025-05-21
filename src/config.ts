@@ -345,7 +345,7 @@ export const Config: ConfigType = {
         excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
         nonScoreWeightMinValue: 0.001,          // Minimum value for non-score weights (trending, time decay, etc.)
         nonScoreWeightsConfig: {
-            // Global modifiers that affect all weighted scores
+            // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
             [NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
             },
