@@ -46,31 +46,14 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.ScoreName.VIDEO_ATTACHMENTS]: 0,
 };
 exports.WEIGHT_PRESETS = {
-    [WeightPresetLabel.CHRONOLOGICAL]: {
+    [WeightPresetLabel.CHRONOLOGICAL]: Object.values(types_1.ScoreName).reduce((preset, score) => {
+        preset[score] = 0;
+        return preset;
+    }, {
         [types_1.NonScoreWeightName.TIME_DECAY]: 9.99,
         [types_1.NonScoreWeightName.TRENDING]: 0,
         [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: 0,
-        [types_1.ScoreName.ALREADY_SHOWN]: 0,
-        [types_1.ScoreName.CHAOS]: 0,
-        [types_1.ScoreName.DIVERSITY]: 0,
-        [types_1.ScoreName.FAVOURITED_ACCOUNTS]: 0,
-        [types_1.ScoreName.FAVOURITED_TAGS]: 0,
-        [types_1.ScoreName.FOLLOWED_TAGS]: 0,
-        [types_1.ScoreName.IMAGE_ATTACHMENTS]: 0,
-        [types_1.ScoreName.INTERACTIONS]: 0,
-        [types_1.ScoreName.MENTIONS_FOLLOWED]: 0,
-        [types_1.ScoreName.MOST_REPLIED_ACCOUNTS]: 0,
-        [types_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: 0,
-        [types_1.ScoreName.NUM_FAVOURITES]: 0,
-        [types_1.ScoreName.NUM_REPLIES]: 0,
-        [types_1.ScoreName.NUM_RETOOTS]: 0,
-        [types_1.ScoreName.PARTICIPATED_TAGS]: 0,
-        [types_1.ScoreName.RETOOTED_IN_FEED]: 0,
-        [types_1.ScoreName.TRENDING_LINKS]: 0,
-        [types_1.ScoreName.TRENDING_TAGS]: 0,
-        [types_1.ScoreName.TRENDING_TOOTS]: 0,
-        [types_1.ScoreName.VIDEO_ATTACHMENTS]: 0,
-    },
+    }),
     [WeightPresetLabel.DEFAULT]: {
         ...exports.DEFAULT_WEIGHTS
     },

@@ -47,31 +47,17 @@ export const DEFAULT_WEIGHTS: Weights = {
 
 
 export const WEIGHT_PRESETS: WeightPresets = {
-    [WeightPresetLabel.CHRONOLOGICAL]: {
-        [NonScoreWeightName.TIME_DECAY]: 9.99,
-        [NonScoreWeightName.TRENDING]: 0,
-        [NonScoreWeightName.OUTLIER_DAMPENER]: 0,
-        [ScoreName.ALREADY_SHOWN]: 0,
-        [ScoreName.CHAOS]: 0,
-        [ScoreName.DIVERSITY]: 0,
-        [ScoreName.FAVOURITED_ACCOUNTS]: 0,
-        [ScoreName.FAVOURITED_TAGS]: 0,
-        [ScoreName.FOLLOWED_TAGS]: 0,
-        [ScoreName.IMAGE_ATTACHMENTS]: 0,
-        [ScoreName.INTERACTIONS]: 0,
-        [ScoreName.MENTIONS_FOLLOWED]: 0,
-        [ScoreName.MOST_REPLIED_ACCOUNTS]: 0,
-        [ScoreName.MOST_RETOOTED_ACCOUNTS]: 0,
-        [ScoreName.NUM_FAVOURITES]: 0,
-        [ScoreName.NUM_REPLIES]: 0,
-        [ScoreName.NUM_RETOOTS]: 0,
-        [ScoreName.PARTICIPATED_TAGS]: 0,
-        [ScoreName.RETOOTED_IN_FEED]: 0,
-        [ScoreName.TRENDING_LINKS]: 0,
-        [ScoreName.TRENDING_TAGS]: 0,
-        [ScoreName.TRENDING_TOOTS]: 0,
-        [ScoreName.VIDEO_ATTACHMENTS]: 0,
-    },
+    [WeightPresetLabel.CHRONOLOGICAL]: Object.values(ScoreName).reduce(
+        (preset, score) => {
+            preset[score] = 0;
+            return preset;
+        },
+        {
+            [NonScoreWeightName.TIME_DECAY]: 9.99,
+            [NonScoreWeightName.TRENDING]: 0,
+            [NonScoreWeightName.OUTLIER_DAMPENER]: 0,
+        } as Weights
+    ),
 
     [WeightPresetLabel.DEFAULT]: {
         ...DEFAULT_WEIGHTS
