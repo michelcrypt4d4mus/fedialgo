@@ -168,9 +168,10 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(types_1.NonScoreWeightName).reduce((specialScoreInfos, weightName) => {
-        specialScoreInfos[weightName] = Object.assign({}, config_1.Config.scoring.nonScoreWeightsConfig[weightName]);
-        return specialScoreInfos;
+    }, Object.values(types_1.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
+        nonScoreWeights[weightName] = Object.assign({}, config_1.Config.scoring.nonScoreWeightsConfig[weightName]);
+        nonScoreWeights[weightName].minValue = config_1.Config.scoring.nonScoreWeightMinValue;
+        return nonScoreWeights;
     }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {

@@ -170,9 +170,10 @@ class TheAlgorithm {
             return scorerInfos;
         },
         Object.values(NonScoreWeightName).reduce(
-            (specialScoreInfos, weightName) => {
-                specialScoreInfos[weightName] = Object.assign({}, Config.scoring.nonScoreWeightsConfig[weightName])
-                return specialScoreInfos;
+            (nonScoreWeights, weightName) => {
+                nonScoreWeights[weightName] = Object.assign({}, Config.scoring.nonScoreWeightsConfig[weightName]);
+                nonScoreWeights[weightName].minValue = Config.scoring.nonScoreWeightMinValue;
+                return nonScoreWeights;
             },
             {} as WeightInfoDict
         )

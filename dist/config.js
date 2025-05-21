@@ -240,28 +240,25 @@ exports.Config = {
     scoring: {
         excessiveTags: 25,
         excessiveTagsPenalty: 0.1,
-        minTrendingTagTootsForPenalty: 9,
-        scoringBatchSize: 100,
-        timelineDecayExponent: 1.2,
+        nonScoreWeightMinValue: 0.001,
         nonScoreWeightsConfig: {
             // Global modifiers that affect all weighted scores
             [types_1.NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
-                minValue: 0.001,
             },
-            // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
-            // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
-            // TRENDING weighting value.
+            // Trending data has a lot of reblogs, likes, replies, etc. giving disproportionately high scores.
+            // To adjust for this we multiply those scores by the TRENDING weighting value.
             [types_1.NonScoreWeightName.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
-                minValue: 0.001,
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
             [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
-                minValue: 0.001,
             },
         },
+        minTrendingTagTootsForPenalty: 9,
+        scoringBatchSize: 100,
+        timelineDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
     },
     toots: {
         batchCompleteTootsSleepBetweenMS: 250,

@@ -49,10 +49,11 @@ type LocaleConfig = {
 type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
+    nonScoreWeightMinValue: number;
+    nonScoreWeightsConfig: NonScoreWeightInfoDict;
     minTrendingTagTootsForPenalty: number;
     scoringBatchSize: number;
     timelineDecayExponent: number;
-    nonScoreWeightsConfig: NonScoreWeightInfoDict;
 };
 interface TagTootsConfig {
     maxToots: number;
