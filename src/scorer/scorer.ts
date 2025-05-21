@@ -11,20 +11,17 @@ import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import {
-    TRENDING_WEIGHTS,
-    NonScoreWeightName,
-    ScoreName,
-    StringNumberDict,
-    TootScore,
-    WeightInfo,
-    WeightName,
-    Weights
-} from "../types";
+import { NonScoreWeightName, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
 const SCORE_PREFIX = "scoreToots()";
+
+const TRENDING_WEIGHTS = [
+    ScoreName.TRENDING_LINKS,
+    ScoreName.TRENDING_TAGS,
+    ScoreName.TRENDING_TOOTS,
+];
 
 type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
 type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;

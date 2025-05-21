@@ -1,10 +1,11 @@
 # NEXT RELEASE
+* Separate out NonScoreWeightName and ScoreName enums from WeightName enum
 
 ### v0.46.1
 * Set up a poller to periodically save changes to toots' `numTimesShown` property to the cache
 
-# v0.46.0
-* Consolidate API config stuff to Config.api property / ApiConfig type
+## v0.46.0
+* Refactor `Config` variables into namespaces
 * (Demo App) Fix bug with hashtag color gradient at startup
 
 ### v0.45.1

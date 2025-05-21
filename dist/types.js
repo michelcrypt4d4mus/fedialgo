@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TRENDING_WEIGHTS = exports.NonScoreWeightName = exports.ScoreName = void 0;
+exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -32,11 +32,6 @@ var NonScoreWeightName;
     NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
 })(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
-exports.TRENDING_WEIGHTS = [
-    ScoreName.TRENDING_LINKS,
-    ScoreName.TRENDING_TAGS,
-    ScoreName.TRENDING_TOOTS,
-];
 // Keys that are valid for local browser storage.
 var StorageKey;
 (function (StorageKey) {

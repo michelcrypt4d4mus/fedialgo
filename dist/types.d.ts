@@ -33,7 +33,6 @@ export declare enum NonScoreWeightName {
     OUTLIER_DAMPENER = "OutlierDampener"
 }
 export type WeightName = ScoreName | NonScoreWeightName;
-export declare const TRENDING_WEIGHTS: ScoreName[];
 export declare enum StorageKey {
     APP_OPENS = "AppOpens",
     BLOCKED_ACCOUNTS = "BlockedAccounts",

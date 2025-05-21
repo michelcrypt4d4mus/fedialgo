@@ -42,13 +42,6 @@ export enum NonScoreWeightName {
 // Names of the user adjustable score weightings
 export type WeightName = ScoreName | NonScoreWeightName;
 
-export const TRENDING_WEIGHTS = [
-    ScoreName.TRENDING_LINKS,
-    ScoreName.TRENDING_TAGS,
-    ScoreName.TRENDING_TOOTS,
-];
-
-
 // Keys that are valid for local browser storage.
 export enum StorageKey {
     APP_OPENS = "AppOpens",

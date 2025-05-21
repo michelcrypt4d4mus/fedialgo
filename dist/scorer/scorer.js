@@ -19,6 +19,11 @@ const types_1 = require("../types");
 const SCORE_DIGITS = 3; // Number of digits to display in the alternate score
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const SCORE_PREFIX = "scoreToots()";
+const TRENDING_WEIGHTS = [
+    types_1.ScoreName.TRENDING_LINKS,
+    types_1.ScoreName.TRENDING_TAGS,
+    types_1.ScoreName.TRENDING_TOOTS,
+];
 class Scorer {
     defaultWeight;
     description;
@@ -141,7 +146,7 @@ class Scorer {
             rawScores[scorer.name] = scoreValue;
             weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
             // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
-            if (realToot.isTrending() && (!realToot.isFollowed() || types_1.TRENDING_WEIGHTS.includes(scorer.name))) {
+            if (realToot.isTrending() && (!realToot.isFollowed() || TRENDING_WEIGHTS.includes(scorer.name))) {
                 weightedScores[scorer.name] *= trendingMultiplier;
             }
             // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
