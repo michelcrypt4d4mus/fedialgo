@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.47.4
 * Compute the average final score per decile of raw/weighted score
 
 ### v0.47.3
