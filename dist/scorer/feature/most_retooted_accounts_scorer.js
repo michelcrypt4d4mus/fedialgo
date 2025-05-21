@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * the original author if it's a retoot).
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
-const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
+const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {

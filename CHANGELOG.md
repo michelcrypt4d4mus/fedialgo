@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Move scorer descriptions out of config and into the `Scorer` class
 * Bump up default diversity weight to 2.0
 
 ### v0.47.6

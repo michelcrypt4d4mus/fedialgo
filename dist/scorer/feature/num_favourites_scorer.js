@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class NumFavouritesScorer extends feature_scorer_1.default {
-    description = "Favour things favourited by your server's users";
+    description = "Favour toots favourited by your server's users";
     constructor() {
         super(types_1.ScoreName.NUM_FAVOURITES);
     }

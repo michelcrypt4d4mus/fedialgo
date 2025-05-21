@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Gives higher weight to posts from users that have often interacted with your posts.
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
-const acccount_scorer_1 = __importDefault(require("../acccount_scorer"));
+const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class InteractionsScorer extends acccount_scorer_1.default {

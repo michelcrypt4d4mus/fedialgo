@@ -2,7 +2,7 @@
  * Gives higher weight to posts from users that have often interacted with your posts.
  */
 import Account from "../../api/objects/account";
-import AccountScorer from "../acccount_scorer";
+import AccountScorer from "./acccount_scorer";
 import MastoApi from "../../api/api";
 import { ScoreName, StringNumberDict } from "../../types";
 

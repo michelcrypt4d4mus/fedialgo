@@ -1,8 +1,8 @@
 /*
  * Abstract extension of FeatureScorer to score a toot based on the account that created it
  */
-import FeatureScorer from './feature_scorer';
-import Toot from './../api/objects/toot';
+import FeatureScorer from '../feature_scorer';
+import Toot from '../../api/objects/toot';
 
 
 export default abstract class AccountScorer extends FeatureScorer {

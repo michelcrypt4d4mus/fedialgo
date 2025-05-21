@@ -2,7 +2,7 @@
  * Score how many times the current user has favourited the tooter in the past.
  */
 import Account from '../../api/objects/account';
-import AccountScorer from '../acccount_scorer';
+import AccountScorer from "./acccount_scorer";
 import MastoApi from '../../api/api';
 import { ScoreName, StringNumberDict } from '../../types';
 
