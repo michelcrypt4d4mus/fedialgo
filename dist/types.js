@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TRENDING_WEIGHTS = exports.NonScoreWeight = exports.ScoreName = void 0;
+exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TRENDING_WEIGHTS = exports.NonScoreWeightName = exports.ScoreName = void 0;
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -25,12 +25,12 @@ var ScoreName;
     ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
 })(ScoreName || (exports.ScoreName = ScoreName = {}));
 ;
-var NonScoreWeight;
-(function (NonScoreWeight) {
-    NonScoreWeight["TIME_DECAY"] = "TimeDecay";
-    NonScoreWeight["TRENDING"] = "Trending";
-    NonScoreWeight["OUTLIER_DAMPENER"] = "OutlierDampener";
-})(NonScoreWeight || (exports.NonScoreWeight = NonScoreWeight = {}));
+var NonScoreWeightName;
+(function (NonScoreWeightName) {
+    NonScoreWeightName["TIME_DECAY"] = "TimeDecay";
+    NonScoreWeightName["TRENDING"] = "Trending";
+    NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
+})(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
 exports.TRENDING_WEIGHTS = [
     ScoreName.TRENDING_LINKS,

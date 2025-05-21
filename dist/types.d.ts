@@ -27,12 +27,12 @@ export declare enum ScoreName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments"
 }
-export declare enum NonScoreWeight {
+export declare enum NonScoreWeightName {
     TIME_DECAY = "TimeDecay",
     TRENDING = "Trending",
     OUTLIER_DAMPENER = "OutlierDampener"
 }
-export type WeightName = ScoreName | NonScoreWeight;
+export type WeightName = ScoreName | NonScoreWeightName;
 export declare const TRENDING_WEIGHTS: ScoreName[];
 export declare enum StorageKey {
     APP_OPENS = "AppOpens",

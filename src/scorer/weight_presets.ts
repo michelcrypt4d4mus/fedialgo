@@ -2,7 +2,7 @@
  * Preset configurations to simplify user weight management.
  */
 import { isValueInStringEnum } from "../helpers/collection_helpers";
-import { NonScoreWeight, ScoreName, Weights } from "../types";
+import { NonScoreWeightName, ScoreName, Weights } from "../types";
 
 export enum WeightPresetLabel {
     CHRONOLOGICAL = 'Chronological',
@@ -19,9 +19,9 @@ export const isWeightPresetLabel = (value: string) => isValueInStringEnum(Weight
 
 export const DEFAULT_WEIGHTS: Weights = {
     // Global modifiers that affect all weighted scores
-    [NonScoreWeight.TIME_DECAY]: 1.5,
-    [NonScoreWeight.TRENDING]: 0.15,
-    [NonScoreWeight.OUTLIER_DAMPENER]: 1.6,
+    [NonScoreWeightName.TIME_DECAY]: 1.5,
+    [NonScoreWeightName.TRENDING]: 0.15,
+    [NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
     [ScoreName.ALREADY_SHOWN]: 5,
     [ScoreName.CHAOS]: 1.0,
@@ -48,9 +48,9 @@ export const DEFAULT_WEIGHTS: Weights = {
 
 export const WEIGHT_PRESETS: WeightPresets = {
     [WeightPresetLabel.CHRONOLOGICAL]: {
-        [NonScoreWeight.TIME_DECAY]: 9.99,
-        [NonScoreWeight.TRENDING]: 0,
-        [NonScoreWeight.OUTLIER_DAMPENER]: 0,
+        [NonScoreWeightName.TIME_DECAY]: 9.99,
+        [NonScoreWeightName.TRENDING]: 0,
+        [NonScoreWeightName.OUTLIER_DAMPENER]: 0,
         [ScoreName.ALREADY_SHOWN]: 0,
         [ScoreName.CHAOS]: 0,
         [ScoreName.DIVERSITY]: 0,
@@ -79,7 +79,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
 
     [WeightPresetLabel.DISCUSSIONS]: {
         ...DEFAULT_WEIGHTS,
-        [NonScoreWeight.TRENDING]: 0.001,
+        [NonScoreWeightName.TRENDING]: 0.001,
         [ScoreName.CHAOS]: 0,
         [ScoreName.DIVERSITY]: 0,
         [ScoreName.INTERACTIONS]: 2.5,
@@ -89,7 +89,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
 
     [WeightPresetLabel.FRIENDS]: {
         ...DEFAULT_WEIGHTS,
-        [NonScoreWeight.TRENDING]: 0.02,
+        [NonScoreWeightName.TRENDING]: 0.02,
         [ScoreName.INTERACTIONS]: 4,
         [ScoreName.MENTIONS_FOLLOWED]: 3,
         [ScoreName.NUM_REPLIES]: DEFAULT_WEIGHTS[ScoreName.NUM_REPLIES] * 0.3,
@@ -106,7 +106,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
 
     [WeightPresetLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,
-        [NonScoreWeight.TRENDING]: 0.5,
+        [NonScoreWeightName.TRENDING]: 0.5,
         [ScoreName.CHAOS]: 5,
         [ScoreName.FOLLOWED_TAGS]: 0.1,
         [ScoreName.NUM_REPLIES]: DEFAULT_WEIGHTS[ScoreName.NUM_REPLIES] * 3,

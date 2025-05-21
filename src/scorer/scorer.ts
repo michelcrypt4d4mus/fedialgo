@@ -11,7 +11,16 @@ import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { TRENDING_WEIGHTS, NonScoreWeight, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
+import {
+    TRENDING_WEIGHTS,
+    NonScoreWeightName,
+    ScoreName,
+    StringNumberDict,
+    TootScore,
+    WeightInfo,
+    WeightName,
+    Weights
+} from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -147,9 +156,9 @@ export default abstract class Scorer {
         const userWeights = await Storage.getWeights();
         // Find non scorer weights
         const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
-        const outlierDampener = getWeight(NonScoreWeight.OUTLIER_DAMPENER);
-        const timeDecayWeight = getWeight(NonScoreWeight.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
-        const trendingMultiplier = getWeight(NonScoreWeight.TRENDING);
+        const outlierDampener = getWeight(NonScoreWeightName.OUTLIER_DAMPENER);
+        const timeDecayWeight = getWeight(NonScoreWeightName.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
+        const trendingMultiplier = getWeight(NonScoreWeightName.TRENDING);
         // Initialize variables
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;

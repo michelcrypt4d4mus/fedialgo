@@ -20,9 +20,9 @@ const isWeightPresetLabel = (value) => (0, collection_helpers_1.isValueInStringE
 exports.isWeightPresetLabel = isWeightPresetLabel;
 exports.DEFAULT_WEIGHTS = {
     // Global modifiers that affect all weighted scores
-    [types_1.NonScoreWeight.TIME_DECAY]: 1.5,
-    [types_1.NonScoreWeight.TRENDING]: 0.15,
-    [types_1.NonScoreWeight.OUTLIER_DAMPENER]: 1.6,
+    [types_1.NonScoreWeightName.TIME_DECAY]: 1.5,
+    [types_1.NonScoreWeightName.TRENDING]: 0.15,
+    [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
     [types_1.ScoreName.ALREADY_SHOWN]: 5,
     [types_1.ScoreName.CHAOS]: 1.0,
@@ -47,9 +47,9 @@ exports.DEFAULT_WEIGHTS = {
 };
 exports.WEIGHT_PRESETS = {
     [WeightPresetLabel.CHRONOLOGICAL]: {
-        [types_1.NonScoreWeight.TIME_DECAY]: 9.99,
-        [types_1.NonScoreWeight.TRENDING]: 0,
-        [types_1.NonScoreWeight.OUTLIER_DAMPENER]: 0,
+        [types_1.NonScoreWeightName.TIME_DECAY]: 9.99,
+        [types_1.NonScoreWeightName.TRENDING]: 0,
+        [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: 0,
         [types_1.ScoreName.ALREADY_SHOWN]: 0,
         [types_1.ScoreName.CHAOS]: 0,
         [types_1.ScoreName.DIVERSITY]: 0,
@@ -76,7 +76,7 @@ exports.WEIGHT_PRESETS = {
     },
     [WeightPresetLabel.DISCUSSIONS]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.NonScoreWeight.TRENDING]: 0.001,
+        [types_1.NonScoreWeightName.TRENDING]: 0.001,
         [types_1.ScoreName.CHAOS]: 0,
         [types_1.ScoreName.DIVERSITY]: 0,
         [types_1.ScoreName.INTERACTIONS]: 2.5,
@@ -85,7 +85,7 @@ exports.WEIGHT_PRESETS = {
     },
     [WeightPresetLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.NonScoreWeight.TRENDING]: 0.02,
+        [types_1.NonScoreWeightName.TRENDING]: 0.02,
         [types_1.ScoreName.INTERACTIONS]: 4,
         [types_1.ScoreName.MENTIONS_FOLLOWED]: 3,
         [types_1.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[types_1.ScoreName.NUM_REPLIES] * 0.3,
@@ -100,7 +100,7 @@ exports.WEIGHT_PRESETS = {
     },
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
-        [types_1.NonScoreWeight.TRENDING]: 0.5,
+        [types_1.NonScoreWeightName.TRENDING]: 0.5,
         [types_1.ScoreName.CHAOS]: 5,
         [types_1.ScoreName.FOLLOWED_TAGS]: 0.1,
         [types_1.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[types_1.ScoreName.NUM_REPLIES] * 3,

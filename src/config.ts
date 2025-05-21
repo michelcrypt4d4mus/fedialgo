@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { FEDIVERSE_KEYS, NonScoreWeight, ScoreName, StorageKey, WeightInfoDict, WeightName } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeightName, ScoreName, StorageKey, WeightInfoDict, WeightName } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
@@ -347,19 +347,19 @@ export const Config: ConfigType = {
         timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
         weightsConfig: {
             // Global modifiers that affect all weighted scores
-            [NonScoreWeight.TIME_DECAY]: {
+            [NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
                 minValue: 0.001,
             },
             // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
             // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
             // TRENDING weighting value.
-            [NonScoreWeight.TRENDING]: {
+            [NonScoreWeightName.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
                 minValue: 0.001,
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-            [NonScoreWeight.OUTLIER_DAMPENER]: {
+            [NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
                 minValue: 0.001,
             },

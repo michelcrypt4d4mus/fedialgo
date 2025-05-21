@@ -32,7 +32,7 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { isDebugMode } from './helpers/environment_helpers';
 import { isValueInStringEnum, sortKeysByValue } from "./helpers/collection_helpers";
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
-import { FeedFilterSettings, KeysOfValueType, MastodonInstances, MediaCategory, NonScoreWeight, WeightInfoDict, StringNumberDict, TagWithUsageCounts, TrendingLink, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
+import { FeedFilterSettings, KeysOfValueType, MastodonInstances, MediaCategory, NonScoreWeightName, WeightInfoDict, StringNumberDict, TagWithUsageCounts, TrendingLink, TrendingObj, TrendingStorage, TrendingWithHistory, WeightName, Weights, MastodonTag } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -103,4 +103,4 @@ declare class TheAlgorithm {
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
-export { type FeedFilterSettings, type KeysOfValueType, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeight, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, sortKeysByValue, timeString, };
+export { type FeedFilterSettings, type KeysOfValueType, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, sortKeysByValue, timeString, };

@@ -61,7 +61,7 @@ import {
     KeysOfValueType,
     MastodonInstances,
     MediaCategory,
-    NonScoreWeight,
+    NonScoreWeightName,
     WeightInfoDict,
     StorageKey,
     StringNumberDict,
@@ -166,7 +166,7 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        Object.values(NonScoreWeight).reduce(
+        Object.values(NonScoreWeightName).reduce(
             (specialScoreInfos, weightName) => {
                 specialScoreInfos[weightName] = Object.assign({}, Config.scoring.weightsConfig[weightName])
                 return specialScoreInfos;
@@ -649,7 +649,7 @@ export {
     // Enums
     BooleanFilterName,
     MediaCategory,
-    NonScoreWeight,
+    NonScoreWeightName,
     TypeFilterName,
     WeightName,
     WeightPresetLabel,

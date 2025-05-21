@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.NonScoreWeight = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -91,7 +91,7 @@ Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: fun
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
-Object.defineProperty(exports, "NonScoreWeight", { enumerable: true, get: function () { return types_1.NonScoreWeight; } });
+Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return types_1.NonScoreWeightName; } });
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -167,7 +167,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(types_1.NonScoreWeight).reduce((specialScoreInfos, weightName) => {
+    }, Object.values(types_1.NonScoreWeightName).reduce((specialScoreInfos, weightName) => {
         specialScoreInfos[weightName] = Object.assign({}, config_1.Config.scoring.weightsConfig[weightName]);
         return specialScoreInfos;
     }, {}));

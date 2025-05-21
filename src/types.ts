@@ -33,14 +33,14 @@ export enum ScoreName {
     VIDEO_ATTACHMENTS = 'VideoAttachments',
 };
 
-export enum NonScoreWeight {
+export enum NonScoreWeightName {
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
     OUTLIER_DAMPENER = 'OutlierDampener',
 };
 
 // Names of the user adjustable score weightings
-export type WeightName = ScoreName | NonScoreWeight;
+export type WeightName = ScoreName | NonScoreWeightName;
 
 export const TRENDING_WEIGHTS = [
     ScoreName.TRENDING_LINKS,
