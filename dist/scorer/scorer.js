@@ -129,9 +129,11 @@ class Scorer {
     // Compute stats about the scores of a list of toots
     static computeScoreStats(toots, numPercentiles = 5) {
         return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
+            const rawScoreSegments = (0, collection_helpers_1.percentileSegments)(toots, (t) => t.scoreInfo?.rawScores[scoreName] ?? 0, numPercentiles);
+            const weightedScoreSegments = (0, collection_helpers_1.percentileSegments)(toots, (t) => t.scoreInfo?.weightedScores[scoreName] ?? 0, numPercentiles);
             stats[scoreName] = {
-                raw: (0, collection_helpers_1.percentiles)(toots.map((t) => t.scoreInfo?.rawScores[scoreName] ?? 0), numPercentiles),
-                weighted: (0, collection_helpers_1.percentiles)(toots.map((t) => t.scoreInfo?.weightedScores[scoreName] ?? 0), numPercentiles),
+                raw: rawScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "rawScores")),
+                weighted: weightedScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "weightedScores")),
             };
             return stats;
         }, {});
@@ -193,6 +195,16 @@ class Scorer {
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores) {
         return 1 + (0, collection_helpers_1.sumValues)(scores);
+    }
+    static tootSegmentStats(toots, scoreName, scoreType) {
+        const sectionScores = toots.map((t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0);
+        return {
+            average: (0, collection_helpers_1.average)(sectionScores),
+            averageFinalScore: (0, collection_helpers_1.average)(toots.map((t) => t.scoreInfo?.score ?? 0)),
+            count: toots.length,
+            min: sectionScores[0],
+            max: sectionScores.slice(-1)[0],
+        };
     }
 }
 exports.default = Scorer;

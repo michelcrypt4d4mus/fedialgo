@@ -7,11 +7,11 @@ import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
-import { batchMap, percentiles, sumValues } from "../helpers/collection_helpers";
+import { average, batchMap, percentileSegments, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { NonScoreWeightName, ScoreName, ScoresStats, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
+import { MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoresStats, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -151,9 +151,12 @@ export default abstract class Scorer {
     // Compute stats about the scores of a list of toots
     static computeScoreStats(toots: Toot[], numPercentiles: number = 5): ScoresStats {
         return Object.values(ScoreName).reduce((stats, scoreName) => {
+            const rawScoreSegments = percentileSegments(toots, (t) => t.scoreInfo?.rawScores[scoreName] ?? 0, numPercentiles);
+            const weightedScoreSegments = percentileSegments(toots, (t) => t.scoreInfo?.weightedScores[scoreName] ?? 0, numPercentiles);
+
             stats[scoreName] = {
-                raw: percentiles(toots.map((t) => t.scoreInfo?.rawScores[scoreName] ?? 0), numPercentiles),
-                weighted: percentiles(toots.map((t) => t.scoreInfo?.weightedScores[scoreName] ?? 0), numPercentiles),
+                raw: rawScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "rawScores")),
+                weighted: weightedScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "weightedScores")),
             };
 
             return stats;
@@ -224,6 +227,18 @@ export default abstract class Scorer {
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     private static sumScores(scores: StringNumberDict | Weights): number {
         return 1 + sumValues(scores);
+    }
+
+    private static tootSegmentStats(toots: Toot[], scoreName: ScoreName, scoreType: "rawScores" | "weightedScores"): MinMaxAvgScore {
+        const sectionScores = toots.map((t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0);
+
+        return {
+            average: average(sectionScores),
+            averageFinalScore: average(toots.map((t) => t.scoreInfo?.score ?? 0)),
+            count: toots.length,
+            min: sectionScores[0],
+            max: sectionScores.slice(-1)[0],
+        };
     }
 };
 

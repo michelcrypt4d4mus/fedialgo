@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentiles = exports.keyByProperty = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.percentiles = exports.keyByProperty = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -181,6 +181,7 @@ exports.keyByProperty = keyByProperty;
 ;
 // Divide array into numPercentiles sections and return an array of objects with min,
 // max, and average values for each section. Last section may be smaller than the others.
+// TODO: unused
 function percentiles(array, numPercentiles) {
     let batchSize = array.length / numPercentiles;
     if (batchSize % 1 != 0)
@@ -193,6 +194,7 @@ function percentiles(array, numPercentiles) {
         const section = array.slice(start, end);
         percentileStats.push({
             average: average(section),
+            averageFinalScore: average(section),
             count: section.length,
             min: section[0],
             max: section.slice(-1)[0],
@@ -202,6 +204,21 @@ function percentiles(array, numPercentiles) {
 }
 exports.percentiles = percentiles;
 ;
+function percentileSegments(array, fxn, numPercentiles) {
+    let batchSize = array.length / numPercentiles;
+    if (batchSize % 1 != 0)
+        batchSize += 1;
+    batchSize = Math.floor(batchSize);
+    array = array.toSorted((a, b) => fxn(a) - fxn(b));
+    const percentileSegments = [];
+    for (let start = 0; start < array.length; start += batchSize) {
+        const end = start + batchSize > array.length ? array.length : start + batchSize;
+        const section = array.slice(start, end);
+        percentileSegments.push(section);
+    }
+    return percentileSegments;
+}
+exports.percentileSegments = percentileSegments;
 // Randomize the order of an array
 function shuffle(array) {
     const sortRandom = (a, b) => (0, string_helpers_1.hashObject)(a).localeCompare((0, string_helpers_1.hashObject)(b));

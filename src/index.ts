@@ -62,7 +62,7 @@ import {
     MastodonInstances,
     MastodonTag,
     MediaCategory,
-    MinMaxAvg,
+    MinMaxAvgScore,
     NonScoreWeightName,
     ScoreName,
     ScoreStats,
@@ -668,7 +668,7 @@ export {
     // Types
     type FeedFilterSettings,
     type KeysOfValueType,
-    type MinMaxAvg,
+    type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,

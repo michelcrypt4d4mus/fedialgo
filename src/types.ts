@@ -165,9 +165,10 @@ export interface MinMax {
     max: number;
 };
 
-export interface MinMaxAvg extends MinMax {
+export interface MinMaxAvgScore extends MinMax {
     average: number;
     count: number;
+    averageFinalScore: number;
 };
 
 export type MinMaxID = {
@@ -176,8 +177,8 @@ export type MinMaxID = {
 };
 
 export type ScoreStats = {
-    raw: MinMaxAvg[];
-    weighted: MinMaxAvg[];
+    raw: MinMaxAvgScore[];
+    weighted: MinMaxAvgScore[];
 };
 
 export type ScoresStats = Record<ScoreName, ScoreStats>;

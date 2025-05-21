@@ -110,17 +110,18 @@ export interface MinMax {
     min: number;
     max: number;
 }
-export interface MinMaxAvg extends MinMax {
+export interface MinMaxAvgScore extends MinMax {
     average: number;
     count: number;
+    averageFinalScore: number;
 }
 export type MinMaxID = {
     min: string;
     max: string;
 };
 export type ScoreStats = {
-    raw: MinMaxAvg[];
-    weighted: MinMaxAvg[];
+    raw: MinMaxAvgScore[];
+    weighted: MinMaxAvgScore[];
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink);

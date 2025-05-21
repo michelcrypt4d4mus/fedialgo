@@ -3,7 +3,7 @@
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { Config } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxAvg, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
 import { traceLog } from "./log_helpers";
 
 
@@ -216,12 +216,13 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
 
 // Divide array into numPercentiles sections and return an array of objects with min,
 // max, and average values for each section. Last section may be smaller than the others.
-export function percentiles(array: number[], numPercentiles: number): MinMaxAvg[] {
+// TODO: unused
+export function percentiles(array: number[], numPercentiles: number): MinMaxAvgScore[] {
     let batchSize = array.length / numPercentiles;
     if (batchSize % 1 != 0) batchSize += 1;
     batchSize = Math.floor(batchSize);
     array = array.toSorted((a, b) => a - b);
-    const percentileStats: MinMaxAvg[] = [];
+    const percentileStats: MinMaxAvgScore[] = [];
 
     for (let start = 0; start < array.length; start += batchSize) {
         const end = start + batchSize > array.length ? array.length : start + batchSize;
@@ -229,6 +230,7 @@ export function percentiles(array: number[], numPercentiles: number): MinMaxAvg[
 
         percentileStats.push({
             average: average(section),
+            averageFinalScore: average(section),
             count: section.length,
             min: section[0],
             max: section.slice(-1)[0],
@@ -237,6 +239,23 @@ export function percentiles(array: number[], numPercentiles: number): MinMaxAvg[
 
     return percentileStats;
 };
+
+
+export function percentileSegments<T>(array: T[], fxn: (element: T) => number, numPercentiles: number): T[][] {
+    let batchSize = array.length / numPercentiles;
+    if (batchSize % 1 != 0) batchSize += 1;
+    batchSize = Math.floor(batchSize);
+    array = array.toSorted((a, b) => fxn(a) - fxn(b));
+    const percentileSegments: T[][] = [];
+
+    for (let start = 0; start < array.length; start += batchSize) {
+        const end = start + batchSize > array.length ? array.length : start + batchSize;
+        const section = array.slice(start, end);
+        percentileSegments.push(section);
+    }
+
+    return percentileSegments;
+}
 
 
 // Randomize the order of an array
