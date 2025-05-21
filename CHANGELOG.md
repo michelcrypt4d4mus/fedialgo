@@ -1,7 +1,8 @@
 # NEXT RELEASE
 * Add TheAlgorithm.getRechartsStatsData() method to prepare data about score statistics for Recharts presentation
+* (Demo App) Add show stats button to experimental section
 
-# v0.47.0
+## v0.47.0
 * Separate out `NonScoreWeightName` and `ScoreName` enums from `WeightName` enum
 * Add quintile stats for the feed for each score category to the `getCurrentState()` return object
 
