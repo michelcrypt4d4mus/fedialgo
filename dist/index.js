@@ -351,6 +351,8 @@ class TheAlgorithm {
         api_1.default.instance.setSemaphoreConcurrency(config_1.Config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
+        this.cacheUpdater && clearInterval(this.cacheUpdater);
+        this.cacheUpdater = undefined;
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
@@ -608,7 +610,9 @@ class TheAlgorithm {
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown)
             return;
-        console.debug(`[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown (old: ${this.totalNumTimesShown})`);
+        const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
+        const msg = `[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
+        console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
         await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
         this.totalNumTimesShown = newTotalNumTimesShown;
     }

@@ -1,6 +1,8 @@
 # NEXT RELEASE
+* Clear `TheAlgorithm.cacheUpdater` in `reset()` method
 
 ### v0.47.8
+* Make `Config` a `class` instead of just an object
 * Add missing files from last build
 
 ### v0.47.7
