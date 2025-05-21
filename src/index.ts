@@ -273,7 +273,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: Config,
-            Scores: Scorer.computeScoreStats(this.feed),
+            Scores: Scorer.computeScoreStats(this.feed, 10),
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };

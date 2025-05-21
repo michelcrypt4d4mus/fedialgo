@@ -241,11 +241,16 @@ export function percentiles(array: number[], numPercentiles: number): MinMaxAvgS
 };
 
 
-export function percentileSegments<T>(array: T[], fxn: (element: T) => number, numPercentiles: number): T[][] {
+// Divide array into numPercentiles sections, returns array of arrays of type T objects
+export function percentileSegments<T>(
+    array: T[],
+    fxn: (element: T) => number | undefined,
+    numPercentiles: number
+): T[][] {
+    array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
     let batchSize = array.length / numPercentiles;
     if (batchSize % 1 != 0) batchSize += 1;
     batchSize = Math.floor(batchSize);
-    array = array.toSorted((a, b) => fxn(a) - fxn(b));
     const percentileSegments: T[][] = [];
 
     for (let start = 0; start < array.length; start += batchSize) {

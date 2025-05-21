@@ -149,14 +149,11 @@ export default abstract class Scorer {
     }
 
     // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots: Toot[], numPercentiles: number = 5): ScoresStats {
+    static computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
         return Object.values(ScoreName).reduce((stats, scoreName) => {
-            const rawScoreSegments = percentileSegments(toots, (t) => t.scoreInfo?.rawScores[scoreName] ?? 0, numPercentiles);
-            const weightedScoreSegments = percentileSegments(toots, (t) => t.scoreInfo?.weightedScores[scoreName] ?? 0, numPercentiles);
-
             stats[scoreName] = {
-                raw: rawScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "rawScores")),
-                weighted: weightedScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "weightedScores")),
+                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
+                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
             };
 
             return stats;
@@ -229,16 +226,25 @@ export default abstract class Scorer {
         return 1 + sumValues(scores);
     }
 
-    private static tootSegmentStats(toots: Toot[], scoreName: ScoreName, scoreType: "rawScores" | "weightedScores"): MinMaxAvgScore {
-        const sectionScores = toots.map((t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0);
+    private static tootSegmentStats(
+        toots: Toot[],
+        scoreName: ScoreName,
+        scoreType: "rawScores" | "weightedScores",
+        numPercentiles: number
+    ): MinMaxAvgScore[] {
+        const getScore = (t: Toot) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
 
-        return {
-            average: average(sectionScores),
-            averageFinalScore: average(toots.map((t) => t.scoreInfo?.score ?? 0)),
-            count: toots.length,
-            min: sectionScores[0],
-            max: sectionScores.slice(-1)[0],
-        };
+        return percentileSegments(toots, getScore, numPercentiles).map((segment) => {
+            const sectionScores = segment.map(getScore);
+
+            return {
+                average: average(sectionScores),
+                averageFinalScore: average(segment.map((t) => t.scoreInfo?.score ?? 0)),
+                count: segment.length,
+                min: sectionScores[0],
+                max: sectionScores.slice(-1)[0],
+            };
+        });
     }
 };
 

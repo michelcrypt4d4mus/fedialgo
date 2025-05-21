@@ -127,13 +127,11 @@ class Scorer {
         }, {});
     }
     // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots, numPercentiles = 5) {
+    static computeScoreStats(toots, numPercentiles) {
         return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
-            const rawScoreSegments = (0, collection_helpers_1.percentileSegments)(toots, (t) => t.scoreInfo?.rawScores[scoreName] ?? 0, numPercentiles);
-            const weightedScoreSegments = (0, collection_helpers_1.percentileSegments)(toots, (t) => t.scoreInfo?.weightedScores[scoreName] ?? 0, numPercentiles);
             stats[scoreName] = {
-                raw: rawScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "rawScores")),
-                weighted: weightedScoreSegments.map(segment => this.tootSegmentStats(segment, scoreName, "weightedScores")),
+                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
+                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
             };
             return stats;
         }, {});
@@ -196,15 +194,18 @@ class Scorer {
     static sumScores(scores) {
         return 1 + (0, collection_helpers_1.sumValues)(scores);
     }
-    static tootSegmentStats(toots, scoreName, scoreType) {
-        const sectionScores = toots.map((t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0);
-        return {
-            average: (0, collection_helpers_1.average)(sectionScores),
-            averageFinalScore: (0, collection_helpers_1.average)(toots.map((t) => t.scoreInfo?.score ?? 0)),
-            count: toots.length,
-            min: sectionScores[0],
-            max: sectionScores.slice(-1)[0],
-        };
+    static tootSegmentStats(toots, scoreName, scoreType, numPercentiles) {
+        const getScore = (t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
+        return (0, collection_helpers_1.percentileSegments)(toots, getScore, numPercentiles).map((segment) => {
+            const sectionScores = segment.map(getScore);
+            return {
+                average: (0, collection_helpers_1.average)(sectionScores),
+                averageFinalScore: (0, collection_helpers_1.average)(segment.map((t) => t.scoreInfo?.score ?? 0)),
+                count: segment.length,
+                min: sectionScores[0],
+                max: sectionScores.slice(-1)[0],
+            };
+        });
     }
 }
 exports.default = Scorer;

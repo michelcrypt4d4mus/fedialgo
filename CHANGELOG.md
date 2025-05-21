@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Compute the average final score per decile of raw/weighted score
 
 ### v0.47.3
 * (Demo App) Add link in header to CHANGELOG and a link for bug reports

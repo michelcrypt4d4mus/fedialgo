@@ -204,12 +204,13 @@ function percentiles(array, numPercentiles) {
 }
 exports.percentiles = percentiles;
 ;
+// Divide array into numPercentiles sections, returns array of arrays of type T objects
 function percentileSegments(array, fxn, numPercentiles) {
+    array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
     let batchSize = array.length / numPercentiles;
     if (batchSize % 1 != 0)
         batchSize += 1;
     batchSize = Math.floor(batchSize);
-    array = array.toSorted((a, b) => fxn(a) - fxn(b));
     const percentileSegments = [];
     for (let start = 0; start < array.length; start += batchSize) {
         const end = start + batchSize > array.length ? array.length : start + batchSize;

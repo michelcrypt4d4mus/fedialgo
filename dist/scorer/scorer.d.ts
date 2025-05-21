@@ -15,7 +15,7 @@ export default abstract class Scorer {
     protected logPrefix(): string;
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
     static alternateScoreInfo(toot: Toot): AlternateScoreDict;
-    static computeScoreStats(toots: Toot[], numPercentiles?: number): ScoresStats;
+    static computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats;
     private static decorateWithScoreInfo;
     private static sumScores;
     private static tootSegmentStats;
