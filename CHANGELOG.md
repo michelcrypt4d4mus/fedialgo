@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.47.8
+* Add missing files from last build
+
 ### v0.47.7
 * Move scorer descriptions out of config and into the `Scorer` class
 * Bump up default diversity penalty weight to 2.0
