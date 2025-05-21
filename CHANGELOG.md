@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.47.2
 * Export MinMaxAvg and ScoreStats types
 * (Demo App) Add option to chart raw vs. weighted score stats, avg vs. min vs. max per quartile/decile/etc
 * (Demo App) Fix bug in charting of score stats
