@@ -463,8 +463,7 @@ class Config implements ConfigType {
 };
 
 
-export const config = new Config();
-
+const config = new Config();
 
 // Quick load mode settings
 if (isQuickMode) {
@@ -494,3 +493,5 @@ if (isLoadTest) {
     config.trending.tags.maxToots = 1_000;
     config.trending.tags.numTags = 40;
 };
+
+export { config };

@@ -177,5 +177,5 @@ declare class Config implements ConfigType {
     setLocale(locale?: string): void;
     validate(cfg?: ConfigType | object): void;
 }
-export declare const config: Config;
-export {};
+declare const config: Config;
+export { config };

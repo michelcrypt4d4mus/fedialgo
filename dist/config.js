@@ -14,14 +14,14 @@ exports.MINUTES_IN_DAY = 24 * exports.MINUTES_IN_HOUR;
 exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * exports.MINUTES_IN_HOUR;
 exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
 exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
+// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
+exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
-// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
-exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
-exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 ;
 ;
 ;
@@ -344,37 +344,38 @@ class Config {
                 (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is empty string`);
             }
         });
-        (0, log_helpers_1.traceLog)("[Config] validated config:", exports.config);
+        (0, log_helpers_1.traceLog)("[Config] validated config:", config);
     }
 }
 ;
-exports.config = new Config();
+const config = new Config();
+exports.config = config;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
-    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
-    exports.config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
-    exports.config.participatedTags.numTags = 20;
-    exports.config.trending.tags.numTags = 20;
+    config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
+    config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
+    config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
+    config.participatedTags.numTags = 20;
+    config.trending.tags.numTags = 20;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
-    exports.config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
-    exports.config.api.maxRecordsForFeatureScoring = 2500;
-    exports.config.toots.saveChangesIntervalSeconds = 5;
+    config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
+    config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
+    config.api.maxRecordsForFeatureScoring = 2500;
+    config.toots.saveChangesIntervalSeconds = 5;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
-    exports.config.toots.maxCachedTimelineToots = 5000;
-    exports.config.api.maxRecordsForFeatureScoring = 15000;
-    exports.config.participatedTags.maxToots = 500;
-    exports.config.participatedTags.numTags = 50;
-    exports.config.participatedTags.numTootsPerTag = 10;
-    exports.config.trending.tags.maxToots = 1000;
-    exports.config.trending.tags.numTags = 40;
+    config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
+    config.toots.maxCachedTimelineToots = 5000;
+    config.api.maxRecordsForFeatureScoring = 15000;
+    config.participatedTags.maxToots = 500;
+    config.participatedTags.numTags = 50;
+    config.participatedTags.numTootsPerTag = 10;
+    config.trending.tags.maxToots = 1000;
+    config.trending.tags.numTags = 40;
 }
 ;
 //# sourceMappingURL=config.js.map
