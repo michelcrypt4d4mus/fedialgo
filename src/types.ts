@@ -33,6 +33,7 @@ export enum ScoreName {
     VIDEO_ATTACHMENTS = 'VideoAttachments',
 };
 
+// Order currently influences the order of the score weighting sliders in the demo app
 export enum NonScoreWeightName {
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
@@ -41,6 +42,7 @@ export enum NonScoreWeightName {
 
 // Names of the user adjustable score weightings
 export type WeightName = ScoreName | NonScoreWeightName;
+
 
 // Keys that are valid for local browser storage.
 export enum CacheKey {
@@ -129,9 +131,8 @@ export type FilterArgs = {
     visible?: boolean;
 };
 
-export type InstanceResponse = MastodonInstance | null;
 
-// Extract the keys of SerializableToot that are of a type that's a subclsas of TypeCondition
+// Extract the keys of T that are of a type that's a subclass of TypeCondition
 // https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
 export type KeysOfValueType<T, SuperClass> = Exclude<
     {[K in keyof T]: T[K] extends SuperClass ? K : never}[keyof T],

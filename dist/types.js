@@ -25,6 +25,7 @@ var ScoreName;
     ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
 })(ScoreName || (exports.ScoreName = ScoreName = {}));
 ;
+// Order currently influences the order of the score weighting sliders in the demo app
 var NonScoreWeightName;
 (function (NonScoreWeightName) {
     NonScoreWeightName["TIME_DECAY"] = "TimeDecay";

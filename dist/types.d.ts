@@ -95,7 +95,6 @@ export type FilterArgs = {
     invertSelection?: boolean;
     visible?: boolean;
 };
-export type InstanceResponse = MastodonInstance | null;
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;

@@ -1,11 +1,11 @@
 import Toot from "./objects/toot";
-import { ApiMutex, InstanceResponse, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingStorage } from "../types";
-export declare enum FediverseTrendingType {
+import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingStorage } from "../types";
+export declare enum TrendingType {
     STATUSES = "statuses",
     LINKS = "links",
     TAGS = "tags"
 }
-export declare const TRENDING_MUTEXES: Partial<ApiMutex>;
+type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     private static v1Url;
@@ -33,3 +33,4 @@ export default class MastodonServer {
     private static callForAllServers;
     private static callForServers;
 }
+export {};

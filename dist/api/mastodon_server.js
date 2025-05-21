@@ -1,39 +1,16 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TRENDING_MUTEXES = exports.FediverseTrendingType = void 0;
+exports.TrendingType = void 0;
 /*
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  */
 const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
-const api_1 = __importStar(require("./api"));
+const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -44,17 +21,18 @@ const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-var FediverseTrendingType;
-(function (FediverseTrendingType) {
-    FediverseTrendingType["STATUSES"] = "statuses";
-    FediverseTrendingType["LINKS"] = "links";
-    FediverseTrendingType["TAGS"] = "tags";
-})(FediverseTrendingType || (exports.FediverseTrendingType = FediverseTrendingType = {}));
+var TrendingType;
+(function (TrendingType) {
+    TrendingType["STATUSES"] = "statuses";
+    TrendingType["LINKS"] = "links";
+    TrendingType["TAGS"] = "tags";
+})(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
-exports.TRENDING_MUTEXES = types_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
+const INSTANCE = "instance";
+const TRENDING_MUTEXES = types_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
     mutexes[key] = new async_mutex_1.Mutex();
     return mutexes;
 }, {});
@@ -78,7 +56,7 @@ class MastodonServer {
             return null;
         }
         try {
-            return await this.fetch(MastodonServer.v2Url(api_1.INSTANCE));
+            return await this.fetch(MastodonServer.v2Url(INSTANCE));
         }
         catch (error) {
             console.warn(`[fetchServerInfo()] Error for server '${this.domain}'`, error);
@@ -89,7 +67,7 @@ class MastodonServer {
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
     async fetchTrendingStatuses() {
-        const toots = await this.fetchTrending(api_1.STATUSES);
+        const toots = await this.fetchTrending(TrendingType.STATUSES);
         const trendingToots = toots.map(t => toot_1.default.build(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
@@ -106,14 +84,14 @@ class MastodonServer {
             return [];
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending(api_1.LINKS, numLinks);
+        const trendingLinks = await this.fetchTrending(TrendingType.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        const trendingTags = await this.fetchTrending(api_1.TAGS, numTags);
+        const trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
         return trendingTags.filter(tag => !config_1.config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
@@ -208,7 +186,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
         const logPrefix = `[${types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS}]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(exports.TRENDING_MUTEXES[types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logPrefix);
         try {
             let servers = await Storage_1.default.getIfNotStale(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
@@ -289,7 +267,7 @@ class MastodonServer {
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(exports.TRENDING_MUTEXES[key], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[key], logPrefix);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);

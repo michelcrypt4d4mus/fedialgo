@@ -7,7 +7,7 @@ import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
-import MastoApi, { INSTANCE, LINKS, STATUSES, TAGS } from "./api";
+import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
@@ -18,7 +18,6 @@ import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
 import {
     ApiMutex,
-    InstanceResponse,
     MastodonInstanceEmpty,
     MastodonInstance,
     MastodonInstances,
@@ -38,19 +37,21 @@ import {
     zipPromises
 } from "../helpers/collection_helpers";
 
-export enum FediverseTrendingType {
+export enum TrendingType {
     STATUSES = "statuses",
     LINKS = "links",
     TAGS = "tags",
 };
 
 type InstanceDict = Record<string, MastodonInstance>;
+type InstanceResponse = MastodonInstance | null;
 
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
+const INSTANCE = "instance";
 
-export const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
+const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
     (mutexes, key) => {
         mutexes[key] = new Mutex();
         return mutexes;
@@ -98,7 +99,7 @@ export default class MastodonServer {
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
     async fetchTrendingStatuses(): Promise<Toot[]> {
-        const toots = await this.fetchTrending<mastodon.v1.Status>(STATUSES);
+        const toots = await this.fetchTrending<mastodon.v1.Status>(TrendingType.STATUSES);
         const trendingToots = toots.map(t => Toot.build(t));
 
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
@@ -119,7 +120,7 @@ export default class MastodonServer {
         }
 
         const numLinks = config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
+        const trendingLinks = await this.fetchTrending<TrendingLink>(TrendingType.LINKS, numLinks);
         trendingLinks.forEach(decorateHistoryScores);
         return trendingLinks;
     }
@@ -127,7 +128,7 @@ export default class MastodonServer {
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
-        const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TAGS, numTags);
+        const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
         return trendingTags.filter(tag => !config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
@@ -137,7 +138,7 @@ export default class MastodonServer {
     //////////////////////////////////
 
     // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
-    private async fetchTrending<T>(typeStr: string, limit?: number): Promise<T[]> {
+    private async fetchTrending<T>(typeStr: TrendingType, limit?: number): Promise<T[]> {
         return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
     }
 

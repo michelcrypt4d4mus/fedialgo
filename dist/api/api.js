@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.TAGS = exports.STATUSES = exports.LINKS = exports.INSTANCE = void 0;
+exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -39,10 +39,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
-exports.INSTANCE = "instance";
-exports.LINKS = "links";
-exports.STATUSES = "statuses";
-exports.TAGS = "tags";
+const mastodon_server_1 = require("./mastodon_server");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -60,7 +57,7 @@ class MastoApi {
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     // URL for tag on the user's homeserver
-    tagUrl = (tag) => `${this.endpointURL(exports.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
+    tagUrl = (tag) => `${this.endpointURL(mastodon_server_1.TrendingType.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
@@ -338,7 +335,7 @@ class MastoApi {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
-        const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
+        const query = { limit: maxRecords, q: searchStr, type: mastodon_server_1.TrendingType.STATUSES };
         logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {

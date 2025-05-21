@@ -18,11 +18,7 @@ import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { SET_LOADING_STATUS, bracketed, extractDomain } from '../helpers/string_helpers';
-
-export const INSTANCE = "instance";
-export const LINKS = "links";
-export const STATUSES = "statuses";
-export const TAGS = "tags";
+import { TrendingType } from "./mastodon_server";
 
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
@@ -79,7 +75,7 @@ export default class MastoApi {
     private requestSemphore = new Semaphore(config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
 
     // URL for tag on the user's homeserver
-    tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
+    tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TrendingType.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     static init(api: mastodon.rest.Client, user: Account): void {
@@ -394,7 +390,7 @@ export default class MastoApi {
         maxRecords = maxRecords || config.api.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const releaseSemaphore = await lockExecution(this.requestSemphore, logPrefix);
-        const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: STATUSES};
+        const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: TrendingType.STATUSES};
         logPrefix += ` (semaphore)`;
         const startedAt = new Date();
 

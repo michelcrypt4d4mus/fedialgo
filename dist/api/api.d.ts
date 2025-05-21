@@ -3,10 +3,6 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { MastodonTag, CacheKey } from "../types";
-export declare const INSTANCE = "instance";
-export declare const LINKS = "links";
-export declare const STATUSES = "statuses";
-export declare const TAGS = "tags";
 interface ApiParams {
     maxRecords?: number;
     moar?: boolean;
