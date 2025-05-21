@@ -1,4 +1,7 @@
 # NEXT RELEASE
+* Export MinMaxAvg and ScoreStats types
+* (Demo App) Add option to chart raw vs. weighted score stats, avg vs. min vs. max per quartile/decile/etc
+* (Demo App) Fix bug in charting of score stats
 
 ### v0.47.1
 * Add TheAlgorithm.getRechartsStatsData() method to prepare data about score statistics for Recharts presentation

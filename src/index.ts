@@ -62,8 +62,10 @@ import {
     MastodonInstances,
     MastodonTag,
     MediaCategory,
+    MinMaxAvg,
     NonScoreWeightName,
     ScoreName,
+    ScoreStats,
     StorageKey,
     StringNumberDict,
     TagWithUsageCounts,
@@ -298,7 +300,7 @@ class TheAlgorithm {
                     const baseKey = `${scoreName}_${scoreType}`;
 
                     Object.entries(percentile).forEach(([k, v]) => {
-                        stats[i][`${baseKey}_${k}`] = formatScore(v);
+                        stats[i][`${baseKey}_${k}`] = v;
                     });
                 });
             });
@@ -666,6 +668,8 @@ export {
     // Types
     type FeedFilterSettings,
     type KeysOfValueType,
+    type MinMaxAvg,
+    type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
     type TrendingLink,

@@ -293,7 +293,7 @@ class TheAlgorithm {
                     stats[i] ||= { segment: (0, string_helpers_1.suffixedInt)(i + 1) + suffix };
                     const baseKey = `${scoreName}_${scoreType}`;
                     Object.entries(percentile).forEach(([k, v]) => {
-                        stats[i][`${baseKey}_${k}`] = (0, scorer_1.formatScore)(v);
+                        stats[i][`${baseKey}_${k}`] = v;
                     });
                 });
             });
