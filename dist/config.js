@@ -30,33 +30,33 @@ exports.Config = {
     api: {
         [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FAVOURITED_TOOTS]: {
             initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-            numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
             limit: 80,
-            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.FOLLOWED_TAGS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
             limit: 100,
-            numMinutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.HOME_TIMELINE]: {
             initialMaxRecords: 800,
@@ -65,28 +65,28 @@ exports.Config = {
         },
         [types_1.StorageKey.MUTED_ACCOUNTS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
-            numMinutesUntilStale: 15,
+            minutesUntilStale: 15,
         },
         [types_1.StorageKey.NOTIFICATIONS]: {
             initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
             limit: 80,
-            numMinutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },
         [types_1.StorageKey.RECENT_USER_TOOTS]: {
             initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-            numMinutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },
         [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
             initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+            minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
         },
         [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
-            numMinutesUntilStale: 15,
+            minutesUntilStale: 15,
         },
         backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
         defaultRecordsPerPage: 40,
@@ -95,7 +95,7 @@ exports.Config = {
         maxConcurrentRequestsBackground: 8,
         maxRecordsForFeatureScoring: 1500,
         mutexWarnSeconds: 5,
-        staleDataDefaultMinutes: 10,
+        minutesUntilStaleDefault: 10,
         staleDataTrendingMinutes: 60,
         timeoutMS: 5000, // Timeout for API calls
     },
@@ -242,7 +242,7 @@ exports.Config = {
         excessiveTagsPenalty: 0.1,
         nonScoreWeightMinValue: 0.001,
         nonScoreWeightsConfig: {
-            // Global modifiers that affect all weighted scores
+            // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
             [types_1.NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
             },
@@ -319,8 +319,8 @@ if (environment_helpers_1.isQuickMode) {
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.api[types_1.StorageKey.NOTIFICATIONS].numMinutesUntilStale = 1;
-    exports.Config.api[types_1.StorageKey.RECENT_USER_TOOTS].numMinutesUntilStale = 1;
+    exports.Config.api[types_1.StorageKey.NOTIFICATIONS].minutesUntilStale = 1;
+    exports.Config.api[types_1.StorageKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
     exports.Config.api.maxRecordsForFeatureScoring = 20000;
     exports.Config.toots.saveChangesIntervalSeconds = 5;
 }
@@ -340,7 +340,7 @@ if (environment_helpers_1.isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg) {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.api[k]?.numMinutesUntilStale);
+    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.api[k]?.minutesUntilStale);
     exports.Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses);
     // Check that all the values are valid
     Object.entries(cfg).forEach(([key, value]) => {

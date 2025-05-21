@@ -27,7 +27,7 @@ type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
     limit?: number;                     // Max per page is usually 40
     lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
-    numMinutesUntilStale?: number;      // How long until the data is considered stale
+    minutesUntilStale?: number;         // How long until the data is considered stale
     supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
 };
 
@@ -43,8 +43,8 @@ interface ApiConfig extends ApiConfigBase {
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
     maxRecordsForFeatureScoring: number;
+    minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    staleDataDefaultMinutes: number;
     staleDataTrendingMinutes: number;
     timeoutMS: number;
 };
@@ -133,33 +133,33 @@ export const Config: ConfigType = {
     api: {
         [StorageKey.BLOCKED_ACCOUNTS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * MINUTES_IN_HOUR,
         },
         [StorageKey.FAVOURITED_TOOTS]: {
             initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
-            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * MINUTES_IN_HOUR,
         },
         [StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-            numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+            minutesUntilStale: 24 * MINUTES_IN_HOUR,
         },
         [StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FOLLOWED_ACCOUNTS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
             limit: 80,
-            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.FOLLOWED_TAGS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
             limit: 100,
-            numMinutesUntilStale: 4 * MINUTES_IN_HOUR,
+            minutesUntilStale: 4 * MINUTES_IN_HOUR,
         },
         [StorageKey.HOME_TIMELINE]: {
             initialMaxRecords: 800,
@@ -168,28 +168,28 @@ export const Config: ConfigType = {
         },
         [StorageKey.MUTED_ACCOUNTS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 12 * MINUTES_IN_HOUR,
+            minutesUntilStale: 12 * MINUTES_IN_HOUR,
         },
         [StorageKey.PARTICIPATED_TAG_TOOTS]: {
-            numMinutesUntilStale: 15,
+            minutesUntilStale: 15,
         },
         [StorageKey.NOTIFICATIONS]: {
             initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
             limit: 80,
-            numMinutesUntilStale: 6 * MINUTES_IN_HOUR,
+            minutesUntilStale: 6 * MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },
         [StorageKey.RECENT_USER_TOOTS]: {
             initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
-            numMinutesUntilStale: 2 * MINUTES_IN_HOUR,
+            minutesUntilStale: 2 * MINUTES_IN_HOUR,
             supportsMinMaxId: true,
         },
         [StorageKey.SERVER_SIDE_FILTERS]: {
             initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            numMinutesUntilStale: 24 * MINUTES_IN_HOUR,
+            minutesUntilStale: 24 * MINUTES_IN_HOUR,
         },
         [StorageKey.TRENDING_TAG_TOOTS]: {
-            numMinutesUntilStale: 15,
+            minutesUntilStale: 15,
         },
         backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -198,7 +198,7 @@ export const Config: ConfigType = {
         maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
-        staleDataDefaultMinutes: 10,            // Default how long to wait before considering data stale
+        minutesUntilStaleDefault: 10,            // Default how long to wait before considering data stale
         staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
         timeoutMS: 5_000,                       // Timeout for API calls
     },
@@ -427,8 +427,8 @@ if (isQuickMode) {
 
 // Debug mode settings
 if (isDebugMode) {
-    Config.api[StorageKey.NOTIFICATIONS]!.numMinutesUntilStale = 1;
-    Config.api[StorageKey.RECENT_USER_TOOTS]!.numMinutesUntilStale = 1;
+    Config.api[StorageKey.NOTIFICATIONS]!.minutesUntilStale = 1;
+    Config.api[StorageKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
     Config.api.maxRecordsForFeatureScoring = 20_000;
     Config.toots.saveChangesIntervalSeconds = 5;
 };
@@ -449,7 +449,7 @@ if (isLoadTest) {
 // Validate and set a few derived values in the config
 function validateConfig(cfg: ConfigType | object): void {
     // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.api[k as StorageKey]?.numMinutesUntilStale);
+    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.api[k as StorageKey]?.minutesUntilStale);
     Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
 
     // Check that all the values are valid

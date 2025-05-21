@@ -192,7 +192,7 @@ class Storage {
         }
         ;
         const dataAgeInMinutes = (0, time_helpers_1.ageInMinutes)(withTimestamp.updatedAt);
-        const staleAfterMinutes = config_1.Config.api[key]?.numMinutesUntilStale || config_1.Config.api.staleDataDefaultMinutes;
+        const staleAfterMinutes = config_1.Config.api[key]?.minutesUntilStale || config_1.Config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${(0, string_helpers_1.toLocaleInt)(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;

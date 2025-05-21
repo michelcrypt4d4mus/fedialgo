@@ -203,7 +203,7 @@ export default class Storage {
         };
 
         const dataAgeInMinutes = ageInMinutes(withTimestamp.updatedAt);
-        const staleAfterMinutes = Config.api[key]?.numMinutesUntilStale || Config.api.staleDataDefaultMinutes;
+        const staleAfterMinutes = Config.api[key]?.minutesUntilStale || Config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${toLocaleInt(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${toLocaleInt(staleAfterMinutes)})`;
         let isStale = false;

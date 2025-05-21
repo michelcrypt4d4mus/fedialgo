@@ -11,7 +11,7 @@ type ApiRequestDefaults = {
     initialMaxRecords?: number;
     limit?: number;
     lookbackForUpdatesMinutes?: number;
-    numMinutesUntilStale?: number;
+    minutesUntilStale?: number;
     supportsMinMaxId?: boolean;
 };
 type ApiConfigBase = {
@@ -24,8 +24,8 @@ interface ApiConfig extends ApiConfigBase {
     maxConcurrentRequestsBackground: number;
     maxConcurrentRequestsInitial: number;
     maxRecordsForFeatureScoring: number;
+    minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    staleDataDefaultMinutes: number;
     staleDataTrendingMinutes: number;
     timeoutMS: number;
 }
