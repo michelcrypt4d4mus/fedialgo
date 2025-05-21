@@ -13,15 +13,15 @@ export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
 export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
 export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 
+// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
+export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
+
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
-
-// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
-export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
-export const MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 
 type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
