@@ -3,7 +3,7 @@
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { Config } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, StorageKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 import { traceLog } from "./log_helpers";
 
 
@@ -51,7 +51,7 @@ export async function batchMap<T>(
 
 
 // Check if the elements of 'array' are as unique as they should be
-export function checkUniqueIDs(array: MastodonObjWithID[], label: StorageKey): void {
+export function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void {
     const logPrefix = `[${label}]`;
     // traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
@@ -199,7 +199,7 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
     return (value: string): value is E => enumValues.includes(value);
 };
 
-export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
+export const isStorageKey = (value: string) => isValueInStringEnum(CacheKey)(value);
 
 
 // Build a dictionary from the result of keyFxn() for each object in the array

@@ -80,8 +80,8 @@ class MastoApi {
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         // Initialize mutexes for each StorageKey
-        this.mutexes = Object.keys(types_1.StorageKey).reduce((acc, key) => {
-            acc[types_1.StorageKey[key]] = new async_mutex_1.Mutex();
+        this.mutexes = Object.keys(types_1.CacheKey).reduce((acc, key) => {
+            acc[types_1.CacheKey[key]] = new async_mutex_1.Mutex();
             return acc;
         }, {});
     }
@@ -89,10 +89,10 @@ class MastoApi {
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
-        const storageKey = types_1.StorageKey.HOME_TIMELINE;
-        const logPrefix = (0, string_helpers_1.bracketed)(storageKey);
+        const cacheKey = types_1.CacheKey.HOME_TIMELINE;
+        const logPrefix = (0, string_helpers_1.bracketed)(cacheKey);
         const startedAt = new Date();
-        let homeTimelineToots = await Storage_1.default.getCoerced(storageKey);
+        let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
         let allNewToots = [];
         let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
@@ -105,7 +105,7 @@ class MastoApi {
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-            const lookbackSeconds = config_1.Config.api[types_1.StorageKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes * 60;
+            const lookbackSeconds = config_1.Config.api.data[types_1.CacheKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes * 60;
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
@@ -114,7 +114,7 @@ class MastoApi {
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiRecords({
             fetch: this.api.v1.timelines.home.list,
-            storageKey: storageKey,
+            cacheKey: cacheKey,
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,
@@ -127,7 +127,7 @@ class MastoApi {
                 }
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
                 console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
-                const newToots = await toot_1.default.buildToots(newStatuses, storageKey);
+                const newToots = await toot_1.default.buildToots(newStatuses, cacheKey);
                 await mergeTootsToFeed(newToots, logPrefix);
                 allNewToots = allNewToots.concat(newToots);
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
@@ -137,19 +137,19 @@ class MastoApi {
                 }
             }
         });
-        homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], storageKey);
+        homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], cacheKey);
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots); // TODO: should we sort by score?
         homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.Config.toots.maxCachedTimelineToots, logPrefix);
-        await Storage_1.default.set(storageKey, homeTimelineToots);
+        await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
     // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts() {
         return await this.getApiRecords({
             fetch: this.api.v1.blocks.list,
-            storageKey: types_1.StorageKey.BLOCKED_ACCOUNTS
+            cacheKey: types_1.CacheKey.BLOCKED_ACCOUNTS
         });
     }
     // Generic data getter for things we want to cache but require custom fetch logic
@@ -179,7 +179,7 @@ class MastoApi {
     async getFavouritedToots(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
-            storageKey: types_1.StorageKey.FAVOURITED_TOOTS,
+            cacheKey: types_1.CacheKey.FAVOURITED_TOOTS,
             ...(params || {})
         });
     }
@@ -187,7 +187,7 @@ class MastoApi {
     async getFollowedAccounts(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            storageKey: types_1.StorageKey.FOLLOWED_ACCOUNTS,
+            cacheKey: types_1.CacheKey.FOLLOWED_ACCOUNTS,
             processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         });
@@ -196,7 +196,7 @@ class MastoApi {
     async getFollowedTags(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
-            storageKey: types_1.StorageKey.FOLLOWED_TAGS,
+            cacheKey: types_1.CacheKey.FOLLOWED_TAGS,
             processFxn: (tag) => (0, tag_1.repairTag)(tag),
             ...(params || {})
         });
@@ -205,7 +205,7 @@ class MastoApi {
     async getMutedAccounts(params) {
         const mutedAccounts = await this.getApiRecords({
             fetch: this.api.v1.mutes.list,
-            storageKey: types_1.StorageKey.MUTED_ACCOUNTS,
+            cacheKey: types_1.CacheKey.MUTED_ACCOUNTS,
             ...(params || {})
         });
         const blockedAccounts = await this.getBlockedAccounts();
@@ -215,7 +215,7 @@ class MastoApi {
     async getNotifications(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
-            storageKey: types_1.StorageKey.NOTIFICATIONS,
+            cacheKey: types_1.CacheKey.NOTIFICATIONS,
             ...(params || {})
         });
     }
@@ -224,18 +224,18 @@ class MastoApi {
     async getRecentUserToots(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            storageKey: types_1.StorageKey.RECENT_USER_TOOTS,
+            cacheKey: types_1.CacheKey.RECENT_USER_TOOTS,
             ...(params || {})
         });
     }
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
-        const logPrefix = (0, string_helpers_1.bracketed)(types_1.StorageKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[types_1.StorageKey.SERVER_SIDE_FILTERS], logPrefix);
+        const logPrefix = (0, string_helpers_1.bracketed)(types_1.CacheKey.SERVER_SIDE_FILTERS);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[types_1.CacheKey.SERVER_SIDE_FILTERS], logPrefix);
         const startTime = new Date();
         try {
-            let filters = await Storage_1.default.getIfNotStale(types_1.StorageKey.SERVER_SIDE_FILTERS);
+            let filters = await Storage_1.default.getIfNotStale(types_1.CacheKey.SERVER_SIDE_FILTERS);
             if (!filters) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -248,7 +248,7 @@ class MastoApi {
                     return true;
                 });
                 console.log(`${logPrefix} Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
-                await Storage_1.default.set(types_1.StorageKey.SERVER_SIDE_FILTERS, filters);
+                await Storage_1.default.set(types_1.CacheKey.SERVER_SIDE_FILTERS, filters);
             }
             return filters;
         }
@@ -295,7 +295,7 @@ class MastoApi {
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                storageKey: types_1.StorageKey.HASHTAG_TOOTS,
+                cacheKey: types_1.CacheKey.HASHTAG_TOOTS,
                 maxRecords: maxRecords,
                 skipCache: true,
                 skipMutex: true,
@@ -369,25 +369,25 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(params) {
-        let { breakIf, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex, storageKey } = params;
-        let logPfx = `${(0, string_helpers_1.bracketed)(storageKey)}`;
+        let { breakIf, cacheKey, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
+        let logPfx = `${(0, string_helpers_1.bracketed)(cacheKey)}`;
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
-        const requestDefaults = config_1.Config.api[storageKey];
+        const requestDefaults = config_1.Config.api.data[cacheKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
         const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.Config.api.defaultRecordsPerPage); // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
         let minId; // Used for incremental loading when data is stale (if supported)
         // Skip mutex for requests that aren't trying to get at the same data
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[storageKey], logPfx);
+        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logPfx);
         const startedAt = new Date();
         let pageNumber = 0;
         let rows = [];
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
             if (!skipCache) {
-                const cachedData = await Storage_1.default.getWithStaleness(storageKey);
+                const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
                 if (cachedData?.obj) {
                     // Return the cachedRows if they exist, the data is not stale, and moar is false
                     const cachedRows = cachedData.obj;
@@ -443,11 +443,11 @@ class MastoApi {
         finally {
             releaseMutex?.();
         }
-        const objs = this.buildFromApiObjects(storageKey, rows);
+        const objs = this.buildFromApiObjects(cacheKey, rows);
         if (processFxn)
             objs.forEach(obj => obj && processFxn(obj));
         if (!skipCache)
-            await Storage_1.default.set(storageKey, objs);
+            await Storage_1.default.set(cacheKey, objs);
         return objs;
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html

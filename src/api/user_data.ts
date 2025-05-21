@@ -8,7 +8,7 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, StorageKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
+import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
 import { buildTagNames, countTags } from "./objects/tag";
 import { Config } from "../config";
 import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
@@ -65,7 +65,7 @@ export default class UserData {
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale(): Promise<boolean> {
-        return await Storage.isDataStale(StorageKey.MUTED_ACCOUNTS);
+        return await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
     }
 
     // Pull latest user's data from cache and/or API

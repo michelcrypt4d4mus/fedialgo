@@ -1,6 +1,6 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingStorage, Weights } from "./types";
+import { CacheKey, FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingStorage, Weights } from "./types";
 type StorableObjWithStaleness = {
     isStale: boolean;
     obj: StorableObjWithCache;
@@ -11,13 +11,13 @@ export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export default class Storage {
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
-    static getCoerced<T>(key: StorageKey): Promise<T[]>;
+    static getCoerced<T>(key: CacheKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
-    static getIfNotStale<T extends StorableObjWithCache>(key: StorageKey): Promise<T | null>;
+    static getIfNotStale<T extends StorableObjWithCache>(key: CacheKey): Promise<T | null>;
     static getTrendingData(): Promise<TrendingStorage>;
     static getWeights(): Promise<Weights>;
-    static getWithStaleness(key: StorageKey): Promise<StorableObjWithStaleness | null>;
-    static isDataStale(key: StorageKey): Promise<boolean>;
+    static getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null>;
+    static isDataStale(key: CacheKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;
     static logAppOpen(): Promise<void>;
     static remove(key: StorageKey): Promise<void>;

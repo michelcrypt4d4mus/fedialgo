@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setLocale = exports.Config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.Config = exports.ConfigClass = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -25,69 +25,10 @@ exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 ;
 ;
 ;
+;
 // App level config that is not user configurable
-exports.Config = {
-    api: {
-        [types_1.StorageKey.BLOCKED_ACCOUNTS]: {
-            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FAVOURITED_TOOTS]: {
-            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-            minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FOLLOWED_ACCOUNTS]: {
-            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            limit: 80,
-            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.FOLLOWED_TAGS]: {
-            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            limit: 100,
-            minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.HOME_TIMELINE]: {
-            initialMaxRecords: 800,
-            lookbackForUpdatesMinutes: 180,
-            supportsMinMaxId: true,
-        },
-        [types_1.StorageKey.MUTED_ACCOUNTS]: {
-            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.PARTICIPATED_TAG_TOOTS]: {
-            minutesUntilStale: 15,
-        },
-        [types_1.StorageKey.NOTIFICATIONS]: {
-            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-            limit: 80,
-            minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
-            supportsMinMaxId: true,
-        },
-        [types_1.StorageKey.RECENT_USER_TOOTS]: {
-            initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-            minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
-            supportsMinMaxId: true,
-        },
-        [types_1.StorageKey.SERVER_SIDE_FILTERS]: {
-            initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
-        },
-        [types_1.StorageKey.TRENDING_TAG_TOOTS]: {
-            minutesUntilStale: 15,
-        },
+class ConfigClass {
+    api = {
         backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 3,
@@ -97,9 +38,77 @@ exports.Config = {
         mutexWarnSeconds: 5,
         minutesUntilStaleDefault: 10,
         staleDataTrendingMinutes: 60,
-        timeoutMS: 5000, // Timeout for API calls
-    },
-    fediverse: {
+        timeoutMS: 5000,
+        data: {
+            [types_1.CacheKey.BLOCKED_ACCOUNTS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FAVOURITED_TOOTS]: {
+                initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FOLLOWED_ACCOUNTS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                limit: 80,
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.FOLLOWED_TAGS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                limit: 100,
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.HASHTAG_TOOTS]: {
+            // TODO: this is here for the mutexes but nothing is actually cached
+            },
+            [types_1.CacheKey.HOME_TIMELINE]: {
+                initialMaxRecords: 800,
+                lookbackForUpdatesMinutes: 180,
+                supportsMinMaxId: true,
+            },
+            [types_1.CacheKey.MUTED_ACCOUNTS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 15,
+            },
+            [types_1.CacheKey.NOTIFICATIONS]: {
+                initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+                limit: 80,
+                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+                supportsMinMaxId: true,
+            },
+            [types_1.CacheKey.RECENT_USER_TOOTS]: {
+                initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+                minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
+                supportsMinMaxId: true,
+            },
+            [types_1.CacheKey.SERVER_SIDE_FILTERS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+            },
+            [types_1.CacheKey.TIMELINE]: {
+            // TODO: shouldn't have to configure this empty object but we do for typing reasons
+            },
+            [types_1.CacheKey.TRENDING_TAG_TOOTS]: {
+                minutesUntilStale: 15,
+            },
+        },
+    };
+    fediverse = {
         minServerMAU: 100,
         numServersToCheck: 30,
         // Popular servers that are used as fallbacks if the user isn't following accounts on enough
@@ -222,22 +231,22 @@ exports.Config = {
             "med-mastodon.com",
             "toot.io",
         ],
-    },
-    gui: {
+    };
+    gui = {
         isAppFilterVisible: false, // 99% of toots don't have the app field set so don't show the filter section
-    },
-    locale: {
+    };
+    locale = {
         country: DEFAULT_COUNTRY,
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
-    },
-    participatedTags: {
+    };
+    participatedTags = {
         maxToots: 200,
         numTags: 30,
         numTootsPerTag: 10, // How many toots to pull for each participated tag
-    },
-    scoring: {
+    };
+    scoring = {
         excessiveTags: 25,
         excessiveTagsPenalty: 0.1,
         nonScoreWeightMinValue: 0.001,
@@ -259,16 +268,16 @@ exports.Config = {
         minTrendingTagTootsForPenalty: 9,
         scoringBatchSize: 100,
         timelineDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
-    },
-    toots: {
+    };
+    toots = {
         batchCompleteTootsSleepBetweenMS: 250,
         batchCompleteTootsSize: 25,
         maxAgeInDays: 7,
         maxCachedTimelineToots: 3000,
         saveChangesIntervalSeconds: 30,
         tootsCompleteAfterMinutes: exports.MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
-    },
-    trending: {
+    };
+    trending = {
         links: {
             numTrendingLinksPerServer: 20, // How many trending links to pull from each server
         },
@@ -286,32 +295,53 @@ exports.Config = {
         toots: {
             numTrendingTootsPerServer: 30, // How many trending toots to pull per server // TODO: unused?
         },
-    },
-};
-function setLocale(locale) {
-    locale ??= DEFAULT_LOCALE;
-    if (!LOCALE_REGEX.test(locale)) {
-        console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
-        return;
+    };
+    constructor() {
+        // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+        const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale);
+        this.api.staleDataTrendingMinutes = Math.min(...trendStalenesses);
+        this.validate();
     }
-    exports.Config.locale.locale = locale;
-    const [language, country] = locale.split("-");
-    exports.Config.locale.country = country || DEFAULT_COUNTRY;
-    if (language) {
-        if (language == DEFAULT_LANGUAGE || language in exports.Config.fediverse.foreignLanguageServers) {
-            exports.Config.locale.language = language;
+    ;
+    setLocale(locale) {
+        locale ??= DEFAULT_LOCALE;
+        if (!LOCALE_REGEX.test(locale)) {
+            console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            return;
         }
-        else {
-            console.warn(`Language "${language}" not supported, using default "${exports.Config.locale.defaultLanguage}"`);
+        this.locale.locale = locale;
+        const [language, country] = locale.split("-");
+        this.locale.country = country || DEFAULT_COUNTRY;
+        if (language) {
+            if (language == DEFAULT_LANGUAGE || language in this.fediverse.foreignLanguageServers) {
+                this.locale.language = language;
+            }
+            else {
+                console.warn(`Language "${language}" not supported, using default "${this.locale.defaultLanguage}"`);
+            }
         }
+    }
+    validate(cfg) {
+        cfg ??= this;
+        // Check that all the values are valid
+        Object.entries(cfg).forEach(([key, value]) => {
+            if (typeof value === "object") {
+                this.validate(value);
+            }
+            else if (typeof value == "number" && isNaN(value)) {
+                (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is NaN`);
+            }
+        });
+        (0, log_helpers_1.traceLog)("[Config] validated config:", exports.Config);
     }
 }
-exports.setLocale = setLocale;
+exports.ConfigClass = ConfigClass;
 ;
+exports.Config = new ConfigClass();
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 400;
-    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
+    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
+    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
     exports.Config.api.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
     exports.Config.api.maxRecordsForFeatureScoring = 480;
     exports.Config.participatedTags.numTags = 20;
@@ -319,15 +349,15 @@ if (environment_helpers_1.isQuickMode) {
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.api[types_1.StorageKey.NOTIFICATIONS].minutesUntilStale = 1;
-    exports.Config.api[types_1.StorageKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
+    exports.Config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
+    exports.Config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
     exports.Config.api.maxRecordsForFeatureScoring = 20000;
     exports.Config.toots.saveChangesIntervalSeconds = 5;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    exports.Config.api[types_1.StorageKey.HOME_TIMELINE].initialMaxRecords = 2500;
+    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
     exports.Config.toots.maxCachedTimelineToots = 5000;
     exports.Config.api.maxRecordsForFeatureScoring = 1500;
     exports.Config.participatedTags.maxToots = 500;
@@ -337,22 +367,4 @@ if (environment_helpers_1.isLoadTest) {
     exports.Config.trending.tags.numTags = 40;
 }
 ;
-// Validate and set a few derived values in the config
-function validateConfig(cfg) {
-    // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => exports.Config.api[k]?.minutesUntilStale);
-    exports.Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses);
-    // Check that all the values are valid
-    Object.entries(cfg).forEach(([key, value]) => {
-        if (typeof value === "object") {
-            validateConfig(value);
-        }
-        else if (typeof value == "number" && isNaN(value)) {
-            (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is NaN`);
-        }
-    });
-}
-;
-validateConfig(exports.Config);
-(0, log_helpers_1.traceLog)("[Config] validated config:", exports.Config);
 //# sourceMappingURL=config.js.map

@@ -168,7 +168,7 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-const isStorageKey = (value) => isValueInStringEnum(types_1.StorageKey)(value);
+const isStorageKey = (value) => isValueInStringEnum(types_1.CacheKey)(value);
 exports.isStorageKey = isStorageKey;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {

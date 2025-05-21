@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, NonScoreWeightName, StorageKey } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, NonScoreWeightName, CacheKey } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
@@ -31,13 +31,14 @@ type ApiRequestDefaults = {
     supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
 };
 
-type ApiConfigBase = {
-    [key in StorageKey]?: ApiRequestDefaults;
+type ApiDataConfig = {
+    [key in CacheKey]?: ApiRequestDefaults;
 };
 
 // See Config object for comments explaining these and other values
-interface ApiConfig extends ApiConfigBase {
+interface ApiConfig {
     backgroundLoadIntervalSeconds: number;
+    data: ApiDataConfig;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentRequestsBackground: number;
@@ -116,7 +117,7 @@ type TrendingConfig = {
 
 
 // See Config for comments explaining these values
-export type ConfigType = {
+interface ConfigType {
     api: ApiConfig;
     fediverse: FediverseConfig;
     gui: GuiConfig;
@@ -129,68 +130,8 @@ export type ConfigType = {
 
 
 // App level config that is not user configurable
-export const Config: ConfigType = {
-    api: {
-        [StorageKey.BLOCKED_ACCOUNTS]: {
-            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 12 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FAVOURITED_TOOTS]: {
-            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
-            minutesUntilStale: 12 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FEDIVERSE_POPULAR_SERVERS]: {
-            minutesUntilStale: 24 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FEDIVERSE_TRENDING_LINKS]: {
-            minutesUntilStale: 4 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FEDIVERSE_TRENDING_TAGS]: {
-            minutesUntilStale: 4 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FEDIVERSE_TRENDING_TOOTS]: {
-            minutesUntilStale: 4 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FOLLOWED_ACCOUNTS]: {
-            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            limit: 80,
-            minutesUntilStale: 4 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.FOLLOWED_TAGS]: {
-            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            limit: 100,
-            minutesUntilStale: 4 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.HOME_TIMELINE]: {
-            initialMaxRecords: 800,
-            lookbackForUpdatesMinutes: 180,    // How long to look back for updates (edits, increased reblogs, etc.)
-            supportsMinMaxId: true,
-        },
-        [StorageKey.MUTED_ACCOUNTS]: {
-            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 12 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.PARTICIPATED_TAG_TOOTS]: {
-            minutesUntilStale: 15,
-        },
-        [StorageKey.NOTIFICATIONS]: {
-            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
-            limit: 80,
-            minutesUntilStale: 6 * MINUTES_IN_HOUR,
-            supportsMinMaxId: true,
-        },
-        [StorageKey.RECENT_USER_TOOTS]: {
-            initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
-            minutesUntilStale: 2 * MINUTES_IN_HOUR,
-            supportsMinMaxId: true,
-        },
-        [StorageKey.SERVER_SIDE_FILTERS]: {
-            initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-            minutesUntilStale: 24 * MINUTES_IN_HOUR,
-        },
-        [StorageKey.TRENDING_TAG_TOOTS]: {
-            minutesUntilStale: 15,
-        },
+export class ConfigClass implements ConfigType {
+    api = {
         backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
@@ -201,8 +142,77 @@ export const Config: ConfigType = {
         minutesUntilStaleDefault: 10,            // Default how long to wait before considering data stale
         staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
         timeoutMS: 5_000,                       // Timeout for API calls
-    },
-    fediverse: {
+        data: {
+            [CacheKey.BLOCKED_ACCOUNTS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 12 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FAVOURITED_TOOTS]: {
+                initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+                minutesUntilStale: 12 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+                minutesUntilStale: 24 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FOLLOWED_ACCOUNTS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                limit: 80,
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FOLLOWED_TAGS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                limit: 100,
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.HASHTAG_TOOTS]: {
+                // TODO: this is here for the mutexes but nothing is actually cached
+            },
+            [CacheKey.HOME_TIMELINE]: {
+                initialMaxRecords: 800,
+                lookbackForUpdatesMinutes: 180,    // How long to look back for updates (edits, increased reblogs, etc.)
+                supportsMinMaxId: true,
+            },
+            [CacheKey.MUTED_ACCOUNTS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 12 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 15,
+            },
+            [CacheKey.NOTIFICATIONS]: {
+                initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+                limit: 80,
+                minutesUntilStale: 6 * MINUTES_IN_HOUR,
+                supportsMinMaxId: true,
+            },
+            [CacheKey.RECENT_USER_TOOTS]: {
+                initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+                minutesUntilStale: 2 * MINUTES_IN_HOUR,
+                supportsMinMaxId: true,
+            },
+            [CacheKey.SERVER_SIDE_FILTERS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 24 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.TIMELINE]: {
+                // TODO: shouldn't have to configure this empty object but we do for typing reasons
+            },
+            [CacheKey.TRENDING_TAG_TOOTS]: {
+                minutesUntilStale: 15,
+            },
+        } as ApiDataConfig,
+    }
+
+    fediverse = {
         minServerMAU: 100,                      // Minimum MAU for a server to be considered for trending toots/tags
         numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
         // Popular servers that are used as fallbacks if the user isn't following accounts on enough
@@ -302,7 +312,7 @@ export const Config: ConfigType = {
                 "g0v.social",
                 "link.baai.ac.cn",
             ],
-        },
+        } as Record<string, string[]>,
         // Non-mastodon servers and/or servers that don't make the MAU data available publicly
         noMauServers: [
             "agora.echelon.pl",
@@ -325,22 +335,26 @@ export const Config: ConfigType = {
             "med-mastodon.com",
             "toot.io",
         ],
-    },
-    gui: {
+    }
+
+    gui = {
         isAppFilterVisible: false,              // 99% of toots don't have the app field set so don't show the filter section
-    },
-    locale: {
+    }
+
+    locale = {
         country: DEFAULT_COUNTRY,
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
-    },
-    participatedTags: {
+    }
+
+    participatedTags = {
         maxToots: 200,                          // How many total toots to include for the user's most participated tags
         numTags: 30,                            // Pull toots for this many of the user's most participated tags
         numTootsPerTag: 10,                     // How many toots to pull for each participated tag
-    },
-    scoring: {
+    }
+
+    scoring = {
         excessiveTags: 25,                      // Toots with more than this many tags will be penalized
         excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
         nonScoreWeightMinValue: 0.001,          // Minimum value for non-score weights (trending, time decay, etc.)
@@ -362,16 +376,18 @@ export const Config: ConfigType = {
         minTrendingTagTootsForPenalty: 9,       // Minimum number of toots with a trending tag before DiversityFeedScorer applies a penalty
         scoringBatchSize: 100,                  // How many toots to score at once
         timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
-    },
-    toots: {
+    }
+
+    toots = {
         batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeToots() calls
         batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
         maxCachedTimelineToots: 3_000,          // How many toots to keep in memory maximum. Larger cache doesn't seem to impact performance much
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         tootsCompleteAfterMinutes: MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
-    },
-    trending: {
+    }
+
+    trending = {
         links: {
             numTrendingLinksPerServer: 20,      // How many trending links to pull from each server
         },
@@ -389,36 +405,60 @@ export const Config: ConfigType = {
         toots: {
             numTrendingTootsPerServer: 30,      // How many trending toots to pull per server // TODO: unused?
         },
-    },
-};
-
-
-export function setLocale(locale?: string): void {
-    locale ??= DEFAULT_LOCALE;
-
-    if (!LOCALE_REGEX.test(locale)) {
-        console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
-        return;
     }
 
-    Config.locale.locale = locale;
-    const [language, country] = locale.split("-");
-    Config.locale.country = country || DEFAULT_COUNTRY;
+    constructor() {
+        // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
+        const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale);
+        this.api.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
+        this.validate();
+    };
 
-    if (language) {
-        if (language == DEFAULT_LANGUAGE || language in Config.fediverse.foreignLanguageServers) {
-            Config.locale.language = language;
-        } else {
-            console.warn(`Language "${language}" not supported, using default "${Config.locale.defaultLanguage}"`);
+    setLocale(locale?: string): void {
+        locale ??= DEFAULT_LOCALE;
+
+        if (!LOCALE_REGEX.test(locale)) {
+            console.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            return;
+        }
+
+        this.locale.locale = locale;
+        const [language, country] = locale.split("-");
+        this.locale.country = country || DEFAULT_COUNTRY;
+
+        if (language) {
+            if (language == DEFAULT_LANGUAGE || language in this.fediverse.foreignLanguageServers) {
+                this.locale.language = language;
+            } else {
+                console.warn(`Language "${language}" not supported, using default "${this.locale.defaultLanguage}"`);
+            }
         }
     }
+
+    validate(cfg?: ConfigType | object): void {
+        cfg ??= this;
+
+        // Check that all the values are valid
+        Object.entries(cfg).forEach(([key, value]) => {
+            if (typeof value === "object") {
+                this.validate(value);
+            } else if (typeof value == "number" && isNaN(value)) {
+                logAndThrowError(`Config value at ${key} is NaN`);
+            }
+        });
+
+        traceLog("[Config] validated config:", Config);
+    }
 };
+
+
+export const Config = new ConfigClass();
 
 
 // Quick load mode settings
 if (isQuickMode) {
-    Config.api[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 400;
-    Config.api[StorageKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
+    Config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 400;
+    Config.api.data[CacheKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
     Config.api.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
     Config.api.maxRecordsForFeatureScoring = 480;
     Config.participatedTags.numTags = 20;
@@ -427,15 +467,15 @@ if (isQuickMode) {
 
 // Debug mode settings
 if (isDebugMode) {
-    Config.api[StorageKey.NOTIFICATIONS]!.minutesUntilStale = 1;
-    Config.api[StorageKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
+    Config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 1;
+    Config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
     Config.api.maxRecordsForFeatureScoring = 20_000;
     Config.toots.saveChangesIntervalSeconds = 5;
 };
 
 // Heavy load test settings
 if (isLoadTest) {
-    Config.api[StorageKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
+    Config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
     Config.toots.maxCachedTimelineToots = 5_000;
     Config.api.maxRecordsForFeatureScoring = 1_500;
     Config.participatedTags.maxToots = 500;
@@ -444,23 +484,3 @@ if (isLoadTest) {
     Config.trending.tags.maxToots = 1_000;
     Config.trending.tags.numTags = 40;
 };
-
-
-// Validate and set a few derived values in the config
-function validateConfig(cfg: ConfigType | object): void {
-    // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-    const trendStalenesses = FEDIVERSE_KEYS.map(k => Config.api[k as StorageKey]?.minutesUntilStale);
-    Config.api.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
-
-    // Check that all the values are valid
-    Object.entries(cfg).forEach(([key, value]) => {
-        if (typeof value === "object") {
-            validateConfig(value);
-        } else if (typeof value == "number" && isNaN(value)) {
-            logAndThrowError(`Config value at ${key} is NaN`);
-        }
-    });
-};
-
-validateConfig(Config);
-traceLog("[Config] validated config:", Config);

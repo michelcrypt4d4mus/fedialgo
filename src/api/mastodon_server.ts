@@ -22,7 +22,7 @@ import {
     MastodonInstanceEmpty,
     MastodonInstance,
     MastodonInstances,
-    StorageKey,
+    CacheKey,
     TagWithUsageCounts,
     TrendingLink,
     TrendingObj,
@@ -59,7 +59,7 @@ export const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
 );
 
 interface FetchTrendingProps<T extends TrendingObj> {
-    key: StorageKey;
+    key: CacheKey;
     serverFxn: (server: MastodonServer) => Promise<T[]>;
     processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify and anything else needed
 };
@@ -105,7 +105,7 @@ export default class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.sources = [StorageKey.FEDIVERSE_TRENDING_TOOTS];
+            toot.sources = [CacheKey.FEDIVERSE_TRENDING_TOOTS];
         });
 
         return trendingToots;
@@ -197,11 +197,11 @@ export default class MastodonServer {
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
         return await this.fetchTrendingObjsFromAllServers<Toot>({
-            key: StorageKey.FEDIVERSE_TRENDING_TOOTS,
+            key: CacheKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 setTrendingRankToAvg(toots);
-                const trendingToots = await Toot.buildToots(toots, StorageKey.FEDIVERSE_TRENDING_TOOTS);
+                const trendingToots = await Toot.buildToots(toots, CacheKey.FEDIVERSE_TRENDING_TOOTS);
                 return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
             }
         });
@@ -210,7 +210,7 @@ export default class MastodonServer {
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
         return await this.fetchTrendingObjsFromAllServers<TrendingLink>({
-            key: StorageKey.FEDIVERSE_TRENDING_LINKS,
+            key: CacheKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
                 return uniquifyTrendingObjs<TrendingLink>(links, link => link.url);
@@ -221,7 +221,7 @@ export default class MastodonServer {
     // Get the top trending tags from all servers
     static async fediverseTrendingTags(): Promise<TagWithUsageCounts[]> {
         return await this.fetchTrendingObjsFromAllServers<TagWithUsageCounts>({
-            key: StorageKey.FEDIVERSE_TRENDING_TAGS,
+            key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
@@ -232,15 +232,15 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
-        const logPrefix = `[${StorageKey.FEDIVERSE_POPULAR_SERVERS}]`;
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[StorageKey.FEDIVERSE_POPULAR_SERVERS]!, logPrefix);
+        const logPrefix = `[${CacheKey.FEDIVERSE_POPULAR_SERVERS}]`;
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logPrefix);
 
         try {
-            let servers = await Storage.getIfNotStale<MastodonInstances>(StorageKey.FEDIVERSE_POPULAR_SERVERS);
+            let servers = await Storage.getIfNotStale<MastodonInstances>(CacheKey.FEDIVERSE_POPULAR_SERVERS);
 
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                await Storage.set(StorageKey.FEDIVERSE_POPULAR_SERVERS, servers);
+                await Storage.set(CacheKey.FEDIVERSE_POPULAR_SERVERS, servers);
             }
 
             return servers;
@@ -261,8 +261,8 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
-        const logPrefix = `[${StorageKey.FEDIVERSE_POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        traceLog(`${logPrefix} fetching ${StorageKey.FEDIVERSE_POPULAR_SERVERS} info...`);
+        const logPrefix = `[${CacheKey.FEDIVERSE_POPULAR_SERVERS}] fetchMastodonServersInfo():`;
+        traceLog(`${logPrefix} fetching ${CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
@@ -326,7 +326,7 @@ export default class MastodonServer {
             (a, b) => servers[b].followedPctOfMAU! - servers[a].followedPctOfMAU!
         );
 
-        console.debug(`[${StorageKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        console.debug(`[${CacheKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
         return topServerDomains;
     }
 

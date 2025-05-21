@@ -175,7 +175,7 @@ class TheAlgorithm {
     }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
-        (0, config_1.setLocale)(params.locale);
+        config_1.Config.setLocale(params.locale);
         const user = account_1.default.build(params.user);
         await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
@@ -490,9 +490,9 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
-        this.feed = await Storage_1.default.getCoerced(types_1.StorageKey.TIMELINE);
-        this.homeFeed = await Storage_1.default.getCoerced(types_1.StorageKey.HOME_TIMELINE);
-        this.mastodonServers = (await Storage_1.default.get(types_1.StorageKey.FEDIVERSE_POPULAR_SERVERS) || {});
+        this.feed = await Storage_1.default.getCoerced(types_1.CacheKey.TIMELINE);
+        this.homeFeed = await Storage_1.default.getCoerced(types_1.CacheKey.HOME_TIMELINE);
+        this.mastodonServers = (await Storage_1.default.get(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS) || {});
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
@@ -555,7 +555,7 @@ class TheAlgorithm {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
-        await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
+        await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
@@ -609,7 +609,7 @@ class TheAlgorithm {
         if (this.totalNumTimesShown == newTotalNumTimesShown)
             return;
         console.debug(`[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown (old: ${this.totalNumTimesShown})`);
-        await Storage_1.default.set(types_1.StorageKey.TIMELINE, this.feed);
+        await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
         this.totalNumTimesShown = newTotalNumTimesShown;
     }
 }

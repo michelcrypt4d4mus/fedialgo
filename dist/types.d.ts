@@ -33,15 +33,13 @@ export declare enum NonScoreWeightName {
     OUTLIER_DAMPENER = "OutlierDampener"
 }
 export type WeightName = ScoreName | NonScoreWeightName;
-export declare enum StorageKey {
-    APP_OPENS = "AppOpens",
+export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",
     FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
     FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
     FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
     FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
-    FILTERS = "Filters",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     HASHTAG_TOOTS = "HashtagToots",
@@ -52,18 +50,23 @@ export declare enum StorageKey {
     RECENT_USER_TOOTS = "RecentUserToots",
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE = "Timeline",
-    TRENDING_TAG_TOOTS = "TrendingTagToots",
+    TRENDING_TAG_TOOTS = "TrendingTagToots"
+}
+export declare enum AlgorithmStorageKey {
+    APP_OPENS = "AppOpens",
+    FILTERS = "Filters",
     USER = "FedialgoUser",
     WEIGHTS = "Weights"
 }
-export declare const FEDIVERSE_KEYS: StorageKey[];
+export type StorageKey = AlgorithmStorageKey | CacheKey;
+export declare const FEDIVERSE_KEYS: CacheKey[];
 export declare enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video"
 }
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
-export type ApiMutex = Record<StorageKey, Mutex>;
+export type ApiMutex = Record<CacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;

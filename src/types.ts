@@ -43,15 +43,13 @@ export enum NonScoreWeightName {
 export type WeightName = ScoreName | NonScoreWeightName;
 
 // Keys that are valid for local browser storage.
-export enum StorageKey {
-    APP_OPENS = "AppOpens",
+export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_TOOTS = 'FavouritedToots',
     FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
     FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
     FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
     FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
-    FILTERS = 'Filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
@@ -63,15 +61,22 @@ export enum StorageKey {
     SERVER_SIDE_FILTERS = 'ServerFilters',
     TIMELINE = 'Timeline',  // The entire time line (home timeline + trending toots etc.)
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
+};
+
+export enum AlgorithmStorageKey {
+    APP_OPENS = 'AppOpens',
+    FILTERS = 'Filters',
     USER = 'FedialgoUser',
     WEIGHTS = 'Weights',
 };
 
+export type StorageKey = AlgorithmStorageKey | CacheKey;
+
 export const FEDIVERSE_KEYS = [
-    StorageKey.FEDIVERSE_POPULAR_SERVERS,
-    StorageKey.FEDIVERSE_TRENDING_LINKS,
-    StorageKey.FEDIVERSE_TRENDING_TAGS,
-    StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    CacheKey.FEDIVERSE_TRENDING_LINKS,
+    CacheKey.FEDIVERSE_TRENDING_TAGS,
+    CacheKey.FEDIVERSE_TRENDING_TOOTS,
 ];
 
 
@@ -85,7 +90,7 @@ export enum MediaCategory {
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
-export type ApiMutex = Record<StorageKey, Mutex>;
+export type ApiMutex = Record<CacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type StringNumberDict = Record<string, number>;

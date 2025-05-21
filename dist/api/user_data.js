@@ -48,7 +48,7 @@ class UserData {
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale() {
-        return await Storage_1.default.isDataStale(types_1.StorageKey.MUTED_ACCOUNTS);
+        return await Storage_1.default.isDataStale(types_1.CacheKey.MUTED_ACCOUNTS);
     }
     // Pull latest user's data from cache and/or API
     async populate() {

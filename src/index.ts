@@ -38,7 +38,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
-import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
+import { Config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain, suffixedInt } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -66,7 +66,7 @@ import {
     NonScoreWeightName,
     ScoreName,
     ScoreStats,
-    StorageKey,
+    CacheKey,
     StringNumberDict,
     TagWithUsageCounts,
     TrendingLink,
@@ -181,7 +181,7 @@ class TheAlgorithm {
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
-        setLocale(params.locale);
+        Config.setLocale(params.locale);
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
@@ -532,9 +532,9 @@ class TheAlgorithm {
 
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
-        this.feed = await Storage.getCoerced<Toot>(StorageKey.TIMELINE);
-        this.homeFeed = await Storage.getCoerced<Toot>(StorageKey.HOME_TIMELINE);
-        this.mastodonServers = (await Storage.get(StorageKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
+        this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE);
+        this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE);
+        this.mastodonServers = (await Storage.get(CacheKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
@@ -602,7 +602,7 @@ class TheAlgorithm {
         await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, true);
         this.feed = truncateToConfiguredLength(this.feed, Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
-        await Storage.set(StorageKey.TIMELINE, this.feed);
+        await Storage.set(CacheKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }
 
@@ -656,7 +656,7 @@ class TheAlgorithm {
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown) return;
         console.debug(`[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown (old: ${this.totalNumTimesShown})`);
-        await Storage.set(StorageKey.TIMELINE, this.feed);
+        await Storage.set(CacheKey.TIMELINE, this.feed);
         this.totalNumTimesShown = newTotalNumTimesShown;
     }
 };

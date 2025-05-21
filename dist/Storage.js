@@ -47,26 +47,26 @@ const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 // The cache values at these keys contain SerializedToot objects
 exports.STORAGE_KEYS_WITH_TOOTS = [
-    types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS,
-    types_1.StorageKey.HASHTAG_TOOTS,
-    types_1.StorageKey.HOME_TIMELINE,
-    types_1.StorageKey.PARTICIPATED_TAG_TOOTS,
-    types_1.StorageKey.TIMELINE,
-    types_1.StorageKey.TRENDING_TAG_TOOTS,
+    types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+    types_1.CacheKey.HASHTAG_TOOTS,
+    types_1.CacheKey.HOME_TIMELINE,
+    types_1.CacheKey.PARTICIPATED_TAG_TOOTS,
+    types_1.CacheKey.TIMELINE,
+    types_1.CacheKey.TRENDING_TAG_TOOTS,
     // These don't have completeProperties() called on them, but they are still toots
-    types_1.StorageKey.FAVOURITED_TOOTS,
-    types_1.StorageKey.RECENT_USER_TOOTS,
+    types_1.CacheKey.FAVOURITED_TOOTS,
+    types_1.CacheKey.RECENT_USER_TOOTS,
 ];
 exports.STORAGE_KEYS_WITH_ACCOUNTS = [
-    types_1.StorageKey.BLOCKED_ACCOUNTS,
-    types_1.StorageKey.FOLLOWED_ACCOUNTS,
-    types_1.StorageKey.MUTED_ACCOUNTS,
+    types_1.CacheKey.BLOCKED_ACCOUNTS,
+    types_1.CacheKey.FOLLOWED_ACCOUNTS,
+    types_1.CacheKey.MUTED_ACCOUNTS,
 ];
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
-    types_1.StorageKey.NOTIFICATIONS,
-    types_1.StorageKey.SERVER_SIDE_FILTERS,
+    types_1.CacheKey.NOTIFICATIONS,
+    types_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
 const buildLogMsg = (s) => `${LOG_PREFIX} ${s}`;
@@ -125,18 +125,18 @@ class Storage {
     }
     // Get the user's saved timeline filter settings
     static async getFilters() {
-        const filters = await this.get(types_1.StorageKey.FILTERS);
+        const filters = await this.get(types_1.AlgorithmStorageKey.FILTERS);
         if (!filters)
             return null;
         try {
             if ((0, feed_filters_1.repairFilterSettings)(filters)) {
                 warn(`Repaired old filter settings, updating...`);
-                await this.set(types_1.StorageKey.FILTERS, filters);
+                await this.set(types_1.AlgorithmStorageKey.FILTERS, filters);
             }
         }
         catch (e) {
             error(`Error repairing filter settings, returning null:`, e);
-            await this.remove(types_1.StorageKey.FILTERS);
+            await this.remove(types_1.AlgorithmStorageKey.FILTERS);
             return null;
         }
         // Filters are saved in a serialized format that requires deserialization
@@ -155,14 +155,14 @@ class Storage {
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrendingData() {
         return {
-            links: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_LINKS),
-            tags: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TAGS),
-            toots: await this.getCoerced(types_1.StorageKey.FEDIVERSE_TRENDING_TOOTS),
+            links: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
+            tags: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TAGS),
+            toots: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
     // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeights() {
-        let weights = await this.get(types_1.StorageKey.WEIGHTS);
+        let weights = await this.get(types_1.AlgorithmStorageKey.WEIGHTS);
         if (!weights)
             return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
         let shouldSave = false;
@@ -192,7 +192,7 @@ class Storage {
         }
         ;
         const dataAgeInMinutes = (0, time_helpers_1.ageInMinutes)(withTimestamp.updatedAt);
-        const staleAfterMinutes = config_1.Config.api[key]?.minutesUntilStale || config_1.Config.api.minutesUntilStaleDefault;
+        const staleAfterMinutes = config_1.Config.api.data[key]?.minutesUntilStale || config_1.Config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${(0, string_helpers_1.toLocaleInt)(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
@@ -223,20 +223,20 @@ class Storage {
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async loadUserData() {
         // TODO: unify blocked and muted account logic?
-        const blockedAccounts = await this.getCoerced(types_1.StorageKey.BLOCKED_ACCOUNTS);
-        const mutedAccounts = await this.getCoerced(types_1.StorageKey.MUTED_ACCOUNTS);
+        const blockedAccounts = await this.getCoerced(types_1.CacheKey.BLOCKED_ACCOUNTS);
+        const mutedAccounts = await this.getCoerced(types_1.CacheKey.MUTED_ACCOUNTS);
         return user_data_1.default.buildFromData({
-            favouritedToots: await this.getCoerced(types_1.StorageKey.FAVOURITED_TOOTS),
-            followedAccounts: await this.getCoerced(types_1.StorageKey.FOLLOWED_ACCOUNTS),
-            followedTags: await this.getCoerced(types_1.StorageKey.FOLLOWED_TAGS),
+            favouritedToots: await this.getCoerced(types_1.CacheKey.FAVOURITED_TOOTS),
+            followedAccounts: await this.getCoerced(types_1.CacheKey.FOLLOWED_ACCOUNTS),
+            followedTags: await this.getCoerced(types_1.CacheKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => account_1.default.build(a)),
-            recentToots: await this.getCoerced(types_1.StorageKey.RECENT_USER_TOOTS),
-            serverSideFilters: await this.getCoerced(types_1.StorageKey.SERVER_SIDE_FILTERS),
+            recentToots: await this.getCoerced(types_1.CacheKey.RECENT_USER_TOOTS),
+            serverSideFilters: await this.getCoerced(types_1.CacheKey.SERVER_SIDE_FILTERS),
         });
     }
     static async logAppOpen() {
         let numAppOpens = (await this.getNumAppOpens()) + 1;
-        await this.set(types_1.StorageKey.APP_OPENS, numAppOpens);
+        await this.set(types_1.AlgorithmStorageKey.APP_OPENS, numAppOpens);
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {
@@ -259,28 +259,28 @@ class Storage {
             booleanFilterArgs: Object.values(filters.booleanFilters).map(section => section.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
-        await this.set(types_1.StorageKey.FILTERS, filterSettings);
+        await this.set(types_1.AlgorithmStorageKey.FILTERS, filterSettings);
     }
     // Store the fedialgo user's Account object
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
         trace(`Setting fedialgo user identity to:`, user);
-        await localforage_1.default.setItem(types_1.StorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
+        await localforage_1.default.setItem(types_1.AlgorithmStorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
     }
     static async setWeightings(userWeightings) {
-        await this.set(types_1.StorageKey.WEIGHTS, userWeightings);
+        await this.set(types_1.AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
     // Dump information about the size of the data stored in localForage
     static async storedObjsInfo() {
-        const keyStrings = Object.values(types_1.StorageKey);
-        const keys = await Promise.all(keyStrings.map(k => k == types_1.StorageKey.USER ? k : this.buildKey(k)));
+        const keyStrings = Object.values(types_1.CacheKey);
+        const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
-        storedData[types_1.StorageKey.USER] = await this.getIdentity(); // Stored differently
-        console.log(`Loaded user identity:`, storedData[types_1.StorageKey.USER]);
+        storedData[types_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
+        console.log(`Loaded user identity:`, storedData[types_1.AlgorithmStorageKey.USER]);
         let totalBytes = 0;
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
-                const value = key == types_1.StorageKey.USER ? obj : obj.value;
+                const value = key == types_1.AlgorithmStorageKey.USER ? obj : obj.value;
                 const sizeInBytes = (0, log_helpers_1.sizeOf)(value);
                 totalBytes += sizeInBytes;
                 info[key] = {
@@ -364,12 +364,12 @@ class Storage {
     }
     // Get the user identity from storage
     static async getIdentity() {
-        const user = await localforage_1.default.getItem(types_1.StorageKey.USER);
+        const user = await localforage_1.default.getItem(types_1.AlgorithmStorageKey.USER);
         return user ? (0, class_transformer_1.plainToInstance)(account_1.default, user) : null;
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
-        return await this.get(types_1.StorageKey.APP_OPENS) ?? 0;
+        return await this.get(types_1.AlgorithmStorageKey.APP_OPENS) ?? 0;
     }
     // Get the raw StorableWithTimestamp object
     static async getStorableWithTimestamp(key) {
@@ -378,7 +378,7 @@ class Storage {
     }
     // Get the timestamp the app was last opened // TODO: currently unused
     static async lastOpenedAt() {
-        return await this.updatedAt(types_1.StorageKey.APP_OPENS);
+        return await this.updatedAt(types_1.AlgorithmStorageKey.APP_OPENS);
     }
     // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {
@@ -391,7 +391,7 @@ class Storage {
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
-        const timelineToots = await this.get(types_1.StorageKey.TIMELINE);
+        const timelineToots = await this.get(types_1.CacheKey.TIMELINE);
         if (!timelineToots)
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);

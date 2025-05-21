@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
+exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -33,36 +33,40 @@ var NonScoreWeightName;
 })(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
 // Keys that are valid for local browser storage.
-var StorageKey;
-(function (StorageKey) {
-    StorageKey["APP_OPENS"] = "AppOpens";
-    StorageKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
-    StorageKey["FAVOURITED_TOOTS"] = "FavouritedToots";
-    StorageKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
-    StorageKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
-    StorageKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
-    StorageKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
-    StorageKey["FILTERS"] = "Filters";
-    StorageKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    StorageKey["FOLLOWED_TAGS"] = "FollowedTags";
-    StorageKey["HASHTAG_TOOTS"] = "HashtagToots";
-    StorageKey["HOME_TIMELINE"] = "HomeTimeline";
-    StorageKey["MUTED_ACCOUNTS"] = "MutedAccounts";
-    StorageKey["NOTIFICATIONS"] = "Notifications";
-    StorageKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
-    StorageKey["RECENT_USER_TOOTS"] = "RecentUserToots";
-    StorageKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
-    StorageKey["TIMELINE"] = "Timeline";
-    StorageKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
-    StorageKey["USER"] = "FedialgoUser";
-    StorageKey["WEIGHTS"] = "Weights";
-})(StorageKey || (exports.StorageKey = StorageKey = {}));
+var CacheKey;
+(function (CacheKey) {
+    CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
+    CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
+    CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
+    CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
+    CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
+    CacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
+    CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
+    CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
+    CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
+    CacheKey["HOME_TIMELINE"] = "HomeTimeline";
+    CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
+    CacheKey["NOTIFICATIONS"] = "Notifications";
+    CacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
+    CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
+    CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
+    CacheKey["TIMELINE"] = "Timeline";
+    CacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
+})(CacheKey || (exports.CacheKey = CacheKey = {}));
+;
+var AlgorithmStorageKey;
+(function (AlgorithmStorageKey) {
+    AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
+    AlgorithmStorageKey["FILTERS"] = "Filters";
+    AlgorithmStorageKey["USER"] = "FedialgoUser";
+    AlgorithmStorageKey["WEIGHTS"] = "Weights";
+})(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
 ;
 exports.FEDIVERSE_KEYS = [
-    StorageKey.FEDIVERSE_POPULAR_SERVERS,
-    StorageKey.FEDIVERSE_TRENDING_LINKS,
-    StorageKey.FEDIVERSE_TRENDING_TAGS,
-    StorageKey.FEDIVERSE_TRENDING_TOOTS,
+    CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    CacheKey.FEDIVERSE_TRENDING_LINKS,
+    CacheKey.FEDIVERSE_TRENDING_TAGS,
+    CacheKey.FEDIVERSE_TRENDING_TOOTS,
 ];
 // Self explanatory
 var MediaCategory;

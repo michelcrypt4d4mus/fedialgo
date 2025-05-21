@@ -1,4 +1,4 @@
-import { NonScoreWeightInfoDict, StorageKey } from "./types";
+import { NonScoreWeightInfoDict, CacheKey } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -14,11 +14,12 @@ type ApiRequestDefaults = {
     minutesUntilStale?: number;
     supportsMinMaxId?: boolean;
 };
-type ApiConfigBase = {
-    [key in StorageKey]?: ApiRequestDefaults;
+type ApiDataConfig = {
+    [key in CacheKey]?: ApiRequestDefaults;
 };
-interface ApiConfig extends ApiConfigBase {
+interface ApiConfig {
     backgroundLoadIntervalSeconds: number;
+    data: ApiDataConfig;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentRequestsBackground: number;
@@ -84,7 +85,7 @@ type TrendingConfig = {
     tags: TrendingTagsConfig;
     toots: TrendingTootsConfig;
 };
-export type ConfigType = {
+interface ConfigType {
     api: ApiConfig;
     fediverse: FediverseConfig;
     gui: GuiConfig;
@@ -93,7 +94,89 @@ export type ConfigType = {
     scoring: ScoringConfig;
     toots: TootsConfig;
     trending: TrendingConfig;
-};
-export declare const Config: ConfigType;
-export declare function setLocale(locale?: string): void;
+}
+export declare class ConfigClass implements ConfigType {
+    api: {
+        backgroundLoadIntervalSeconds: number;
+        defaultRecordsPerPage: number;
+        hashtagTootRetrievalDelaySeconds: number;
+        maxConcurrentRequestsInitial: number;
+        maxConcurrentRequestsBackground: number;
+        maxRecordsForFeatureScoring: number;
+        mutexWarnSeconds: number;
+        minutesUntilStaleDefault: number;
+        staleDataTrendingMinutes: number;
+        timeoutMS: number;
+        data: ApiDataConfig;
+    };
+    fediverse: {
+        minServerMAU: number;
+        numServersToCheck: number;
+        defaultServers: string[];
+        foreignLanguageServers: Record<string, string[]>;
+        noMauServers: string[];
+        noTrendingLinksServers: string[];
+    };
+    gui: {
+        isAppFilterVisible: boolean;
+    };
+    locale: {
+        country: string;
+        defaultLanguage: string;
+        language: string;
+        locale: string;
+    };
+    participatedTags: {
+        maxToots: number;
+        numTags: number;
+        numTootsPerTag: number;
+    };
+    scoring: {
+        excessiveTags: number;
+        excessiveTagsPenalty: number;
+        nonScoreWeightMinValue: number;
+        nonScoreWeightsConfig: {
+            TimeDecay: {
+                description: string;
+            };
+            Trending: {
+                description: string;
+            };
+            OutlierDampener: {
+                description: string;
+            };
+        };
+        minTrendingTagTootsForPenalty: number;
+        scoringBatchSize: number;
+        timelineDecayExponent: number;
+    };
+    toots: {
+        batchCompleteTootsSleepBetweenMS: number;
+        batchCompleteTootsSize: number;
+        maxAgeInDays: number;
+        maxCachedTimelineToots: number;
+        saveChangesIntervalSeconds: number;
+        tootsCompleteAfterMinutes: number;
+    };
+    trending: {
+        links: {
+            numTrendingLinksPerServer: number;
+        };
+        tags: {
+            invalidTrendingTags: string[];
+            maxToots: number;
+            numDaysToCountTrendingTagData: number;
+            numTootsPerTag: number;
+            numTagsPerServer: number;
+            numTags: number;
+        };
+        toots: {
+            numTrendingTootsPerServer: number;
+        };
+    };
+    constructor();
+    setLocale(locale?: string): void;
+    validate(cfg?: ConfigType | object): void;
+}
+export declare const Config: ConfigClass;
 export {};

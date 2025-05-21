@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Move scorer descriptions out of config and into the `Scorer` class
-* Bump up default diversity weight to 2.0
+* Bump up default diversity penalty weight to 2.0
+* Separate `StorageKey` enum into `CacheKey` for API methods and `AlgorithmStorageKey` for other FediAlgo browser storage
 
 ### v0.47.6
 * (Demo App) Remove await from `WeightSlider` call to `updateUserWeights()`
