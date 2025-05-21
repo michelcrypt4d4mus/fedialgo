@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Bump up default diversity weight to 2.0
 
 ### v0.47.6
 * (Demo App) Remove await from `WeightSlider` call to `updateUserWeights()`
