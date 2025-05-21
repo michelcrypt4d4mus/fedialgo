@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* Separate out NonScoreWeightName and ScoreName enums from WeightName enum
-* Add quintile stats for the feed for each score category to the getCurrentState() return object
+
+# v0.47.0
+* Separate out `NonScoreWeightName` and `ScoreName` enums from `WeightName` enum
+* Add quintile stats for the feed for each score category to the `getCurrentState()` return object
 
 ### v0.46.1
 * Set up a poller to periodically save changes to toots' `numTimesShown` property to the cache
