@@ -22,9 +22,9 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         const tagScores = tags.map(tag => tag.numAccounts || 0);
         let score = (0, collection_helpers_1.sumArray)(tagScores);
         // If the toot is tag spam reduce the score
-        if (score > 0 && toot.tags.length >= config_1.Config.scoring.excessiveTags) {
+        if (score > 0 && toot.tags.length >= config_1.config.scoring.excessiveTags) {
             (0, log_helpers_1.traceLog)(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
-            score *= config_1.Config.scoring.excessiveTagsPenalty;
+            score *= config_1.config.scoring.excessiveTagsPenalty;
         }
         return score;
     }

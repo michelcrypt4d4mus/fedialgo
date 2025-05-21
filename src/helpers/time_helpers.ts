@@ -1,7 +1,7 @@
 /*
  * Helpers for time-related operations
  */
-import { Config, SECONDS_IN_DAY } from "../config";
+import { config, SECONDS_IN_DAY } from "../config";
 import { NULL, quoted} from "./string_helpers";
 
 type DateArg = Date | number | string | null | undefined;
@@ -91,7 +91,7 @@ export function subtractSeconds(date: Date, seconds: number): Date {
 //    => 'Thursday, Sep 1, 2022'
 export const timeString = (_timestamp: DateArg, locale?: string): string => {
     if (!_timestamp) return NULL;
-    locale ||= Config.locale.locale;;
+    locale ||= config.locale.locale;;
     const timestamp = coerceDate(_timestamp);
     const isToday = timestamp!.getDate() == new Date().getDate();
     const seconds = ageInSeconds(timestamp);
@@ -115,7 +115,7 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
 
 // Return the oldest timestamp we should feed timeline toots until
 export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = Config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
+    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 };
 

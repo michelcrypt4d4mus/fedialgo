@@ -7,7 +7,7 @@ import { Type } from "class-transformer";
 
 import MastoApi from "../api";
 import { AccountLike, AccountNames, StringNumberDict } from "../../types";
-import { Config } from "../../config";
+import { config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 
@@ -133,7 +133,7 @@ export default class Account implements AccountObj {
         const createdAt = new Date(this.createdAt);
 
         const accountStats = [
-            `Created ${createdAt.toLocaleDateString(Config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `Created ${createdAt.toLocaleDateString(config.locale.locale, ACCOUNT_CREATION_FMT)}`,
             `${this.followersCount.toLocaleString()} Followers`,
             `${this.statusesCount.toLocaleString()} Toots`,
         ]

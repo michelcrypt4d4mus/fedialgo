@@ -25,7 +25,7 @@ exports.average = average;
 // Process a list of promises in batches of batchSize. label is for optional logging.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
 async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
-    batchSize ||= config_1.Config.scoring.scoringBatchSize;
+    batchSize ||= config_1.config.scoring.scoringBatchSize;
     const startTime = new Date();
     let results = [];
     let logPrefix = `[${label || 'batchMap'}]`;

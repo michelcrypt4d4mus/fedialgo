@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Config = exports.ConfigClass = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -27,7 +27,7 @@ exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 ;
 ;
 // App level config that is not user configurable
-class ConfigClass {
+class Config {
     api = {
         backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
         defaultRecordsPerPage: 40,
@@ -37,7 +37,6 @@ class ConfigClass {
         maxRecordsForFeatureScoring: 1500,
         mutexWarnSeconds: 5,
         minutesUntilStaleDefault: 10,
-        staleDataTrendingMinutes: 60,
         timeoutMS: 5000,
         data: {
             [types_1.CacheKey.BLOCKED_ACCOUNTS]: {
@@ -297,12 +296,20 @@ class ConfigClass {
         },
     };
     constructor() {
-        // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-        const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale);
-        this.api.staleDataTrendingMinutes = Math.min(...trendStalenesses);
         this.validate();
     }
     ;
+    // Compute min value for FEDIVERSE_KEYS minutesUntilStale
+    minTrendingMinutesUntilStale() {
+        const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        if (trendStalenesses.length != types_1.FEDIVERSE_KEYS.length) {
+            console.warn("Not all FEDIVERSE_KEYS have minutesUntilStale configured!");
+            return 60;
+        }
+        else {
+            return Math.min(...trendStalenesses);
+        }
+    }
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
         if (!LOCALE_REGEX.test(locale)) {
@@ -332,39 +339,38 @@ class ConfigClass {
                 (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is NaN`);
             }
         });
-        (0, log_helpers_1.traceLog)("[Config] validated config:", exports.Config);
+        (0, log_helpers_1.traceLog)("[Config] validated config:", exports.config);
     }
 }
-exports.ConfigClass = ConfigClass;
 ;
-exports.Config = new ConfigClass();
+exports.config = new Config();
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
-    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
-    exports.Config.api.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
-    exports.Config.api.maxRecordsForFeatureScoring = 480;
-    exports.Config.participatedTags.numTags = 20;
-    exports.Config.trending.tags.numTags = 20;
+    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
+    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
+    exports.config.api.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
+    exports.config.api.maxRecordsForFeatureScoring = 480;
+    exports.config.participatedTags.numTags = 20;
+    exports.config.trending.tags.numTags = 20;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    exports.Config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
-    exports.Config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
-    exports.Config.api.maxRecordsForFeatureScoring = 20000;
-    exports.Config.toots.saveChangesIntervalSeconds = 5;
+    exports.config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
+    exports.config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
+    exports.config.api.maxRecordsForFeatureScoring = 20000;
+    exports.config.toots.saveChangesIntervalSeconds = 5;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    exports.Config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
-    exports.Config.toots.maxCachedTimelineToots = 5000;
-    exports.Config.api.maxRecordsForFeatureScoring = 1500;
-    exports.Config.participatedTags.maxToots = 500;
-    exports.Config.participatedTags.numTags = 50;
-    exports.Config.participatedTags.numTootsPerTag = 10;
-    exports.Config.trending.tags.maxToots = 1000;
-    exports.Config.trending.tags.numTags = 40;
+    exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
+    exports.config.toots.maxCachedTimelineToots = 5000;
+    exports.config.api.maxRecordsForFeatureScoring = 1500;
+    exports.config.participatedTags.maxToots = 500;
+    exports.config.participatedTags.numTags = 50;
+    exports.config.participatedTags.numTootsPerTag = 10;
+    exports.config.trending.tags.maxToots = 1000;
+    exports.config.trending.tags.numTags = 40;
 }
 ;
 //# sourceMappingURL=config.js.map

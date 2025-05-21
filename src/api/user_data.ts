@@ -10,7 +10,7 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
 import { buildTagNames, countTags } from "./objects/tag";
-import { Config } from "../config";
+import { config } from "../config";
 import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 
@@ -37,7 +37,7 @@ export default class UserData {
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
     participatedHashtags: TagNames = {};
-    preferredLanguage: string = Config.locale.defaultLanguage;
+    preferredLanguage: string = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];
 
     // Alternate constructor to build UserData from raw API data
@@ -49,7 +49,7 @@ export default class UserData {
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
-        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || Config.locale.defaultLanguage;
+        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         traceLog("[UserData] built from data:", userData);
         return userData;

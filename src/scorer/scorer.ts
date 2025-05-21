@@ -8,7 +8,7 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { average, batchMap, percentileSegments, sumValues } from "../helpers/collection_helpers";
-import { Config } from '../config';
+import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
 import { MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoresStats, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
@@ -201,7 +201,7 @@ export default abstract class Scorer {
         });
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), Config.scoring.timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), config.scoring.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

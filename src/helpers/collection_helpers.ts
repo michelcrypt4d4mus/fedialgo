@@ -2,7 +2,7 @@
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
-import { Config } from "../config";
+import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 import { traceLog } from "./log_helpers";
 
@@ -30,7 +30,7 @@ export async function batchMap<T>(
     batchSize?: number | null,
     sleepBetweenMS?: number
 ): Promise<any[]> {
-    batchSize ||= Config.scoring.scoringBatchSize;
+    batchSize ||= config.scoring.scoringBatchSize;
     const startTime = new Date();
     let results: any[] = [];
     let logPrefix = `[${label || 'batchMap'}]`;

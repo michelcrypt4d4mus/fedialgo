@@ -169,13 +169,13 @@ class TheAlgorithm {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, Object.values(types_1.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
-        nonScoreWeights[weightName] = Object.assign({}, config_1.Config.scoring.nonScoreWeightsConfig[weightName]);
-        nonScoreWeights[weightName].minValue = config_1.Config.scoring.nonScoreWeightMinValue;
+        nonScoreWeights[weightName] = Object.assign({}, config_1.config.scoring.nonScoreWeightsConfig[weightName]);
+        nonScoreWeights[weightName].minValue = config_1.config.scoring.nonScoreWeightMinValue;
         return nonScoreWeights;
     }, {}));
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
-        config_1.Config.setLocale(params.locale);
+        config_1.config.setLocale(params.locale);
         const user = account_1.default.build(params.user);
         await Storage_1.default.setIdentity(user);
         await Storage_1.default.logAppOpen();
@@ -205,7 +205,7 @@ class TheAlgorithm {
             this.prepareScorers(),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await (0, time_helpers_1.sleep)(config_1.Config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
+        await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
             this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
@@ -259,7 +259,7 @@ class TheAlgorithm {
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
-            Config: config_1.Config,
+            Config: config_1.config,
             Scores: scorer_1.default.computeScoreStats(this.feed, 10),
             Storage: await Storage_1.default.storedObjsInfo(),
             UserData: await api_1.default.instance.getUserData(),
@@ -348,7 +348,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset() {
         console.warn(`reset() called, clearing all storage...`);
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.api.maxConcurrentRequestsInitial);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater);
@@ -400,7 +400,7 @@ class TheAlgorithm {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
-        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.Config.api.staleDataTrendingMinutes && this.numTriggers <= 1) {
+        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.config.minTrendingMinutesUntilStale() && this.numTriggers <= 1) {
             console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
@@ -460,7 +460,7 @@ class TheAlgorithm {
             // this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;
-        api_1.default.instance.setSemaphoreConcurrency(config_1.Config.api.maxConcurrentRequestsBackground);
+        api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
     // Simple wrapper for triggering fetchHomeFeed()
@@ -483,12 +483,12 @@ class TheAlgorithm {
                 (0, log_helpers_1.logInfo)(moar_data_poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
-        }, config_1.Config.api.backgroundLoadIntervalSeconds * 1000);
+        }, config_1.config.api.backgroundLoadIntervalSeconds * 1000);
         if (this.cacheUpdater) {
             console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
             return;
         }
-        this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.Config.toots.saveChangesIntervalSeconds * 1000);
+        this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -556,7 +556,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
-        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
+        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
         await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }

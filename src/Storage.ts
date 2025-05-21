@@ -13,7 +13,7 @@ import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { Config } from "./config";
+import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
@@ -205,7 +205,7 @@ export default class Storage {
         };
 
         const dataAgeInMinutes = ageInMinutes(withTimestamp.updatedAt);
-        const staleAfterMinutes = Config.api.data[key]?.minutesUntilStale || Config.api.minutesUntilStaleDefault;
+        const staleAfterMinutes = config.api.data[key]?.minutesUntilStale || config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${toLocaleInt(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${toLocaleInt(staleAfterMinutes)})`;
         let isStale = false;

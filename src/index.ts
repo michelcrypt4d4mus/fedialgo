@@ -38,7 +38,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
-import { Config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
+import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain, suffixedInt } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -171,8 +171,8 @@ class TheAlgorithm {
         },
         Object.values(NonScoreWeightName).reduce(
             (nonScoreWeights, weightName) => {
-                nonScoreWeights[weightName] = Object.assign({}, Config.scoring.nonScoreWeightsConfig[weightName]);
-                nonScoreWeights[weightName].minValue = Config.scoring.nonScoreWeightMinValue;
+                nonScoreWeights[weightName] = Object.assign({}, config.scoring.nonScoreWeightsConfig[weightName]);
+                nonScoreWeights[weightName].minValue = config.scoring.nonScoreWeightMinValue;
                 return nonScoreWeights;
             },
             {} as WeightInfoDict
@@ -181,7 +181,7 @@ class TheAlgorithm {
 
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
-        Config.setLocale(params.locale);
+        config.setLocale(params.locale);
         const user = Account.build(params.user);
         await Storage.setIdentity(user);
         await Storage.logAppOpen();
@@ -214,7 +214,7 @@ class TheAlgorithm {
         ];
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await sleep(Config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
+        await sleep(config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(getParticipatedHashtagToots, "getParticipatedHashtagToots"),
@@ -273,7 +273,7 @@ class TheAlgorithm {
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
-            Config: Config,
+            Config: config,
             Scores: Scorer.computeScoreStats(this.feed, 10),
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
@@ -365,7 +365,7 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
-        MastoApi.instance.setSemaphoreConcurrency(Config.api.maxConcurrentRequestsInitial);
+        MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller!);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater!);
@@ -423,7 +423,7 @@ class TheAlgorithm {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes) feedAgeInMinutes /= 60;
 
-        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < Config.api.staleDataTrendingMinutes && this.numTriggers <= 1) {
+        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config.minTrendingMinutesUntilStale() && this.numTriggers <= 1) {
             console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
@@ -489,7 +489,7 @@ class TheAlgorithm {
         }
 
         this.loadStartedAt = null;
-        MastoApi.instance.setSemaphoreConcurrency(Config.api.maxConcurrentRequestsBackground);
+        MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
 
@@ -518,7 +518,7 @@ class TheAlgorithm {
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
-            Config.api.backgroundLoadIntervalSeconds * 1000
+            config.api.backgroundLoadIntervalSeconds * 1000
         );
 
         if (this.cacheUpdater) {
@@ -528,7 +528,7 @@ class TheAlgorithm {
 
         this.cacheUpdater = setInterval(
             async () => await this.updateTootCache(),
-            Config.toots.saveChangesIntervalSeconds * 1000
+            config.toots.saveChangesIntervalSeconds * 1000
         );
     }
 
@@ -603,7 +603,7 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, true);
-        this.feed = truncateToConfiguredLength(this.feed, Config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
+        this.feed = truncateToConfiguredLength(this.feed, config.toots.maxCachedTimelineToots, "scoreAndFilterFeed()");
         await Storage.set(CacheKey.TIMELINE, this.feed);
         return this.filterFeedAndSetInApp();
     }

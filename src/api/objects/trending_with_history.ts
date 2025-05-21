@@ -24,7 +24,7 @@ import { mastodon } from "masto";
 
 import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
-import { Config } from "../../config";
+import { config } from "../../config";
 import { MastodonTag, TrendingWithHistory } from "../../types";
 
 
@@ -38,7 +38,7 @@ export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag)
         obj.history = [];
     }
 
-    const recentHistory = obj.history.slice(0, Config.trending.tags.numDaysToCountTrendingTagData);
+    const recentHistory = obj.history.slice(0, config.trending.tags.numDaysToCountTrendingTagData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

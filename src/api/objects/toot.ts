@@ -14,7 +14,7 @@ import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
-import { Config } from "../../config";
+import { config } from "../../config";
 import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -569,7 +569,7 @@ export default class Toot implements TootObj {
         let text = this.contentStripped();
 
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
-            this.language ??= Config.locale.defaultLanguage;
+            this.language ??= config.locale.defaultLanguage;
             return;
         }
 
@@ -584,7 +584,7 @@ export default class Toot implements TootObj {
                 console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }
 
-            this.language ??= Config.locale.defaultLanguage;
+            this.language ??= config.locale.defaultLanguage;
             return;
         }
 
@@ -624,7 +624,7 @@ export default class Toot implements TootObj {
             }
         } else {
             logTrace(`Defaulting language prop to "en"`);
-            this.language ??= Config.locale.defaultLanguage;
+            this.language ??= config.locale.defaultLanguage;
         }
     }
 
@@ -635,9 +635,9 @@ export default class Toot implements TootObj {
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
                // Check if toot was completed long enough ago that we might want to re-evaluate it
-               ageInMinutes(this.completedAt) < Config.api.staleDataTrendingMinutes
+               ageInMinutes(this.completedAt) < config.minTrendingMinutesUntilStale()
                // But not tooted so long ago that there's little chance of new data
-            || ageInMinutes(this.createdAt) > Config.toots.tootsCompleteAfterMinutes
+            || ageInMinutes(this.createdAt) > config.toots.tootsCompleteAfterMinutes
         );
     }
 
@@ -748,8 +748,8 @@ export default class Toot implements TootObj {
                 return toot as Toot;
             },
             "completeToots",
-            Config.toots.batchCompleteTootsSize,
-            isDeepInspect ? Config.toots.batchCompleteTootsSleepBetweenMS : 0
+            config.toots.batchCompleteTootsSize,
+            isDeepInspect ? config.toots.batchCompleteTootsSleepBetweenMS : 0
         );
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;

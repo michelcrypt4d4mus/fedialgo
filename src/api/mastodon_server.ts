@@ -11,7 +11,7 @@ import MastoApi, { INSTANCE, LINKS, STATUSES, TAGS } from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { Config } from "../config";
+import { config } from "../config";
 import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
@@ -113,12 +113,12 @@ export default class MastodonServer {
 
     // Get the links that are trending on this server
     async fetchTrendingLinks(): Promise<TrendingLink[]> {
-        if (Config.fediverse.noTrendingLinksServers.includes(this.domain)) {
+        if (config.fediverse.noTrendingLinksServers.includes(this.domain)) {
             console.debug(`Trending links are not available for '${this.domain}', skipping...`);
             return [];
         }
 
-        const numLinks = Config.trending.links.numTrendingLinksPerServer;
+        const numLinks = config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(LINKS, numLinks);
         trendingLinks.forEach(decorateHistoryScores);
         return trendingLinks;
@@ -126,10 +126,10 @@ export default class MastodonServer {
 
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
-        const numTags = Config.trending.tags.numTagsPerServer;
+        const numTags = config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TAGS, numTags);
         trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
-        return trendingTags.filter(tag => !Config.trending.tags.invalidTrendingTags.includes(tag.name));
+        return trendingTags.filter(tag => !config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
 
     ///////////////////////////////////
@@ -169,7 +169,7 @@ export default class MastodonServer {
         if (limit) url += `?limit=${limit}`;
         traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
-        const json = await axios.get<T>(url, { timeout: Config.api.timeoutMS });
+        const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
 
         if (json.status === 200 && json.data) {
             traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
@@ -225,7 +225,7 @@ export default class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
-                return truncateToConfiguredLength(uniqueTags, Config.trending.tags.numTags);
+                return truncateToConfiguredLength(uniqueTags, config.trending.tags.numTags);
             }
         });
     }
@@ -251,7 +251,7 @@ export default class MastodonServer {
 
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain: string): boolean {
-        return Config.fediverse.noMauServers.some(s => domain == s);
+        return config.fediverse.noMauServers.some(s => domain == s);
     }
 
     ///////////////////////////////////////
@@ -270,27 +270,27 @@ export default class MastodonServer {
         const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver());
         let mostFollowedDomains = sortKeysByValue(followedUserDomainCounts)
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
-        mostFollowedDomains = mostFollowedDomains.slice(0, Config.fediverse.numServersToCheck);
+        mostFollowedDomains = mostFollowedDomains.slice(0, config.fediverse.numServersToCheck);
 
         // Fetch Instance objects for the the Mastodon servers that have a lot of accounts followed by the
         // current Fedialgo. Filter out those below the userminServerMAU threshold
         let serverDict = await this.callForServers<InstanceResponse>(mostFollowedDomains, (s) => s.fetchServerInfo());
-        serverDict = filterMinMAU(serverDict, Config.fediverse.minServerMAU);
+        serverDict = filterMinMAU(serverDict, config.fediverse.minServerMAU);
         const numActiveServers = Object.keys(serverDict).length;
-        const numServersToAdd = Config.fediverse.numServersToCheck - numActiveServers;  // Number of default servers to add
+        const numServersToAdd = config.fediverse.numServersToCheck - numActiveServers;  // Number of default servers to add
 
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${Config.fediverse.minServerMAU} MAU, adding some`);
+            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config.fediverse.minServerMAU} MAU, adding some`);
             let extraDomains: string[] = [];
 
-            if (Config.locale.language != Config.locale.defaultLanguage) {
-                extraDomains = extraDomains.concat(Config.fediverse.foreignLanguageServers[Config.locale.language] || []);
-                console.log(`${logPrefix} Using ${extraDomains.length} custom "${Config.locale.language}" servers`);
+            if (config.locale.language != config.locale.defaultLanguage) {
+                extraDomains = extraDomains.concat(config.fediverse.foreignLanguageServers[config.locale.language] || []);
+                console.log(`${logPrefix} Using ${extraDomains.length} custom "${config.locale.language}" servers`);
             }
 
-            extraDomains = extraDomains.concat(shuffle(Config.fediverse.defaultServers));
+            extraDomains = extraDomains.concat(shuffle(config.fediverse.defaultServers));
             extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
             console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraDomains, (s) => s.fetchServerInfo());

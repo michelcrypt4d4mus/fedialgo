@@ -5,7 +5,7 @@
  */
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { Config } from '../config';
+import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
 import { FilterArgs, StringNumberDict } from "../types";
 
@@ -77,7 +77,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
         return validValues.includes(toot.realToot().application?.name);
     },
     [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().language || Config.locale.defaultLanguage);
+        return validValues.includes(toot.realToot().language || config.locale.defaultLanguage);
     },
     [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsTag(v, true));
@@ -123,7 +123,7 @@ export default class BooleanFilter extends TootFilter {
 
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
-            this.visible = Config.gui.isAppFilterVisible;
+            this.visible = config.gui.isAppFilterVisible;
         }
     }
 

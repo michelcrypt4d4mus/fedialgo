@@ -22,16 +22,16 @@ async function getParticipatedHashtagToots() {
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);
-    tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, config_1.Config.participatedTags.numTags, logPrefix);
+    tags = (0, collection_helpers_1.truncateToConfiguredLength)(tags, config_1.config.participatedTags.numTags, logPrefix);
     console.debug(`${logPrefix} Gettings toots for participated tags:`, tags);
-    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.participatedTags.numTootsPerTag), types_1.CacheKey.PARTICIPATED_TAG_TOOTS, config_1.Config.participatedTags.maxToots);
+    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.config.participatedTags.numTootsPerTag), types_1.CacheKey.PARTICIPATED_TAG_TOOTS, config_1.config.participatedTags.maxToots);
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
 ;
 // Get toots for the top trending tags via the search endpoint.
 async function getRecentTootsForTrendingTags() {
     let tags = await getTrendingTags();
-    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.Config.trending.tags.numTootsPerTag), types_1.CacheKey.TRENDING_TAG_TOOTS, config_1.Config.trending.tags.maxToots);
+    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.config.trending.tags.numTootsPerTag), types_1.CacheKey.TRENDING_TAG_TOOTS, config_1.config.trending.tags.maxToots);
 }
 exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;

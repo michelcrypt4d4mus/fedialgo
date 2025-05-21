@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Clear `TheAlgorithm.cacheUpdater` in `reset()` method
+* Convert Config.api.staleDataTrendingMinutes to method
 
 ### v0.47.8
 * Make `Config` a `class` instead of just an object

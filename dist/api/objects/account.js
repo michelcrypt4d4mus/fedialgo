@@ -124,7 +124,7 @@ class Account {
         let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
         const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config_1.Config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
             `${this.followersCount.toLocaleString()} Followers`,
             `${this.statusesCount.toLocaleString()} Toots`,
         ];

@@ -170,7 +170,7 @@ class Scorer {
             }
         });
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.Config.scoring.timelineDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.config.scoring.timelineDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(weightedScores);
         const score = weightedScore * timeDecayMultiplier;

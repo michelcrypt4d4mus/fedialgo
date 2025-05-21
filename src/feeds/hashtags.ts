@@ -6,7 +6,7 @@ import MastodonServer from "../api/mastodon_server";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { bracketed } from "../helpers/string_helpers";
-import { Config } from "../config";
+import { config } from "../config";
 import { MastodonTag, CacheKey } from "../types";
 import { traceLog } from "../helpers/log_helpers";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
@@ -19,13 +19,13 @@ export async function getParticipatedHashtagToots(): Promise<Toot[]> {
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);
-    tags = truncateToConfiguredLength(tags, Config.participatedTags.numTags, logPrefix);
+    tags = truncateToConfiguredLength(tags, config.participatedTags.numTags, logPrefix);
     console.debug(`${logPrefix} Gettings toots for participated tags:`, tags);
 
     return await MastoApi.instance.getCacheableToots(
-        async () => await MastoApi.instance.getStatusesForTags(tags, Config.participatedTags.numTootsPerTag),
+        async () => await MastoApi.instance.getStatusesForTags(tags, config.participatedTags.numTootsPerTag),
         CacheKey.PARTICIPATED_TAG_TOOTS,
-        Config.participatedTags.maxToots,
+        config.participatedTags.maxToots,
     );
 };
 
@@ -35,9 +35,9 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
     let tags = await getTrendingTags();
 
     return await MastoApi.instance.getCacheableToots(
-        async () => await MastoApi.instance.getStatusesForTags(tags, Config.trending.tags.numTootsPerTag),
+        async () => await MastoApi.instance.getStatusesForTags(tags, config.trending.tags.numTootsPerTag),
         CacheKey.TRENDING_TAG_TOOTS,
-        Config.trending.tags.maxToots,
+        config.trending.tags.maxToots,
     );
 };
 

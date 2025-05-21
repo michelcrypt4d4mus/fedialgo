@@ -46,7 +46,6 @@ interface ApiConfig {
     maxRecordsForFeatureScoring: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    staleDataTrendingMinutes: number;
     timeoutMS: number;
 };
 
@@ -130,7 +129,7 @@ interface ConfigType {
 
 
 // App level config that is not user configurable
-export class ConfigClass implements ConfigType {
+class Config implements ConfigType {
     api = {
         backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -140,7 +139,6 @@ export class ConfigClass implements ConfigType {
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
         minutesUntilStaleDefault: 10,            // Default how long to wait before considering data stale
-        staleDataTrendingMinutes: 60,           // Default. but is later computed based on the FEDIVERSE_KEYS
         timeoutMS: 5_000,                       // Timeout for API calls
         data: {
             [CacheKey.BLOCKED_ACCOUNTS]: {
@@ -408,11 +406,20 @@ export class ConfigClass implements ConfigType {
     }
 
     constructor() {
-        // Compute min value for FEDIVERSE_KEYS staleness and store on Config object
-        const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale);
-        this.api.staleDataTrendingMinutes = Math.min(...trendStalenesses as number[]);
         this.validate();
     };
+
+    // Compute min value for FEDIVERSE_KEYS minutesUntilStale
+    minTrendingMinutesUntilStale(): number {
+        const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+
+        if (trendStalenesses.length != FEDIVERSE_KEYS.length) {
+            console.warn("Not all FEDIVERSE_KEYS have minutesUntilStale configured!");
+            return 60;
+        } else {
+            return Math.min(...trendStalenesses as number[]);
+        }
+    }
 
     setLocale(locale?: string): void {
         locale ??= DEFAULT_LOCALE;
@@ -447,40 +454,40 @@ export class ConfigClass implements ConfigType {
             }
         });
 
-        traceLog("[Config] validated config:", Config);
+        traceLog("[Config] validated config:", config);
     }
 };
 
 
-export const Config = new ConfigClass();
+export const config = new Config();
 
 
 // Quick load mode settings
 if (isQuickMode) {
-    Config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 400;
-    Config.api.data[CacheKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
-    Config.api.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
-    Config.api.maxRecordsForFeatureScoring = 480;
-    Config.participatedTags.numTags = 20;
-    Config.trending.tags.numTags = 20;
+    config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 400;
+    config.api.data[CacheKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
+    config.api.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
+    config.api.maxRecordsForFeatureScoring = 480;
+    config.participatedTags.numTags = 20;
+    config.trending.tags.numTags = 20;
 }
 
 // Debug mode settings
 if (isDebugMode) {
-    Config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 1;
-    Config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
-    Config.api.maxRecordsForFeatureScoring = 20_000;
-    Config.toots.saveChangesIntervalSeconds = 5;
+    config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 1;
+    config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
+    config.api.maxRecordsForFeatureScoring = 20_000;
+    config.toots.saveChangesIntervalSeconds = 5;
 };
 
 // Heavy load test settings
 if (isLoadTest) {
-    Config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
-    Config.toots.maxCachedTimelineToots = 5_000;
-    Config.api.maxRecordsForFeatureScoring = 1_500;
-    Config.participatedTags.maxToots = 500;
-    Config.participatedTags.numTags = 50;
-    Config.participatedTags.numTootsPerTag = 10;
-    Config.trending.tags.maxToots = 1_000;
-    Config.trending.tags.numTags = 40;
+    config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
+    config.toots.maxCachedTimelineToots = 5_000;
+    config.api.maxRecordsForFeatureScoring = 1_500;
+    config.participatedTags.maxToots = 500;
+    config.participatedTags.numTags = 50;
+    config.participatedTags.numTootsPerTag = 10;
+    config.trending.tags.maxToots = 1_000;
+    config.trending.tags.numTags = 40;
 };

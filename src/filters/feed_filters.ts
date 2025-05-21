@@ -6,7 +6,7 @@ import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { Config } from "../config";
+import { config } from "../config";
 import { detectHashtagLanguage } from "../helpers/language_helper";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
@@ -117,7 +117,7 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
         toot.realToot().tags.forEach((tag) => {
             const language = detectHashtagLanguage(tag.name);
 
-            if (language && language != Config.locale.language) {
+            if (language && language != config.locale.language) {
                 suppressedNonLatinTags[language] ??= {};
                 incrementCount(suppressedNonLatinTags[language], tag.name);
                 return;

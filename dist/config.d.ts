@@ -27,7 +27,6 @@ interface ApiConfig {
     maxRecordsForFeatureScoring: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    staleDataTrendingMinutes: number;
     timeoutMS: number;
 }
 type FediverseConfig = {
@@ -95,7 +94,7 @@ interface ConfigType {
     toots: TootsConfig;
     trending: TrendingConfig;
 }
-export declare class ConfigClass implements ConfigType {
+declare class Config implements ConfigType {
     api: {
         backgroundLoadIntervalSeconds: number;
         defaultRecordsPerPage: number;
@@ -105,7 +104,6 @@ export declare class ConfigClass implements ConfigType {
         maxRecordsForFeatureScoring: number;
         mutexWarnSeconds: number;
         minutesUntilStaleDefault: number;
-        staleDataTrendingMinutes: number;
         timeoutMS: number;
         data: ApiDataConfig;
     };
@@ -175,8 +173,9 @@ export declare class ConfigClass implements ConfigType {
         };
     };
     constructor();
+    minTrendingMinutesUntilStale(): number;
     setLocale(locale?: string): void;
     validate(cfg?: ConfigType | object): void;
 }
-export declare const Config: ConfigClass;
+export declare const config: Config;
 export {};

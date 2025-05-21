@@ -58,7 +58,7 @@ class MastoApi {
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
-    requestSemphore = new async_mutex_1.Semaphore(config_1.Config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+    requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     // URL for tag on the user's homeserver
     tagUrl = (tag) => `${this.endpointURL(exports.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
@@ -105,7 +105,7 @@ class MastoApi {
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-            const lookbackSeconds = config_1.Config.api.data[types_1.CacheKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes * 60;
+            const lookbackSeconds = config_1.config.api.data[types_1.CacheKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes * 60;
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
@@ -141,7 +141,7 @@ class MastoApi {
         let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.Config.toots.maxCachedTimelineToots, logPrefix);
+        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxCachedTimelineToots, logPrefix);
         await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -260,7 +260,7 @@ class MastoApi {
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
     async getStatusesForTag(tag, numToots) {
-        numToots ||= config_1.Config.trending.tags.numTootsPerTag;
+        numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const tagToots = await Promise.all([
             this.searchForToots(tag.name, numToots),
@@ -288,7 +288,7 @@ class MastoApi {
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
-        maxRecords = maxRecords || config_1.Config.api.defaultRecordsPerPage;
+        maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         const logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
         const startedAt = new Date();
@@ -335,7 +335,7 @@ class MastoApi {
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr, maxRecords) {
-        maxRecords = maxRecords || config_1.Config.api.defaultRecordsPerPage;
+        maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
         const query = { limit: maxRecords, q: searchStr, type: exports.STATUSES };
@@ -374,9 +374,9 @@ class MastoApi {
         if (moar && (skipCache || maxId))
             console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
         // Parse params and set defaults
-        const requestDefaults = config_1.Config.api.data[cacheKey];
+        const requestDefaults = config_1.config.api.data[cacheKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-        const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.Config.api.defaultRecordsPerPage); // max records per page
+        const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.config.api.defaultRecordsPerPage); // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
         let minId; // Used for incremental loading when data is stale (if supported)
         // Skip mutex for requests that aren't trying to get at the same data

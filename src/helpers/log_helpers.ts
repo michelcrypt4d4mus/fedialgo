@@ -4,7 +4,7 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
-import { Config } from '../config';
+import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed } from './string_helpers';
@@ -81,7 +81,7 @@ export async function lockExecution(
 
     logMsg += ` lock acquired ${ageString(startedAt)}`;
 
-    if (waitSeconds > Config.api.mutexWarnSeconds) {
+    if (waitSeconds > config.api.mutexWarnSeconds) {
         console.warn(logMsg);
     } else if (waitSeconds > 2) {
         traceLog(logMsg);
