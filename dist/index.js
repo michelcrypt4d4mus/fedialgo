@@ -483,7 +483,7 @@ class TheAlgorithm {
                 (0, log_helpers_1.logInfo)(moar_data_poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
-        }, config_1.config.api.backgroundLoadIntervalSeconds * 1000);
+        }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
         if (this.cacheUpdater) {
             console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
             return;

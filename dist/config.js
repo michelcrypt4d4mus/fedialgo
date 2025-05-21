@@ -29,7 +29,7 @@ exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 // App level config that is not user configurable
 class Config {
     api = {
-        backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
+        backgroundLoadIntervalMinutes: 10,
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 3,
         maxConcurrentRequestsInitial: 15,
@@ -310,6 +310,7 @@ class Config {
             return Math.min(...trendStalenesses);
         }
     }
+    // Set the locale, language, and country if we have anything configured to support that language
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
         if (!LOCALE_REGEX.test(locale)) {
@@ -328,6 +329,7 @@ class Config {
             }
         }
     }
+    // Check for NaN values in number fields
     validate(cfg) {
         cfg ??= this;
         // Check that all the values are valid
@@ -348,8 +350,7 @@ exports.config = new Config();
 if (environment_helpers_1.isQuickMode) {
     exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 400;
     exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].lookbackForUpdatesMinutes = 15;
-    exports.config.api.backgroundLoadIntervalSeconds = exports.SECONDS_IN_HOUR;
-    exports.config.api.maxRecordsForFeatureScoring = 480;
+    exports.config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
     exports.config.participatedTags.numTags = 20;
     exports.config.trending.tags.numTags = 20;
 }
@@ -357,7 +358,7 @@ if (environment_helpers_1.isQuickMode) {
 if (environment_helpers_1.isDebugMode) {
     exports.config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
     exports.config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
-    exports.config.api.maxRecordsForFeatureScoring = 20000;
+    exports.config.api.maxRecordsForFeatureScoring = 2500;
     exports.config.toots.saveChangesIntervalSeconds = 5;
 }
 ;
@@ -365,7 +366,7 @@ if (environment_helpers_1.isDebugMode) {
 if (environment_helpers_1.isLoadTest) {
     exports.config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
     exports.config.toots.maxCachedTimelineToots = 5000;
-    exports.config.api.maxRecordsForFeatureScoring = 1500;
+    exports.config.api.maxRecordsForFeatureScoring = 15000;
     exports.config.participatedTags.maxToots = 500;
     exports.config.participatedTags.numTags = 50;
     exports.config.participatedTags.numTootsPerTag = 10;

@@ -37,7 +37,7 @@ type ApiDataConfig = {
 
 // See Config object for comments explaining these and other values
 interface ApiConfig {
-    backgroundLoadIntervalSeconds: number;
+    backgroundLoadIntervalMinutes: number;
     data: ApiDataConfig;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
@@ -131,14 +131,14 @@ interface ConfigType {
 // App level config that is not user configurable
 class Config implements ConfigType {
     api = {
-        backgroundLoadIntervalSeconds: 10 * SECONDS_IN_MINUTE, // Background poll for user data after initial load
+        backgroundLoadIntervalMinutes: 10,      // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
-        minutesUntilStaleDefault: 10,            // Default how long to wait before considering data stale
+        minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         timeoutMS: 5_000,                       // Timeout for API calls
         data: {
             [CacheKey.BLOCKED_ACCOUNTS]: {
@@ -468,8 +468,7 @@ export const config = new Config();
 if (isQuickMode) {
     config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 400;
     config.api.data[CacheKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
-    config.api.backgroundLoadIntervalSeconds = SECONDS_IN_HOUR;
-    config.api.maxRecordsForFeatureScoring = 480;
+    config.api.backgroundLoadIntervalMinutes = SECONDS_IN_HOUR;
     config.participatedTags.numTags = 20;
     config.trending.tags.numTags = 20;
 }
@@ -478,7 +477,7 @@ if (isQuickMode) {
 if (isDebugMode) {
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 1;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
-    config.api.maxRecordsForFeatureScoring = 20_000;
+    config.api.maxRecordsForFeatureScoring = 2_500;
     config.toots.saveChangesIntervalSeconds = 5;
 };
 
@@ -486,7 +485,7 @@ if (isDebugMode) {
 if (isLoadTest) {
     config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
     config.toots.maxCachedTimelineToots = 5_000;
-    config.api.maxRecordsForFeatureScoring = 1_500;
+    config.api.maxRecordsForFeatureScoring = 15_000;
     config.participatedTags.maxToots = 500;
     config.participatedTags.numTags = 50;
     config.participatedTags.numTootsPerTag = 10;

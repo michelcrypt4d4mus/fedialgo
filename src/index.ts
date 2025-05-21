@@ -38,7 +38,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
-import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
+import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain, suffixedInt } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
@@ -518,7 +518,7 @@ class TheAlgorithm {
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
-            config.api.backgroundLoadIntervalSeconds * 1000
+            config.api.backgroundLoadIntervalMinutes * SECONDS_IN_MINUTE * 1000
         );
 
         if (this.cacheUpdater) {
