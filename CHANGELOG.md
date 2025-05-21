@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.47.6
+* (Demo App) Remove await from `WeightSlider` call to `updateUserWeights()`
+
 ### v0.47.5
 * (Demo App) Fix build
 
