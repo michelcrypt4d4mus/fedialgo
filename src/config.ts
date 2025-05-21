@@ -366,7 +366,7 @@ export const Config: ConfigType = {
 
             // Weighted scores
             [ScoreName.ALREADY_SHOWN]: {
-                description: 'Disfavour toots that have been marked as already seen'
+                description: 'Disfavour toots marked as already seen'
             },
             [ScoreName.CHAOS]: {
                 description: "Insert Chaos into the scoring (social media ist krieg)",

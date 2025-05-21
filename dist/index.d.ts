@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
-import AlreadyShownScorer from './scorer/feature/already_seen_scorer';
+import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
 import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";

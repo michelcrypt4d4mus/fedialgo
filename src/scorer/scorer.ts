@@ -31,7 +31,7 @@ export default abstract class Scorer {
     defaultWeight: number;
     description: string;
     isReady: boolean = false;  // Set to true when the scorer is ready to score
-    name: ScoreName;;
+    name: ScoreName;
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: ScoreName) {

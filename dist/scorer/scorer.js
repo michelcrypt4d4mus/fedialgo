@@ -29,7 +29,6 @@ class Scorer {
     description;
     isReady = false; // Set to true when the scorer is ready to score
     name;
-    ;
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
