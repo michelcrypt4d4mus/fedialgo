@@ -3,12 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from "../../types";
+import { ScoreName } from "../../types";
 
 
 export default class RetootsInFeedScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.RETOOTED_IN_FEED);
+        super(ScoreName.RETOOTED_IN_FEED);
     }
 
     async _score(toot: Toot) {

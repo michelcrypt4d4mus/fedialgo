@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.WeightName = exports.TypeFilterName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.NON_SCORE_WEIGHTS = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.NonScoreWeight = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -90,9 +90,8 @@ const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
-Object.defineProperty(exports, "NON_SCORE_WEIGHTS", { enumerable: true, get: function () { return types_1.NON_SCORE_WEIGHTS; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
-Object.defineProperty(exports, "WeightName", { enumerable: true, get: function () { return types_1.WeightName; } });
+Object.defineProperty(exports, "NonScoreWeight", { enumerable: true, get: function () { return types_1.NonScoreWeight; } });
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -168,7 +167,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, types_1.NON_SCORE_WEIGHTS.reduce((specialScoreInfos, weightName) => {
+    }, Object.values(types_1.NonScoreWeight).reduce((specialScoreInfos, weightName) => {
         specialScoreInfos[weightName] = Object.assign({}, config_1.Config.scoring.weightsConfig[weightName]);
         return specialScoreInfos;
     }, {}));

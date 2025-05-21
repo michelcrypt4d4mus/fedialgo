@@ -12,7 +12,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MentionsFollowedScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.MENTIONS_FOLLOWED);
+        super(types_1.ScoreName.MENTIONS_FOLLOWED);
     }
     // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     async prepareScoreData() {

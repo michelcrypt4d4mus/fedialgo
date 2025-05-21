@@ -7,12 +7,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times the user has replied to the creator of the toot.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const api_1 = __importDefault(require("../../api/api"));
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const types_1 = require("../../types");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.MOST_REPLIED_ACCOUNTS);
+        super(types_1.ScoreName.MOST_REPLIED_ACCOUNTS);
     }
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT

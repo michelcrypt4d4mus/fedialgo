@@ -7,12 +7,12 @@ import Toot from '../../api/objects/toot';
 import { Config } from '../../config';
 import { sumArray } from '../../helpers/collection_helpers';
 import { traceLog } from '../../helpers/log_helpers';
-import { WeightName } from "../../types";
+import { ScoreName } from "../../types";
 
 
 export default class TrendingTagsScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.TRENDING_TAGS);
+        super(ScoreName.TRENDING_TAGS);
     }
 
     async _score(toot: Toot) {

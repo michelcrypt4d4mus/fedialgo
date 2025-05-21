@@ -13,7 +13,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.MOST_RETOOTED_ACCOUNTS);
+        super(types_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
     }
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();

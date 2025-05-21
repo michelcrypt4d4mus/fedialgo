@@ -4,12 +4,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from '../../types';
+import { ScoreName } from '../../types';
 
 
 export default class FollowedTagsScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.FOLLOWED_TAGS);
+        super(ScoreName.FOLLOWED_TAGS);
     }
 
     // Sets the followedTags property on the Toot object before returning the score

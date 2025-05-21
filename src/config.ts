@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { FEDIVERSE_KEYS, StorageKey, WeightInfoDict, WeightName } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeight, ScoreName, StorageKey, WeightInfoDict, WeightName } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError, traceLog } from "./helpers/log_helpers";
 
@@ -347,82 +347,82 @@ export const Config: ConfigType = {
         timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
         weightsConfig: {
             // Global modifiers that affect all weighted scores
-            [WeightName.TIME_DECAY]: {
+            [NonScoreWeight.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
                 minValue: 0.001,
             },
             // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
             // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
             // TRENDING weighting value.
-            [WeightName.TRENDING]: {
+            [NonScoreWeight.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
                 minValue: 0.001,
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-            [WeightName.OUTLIER_DAMPENER]: {
+            [NonScoreWeight.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
                 minValue: 0.001,
             },
 
             // Weighted scores
-            [WeightName.ALREADY_SHOWN]: {
+            [ScoreName.ALREADY_SHOWN]: {
                 description: 'Disfavour toots that have been marked as already seen'
             },
-            [WeightName.CHAOS]: {
+            [ScoreName.CHAOS]: {
                 description: "Insert Chaos into the scoring (social media ist krieg)",
             },
-            [WeightName.DIVERSITY]: {
+            [ScoreName.DIVERSITY]: {
                 description: "Disfavour accounts that are tooting a lot right now",
             },
-            [WeightName.FAVOURITED_ACCOUNTS]: {
+            [ScoreName.FAVOURITED_ACCOUNTS]: {
                 description: "Favour accounts you often favourite",
             },
-            [WeightName.FAVOURITED_TAGS]: {
+            [ScoreName.FAVOURITED_TAGS]: {
                 description: "Favour toots containing hashtags you favourite",
             },
-            [WeightName.FOLLOWED_TAGS]: {
+            [ScoreName.FOLLOWED_TAGS]: {
                 description: "Favour toots containing hashtags you follow",
             },
-            [WeightName.IMAGE_ATTACHMENTS]: {
+            [ScoreName.IMAGE_ATTACHMENTS]: {
                 description: "Favour image attachments",
             },
-            [WeightName.INTERACTIONS]: {
+            [ScoreName.INTERACTIONS]: {
                 description: "Favour accounts that interact with your toots",
             },
-            [WeightName.MENTIONS_FOLLOWED]: {
+            [ScoreName.MENTIONS_FOLLOWED]: {
                 description: "Favour toots that mention accounts you follow",
             },
-            [WeightName.MOST_REPLIED_ACCOUNTS]: {
+            [ScoreName.MOST_REPLIED_ACCOUNTS]: {
                 description: "Favour accounts you often reply to",
             },
-            [WeightName.MOST_RETOOTED_ACCOUNTS]: {
+            [ScoreName.MOST_RETOOTED_ACCOUNTS]: {
                 description: "Favour accounts you often retoot",
             },
-            [WeightName.NUM_FAVOURITES]: {
+            [ScoreName.NUM_FAVOURITES]: {
                 description: "Favour things favourited by your server's users",
             },
-            [WeightName.NUM_REPLIES]: {
+            [ScoreName.NUM_REPLIES]: {
                 description: "Favour toots with lots of replies",
             },
-            [WeightName.NUM_RETOOTS]: {
+            [ScoreName.NUM_RETOOTS]: {
                 description: "Favour toots that are retooted a lot",
             },
-            [WeightName.PARTICIPATED_TAGS]: {
+            [ScoreName.PARTICIPATED_TAGS]: {
                 description: "Favour hastags you've tooted about",
             },
-            [WeightName.RETOOTED_IN_FEED]: {
+            [ScoreName.RETOOTED_IN_FEED]: {
                 description: "Favour toots retooted by accounts you follow",
             },
-            [WeightName.TRENDING_LINKS]: {
+            [ScoreName.TRENDING_LINKS]: {
                 description: "Favour links that are trending in the Fediverse",
             },
-            [WeightName.TRENDING_TAGS]: {
+            [ScoreName.TRENDING_TAGS]: {
                 description: "Favour hashtags that are trending in the Fediverse",
             },
-            [WeightName.TRENDING_TOOTS]: {
+            [ScoreName.TRENDING_TOOTS]: {
                 description: "Favour toots that are trending in the Fediverse",
             },
-            [WeightName.VIDEO_ATTACHMENTS]: {
+            [ScoreName.VIDEO_ATTACHMENTS]: {
                 description: "Favour video attachments",
             },
         },

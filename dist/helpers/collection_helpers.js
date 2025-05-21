@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isWeightName = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.keyByProperty = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -170,8 +170,6 @@ exports.isValueInStringEnum = isValueInStringEnum;
 ;
 const isStorageKey = (value) => isValueInStringEnum(types_1.StorageKey)(value);
 exports.isStorageKey = isStorageKey;
-const isWeightName = (value) => isValueInStringEnum(types_1.WeightName)(value);
-exports.isWeightName = isWeightName;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {
     return array.reduce((keyedDict, obj) => {

@@ -5,7 +5,7 @@ import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/b
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-export declare enum WeightName {
+export declare enum ScoreName {
     ALREADY_SHOWN = "AlreadyShown",
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
@@ -25,13 +25,15 @@ export declare enum WeightName {
     TRENDING_LINKS = "TrendingLinks",
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = "VideoAttachments",
-    OUTLIER_DAMPENER = "OutlierDampener",
-    TIME_DECAY = "TimeDecay",
-    TRENDING = "Trending"
+    VIDEO_ATTACHMENTS = "VideoAttachments"
 }
-export declare const NON_SCORE_WEIGHTS: WeightName[];
-export declare const TRENDING_WEIGHTS: WeightName[];
+export declare enum NonScoreWeight {
+    TIME_DECAY = "TimeDecay",
+    TRENDING = "Trending",
+    OUTLIER_DAMPENER = "OutlierDampener"
+}
+export type WeightName = ScoreName | NonScoreWeight;
+export declare const TRENDING_WEIGHTS: ScoreName[];
 export declare enum StorageKey {
     APP_OPENS = "AppOpens",
     BLOCKED_ACCOUNTS = "BlockedAccounts",

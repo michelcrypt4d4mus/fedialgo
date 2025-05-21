@@ -1,6 +1,7 @@
 import { StorageKey, WeightInfoDict } from "./types";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
+export declare const MINUTES_IN_DAY: number;
 export declare const SECONDS_IN_HOUR: number;
 export declare const SECONDS_IN_DAY: number;
 export declare const SECONDS_IN_WEEK: number;

@@ -15,7 +15,7 @@ const types_1 = require("../../types");
 const log_helpers_1 = require("../../helpers/log_helpers");
 class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.DIVERSITY);
+        super(types_1.ScoreName.DIVERSITY);
     }
     // Count toots by account (but negative instead of positive count)
     extractScoringData(feed) {

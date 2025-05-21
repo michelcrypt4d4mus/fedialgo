@@ -13,7 +13,7 @@ const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class FavouritedTagsScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.FAVOURITED_TAGS);
+        super(types_1.ScoreName.FAVOURITED_TAGS);
     }
     ;
     async prepareScoreData() {

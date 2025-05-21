@@ -13,7 +13,6 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare const isStorageKey: (value: string) => boolean;
-export declare const isWeightName: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];

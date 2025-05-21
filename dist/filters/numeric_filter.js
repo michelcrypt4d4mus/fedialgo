@@ -7,9 +7,9 @@ exports.isNumericFilterName = exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const types_1 = require("../types");
 exports.FILTERABLE_SCORES = [
-    types_1.WeightName.NUM_REPLIES,
-    types_1.WeightName.NUM_RETOOTS,
-    types_1.WeightName.NUM_FAVOURITES,
+    types_1.ScoreName.NUM_REPLIES,
+    types_1.ScoreName.NUM_RETOOTS,
+    types_1.ScoreName.NUM_FAVOURITES,
 ];
 const isNumericFilterName = (name) => exports.FILTERABLE_SCORES.includes(name);
 exports.isNumericFilterName = isNumericFilterName;

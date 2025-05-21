@@ -1,45 +1,41 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TRENDING_WEIGHTS = exports.NON_SCORE_WEIGHTS = exports.WeightName = void 0;
-// Names of the user adjustable score weightings
-var WeightName;
-(function (WeightName) {
-    WeightName["ALREADY_SHOWN"] = "AlreadyShown";
-    WeightName["CHAOS"] = "Chaos";
-    WeightName["DIVERSITY"] = "Diversity";
-    WeightName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
-    WeightName["FAVOURITED_TAGS"] = "FavouritedTags";
-    WeightName["FOLLOWED_TAGS"] = "FollowedTags";
-    WeightName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
-    WeightName["INTERACTIONS"] = "Interactions";
-    WeightName["MENTIONS_FOLLOWED"] = "MentionsFollowed";
-    WeightName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
-    WeightName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
-    WeightName["NUM_FAVOURITES"] = "NumFavourites";
-    WeightName["NUM_REPLIES"] = "NumReplies";
-    WeightName["NUM_RETOOTS"] = "NumRetoots";
-    WeightName["PARTICIPATED_TAGS"] = "ParticipatedTags";
-    WeightName["RETOOTED_IN_FEED"] = "RetootedInFeed";
-    WeightName["TRENDING_LINKS"] = "TrendingLinks";
-    WeightName["TRENDING_TAGS"] = "TrendingTags";
-    WeightName["TRENDING_TOOTS"] = "TrendingToots";
-    WeightName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
-    // Non score weights
-    WeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
-    WeightName["TIME_DECAY"] = "TimeDecay";
-    WeightName["TRENDING"] = "Trending";
-})(WeightName || (exports.WeightName = WeightName = {}));
+exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.StorageKey = exports.TRENDING_WEIGHTS = exports.NonScoreWeight = exports.ScoreName = void 0;
+var ScoreName;
+(function (ScoreName) {
+    ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
+    ScoreName["CHAOS"] = "Chaos";
+    ScoreName["DIVERSITY"] = "Diversity";
+    ScoreName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
+    ScoreName["FAVOURITED_TAGS"] = "FavouritedTags";
+    ScoreName["FOLLOWED_TAGS"] = "FollowedTags";
+    ScoreName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
+    ScoreName["INTERACTIONS"] = "Interactions";
+    ScoreName["MENTIONS_FOLLOWED"] = "MentionsFollowed";
+    ScoreName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
+    ScoreName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
+    ScoreName["NUM_FAVOURITES"] = "NumFavourites";
+    ScoreName["NUM_REPLIES"] = "NumReplies";
+    ScoreName["NUM_RETOOTS"] = "NumRetoots";
+    ScoreName["PARTICIPATED_TAGS"] = "ParticipatedTags";
+    ScoreName["RETOOTED_IN_FEED"] = "RetootedInFeed";
+    ScoreName["TRENDING_LINKS"] = "TrendingLinks";
+    ScoreName["TRENDING_TAGS"] = "TrendingTags";
+    ScoreName["TRENDING_TOOTS"] = "TrendingToots";
+    ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
+})(ScoreName || (exports.ScoreName = ScoreName = {}));
 ;
-// Order matters for the demo app
-exports.NON_SCORE_WEIGHTS = [
-    WeightName.TIME_DECAY,
-    WeightName.TRENDING,
-    WeightName.OUTLIER_DAMPENER,
-];
+var NonScoreWeight;
+(function (NonScoreWeight) {
+    NonScoreWeight["TIME_DECAY"] = "TimeDecay";
+    NonScoreWeight["TRENDING"] = "Trending";
+    NonScoreWeight["OUTLIER_DAMPENER"] = "OutlierDampener";
+})(NonScoreWeight || (exports.NonScoreWeight = NonScoreWeight = {}));
+;
 exports.TRENDING_WEIGHTS = [
-    WeightName.TRENDING_LINKS,
-    WeightName.TRENDING_TAGS,
-    WeightName.TRENDING_TOOTS,
+    ScoreName.TRENDING_LINKS,
+    ScoreName.TRENDING_TAGS,
+    ScoreName.TRENDING_TOOTS,
 ];
 // Keys that are valid for local browser storage.
 var StorageKey;

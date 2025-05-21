@@ -109,16 +109,15 @@ algorithm.triggerHomeTimelineBackFill();
 
 #### Setting Weights For The Various Feed Scorers
 ```typescript
-import { Toot, Weights, WeightPresetLabel } from "fedialgo";
+import { ScoreName, Toot, Weights, WeightPresetLabel } from "fedialgo";
 
 // Get and set score weightings (the things controlled by the sliders in the demo app)
 const weights: Weights = await algorithm.getUserWeights();
-weights[WeightName.NUM_REPLIES] = 0.5;
+weights[ScoreName.NUM_REPLIES] = 0.5;
 let timelineFeed: Toot[] = await algorithm.updateUserWeights(weights);
 
-// The names of the weights that can be adjusted are exported as the WeightName enum.
 // Additional properties (description, minimum value, etc) can be found at algorithm.weightInfo.
-for (const key in WeightName) {
+for (const key in algorithm.weightInfo) {
     console.log(`Weight '${key}' info: ${algorithm.weightInfo[key]}`);
 }
 
@@ -132,7 +131,7 @@ Object.entries(algorithm.weightPresets).forEach(([presetName, weights]) => {
 
 #### Filtering The Feed
 ```typescript
-import { BooleanFilterName, Toot, WeightName, Weights } from "fedialgo";
+import { BooleanFilterName, ScoreName, Toot, Weights } from "fedialgo";
 
 // Set a filter for only German language toots
 const filters = algorithm.getFilters();
@@ -140,7 +139,7 @@ filters.booleanFilters[BooleanFilterName.LANGUAGE].updateValidOptions("de", true
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies
-filters.numericFilters[WeightName.NUM_REPLIES].value = 3;
+filters.numericFilters[ScoreName.NUM_REPLIES].value = 3;
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 ```
 

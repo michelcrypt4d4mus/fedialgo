@@ -3,12 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from '../../types';
+import { ScoreName } from '../../types';
 
 
 export default class AlreadyShownScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.ALREADY_SHOWN);
+        super(ScoreName.ALREADY_SHOWN);
     }
 
     // Sets the followedTags property on the Toot object before returning the score

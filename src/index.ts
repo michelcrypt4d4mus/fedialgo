@@ -57,11 +57,11 @@ import {
     traceLog,
 } from './helpers/log_helpers';
 import {
-    NON_SCORE_WEIGHTS,
     FeedFilterSettings,
     KeysOfValueType,
     MastodonInstances,
     MediaCategory,
+    NonScoreWeight,
     WeightInfoDict,
     StorageKey,
     StringNumberDict,
@@ -166,7 +166,7 @@ class TheAlgorithm {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
         },
-        NON_SCORE_WEIGHTS.reduce(
+        Object.values(NonScoreWeight).reduce(
             (specialScoreInfos, weightName) => {
                 specialScoreInfos[weightName] = Object.assign({}, Config.scoring.weightsConfig[weightName])
                 return specialScoreInfos;
@@ -639,7 +639,6 @@ export {
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
-    NON_SCORE_WEIGHTS,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
     // Classes
@@ -650,6 +649,7 @@ export {
     // Enums
     BooleanFilterName,
     MediaCategory,
+    NonScoreWeight,
     TypeFilterName,
     WeightName,
     WeightPresetLabel,

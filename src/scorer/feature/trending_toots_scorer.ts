@@ -4,12 +4,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from "../../types";
+import { ScoreName } from "../../types";
 
 
 export default class TrendingTootScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.TRENDING_TOOTS);
+        super(ScoreName.TRENDING_TOOTS);
     }
 
     async _score(toot: Toot) {

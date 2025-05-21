@@ -11,7 +11,7 @@ import { batchMap, sumValues } from "../helpers/collection_helpers";
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { TRENDING_WEIGHTS, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
+import { TRENDING_WEIGHTS, NonScoreWeight, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -25,10 +25,10 @@ export default abstract class Scorer {
     defaultWeight: number;
     description: string;
     isReady: boolean = false;  // Set to true when the scorer is ready to score
-    name: WeightName;
+    name: ScoreName;;
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
-    constructor(name: WeightName) {
+    constructor(name: ScoreName) {
         this.name = name;
         this.description = Config.scoring.weightsConfig[name].description;
         this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
@@ -147,9 +147,9 @@ export default abstract class Scorer {
         const userWeights = await Storage.getWeights();
         // Find non scorer weights
         const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
-        const outlierDampener = getWeight(WeightName.OUTLIER_DAMPENER);
-        const timeDecayWeight = getWeight(WeightName.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
-        const trendingMultiplier = getWeight(WeightName.TRENDING);
+        const outlierDampener = getWeight(NonScoreWeight.OUTLIER_DAMPENER);
+        const timeDecayWeight = getWeight(NonScoreWeight.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
+        const trendingMultiplier = getWeight(NonScoreWeight.TRENDING);
         // Initialize variables
         const rawScores = {} as StringNumberDict;
         const weightedScores = {} as StringNumberDict;

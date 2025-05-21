@@ -24,6 +24,7 @@ class Scorer {
     description;
     isReady = false; // Set to true when the scorer is ready to score
     name;
+    ;
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
@@ -125,9 +126,9 @@ class Scorer {
         const userWeights = await Storage_1.default.getWeights();
         // Find non scorer weights
         const getWeight = (weightKey) => userWeights[weightKey] ?? weight_presets_1.DEFAULT_WEIGHTS[weightKey];
-        const outlierDampener = getWeight(types_1.WeightName.OUTLIER_DAMPENER);
-        const timeDecayWeight = getWeight(types_1.WeightName.TIME_DECAY) / 10; // Divide by 10 to make it more user friendly
-        const trendingMultiplier = getWeight(types_1.WeightName.TRENDING);
+        const outlierDampener = getWeight(types_1.NonScoreWeight.OUTLIER_DAMPENER);
+        const timeDecayWeight = getWeight(types_1.NonScoreWeight.TIME_DECAY) / 10; // Divide by 10 to make it more user friendly
+        const trendingMultiplier = getWeight(types_1.NonScoreWeight.TRENDING);
         // Initialize variables
         const rawScores = {};
         const weightedScores = {};

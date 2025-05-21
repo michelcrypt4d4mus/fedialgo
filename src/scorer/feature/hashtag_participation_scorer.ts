@@ -4,13 +4,13 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import UserData from '../../api/user_data';
-import { StringNumberDict, WeightName } from "../../types";
+import { ScoreName, StringNumberDict } from "../../types";
 import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class HashtagParticipationScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.PARTICIPATED_TAGS);
+        super(ScoreName.PARTICIPATED_TAGS);
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {

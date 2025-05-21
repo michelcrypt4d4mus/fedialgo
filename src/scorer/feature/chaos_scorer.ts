@@ -3,12 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from "../../types";
+import { ScoreName } from '../../types';
 
 
 export default class ChaosScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.CHAOS);
+        super(ScoreName.CHAOS);
     }
 
     async _score(toot: Toot) {

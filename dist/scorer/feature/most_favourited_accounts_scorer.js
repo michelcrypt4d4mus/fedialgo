@@ -12,7 +12,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.FAVOURITED_ACCOUNTS);
+        super(types_1.ScoreName.FAVOURITED_ACCOUNTS);
     }
     ;
     async prepareScoreData() {

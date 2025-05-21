@@ -6,12 +6,12 @@
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
 import { isDebugMode } from "../helpers/environment_helpers";
-import { StringNumberDict, WeightName } from "../types";
+import { ScoreName, StringNumberDict, WeightName } from "../types";
 
 
 // TODO: Find a better name than "Feature" for this class
 export default abstract class FeatureScorer extends Scorer {
-    constructor(scoreName: WeightName) {
+    constructor(scoreName: ScoreName) {
         super(scoreName);
     }
 

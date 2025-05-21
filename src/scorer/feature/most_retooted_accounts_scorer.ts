@@ -5,12 +5,12 @@
 import Account from '../../api/objects/account';
 import AccountScorer from "../acccount_scorer";
 import MastoApi from "../../api/api";
-import { StringNumberDict, WeightName } from "../../types";
+import { ScoreName, StringNumberDict } from "../../types";
 
 
 export default class MostRetootedAccountsScorer extends AccountScorer {
     constructor() {
-        super(WeightName.MOST_RETOOTED_ACCOUNTS);
+        super(ScoreName.MOST_RETOOTED_ACCOUNTS);
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {

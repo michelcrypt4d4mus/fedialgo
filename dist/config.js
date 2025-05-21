@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setLocale = exports.Config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.setLocale = exports.Config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -10,6 +10,7 @@ const log_helpers_1 = require("./helpers/log_helpers");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
+exports.MINUTES_IN_DAY = 24 * exports.MINUTES_IN_HOUR;
 exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * exports.MINUTES_IN_HOUR;
 exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
 exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
@@ -18,7 +19,7 @@ const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
-// number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
+// Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 ;
@@ -90,7 +91,6 @@ exports.Config = {
         backgroundLoadIntervalSeconds: 10 * exports.SECONDS_IN_MINUTE,
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 3,
-        // Right now this only applies to the initial load of toots for hashtags because those spawn a lot of parallel requests
         maxConcurrentRequestsInitial: 15,
         maxConcurrentRequestsBackground: 8,
         maxRecordsForFeatureScoring: 1500,
@@ -141,7 +141,7 @@ exports.Config = {
             // "mastodon.technology",        // Doesn't return MAU data
             // "mathstodon.xyz",             // Doesn't return MAU data
         ],
-        // Currently unused. Theoretically for non english users we would prefer these servers
+        // Servers chosen first for non english users
         foreignLanguageServers: {
             "de": [
                 "troet.cafe",
@@ -245,81 +245,81 @@ exports.Config = {
         timelineDecayExponent: 1.2,
         weightsConfig: {
             // Global modifiers that affect all weighted scores
-            [types_1.WeightName.TIME_DECAY]: {
+            [types_1.NonScoreWeight.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
                 minValue: 0.001,
             },
             // Trending toots usually have a lot of reblogs, likes, replies, etc. so they get disproportionately
             // high scores. To adjust for this we use a final adjustment to the score by multiplying by the
             // TRENDING weighting value.
-            [types_1.WeightName.TRENDING]: {
+            [types_1.NonScoreWeight.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
                 minValue: 0.001,
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-            [types_1.WeightName.OUTLIER_DAMPENER]: {
+            [types_1.NonScoreWeight.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
                 minValue: 0.001,
             },
             // Weighted scores
-            [types_1.WeightName.ALREADY_SHOWN]: {
+            [types_1.ScoreName.ALREADY_SHOWN]: {
                 description: 'Disfavour toots that have been marked as already seen'
             },
-            [types_1.WeightName.CHAOS]: {
+            [types_1.ScoreName.CHAOS]: {
                 description: "Insert Chaos into the scoring (social media ist krieg)",
             },
-            [types_1.WeightName.DIVERSITY]: {
+            [types_1.ScoreName.DIVERSITY]: {
                 description: "Disfavour accounts that are tooting a lot right now",
             },
-            [types_1.WeightName.FAVOURITED_ACCOUNTS]: {
+            [types_1.ScoreName.FAVOURITED_ACCOUNTS]: {
                 description: "Favour accounts you often favourite",
             },
-            [types_1.WeightName.FAVOURITED_TAGS]: {
+            [types_1.ScoreName.FAVOURITED_TAGS]: {
                 description: "Favour toots containing hashtags you favourite",
             },
-            [types_1.WeightName.FOLLOWED_TAGS]: {
+            [types_1.ScoreName.FOLLOWED_TAGS]: {
                 description: "Favour toots containing hashtags you follow",
             },
-            [types_1.WeightName.IMAGE_ATTACHMENTS]: {
+            [types_1.ScoreName.IMAGE_ATTACHMENTS]: {
                 description: "Favour image attachments",
             },
-            [types_1.WeightName.INTERACTIONS]: {
+            [types_1.ScoreName.INTERACTIONS]: {
                 description: "Favour accounts that interact with your toots",
             },
-            [types_1.WeightName.MENTIONS_FOLLOWED]: {
+            [types_1.ScoreName.MENTIONS_FOLLOWED]: {
                 description: "Favour toots that mention accounts you follow",
             },
-            [types_1.WeightName.MOST_REPLIED_ACCOUNTS]: {
+            [types_1.ScoreName.MOST_REPLIED_ACCOUNTS]: {
                 description: "Favour accounts you often reply to",
             },
-            [types_1.WeightName.MOST_RETOOTED_ACCOUNTS]: {
+            [types_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: {
                 description: "Favour accounts you often retoot",
             },
-            [types_1.WeightName.NUM_FAVOURITES]: {
+            [types_1.ScoreName.NUM_FAVOURITES]: {
                 description: "Favour things favourited by your server's users",
             },
-            [types_1.WeightName.NUM_REPLIES]: {
+            [types_1.ScoreName.NUM_REPLIES]: {
                 description: "Favour toots with lots of replies",
             },
-            [types_1.WeightName.NUM_RETOOTS]: {
+            [types_1.ScoreName.NUM_RETOOTS]: {
                 description: "Favour toots that are retooted a lot",
             },
-            [types_1.WeightName.PARTICIPATED_TAGS]: {
+            [types_1.ScoreName.PARTICIPATED_TAGS]: {
                 description: "Favour hastags you've tooted about",
             },
-            [types_1.WeightName.RETOOTED_IN_FEED]: {
+            [types_1.ScoreName.RETOOTED_IN_FEED]: {
                 description: "Favour toots retooted by accounts you follow",
             },
-            [types_1.WeightName.TRENDING_LINKS]: {
+            [types_1.ScoreName.TRENDING_LINKS]: {
                 description: "Favour links that are trending in the Fediverse",
             },
-            [types_1.WeightName.TRENDING_TAGS]: {
+            [types_1.ScoreName.TRENDING_TAGS]: {
                 description: "Favour hashtags that are trending in the Fediverse",
             },
-            [types_1.WeightName.TRENDING_TOOTS]: {
+            [types_1.ScoreName.TRENDING_TOOTS]: {
                 description: "Favour toots that are trending in the Fediverse",
             },
-            [types_1.WeightName.VIDEO_ATTACHMENTS]: {
+            [types_1.ScoreName.VIDEO_ATTACHMENTS]: {
                 description: "Favour video attachments",
             },
         },
@@ -330,7 +330,7 @@ exports.Config = {
         maxAgeInDays: 7,
         maxCachedTimelineToots: 3000,
         saveChangesIntervalSeconds: 30,
-        tootsCompleteAfterMinutes: 24 * exports.MINUTES_IN_HOUR, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+        tootsCompleteAfterMinutes: exports.MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     },
     trending: {
         links: {

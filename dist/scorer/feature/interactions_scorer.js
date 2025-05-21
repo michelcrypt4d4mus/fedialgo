@@ -12,7 +12,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const types_1 = require("../../types");
 class InteractionsScorer extends acccount_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.INTERACTIONS);
+        super(types_1.ScoreName.INTERACTIONS);
     }
     async prepareScoreData() {
         const notifications = await api_1.default.instance.getNotifications();

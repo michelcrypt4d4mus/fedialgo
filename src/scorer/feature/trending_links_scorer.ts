@@ -5,13 +5,13 @@
 import FeatureScorer from '../feature_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict, WeightName } from "../../types";
+import { ScoreName, StringNumberDict } from "../../types";
 import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class TrendingLinksScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.TRENDING_LINKS);
+        super(ScoreName.TRENDING_LINKS);
     }
 
     // TODO: this is unnecessary as numAccounts should be stored in the TrendingLink objects

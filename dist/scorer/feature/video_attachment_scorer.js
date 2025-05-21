@@ -10,7 +10,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class VideoAttachmentScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.VIDEO_ATTACHMENTS);
+        super(types_1.ScoreName.VIDEO_ATTACHMENTS);
     }
     async _score(toot) {
         return toot.realToot().videoAttachments.length;

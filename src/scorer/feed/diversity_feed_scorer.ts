@@ -6,13 +6,13 @@ import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { Config } from "../../config";
 import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
-import { StringNumberDict, WeightName } from "../../types";
+import { ScoreName, StringNumberDict } from "../../types";
 import { traceLog } from "../../helpers/log_helpers";
 
 
 export default class DiversityFeedScorer extends FeedScorer {
     constructor() {
-        super(WeightName.DIVERSITY);
+        super(ScoreName.DIVERSITY);
     }
 
     // Count toots by account (but negative instead of positive count)

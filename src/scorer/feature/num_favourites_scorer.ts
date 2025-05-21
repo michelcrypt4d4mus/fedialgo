@@ -5,12 +5,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from "../../types";
+import { ScoreName } from "../../types";
 
 
 export default class NumFavouritesScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.NUM_FAVOURITES);
+        super(ScoreName.NUM_FAVOURITES);
     }
 
     async _score(toot: Toot) {

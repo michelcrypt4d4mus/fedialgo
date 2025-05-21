@@ -10,7 +10,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class RetootsInFeedScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.RETOOTED_IN_FEED);
+        super(types_1.ScoreName.RETOOTED_IN_FEED);
     }
     async _score(toot) {
         if (!toot.reblog)

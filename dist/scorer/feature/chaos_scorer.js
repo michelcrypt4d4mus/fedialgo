@@ -10,7 +10,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class ChaosScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.CHAOS);
+        super(types_1.ScoreName.CHAOS);
     }
     async _score(toot) {
         // Return the existing score if it exists

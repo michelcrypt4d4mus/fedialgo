@@ -10,7 +10,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class ImageAttachmentScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.IMAGE_ATTACHMENTS);
+        super(types_1.ScoreName.IMAGE_ATTACHMENTS);
     }
     async _score(toot) {
         return toot.realToot().imageAttachments.length;

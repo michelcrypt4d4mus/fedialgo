@@ -3,12 +3,12 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { WeightName } from "../../types";
+import { ScoreName } from "../../types";
 
 
 export default class ImageAttachmentScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.IMAGE_ATTACHMENTS);
+        super(ScoreName.IMAGE_ATTACHMENTS);
     }
 
     async _score(toot: Toot) {

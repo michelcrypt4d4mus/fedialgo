@@ -14,7 +14,7 @@ const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
 class TrendingTagsScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.TRENDING_TAGS);
+        super(types_1.ScoreName.TRENDING_TAGS);
     }
     async _score(toot) {
         const tags = toot.realToot().trendingTags || [];

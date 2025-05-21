@@ -4,12 +4,12 @@
 import Account from "../../api/objects/account";
 import AccountScorer from "../acccount_scorer";
 import MastoApi from "../../api/api";
-import { StringNumberDict, WeightName } from "../../types";
+import { ScoreName, StringNumberDict } from "../../types";
 
 
 export default class InteractionsScorer extends AccountScorer {
     constructor() {
-        super(WeightName.INTERACTIONS);
+        super(ScoreName.INTERACTIONS);
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {

@@ -200,7 +200,6 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 export const isStorageKey = (value: string) => isValueInStringEnum(StorageKey)(value);
-export const isWeightName = (value: string) => isValueInStringEnum(WeightName)(value);
 
 
 // Build a dictionary from the result of keyFxn() for each object in the array

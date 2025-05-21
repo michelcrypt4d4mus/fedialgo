@@ -1,14 +1,14 @@
 import Toot from '../api/objects/toot';
-import { StringNumberDict, WeightInfo, WeightName } from "../types";
+import { ScoreName, StringNumberDict, WeightInfo } from "../types";
 type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
 type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;
 export default abstract class Scorer {
     defaultWeight: number;
     description: string;
     isReady: boolean;
-    name: WeightName;
+    name: ScoreName;
     scoreData: StringNumberDict;
-    constructor(name: WeightName);
+    constructor(name: ScoreName);
     getInfo(): WeightInfo;
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;

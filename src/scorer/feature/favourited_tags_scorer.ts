@@ -5,13 +5,13 @@ import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
 import { countTags } from '../../api/objects/tag';
-import { StringNumberDict, WeightName } from '../../types';
+import { ScoreName, StringNumberDict } from '../../types';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class FavouritedTagsScorer extends FeatureScorer {
     constructor() {
-        super(WeightName.FAVOURITED_TAGS);
+        super(ScoreName.FAVOURITED_TAGS);
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {

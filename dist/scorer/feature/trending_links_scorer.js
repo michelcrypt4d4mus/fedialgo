@@ -13,7 +13,7 @@ const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class TrendingLinksScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.TRENDING_LINKS);
+        super(types_1.ScoreName.TRENDING_LINKS);
     }
     // TODO: this is unnecessary as numAccounts should be stored in the TrendingLink objects
     async prepareScoreData() {

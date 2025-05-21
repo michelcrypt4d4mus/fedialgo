@@ -10,9 +10,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 
-
-// Names of the user adjustable score weightings
-export enum WeightName {
+export enum ScoreName {
     ALREADY_SHOWN = 'AlreadyShown',
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
@@ -33,23 +31,21 @@ export enum WeightName {
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = 'VideoAttachments',
-    // Non score weights
-    OUTLIER_DAMPENER = 'OutlierDampener',
-    TIME_DECAY = 'TimeDecay',
-    TRENDING = 'Trending',
 };
 
-// Order matters for the demo app
-export const NON_SCORE_WEIGHTS = [
-    WeightName.TIME_DECAY,
-    WeightName.TRENDING,
-    WeightName.OUTLIER_DAMPENER,
-];
+export enum NonScoreWeight {
+    TIME_DECAY = 'TimeDecay',
+    TRENDING = 'Trending',
+    OUTLIER_DAMPENER = 'OutlierDampener',
+};
+
+// Names of the user adjustable score weightings
+export type WeightName = ScoreName | NonScoreWeight;
 
 export const TRENDING_WEIGHTS = [
-    WeightName.TRENDING_LINKS,
-    WeightName.TRENDING_TAGS,
-    WeightName.TRENDING_TOOTS,
+    ScoreName.TRENDING_LINKS,
+    ScoreName.TRENDING_TAGS,
+    ScoreName.TRENDING_TOOTS,
 ];
 
 
@@ -64,7 +60,7 @@ export enum StorageKey {
     FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FILTERS = 'Filters',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = WeightName.FOLLOWED_TAGS,
+    FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
     HOME_TIMELINE = 'HomeTimeline',  // Just toots that are in the home timeline (followed accounts + tags)
     MUTED_ACCOUNTS = 'MutedAccounts',

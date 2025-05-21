@@ -11,7 +11,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class FollowedTagsScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.FOLLOWED_TAGS);
+        super(types_1.ScoreName.FOLLOWED_TAGS);
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {

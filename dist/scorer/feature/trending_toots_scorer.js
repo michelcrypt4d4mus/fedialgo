@@ -11,7 +11,7 @@ const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const types_1 = require("../../types");
 class TrendingTootScorer extends feature_scorer_1.default {
     constructor() {
-        super(types_1.WeightName.TRENDING_TOOTS);
+        super(types_1.ScoreName.TRENDING_TOOTS);
     }
     async _score(toot) {
         return toot.realToot().trendingRank || 0;
