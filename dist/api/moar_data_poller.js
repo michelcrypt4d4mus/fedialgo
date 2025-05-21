@@ -21,9 +21,8 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
     console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
-    const maxRecordsForFeatureScoring = config_1.config.api.maxRecordsForFeatureScoring;
-    const startedAt = new Date();
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
+    const startedAt = new Date();
     const pollers = [
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
@@ -35,7 +34,7 @@ async function getMoarData() {
         let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
         // Launch with moar flag those that are insufficient
         const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
-            if (size >= maxRecordsForFeatureScoring) {
+            if (size >= config_1.config.api.maxRecordsForFeatureScoring) {
                 console.log(`${exports.MOAR_DATA_PREFIX} ${pollers[i].name} has enough records (${size})`);
                 return 0;
             }
