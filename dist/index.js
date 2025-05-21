@@ -88,6 +88,7 @@ Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: f
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
 const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
+const stats_helper_1 = require("./helpers/stats_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
@@ -240,8 +241,8 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 api_1.default.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
+                // TODO: there's just too many notifications to pull all of them
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
-                // MastoApi.instance.getNotifications(moarParams),
                 api_1.default.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
             // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
@@ -267,40 +268,7 @@ class TheAlgorithm {
     }
     // Return an array of objects suitable for use with Recharts
     getRechartsStatsData(numPercentiles = 5) {
-        const stats = [];
-        let suffix;
-        switch (numPercentiles) {
-            case 4:
-                suffix = ' Quartile';
-                break;
-            case 5:
-                suffix = ' Quintile';
-                break;
-            case 10:
-                suffix = ' Decile';
-                break;
-            case 100:
-                suffix = ' Percentile';
-                break;
-            default:
-                suffix = '';
-                break;
-        }
-        ;
-        Object.entries(scorer_1.default.computeScoreStats(this.feed, numPercentiles)).forEach(([scoreName, scoreStats]) => {
-            // scoreType is "raw" or "weighted"
-            Object.entries(scoreStats).forEach(([scoreType, percentiles]) => {
-                percentiles.forEach((percentile, i) => {
-                    stats[i] ||= { segment: (0, string_helpers_1.suffixedInt)(i + 1) + suffix };
-                    const baseKey = `${scoreName}_${scoreType}`;
-                    Object.entries(percentile).forEach(([k, v]) => {
-                        stats[i][`${baseKey}_${k}`] = v;
-                    });
-                });
-            });
-        });
-        console.log(`getRechartsStatsData()`, stats);
-        return stats;
+        return (0, stats_helper_1.rechartsDataPoints)(this.feed, numPercentiles);
     }
     // Return the current filtered timeline feed in weight order
     getTimeline() {

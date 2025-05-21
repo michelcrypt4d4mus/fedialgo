@@ -2,6 +2,7 @@
 * Clear `TheAlgorithm.cacheUpdater` in `reset()`
 * Rename `Config` to `config`; convert `config.api.staleDataTrendingMinutes` to method
 * Rename config.api.backgroundLoadIntervalSeconds to backgroundLoadIntervalMinutes
+* Refactor stats_helper.ts for Recharts data stuff
 
 ### v0.47.8
 * Make `Config` a `class` instead of just an object

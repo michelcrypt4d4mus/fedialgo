@@ -39,12 +39,13 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
-import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain, suffixedInt } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isValueInStringEnum, computeMinMax, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
+import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
@@ -254,8 +255,8 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 MastoApi.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
+                // TODO: there's just too many notifications to pull all of them
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
-                // MastoApi.instance.getNotifications(moarParams),
                 MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
 
@@ -282,33 +283,7 @@ class TheAlgorithm {
 
     // Return an array of objects suitable for use with Recharts
     getRechartsStatsData(numPercentiles: number = 5): any[] {
-        const stats: any[] = [];
-        let suffix: string;
-
-        switch (numPercentiles) {
-            case 4: suffix = ' Quartile'; break;
-            case 5: suffix = ' Quintile'; break;
-            case 10: suffix = ' Decile'; break;
-            case 100: suffix = ' Percentile'; break;
-            default: suffix = ''; break;
-        };
-
-        Object.entries(Scorer.computeScoreStats(this.feed, numPercentiles)).forEach(([scoreName, scoreStats]) => {
-            // scoreType is "raw" or "weighted"
-            Object.entries(scoreStats).forEach(([scoreType, percentiles]) => {
-                percentiles.forEach((percentile, i) => {
-                    stats[i] ||= {segment: suffixedInt(i + 1) + suffix};
-                    const baseKey = `${scoreName}_${scoreType}`;
-
-                    Object.entries(percentile).forEach(([k, v]) => {
-                        stats[i][`${baseKey}_${k}`] = v;
-                    });
-                });
-            });
-        });
-
-        console.log(`getRechartsStatsData()`, stats);
-        return stats;
+        return rechartsDataPoints(this.feed, numPercentiles);
     }
 
     // Return the current filtered timeline feed in weight order
