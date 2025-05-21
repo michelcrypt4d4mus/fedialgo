@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.47.7
 * Move scorer descriptions out of config and into the `Scorer` class
 * Bump up default diversity penalty weight to 2.0
 * Separate `StorageKey` enum into `CacheKey` for API methods and `AlgorithmStorageKey` for other FediAlgo browser storage
