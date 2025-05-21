@@ -407,6 +407,7 @@ class Config implements ConfigType {
 
     constructor() {
         this.validate();
+        traceLog("[Config] validated config:", this);
     };
 
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
@@ -457,8 +458,6 @@ class Config implements ConfigType {
                 logAndThrowError(`Config value at ${key} is empty string`);
             }
         });
-
-        traceLog("[Config] validated config:", config);
     }
 };
 

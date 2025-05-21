@@ -297,6 +297,7 @@ class Config {
     };
     constructor() {
         this.validate();
+        (0, log_helpers_1.traceLog)("[Config] validated config:", this);
     }
     ;
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
@@ -344,7 +345,6 @@ class Config {
                 (0, log_helpers_1.logAndThrowError)(`Config value at ${key} is empty string`);
             }
         });
-        (0, log_helpers_1.traceLog)("[Config] validated config:", config);
     }
 }
 ;
