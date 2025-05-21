@@ -102,8 +102,8 @@ declare class Config implements ConfigType {
         maxConcurrentRequestsInitial: number;
         maxConcurrentRequestsBackground: number;
         maxRecordsForFeatureScoring: number;
-        mutexWarnSeconds: number;
         minutesUntilStaleDefault: number;
+        mutexWarnSeconds: number;
         timeoutMS: number;
         data: ApiDataConfig;
     };

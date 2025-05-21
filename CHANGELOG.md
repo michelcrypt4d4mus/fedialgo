@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * Clear `TheAlgorithm.cacheUpdater` in `reset()`
-* Rename `Config` to `config`; convert `config.api.staleDataTrendingMinutes` to method
+* Rename `Config` to `config`; convert `config.api.staleDataTrendingMinutes` to method; lower hashtagTootRetrievalDelaySeconds to 1 second
 * Rename config.api.backgroundLoadIntervalSeconds to backgroundLoadIntervalMinutes
 * Refactor stats_helper.ts for Recharts data stuff
 

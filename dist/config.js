@@ -31,12 +31,12 @@ class Config {
     api = {
         backgroundLoadIntervalMinutes: 10,
         defaultRecordsPerPage: 40,
-        hashtagTootRetrievalDelaySeconds: 3,
+        hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentRequestsInitial: 15,
         maxConcurrentRequestsBackground: 8,
         maxRecordsForFeatureScoring: 1500,
-        mutexWarnSeconds: 5,
         minutesUntilStaleDefault: 10,
+        mutexWarnSeconds: 5,
         timeoutMS: 5000,
         data: {
             [types_1.CacheKey.BLOCKED_ACCOUNTS]: {

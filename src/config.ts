@@ -133,14 +133,14 @@ class Config implements ConfigType {
     api = {
         backgroundLoadIntervalMinutes: 10,      // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-        hashtagTootRetrievalDelaySeconds: 3,    // Delay before pulling trending & participated hashtag toots
+        hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
-        mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
+        mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
         timeoutMS: 5_000,                       // Timeout for API calls
-        data: {
+        data: {                                 // See comments on ApiDataConfig for explanations of these values
             [CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
