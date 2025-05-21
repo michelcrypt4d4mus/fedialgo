@@ -175,6 +175,13 @@ export type MinMaxID = {
     max: string;
 };
 
+export type ScoreStats = {
+    raw: MinMaxAvg[];
+    weighted: MinMaxAvg[];
+};
+
+export type ScoresStats = Record<ScoreName, ScoreStats>;
+
 export type StorableApiObject = (
     MastodonObjWithID |
     MastodonTag |

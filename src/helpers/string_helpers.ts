@@ -144,6 +144,24 @@ export function isVideo(uri: string | null | undefined): boolean {
 };
 
 
+// 1st, 2nd, 3rd, 4th, etc.
+export const ordinalSuffix = (n: number): string => {
+    if (n > 3 && n < 21) return "th";
+
+    switch (n % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+    }
+};
+
+
+export const suffixedInt = (n: number): string => {
+    return `${n}${ordinalSuffix(n)}`;
+};
+
+
 // Replace custom emoji shortcodes like :smile: with <img> tags
 export function replaceEmojiShortcodesWithImageTags(
     html: string,

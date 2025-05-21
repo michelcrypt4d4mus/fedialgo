@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.formatScore = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -92,6 +92,7 @@ const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return types_1.NonScoreWeightName; } });
+Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return types_1.ScoreName; } });
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -263,13 +264,46 @@ class TheAlgorithm {
             UserData: await api_1.default.instance.getUserData(),
         };
     }
+    // Return an array of objects suitable for use with Recharts
+    getRechartsStatsData(numPercentiles = 5) {
+        const stats = [];
+        let suffix;
+        switch (numPercentiles) {
+            case 4:
+                suffix = ' Quartile';
+                break;
+            case 5:
+                suffix = ' Quintile';
+                break;
+            case 10:
+                suffix = ' Decile';
+                break;
+            case 100:
+                suffix = ' Percentile';
+                break;
+            default:
+                suffix = '';
+                break;
+        }
+        ;
+        Object.entries(scorer_1.default.computeScoreStats(this.feed, numPercentiles)).forEach(([scoreName, scoreStats]) => {
+            // scoreType is "raw" or "weighted"
+            Object.entries(scoreStats).forEach(([scoreType, percentiles]) => {
+                percentiles.forEach((percentile, i) => {
+                    stats[i] ||= { segment: (0, string_helpers_1.suffixedInt)(i + 1) + suffix };
+                    const baseKey = `${scoreName}_${scoreType}`;
+                    Object.entries(percentile).forEach(([k, v]) => {
+                        stats[i][`${baseKey}_${k}`] = (0, scorer_1.formatScore)(v);
+                    });
+                });
+            });
+        });
+        console.log(`getRechartsStatsData()`, stats);
+        return stats;
+    }
     // Return the current filtered timeline feed in weight order
     getTimeline() {
         return this.feed;
-    }
-    // Get stats about the scores of the toots in the feed
-    getTimelineStats() {
-        return scorer_1.default.computeScoreStats(this.feed);
     }
     // Return the user's current weightings for each score category
     async getUserWeights() {

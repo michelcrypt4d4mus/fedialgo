@@ -11,7 +11,7 @@ import { batchMap, percentiles, sumValues } from "../helpers/collection_helpers"
 import { Config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { MinMaxAvg, NonScoreWeightName, ScoreName, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
+import { NonScoreWeightName, ScoreName, ScoresStats, StringNumberDict, TootScore, WeightInfo, WeightName, Weights } from "../types";
 
 const SCORE_DIGITS = 3;  // Number of digits to display in the alternate score
 const SCORE_MUTEX = new Mutex();
@@ -149,7 +149,7 @@ export default abstract class Scorer {
     }
 
     // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots: Toot[], numPercentiles: number = 5): Record<ScoreName, any> {
+    static computeScoreStats(toots: Toot[], numPercentiles: number = 5): ScoresStats {
         return Object.values(ScoreName).reduce((stats, scoreName) => {
             stats[scoreName] = {
                 raw: percentiles(toots.map((t) => t.scoreInfo?.rawScores[scoreName] ?? 0), numPercentiles),
@@ -157,7 +157,7 @@ export default abstract class Scorer {
             };
 
             return stats;
-        }, {} as Record<ScoreName, any>);
+        }, {} as ScoresStats);
     }
 
     // Add all the score info to a Toot's scoreInfo property

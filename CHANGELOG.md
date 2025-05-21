@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add TheAlgorithm.getRechartsStatsData() method to prepare data about score statistics for Recharts presentation
 
 # v0.47.0
 * Separate out `NonScoreWeightName` and `ScoreName` enums from `WeightName` enum

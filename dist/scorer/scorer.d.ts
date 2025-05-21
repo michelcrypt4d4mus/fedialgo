@@ -1,5 +1,5 @@
 import Toot from '../api/objects/toot';
-import { ScoreName, StringNumberDict, WeightInfo } from "../types";
+import { ScoreName, ScoresStats, StringNumberDict, WeightInfo } from "../types";
 type WeightedAndUnweightedScores = Record<string, number | StringNumberDict>;
 type AlternateScoreDict = Record<string, number | WeightedAndUnweightedScores>;
 export default abstract class Scorer {
@@ -15,7 +15,7 @@ export default abstract class Scorer {
     protected logPrefix(): string;
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
     static alternateScoreInfo(toot: Toot): AlternateScoreDict;
-    static computeScoreStats(toots: Toot[], numPercentiles?: number): Record<ScoreName, any>;
+    static computeScoreStats(toots: Toot[], numPercentiles?: number): ScoresStats;
     private static decorateWithScoreInfo;
     private static sumScores;
 }

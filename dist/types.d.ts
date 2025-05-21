@@ -118,6 +118,11 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
+export type ScoreStats = {
+    raw: MinMaxAvg[];
+    weighted: MinMaxAvg[];
+};
+export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);

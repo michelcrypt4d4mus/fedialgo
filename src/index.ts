@@ -39,7 +39,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { Config, MAX_ENDPOINT_RECORDS_TO_PULL, setLocale } from './config';
-import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain, suffixedInt } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
@@ -60,9 +60,10 @@ import {
     FeedFilterSettings,
     KeysOfValueType,
     MastodonInstances,
+    MastodonTag,
     MediaCategory,
     NonScoreWeightName,
-    WeightInfoDict,
+    ScoreName,
     StorageKey,
     StringNumberDict,
     TagWithUsageCounts,
@@ -72,7 +73,7 @@ import {
     TrendingWithHistory,
     WeightName,
     Weights,
-    MastodonTag,
+    WeightInfoDict,
 } from "./types";
 
 // Strings
@@ -274,6 +275,37 @@ class TheAlgorithm {
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };
+    }
+
+    // Return an array of objects suitable for use with Recharts
+    getRechartsStatsData(numPercentiles: number = 5): any[] {
+        const stats: any[] = [];
+        let suffix: string;
+
+        switch (numPercentiles) {
+            case 4: suffix = ' Quartile'; break;
+            case 5: suffix = ' Quintile'; break;
+            case 10: suffix = ' Decile'; break;
+            case 100: suffix = ' Percentile'; break;
+            default: suffix = ''; break;
+        };
+
+        Object.entries(Scorer.computeScoreStats(this.feed, numPercentiles)).forEach(([scoreName, scoreStats]) => {
+            // scoreType is "raw" or "weighted"
+            Object.entries(scoreStats).forEach(([scoreType, percentiles]) => {
+                percentiles.forEach((percentile, i) => {
+                    stats[i] ||= {segment: suffixedInt(i + 1) + suffix};
+                    const baseKey = `${scoreName}_${scoreType}`;
+
+                    Object.entries(percentile).forEach(([k, v]) => {
+                        stats[i][`${baseKey}_${k}`] = formatScore(v);
+                    });
+                });
+            });
+        });
+
+        console.log(`getRechartsStatsData()`, stats);
+        return stats;
     }
 
     // Return the current filtered timeline feed in weight order
@@ -655,6 +687,7 @@ export {
     BooleanFilterName,
     MediaCategory,
     NonScoreWeightName,
+    ScoreName,
     TypeFilterName,
     WeightName,
     WeightPresetLabel,

@@ -30,6 +30,8 @@ export declare function htmlToText(html: string): string;
 export declare function htmlToParagraphs(html: string): string[];
 export declare function isImage(uri: string | null | undefined): boolean;
 export declare function isVideo(uri: string | null | undefined): boolean;
+export declare const ordinalSuffix: (n: number) => string;
+export declare const suffixedInt: (n: number) => string;
 export declare function replaceEmojiShortcodesWithImageTags(html: string, emojis: mastodon.v1.CustomEmoji[], fontSize?: number): string;
 export declare function replaceHttpsLinks(input: string): string;
 export declare const toLocaleInt: (num: number | null) => string;
