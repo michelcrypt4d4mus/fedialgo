@@ -247,6 +247,13 @@ export default class Toot implements TootObj {
         tootObj.audioAttachments = tootObj.attachmentsOfType(MediaCategory.AUDIO);
         tootObj.imageAttachments = tootObj.attachmentsOfType(MediaCategory.IMAGE);
         tootObj.videoAttachments = VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
+
+        if (tootObj.account.suspended) {
+            console.warn(`Toot from suspended account:`, tootObj);
+        } else if (tootObj.account.limited) {
+            console.warn(`Toot from limited account:`, tootObj);
+        }
+
         return tootObj;
     }
 

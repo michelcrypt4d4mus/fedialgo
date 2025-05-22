@@ -12,15 +12,15 @@
 ### v0.47.9
 * Clear `TheAlgorithm.cacheUpdater` in `reset()`
 * Rename `Config` to `config`; convert `config.api.staleDataTrendingMinutes` to method; lower `hashtagTootRetrievalDelaySeconds` to 1 second
-* Rename config.api.backgroundLoadIntervalSeconds to backgroundLoadIntervalMinutes
-* Refactor stats_helper.ts for Recharts data stuff
+* Rename `config.api.backgroundLoadIntervalSeconds` to `backgroundLoadIntervalMinutes`
+* Refactor `stats_helper.ts` for Recharts data stuff
 
 ### v0.47.8
 * Make `Config` a `class` instead of just an object
 * Add missing files from last build
 
 ### v0.47.7
-* Move scorer descriptions out of config and into the `Scorer` class
+* Move scorer descriptions out of `config` and into the `Scorer` class
 * Bump up default diversity penalty weight to 2.0
 * Separate `StorageKey` enum into `CacheKey` for API methods and `AlgorithmStorageKey` for other FediAlgo browser storage
 
@@ -34,7 +34,7 @@
 * Compute the average final score per decile of raw/weighted score
 
 ### v0.47.3
-* (Demo App) Add link in header to CHANGELOG and a link for bug reports
+* (Demo App) Add link in header to `CHANGELOG` and a link for bug reports
 
 ### v0.47.2
 * Export `MinMaxAvg` and `ScoreStats` types

@@ -171,6 +171,12 @@ class Toot {
         tootObj.audioAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.AUDIO);
         tootObj.imageAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.IMAGE);
         tootObj.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
+        if (tootObj.account.suspended) {
+            console.warn(`Toot from suspended account:`, tootObj);
+        }
+        else if (tootObj.account.limited) {
+            console.warn(`Toot from limited account:`, tootObj);
+        }
         return tootObj;
     }
     // Time since this toot was sent in hours
