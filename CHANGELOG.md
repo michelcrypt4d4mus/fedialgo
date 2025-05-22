@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.47.12
+* (Demo App) `ErrorBoundary` component to catch any and all errors
+
 ### v0.47.11
 * (Demo App) Drop down buttons now display the selected option
 
