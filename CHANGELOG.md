@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.47.13
+* (Demo App) Code improvements
+
 ### v0.47.12
 * (Demo App) `ErrorBoundary` component to catch any and all errors
 
