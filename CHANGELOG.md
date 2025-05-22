@@ -1,6 +1,10 @@
 # NEXT RELEASE
 
+### v0.47.11
+* (Demo App) Drop down buttons now display the selected option
+
 ### v0.47.10
+* (Demo App) Fix `LoginPage` redirect (has two frontslashes)
 
 ### v0.47.9
 * Clear `TheAlgorithm.cacheUpdater` in `reset()`
