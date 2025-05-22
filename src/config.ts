@@ -392,6 +392,7 @@ class Config implements ConfigType {
         },
         tags: {
             invalidTrendingTags: [              // Tags that are too generic to be considered trending
+                "government",
                 "news",
                 "photography",
             ],

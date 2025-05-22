@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add #government to the list of "too generic to care" tags
 
 ### v0.47.13
 * (Demo App) Code improvements
@@ -10,7 +11,7 @@
 * (Demo App) Drop down buttons now display the selected option
 
 ### v0.47.10
-* (Demo App) Fix `LoginPage` redirect (has two frontslashes)
+* (Demo App) Fix `LoginPage` redirect (had two frontslashes)
 
 ### v0.47.9
 * Clear `TheAlgorithm.cacheUpdater` in `reset()`

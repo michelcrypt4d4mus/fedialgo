@@ -283,6 +283,7 @@ class Config {
         },
         tags: {
             invalidTrendingTags: [
+                "government",
                 "news",
                 "photography",
             ],

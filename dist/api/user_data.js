@@ -31,7 +31,7 @@ class UserData {
         userData.favouritedTagCounts = (0, tag_1.countTags)(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = (0, tag_1.buildTagNames)(data.followedTags);
-        userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
+        userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
