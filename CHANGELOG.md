@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* Add #government to the list of "too generic to care" tags
+
+### v0.47.14
+* Add `#government` to the list of "too generic to trend" tags
+* (Demo App) Mobile improvements from @nanos
 
 ### v0.47.13
 * (Demo App) Code improvements
