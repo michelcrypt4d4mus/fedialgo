@@ -1,7 +1,7 @@
-import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
-export declare function batchMap<T>(items: Array<T>, fn: (item: T) => Promise<any>, label?: string, batchSize?: number | null, sleepBetweenMS?: number): Promise<any[]>;
+export declare function batchMap<T>(items: Array<T>, mapFxn: (item: T) => Promise<any>, label?: string, batchSize?: number, sleepBetweenMS?: number): Promise<any[]>;
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
@@ -14,7 +14,6 @@ export declare function decrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare const isStorageKey: (value: string) => boolean;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
-export declare function percentiles(array: number[], numPercentiles: number): MinMaxAvgScore[];
 export declare function percentileSegments<T>(array: T[], fxn: (element: T) => number | undefined, numPercentiles: number): T[][];
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.percentiles = exports.keyByProperty = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.keyByProperty = exports.isStorageKey = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -22,16 +22,20 @@ function average(values) {
 }
 exports.average = average;
 ;
-// Process a list of promises in batches of batchSize. label is for optional logging.
+// Process a list of promises in batches of batchSize. Returns list of results mapped by mapFxn.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
-async function batchMap(items, fn, label, batchSize, sleepBetweenMS) {
+//    - items: array of items to process
+//    - mapFxn: function to call for each item
+//    - label: optional label for logging
+//    - batchSize: number of items to process at once
+//    - sleepBetweenMS: optional number of milliseconds to sleep between batches
+async function batchMap(items, mapFxn, label, batchSize, sleepBetweenMS) {
     batchSize ||= config_1.config.scoring.scoringBatchSize;
-    const startTime = new Date();
     let results = [];
     let logPrefix = `[${label || 'batchMap'}]`;
     for (let start = 0; start < items.length; start += batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
-        const slicedResults = await Promise.all(items.slice(start, end).map(fn));
+        const slicedResults = await Promise.all(items.slice(start, end).map(mapFxn));
         results = [...results, ...slicedResults];
         if (sleepBetweenMS && (items.length > end)) {
             console.debug(`${logPrefix} batchMap() ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
@@ -179,31 +183,6 @@ function keyByProperty(array, keyFxn) {
 }
 exports.keyByProperty = keyByProperty;
 ;
-// Divide array into numPercentiles sections and return an array of objects with min,
-// max, and average values for each section. Last section may be smaller than the others.
-// TODO: unused
-function percentiles(array, numPercentiles) {
-    let batchSize = array.length / numPercentiles;
-    if (batchSize % 1 != 0)
-        batchSize += 1;
-    batchSize = Math.floor(batchSize);
-    array = array.toSorted((a, b) => a - b);
-    const percentileStats = [];
-    for (let start = 0; start < array.length; start += batchSize) {
-        const end = start + batchSize > array.length ? array.length : start + batchSize;
-        const section = array.slice(start, end);
-        percentileStats.push({
-            average: average(section),
-            averageFinalScore: average(section),
-            count: section.length,
-            min: section[0],
-            max: section.slice(-1)[0],
-        });
-    }
-    return percentileStats;
-}
-exports.percentiles = percentiles;
-;
 // Divide array into numPercentiles sections, returns array of arrays of type T objects
 function percentileSegments(array, fxn, numPercentiles) {
     array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
@@ -220,6 +199,7 @@ function percentileSegments(array, fxn, numPercentiles) {
     return percentileSegments;
 }
 exports.percentileSegments = percentileSegments;
+;
 // Randomize the order of an array
 function shuffle(array) {
     const sortRandom = (a, b) => (0, string_helpers_1.hashObject)(a).localeCompare((0, string_helpers_1.hashObject)(b));

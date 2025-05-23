@@ -21,23 +21,27 @@ export function average(values: number[]): number {
 };
 
 
-// Process a list of promises in batches of batchSize. label is for optional logging.
+// Process a list of promises in batches of batchSize. Returns list of results mapped by mapFxn.
 // From https://dev.to/woovi/processing-promises-in-batch-2le6
+//    - items: array of items to process
+//    - mapFxn: function to call for each item
+//    - label: optional label for logging
+//    - batchSize: number of items to process at once
+//    - sleepBetweenMS: optional number of milliseconds to sleep between batches
 export async function batchMap<T>(
     items: Array<T>,
-    fn: (item: T) => Promise<any>,
+    mapFxn: (item: T) => Promise<any>,
     label?: string,
-    batchSize?: number | null,
+    batchSize?: number,
     sleepBetweenMS?: number
 ): Promise<any[]> {
     batchSize ||= config.scoring.scoringBatchSize;
-    const startTime = new Date();
     let results: any[] = [];
     let logPrefix = `[${label || 'batchMap'}]`;
 
     for (let start = 0; start < items.length; start += batchSize) {
         const end = start + batchSize > items.length ? items.length : start + batchSize;
-        const slicedResults = await Promise.all(items.slice(start, end).map(fn));
+        const slicedResults = await Promise.all(items.slice(start, end).map(mapFxn));
         results = [...results, ...slicedResults]
 
         if (sleepBetweenMS && (items.length > end)) {
@@ -214,33 +218,6 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
 };
 
 
-// Divide array into numPercentiles sections and return an array of objects with min,
-// max, and average values for each section. Last section may be smaller than the others.
-// TODO: unused
-export function percentiles(array: number[], numPercentiles: number): MinMaxAvgScore[] {
-    let batchSize = array.length / numPercentiles;
-    if (batchSize % 1 != 0) batchSize += 1;
-    batchSize = Math.floor(batchSize);
-    array = array.toSorted((a, b) => a - b);
-    const percentileStats: MinMaxAvgScore[] = [];
-
-    for (let start = 0; start < array.length; start += batchSize) {
-        const end = start + batchSize > array.length ? array.length : start + batchSize;
-        const section = array.slice(start, end);
-
-        percentileStats.push({
-            average: average(section),
-            averageFinalScore: average(section),
-            count: section.length,
-            min: section[0],
-            max: section.slice(-1)[0],
-        });
-    }
-
-    return percentileStats;
-};
-
-
 // Divide array into numPercentiles sections, returns array of arrays of type T objects
 export function percentileSegments<T>(
     array: T[],
@@ -260,7 +237,7 @@ export function percentileSegments<T>(
     }
 
     return percentileSegments;
-}
+};
 
 
 // Randomize the order of an array
