@@ -42,6 +42,7 @@ Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: functi
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
+const followed_accounts_scorer_1 = __importDefault(require("./scorer/feature/followed_accounts_scorer"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
 const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
@@ -141,6 +142,7 @@ class TheAlgorithm {
         new already_shown_scorer_1.default(),
         new chaos_scorer_1.default(),
         new favourited_tags_scorer_1.default(),
+        new followed_accounts_scorer_1.default(),
         new followed_tags_scorer_1.default(),
         new hashtag_participation_scorer_1.default(),
         new mentions_followed_scorer_1.default(),

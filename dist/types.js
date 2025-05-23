@@ -8,6 +8,7 @@ var ScoreName;
     ScoreName["DIVERSITY"] = "Diversity";
     ScoreName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
     ScoreName["FAVOURITED_TAGS"] = "FavouritedTags";
+    ScoreName["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     ScoreName["FOLLOWED_TAGS"] = "FollowedTags";
     ScoreName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
     ScoreName["INTERACTIONS"] = "Interactions";

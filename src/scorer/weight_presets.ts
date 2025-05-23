@@ -28,6 +28,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [ScoreName.DIVERSITY]: 2.0,
     [ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [ScoreName.FAVOURITED_TAGS]: 0.1,
+    [ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
     [ScoreName.FOLLOWED_TAGS]: 4.0,
     [ScoreName.IMAGE_ATTACHMENTS]: 0,
     [ScoreName.INTERACTIONS]: 1.0,

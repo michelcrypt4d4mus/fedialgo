@@ -29,6 +29,7 @@ exports.DEFAULT_WEIGHTS = {
     [types_1.ScoreName.DIVERSITY]: 2.0,
     [types_1.ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [types_1.ScoreName.FAVOURITED_TAGS]: 0.1,
+    [types_1.ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
     [types_1.ScoreName.FOLLOWED_TAGS]: 4.0,
     [types_1.ScoreName.IMAGE_ATTACHMENTS]: 0,
     [types_1.ScoreName.INTERACTIONS]: 1.0,

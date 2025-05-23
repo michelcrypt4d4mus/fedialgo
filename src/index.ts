@@ -12,6 +12,7 @@ import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/bool
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
+import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
@@ -137,6 +138,7 @@ class TheAlgorithm {
         new AlreadyShownScorer(),
         new ChaosScorer(),
         new FavouritedTagsScorer(),
+        new FollowedAccountsScorer(),
         new FollowedTagsScorer(),
         new HashtagParticipationScorer(),
         new MentionsFollowedScorer(),
