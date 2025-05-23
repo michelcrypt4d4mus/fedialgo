@@ -111,8 +111,8 @@ export default abstract class Scorer {
     static computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
         return Object.values(ScoreName).reduce((stats, scoreName) => {
             stats[scoreName] = {
-                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
-                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
+                raw: this.scoreStats(toots, scoreName, "rawScores", numPercentiles),
+                weighted: this.scoreStats(toots, scoreName, "weightedScores", numPercentiles),
             };
 
             return stats;
@@ -224,30 +224,31 @@ export default abstract class Scorer {
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
     }
 
-    // Add 1 so that time decay multiplier works even with scorers giving 0s
-    private static sumScores(scores: StringNumberDict | Weights): number {
-        return 1 + sumValues(scores);
-    }
-
-    private static tootSegmentStats(
+    // Compute the min, max, and average of a score for each percentile segment
+    private static scoreStats(
         toots: Toot[],
         scoreName: ScoreName,
         scoreType: "rawScores" | "weightedScores",
         numPercentiles: number
     ): MinMaxAvgScore[] {
-        const getScore = (t: Toot) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
+        const getScoreOfType = (t: Toot) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
 
-        return percentileSegments(toots, getScore, numPercentiles).map((segment) => {
-            const sectionScores = segment.map(getScore);
+        return percentileSegments(toots, getScoreOfType, numPercentiles).map((segment) => {
+            const sectionScores = segment.map(getScoreOfType);
 
             return {
                 average: average(sectionScores),
-                averageFinalScore: average(segment.map((t) => t.scoreInfo?.score ?? 0)),
+                averageFinalScore: average(segment.map((toot) => toot.getScore())),
                 count: segment.length,
                 min: sectionScores[0],
                 max: sectionScores.slice(-1)[0],
             };
         });
+    }
+
+    // Add 1 so that time decay multiplier works even with scorers giving 0s
+    private static sumScores(scores: StringNumberDict | Weights): number {
+        return 1 + sumValues(scores);
     }
 };
 

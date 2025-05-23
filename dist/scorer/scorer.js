@@ -89,8 +89,8 @@ class Scorer {
     static computeScoreStats(toots, numPercentiles) {
         return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
             stats[scoreName] = {
-                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
-                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
+                raw: this.scoreStats(toots, scoreName, "rawScores", numPercentiles),
+                weighted: this.scoreStats(toots, scoreName, "weightedScores", numPercentiles),
             };
             return stats;
         }, {});
@@ -189,22 +189,23 @@ class Scorer {
         // TODO: duping the score to realToot() is a hack that sucks
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
     }
-    // Add 1 so that time decay multiplier works even with scorers giving 0s
-    static sumScores(scores) {
-        return 1 + (0, collection_helpers_1.sumValues)(scores);
-    }
-    static tootSegmentStats(toots, scoreName, scoreType, numPercentiles) {
-        const getScore = (t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
-        return (0, collection_helpers_1.percentileSegments)(toots, getScore, numPercentiles).map((segment) => {
-            const sectionScores = segment.map(getScore);
+    // Compute the min, max, and average of a score for each percentile segment
+    static scoreStats(toots, scoreName, scoreType, numPercentiles) {
+        const getScoreOfType = (t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
+        return (0, collection_helpers_1.percentileSegments)(toots, getScoreOfType, numPercentiles).map((segment) => {
+            const sectionScores = segment.map(getScoreOfType);
             return {
                 average: (0, collection_helpers_1.average)(sectionScores),
-                averageFinalScore: (0, collection_helpers_1.average)(segment.map((t) => t.scoreInfo?.score ?? 0)),
+                averageFinalScore: (0, collection_helpers_1.average)(segment.map((toot) => toot.getScore())),
                 count: segment.length,
                 min: sectionScores[0],
                 max: sectionScores.slice(-1)[0],
             };
         });
+    }
+    // Add 1 so that time decay multiplier works even with scorers giving 0s
+    static sumScores(scores) {
+        return 1 + (0, collection_helpers_1.sumValues)(scores);
     }
 }
 exports.default = Scorer;

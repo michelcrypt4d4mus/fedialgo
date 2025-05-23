@@ -17,8 +17,8 @@ export default abstract class Scorer {
     static computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats;
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
     private static decorateWithScoreInfo;
+    private static scoreStats;
     private static sumScores;
-    private static tootSegmentStats;
 }
 export declare function formatScore(score: number): number;
 export {};
