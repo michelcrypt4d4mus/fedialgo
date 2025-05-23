@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+# v0.48.0
+* Add a `FollowedAccountsScorer` to offset the slowly creeping dominance of participated and followed tags in the feed
+
 ### v0.47.14
 * Add `#government` to the list of "too generic to trend" tags
 * (Demo App) Mobile improvements from @nanos
