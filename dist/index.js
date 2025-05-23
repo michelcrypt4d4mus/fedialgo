@@ -370,8 +370,9 @@ class TheAlgorithm {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
-        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config_1.config.minTrendingMinutesUntilStale() && this.numTriggers <= 1) {
-            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
+        const maxAgeMinutes = config_1.config.minTrendingMinutesUntilStale();
+        if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
+            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;

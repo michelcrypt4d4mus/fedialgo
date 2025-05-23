@@ -400,9 +400,10 @@ class TheAlgorithm {
     private checkIfSkipping(): boolean {
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes) feedAgeInMinutes /= 60;
+        const maxAgeMinutes = config.minTrendingMinutesUntilStale();
 
-        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < config.minTrendingMinutesUntilStale() && this.numTriggers <= 1) {
-            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is fresh (${feedAgeInMinutes.toFixed(0)}s old), not updating`);
+        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
+            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
