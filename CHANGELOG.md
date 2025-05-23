@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.48.1
+* Test build
+
 # v0.48.0
 * Add a `FollowedAccountsScorer` to offset the slowly creeping dominance of participated and followed tags in the feed
 
