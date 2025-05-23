@@ -22,8 +22,8 @@ import {
     WeightName
 } from "../types";
 
+const LOG_PREFIX = "scoreToots()";
 const SCORE_MUTEX = new Mutex();
-const SCORE_PREFIX = "scoreToots()";
 
 const TRENDING_WEIGHTS = [
     ScoreName.TRENDING_LINKS,
@@ -104,13 +104,13 @@ export default abstract class Scorer {
             }
 
             // Sort feed based on score from high to low and return
-            traceLog(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            traceLog(LOG_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         } catch (e) {
             if (e == E_CANCELED) {
-                traceLog(SCORE_PREFIX, `mutex cancellation`);
+                traceLog(LOG_PREFIX, `mutex cancellation`);
             } else {
-                console.warn(`${SCORE_PREFIX} caught error:`, e);
+                console.warn(`${LOG_PREFIX} caught error:`, e);
             }
         }
 

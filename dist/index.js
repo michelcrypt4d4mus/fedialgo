@@ -128,14 +128,16 @@ class TheAlgorithm {
     // Other private variables
     feed = [];
     homeFeed = []; // Just the toots pulled from the home timeline
-    dataPoller;
-    cacheUpdater;
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     loadStartedAt = null; // Timestamp of when the feed started loading
     numTriggers = 0;
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
+    // Mutexess
     mergeMutex = new async_mutex_1.Mutex();
     scoreMutex = new async_mutex_1.Mutex();
+    // Background tasks
+    cacheUpdater;
+    dataPoller;
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new already_shown_scorer_1.default(),

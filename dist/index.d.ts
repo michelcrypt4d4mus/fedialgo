@@ -55,14 +55,14 @@ declare class TheAlgorithm {
     private setTimelineInApp;
     private feed;
     private homeFeed;
-    private dataPoller?;
-    private cacheUpdater?;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
     private numTriggers;
     private totalNumTimesShown;
     private mergeMutex;
     private scoreMutex;
+    private cacheUpdater?;
+    private dataPoller?;
     private featureScorers;
     private feedScorers;
     weightedScorers: (AlreadyShownScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];

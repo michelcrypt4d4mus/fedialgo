@@ -124,14 +124,16 @@ class TheAlgorithm {
     // Other private variables
     private feed: Toot[] = [];
     private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
-    private dataPoller?: ReturnType<typeof setInterval>;
-    private cacheUpdater?: ReturnType<typeof setInterval>;
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
     private numTriggers = 0;
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
+    // Mutexess
     private mergeMutex = new Mutex();
     private scoreMutex = new Mutex();
+    // Background tasks
+    private cacheUpdater?: ReturnType<typeof setInterval>;
+    private dataPoller?: ReturnType<typeof setInterval>;
 
     // These can score a toot without knowing about the rest of the toots in the feed
     private featureScorers = [

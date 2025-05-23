@@ -15,8 +15,8 @@ const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
+const LOG_PREFIX = "scoreToots()";
 const SCORE_MUTEX = new async_mutex_1.Mutex();
-const SCORE_PREFIX = "scoreToots()";
 const TRENDING_WEIGHTS = [
     types_1.ScoreName.TRENDING_LINKS,
     types_1.ScoreName.TRENDING_TAGS,
@@ -81,15 +81,15 @@ class Scorer {
                 releaseMutex?.();
             }
             // Sort feed based on score from high to low and return
-            (0, log_helpers_1.traceLog)(SCORE_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
+            (0, log_helpers_1.traceLog)(LOG_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                (0, log_helpers_1.traceLog)(SCORE_PREFIX, `mutex cancellation`);
+                (0, log_helpers_1.traceLog)(LOG_PREFIX, `mutex cancellation`);
             }
             else {
-                console.warn(`${SCORE_PREFIX} caught error:`, e);
+                console.warn(`${LOG_PREFIX} caught error:`, e);
             }
         }
         return toots;
