@@ -6,7 +6,6 @@ const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
-const ENABLE_TRACE_LOG = environment_helpers_1.isDebugMode;
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 exports.CLEANUP_FEED = "cleanupFeed()";
@@ -115,7 +114,7 @@ exports.sizeOf = sizeOf;
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 function traceLog(msg, ...args) {
-    if (!ENABLE_TRACE_LOG)
+    if (!environment_helpers_1.isDebugMode)
         return;
     if (args.length > 0) {
         if (typeof args[0] == 'string') {

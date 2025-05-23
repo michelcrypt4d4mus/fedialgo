@@ -9,8 +9,6 @@ import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed } from './string_helpers';
 
-const ENABLE_TRACE_LOG = isDebugMode;
-
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export const CLEANUP_FEED = "cleanupFeed()";
@@ -130,7 +128,7 @@ export function sizeOf(obj: any): number {
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 export function traceLog(msg: string, ...args: any[]): void {
-    if (!ENABLE_TRACE_LOG) return;
+    if (!isDebugMode) return;
 
     if (args.length > 0) {
         if (typeof args[0] == 'string') {
