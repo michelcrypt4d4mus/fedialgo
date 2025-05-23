@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prefixed = exports.traceLog = exports.sizeOf = exports.lockExecution = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.traceLog = exports.sizeOf = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -12,10 +12,36 @@ exports.CLEANUP_FEED = "cleanupFeed()";
 exports.PREP_SCORERS = "prepareScorers()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 // console.log methods with a prefix
-const logDebug = (pfx, msg, ...args) => console.debug(prefixed(pfx, msg), ...args);
+const logDebug = (pfx, msg, ...args) => console.debug((0, string_helpers_1.prefixed)(pfx, msg), ...args);
 exports.logDebug = logDebug;
-const logInfo = (pfx, msg, ...args) => console.info(prefixed(pfx, msg), ...args);
+const logInfo = (pfx, msg, ...args) => console.info((0, string_helpers_1.prefixed)(pfx, msg), ...args);
 exports.logInfo = logInfo;
+// Lock a Semaphore or Mutex and log the time it took to acquire the lock
+async function lockExecution(locker, logPrefix) {
+    const startedAt = new Date();
+    const acquireLock = await locker.acquire();
+    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
+    let releaseLock;
+    let logMsg = (0, string_helpers_1.bracketed)(logPrefix);
+    if (Array.isArray(acquireLock)) {
+        logMsg += ` Semaphore ${acquireLock[0]}`;
+        releaseLock = acquireLock[1];
+    }
+    else {
+        logMsg += ` Mutex`;
+        releaseLock = acquireLock;
+    }
+    logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    if (waitSeconds > config_1.config.api.mutexWarnSeconds) {
+        console.warn(logMsg);
+    }
+    else if (waitSeconds > 2) {
+        traceLog(logMsg);
+    }
+    return releaseLock;
+}
+exports.lockExecution = lockExecution;
+;
 // Log a message with a telemetry timing suffix
 function logTelemetry(logPrefix, msg, startedAt, ...args) {
     msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
@@ -47,32 +73,6 @@ function logAndThrowError(message, obj) {
     throw new Error(message);
 }
 exports.logAndThrowError = logAndThrowError;
-;
-// Lock a Semaphore or Mutex and log the time it took to acquire the lock
-async function lockExecution(locker, logPrefix) {
-    const startedAt = new Date();
-    const acquireLock = await locker.acquire();
-    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
-    let releaseLock;
-    let logMsg = (0, string_helpers_1.bracketed)(logPrefix);
-    if (Array.isArray(acquireLock)) {
-        logMsg += ` Semaphore ${acquireLock[0]}`;
-        releaseLock = acquireLock[1];
-    }
-    else {
-        logMsg += ` Mutex`;
-        releaseLock = acquireLock;
-    }
-    logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    if (waitSeconds > config_1.config.api.mutexWarnSeconds) {
-        console.warn(logMsg);
-    }
-    else if (waitSeconds > 2) {
-        traceLog(logMsg);
-    }
-    return releaseLock;
-}
-exports.lockExecution = lockExecution;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 function sizeOf(obj) {
@@ -118,18 +118,12 @@ function traceLog(msg, ...args) {
         return;
     if (args.length > 0) {
         if (typeof args[0] == 'string') {
-            msg = prefixed(msg, args.shift());
+            msg = (0, string_helpers_1.prefixed)(msg, args.shift());
         }
     }
     console.debug(msg, ...args);
 }
 exports.traceLog = traceLog;
-;
-// Prefix a string with [Brackets] and a space
-function prefixed(prefix, msg) {
-    return `${(0, string_helpers_1.bracketed)(prefix)} ${msg}`;
-}
-exports.prefixed = prefixed;
 ;
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
 const strBytes = (str) => str.length;

@@ -45,12 +45,15 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 
 // [Bracketed]
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
+// Prefix a string with [Brackets] and a space
+export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
 // Doublequotes
 export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
-// Returns true if n is a number or a string that can be converted to a number
-export const isNumber = (n: string | number): boolean => (typeof n == "number") || /^[\d.]+$/.test(n);
+
 // for use with sort()
 export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
+// Returns true if n is a number or a string that can be converted to a number
+export const isNumber = (n: string | number): boolean => (typeof n == "number") || /^[\d.]+$/.test(n);
 
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
