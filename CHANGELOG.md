@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.2
 * Change format of Toot scoreInfo object, remove alternateScoreInfo() and formatScore() methods
 * Rename some config options
 
