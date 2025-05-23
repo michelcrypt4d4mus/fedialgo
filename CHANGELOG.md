@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.3
 * Move score statistics stuff out of `Scorer` class and into `stats_helper.ts`
 
 ### v0.48.2
