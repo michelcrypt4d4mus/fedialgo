@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Move score statistics stuff out of Scorer and into stats_helper.ts
+* Move score statistics stuff out of `Scorer` class and into `stats_helper.ts`
 
 ### v0.48.2
 * Change format of `TootScore` object, remove `alternateScoreInfo()` and `formatScore()` methods (functionality moved to demo app)
