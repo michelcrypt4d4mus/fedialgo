@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.computeScoreStats = exports.rechartsDataPoints = void 0;
+exports.rechartsDataPoints = void 0;
 const string_helpers_1 = require("./string_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const types_1 = require("../types");
@@ -53,7 +53,6 @@ function computeScoreStats(toots, numPercentiles) {
         return stats;
     }, {});
 }
-exports.computeScoreStats = computeScoreStats;
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(toots, scoreName, scoreType, numPercentiles) {
     const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);

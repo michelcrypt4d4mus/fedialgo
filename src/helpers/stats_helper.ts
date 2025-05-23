@@ -41,7 +41,7 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
 
 
     // Compute stats about the scores of a list of toots
-export function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
+function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
     return Object.values(ScoreName).reduce((stats, scoreName) => {
         stats[scoreName] = {
             raw: scoreStats(toots, scoreName, "raw", numPercentiles),
