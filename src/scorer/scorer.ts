@@ -7,11 +7,11 @@ import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
-import { average, batchMap, percentileSegments, sumArray, sumValues } from "../helpers/collection_helpers";
+import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoresStats, StringNumberDict, TootScore, TootScores, WeightedScore, WeightInfo, WeightName, Weights } from "../types";
+import { NonScoreWeightName, ScoreName, StringNumberDict, TootScore, TootScores, WeightedScore, WeightInfo, WeightName } from "../types";
 
 const SCORE_MUTEX = new Mutex();
 const SCORE_PREFIX = "scoreToots()";
@@ -69,18 +69,6 @@ export default abstract class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
-
-    // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
-        return Object.values(ScoreName).reduce((stats, scoreName) => {
-            stats[scoreName] = {
-                raw: this.scoreStats(toots, scoreName, "raw", numPercentiles),
-                weighted: this.scoreStats(toots, scoreName, "weighted", numPercentiles),
-            };
-
-            return stats;
-        }, {} as ScoresStats);
-    }
 
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     // If 'isScoringFeed' is false the scores will be "best effort"
@@ -191,28 +179,6 @@ export default abstract class Scorer {
 
         // TODO: duping the score to realToot() is a hack that sucks
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
-    }
-
-    // Compute the min, max, and average of a score for each percentile segment
-    private static scoreStats(
-        toots: Toot[],
-        scoreName: ScoreName,
-        scoreType: keyof WeightedScore,
-        numPercentiles: number
-    ): MinMaxAvgScore[] {
-        const getScoreOfType = (t: Toot) => t.getIndividualScore(scoreType, scoreName);
-
-        return percentileSegments(toots, getScoreOfType, numPercentiles).map((segment) => {
-            const sectionScores = segment.map(getScoreOfType);
-
-            return {
-                average: average(sectionScores),
-                averageFinalScore: average(segment.map((toot) => toot.getScore())),
-                count: segment.length,
-                min: sectionScores[0],
-                max: sectionScores.slice(-1)[0],
-            };
-        });
     }
 
     // Add 1 so that time decay multiplier works even with scorers giving 0s

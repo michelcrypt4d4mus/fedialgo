@@ -59,16 +59,6 @@ class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
-    // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots, numPercentiles) {
-        return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
-            stats[scoreName] = {
-                raw: this.scoreStats(toots, scoreName, "raw", numPercentiles),
-                weighted: this.scoreStats(toots, scoreName, "weighted", numPercentiles),
-            };
-            return stats;
-        }, {});
-    }
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     // If 'isScoringFeed' is false the scores will be "best effort"
     static async scoreToots(toots, isScoringFeed) {
@@ -163,20 +153,6 @@ class Scorer {
         };
         // TODO: duping the score to realToot() is a hack that sucks
         toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
-    }
-    // Compute the min, max, and average of a score for each percentile segment
-    static scoreStats(toots, scoreName, scoreType, numPercentiles) {
-        const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);
-        return (0, collection_helpers_1.percentileSegments)(toots, getScoreOfType, numPercentiles).map((segment) => {
-            const sectionScores = segment.map(getScoreOfType);
-            return {
-                average: (0, collection_helpers_1.average)(sectionScores),
-                averageFinalScore: (0, collection_helpers_1.average)(segment.map((toot) => toot.getScore())),
-                count: segment.length,
-                min: sectionScores[0],
-                max: sectionScores.slice(-1)[0],
-            };
-        });
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores, scoreType) {

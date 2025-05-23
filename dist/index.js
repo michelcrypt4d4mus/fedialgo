@@ -262,7 +262,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config_1.config,
-            Scores: scorer_1.default.computeScoreStats(this.feed, 10),
+            Scores: (0, stats_helper_1.computeScoreStats)(this.feed, 10),
             Storage: await Storage_1.default.storedObjsInfo(),
             UserData: await api_1.default.instance.getUserData(),
         };

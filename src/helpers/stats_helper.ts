@@ -4,6 +4,8 @@
 import Scorer from "../scorer/scorer";
 import Toot from "../api/objects/toot";
 import { suffixedInt } from "./string_helpers";
+import { average, percentileSegments } from "./collection_helpers";
+import { MinMaxAvgScore, ScoreName, ScoresStats, TootScore, WeightedScore } from "../types";
 
 
 // Return an array of objects suitable for use with Recharts
@@ -19,7 +21,7 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
         default: suffix = ''; break;
     };
 
-    Object.entries(Scorer.computeScoreStats(toots, numPercentiles)).forEach(([scoreName, scoreStats]) => {
+    Object.entries(computeScoreStats(toots, numPercentiles)).forEach(([scoreName, scoreStats]) => {
         // scoreType is "raw" or "weighted"
         Object.entries(scoreStats).forEach(([scoreType, percentiles]) => {
             percentiles.forEach((percentile, i) => {
@@ -35,4 +37,40 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
 
     console.log(`[rechartsDataPoints()]`, stats);
     return stats;
+};
+
+
+    // Compute stats about the scores of a list of toots
+export function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
+    return Object.values(ScoreName).reduce((stats, scoreName) => {
+        stats[scoreName] = {
+            raw: scoreStats(toots, scoreName, "raw", numPercentiles),
+            weighted: scoreStats(toots, scoreName, "weighted", numPercentiles),
+        };
+
+        return stats;
+    }, {} as ScoresStats);
+}
+
+
+// Compute the min, max, and average of a score for each percentile segment
+function scoreStats(
+    toots: Toot[],
+    scoreName: ScoreName,
+    scoreType: keyof WeightedScore,
+    numPercentiles: number
+): MinMaxAvgScore[] {
+    const getScoreOfType = (t: Toot) => t.getIndividualScore(scoreType, scoreName);
+
+    return percentileSegments(toots, getScoreOfType, numPercentiles).map((segment) => {
+        const sectionScores = segment.map(getScoreOfType);
+
+        return {
+            average: average(sectionScores),
+            averageFinalScore: average(segment.map((toot) => toot.getScore())),
+            count: segment.length,
+            min: sectionScores[0],
+            max: sectionScores.slice(-1)[0],
+        };
+    });
 }

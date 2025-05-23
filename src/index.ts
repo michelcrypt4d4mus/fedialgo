@@ -46,7 +46,7 @@ import { getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./fe
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isValueInStringEnum, computeMinMax, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
-import { rechartsDataPoints } from "./helpers/stats_helper";
+import { computeScoreStats, rechartsDataPoints } from "./helpers/stats_helper";
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
@@ -277,7 +277,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config,
-            Scores: Scorer.computeScoreStats(this.feed, 10),
+            Scores: computeScoreStats(this.feed, 10),
             Storage: await Storage.storedObjsInfo(),
             UserData: await MastoApi.instance.getUserData(),
         };
