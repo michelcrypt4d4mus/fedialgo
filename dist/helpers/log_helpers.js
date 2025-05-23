@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.traceLog = exports.sizeOf = exports.logAndThrowError = exports.logTootRemoval = exports.logTelemetry = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -42,6 +42,19 @@ async function lockExecution(locker, logPrefix) {
 }
 exports.lockExecution = lockExecution;
 ;
+// Log an error message and throw an Error
+function logAndThrowError(message, obj) {
+    if (obj) {
+        console.error(message, obj);
+        message += `\n${JSON.stringify(obj, null, 4)}`;
+    }
+    else {
+        console.error(message);
+    }
+    throw new Error(message);
+}
+exports.logAndThrowError = logAndThrowError;
+;
 // Log a message with a telemetry timing suffix
 function logTelemetry(logPrefix, msg, startedAt, ...args) {
     msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
@@ -60,19 +73,6 @@ function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
     console.debug(`${(0, string_helpers_1.bracketed)(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 }
 exports.logTootRemoval = logTootRemoval;
-;
-// Log an error message and throw an Error
-function logAndThrowError(message, obj) {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    }
-    else {
-        console.error(message);
-    }
-    throw new Error(message);
-}
-exports.logAndThrowError = logAndThrowError;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 function sizeOf(obj) {

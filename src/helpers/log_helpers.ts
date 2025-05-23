@@ -51,6 +51,19 @@ export async function lockExecution(
 };
 
 
+// Log an error message and throw an Error
+export function logAndThrowError(message: string, obj?: any): never {
+    if (obj) {
+        console.error(message, obj);
+        message += `\n${JSON.stringify(obj, null, 4)}`;
+    } else {
+        console.error(message);
+    }
+
+    throw new Error(message);
+};
+
+
 // Log a message with a telemetry timing suffix
 export function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ...args: any[]): void {
     msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
@@ -68,19 +81,6 @@ export function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ..
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
     console.debug(`${bracketed(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-};
-
-
-// Log an error message and throw an Error
-export function logAndThrowError(message: string, obj?: any): never {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    } else {
-        console.error(message);
-    }
-
-    throw new Error(message);
 };
 
 
