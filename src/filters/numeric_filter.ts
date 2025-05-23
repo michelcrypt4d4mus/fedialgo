@@ -3,7 +3,7 @@
  */
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { FilterArgs, ScoreName, WeightName } from "../types";
+import { FilterArgs, ScoreName } from "../types";
 
 export const FILTERABLE_SCORES = [
     ScoreName.NUM_REPLIES,
@@ -51,15 +51,15 @@ export default class NumericFilter extends TootFilter {
         return this.invertSelection ? !isOK : isOK;
     }
 
-    // Update the value of the filter
-    updateValue(newValue: number): void {
-        this.value = newValue;
-    }
-
     // Required for serialization of settings to local storage
     toArgs(): NumericFilterArgs {
         const filterArgs = super.toArgs() as NumericFilterArgs;
         filterArgs.value = this.value;
         return filterArgs;
+    }
+
+    // Update the value of the filter
+    updateValue(newValue: number): void {
+        this.value = newValue;
     }
 };
