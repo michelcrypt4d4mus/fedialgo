@@ -11,7 +11,16 @@ import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { traceLog } from '../helpers/log_helpers';
-import { NonScoreWeightName, ScoreName, StringNumberDict, TootScore, TootScores, WeightedScore, WeightInfo, WeightName } from "../types";
+import {
+    NonScoreWeightName,
+    ScoreName,
+    StringNumberDict,
+    TootScore,
+    TootScores,
+    WeightedScore,
+    WeightInfo,
+    WeightName
+} from "../types";
 
 const SCORE_MUTEX = new Mutex();
 const SCORE_PREFIX = "scoreToots()";

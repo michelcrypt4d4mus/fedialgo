@@ -631,6 +631,7 @@ class TheAlgorithm {
     // TODO: this kind of sucks.
     async updateTootCache(): Promise<void> {
         if (this.isLoading()) return;
+
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown) return;
         const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
