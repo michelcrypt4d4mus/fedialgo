@@ -61,6 +61,40 @@ class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
+    // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
+    static alternateScoreInfo(toot) {
+        if (!toot.scoreInfo)
+            return {};
+        return Object.entries(toot.scoreInfo).reduce((scoreDict, [key, value]) => {
+            if (key == "rawScores") {
+                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
+                    const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
+                    // Only add non-zero scores to the dict
+                    if (scoreValue != 0) {
+                        scoreDetails[scoreKey] = {
+                            unweighted: formatScore(scoreValue),
+                            weighted: formatScore(weightedScore),
+                        };
+                    }
+                    return scoreDetails;
+                }, {});
+            }
+            else if (key != "weightedScores") {
+                scoreDict[key] = formatScore(value);
+            }
+            return scoreDict;
+        }, {});
+    }
+    // Compute stats about the scores of a list of toots
+    static computeScoreStats(toots, numPercentiles) {
+        return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
+            stats[scoreName] = {
+                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
+                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
+            };
+            return stats;
+        }, {});
+    }
     // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
     // If 'isScoringFeed' is false the scores will be "best effort"
     static async scoreToots(toots, isScoringFeed) {
@@ -98,41 +132,9 @@ class Scorer {
         }
         return toots;
     }
-    // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
-    // TODO: alphabetize
-    static alternateScoreInfo(toot) {
-        if (!toot.scoreInfo)
-            return {};
-        return Object.entries(toot.scoreInfo).reduce((scoreDict, [key, value]) => {
-            if (key == "rawScores") {
-                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
-                    const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
-                    // Only add non-zero scores to the dict
-                    if (scoreValue != 0) {
-                        scoreDetails[scoreKey] = {
-                            unweighted: formatScore(scoreValue),
-                            weighted: formatScore(weightedScore),
-                        };
-                    }
-                    return scoreDetails;
-                }, {});
-            }
-            else if (key != "weightedScores") {
-                scoreDict[key] = formatScore(value);
-            }
-            return scoreDict;
-        }, {});
-    }
-    // Compute stats about the scores of a list of toots
-    static computeScoreStats(toots, numPercentiles) {
-        return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
-            stats[scoreName] = {
-                raw: this.tootSegmentStats(toots, scoreName, "rawScores", numPercentiles),
-                weighted: this.tootSegmentStats(toots, scoreName, "weightedScores", numPercentiles),
-            };
-            return stats;
-        }, {});
-    }
+    ///////////////////////////////
+    //   Private class methods   //
+    ///////////////////////////////
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
         const realToot = toot.realToot();

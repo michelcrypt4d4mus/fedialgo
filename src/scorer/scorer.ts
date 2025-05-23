@@ -74,48 +74,7 @@ export default abstract class Scorer {
     //   Static class methods   //
     //////////////////////////////
 
-    // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
-    // If 'isScoringFeed' is false the scores will be "best effort"
-    static async scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]> {
-        const scorers = ScorerCache.weightedScorers;
-        const startedAt = new Date();
-
-        try {
-            // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
-            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
-            // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
-            let releaseMutex: MutexInterface.Releaser | undefined;
-
-            if (isScoringFeed) {
-                SCORE_MUTEX.cancel();
-                releaseMutex = await SCORE_MUTEX.acquire();
-                // Feed scorers' data must be refreshed each time the feed changes
-                ScorerCache.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
-            }
-
-            try {
-                // Score the toots asynchronously in batches
-                await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
-            } finally {
-                releaseMutex?.();
-            }
-
-            // Sort feed based on score from high to low and return
-            traceLog(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
-            toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
-        } catch (e) {
-            if (e == E_CANCELED) {
-                traceLog(SCORE_PREFIX, `mutex cancellation`);
-            } else {
-                console.warn(`${SCORE_PREFIX} caught error:`, e);
-            }
-        }
-
-        return toots;
-    }
-
     // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
-    // TODO: alphabetize
     static alternateScoreInfo(toot: Toot): AlternateScoreDict {
         if (!toot.scoreInfo) return {};
 
@@ -159,6 +118,50 @@ export default abstract class Scorer {
             return stats;
         }, {} as ScoresStats);
     }
+
+    // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
+    // If 'isScoringFeed' is false the scores will be "best effort"
+    static async scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]> {
+        const scorers = ScorerCache.weightedScorers;
+        const startedAt = new Date();
+
+        try {
+            // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
+            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
+            // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
+            let releaseMutex: MutexInterface.Releaser | undefined;
+
+            if (isScoringFeed) {
+                SCORE_MUTEX.cancel();
+                releaseMutex = await SCORE_MUTEX.acquire();
+                // Feed scorers' data must be refreshed each time the feed changes
+                ScorerCache.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
+            }
+
+            try {
+                // Score the toots asynchronously in batches
+                await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
+            } finally {
+                releaseMutex?.();
+            }
+
+            // Sort feed based on score from high to low and return
+            traceLog(SCORE_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
+        } catch (e) {
+            if (e == E_CANCELED) {
+                traceLog(SCORE_PREFIX, `mutex cancellation`);
+            } else {
+                console.warn(`${SCORE_PREFIX} caught error:`, e);
+            }
+        }
+
+        return toots;
+    }
+
+    ///////////////////////////////
+    //   Private class methods   //
+    ///////////////////////////////
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
