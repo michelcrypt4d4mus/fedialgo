@@ -520,7 +520,7 @@ class Toot {
         // Check if toot was completed long enough ago that we might want to re-evaluate it
         (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.config.minTrendingMinutesUntilStale()
             // But not tooted so long ago that there's little chance of new data
-            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.config.toots.tootsCompleteAfterMinutes);
+            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.config.toots.completeAfterMinutes);
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {
@@ -621,7 +621,7 @@ class Toot {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
-        }, "completeToots", config_1.config.toots.batchCompleteTootsSize, isDeepInspect ? config_1.config.toots.batchCompleteTootsSleepBetweenMS : 0);
+        }, "completeToots", config_1.config.toots.batchCompleteSize, isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0);
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
         console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);

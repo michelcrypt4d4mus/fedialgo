@@ -77,7 +77,7 @@ type ScoringConfig = {
     nonScoreWeightsConfig: NonScoreWeightInfoDict;
     minTrendingTagTootsForPenalty: number,
     scoringBatchSize: number;
-    timelineDecayExponent: number;
+    timeDecayExponent: number;
 };
 
 interface TagTootsConfig {
@@ -87,12 +87,12 @@ interface TagTootsConfig {
 };
 
 type TootsConfig = {
-    batchCompleteTootsSleepBetweenMS: number,
-    batchCompleteTootsSize: number,
+    batchCompleteSize: number;
+    batchCompleteSleepBetweenMS: number;
+    completeAfterMinutes: number;
     maxAgeInDays: number;
-    maxCachedTimelineToots: number,
+    maxTimelineLength: number;
     saveChangesIntervalSeconds: number;
-    tootsCompleteAfterMinutes: number;
 };
 
 type TrendingLinksConfig = {
@@ -100,9 +100,8 @@ type TrendingLinksConfig = {
 };
 
 interface TrendingTagsConfig extends TagTootsConfig {
-    invalidTrendingTags: string[],
-    numDaysToCountTrendingTagData: number,
-    numTagsPerServer: number,
+    invalidTrendingTags: string[];
+    numTagsPerServer: number;
 };
 
 type TrendingTootsConfig = {
@@ -110,6 +109,7 @@ type TrendingTootsConfig = {
 };
 
 type TrendingConfig = {
+    daysToCountTrendingData: number;
     links: TrendingLinksConfig;
     tags: TrendingTagsConfig;
     toots: TrendingTootsConfig;
@@ -136,7 +136,7 @@ class Config implements ConfigType {
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
-        maxConcurrentRequestsBackground: 8,     // How many toot requests to make in parallel once the initial load is done
+        maxConcurrentRequestsBackground: 15,    // How many toot requests to make in parallel once the initial load is done
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
@@ -374,19 +374,20 @@ class Config implements ConfigType {
             },
         },
         scoringBatchSize: 100,                  // How many toots to score at once
-        timelineDecayExponent: 1.2,             // Exponent for the time decay function (higher = more recent toots are favoured)
+        timeDecayExponent: 1.2,                 // Exponent for the time decay function (higher = more recent toots are favoured)
     }
 
     toots = {
-        batchCompleteTootsSleepBetweenMS: 250,  // How long to wait between batches of Toot.completeProperties() calls
-        batchCompleteTootsSize: 25,             // How many toots call completeToot() on at once
+        batchCompleteSize: 25,                  // How many toots call completeToot() on at once
+        batchCompleteSleepBetweenMS: 250,       // How long to wait between batches of Toot.completeProperties() calls
+        completeAfterMinutes: MINUTES_IN_DAY,   // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
-        maxCachedTimelineToots: 3_000,          // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
+        maxTimelineLength: 3_000,               // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
-        tootsCompleteAfterMinutes: MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
     }
 
     trending = {
+        daysToCountTrendingData: 3,             // Look at this many days of user counts when assessing trending data
         links: {
             numTrendingLinksPerServer: 20,      // How many trending links to pull from each server
         },
@@ -397,9 +398,8 @@ class Config implements ConfigType {
                 "photography",
             ],
             maxToots: 200,                      // Max number of toots with trending tags to push into the user's feed
-            numDaysToCountTrendingTagData: 3,   // Look at this many days of user counts when assessing trending tags
             numTagsPerServer: 20,               // How many trending tags to pull from each server (Mastodon default is 10)
-            numTags: 20,                        // How many trending tags to use after ranking their popularity (seems like values over 19 lead to one stalled search?)
+            numTags: 20,                        // How many trending tags to use after ranking their popularity
             numTootsPerTag: 15,                 // How many toots to pull for each trending tag
         },
         toots: {
@@ -447,7 +447,7 @@ class Config implements ConfigType {
     }
 
     // Check for NaN values in number fields and emptry strings in string fields
-    validate(cfg?: ConfigType | object): void {
+    private validate(cfg?: ConfigType | object): void {
         cfg ??= this;
 
         // Check that all the values are valid
@@ -486,7 +486,7 @@ if (isDebugMode) {
 // Heavy load test settings
 if (isLoadTest) {
     config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
-    config.toots.maxCachedTimelineToots = 5_000;
+    config.toots.maxTimelineLength = 5_000;
     config.api.maxRecordsForFeatureScoring = 15_000;
     config.participatedTags.maxToots = 500;
     config.participatedTags.numTags = 50;

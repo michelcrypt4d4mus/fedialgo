@@ -28,7 +28,7 @@ import { config } from "../../config";
 import { MastodonTag, TrendingWithHistory } from "../../types";
 
 
-// Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
+// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
 export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag): void {
     const obj = _obj as TrendingWithHistory;
     obj.url = obj.url.toLowerCase();  // TODO: not ideal for this to happen here
@@ -38,7 +38,7 @@ export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag)
         obj.history = [];
     }
 
-    const recentHistory = obj.history.slice(0, config.trending.tags.numDaysToCountTrendingTagData);
+    const recentHistory = obj.history.slice(0, config.trending.daysToCountTrendingData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

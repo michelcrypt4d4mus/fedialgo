@@ -34,7 +34,7 @@ class Config {
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentRequestsInitial: 15,
-        maxConcurrentRequestsBackground: 8,
+        maxConcurrentRequestsBackground: 15,
         maxRecordsForFeatureScoring: 1500,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
@@ -267,17 +267,18 @@ class Config {
             },
         },
         scoringBatchSize: 100,
-        timelineDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
+        timeDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
     };
     toots = {
-        batchCompleteTootsSleepBetweenMS: 250,
-        batchCompleteTootsSize: 25,
+        batchCompleteSize: 25,
+        batchCompleteSleepBetweenMS: 250,
+        completeAfterMinutes: exports.MINUTES_IN_DAY,
         maxAgeInDays: 7,
-        maxCachedTimelineToots: 3000,
-        saveChangesIntervalSeconds: 30,
-        tootsCompleteAfterMinutes: exports.MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+        maxTimelineLength: 3000,
+        saveChangesIntervalSeconds: 30, // How often to check for updates to toots' numTimesShown
     };
     trending = {
+        daysToCountTrendingData: 3,
         links: {
             numTrendingLinksPerServer: 20, // How many trending links to pull from each server
         },
@@ -288,7 +289,6 @@ class Config {
                 "photography",
             ],
             maxToots: 200,
-            numDaysToCountTrendingTagData: 3,
             numTagsPerServer: 20,
             numTags: 20,
             numTootsPerTag: 15, // How many toots to pull for each trending tag
@@ -371,7 +371,7 @@ if (environment_helpers_1.isDebugMode) {
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
     config.api.data[types_1.CacheKey.HOME_TIMELINE].initialMaxRecords = 2500;
-    config.toots.maxCachedTimelineToots = 5000;
+    config.toots.maxTimelineLength = 5000;
     config.api.maxRecordsForFeatureScoring = 15000;
     config.participatedTags.maxToots = 500;
     config.participatedTags.numTags = 50;

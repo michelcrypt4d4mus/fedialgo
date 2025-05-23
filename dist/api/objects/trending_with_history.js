@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateHistoryScores = void 0;
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
-// Add numToots & numAccounts to the trending object by summing numDaysToCountTrendingTagData of 'history'
+// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
 function decorateHistoryScores(_obj) {
     const obj = _obj;
     obj.url = obj.url.toLowerCase(); // TODO: not ideal for this to happen here
@@ -11,7 +11,7 @@ function decorateHistoryScores(_obj) {
         console.warn(`decorateHistoryScores() found no history for:`, obj);
         obj.history = [];
     }
-    const recentHistory = obj.history.slice(0, config_1.config.trending.tags.numDaysToCountTrendingTagData);
+    const recentHistory = obj.history.slice(0, config_1.config.trending.daysToCountTrendingData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 }

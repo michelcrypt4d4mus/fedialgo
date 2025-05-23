@@ -53,7 +53,7 @@ type ScoringConfig = {
     nonScoreWeightsConfig: NonScoreWeightInfoDict;
     minTrendingTagTootsForPenalty: number;
     scoringBatchSize: number;
-    timelineDecayExponent: number;
+    timeDecayExponent: number;
 };
 interface TagTootsConfig {
     maxToots: number;
@@ -61,25 +61,25 @@ interface TagTootsConfig {
     numTootsPerTag: number;
 }
 type TootsConfig = {
-    batchCompleteTootsSleepBetweenMS: number;
-    batchCompleteTootsSize: number;
+    batchCompleteSize: number;
+    batchCompleteSleepBetweenMS: number;
+    completeAfterMinutes: number;
     maxAgeInDays: number;
-    maxCachedTimelineToots: number;
+    maxTimelineLength: number;
     saveChangesIntervalSeconds: number;
-    tootsCompleteAfterMinutes: number;
 };
 type TrendingLinksConfig = {
     numTrendingLinksPerServer: number;
 };
 interface TrendingTagsConfig extends TagTootsConfig {
     invalidTrendingTags: string[];
-    numDaysToCountTrendingTagData: number;
     numTagsPerServer: number;
 }
 type TrendingTootsConfig = {
     numTrendingTootsPerServer: number;
 };
 type TrendingConfig = {
+    daysToCountTrendingData: number;
     links: TrendingLinksConfig;
     tags: TrendingTagsConfig;
     toots: TrendingTootsConfig;
@@ -146,24 +146,24 @@ declare class Config implements ConfigType {
             };
         };
         scoringBatchSize: number;
-        timelineDecayExponent: number;
+        timeDecayExponent: number;
     };
     toots: {
-        batchCompleteTootsSleepBetweenMS: number;
-        batchCompleteTootsSize: number;
+        batchCompleteSize: number;
+        batchCompleteSleepBetweenMS: number;
+        completeAfterMinutes: number;
         maxAgeInDays: number;
-        maxCachedTimelineToots: number;
+        maxTimelineLength: number;
         saveChangesIntervalSeconds: number;
-        tootsCompleteAfterMinutes: number;
     };
     trending: {
+        daysToCountTrendingData: number;
         links: {
             numTrendingLinksPerServer: number;
         };
         tags: {
             invalidTrendingTags: string[];
             maxToots: number;
-            numDaysToCountTrendingTagData: number;
             numTagsPerServer: number;
             numTags: number;
             numTootsPerTag: number;
@@ -175,7 +175,7 @@ declare class Config implements ConfigType {
     constructor();
     minTrendingMinutesUntilStale(): number;
     setLocale(locale?: string): void;
-    validate(cfg?: ConfigType | object): void;
+    private validate;
 }
 declare const config: Config;
 export { config };

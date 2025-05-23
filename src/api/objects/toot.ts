@@ -644,7 +644,7 @@ export default class Toot implements TootObj {
                // Check if toot was completed long enough ago that we might want to re-evaluate it
                ageInMinutes(this.completedAt) < config.minTrendingMinutesUntilStale()
                // But not tooted so long ago that there's little chance of new data
-            || ageInMinutes(this.createdAt) > config.toots.tootsCompleteAfterMinutes
+            || ageInMinutes(this.createdAt) > config.toots.completeAfterMinutes
         );
     }
 
@@ -755,8 +755,8 @@ export default class Toot implements TootObj {
                 return toot as Toot;
             },
             "completeToots",
-            config.toots.batchCompleteTootsSize,
-            isDeepInspect ? config.toots.batchCompleteTootsSleepBetweenMS : 0
+            config.toots.batchCompleteSize,
+            isDeepInspect ? config.toots.batchCompleteSleepBetweenMS : 0
         );
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;
