@@ -57,7 +57,8 @@ class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
-    // Score and sort the toots. This DOES NOT mutate the order of 'toots' array in place
+    // Score and return an array of toots sorted by score. This DOES NOT mutate the order of
+    // 'toots' array in place - if you need the sorted array you need to assign the return value.
     // If 'isScoringFeed' is false the scores will be "best effort"
     static async scoreToots(toots, isScoringFeed) {
         const scorers = scorer_cache_1.default.weightedScorers;

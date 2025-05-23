@@ -130,7 +130,7 @@ class TheAlgorithm {
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     // Mutexess
     private mergeMutex = new Mutex();
-    private scoreMutex = new Mutex();
+    private prepareScorersMutex = new Mutex();
     // Background tasks
     private cacheUpdater?: ReturnType<typeof setInterval>;
     private dataPoller?: ReturnType<typeof setInterval>;
@@ -556,7 +556,7 @@ class TheAlgorithm {
 
     // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
     private async prepareScorers(force?: boolean): Promise<void> {
-        const releaseMutex = await lockExecution(this.scoreMutex, PREP_SCORERS);
+        const releaseMutex = await lockExecution(this.prepareScorersMutex, PREP_SCORERS);
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {

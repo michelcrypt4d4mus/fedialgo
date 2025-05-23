@@ -60,7 +60,7 @@ declare class TheAlgorithm {
     private numTriggers;
     private totalNumTimesShown;
     private mergeMutex;
-    private scoreMutex;
+    private prepareScorersMutex;
     private cacheUpdater?;
     private dataPoller?;
     private featureScorers;
