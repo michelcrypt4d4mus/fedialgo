@@ -41,15 +41,15 @@ class NumericFilter extends toot_filter_1.default {
         const isOK = tootValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
-    // Update the value of the filter
-    updateValue(newValue) {
-        this.value = newValue;
-    }
     // Required for serialization of settings to local storage
     toArgs() {
         const filterArgs = super.toArgs();
         filterArgs.value = this.value;
         return filterArgs;
+    }
+    // Update the value of the filter
+    updateValue(newValue) {
+        this.value = newValue;
     }
 }
 exports.default = NumericFilter;

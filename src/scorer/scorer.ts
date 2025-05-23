@@ -35,14 +35,12 @@ const TRENDING_WEIGHTS = [
 export default abstract class Scorer {
     abstract description: string;
 
-    defaultWeight: number;
     isReady: boolean = false;  // Set to true when the scorer is ready to score
     name: ScoreName;
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: ScoreName) {
         this.name = name;
-        this.defaultWeight = DEFAULT_WEIGHTS[name] ?? 1;
     }
 
     // Return a ScorerInfo object with the description and the scorer itself

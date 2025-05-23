@@ -11,6 +11,6 @@ export default class NumericFilter extends TootFilter {
     value: number;
     constructor({ invertSelection, title, value }: NumericFilterArgs);
     isAllowed(toot: Toot): boolean;
-    updateValue(newValue: number): void;
     toArgs(): NumericFilterArgs;
+    updateValue(newValue: number): void;
 }

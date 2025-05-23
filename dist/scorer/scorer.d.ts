@@ -2,7 +2,6 @@ import Toot from '../api/objects/toot';
 import { ScoreName, StringNumberDict, WeightInfo } from "../types";
 export default abstract class Scorer {
     abstract description: string;
-    defaultWeight: number;
     isReady: boolean;
     name: ScoreName;
     scoreData: StringNumberDict;
