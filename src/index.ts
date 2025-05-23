@@ -53,8 +53,8 @@ import {
     TRIGGER_FEED,
     lockExecution,
     logAndThrowError,
-    logInfo,
     logDebug,
+    logInfo,
     logTelemetry,
     traceLog,
 } from './helpers/log_helpers';
@@ -94,9 +94,9 @@ const LOAD_STARTED_MSGS = [
 ];
 
 // Constants
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const REALLY_BIG_NUMBER = 10_000_000_000;
 const PULL_USER_HISTORY_PARAMS = {maxRecords: REALLY_BIG_NUMBER, moar: true};
+const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -188,8 +188,7 @@ class TheAlgorithm {
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         config.setLocale(params.locale);
         const user = Account.build(params.user);
-        await Storage.setIdentity(user);
-        await Storage.logAppOpen();
+        await Storage.logAppOpen(user);
 
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});

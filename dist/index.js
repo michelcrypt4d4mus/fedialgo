@@ -108,9 +108,9 @@ const LOAD_STARTED_MSGS = [
     log_helpers_1.TRIGGER_FEED,
 ];
 // Constants
-const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const REALLY_BIG_NUMBER = 10000000000;
 const PULL_USER_HISTORY_PARAMS = { maxRecords: REALLY_BIG_NUMBER, moar: true };
+const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 ;
 class TheAlgorithm {
     static isDebugMode = environment_helpers_1.isDebugMode;
@@ -181,8 +181,7 @@ class TheAlgorithm {
     static async create(params) {
         config_1.config.setLocale(params.locale);
         const user = account_1.default.build(params.user);
-        await Storage_1.default.setIdentity(user);
-        await Storage_1.default.logAppOpen();
+        await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
         scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);

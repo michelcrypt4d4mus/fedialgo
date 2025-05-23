@@ -252,8 +252,9 @@ export default class Storage {
         });
     }
 
-    static async logAppOpen(): Promise<void> {
-        let numAppOpens = (await this.getNumAppOpens()) + 1;
+    static async logAppOpen(user: Account): Promise<void> {
+        await Storage.setIdentity(user);
+        const numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(AlgorithmStorageKey.APP_OPENS, numAppOpens);
     }
 
@@ -282,13 +283,6 @@ export default class Storage {
         } as FeedFilterSettingsSerialized;
 
         await this.set(AlgorithmStorageKey.FILTERS, filterSettings);
-    }
-
-    // Store the fedialgo user's Account object
-    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
-    static async setIdentity(user: Account) {
-        trace(`Setting fedialgo user identity to:`, user);
-        await localForage.setItem(AlgorithmStorageKey.USER, instanceToPlain(user));
     }
 
     static async setWeightings(userWeightings: Weights): Promise<void> {
@@ -383,16 +377,6 @@ export default class Storage {
         }
     }
 
-    private static serialize(key: StorageKey, value: StorableObj): StorableObj {
-        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return instanceToPlain(value);
-        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return instanceToPlain(value);
-        } else {
-            return value;
-        }
-    }
-
     // Get the user identity from storage
     private static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(AlgorithmStorageKey.USER);
@@ -410,20 +394,10 @@ export default class Storage {
         return withTimestamp ?? null;
     }
 
-    // Get the timestamp the app was last opened // TODO: currently unused
-    private static async lastOpenedAt(): Promise<Date | null> {
-        return await this.updatedAt(AlgorithmStorageKey.APP_OPENS);
-    }
-
     // Return the seconds from the updatedAt stored at 'key' and now
     private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
         const updatedAt = await this.updatedAt(key);
         return updatedAt ? ageInSeconds(updatedAt) : null;
-    }
-
-    private static async updatedAt(key: StorageKey): Promise<Date | null> {
-        const withTimestamp = await this.getStorableWithTimestamp(key);
-        return withTimestamp?.updatedAt ? new Date(withTimestamp.updatedAt) : null;
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
@@ -438,5 +412,27 @@ export default class Storage {
             debug(`No most recent toot found`);
             return null;
         }
+    }
+
+    private static serialize(key: StorageKey, value: StorableObj): StorableObj {
+        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            return instanceToPlain(value);
+        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+            return instanceToPlain(value);
+        } else {
+            return value;
+        }
+    }
+
+    // Store the fedialgo user's Account object
+    // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
+    private static async setIdentity(user: Account) {
+        trace(`Setting fedialgo user identity to:`, user);
+        await localForage.setItem(AlgorithmStorageKey.USER, instanceToPlain(user));
+    }
+
+    private static async updatedAt(key: StorageKey): Promise<Date | null> {
+        const withTimestamp = await this.getStorableWithTimestamp(key);
+        return withTimestamp?.updatedAt ? new Date(withTimestamp.updatedAt) : null;
     }
 };

@@ -19,22 +19,21 @@ export default class Storage {
     static getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null>;
     static isDataStale(key: CacheKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;
-    static logAppOpen(): Promise<void>;
+    static logAppOpen(user: Account): Promise<void>;
     static remove(key: StorageKey): Promise<void>;
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
-    static setIdentity(user: Account): Promise<void>;
     static setWeightings(userWeightings: Weights): Promise<void>;
     static storedObjsInfo(): Promise<Record<string, any>>;
     private static buildKey;
     private static deserialize;
-    private static serialize;
     private static getIdentity;
     private static getNumAppOpens;
     private static getStorableWithTimestamp;
-    private static lastOpenedAt;
     private static secondsSinceLastUpdated;
-    private static updatedAt;
     private static secondsSinceMostRecentToot;
+    private static serialize;
+    private static setIdentity;
+    private static updatedAt;
 }
 export {};
