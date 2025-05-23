@@ -1,11 +1,10 @@
 /*
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
-import Scorer from "../scorer/scorer";
 import Toot from "../api/objects/toot";
-import { suffixedInt } from "./string_helpers";
 import { average, percentileSegments } from "./collection_helpers";
-import { MinMaxAvgScore, ScoreName, ScoresStats, TootScore, WeightedScore } from "../types";
+import { MinMaxAvgScore, ScoreName, ScoresStats, WeightedScore } from "../types";
+import { suffixedInt } from "./string_helpers";
 
 
 // Return an array of objects suitable for use with Recharts

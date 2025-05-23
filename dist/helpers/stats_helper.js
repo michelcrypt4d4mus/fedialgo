@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rechartsDataPoints = void 0;
-const string_helpers_1 = require("./string_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const types_1 = require("../types");
+const string_helpers_1 = require("./string_helpers");
 // Return an array of objects suitable for use with Recharts
 function rechartsDataPoints(toots, numPercentiles = 5) {
     const stats = [];
