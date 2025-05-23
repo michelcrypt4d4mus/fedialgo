@@ -1,9 +1,11 @@
 # NEXT RELEASE
+* Change format of Toot scoreInfo object, remove alternateScoreInfo() and formatScore() methods
+* Rename some config options
 
 ### v0.48.1
-* Test build
+* (no changes, just a test build)
 
-# v0.48.0
+## v0.48.0
 * Add a `FollowedAccountsScorer` to offset the slowly creeping dominance of participated and followed tags in the feed
 
 ### v0.47.14

@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatScore = void 0;
 /*
  * Base class for Toot scorers.
  */
@@ -16,7 +15,6 @@ const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
-const SCORE_DIGITS = 3; // Number of digits to display in the alternate score
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const SCORE_PREFIX = "scoreToots()";
 const TRENDING_WEIGHTS = [
@@ -49,7 +47,7 @@ class Scorer {
             return 0;
         }
         else {
-            const existingScore = toot.scoreInfo.rawScores[this.name];
+            const existingScore = toot.getIndividualScore("raw", this.name);
             console.debug(`${this.logPrefix()} Not ready but toot already scored (existing score: ${existingScore})`);
             return existingScore;
         }
@@ -61,36 +59,12 @@ class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
-    // Return a scoreInfo dict in a different format for the GUI (raw & weighted scores grouped in a subdict)
-    static alternateScoreInfo(toot) {
-        if (!toot.scoreInfo)
-            return {};
-        return Object.entries(toot.scoreInfo).reduce((scoreDict, [key, value]) => {
-            if (key == "rawScores") {
-                scoreDict["scores"] = Object.entries(value).reduce((scoreDetails, [scoreKey, scoreValue]) => {
-                    const weightedScore = toot.scoreInfo.weightedScores[scoreKey];
-                    // Only add non-zero scores to the dict
-                    if (scoreValue != 0) {
-                        scoreDetails[scoreKey] = {
-                            unweighted: formatScore(scoreValue),
-                            weighted: formatScore(weightedScore),
-                        };
-                    }
-                    return scoreDetails;
-                }, {});
-            }
-            else if (key != "weightedScores") {
-                scoreDict[key] = formatScore(value);
-            }
-            return scoreDict;
-        }, {});
-    }
     // Compute stats about the scores of a list of toots
     static computeScoreStats(toots, numPercentiles) {
         return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
             stats[scoreName] = {
-                raw: this.scoreStats(toots, scoreName, "rawScores", numPercentiles),
-                weighted: this.scoreStats(toots, scoreName, "weightedScores", numPercentiles),
+                raw: this.scoreStats(toots, scoreName, "raw", numPercentiles),
+                weighted: this.scoreStats(toots, scoreName, "weighted", numPercentiles),
             };
             return stats;
         }, {});
@@ -144,46 +118,47 @@ class Scorer {
         const outlierDampener = getWeight(types_1.NonScoreWeightName.OUTLIER_DAMPENER);
         const timeDecayWeight = getWeight(types_1.NonScoreWeightName.TIME_DECAY) / 10; // Divide by 10 to make it more user friendly
         const trendingMultiplier = getWeight(types_1.NonScoreWeightName.TRENDING);
-        // Initialize variables
-        const rawScores = {};
-        const weightedScores = {};
         // Do scoring
-        const scores = await Promise.all(scorers.map((s) => s.score(toot)));
+        const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
-        scorers.forEach((scorer, i) => {
-            const scoreValue = scores[i] || 0;
-            rawScores[scorer.name] = scoreValue;
-            weightedScores[scorer.name] = scoreValue * (userWeights[scorer.name] ?? 0);
+        const scores = scorers.reduce((scoreDict, scorer, i) => {
+            const rawScore = rawestScores[i] || 0;
+            let weightedScore = rawScore * (userWeights[scorer.name] ?? 0);
             // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
             if (realToot.isTrending() && (!realToot.isFollowed() || TRENDING_WEIGHTS.includes(scorer.name))) {
-                weightedScores[scorer.name] *= trendingMultiplier;
+                weightedScore *= trendingMultiplier;
             }
             // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
+            // TODO: outlierDampener is always greater than 0...
             if (outlierDampener > 0) {
-                const scorerScore = weightedScores[scorer.name];
+                const scorerScore = weightedScore;
                 // Diversity scores are negative so we temporarily flip the sign to get the root
                 if (scorerScore >= 0) {
-                    weightedScores[scorer.name] = Math.pow(scorerScore, 1 / outlierDampener);
+                    weightedScore = Math.pow(scorerScore, 1 / outlierDampener);
                 }
                 else {
-                    weightedScores[scorer.name] = -1 * Math.pow(-1 * scorerScore, 1 / outlierDampener);
+                    weightedScore = -1 * Math.pow(-1 * scorerScore, 1 / outlierDampener);
                 }
             }
-        });
+            scoreDict[scorer.name] = {
+                raw: rawScore,
+                weighted: weightedScore,
+            };
+            return scoreDict;
+        }, {});
         // Multiple weighted score by time decay penalty to get a final weightedScore
         const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.config.scoring.timeDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
-        const weightedScore = this.sumScores(weightedScores);
+        const weightedScore = this.sumScores(scores, "weighted");
         const score = weightedScore * timeDecayMultiplier;
         // Preserve rawScores, timeDecayMultiplier, and weightedScores for debugging
         const scoreInfo = {
-            rawScore: this.sumScores(rawScores),
-            rawScores,
+            rawScore: this.sumScores(scores, "raw"),
             score,
+            scores,
             timeDecayMultiplier,
             trendingMultiplier,
-            weightedScores,
             weightedScore,
         };
         // TODO: duping the score to realToot() is a hack that sucks
@@ -191,7 +166,7 @@ class Scorer {
     }
     // Compute the min, max, and average of a score for each percentile segment
     static scoreStats(toots, scoreName, scoreType, numPercentiles) {
-        const getScoreOfType = (t) => t.scoreInfo?.[scoreType]?.[scoreName] ?? 0;
+        const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);
         return (0, collection_helpers_1.percentileSegments)(toots, getScoreOfType, numPercentiles).map((segment) => {
             const sectionScores = segment.map(getScoreOfType);
             return {
@@ -204,21 +179,10 @@ class Scorer {
         });
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
-    static sumScores(scores) {
-        return 1 + (0, collection_helpers_1.sumValues)(scores);
+    static sumScores(scores, scoreType) {
+        return 1 + (0, collection_helpers_1.sumArray)(Object.values(scores).map((s) => s[scoreType]));
     }
 }
 exports.default = Scorer;
-;
-function formatScore(score) {
-    if (typeof score != "number") {
-        console.warn(`${SCORE_PREFIX} formatScore() called with non-number:`, score);
-        return score;
-    }
-    if (Math.abs(score) < Math.pow(10, -1 * SCORE_DIGITS))
-        return score;
-    return Number(score.toPrecision(SCORE_DIGITS));
-}
-exports.formatScore = formatScore;
 ;
 //# sourceMappingURL=scorer.js.map

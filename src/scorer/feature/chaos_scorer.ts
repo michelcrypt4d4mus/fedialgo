@@ -14,10 +14,8 @@ export default class ChaosScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        // Return the existing score if it exists
-        if (toot.scoreInfo?.rawScores[this.name]) {
-            return toot.scoreInfo.rawScores[this.name];
-        }
+        const existingScore = toot.getIndividualScore("raw", this.name);
+        if (existingScore) return existingScore;  // Return the existing score if it exists
 
         try {
             return this.decimalHash(toot.reblog?.content || toot.content);

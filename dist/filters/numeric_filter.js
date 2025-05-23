@@ -29,16 +29,16 @@ class NumericFilter extends toot_filter_1.default {
     }
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot) {
-        const tootValue = toot.scoreInfo?.rawScores?.[this.title];
         if (this.invertSelection && this.value === 0)
             return true; // 0 doesn't work as a maximum
+        const tootValue = toot.getIndividualScore("raw", this.title);
         if (!tootValue && tootValue !== 0) {
             let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
             console.warn(msg);
             // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
-        const isOK = (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;
+        const isOK = tootValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
     // Update the value of the filter

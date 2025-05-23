@@ -21,7 +21,6 @@ import NumFavouritesScorer from "./scorer/feature/num_favourites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
-import { formatScore } from "./scorer/scorer";
 import Toot from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
@@ -105,4 +104,4 @@ declare class TheAlgorithm {
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
-export { type FeedFilterSettings, type KeysOfValueType, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, formatScore, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, sortKeysByValue, timeString, };
+export { type FeedFilterSettings, type KeysOfValueType, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, sortKeysByValue, timeString, };

@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import Scorer from "../../scorer/scorer";
-import { AccountLike, FeedFilterSettings, MastodonTag, MediaCategory, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink } from "../../types";
+import { AccountLike, FeedFilterSettings, MastodonTag, MediaCategory, ScoreName, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink, WeightedScore } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     numTimesShown?: number;
     completedAt?: string;
@@ -21,7 +20,6 @@ export interface SerializableToot extends mastodon.v1.Status {
 }
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
-    alternateScoreInfo: () => ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
@@ -97,7 +95,6 @@ export default class Toot implements TootObj {
     videoAttachments: mastodon.v1.MediaAttachment[];
     static build(toot: SerializableToot): Toot;
     ageInHours(): number;
-    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
     containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
@@ -112,6 +109,7 @@ export default class Toot implements TootObj {
     contentWithEmojis(fontSize?: number): string;
     describe(): string;
     getScore(): number;
+    getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number;
     homeserverURL(): Promise<string>;
     isDM(): boolean;
     isFollowed(): boolean;

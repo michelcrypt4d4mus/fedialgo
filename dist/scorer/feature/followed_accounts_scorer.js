@@ -4,7 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * One point for each of the original poster and retooter that the user follows.
+ * One point if you follow the account (retoots by followed accounts are picked up by the
+ * RetootsInFeedScorer).
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
@@ -21,8 +22,7 @@ class FollowedAccountsScorer extends feature_scorer_1.default {
     }
     ;
     async _score(toot) {
-        let _score = this.scoreData[toot.account.webfingerURI];
-        return _score + (toot.reblog ? this.scoreData[toot.reblog?.account.webfingerURI] : 0);
+        return this.scoreData[toot.account.webfingerURI] ?? 0;
     }
 }
 exports.default = FollowedAccountsScorer;

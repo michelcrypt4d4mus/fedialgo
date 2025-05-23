@@ -1,5 +1,6 @@
 /*
- * One point for each of the original poster and retooter that the user follows.
+ * One point if you follow the account (retoots by followed accounts are picked up by the
+ * RetootsInFeedScorer).
  */
 import Account from '../../api/objects/account';
 import FeatureScorer from '../feature_scorer';
@@ -20,7 +21,6 @@ export default class FollowedAccountsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot): Promise<number> {
-        let _score = this.scoreData[toot.account.webfingerURI]
-        return _score + (toot.reblog ? this.scoreData[toot.reblog?.account.webfingerURI] : 0);
+        return this.scoreData[toot.account.webfingerURI] ?? 0;
     }
 };

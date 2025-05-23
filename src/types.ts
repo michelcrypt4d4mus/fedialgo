@@ -105,7 +105,7 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 export type AccountLike = Account | mastodon.v1.Account;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = BooleanFilterName | WeightName;
+export type FilterTitle = BooleanFilterName | ScoreName;
 export type StatusList = TootLike[];
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 
@@ -225,13 +225,14 @@ export interface TagWithUsageCounts extends mastodon.v1.Tag {
 
 export type TootScore = {
     rawScore: number;             // Raw score without time decay etc. applied
-    rawScores: Weights;
     score: number;                // Actual final score
+    scores: TootScores;           // All the scores for this toot
     timeDecayMultiplier: number;  // Multiplier that reduces the score of older posts
     trendingMultiplier: number;   // Multiplier applied to trending toots and tags
     weightedScore: number;        // Score before applying timeDecayMultiplier
-    weightedScores: Weights;
 };
+
+export type TootScores = Record<ScoreName, WeightedScore>;
 
 export interface TrendingLink extends mastodon.v1.TrendLink {
     numToots?: number;
@@ -246,6 +247,11 @@ export interface TrendingStorage {
 
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+
+export type WeightedScore = {
+    raw: number;
+    weighted: number;
+};
 
 export type WeightInfo = {
     description: string;

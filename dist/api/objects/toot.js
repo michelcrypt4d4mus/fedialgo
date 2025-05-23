@@ -183,10 +183,6 @@ class Toot {
     ageInHours() {
         return (0, time_helpers_1.ageInHours)(this.tootedAt());
     }
-    // Experimental alternative format for the scoreInfo property used in demo app
-    alternateScoreInfo() {
-        return scorer_1.default.alternateScoreInfo(this);
-    }
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
@@ -287,6 +283,15 @@ class Toot {
     }
     getScore() {
         return this.scoreInfo?.score || 0;
+    }
+    getIndividualScore(scoreType, name) {
+        if (this.scoreInfo?.scores) {
+            return this.scoreInfo.scores[name][scoreType];
+        }
+        else {
+            console.warn(`getIndividualScore() called on a toot without scoreInfo.scores:`, this);
+            return 0;
+        }
     }
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
     //          this: https://fosstodon.org/@kate/114360290341300577

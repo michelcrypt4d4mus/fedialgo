@@ -5,13 +5,13 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { FilterArgs, ScoreName, WeightName } from "../types";
 
-export const FILTERABLE_SCORES: WeightName[] = [
+export const FILTERABLE_SCORES = [
     ScoreName.NUM_REPLIES,
     ScoreName.NUM_RETOOTS,
     ScoreName.NUM_FAVOURITES,
 ];
 
-export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as WeightName);
+export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as ScoreName);
 
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
@@ -19,7 +19,7 @@ export interface NumericFilterArgs extends FilterArgs {
 
 
 export default class NumericFilter extends TootFilter {
-    title: WeightName;
+    title: ScoreName;
     value: number;
 
     constructor({ invertSelection, title, value }: NumericFilterArgs) {
@@ -31,14 +31,14 @@ export default class NumericFilter extends TootFilter {
             title,
         })
 
-        this.title = title as WeightName;
+        this.title = title as ScoreName;
         this.value = value ?? 0;
     }
 
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot: Toot): boolean {
-        const tootValue = toot.scoreInfo?.rawScores?.[this.title];
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
+        const tootValue = toot.getIndividualScore("raw", this.title);
 
         if (!tootValue && tootValue !== 0) {
             let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
@@ -47,7 +47,7 @@ export default class NumericFilter extends TootFilter {
             return true;
         }
 
-        const isOK = (toot.scoreInfo?.rawScores?.[this.title] || 0) >= this.value;
+        const isOK = tootValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
 

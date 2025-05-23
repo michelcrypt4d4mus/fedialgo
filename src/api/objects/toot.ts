@@ -43,13 +43,13 @@ import {
     KeysOfValueType,
     MastodonTag,
     MediaCategory,
+    ScoreName,
     StatusList,
-    StringNumberDict,
     TagWithUsageCounts,
     TootLike,
     TootScore,
     TrendingLink,
-    WeightName
+    WeightedScore,
 } from "../../types";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -113,7 +113,6 @@ export interface SerializableToot extends mastodon.v1.Status {
 
 interface TootObj extends SerializableToot {
     ageInHours: () => number;
-    alternateScoreInfo: () => ReturnType<typeof Scorer.alternateScoreInfo>;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
@@ -262,11 +261,6 @@ export default class Toot implements TootObj {
         return ageInHours(this.tootedAt());
     }
 
-    // Experimental alternative format for the scoreInfo property used in demo app
-    alternateScoreInfo(): ReturnType<typeof Scorer.alternateScoreInfo> {
-        return Scorer.alternateScoreInfo(this);
-    }
-
     // Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType(): MediaCategory | undefined {
@@ -379,6 +373,15 @@ export default class Toot implements TootObj {
 
     getScore(): number {
         return this.scoreInfo?.score || 0;
+    }
+
+    getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number {
+        if (this.scoreInfo?.scores) {
+            return this.scoreInfo.scores[name][scoreType];
+        } else {
+            console.warn(`getIndividualScore() called on a toot without scoreInfo.scores:`, this);
+            return 0;
+        }
     }
 
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.

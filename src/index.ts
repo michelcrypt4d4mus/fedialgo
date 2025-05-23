@@ -28,7 +28,7 @@ import NumFavouritesScorer from "./scorer/feature/num_favourites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
-import Scorer, { formatScore } from "./scorer/scorer";
+import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
@@ -679,7 +679,6 @@ export {
     WeightPresetLabel,
     // Helpers
     extractDomain,
-    formatScore,
     isAccessTokenRevokedError,
     isDebugMode,
     isValueInStringEnum,

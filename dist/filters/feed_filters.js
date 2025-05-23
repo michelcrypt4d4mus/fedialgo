@@ -56,8 +56,8 @@ function buildFiltersFromArgs(filterSettings) {
         return filters;
     }, {});
     // Fill in any missing values
-    numeric_filter_1.FILTERABLE_SCORES.forEach(weightName => {
-        filterSettings.numericFilters[weightName] ??= new numeric_filter_1.default({ title: weightName });
+    numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
+        filterSettings.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
     });
     return filterSettings;
 }

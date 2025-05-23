@@ -42,8 +42,8 @@ export function buildFiltersFromArgs(filterSettings: FeedFilterSettings): FeedFi
     }, {} as NumericFilters);
 
     // Fill in any missing values
-    FILTERABLE_SCORES.forEach(weightName => {
-        filterSettings.numericFilters[weightName] ??= new NumericFilter({title: weightName});
+    FILTERABLE_SCORES.forEach(scoreName => {
+        filterSettings.numericFilters[scoreName] ??= new NumericFilter({title: scoreName});
     });
 
     return filterSettings;
