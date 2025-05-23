@@ -464,7 +464,6 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
             console.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
-            // this.lastLoadTimeInSeconds = null;
         }
 
         this.loadStartedAt = null;
@@ -631,7 +630,6 @@ class TheAlgorithm {
     }
 
     // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
-    // TODO: this kind of sucks.
     async updateTootCache(): Promise<void> {
         if (this.isLoading()) return;
 

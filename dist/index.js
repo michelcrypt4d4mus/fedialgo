@@ -428,7 +428,6 @@ class TheAlgorithm {
         }
         else {
             console.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
-            // this.lastLoadTimeInSeconds = null;
         }
         this.loadStartedAt = null;
         api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsBackground);
@@ -574,7 +573,6 @@ class TheAlgorithm {
         };
     }
     // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
-    // TODO: this kind of sucks.
     async updateTootCache() {
         if (this.isLoading())
             return;
