@@ -38,7 +38,7 @@ function rechartsDataPoints(toots, numPercentiles = 5) {
             });
         });
     });
-    console.log(`[rechartsDataPoints()]`, stats);
+    // console.log(`[rechartsDataPoints()]`, stats);
     return stats;
 }
 exports.rechartsDataPoints = rechartsDataPoints;
