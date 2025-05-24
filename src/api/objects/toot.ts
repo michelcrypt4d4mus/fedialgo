@@ -76,7 +76,7 @@ const PROPS_THAT_CHANGE: KeysOfValueType<Toot, number>[] = [
 ];
 
 // We always use containsTag() instead of containsString() for these
-const TAG_ONLY_STRINGS = [
+const TAG_ONLY_STRINGS = new Set([
     "in",
     "it",
     "ja",
@@ -84,28 +84,23 @@ const TAG_ONLY_STRINGS = [
     "tv",
     "un",
     "us",
-];
-
-const TAG_ONLY_STRING_LOOKUP = TAG_ONLY_STRINGS.reduce((acc, str) => {
-    acc[str] = true;
-    return acc;
-}, {} as Record<string, boolean>);
+]);
 
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo
 export interface SerializableToot extends mastodon.v1.Status {
-    numTimesShown?: number;            // Count of times the Toot has been shown to the user. Managed in client app.
-    completedAt?: string;              // Timestamp a full deep inspection of the toot was completed
-    followedTags?: MastodonTag[];      // Array of tags that the user follows that exist in this toot
-    participatedTags?: TagWithUsageCounts[]; // Array of tags that the user has participated in that exist in this toot
-    reblog?: SerializableToot | null,  // The toot that was retooted (if any)
-    reblogsBy?: AccountLike[];         // The accounts that retooted this toot (if any)
-    resolvedToot?: Toot;               // This Toot with URLs resolved to homeserver versions
-    scoreInfo?: TootScore;             // Scoring info for weighting/sorting this toot
-    sources?: string[];                // Source of the toot (e.g. trending tag toots, home timeline, etc.)
-    trendingLinks?: TrendingLink[];    // Links that are trending in this toot
-    trendingRank?: number;             // Most trending on a server gets a 10, next is a 9, etc.
-    trendingTags?: TagWithUsageCounts[];      // Tags that are trending in this toot
+    completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
+    followedTags?: MastodonTag[];            // Array of tags that the user follows that exist in this toot
+    numTimesShown?: number;                  // Managed in client app. # of times the Toot has been shown to the user.
+    participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
+    reblog?: SerializableToot | null,        // The toot that was retooted (if any)
+    reblogsBy?: AccountLike[];               // The accounts that retooted this toot (if any)
+    resolvedToot?: Toot;                     // This Toot with URLs resolved to homeserver versions
+    scoreInfo?: TootScore;                   // Scoring info for weighting/sorting this toot
+    sources?: string[];                      // Source of the toot (e.g. trending tag toots, home timeline, etc.)
+    trendingLinks?: TrendingLink[];          // Links that are trending in this toot
+    trendingRank?: number;                   // Most trending on a server gets a 10, next is a 9, etc.
+    trendingTags?: TagWithUsageCounts[];     // Tags that are trending in this toot
     audioAttachments?: mastodon.v1.MediaAttachment[];
     imageAttachments?: mastodon.v1.MediaAttachment[];
     videoAttachments?: mastodon.v1.MediaAttachment[];
@@ -286,7 +281,7 @@ export default class Toot implements TootObj {
         let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
         if (tagName.startsWith("#")) tagName = tagName.slice(1);
 
-        if (fullScan && (tagName.length > 1) && !(tagName in TAG_ONLY_STRING_LOOKUP)) {
+        if (fullScan && (tagName.length > 1) && !(TAG_ONLY_STRINGS.has(tagName))) {
             return this.containsString(tagName);
         } else {
             return this.tags.some((tag) => tag.name == tagName);

@@ -3,7 +3,7 @@
  */
 import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
 import { config } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxAvgScore, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 import { traceLog } from "./log_helpers";
 
 

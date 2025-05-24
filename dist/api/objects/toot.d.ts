@@ -2,9 +2,9 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { AccountLike, FeedFilterSettings, MastodonTag, MediaCategory, ScoreName, StatusList, TagWithUsageCounts, TootLike, TootScore, TrendingLink, WeightedScore } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
-    numTimesShown?: number;
     completedAt?: string;
     followedTags?: MastodonTag[];
+    numTimesShown?: number;
     participatedTags?: TagWithUsageCounts[];
     reblog?: SerializableToot | null;
     reblogsBy?: AccountLike[];

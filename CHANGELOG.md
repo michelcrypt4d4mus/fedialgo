@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Turn `TAG_ONLY_STRINGS` into a `Set` lookup, which is more than 20x faster according to jsbench.me results
 
 ### v0.48.3
 * Move score statistics stuff out of `Scorer` class and into `stats_helper.ts`

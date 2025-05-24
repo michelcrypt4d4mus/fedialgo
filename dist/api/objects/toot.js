@@ -56,7 +56,7 @@ const PROPS_THAT_CHANGE = [
     "reblogsCount"
 ];
 // We always use containsTag() instead of containsString() for these
-const TAG_ONLY_STRINGS = [
+const TAG_ONLY_STRINGS = new Set([
     "in",
     "it",
     "ja",
@@ -64,11 +64,7 @@ const TAG_ONLY_STRINGS = [
     "tv",
     "un",
     "us",
-];
-const TAG_ONLY_STRING_LOOKUP = TAG_ONLY_STRINGS.reduce((acc, str) => {
-    acc[str] = true;
-    return acc;
-}, {});
+]);
 ;
 ;
 class Toot {
@@ -208,7 +204,7 @@ class Toot {
         let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
         if (tagName.startsWith("#"))
             tagName = tagName.slice(1);
-        if (fullScan && (tagName.length > 1) && !(tagName in TAG_ONLY_STRING_LOOKUP)) {
+        if (fullScan && (tagName.length > 1) && !(TAG_ONLY_STRINGS.has(tagName))) {
             return this.containsString(tagName);
         }
         else {
