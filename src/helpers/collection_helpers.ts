@@ -203,8 +203,6 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
     return (value: string): value is E => enumValues.has(value);
 };
 
-export const isStorageKey = (value: string) => isValueInStringEnum(CacheKey)(value);
-
 
 // Build a dictionary from the result of keyFxn() for each object in the array
 export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T> {

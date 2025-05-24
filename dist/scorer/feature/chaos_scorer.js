@@ -14,9 +14,12 @@ class ChaosScorer extends feature_scorer_1.default {
         super(types_1.ScoreName.CHAOS);
     }
     async _score(toot) {
-        const existingScore = toot.getIndividualScore("raw", this.name);
-        if (existingScore)
-            return existingScore; // Return the existing score if it exists
+        // Return the existing score if it exists
+        if (toot.scoreInfo?.scores) {
+            const existingScore = toot.getIndividualScore("raw", this.name);
+            if (existingScore)
+                return existingScore;
+        }
         try {
             return this.decimalHash(toot.reblog?.content || toot.content);
         }

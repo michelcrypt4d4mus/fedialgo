@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Supress warnings when ChaosScorer calls getIndividualScore()
 
 ### v0.48.6
 * (Demo App) useMemo() for a few possibly expensive calculations

@@ -71,8 +71,8 @@ function buildNewFilterSettings() {
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
 ;
-// Removes filter args with invalid titles. Returns true if the filter settings were changed.
-// Used for upgrading existing users who may have invalid filter args in their settings.
+// Remove filter args with invalid titles to upgrade existing users w/invalid args in browser Storage.
+// Returns true if the filter settings were changed.
 function repairFilterSettings(filters) {
     let wasChanged = false;
     // For upgrades of existing users for the rename of booleanFilterArgs

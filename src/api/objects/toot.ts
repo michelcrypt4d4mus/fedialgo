@@ -369,7 +369,7 @@ export default class Toot implements TootObj {
         if (this.scoreInfo?.scores) {
             return this.scoreInfo.scores[name][scoreType];
         } else {
-            console.warn(`getIndividualScore() called on a toot without scoreInfo.scores:`, this);
+            console.warn(`getIndividualScore() called on toot but no scoreInfo.scores:`, this);
             return 0;
         }
     }
