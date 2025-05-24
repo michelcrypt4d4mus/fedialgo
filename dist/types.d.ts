@@ -77,12 +77,13 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 export type AccountLike = Account | mastodon.v1.Account;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = BooleanFilterName | ScoreName;
+export type FilterTitle = BooleanFilterName | TootNumberProp;
 export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
+export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
-export type NumericFilters = Record<WeightName, NumericFilter>;
+export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];

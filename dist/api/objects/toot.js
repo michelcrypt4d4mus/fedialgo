@@ -27,6 +27,7 @@ const scorer_1 = __importDefault(require("../../scorer/scorer"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
+const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
@@ -50,11 +51,6 @@ const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
-const PROPS_THAT_CHANGE = [
-    "favouritesCount",
-    "repliesCount",
-    "reblogsCount"
-];
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
     "in",
@@ -653,7 +649,7 @@ class Toot {
             // Helper method to collate the isFollowed property for the accounts
             const isFollowed = (uri) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
             // Counts may increase over time w/repeated fetches so we collate the max
-            const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
+            const propsThatChange = numeric_filter_1.FILTERABLE_SCORES.reduce((propValues, propName) => {
                 propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
                 return propValues;
             }, {});

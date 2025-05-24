@@ -16,7 +16,7 @@ import {
     FilterArgs,
     NumericFilters,
     StringNumberDict,
-    WeightName,
+    TootNumberProp,
 } from "../types";
 
 export const DEFAULT_FILTERS = {
@@ -27,26 +27,21 @@ export const DEFAULT_FILTERS = {
 } as FeedFilterSettings;
 
 
-
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
-export function buildFiltersFromArgs(filterSettings: FeedFilterSettings): FeedFilterSettings {
-    filterSettings.booleanFilters = filterSettings.booleanFilterArgs.reduce((filters, args) => {
+export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings {
+    filterArgs.booleanFilters = filterArgs.booleanFilterArgs.reduce((filters, args) => {
         filters[args.title as BooleanFilterName] = new BooleanFilter(args);
         return filters
     }, {} as BooleanFilters);
 
-    filterSettings.numericFilters = filterSettings.numericFilterArgs.reduce((filters, args) => {
-        filters[args.title as WeightName] = new NumericFilter(args);
+    filterArgs.numericFilters = filterArgs.numericFilterArgs.reduce((filters, args) => {
+        filters[args.title as TootNumberProp] = new NumericFilter(args);
         return filters
     }, {} as NumericFilters);
 
-    // Fill in any missing values
-    FILTERABLE_SCORES.forEach(scoreName => {
-        filterSettings.numericFilters[scoreName] ??= new NumericFilter({title: scoreName});
-    });
-
-    return filterSettings;
+    populateMissingNumericFilters(filterArgs);
+    return filterArgs;
 };
 
 
@@ -56,7 +51,7 @@ export function buildNewFilterSettings(): FeedFilterSettings {
     // Stringify and parse to get a deep copy of the default filters
     const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
     filters.booleanFilters[BooleanFilterName.TYPE] = new BooleanFilter({title: BooleanFilterName.TYPE});
-    FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new NumericFilter({title: f}));
+    populateMissingNumericFilters(filters);
     return filters;
 };
 
@@ -171,6 +166,14 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
     console.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage.setFilters(filters);
+};
+
+
+// Fill in any missing numeric filters
+function populateMissingNumericFilters(filters: FeedFilterSettings): void {
+    FILTERABLE_SCORES.forEach(scoreName => {
+        filters.numericFilters[scoreName] ??= new NumericFilter({title: scoreName});
+    });
 };
 
 

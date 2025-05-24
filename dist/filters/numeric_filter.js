@@ -5,11 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isNumericFilterName = exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const types_1 = require("../types");
 exports.FILTERABLE_SCORES = [
-    types_1.ScoreName.NUM_REPLIES,
-    types_1.ScoreName.NUM_RETOOTS,
-    types_1.ScoreName.NUM_FAVOURITES,
+    "repliesCount",
+    "reblogsCount",
+    "favouritesCount",
 ];
 const isNumericFilterName = (name) => exports.FILTERABLE_SCORES.includes(name);
 exports.isNumericFilterName = isNumericFilterName;
@@ -20,7 +19,7 @@ class NumericFilter extends toot_filter_1.default {
     constructor({ invertSelection, title, value }) {
         const titleStr = title;
         super({
-            description: `Minimum ${titleStr.startsWith("Num") ? titleStr.slice(3) : title}`,
+            description: `Minimum number of ${titleStr.replace(/Count$/, '')}`,
             invertSelection,
             title,
         });
@@ -31,14 +30,14 @@ class NumericFilter extends toot_filter_1.default {
     isAllowed(toot) {
         if (this.invertSelection && this.value === 0)
             return true; // 0 doesn't work as a maximum
-        const tootValue = toot.getIndividualScore("raw", this.title);
-        if (!tootValue && tootValue !== 0) {
-            let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
+        const propertyValue = toot.realToot()[this.title];
+        if (!propertyValue && propertyValue !== 0) {
+            let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.describe()}`;
             console.warn(msg);
             // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
-        const isOK = tootValue >= this.value;
+        const isOK = propertyValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
     // Required for serialization of settings to local storage

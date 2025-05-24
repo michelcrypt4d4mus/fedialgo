@@ -15,6 +15,7 @@ import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { config } from "../../config";
+import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
@@ -68,12 +69,6 @@ const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = bracketed("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
-
-const PROPS_THAT_CHANGE: KeysOfValueType<Toot, number>[] = [
-    "favouritesCount",
-    "repliesCount",
-    "reblogsCount"
-];
 
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
@@ -790,7 +785,7 @@ export default class Toot implements TootObj {
             const isFollowed = (uri: string) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
 
             // Counts may increase over time w/repeated fetches so we collate the max
-            const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
+            const propsThatChange = FILTERABLE_SCORES.reduce((propValues, propName) => {
                 propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
                 return propValues;
             }, {} as Record<KeysOfValueType<Toot, number>, number>);

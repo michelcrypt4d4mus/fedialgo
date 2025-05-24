@@ -46,20 +46,17 @@ exports.DEFAULT_FILTERS = {
 };
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
-function buildFiltersFromArgs(filterSettings) {
-    filterSettings.booleanFilters = filterSettings.booleanFilterArgs.reduce((filters, args) => {
+function buildFiltersFromArgs(filterArgs) {
+    filterArgs.booleanFilters = filterArgs.booleanFilterArgs.reduce((filters, args) => {
         filters[args.title] = new boolean_filter_1.default(args);
         return filters;
     }, {});
-    filterSettings.numericFilters = filterSettings.numericFilterArgs.reduce((filters, args) => {
+    filterArgs.numericFilters = filterArgs.numericFilterArgs.reduce((filters, args) => {
         filters[args.title] = new numeric_filter_1.default(args);
         return filters;
     }, {});
-    // Fill in any missing values
-    numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
-        filterSettings.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
-    });
-    return filterSettings;
+    populateMissingNumericFilters(filterArgs);
+    return filterArgs;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
 ;
@@ -69,7 +66,7 @@ function buildNewFilterSettings() {
     // Stringify and parse to get a deep copy of the default filters
     const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
     filters.booleanFilters[boolean_filter_1.BooleanFilterName.TYPE] = new boolean_filter_1.default({ title: boolean_filter_1.BooleanFilterName.TYPE });
-    numeric_filter_1.FILTERABLE_SCORES.forEach(f => filters.numericFilters[f] = new numeric_filter_1.default({ title: f }));
+    populateMissingNumericFilters(filters);
     return filters;
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
@@ -169,6 +166,13 @@ function updateHashtagCounts(filters, toots) {
     Storage_1.default.setFilters(filters);
 }
 exports.updateHashtagCounts = updateHashtagCounts;
+;
+// Fill in any missing numeric filters
+function populateMissingNumericFilters(filters) {
+    numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
+        filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
+    });
+}
 ;
 // Remove any filter args from the list whose title is invalid
 function removeInvalidFilterArgs(args, titleValidator) {

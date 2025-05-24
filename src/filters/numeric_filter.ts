@@ -3,15 +3,15 @@
  */
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { FilterArgs, ScoreName } from "../types";
+import { FilterArgs, TootNumberProp } from "../types";
 
-export const FILTERABLE_SCORES = [
-    ScoreName.NUM_REPLIES,
-    ScoreName.NUM_RETOOTS,
-    ScoreName.NUM_FAVOURITES,
+export const FILTERABLE_SCORES: TootNumberProp[] = [
+    "repliesCount",
+    "reblogsCount",
+    "favouritesCount",
 ];
 
-export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as ScoreName);
+export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as TootNumberProp);
 
 export interface NumericFilterArgs extends FilterArgs {
     value?: number;
@@ -19,35 +19,35 @@ export interface NumericFilterArgs extends FilterArgs {
 
 
 export default class NumericFilter extends TootFilter {
-    title: ScoreName;
+    title: TootNumberProp;
     value: number;
 
     constructor({ invertSelection, title, value }: NumericFilterArgs) {
         const titleStr = title as string;
 
         super({
-            description: `Minimum ${titleStr.startsWith("Num") ? titleStr.slice(3) : title}`,
+            description: `Minimum number of ${titleStr.replace(/Count$/, '')}`,
             invertSelection,
             title,
         })
 
-        this.title = title as ScoreName;
+        this.title = title as TootNumberProp;
         this.value = value ?? 0;
     }
 
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot: Toot): boolean {
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
-        const tootValue = toot.getIndividualScore("raw", this.title);
+        const propertyValue = toot.realToot()[this.title];
 
-        if (!tootValue && tootValue !== 0) {
-            let msg = `No value found for ${this.title} (probably interrupted scoring) in toot: ${toot.describe()}`;
+        if (!propertyValue && propertyValue !== 0) {
+            let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.describe()}`;
             console.warn(msg);
             // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }
 
-        const isOK = tootValue >= this.value;
+        const isOK = propertyValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
 
