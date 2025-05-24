@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.48.6
+* (Demo App) useMemo() for a few possibly expensive calculations
+
 ### v0.48.5
 * Make numeric filters apply to the `realToot()` not the retoot, don't use `scoreInfo` to get values for numeric filters
 
