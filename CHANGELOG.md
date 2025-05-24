@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Make numeric filters apply to the realToot, not the retoot, don't use scoreInfo to get values for numeric filters
+* Make numeric filters apply to the `realToot()` not the retoot, don't use `scoreInfo` to get values for numeric filters
 
 ### v0.48.4
 * Convert various `Array.includes()` calls into a `Set.has()` calls (more than 20x faster according to jsbench.me results)
