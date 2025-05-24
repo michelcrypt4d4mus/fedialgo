@@ -79,6 +79,7 @@ export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | ScoreName;
 export type StatusList = TootLike[];
+export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<WeightName, NumericFilter>;

@@ -228,16 +228,16 @@ const GREEK_LOCALE = `${exports.LANGUAGE_CODES.greek}-GR`;
 const JAPANESE_LOCALE = `${exports.LANGUAGE_CODES.japanese}-JP`;
 const KOREAN_LOCALE = `${exports.LANGUAGE_CODES.korean}-KR`;
 const RUSSIAN_LOCALE = `${exports.LANGUAGE_CODES.russian}-${exports.LANGUAGE_CODES.russian.toUpperCase()}`;
-const IGNORE_LANGUAGES = [
+const IGNORE_LANGUAGES = new Set([
     "ber",
     "eo",
     "tk",
     "tlh", // Klingon
-];
-const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
+]);
+const LANG_DETECTOR_OVERCONFIDENT_LANGS = new Set([
     "da",
     "fr",
-];
+]);
 // Use the two different language detectors to guess a language
 function detectLanguage(text) {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
@@ -246,12 +246,12 @@ function detectLanguage(text) {
     let chosenLanguage;
     if (langInfoFromTinyLD.chosenLang) {
         // Ignore Klingon etc.
-        if (IGNORE_LANGUAGES.includes(langInfoFromTinyLD.chosenLang)) {
+        if (IGNORE_LANGUAGES.has(langInfoFromTinyLD.chosenLang)) {
             langInfoFromTinyLD.chosenLang = undefined;
             langInfoFromTinyLD.accuracy = 0;
         }
         // tinyld is overconfident about some languages
-        if (LANG_DETECTOR_OVERCONFIDENT_LANGS.includes(langInfoFromTinyLD.chosenLang || string_helpers_1.NULL)
+        if (LANG_DETECTOR_OVERCONFIDENT_LANGS.has(langInfoFromTinyLD.chosenLang)
             && langInfoFromLangDetector.chosenLang != langInfoFromTinyLD.chosenLang
             && langInfoFromTinyLD.accuracy > VERY_HIGH_LANG_ACCURACY) {
             let msg = `"${langInfoFromTinyLD.chosenLang}" is overconfident (${langInfoFromTinyLD.accuracy}) for "${text}"!`;

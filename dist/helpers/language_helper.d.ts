@@ -1,5 +1,6 @@
+import { StringSet } from '../types';
 export declare const LANGUAGE_CODES: Record<string, string>;
-export declare const FOREIGN_SCRIPTS: Set<string | undefined>;
+export declare const FOREIGN_SCRIPTS: StringSet;
 type LanguageAccuracies = {
     accuracy: number;
     lang: string;

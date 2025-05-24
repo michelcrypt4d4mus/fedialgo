@@ -167,8 +167,8 @@ function isRecord(x) {
 // Generate a fxn to check if a string is in an enum.
 // From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
 function isValueInStringEnum(strEnum) {
-    const enumValues = Object.values(strEnum);
-    return (value) => enumValues.includes(value);
+    const enumValues = new Set(Object.values(strEnum));
+    return (value) => enumValues.has(value);
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;

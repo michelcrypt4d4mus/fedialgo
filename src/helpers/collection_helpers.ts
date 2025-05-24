@@ -199,8 +199,8 @@ function isRecord(x: unknown): x is Record<string, unknown> {
 // Generate a fxn to check if a string is in an enum.
 // From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
 export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
-    const enumValues = Object.values(strEnum) as string[];
-    return (value: string): value is E => enumValues.includes(value);
+    const enumValues = new Set(Object.values(strEnum) as string[]);
+    return (value: string): value is E => enumValues.has(value);
 };
 
 export const isStorageKey = (value: string) => isValueInStringEnum(CacheKey)(value);

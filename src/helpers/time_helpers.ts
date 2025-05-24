@@ -8,7 +8,7 @@ type DateArg = Date | number | string | null | undefined;
 
 // TODO: use the formatting functions, don't do date lookup manually
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const PARSEABLE_DATE_TYPES = ["string", "number"];
+const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 
 // Compute the difference from 'date' to now in minutes
@@ -40,7 +40,7 @@ export function ageString(date: DateArg): string {
 // Coerce a string or number into a Date object.
 export function coerceDate(date: DateArg): Date | null {
     if (!date) return null;
-    return (PARSEABLE_DATE_TYPES.includes(typeof date) ? new Date(date) : date) as Date;
+    return (PARSEABLE_DATE_TYPES.has(typeof date) ? new Date(date) : date) as Date;
 };
 
 

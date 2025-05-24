@@ -5,6 +5,7 @@ import LanguageDetect from 'languagedetect';
 import { detectAll } from 'tinyld';
 
 import { NULL, isNumber } from './string_helpers';
+import { StringSet } from '../types';
 
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 export const LANGUAGE_CODES: Record<string, string> = {
@@ -197,7 +198,7 @@ export const LANGUAGE_CODES: Record<string, string> = {
 };
 
 // The tinyld library is better at detecting these languages than the LanguageDetector.
-export const FOREIGN_SCRIPTS: Set<string | undefined> = new Set([
+export const FOREIGN_SCRIPTS: StringSet = new Set([
     LANGUAGE_CODES.arabic,
     LANGUAGE_CODES.chinese,
     `${LANGUAGE_CODES.chinese}-CN`,
@@ -229,17 +230,17 @@ const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
 const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
 const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
 
-const IGNORE_LANGUAGES = [
+const IGNORE_LANGUAGES: StringSet = new Set([
     "ber",  // Berber
     "eo",   // Esperanto
     "tk",   // Turkmen
     "tlh",  // Klingon
-];
+]);
 
-const LANG_DETECTOR_OVERCONFIDENT_LANGS = [
+const LANG_DETECTOR_OVERCONFIDENT_LANGS: StringSet = new Set([
     "da",
     "fr",
-];
+]);
 
 // Arrives ordered by accuracy
 type LanguageAccuracies = {accuracy: number, lang: string}[];
@@ -267,13 +268,13 @@ export function detectLanguage(text: string): LanguageDetectInfo {
 
     if (langInfoFromTinyLD.chosenLang) {
         // Ignore Klingon etc.
-        if (IGNORE_LANGUAGES.includes(langInfoFromTinyLD.chosenLang)) {
+        if (IGNORE_LANGUAGES.has(langInfoFromTinyLD.chosenLang)) {
             langInfoFromTinyLD.chosenLang = undefined;
             langInfoFromTinyLD.accuracy = 0;
         }
 
         // tinyld is overconfident about some languages
-        if (   LANG_DETECTOR_OVERCONFIDENT_LANGS.includes(langInfoFromTinyLD.chosenLang || NULL)
+        if (   LANG_DETECTOR_OVERCONFIDENT_LANGS.has(langInfoFromTinyLD.chosenLang)
             && langInfoFromLangDetector.chosenLang != langInfoFromTinyLD.chosenLang
             && langInfoFromTinyLD.accuracy > VERY_HIGH_LANG_ACCURACY)
         {
