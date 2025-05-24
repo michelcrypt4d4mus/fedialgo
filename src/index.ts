@@ -632,13 +632,19 @@ class TheAlgorithm {
     async updateTootCache(): Promise<void> {
         if (this.isLoading()) return;
 
-        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
-        const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
-        const msg = `[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-        console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-        await Storage.set(CacheKey.TIMELINE, this.feed);
-        this.totalNumTimesShown = newTotalNumTimesShown;
+        // TODO: TransformOperationExecutor class-transformer sometimes threw "too much recursion" error
+        // when trying to serialize the feed. This is a workaround to avoid that error.
+        try {
+            const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+            if (this.totalNumTimesShown == newTotalNumTimesShown) return;
+            const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
+            const msg = `[updateTootCache()] saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
+            console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
+            await Storage.set(CacheKey.TIMELINE, this.feed);
+            this.totalNumTimesShown = newTotalNumTimesShown;
+        } catch (error) {
+            console.error(`[updateTootCache()] Error saving toots:`, error);
+        }
     }
 };
 
