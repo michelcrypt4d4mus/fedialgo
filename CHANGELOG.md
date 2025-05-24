@@ -4,7 +4,7 @@
 * Make numeric filters apply to the `realToot()` not the retoot, don't use `scoreInfo` to get values for numeric filters
 
 ### v0.48.4
-* Convert various `Array.includes()` calls into a `Set.has()` calls (more than 20x faster according to jsbench.me results)
+* Convert various `Array.includes()` calls into `Set.has()` calls (more than 20x faster according to jsbench.me results)
 
 ### v0.48.3
 * Move score statistics stuff out of `Scorer` class and into `stats_helper.ts`
