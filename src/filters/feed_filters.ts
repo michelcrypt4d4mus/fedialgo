@@ -56,8 +56,8 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 };
 
 
-// Removes filter args with invalid titles. Returns true if the filter settings were changed.
-// Used for upgrading existing users who may have invalid filter args in their settings.
+// Remove filter args with invalid titles to upgrade existing users w/invalid args in browser Storage.
+// Returns true if the filter settings were changed.
 export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     let wasChanged = false;
 
