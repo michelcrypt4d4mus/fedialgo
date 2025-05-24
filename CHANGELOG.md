@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.7
 * Supress warnings when ChaosScorer calls getIndividualScore()
 
 ### v0.48.6
