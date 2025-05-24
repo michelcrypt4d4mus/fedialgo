@@ -24,8 +24,6 @@ interface TootObj extends SerializableToot {
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
     containsTagsMsg: () => string | undefined;
-    contentString: () => string;
-    contentStripped: () => string;
     contentNonTagsParagraphs: (fontSize?: number) => string;
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
@@ -103,9 +101,7 @@ export default class Toot implements TootObj {
     contentNonTagsParagraphs(fontSize?: number): string;
     contentParagraphs(fontSize?: number): string[];
     contentShortened(maxChars?: number): string;
-    contentString(): string;
     contentTagsParagraph(): string | undefined;
-    contentStripped(): string;
     contentWithEmojis(fontSize?: number): string;
     describe(): string;
     getScore(): number;
@@ -128,6 +124,9 @@ export default class Toot implements TootObj {
     private attachmentsOfType;
     private completeProperties;
     private containsTagsOfTypeMsg;
+    private contentString;
+    private contentStripped;
+    private contentWithCard;
     private determineLanguage;
     private isComplete;
     private isUsersOwnToot;

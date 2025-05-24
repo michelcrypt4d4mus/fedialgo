@@ -191,9 +191,8 @@ class Toot {
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str) {
         str = str.trim().toLowerCase();
-        const contentStr = `${this.contentString()} ${this.card?.description || ""} ${this.card?.title || ""}`;
         const regex = new RegExp(`\\b${escape(str)}\\b`);
-        return this.containsTag(str) || regex.test(contentStr.trim().toLowerCase());
+        return this.containsTag(str) || regex.test(this.contentWithCard().toLowerCase());
     }
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
     containsTag(tag, fullScan) {
@@ -247,22 +246,12 @@ class Toot {
         }
         return content;
     }
-    // Return the toot's 'content' field stripped of HTML tags and emojis
-    contentString() {
-        return (0, string_helpers_1.htmlToText)(this.realToot().contentWithEmojis());
-    }
     // If the final <p> paragraph of the content is just hashtags, return it
     contentTagsParagraph() {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
             return finalParagraph;
         }
-    }
-    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
-    contentStripped() {
-        const contentWithCard = `${this.contentString()} (${this.card?.description ? (0, string_helpers_1.htmlToText)(this.card.description) : ""})`;
-        let txt = (0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(contentWithCard))));
-        return (0, string_helpers_1.collapseWhitespace)(txt);
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -452,6 +441,19 @@ class Toot {
             return;
         const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
         return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+    }
+    // Return the toot's 'content' field stripped of HTML tags and emojis
+    contentString() {
+        return (0, string_helpers_1.htmlToText)(this.realToot().contentWithEmojis());
+    }
+    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+    contentStripped() {
+        return (0, string_helpers_1.collapseWhitespace)((0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentWithCard())))));
+    }
+    // Return the content with the card title and description added in parentheses
+    contentWithCard() {
+        const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
+        return (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
     }
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {

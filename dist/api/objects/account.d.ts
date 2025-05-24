@@ -41,8 +41,8 @@ export default class Account implements AccountObj {
     webfingerURI: string;
     static build(account: AccountLike): Account;
     describe(): string;
-    displayNameWithEmojis(): string;
     displayNameFullHTML(): string;
+    displayNameWithEmojis(fontSize?: number): string;
     homeserver(): string;
     homserverURL(): string;
     noteWithAccountInfo(): string;

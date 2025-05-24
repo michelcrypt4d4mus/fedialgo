@@ -107,8 +107,6 @@ interface TootObj extends SerializableToot {
     containsString: (str: string) => boolean;
     containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
     containsTagsMsg: () => string | undefined;
-    contentString: () => string;
-    contentStripped: () => string;
     contentNonTagsParagraphs: (fontSize?: number) => string;
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
@@ -266,9 +264,8 @@ export default class Toot implements TootObj {
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
-        const contentStr = `${this.contentString()} ${this.card?.description || ""} ${this.card?.title || ""}`;
         const regex = new RegExp(`\\b${escape(str)}\\b`);
-        return this.containsTag(str) || regex.test(contentStr.trim().toLowerCase());
+        return this.containsTag(str) || regex.test(this.contentWithCard().toLowerCase());
     }
 
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
@@ -329,11 +326,6 @@ export default class Toot implements TootObj {
         return content;
     }
 
-     // Return the toot's 'content' field stripped of HTML tags and emojis
-    contentString(): string {
-        return htmlToText(this.realToot().contentWithEmojis());
-    }
-
     // If the final <p> paragraph of the content is just hashtags, return it
     contentTagsParagraph(): string | undefined {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
@@ -341,13 +333,6 @@ export default class Toot implements TootObj {
         if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
             return finalParagraph;
         }
-    }
-
-    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
-    contentStripped(): string {
-        const contentWithCard = `${this.contentString()} (${this.card?.description ? htmlToText(this.card.description) : ""})`;
-        let txt = removeMentions(removeEmojis(removeTags(removeLinks(contentWithCard))));
-        return collapseWhitespace(txt);
     }
 
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
@@ -562,6 +547,22 @@ export default class Toot implements TootObj {
         if (!tags.length) return;
         const tagTypeStr = capitalCase(tagType).replace(/ Tag/, " Hashtag");
         return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
+    }
+
+     // Return the toot's 'content' field stripped of HTML tags and emojis
+    private contentString(): string {
+        return htmlToText(this.realToot().contentWithEmojis());
+    }
+
+    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+    private contentStripped(): string {
+        return collapseWhitespace(removeMentions(removeEmojis(removeTags(removeLinks(this.contentWithCard())))));
+    }
+
+    // Return the content with the card title and description added in parentheses
+    private contentWithCard(): string {
+        const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
+        return (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
     }
 
     // Figure out an appropriate language for the toot based on the content.

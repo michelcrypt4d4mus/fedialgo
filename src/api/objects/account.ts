@@ -9,7 +9,7 @@ import MastoApi from "../api";
 import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 import { config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
-import { extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { DEFAULT_FONT_SIZE, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
@@ -103,14 +103,14 @@ export default class Account implements AccountObj {
         return `${this.displayName} (${this.webfingerURI})`;
     }
 
-    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
-    displayNameWithEmojis(): string {
-        return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || []);
-    }
-
     // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
     displayNameFullHTML(): string {
         return this.displayNameWithEmojis() + encode(` (@${this.webfingerURI})`);
+    }
+
+    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
+    displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
+        return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || [], fontSize);
     }
 
     // 'https://journa.host/@dell' -> 'journa.host'

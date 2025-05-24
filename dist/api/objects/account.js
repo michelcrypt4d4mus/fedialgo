@@ -98,13 +98,13 @@ class Account {
     describe() {
         return `${this.displayName} (${this.webfingerURI})`;
     }
-    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
-    displayNameWithEmojis() {
-        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || []);
-    }
     // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
     displayNameFullHTML() {
         return this.displayNameWithEmojis() + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
+    }
+    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
+    displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || [], fontSize);
     }
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {
