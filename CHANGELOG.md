@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* 
+* Refactor `Toot.contentWithCard()` method
 
 ### v0.48.7
 * Supress warnings when `ChaosScorer` calls `getIndividualScore()`
