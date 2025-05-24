@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Turn `TAG_ONLY_STRINGS`, `PARSEABLE_DATE_TYPES`, `IGNORE_LANGUAGES`, `LANG_DETECTOR_OVERCONFIDENT_LANGS`, and `FOREIGN_SCRIPTS` into a `Set` lookup (more than 20x faster according to jsbench.me results)
+* Convert various `Array.includes()` calls into a `Set.has()` calls (more than 20x faster according to jsbench.me results)
 
 ### v0.48.3
 * Move score statistics stuff out of `Scorer` class and into `stats_helper.ts`
