@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.8
 * Refactor `Toot.contentWithCard()` method
 
 ### v0.48.7
