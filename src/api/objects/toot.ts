@@ -611,7 +611,7 @@ export default class Toot implements TootObj {
             return;
         }
 
-        if (tinyLD.chosenLang && FOREIGN_SCRIPTS.includes(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang)) {
+        if (FOREIGN_SCRIPTS.has(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang!)) {
             logTrace(`Using existing foreign lang "${this.language}" even with low accuracy`);
             return;
         }

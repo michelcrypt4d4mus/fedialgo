@@ -200,14 +200,14 @@ exports.LANGUAGE_CODES = {
     zulu: "zu",
 };
 // The tinyld library is better at detecting these languages than the LanguageDetector.
-exports.FOREIGN_SCRIPTS = [
+exports.FOREIGN_SCRIPTS = new Set([
     exports.LANGUAGE_CODES.arabic,
     exports.LANGUAGE_CODES.chinese,
     `${exports.LANGUAGE_CODES.chinese}-CN`,
     `${exports.LANGUAGE_CODES.chinese}-TW`,
     exports.LANGUAGE_CODES.japanese,
     exports.LANGUAGE_CODES.korean,
-];
+]);
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
 const LANGUAGE_REGEXES = {
@@ -289,7 +289,7 @@ function detectLanguage(text) {
         }
     }
     // tinyld is much better at detecting foreign scripts
-    if (langInfoFromTinyLD.accuracy >= VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.includes(langInfoFromTinyLD.chosenLang || string_helpers_1.NULL)) {
+    if (langInfoFromTinyLD.accuracy >= VERY_HIGH_LANG_ACCURACY && exports.FOREIGN_SCRIPTS.has(langInfoFromTinyLD.chosenLang)) {
         // console.debug(`"${detectedLang}" is foreign script w/high accuracy, using it as determinedLang for "${text}"`);
         chosenLanguage = langInfoFromTinyLD.chosenLang;
     }

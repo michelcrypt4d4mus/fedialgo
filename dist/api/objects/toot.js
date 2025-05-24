@@ -492,7 +492,7 @@ class Toot {
             this.language = chosenLanguage;
             return;
         }
-        if (tinyLD.chosenLang && language_helper_1.FOREIGN_SCRIPTS.includes(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang)) {
+        if (language_helper_1.FOREIGN_SCRIPTS.has(tinyLD.chosenLang) && this.language?.startsWith(tinyLD.chosenLang)) {
             logTrace(`Using existing foreign lang "${this.language}" even with low accuracy`);
             return;
         }
