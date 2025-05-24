@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.5
 * Make numeric filters apply to the `realToot()` not the retoot, don't use `scoreInfo` to get values for numeric filters
 
 ### v0.48.4
