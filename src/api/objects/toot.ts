@@ -567,7 +567,7 @@ export default class Toot implements TootObj {
 
     // Figure out an appropriate language for the toot based on the content.
     private determineLanguage(): void {
-        let text = this.contentStripped();
+        const text = this.contentStripped();
 
         if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config.locale.defaultLanguage;
