@@ -49,5 +49,6 @@ export default class Account implements AccountObj {
     private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
     static countAccounts(accounts: Account[]): StringNumberDict;
+    static logSuspendedAccounts(accounts: Account[], logPrefix?: string): void;
 }
 export {};

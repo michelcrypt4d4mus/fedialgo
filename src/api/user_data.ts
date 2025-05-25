@@ -92,12 +92,12 @@ export default class UserData {
         return UserData.sortTrendingTags(this.participatedHashtags);
     }
 
-    ////////////////////////////
-    //      Class Methods     //
-    ////////////////////////////
+    /////////////////////////////
+    //      Static Methods     //
+    /////////////////////////////
 
     // Return an array of keywords the user has muted on the server side
-    static async mutedKeywords(): Promise<string[]> {
+    static async getMutedKeywords(): Promise<string[]> {
         const serverSideFilters = await MastoApi.instance.getServerSideFilters();
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));

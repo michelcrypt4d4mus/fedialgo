@@ -152,6 +152,11 @@ class Account {
     static countAccounts(accounts) {
         return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
     }
+    static logSuspendedAccounts(accounts, logPrefix = 'logSuspendedAccounts()') {
+        accounts.filter(a => !!a.suspended).forEach(a => {
+            console.warn(`${(0, string_helpers_1.bracketed)(logPrefix)} Found suspended account:`, a);
+        });
+    }
 }
 exports.default = Account;
 __decorate([

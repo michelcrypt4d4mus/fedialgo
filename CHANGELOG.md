@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Log suspended accounts
 
 ### v0.48.10
 * Remove blocked/muted keywords from the visible list of trending tags

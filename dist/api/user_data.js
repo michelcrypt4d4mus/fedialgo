@@ -71,11 +71,11 @@ class UserData {
     popularUserTags() {
         return UserData.sortTrendingTags(this.participatedHashtags);
     }
-    ////////////////////////////
-    //      Class Methods     //
-    ////////////////////////////
+    /////////////////////////////
+    //      Static Methods     //
+    /////////////////////////////
     // Return an array of keywords the user has muted on the server side
-    static async mutedKeywords() {
+    static async getMutedKeywords() {
         const serverSideFilters = await api_1.default.instance.getServerSideFilters();
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));

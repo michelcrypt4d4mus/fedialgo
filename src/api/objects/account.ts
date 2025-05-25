@@ -9,7 +9,7 @@ import MastoApi from "../api";
 import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 import { config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
-import { DEFAULT_FONT_SIZE, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
@@ -163,5 +163,11 @@ export default class Account implements AccountObj {
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     public static countAccounts(accounts: Account[]): StringNumberDict {
         return countValues<Account>(accounts, (account) => account.webfingerURI);
+    }
+
+    public static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
+        accounts.filter(a => !!a.suspended).forEach(a => {
+            console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
+        });
     }
 };

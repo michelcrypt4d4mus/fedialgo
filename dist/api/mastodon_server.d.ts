@@ -18,19 +18,19 @@ export default class MastodonServer {
     fetchTrendingStatuses(): Promise<Toot[]>;
     fetchTrendingLinks(): Promise<TrendingLink[]>;
     fetchTrendingTags(): Promise<TagWithUsageCounts[]>;
-    private fetchTrending;
-    private fetchList;
     private fetch;
-    static getTrendingData(): Promise<TrendingStorage>;
+    private fetchList;
+    private fetchTrending;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TagWithUsageCounts[]>;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
+    static getTrendingData(): Promise<TrendingStorage>;
     private static fetchMastodonInstances;
     private static fetchTrendingObjsFromAllServers;
     private static getTopServerDomains;
-    private static callForAllServers;
     private static callForServers;
+    private static callForTopServers;
     private static isNoMauServer;
 }
 export {};

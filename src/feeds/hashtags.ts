@@ -44,7 +44,7 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 
 // Screen a list of hashtags against the user's server side filters, removing any that are muted.
 export async function removeMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
-    const mutedKeywords = await UserData.mutedKeywords();
+    const mutedKeywords = await UserData.getMutedKeywords();
     return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
 };
 

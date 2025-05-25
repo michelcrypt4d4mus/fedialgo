@@ -173,10 +173,13 @@ export default class MastoApi {
 
     // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts(): Promise<Account[]> {
-        return await this.getApiRecords<mastodon.v1.Account>({
+        const blockedAccounts = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.blocks.list,
             cacheKey: CacheKey.BLOCKED_ACCOUNTS
         }) as Account[];
+
+        Account.logSuspendedAccounts(blockedAccounts, CacheKey.BLOCKED_ACCOUNTS);
+        return blockedAccounts;
     }
 
     // Generic data getter for things we want to cache but require custom fetch logic
@@ -246,8 +249,8 @@ export default class MastoApi {
             ...(params || {})
         }) as Account[];
 
-        const blockedAccounts = await this.getBlockedAccounts();
-        return mutedAccounts.concat(blockedAccounts);
+        Account.logSuspendedAccounts(mutedAccounts, CacheKey.MUTED_ACCOUNTS);
+        return mutedAccounts.concat(await this.getBlockedAccounts());
     }
 
     // Get the user's recent notifications

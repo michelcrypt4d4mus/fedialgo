@@ -144,10 +144,12 @@ class MastoApi {
     }
     // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts() {
-        return await this.getApiRecords({
+        const blockedAccounts = await this.getApiRecords({
             fetch: this.api.v1.blocks.list,
             cacheKey: types_1.CacheKey.BLOCKED_ACCOUNTS
         });
+        account_1.default.logSuspendedAccounts(blockedAccounts, types_1.CacheKey.BLOCKED_ACCOUNTS);
+        return blockedAccounts;
     }
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
@@ -205,6 +207,7 @@ class MastoApi {
             cacheKey: types_1.CacheKey.MUTED_ACCOUNTS,
             ...(params || {})
         });
+        account_1.default.logSuspendedAccounts(mutedAccounts, types_1.CacheKey.MUTED_ACCOUNTS);
         const blockedAccounts = await this.getBlockedAccounts();
         return mutedAccounts.concat(blockedAccounts);
     }

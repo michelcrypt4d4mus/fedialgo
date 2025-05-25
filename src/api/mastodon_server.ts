@@ -138,9 +138,20 @@ export default class MastodonServer {
     //        Private Methods       //
     //////////////////////////////////
 
-    // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
-    private async fetchTrending<T>(typeStr: TrendingType, limit?: number): Promise<T[]> {
-        return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
+    // Get data from a public API endpoint on a Mastodon server.
+    private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
+        let url = this.endpointUrl(endpoint);
+        if (limit) url += `?limit=${limit}`;
+        traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
+        const startedAt = new Date();
+        const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
+
+        if (json.status === 200 && json.data) {
+            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
+            return transformKeys(json.data, camelCase) as T;
+        } else {
+            throw json;
+        }
     }
 
     // Fetch a list of objects of type T from a public API endpoint
@@ -165,36 +176,14 @@ export default class MastodonServer {
         return list as T[];
     }
 
-    // Get data from a public API endpoint on a Mastodon server.
-    private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
-        let url = this.endpointUrl(endpoint);
-        if (limit) url += `?limit=${limit}`;
-        traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
-        const startedAt = new Date();
-        const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
-
-        if (json.status === 200 && json.data) {
-            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
-            return transformKeys(json.data, camelCase) as T;
-        } else {
-            throw json;
-        }
+    // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+    private async fetchTrending<T>(typeStr: TrendingType, limit?: number): Promise<T[]> {
+        return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Collect all three kinds of trending data (links, tags, toots) in one call
-    static async getTrendingData(): Promise<TrendingStorage> {
-        const [links, tags, toots] = await Promise.all([
-            this.fediverseTrendingLinks(),
-            this.fediverseTrendingTags(),
-            this.fediverseTrendingToots(),
-        ]);
-
-        return { links, tags, toots };
-    }
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
@@ -250,6 +239,15 @@ export default class MastodonServer {
         } finally {
             releaseMutex();
         }
+    }
+
+    // Collect all three kinds of trending data (links, tags, toots) in one call
+    static async getTrendingData(): Promise<TrendingStorage> {
+        return {
+            links: await this.fediverseTrendingLinks(),
+            tags: await this.fediverseTrendingTags(),
+            toots: await this.fediverseTrendingToots(),
+        };
     }
 
     ///////////////////////////////////////
@@ -328,7 +326,7 @@ export default class MastodonServer {
             let records = await Storage.getIfNotStale<T[]>(key);
 
             if (!records?.length) {
-                const serverObjs = await this.callForAllServers<T[]>(serverFxn);
+                const serverObjs = await this.callForTopServers<T[]>(serverFxn);
                 traceLog(`${logPrefix} result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
@@ -356,20 +354,20 @@ export default class MastodonServer {
         return topServerDomains;
     }
 
-    // Call 'fxn' for all the top servers and return a dict keyed by server domain
-    private static async callForAllServers<T>(
-        fxn: (server: MastodonServer) => Promise<T>
-    ): Promise<Record<string, T>> {
-        const domains = await this.getTopServerDomains();
-        return await this.callForServers(domains, fxn);
-    }
-
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     private static async callForServers<T>(
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
         return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
+    }
+
+    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    private static async callForTopServers<T>(
+        fxn: (server: MastodonServer) => Promise<T>
+    ): Promise<Record<string, T>> {
+        const domains = await this.getTopServerDomains();
+        return await this.callForServers(domains, fxn);
     }
 
     // Returns true if the domain is known to not provide MAU and trending data via public API
