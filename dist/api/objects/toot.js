@@ -267,7 +267,8 @@ class Toot {
         const logPrefix = (0, string_helpers_1.bracketed)('getConversation()');
         console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
-        const context = await api_1.default.instance.api.v1.statuses.$select(this.id).context.fetch();
+        const resolvedToot = await this.resolve();
+        const context = await api_1.default.instance.api.v1.statuses.$select(resolvedToot.id).context.fetch();
         return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
     }
     getScore() {
