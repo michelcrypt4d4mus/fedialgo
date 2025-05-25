@@ -39,12 +39,12 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
 };
 
 
-    // Compute stats about the scores of a list of toots
+// Compute stats about the scores of a list of toots
 function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
     return Object.values(ScoreName).reduce((stats, scoreName) => {
         stats[scoreName] = {
-            raw: scoreStats(toots, scoreName, "raw", numPercentiles),
-            weighted: scoreStats(toots, scoreName, "weighted", numPercentiles),
+            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
+            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
         };
 
         return stats;
@@ -55,8 +55,8 @@ function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(
     toots: Toot[],
-    scoreName: ScoreName,
     scoreType: keyof WeightedScore,
+    scoreName: ScoreName,
     numPercentiles: number
 ): MinMaxAvgScore[] {
     const getScoreOfType = (t: Toot) => t.getIndividualScore(scoreType, scoreName);

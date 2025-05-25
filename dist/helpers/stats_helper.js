@@ -47,14 +47,14 @@ exports.rechartsDataPoints = rechartsDataPoints;
 function computeScoreStats(toots, numPercentiles) {
     return Object.values(types_1.ScoreName).reduce((stats, scoreName) => {
         stats[scoreName] = {
-            raw: scoreStats(toots, scoreName, "raw", numPercentiles),
-            weighted: scoreStats(toots, scoreName, "weighted", numPercentiles),
+            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
+            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
         };
         return stats;
     }, {});
 }
 // Compute the min, max, and average of a score for each percentile segment
-function scoreStats(toots, scoreName, scoreType, numPercentiles) {
+function scoreStats(toots, scoreType, scoreName, numPercentiles) {
     const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);
     return (0, collection_helpers_1.percentileSegments)(toots, getScoreOfType, numPercentiles).map((segment) => {
         const sectionScores = segment.map(getScoreOfType);
