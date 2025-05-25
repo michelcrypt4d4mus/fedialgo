@@ -632,10 +632,10 @@ class TheAlgorithm {
     async updateTootCache(): Promise<void> {
         if (this.isLoading()) return;
         const logPrefix = bracketed(`updateTootCache()`);
+        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
 
         try {
-            const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-            if (this.totalNumTimesShown == newTotalNumTimesShown) return;
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
             console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
