@@ -1,10 +1,10 @@
 # NEXT RELEASE
 
 ### v0.49.2
-* Don't set resolvedToot to this if there's a failed lookup because it leads to a recursion error in class-transformer
+* Don't set `resolvedToot` to `this` if there's a failed lookup because it leads to a recursion error in `class-transformer`
 
 ### v0.49.1
-* resolve toot before getConversation()
+* Resolve toot before `getConversation()`
 
 ## v0.49.0
 * (Demo App) Thread viewer accordion panel
