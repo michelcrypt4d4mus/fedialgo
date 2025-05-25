@@ -376,12 +376,12 @@ class Toot {
             return this.resolvedToot;
         try {
             this.resolvedToot = await api_1.default.instance.resolveToot(this);
+            return this.resolvedToot;
         }
         catch (error) {
             console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
-            this.resolvedToot = this;
+            return this;
         }
-        return this.resolvedToot;
     }
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt() {
