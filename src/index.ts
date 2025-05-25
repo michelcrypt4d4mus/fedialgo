@@ -59,6 +59,7 @@ import {
     traceLog,
 } from './helpers/log_helpers';
 import {
+    AlgorithmStorageKey,
     FeedFilterSettings,
     KeysOfValueType,
     MastodonInstances,
@@ -340,7 +341,7 @@ class TheAlgorithm {
     }
 
     // Clear everything from browser storage except the user's identity and weightings
-    async reset(): Promise<void> {
+    async reset(complete: boolean = false): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
         MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller!);
@@ -354,6 +355,11 @@ class TheAlgorithm {
         this.feed = [];
         this.numTriggers = 0;
         await Storage.clearAll();
+
+        if (complete) {
+            await Storage.remove(AlgorithmStorageKey.USER);  // Remove user data so it gets reloaded
+        }
+
         await this.loadCachedData();
     }
 

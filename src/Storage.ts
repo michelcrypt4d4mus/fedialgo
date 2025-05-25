@@ -260,7 +260,7 @@ export default class Storage {
 
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key: StorageKey): Promise<void> {
-        const storageKey = await this.buildKey(key);
+        const storageKey = key == AlgorithmStorageKey.USER ? key : await this.buildKey(key);
         log(`Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }

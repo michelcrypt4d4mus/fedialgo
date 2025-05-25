@@ -315,7 +315,7 @@ class TheAlgorithm {
         await this.finishFeedUpdate(false);
     }
     // Clear everything from browser storage except the user's identity and weightings
-    async reset() {
+    async reset(complete = false) {
         console.warn(`reset() called, clearing all storage...`);
         api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
@@ -329,6 +329,9 @@ class TheAlgorithm {
         this.feed = [];
         this.numTriggers = 0;
         await Storage_1.default.clearAll();
+        if (complete) {
+            await Storage_1.default.remove(types_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
+        }
         await this.loadCachedData();
     }
     tagUrl(tag) {

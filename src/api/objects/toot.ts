@@ -239,7 +239,7 @@ export default class Toot implements TootObj {
         if (tootObj.account.suspended) {
             console.warn(`Toot from suspended account:`, tootObj);
         } else if (tootObj.account.limited) {
-            console.warn(`Toot from limited account:`, tootObj);
+            traceLog(`Toot from limited account:`, tootObj);
         }
 
         return tootObj;

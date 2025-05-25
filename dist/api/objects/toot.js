@@ -167,7 +167,7 @@ class Toot {
             console.warn(`Toot from suspended account:`, tootObj);
         }
         else if (tootObj.account.limited) {
-            console.warn(`Toot from limited account:`, tootObj);
+            (0, log_helpers_1.traceLog)(`Toot from limited account:`, tootObj);
         }
         return tootObj;
     }

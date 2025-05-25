@@ -1,4 +1,8 @@
 # NEXT RELEASE
+* (Demo App) Add ability to reply to toots inside the app
+* (Demo App) Pre-emptively resolve the toot ID as it appears on screen to speed up future interactions
+* (Demo App) Add experimental feature to completely wipe the app so as to deal with OAuth errors
+* Add complete flag to reset()
 
 ### v0.49.4
 * (Demo App) Show original toot in raw JSON view, not just the realToot

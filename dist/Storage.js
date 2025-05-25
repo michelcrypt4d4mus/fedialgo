@@ -241,7 +241,7 @@ class Storage {
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {
-        const storageKey = await this.buildKey(key);
+        const storageKey = key == types_1.AlgorithmStorageKey.USER ? key : await this.buildKey(key);
         log(`Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }

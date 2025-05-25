@@ -80,7 +80,7 @@ declare class TheAlgorithm {
     mostRecentHomeTootAt(): Date | null;
     mostRecentHomeTootAgeInSeconds(): number | null;
     refreshMutedAccounts(): Promise<void>;
-    reset(): Promise<void>;
+    reset(complete?: boolean): Promise<void>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;
