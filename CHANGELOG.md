@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.50.1
+* (Demo App) Fix bug where new tab opened when trying to open the raw Toot JSON modal
+
 # v0.50.0
 * (Demo App) Add ability to reply to toots inside the app
 * (Demo App) Pre-emptively resolve the toot ID as it appears on screen to speed up future interactions
