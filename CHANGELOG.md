@@ -1,6 +1,10 @@
 # NEXT RELEASE
 
+### v0.49.1
+* resolve toot before getConversation()
+
 ## v0.49.0
+* (Demo App) Thread viewer accordion panel
 * Add `getConversation()` method to `Toot` class
 * Log suspended accounts
 
