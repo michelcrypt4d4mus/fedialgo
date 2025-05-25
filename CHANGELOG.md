@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.49.3
+* Allow thread viewer on reply toots w/out their own replies
+
 ### v0.49.2
 * Don't set `resolvedToot` to `this` if there's a failed lookup because it leads to a recursion error in `class-transformer`
 
