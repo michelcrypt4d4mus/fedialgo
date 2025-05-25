@@ -83,7 +83,7 @@ class UserData {
         return keywords;
     }
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getUserParticipatedHashtagsSorted() {
+    static async getUserParticipatedTagsSorted() {
         const userTags = await UserData.getUserParticipatedTags();
         return this.sortTrendingTags(userTags);
     }

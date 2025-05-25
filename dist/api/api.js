@@ -208,8 +208,7 @@ class MastoApi {
             ...(params || {})
         });
         account_1.default.logSuspendedAccounts(mutedAccounts, types_1.CacheKey.MUTED_ACCOUNTS);
-        const blockedAccounts = await this.getBlockedAccounts();
-        return mutedAccounts.concat(blockedAccounts);
+        return mutedAccounts.concat(await this.getBlockedAccounts());
     }
     // Get the user's recent notifications
     async getNotifications(params) {

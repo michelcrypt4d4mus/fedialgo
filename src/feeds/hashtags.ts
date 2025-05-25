@@ -15,7 +15,7 @@ import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 // Get recent toots from hashtags the user has participated in frequently
 export async function getParticipatedHashtagToots(): Promise<Toot[]> {
     const logPrefix = bracketed("getParticipatedHashtagToots()");
-    let tags = await UserData.getUserParticipatedHashtagsSorted();
+    let tags = await UserData.getUserParticipatedTagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);

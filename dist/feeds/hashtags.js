@@ -18,7 +18,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 // Get recent toots from hashtags the user has participated in frequently
 async function getParticipatedHashtagToots() {
     const logPrefix = (0, string_helpers_1.bracketed)("getParticipatedHashtagToots()");
-    let tags = await user_data_1.default.getUserParticipatedHashtagsSorted();
+    let tags = await user_data_1.default.getUserParticipatedTagsSorted();
     tags = await removeFollowedAndMutedTags(tags);
     // Remove trending tags from the list of participated tags (we get them anyways)
     tags = removeKeywordsFromTags(tags, (await getTrendingTags()).map(t => t.name), logPrefix);

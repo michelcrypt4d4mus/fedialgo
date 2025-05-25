@@ -25,7 +25,7 @@ export default class UserData {
     populate(): Promise<void>;
     popularUserTags(): TagWithUsageCounts[];
     static getMutedKeywords(): Promise<string[]>;
-    static getUserParticipatedHashtagsSorted(): Promise<TagWithUsageCounts[]>;
+    static getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]>;
     static getUserParticipatedTags(): Promise<TagNames>;
     static sortTrendingTags(userTags: TagNames): TagWithUsageCounts[];
     private static buildUserParticipatedHashtags;
