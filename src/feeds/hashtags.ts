@@ -42,6 +42,13 @@ export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
 };
 
 
+// Screen a list of hashtags against the user's server side filters, removing any that are muted.
+export async function removeMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
+    const mutedKeywords = await UserData.mutedKeywords();
+    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
+};
+
+
 // Get the trending tags across the fediverse
 // TODO: stripping out followed/muted tags here can result in less than Config.trending.tags.numTags tags
 async function getTrendingTags(): Promise<MastodonTag[]> {
@@ -56,13 +63,6 @@ async function removeFollowedAndMutedTags(tags: MastodonTag[]): Promise<Mastodon
 };
 
 
-// Screen a list of hashtags against the user's server side filters, removing any that are muted.
-async function removeMutedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
-    const mutedKeywords = await UserData.mutedKeywords();
-    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
-};
-
-
 // Screen a list of hashtags against the user's followed tags, removing any that are followed.
 async function removeFollowedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
     const followedKeywords = (await MastoApi.instance.getFollowedTags()).map(t => t.name);
@@ -71,6 +71,7 @@ async function removeFollowedTags(tags: MastodonTag[]): Promise<MastodonTag[]> {
 
 
 function removeKeywordsFromTags(tags: MastodonTag[], keywords: string[], logPrefix: string): MastodonTag[] {
+    keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
     const validTags = tags.filter(tag => !keywords.includes(tag.name));
 
     if (validTags.length != tags.length) {

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove blocked/muted keywords from the visible list of trending tags
 
 ### v0.48.9
 * Fix bug where home timeline toots were being sorted backwards before being truncated
@@ -7,7 +8,7 @@
 * Refactor `Toot.contentWithCard()` method
 
 ### v0.48.7
-* Supress warnings when `ChaosScorer` calls `getIndividualScore()`
+* Suppress warnings when `ChaosScorer` calls `getIndividualScore()`
 
 ### v0.48.6
 * (Demo App) `useMemo()` for a few possibly expensive calculations

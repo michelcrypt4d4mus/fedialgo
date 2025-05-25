@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRecentTootsForTrendingTags = exports.getParticipatedHashtagToots = void 0;
+exports.removeMutedTags = exports.getRecentTootsForTrendingTags = exports.getParticipatedHashtagToots = void 0;
 /*
  * Methods used to fetch toots for the timeline based on hashtags
  */
@@ -35,6 +35,13 @@ async function getRecentTootsForTrendingTags() {
 }
 exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;
+// Screen a list of hashtags against the user's server side filters, removing any that are muted.
+async function removeMutedTags(tags) {
+    const mutedKeywords = await user_data_1.default.mutedKeywords();
+    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
+}
+exports.removeMutedTags = removeMutedTags;
+;
 // Get the trending tags across the fediverse
 // TODO: stripping out followed/muted tags here can result in less than Config.trending.tags.numTags tags
 async function getTrendingTags() {
@@ -47,12 +54,6 @@ async function removeFollowedAndMutedTags(tags) {
     return await removeFollowedTags(await removeMutedTags(tags));
 }
 ;
-// Screen a list of hashtags against the user's server side filters, removing any that are muted.
-async function removeMutedTags(tags) {
-    const mutedKeywords = await user_data_1.default.mutedKeywords();
-    return removeKeywordsFromTags(tags, mutedKeywords, "[removeMutedTags()]");
-}
-;
 // Screen a list of hashtags against the user's followed tags, removing any that are followed.
 async function removeFollowedTags(tags) {
     const followedKeywords = (await api_1.default.instance.getFollowedTags()).map(t => t.name);
@@ -60,6 +61,7 @@ async function removeFollowedTags(tags) {
 }
 ;
 function removeKeywordsFromTags(tags, keywords, logPrefix) {
+    keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
     const validTags = tags.filter(tag => !keywords.includes(tag.name));
     if (validTags.length != tags.length) {
         (0, log_helpers_1.traceLog)(`${logPrefix} Filtered out ${tags.length - validTags.length} tags:`, tags);
