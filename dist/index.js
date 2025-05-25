@@ -332,7 +332,9 @@ class TheAlgorithm {
         if (complete) {
             await Storage_1.default.remove(types_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
         }
-        await this.loadCachedData();
+        else {
+            await this.loadCachedData();
+        }
     }
     tagUrl(tag) {
         return api_1.default.instance.tagUrl(tag);

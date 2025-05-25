@@ -358,9 +358,9 @@ class TheAlgorithm {
 
         if (complete) {
             await Storage.remove(AlgorithmStorageKey.USER);  // Remove user data so it gets reloaded
+        } else {
+            await this.loadCachedData();
         }
-
-        await this.loadCachedData();
     }
 
     tagUrl(tag: string | MastodonTag): string {
