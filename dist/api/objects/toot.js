@@ -268,10 +268,9 @@ class Toot {
         console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
-    }
-    getScore() {
-        return this.scoreInfo?.score || 0;
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, true);
+        (0, log_helpers_1.traceLog)(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
+        return toots;
     }
     getIndividualScore(scoreType, name) {
         if (this.scoreInfo?.scores) {
@@ -281,6 +280,9 @@ class Toot {
             console.warn(`getIndividualScore() called on toot but no scoreInfo.scores:`, this);
             return 0;
         }
+    }
+    getScore() {
+        return this.scoreInfo?.score || 0;
     }
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
     //          this: https://fosstodon.org/@kate/114360290341300577
@@ -599,11 +601,10 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects (or Toots).
     // Toots returned by this method should have most of their properties set correctly.
-    static async buildToots(statuses, source, logPrefix, skipSort) {
+    static async buildToots(statuses, source, skipSort) {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
-        logPrefix ||= source;
-        logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix)} buildToots()`;
+        const logPrefix = `${(0, string_helpers_1.bracketed)(source)} buildToots()`;
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.

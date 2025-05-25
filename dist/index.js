@@ -505,7 +505,7 @@ class TheAlgorithm {
         this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logPrefix);
     }
-    // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
+    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     async prepareScorers(force) {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, log_helpers_1.PREP_SCORERS);
         try {

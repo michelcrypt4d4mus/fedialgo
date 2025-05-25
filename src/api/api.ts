@@ -189,8 +189,7 @@ export default class MastoApi {
         key: CacheKey,
         maxRecords: number,
     ): Promise<Toot[]> {
-        const logPrefix = `[${key} getCacheableToots()]`;
-        const releaseMutex = await lockExecution(this.mutexes[key], logPrefix);
+        const releaseMutex = await lockExecution(this.mutexes[key], key);
         const startedAt = new Date();
 
         try {
@@ -198,13 +197,12 @@ export default class MastoApi {
 
             if (!toots) {
                 const statuses = await fetch();
-                traceLog(`${logPrefix} Retrieved ${statuses.length} Status objects ${ageString(startedAt)}`);
-                toots = await Toot.buildToots(statuses, key, logPrefix);
+                traceLog(`${bracketed(key)} Retrieved ${statuses.length} Statuses ${ageString(startedAt)}`);
+                toots = await Toot.buildToots(statuses, key);
                 toots = truncateToConfiguredLength(toots, maxRecords);
                 await Storage.set(key, toots);
             }
 
-            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} Returning ${toots.length} in ${ageString(startedAt)}`);
             return toots;
         } finally {
             releaseMutex();

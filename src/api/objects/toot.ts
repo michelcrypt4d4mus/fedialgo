@@ -52,6 +52,7 @@ import {
     TrendingLink,
     WeightedScore,
 } from "../../types";
+import { trace } from "console";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -353,11 +354,9 @@ export default class Toot implements TootObj {
         console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await MastoApi.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
-    }
-
-    getScore(): number {
-        return this.scoreInfo?.score || 0;
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, true);
+        traceLog(`${logPrefix} Fetched ${toots.length} toots ${ageString(startTime)}`, toots.map(t => t.describe()));
+        return toots;
     }
 
     getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number {
@@ -367,6 +366,10 @@ export default class Toot implements TootObj {
             console.warn(`getIndividualScore() called on toot but no scoreInfo.scores:`, this);
             return 0;
         }
+    }
+
+    getScore(): number {
+        return this.scoreInfo?.score || 0;
     }
 
     // Make an API call to get this toot's URL on the home server instead of on the toot's original server, e.g.
@@ -727,12 +730,10 @@ export default class Toot implements TootObj {
     static async buildToots(
         statuses: TootLike[],
         source: string,
-        logPrefix?: string,
         skipSort?: boolean
     ): Promise<Toot[]> {
         if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
-        logPrefix ||= source;
-        logPrefix = `${bracketed(logPrefix)} buildToots()`;
+        const logPrefix = `${bracketed(source)} buildToots()`;
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true

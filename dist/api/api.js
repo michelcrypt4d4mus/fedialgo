@@ -154,19 +154,17 @@ class MastoApi {
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(fetch, key, maxRecords) {
-        const logPrefix = `[${key} getCacheableToots()]`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], key);
         const startedAt = new Date();
         try {
             let toots = await Storage_1.default.getIfNotStale(key);
             if (!toots) {
                 const statuses = await fetch();
-                (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${statuses.length} Status objects ${(0, time_helpers_1.ageString)(startedAt)}`);
-                toots = await toot_1.default.buildToots(statuses, key, logPrefix);
+                (0, log_helpers_1.traceLog)(`${(0, string_helpers_1.bracketed)(key)} Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
+                toots = await toot_1.default.buildToots(statuses, key);
                 toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords);
                 await Storage_1.default.set(key, toots);
             }
-            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} Returning ${toots.length} in ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         finally {

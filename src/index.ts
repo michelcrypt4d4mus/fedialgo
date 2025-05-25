@@ -559,7 +559,7 @@ class TheAlgorithm {
         this.setLoadingStateVariables(logPrefix);
     }
 
-    // Prepare the scorers for scoring. If 'force' is true, force them to recompute data even if they are already ready.
+    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     private async prepareScorers(force?: boolean): Promise<void> {
         const releaseMutex = await lockExecution(this.prepareScorersMutex, PREP_SCORERS);
 
