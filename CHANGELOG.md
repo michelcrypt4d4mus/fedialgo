@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.9
 * Fix bug where home timeline toots were being sorted backwards before being truncated
 
 ### v0.48.8
