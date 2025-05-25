@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Add getConversation() method to Toot class
+
+# v0.49.0
+* Add `getConversation()` method to `Toot` class
 * Log suspended accounts
 
 ### v0.48.10
