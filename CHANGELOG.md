@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* Toot.resolvedID() method
+
+### v0.49.4
+* (Demo App) Show original toot in raw JSON view, not just the realToot
+* Add `Toot.resolveID()` method and `resolvedID` property, remove `Toot.resolved` property because of recursion issues
 
 ### v0.49.3
 * Allow thread viewer on reply toots w/out their own replies
