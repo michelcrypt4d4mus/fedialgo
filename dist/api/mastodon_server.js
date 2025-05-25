@@ -151,18 +151,6 @@ class MastodonServer {
         ]);
         return { links, tags, toots };
     }
-    // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
-    static async fediverseTrendingToots() {
-        return await this.fetchTrendingObjsFromAllServers({
-            key: types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-            serverFxn: (server) => server.fetchTrendingStatuses(),
-            processingFxn: async (toots) => {
-                (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                const trendingToots = await toot_1.default.buildToots(toots, types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
-                return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
-            }
-        });
-    }
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
         return await this.fetchTrendingObjsFromAllServers({
@@ -185,6 +173,18 @@ class MastodonServer {
             }
         });
     }
+    // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
+    static async fediverseTrendingToots() {
+        return await this.fetchTrendingObjsFromAllServers({
+            key: types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+            serverFxn: (server) => server.fetchTrendingStatuses(),
+            processingFxn: async (toots) => {
+                (0, trending_with_history_1.setTrendingRankToAvg)(toots);
+                const trendingToots = await toot_1.default.buildToots(toots, types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
+                return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
+            }
+        });
+    }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
         const logPrefix = `[${types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS}]`;
@@ -200,10 +200,6 @@ class MastodonServer {
         finally {
             releaseMutex();
         }
-    }
-    // Returns true if the domain is known to not provide MAU and trending data via public API
-    static isNoMauServer(domain) {
-        return config_1.config.fediverse.noMauServers.some(s => domain == s);
     }
     ///////////////////////////////////////
     //      Private Static Methods       //
@@ -256,16 +252,7 @@ class MastodonServer {
         console.log(`${logPrefix} Fetched ${numServers} Instances ${(0, time_helpers_1.ageString)(startedAt)}:`, servers);
         return servers;
     }
-    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
-    static async getTopServerDomains() {
-        const servers = await this.getMastodonInstancesInfo();
-        // Sort the servers by the % of MAU followed by the fedialgo user
-        const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
-        console.debug(`[${types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
-        return topServerDomains;
-    }
-    // Generic wrapper method to fetch trending data from all servers and process it into
-    // an array of unique objects.
+    // Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logPrefix = `[${key}]`;
@@ -288,6 +275,14 @@ class MastodonServer {
             releaseMutex();
         }
     }
+    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    static async getTopServerDomains() {
+        const servers = await this.getMastodonInstancesInfo();
+        // Sort the servers by the % of MAU followed by the fedialgo user
+        const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
+        console.debug(`[${types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        return topServerDomains;
+    }
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     static async callForAllServers(fxn) {
         const domains = await this.getTopServerDomains();
@@ -296,6 +291,10 @@ class MastodonServer {
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
         return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
+    }
+    // Returns true if the domain is known to not provide MAU and trending data via public API
+    static isNoMauServer(domain) {
+        return config_1.config.fediverse.noMauServers.some(s => domain == s);
     }
 }
 exports.default = MastodonServer;

@@ -22,15 +22,15 @@ export default class MastodonServer {
     private fetchList;
     private fetch;
     static getTrendingData(): Promise<TrendingStorage>;
-    static fediverseTrendingToots(): Promise<Toot[]>;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     static fediverseTrendingTags(): Promise<TagWithUsageCounts[]>;
+    static fediverseTrendingToots(): Promise<Toot[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
-    static isNoMauServer(domain: string): boolean;
     private static fetchMastodonInstances;
-    private static getTopServerDomains;
     private static fetchTrendingObjsFromAllServers;
+    private static getTopServerDomains;
     private static callForAllServers;
     private static callForServers;
+    private static isNoMauServer;
 }
 export {};
