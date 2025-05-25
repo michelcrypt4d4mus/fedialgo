@@ -8,7 +8,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     participatedTags?: TagWithUsageCounts[];
     reblog?: SerializableToot | null;
     reblogsBy?: AccountLike[];
-    resolvedToot?: Toot;
+    resolvedID?: string;
     scoreInfo?: TootScore;
     sources?: string[];
     trendingLinks?: TrendingLink[];
@@ -43,6 +43,7 @@ interface TootObj extends SerializableToot {
     realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
+    resolveID: () => Promise<string>;
     tootedAt: () => Date;
 }
 export default class Toot implements TootObj {
@@ -82,7 +83,7 @@ export default class Toot implements TootObj {
     followedTags?: mastodon.v1.Tag[];
     participatedTags?: TagWithUsageCounts[];
     reblogsBy: Account[];
-    resolvedToot?: Toot;
+    resolvedID?: string;
     scoreInfo?: TootScore;
     sources?: string[];
     trendingLinks?: TrendingLink[];
@@ -120,6 +121,7 @@ export default class Toot implements TootObj {
     realURI(): string;
     realURL(): string;
     resolve(): Promise<Toot>;
+    resolveID(): Promise<string>;
     tootedAt(): Date;
     private addEmojiHtmlTags;
     private attachmentsOfType;

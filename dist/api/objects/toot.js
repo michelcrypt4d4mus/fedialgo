@@ -103,7 +103,7 @@ class Toot {
     followedTags; // Array of tags that the user follows that exist in this toot
     participatedTags; // Array of tags that the user has participated in that exist in this toot
     reblogsBy; // The accounts that retooted this toot
-    resolvedToot; // This Toot with URLs resolved to homeserver versions
+    resolvedID; // This Toot with URLs resolved to homeserver versions
     scoreInfo; // Scoring info for weighting/sorting this toot
     sources; // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks; // Links that are trending in this toot
@@ -152,7 +152,7 @@ class Toot {
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         // TODO: the reblogsBy don't necessarily have the isFollowed flag set correctly
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => account_1.default.build(account));
-        tootObj.resolvedToot = toot.resolvedToot;
+        tootObj.resolvedID = toot.resolvedID;
         tootObj.scoreInfo = toot.scoreInfo;
         tootObj.sources = toot.sources;
         tootObj.trendingLinks = toot.trendingLinks;
@@ -267,8 +267,7 @@ class Toot {
         const logPrefix = (0, string_helpers_1.bracketed)('getConversation()');
         console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
-        const resolvedToot = await this.resolve();
-        const context = await api_1.default.instance.api.v1.statuses.$select(resolvedToot.id).context.fetch();
+        const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
     }
     getScore() {
@@ -287,10 +286,7 @@ class Toot {
     //          this: https://fosstodon.org/@kate/114360290341300577
     //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL() {
-        const resolved = await this.resolve();
-        if (!resolved)
-            return this.realURL();
-        const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
+        const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }
@@ -372,16 +368,26 @@ class Toot {
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
-        if (this.resolvedToot)
-            return this.resolvedToot;
         try {
-            this.resolvedToot = await api_1.default.instance.resolveToot(this);
-            return this.resolvedToot;
+            return await api_1.default.instance.resolveToot(this);
         }
         catch (error) {
             console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             return this;
         }
+    }
+    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
+    async resolveID() {
+        if (!this.resolvedID) {
+            try {
+                this.resolvedID = (await api_1.default.instance.resolveToot(this)).id;
+            }
+            catch (error) {
+                console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+                return this.id;
+            }
+        }
+        return this.resolvedID;
     }
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt() {
@@ -744,10 +750,6 @@ __decorate([
     (0, class_transformer_1.Type)(() => account_1.default),
     __metadata("design:type", Array)
 ], Toot.prototype, "reblogsBy", void 0);
-__decorate([
-    (0, class_transformer_1.Type)(() => Toot),
-    __metadata("design:type", Toot)
-], Toot.prototype, "resolvedToot", void 0);
 ;
 // Methods for dealing with toot timestamps
 const tootedAt = (toot) => new Date(toot.createdAt);

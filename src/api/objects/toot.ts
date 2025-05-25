@@ -90,7 +90,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
     reblog?: SerializableToot | null,        // The toot that was retooted (if any)
     reblogsBy?: AccountLike[];               // The accounts that retooted this toot (if any)
-    resolvedToot?: Toot;                     // This Toot with URLs resolved to homeserver versions
+    resolvedID?: string;                     // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;                   // Scoring info for weighting/sorting this toot
     sources?: string[];                      // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks?: TrendingLink[];          // Links that are trending in this toot
@@ -126,6 +126,7 @@ interface TootObj extends SerializableToot {
     realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
+    resolveID: () => Promise<string>;
     tootedAt: () => Date;
 };
 
@@ -171,7 +172,7 @@ export default class Toot implements TootObj {
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
     participatedTags?: TagWithUsageCounts[];     // Array of tags that the user has participated in that exist in this toot
     @Type(() => Account) reblogsBy!: Account[];  // The accounts that retooted this toot
-    @Type(() => Toot) resolvedToot?: Toot;       // This Toot with URLs resolved to homeserver versions
+    resolvedID?: string;                         // This Toot with URLs resolved to homeserver versions
     scoreInfo?: TootScore;                       // Scoring info for weighting/sorting this toot
     sources?: string[];                          // Source of the toot (e.g. trending tag toots, home timeline, etc.)
     trendingLinks?: TrendingLink[];              // Links that are trending in this toot
@@ -222,7 +223,7 @@ export default class Toot implements TootObj {
         tootObj.reblog = toot.reblog ? Toot.build(toot.reblog) : undefined;
         // TODO: the reblogsBy don't necessarily have the isFollowed flag set correctly
         tootObj.reblogsBy = (toot.reblogsBy ?? []).map(account => Account.build(account));
-        tootObj.resolvedToot = toot.resolvedToot;
+        tootObj.resolvedID = toot.resolvedID;
         tootObj.scoreInfo = toot.scoreInfo;
         tootObj.sources = toot.sources;
         tootObj.trendingLinks = toot.trendingLinks;
@@ -351,8 +352,7 @@ export default class Toot implements TootObj {
         const logPrefix = bracketed('getConversation()');
         console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
-        const resolvedToot = await this.resolve();
-        const context = await MastoApi.instance.api.v1.statuses.$select(resolvedToot.id).context.fetch();
+        const context = await MastoApi.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
     }
 
@@ -373,9 +373,7 @@ export default class Toot implements TootObj {
     //          this: https://fosstodon.org/@kate/114360290341300577
     //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL(): Promise<string> {
-        const resolved = await this.resolve();
-        if (!resolved) return this.realURL();
-        const homeURL = `${this.account.homserverURL()}/${resolved.id}`;
+        const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
         console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }
@@ -466,17 +464,28 @@ export default class Toot implements TootObj {
         return this.realToot().url || this.realURI();
     }
 
-    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
+     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve(): Promise<Toot> {
-        if (this.resolvedToot) return this.resolvedToot as Toot;
-
         try {
-            this.resolvedToot = await MastoApi.instance.resolveToot(this);
-            return this.resolvedToot;
+            return await MastoApi.instance.resolveToot(this);
         } catch (error) {
             console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             return this;
         }
+    }
+
+    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
+    async resolveID(): Promise<string> {
+        if (!this.resolvedID) {
+            try {
+                this.resolvedID = (await MastoApi.instance.resolveToot(this)).id;
+            } catch (error) {
+                console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+                return this.id;
+            }
+        }
+
+        return this.resolvedID;
     }
 
 

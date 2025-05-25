@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Toot.resolvedID() method
 
 ### v0.49.3
 * Allow thread viewer on reply toots w/out their own replies
