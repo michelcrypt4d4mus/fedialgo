@@ -141,6 +141,11 @@ export interface TagWithUsageCounts extends mastodon.v1.Tag {
     numAccounts?: number;
     numToots?: number;
 }
+export type TootContext = {
+    ancestors: Toot[];
+    descendants: Toot[];
+    toot: Toot;
+};
 export type TootScore = {
     rawScore: number;
     score: number;

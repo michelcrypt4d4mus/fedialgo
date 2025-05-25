@@ -346,6 +346,15 @@ export default class Toot implements TootObj {
         return `${msg}: "${this.contentShortened()}"`;
     }
 
+   // Mastodon calls this a "context" but it's really a conversation
+    async getConversation(): Promise<Toot[]> {
+        const logPrefix = bracketed('getConversation()');
+        console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
+        const startTime = new Date();
+        const context = await MastoApi.instance.api.v1.statuses.$select(this.id).context.fetch();
+        return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
+    }
+
     getScore(): number {
         return this.scoreInfo?.score || 0;
     }
@@ -706,7 +715,12 @@ export default class Toot implements TootObj {
 
     // Build array of new Toot objects from an array of Status objects (or Toots).
     // Toots returned by this method should have most of their properties set correctly.
-    static async buildToots(statuses: TootLike[], source: string, logPrefix?: string): Promise<Toot[]> {
+    static async buildToots(
+        statuses: TootLike[],
+        source: string,
+        logPrefix?: string,
+        skipSort?: boolean
+    ): Promise<Toot[]> {
         if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
         logPrefix = `${bracketed(logPrefix)} buildToots()`;
@@ -721,7 +735,7 @@ export default class Toot implements TootObj {
         // Make a first pass at scoring with whatever scorers are ready to score
         await Scorer.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
-        toots.sort((a, b) => b.getScore() - a.getScore());
+        if (!skipSort) toots.sort((a, b) => b.getScore() - a.getScore());
         traceLog(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }

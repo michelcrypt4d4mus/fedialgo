@@ -262,6 +262,14 @@ class Toot {
         let msg = `${this.account.describe()} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
+    // Mastodon calls this a "context" but it's really a conversation
+    async getConversation() {
+        const logPrefix = (0, string_helpers_1.bracketed)('getConversation()');
+        console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
+        const startTime = new Date();
+        const context = await api_1.default.instance.api.v1.statuses.$select(this.id).context.fetch();
+        return Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, logPrefix, true);
+    }
     getScore() {
         return this.scoreInfo?.score || 0;
     }
@@ -584,7 +592,7 @@ class Toot {
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects (or Toots).
     // Toots returned by this method should have most of their properties set correctly.
-    static async buildToots(statuses, source, logPrefix) {
+    static async buildToots(statuses, source, logPrefix, skipSort) {
         if (statuses.length == 0)
             return []; // Avoid the data fetching if we don't to build anything
         logPrefix ||= source;
@@ -599,7 +607,8 @@ class Toot {
         // Make a first pass at scoring with whatever scorers are ready to score
         await scorer_1.default.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
-        toots.sort((a, b) => b.getScore() - a.getScore());
+        if (!skipSort)
+            toots.sort((a, b) => b.getScore() - a.getScore());
         (0, log_helpers_1.traceLog)(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }

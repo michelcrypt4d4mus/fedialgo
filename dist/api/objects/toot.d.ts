@@ -104,6 +104,7 @@ export default class Toot implements TootObj {
     contentTagsParagraph(): string | undefined;
     contentWithEmojis(fontSize?: number): string;
     describe(): string;
+    getConversation(): Promise<Toot[]>;
     getScore(): number;
     getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number;
     homeserverURL(): Promise<string>;
@@ -131,7 +132,7 @@ export default class Toot implements TootObj {
     private isComplete;
     private isUsersOwnToot;
     private repair;
-    static buildToots(statuses: TootLike[], source: string, logPrefix?: string): Promise<Toot[]>;
+    static buildToots(statuses: TootLike[], source: string, logPrefix?: string, skipSort?: boolean): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;

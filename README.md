@@ -228,6 +228,7 @@ There's a pre-commit git hook that runs `npm run build` but unfortunately it doe
 
 
 # TODO
+1. Support [domain level blocks](https://docs.joinmastodon.org/methods/domain_blocks/)
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 
 ### What's slow:

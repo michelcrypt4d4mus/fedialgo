@@ -224,6 +224,13 @@ export interface TagWithUsageCounts extends mastodon.v1.Tag {
     numToots?: number;
 };
 
+// Similar to mastodon.v1.Context: https://docs.joinmastodon.org/entities/Context/
+export type TootContext = {
+    ancestors: Toot[];
+    descendants: Toot[];
+    toot: Toot;
+};
+
 export type TootScore = {
     rawScore: number;             // Raw score without time decay etc. applied
     score: number;                // Actual final score
