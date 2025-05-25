@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.48.10
 * Remove blocked/muted keywords from the visible list of trending tags
 
 ### v0.48.9
