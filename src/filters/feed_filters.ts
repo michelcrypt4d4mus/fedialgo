@@ -157,7 +157,7 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
 
     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].optionInfo).forEach((tagName) => {
         toots.forEach((toot) => {
-            if (toot.realToot().containsTag(tagName, true)) {
+            if (toot.realToot().containsString(tagName)) {
                 incrementCount(newTootTagCounts, tagName);
             }
         })

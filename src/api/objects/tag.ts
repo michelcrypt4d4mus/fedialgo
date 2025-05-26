@@ -6,7 +6,7 @@ import MastoApi from "../../api/api";
 import Toot from "./toot";
 import { incrementCount, sortObjsByProps } from "../../helpers/collection_helpers";
 import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
-import { removeDiacritics } from "../../helpers/string_helpers";
+import { removeDiacritics, wordRegex } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
@@ -19,7 +19,9 @@ const SORT_TAGS_BY = [
 // Build a lookup table of tag names to tag objects
 export function buildTagNames(tags: MastodonTag[]): TagNames {
     return tags.reduce((tagNames: TagNames, tag: MastodonTag) => {
-        tagNames[tag.name] = tag;
+        const newTag = tag as TagWithUsageCounts;
+        newTag.regex ||= wordRegex(tag.name);
+        tagNames[tag.name] = newTag;
         return tagNames;
     }, {} as TagNames);
 };

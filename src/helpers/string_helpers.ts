@@ -203,5 +203,5 @@ export const toLocaleInt = (num: number | null): string => {
 
 // Create a regex that matches a whole word, case-insensitive
 export const wordRegex = (pattern: string): RegExp => {
-    return new RegExp(`\\b${escape([pattern])}\\b`, 'i');
+    return new RegExp(`\\b${escape([pattern.trim()])}\\b`, 'i');
 };

@@ -76,7 +76,7 @@ const TOOT_MATCHERS = {
         return validValues.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
     },
     [BooleanFilterName.HASHTAG]: (toot, validValues) => {
-        return !!validValues.find((v) => toot.realToot().containsTag(v, true));
+        return !!validValues.find((v) => toot.realToot().containsString(v));
     },
     [BooleanFilterName.TYPE]: (toot, validValues) => {
         return validValues.some((v) => exports.TYPE_FILTERS[v](toot));

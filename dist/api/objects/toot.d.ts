@@ -22,7 +22,7 @@ interface TootObj extends SerializableToot {
     ageInHours: () => number;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
-    containsTag: (tag: string | MastodonTag, fullScan?: boolean) => boolean;
+    containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
     containsTagsMsg: () => string | undefined;
     contentNonTagsParagraphs: (fontSize?: number) => string;
     contentParagraphs: (fontSize?: number) => string[];
@@ -96,7 +96,7 @@ export default class Toot implements TootObj {
     ageInHours(): number;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;
-    containsTag(tag: string | MastodonTag, fullScan?: boolean): boolean;
+    containsTag(tag: TagWithUsageCounts, fullScan?: boolean): boolean;
     containsTagsMsg(): string | undefined;
     containsUserMention(): boolean;
     contentNonTagsParagraphs(fontSize?: number): string;

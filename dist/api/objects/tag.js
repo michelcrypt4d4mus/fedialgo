@@ -19,7 +19,9 @@ const SORT_TAGS_BY = [
 // Build a lookup table of tag names to tag objects
 function buildTagNames(tags) {
     return tags.reduce((tagNames, tag) => {
-        tagNames[tag.name] = tag;
+        const newTag = tag;
+        newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
+        tagNames[tag.name] = newTag;
         return tagNames;
     }, {});
 }

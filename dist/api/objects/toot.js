@@ -190,19 +190,19 @@ class Toot {
     }
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str) {
-        str = str.trim().toLowerCase();
-        return this.containsTag(str) || (0, string_helpers_1.wordRegex)(str).test(this.contentWithCard());
+        return (0, string_helpers_1.wordRegex)(str).test(this.contentWithCard());
     }
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
     containsTag(tag, fullScan) {
-        let tagName = (typeof tag == "string" ? tag : tag.name).trim().toLowerCase();
-        if (tagName.startsWith("#"))
-            tagName = tagName.slice(1);
-        if (fullScan && (tagName.length > 1) && !(TAG_ONLY_STRINGS.has(tagName))) {
-            return this.containsString(tagName);
+        if (fullScan && (tag.name.length > 1) && !(TAG_ONLY_STRINGS.has(tag.name))) {
+            if (!tag.regex) {
+                console.warn(`containsTag() called on tag without regex:`, tag);
+                tag.regex = (0, string_helpers_1.wordRegex)(tag.name);
+            }
+            return tag.regex.test(this.contentWithCard());
         }
         else {
-            return this.tags.some((tag) => tag.name == tagName);
+            return this.tags.some((t) => t.name == tag.name);
         }
     }
     // Generate a string describing the followed and trending tags in the toot
