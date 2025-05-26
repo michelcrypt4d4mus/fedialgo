@@ -6,6 +6,7 @@ import { mastodon } from "masto";
 import { Type } from "class-transformer";
 
 import MastoApi from "../api";
+import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 import { config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
@@ -111,6 +112,12 @@ export default class Account implements AccountObj {
     // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
         return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || [], fontSize);
+    }
+
+    // Get the accounts instance info from the MastoApi instance
+    async homeInstanceInfo(): Promise<InstanceResponse> {
+        const server = new MastodonServer(this.homeserver());  // Ensure the server is loaded
+        return await server.fetchServerInfo();
     }
 
     // 'https://journa.host/@dell' -> 'journa.host'

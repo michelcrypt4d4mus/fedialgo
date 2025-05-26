@@ -5,7 +5,7 @@ export declare enum TrendingType {
     LINKS = "links",
     TAGS = "tags"
 }
-type InstanceResponse = MastodonInstance | null;
+export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     private static v1Url;
@@ -33,4 +33,3 @@ export default class MastodonServer {
     private static callForTopServers;
     private static isNoMauServer;
 }
-export {};

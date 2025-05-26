@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add homeInstanceInfo() method to Account; Add homeserver into to getCurrentState()
 
 ### v0.50.6
 * (Demo App) Disable background `resolve()` resolution of toots on scroll

@@ -279,6 +279,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config,
+            Homeserver: await MastoApi.instance.user.homeInstanceInfo(),
             Storage: await Storage.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),

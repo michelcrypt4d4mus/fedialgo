@@ -263,6 +263,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config_1.config,
+            Homeserver: await api_1.default.instance.user.homeInstanceInfo(),
             Storage: await Storage_1.default.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),

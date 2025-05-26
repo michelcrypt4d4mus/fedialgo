@@ -1,4 +1,5 @@
 import { mastodon } from "masto";
+import { InstanceResponse } from '../mastodon_server';
 import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -43,6 +44,7 @@ export default class Account implements AccountObj {
     describe(): string;
     displayNameFullHTML(): string;
     displayNameWithEmojis(fontSize?: number): string;
+    homeInstanceInfo(): Promise<InstanceResponse>;
     homeserver(): string;
     homserverURL(): string;
     noteWithAccountInfo(): string;

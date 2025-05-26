@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const html_entities_1 = require("html-entities");
 const class_transformer_1 = require("class-transformer");
 const api_1 = __importDefault(require("../api"));
+const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -105,6 +106,11 @@ class Account {
     // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || [], fontSize);
+    }
+    // Get the accounts instance info from the MastoApi instance
+    async homeInstanceInfo() {
+        const server = new mastodon_server_1.default(this.homeserver()); // Ensure the server is loaded
+        return await server.fetchServerInfo();
     }
     // 'https://journa.host/@dell' -> 'journa.host'
     homeserver() {

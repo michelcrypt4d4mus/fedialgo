@@ -44,8 +44,8 @@ export enum TrendingType {
     TAGS = "tags",
 };
 
+export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
-type InstanceResponse = MastodonInstance | null;
 
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
