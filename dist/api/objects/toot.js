@@ -430,7 +430,7 @@ class Toot {
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
         // Only set the completedAt field if isDeepInspect is true
         if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => toot.containsString(link.url));
+            toot.trendingLinks = trendingLinks.filter(link => link.regex.test(this.contentWithCard()));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         }
         else {
