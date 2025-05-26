@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.51.4
+* (Demo App) Use `useDropZone()` instead of `Dropzone` for attachment uploads
+
 ### v0.51.3
 * (Demo App) Limit media attachments to the sizes and MIME types specified in the user's home server's configuration
 
