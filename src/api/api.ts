@@ -371,7 +371,7 @@ export default class MastoApi {
         const tootURI = toot.realURI();
         const urlDomain = extractDomain(tootURI);
         const logPrefix = `[API resolveToot()]`;
-        console.debug(`${logPrefix} called for`, toot);
+        traceLog(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain) return toot;
         const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
 
@@ -380,7 +380,7 @@ export default class MastoApi {
         }
 
         const resolvedStatus = lookupResult.statuses[0];
-        console.debug(`${logPrefix} found resolvedStatus for "${tootURI}":`, resolvedStatus);
+        traceLog(`${logPrefix} found resolvedStatus for "${tootURI}":`, resolvedStatus);
         return Toot.build(resolvedStatus as mastodon.v1.Status);
     }
 
