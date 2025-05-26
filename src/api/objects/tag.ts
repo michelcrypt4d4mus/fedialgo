@@ -4,11 +4,16 @@
  */
 import MastoApi from "../../api/api";
 import Toot from "./toot";
-import { incrementCount } from "../../helpers/collection_helpers";
-import { MastodonTag, StringNumberDict, TagNames } from "../../types";
+import { incrementCount, sortObjsByProps } from "../../helpers/collection_helpers";
+import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
 import { removeDiacritics } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
+
+const SORT_TAGS_BY = [
+    "numToots" as keyof TagWithUsageCounts,
+    "name" as keyof TagWithUsageCounts
+];
 
 
 // Build a lookup table of tag names to tag objects
@@ -49,4 +54,11 @@ export function repairTag(tag: MastodonTag): MastodonTag {
     }
 
     return tag;
+};
+
+
+
+// Return array of TrendingTags sorted by numToots
+export function sortTagsWithHistory(userTags: TagNames): TagWithUsageCounts[] {
+    return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, [false, true]);
 };

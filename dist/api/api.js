@@ -277,7 +277,7 @@ class MastoApi {
     async getUserData() {
         // TODO: the staleness check probably belongs in the UserData class
         if (!this.userData || (await this.userData.isDataStale())) {
-            this.userData = await user_data_1.default.getUserData();
+            this.userData = await user_data_1.default.build();
         }
         return this.userData;
     }
@@ -314,9 +314,9 @@ class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot) {
+        const logPrefix = `[API resolveToot()]`;
         const tootURI = toot.realURI();
         const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
-        const logPrefix = `[API resolveToot()]`;
         (0, log_helpers_1.traceLog)(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain)
             return toot;

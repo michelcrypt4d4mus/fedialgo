@@ -20,14 +20,12 @@ export default class UserData {
     preferredLanguage: string;
     serverSideFilters: mastodon.v2.Filter[];
     static buildFromData(data: UserApiData): UserData;
-    static getUserData(): Promise<UserData>;
+    static build(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
-    populate(): Promise<void>;
     popularUserTags(): TagWithUsageCounts[];
     static getMutedKeywords(): Promise<string[]>;
     static getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]>;
     static getUserParticipatedTags(): Promise<TagNames>;
-    static sortTrendingTags(userTags: TagNames): TagWithUsageCounts[];
     private static buildUserParticipatedHashtags;
 }
 export {};

@@ -86,14 +86,14 @@ class MastodonServer {
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(TrendingType.LINKS, numLinks);
-        trendingLinks.forEach(trending_with_history_1.decorateHistoryScores);
+        trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => (0, trending_with_history_1.decorateHistoryScores)((0, tag_1.repairTag)(tag)));
+        trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)((0, tag_1.repairTag)(tag)));
         return trendingTags.filter(tag => !config_1.config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
     ///////////////////////////////////

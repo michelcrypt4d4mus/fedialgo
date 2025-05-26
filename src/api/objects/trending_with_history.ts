@@ -25,22 +25,23 @@ import { mastodon } from "masto";
 import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
 import { config } from "../../config";
-import { MastodonTag, TrendingWithHistory } from "../../types";
+import { MastodonTag, TagWithUsageCounts, TrendingLink, TrendingWithHistory } from "../../types";
+import { wordRegex } from "../../helpers/string_helpers";
 
 
-// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
-export function decorateHistoryScores(_obj: mastodon.v1.TrendLink | MastodonTag): void {
-    const obj = _obj as TrendingWithHistory;
-    obj.url = obj.url.toLowerCase();  // TODO: not ideal for this to happen here
+// Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
+export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
+    const newLink = link as TrendingLink;
+    newLink.regex = wordRegex(newLink.url);
+    decorateHistoryScores(newLink);
+    return newLink;
+};
 
-    if (!obj.history?.length) {
-        console.warn(`decorateHistoryScores() found no history for:`, obj);
-        obj.history = [];
-    }
-
-    const recentHistory = obj.history.slice(0, config.trending.daysToCountTrendingData);
-    obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
-    obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+export function decorateTagHistory(tag: MastodonTag): TagWithUsageCounts {
+    const newTag = tag as TagWithUsageCounts;
+    newTag.regex = wordRegex(newTag.name);
+    decorateHistoryScores(newTag);
+    return newTag;
 };
 
 
@@ -86,4 +87,19 @@ export function setTrendingRankToAvg(rankedToots: Toot[]): void {
             }
         });
     });
+};
+
+
+// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
+function decorateHistoryScores(obj: TrendingWithHistory): void {
+    obj.url = obj.url.toLowerCase().trim();  // TODO: not ideal for this to happen here
+
+    if (!obj.history?.length) {
+        console.warn(`decorateHistoryScores() found no history for:`, obj);
+        obj.history = [];
+    }
+
+    const recentHistory = obj.history.slice(0, config.trending.daysToCountTrendingData);
+    obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
+    obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
 };

@@ -1,6 +1,7 @@
 /*
  * Helpers for dealing with strings.
  */
+const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { mastodon } from 'masto';
@@ -197,4 +198,10 @@ export function replaceHttpsLinks(input: string): string {
 export const toLocaleInt = (num: number | null): string => {
     if (num == null) return NULL;
     return num.toLocaleString(undefined, {maximumFractionDigits: 0});
+};
+
+
+// Create a regex that matches a whole word, case-insensitive
+export const wordRegex = (pattern: string): RegExp => {
+    return new RegExp(`\\b${escape([pattern])}\\b`, 'i');
 };

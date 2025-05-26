@@ -1,21 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateHistoryScores = void 0;
+exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateTagHistory = exports.decorateLinkHistory = void 0;
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
-// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
-function decorateHistoryScores(_obj) {
-    const obj = _obj;
-    obj.url = obj.url.toLowerCase(); // TODO: not ideal for this to happen here
-    if (!obj.history?.length) {
-        console.warn(`decorateHistoryScores() found no history for:`, obj);
-        obj.history = [];
-    }
-    const recentHistory = obj.history.slice(0, config_1.config.trending.daysToCountTrendingData);
-    obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
-    obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+const string_helpers_1 = require("../../helpers/string_helpers");
+// Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
+function decorateLinkHistory(link) {
+    const newLink = link;
+    newLink.regex = (0, string_helpers_1.wordRegex)(newLink.url);
+    decorateHistoryScores(newLink);
+    return newLink;
 }
-exports.decorateHistoryScores = decorateHistoryScores;
+exports.decorateLinkHistory = decorateLinkHistory;
+;
+function decorateTagHistory(tag) {
+    const newTag = tag;
+    newTag.regex = (0, string_helpers_1.wordRegex)(newTag.name);
+    decorateHistoryScores(newTag);
+    return newTag;
+}
+exports.decorateTagHistory = decorateTagHistory;
 ;
 // Return one of each unique trending object sorted by the number of accounts tooting that object.
 // The numToots & numAccounts props for each trending object are set to the max value encountered.
@@ -53,5 +57,17 @@ function setTrendingRankToAvg(rankedToots) {
     });
 }
 exports.setTrendingRankToAvg = setTrendingRankToAvg;
+;
+// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
+function decorateHistoryScores(obj) {
+    obj.url = obj.url.toLowerCase().trim(); // TODO: not ideal for this to happen here
+    if (!obj.history?.length) {
+        console.warn(`decorateHistoryScores() found no history for:`, obj);
+        obj.history = [];
+    }
+    const recentHistory = obj.history.slice(0, config_1.config.trending.daysToCountTrendingData);
+    obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
+    obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+}
 ;
 //# sourceMappingURL=trending_with_history.js.map

@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { config } from "../config";
-import { decorateHistoryScores, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
+import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { removeMutedTags } from "../feeds/hashtags";
 import { repairTag } from "./objects/tag";
@@ -122,7 +122,7 @@ export default class MastodonServer {
 
         const numLinks = config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(TrendingType.LINKS, numLinks);
-        trendingLinks.forEach(decorateHistoryScores);
+        trendingLinks.forEach(decorateLinkHistory);
         return trendingLinks;
     }
 
@@ -130,7 +130,7 @@ export default class MastodonServer {
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => decorateHistoryScores(repairTag(tag)));
+        trendingTags.forEach(tag => decorateTagHistory(repairTag(tag)));
         return trendingTags.filter(tag => !config.trending.tags.invalidTrendingTags.includes(tag.name));
     }
 

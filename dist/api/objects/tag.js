@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.repairTag = exports.countTags = exports.buildTagNames = void 0;
+exports.sortTagsWithHistory = exports.repairTag = exports.countTags = exports.buildTagNames = void 0;
 /*
  * Helper methods for dealing with Mastodon's Tag objects.
  * API docs: https://docs.joinmastodon.org/entities/Tag/
@@ -12,6 +12,10 @@ const api_1 = __importDefault(require("../../api/api"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
+const SORT_TAGS_BY = [
+    "numToots",
+    "name"
+];
 // Build a lookup table of tag names to tag objects
 function buildTagNames(tags) {
     return tags.reduce((tagNames, tag) => {
@@ -49,5 +53,11 @@ function repairTag(tag) {
     return tag;
 }
 exports.repairTag = repairTag;
+;
+// Return array of TrendingTags sorted by numToots
+function sortTagsWithHistory(userTags) {
+    return (0, collection_helpers_1.sortObjsByProps)(Object.values(userTags), SORT_TAGS_BY, [false, true]);
+}
+exports.sortTagsWithHistory = sortTagsWithHistory;
 ;
 //# sourceMappingURL=tag.js.map

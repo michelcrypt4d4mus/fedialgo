@@ -137,9 +137,7 @@ export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
 };
-export interface TagWithUsageCounts extends mastodon.v1.Tag {
-    numAccounts?: number;
-    numToots?: number;
+export interface TagWithUsageCounts extends mastodon.v1.Tag, TrendingHistory {
 }
 export type TootContext = {
     ancestors: Toot[];
@@ -155,9 +153,7 @@ export type TootScore = {
     weightedScore: number;
 };
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink {
-    numToots?: number;
-    numAccounts?: number;
+export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {
 }
 export interface TrendingStorage {
     links: TrendingLink[];
@@ -166,6 +162,11 @@ export interface TrendingStorage {
 }
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+export interface TrendingHistory {
+    numAccounts?: number;
+    numToots?: number;
+    regex?: RegExp;
+}
 export type WeightedScore = {
     raw: number;
     weighted: number;

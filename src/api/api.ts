@@ -328,7 +328,7 @@ export default class MastoApi {
     async getUserData(): Promise<UserData> {
         // TODO: the staleness check probably belongs in the UserData class
         if (!this.userData || (await this.userData.isDataStale())) {
-            this.userData = await UserData.getUserData();
+            this.userData = await UserData.build();
         }
 
         return this.userData;

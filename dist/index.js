@@ -264,6 +264,7 @@ class TheAlgorithm {
             Algorithm: this.statusDict(),
             Config: config_1.config,
             Storage: await Storage_1.default.storedObjsInfo(),
+            Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),
         };
     }
@@ -521,7 +522,7 @@ class TheAlgorithm {
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     async recomputeScorers() {
-        await this.userData.populate();
+        this.userData = await user_data_1.default.build();
         await this.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }

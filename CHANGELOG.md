@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Return Trending data in getCurrentState(), Refactor UserData population, add regex property to trending links and tags
+* Refactor UserData population, add regex
 
 ### v0.50.3
 * (Demo App) Refactor `AttachmentsModal` into `MultimediaNode` component, only register an arrow key listener when there's more than one image
@@ -7,7 +9,7 @@
 * (Demo App) Stick the left panel to top but allow scrolling within it if it's more than the viewport height
 
 ### v0.50.1
-* (Demo App) Fix bug where new tab opened when trying to open the raw Toot JSON modal
+* (Demo App) Fix bug where new tab opened when trying to open the raw `Toot` JSON modal
 
 # v0.50.0
 * (Demo App) Add ability to reply to toots inside the app

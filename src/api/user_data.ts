@@ -9,15 +9,11 @@ import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
-import { buildTagNames, countTags } from "./objects/tag";
+import { buildTagNames, countTags, sortTagsWithHistory } from "./objects/tag";
 import { config } from "../config";
-import { countValues, sortKeysByValue, sortObjsByProps } from "../helpers/collection_helpers";
+import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
-
-const SORT_TAGS_BY = [
-    "numToots" as keyof TagWithUsageCounts,
-    "name" as keyof TagWithUsageCounts
-];
+import { wordRegex } from "../helpers/string_helpers";
 
 // Raw API data required to build UserData
 interface UserApiData {
@@ -56,10 +52,24 @@ export default class UserData {
     }
 
     // Alternate constructor for the UserData object to build itself from the API (or cache)
-    static async getUserData(): Promise<UserData> {
-        const userData = new UserData();
-        await userData.populate();
-        return userData;
+    static async build(): Promise<UserData> {
+        const responses = await Promise.all([
+            MastoApi.instance.getFavouritedToots(),
+            MastoApi.instance.getFollowedAccounts(),
+            MastoApi.instance.getFollowedTags(),
+            MastoApi.instance.getMutedAccounts(),
+            MastoApi.instance.getRecentUserToots(),
+            MastoApi.instance.getServerSideFilters(),
+        ]);
+
+        return this.buildFromData({
+            favouritedToots: responses[0],
+            followedAccounts: responses[1],
+            followedTags: responses[2],
+            mutedAccounts: responses[3],
+            recentToots: responses[4],
+            serverSideFilters: responses[5],
+        });
     }
 
     // Use MUTED_ACCOUNTS as a proxy for staleness
@@ -68,28 +78,9 @@ export default class UserData {
         return await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
     }
 
-    // Pull latest user's data from cache and/or API
-    async populate(): Promise<void> {
-        const responses = await Promise.all([
-            MastoApi.instance.getFavouritedToots(),
-            MastoApi.instance.getFollowedAccounts(),
-            MastoApi.instance.getFollowedTags(),
-            MastoApi.instance.getMutedAccounts(),
-            UserData.getUserParticipatedTags(),
-            MastoApi.instance.getServerSideFilters(),
-        ]);
-
-        this.favouritedTagCounts = countTags(responses[0]);
-        this.followedAccounts = Account.countAccounts(responses[1]);
-        this.followedTags = buildTagNames(responses[2]);
-        this.mutedAccounts = Account.buildAccountNames(responses[3]);
-        this.participatedHashtags = responses[4];
-        this.serverSideFilters = responses[5];
-    }
-
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TagWithUsageCounts[] {
-        return UserData.sortTrendingTags(this.participatedHashtags);
+        return sortTagsWithHistory(this.participatedHashtags);
     }
 
     /////////////////////////////
@@ -107,8 +98,7 @@ export default class UserData {
 
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
     static async getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]> {
-        const userTags = await UserData.getUserParticipatedTags();
-        return this.sortTrendingTags(userTags);
+        return sortTagsWithHistory(await UserData.getUserParticipatedTags());
     }
 
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
@@ -116,11 +106,6 @@ export default class UserData {
     static async getUserParticipatedTags(): Promise<TagNames> {
         const recentToots = await MastoApi.instance.getRecentUserToots();
         return this.buildUserParticipatedHashtags(recentToots);
-    }
-
-    // Return array of TrendingTags sorted by numToots
-    static sortTrendingTags(userTags: TagNames): TagWithUsageCounts[] {
-        return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, [false, true]);
     }
 
     // Build a dict of tag names to the number of times the user tooted it from a list of toots
@@ -132,6 +117,7 @@ export default class UserData {
             (tags, tag) => {
                 tags[tag.name] ??= tag;
                 tags[tag.name].numToots = (tags[tag.name].numToots || 0) + 1;
+                tags[tag.name].regex = wordRegex(tag.name);
                 return tags;
             },
             {} as TagNames

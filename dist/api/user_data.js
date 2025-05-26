@@ -11,10 +11,7 @@ const tag_1 = require("./objects/tag");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
-const SORT_TAGS_BY = [
-    "numToots",
-    "name"
-];
+const string_helpers_1 = require("../helpers/string_helpers");
 ;
 class UserData {
     favouritedTagCounts = {};
@@ -40,36 +37,32 @@ class UserData {
         return userData;
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
-    static async getUserData() {
-        const userData = new UserData();
-        await userData.populate();
-        return userData;
+    static async build() {
+        const responses = await Promise.all([
+            api_1.default.instance.getFavouritedToots(),
+            api_1.default.instance.getFollowedAccounts(),
+            api_1.default.instance.getFollowedTags(),
+            api_1.default.instance.getMutedAccounts(),
+            api_1.default.instance.getRecentUserToots(),
+            api_1.default.instance.getServerSideFilters(),
+        ]);
+        return this.buildFromData({
+            favouritedToots: responses[0],
+            followedAccounts: responses[1],
+            followedTags: responses[2],
+            mutedAccounts: responses[3],
+            recentToots: responses[4],
+            serverSideFilters: responses[5],
+        });
     }
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale() {
         return await Storage_1.default.isDataStale(types_1.CacheKey.MUTED_ACCOUNTS);
     }
-    // Pull latest user's data from cache and/or API
-    async populate() {
-        const responses = await Promise.all([
-            api_1.default.instance.getFavouritedToots(),
-            api_1.default.instance.getFollowedAccounts(),
-            api_1.default.instance.getFollowedTags(),
-            api_1.default.instance.getMutedAccounts(),
-            UserData.getUserParticipatedTags(),
-            api_1.default.instance.getServerSideFilters(),
-        ]);
-        this.favouritedTagCounts = (0, tag_1.countTags)(responses[0]);
-        this.followedAccounts = account_1.default.countAccounts(responses[1]);
-        this.followedTags = (0, tag_1.buildTagNames)(responses[2]);
-        this.mutedAccounts = account_1.default.buildAccountNames(responses[3]);
-        this.participatedHashtags = responses[4];
-        this.serverSideFilters = responses[5];
-    }
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
-        return UserData.sortTrendingTags(this.participatedHashtags);
+        return (0, tag_1.sortTagsWithHistory)(this.participatedHashtags);
     }
     /////////////////////////////
     //      Static Methods     //
@@ -84,18 +77,13 @@ class UserData {
     }
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
     static async getUserParticipatedTagsSorted() {
-        const userTags = await UserData.getUserParticipatedTags();
-        return this.sortTrendingTags(userTags);
+        return (0, tag_1.sortTagsWithHistory)(await UserData.getUserParticipatedTags());
     }
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
     // The numToots prop is set to number of times user tooted it
     static async getUserParticipatedTags() {
         const recentToots = await api_1.default.instance.getRecentUserToots();
         return this.buildUserParticipatedHashtags(recentToots);
-    }
-    // Return array of TrendingTags sorted by numToots
-    static sortTrendingTags(userTags) {
-        return (0, collection_helpers_1.sortObjsByProps)(Object.values(userTags), SORT_TAGS_BY, [false, true]);
     }
     // Build a dict of tag names to the number of times the user tooted it from a list of toots
     static buildUserParticipatedHashtags(userToots) {
@@ -104,6 +92,7 @@ class UserData {
         return tags.reduce((tags, tag) => {
             tags[tag.name] ??= tag;
             tags[tag.name].numToots = (tags[tag.name].numToots || 0) + 1;
+            tags[tag.name].regex = (0, string_helpers_1.wordRegex)(tag.name);
             return tags;
         }, {});
     }

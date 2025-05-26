@@ -280,6 +280,7 @@ class TheAlgorithm {
             Algorithm: this.statusDict(),
             Config: config,
             Storage: await Storage.storedObjsInfo(),
+            Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),
         };
     }
@@ -576,7 +577,7 @@ class TheAlgorithm {
 
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     private async recomputeScorers(): Promise<void> {
-        await this.userData.populate();
+        this.userData = await UserData.build();
         await this.prepareScorers(true);  // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }

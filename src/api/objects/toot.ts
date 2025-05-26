@@ -36,7 +36,8 @@ import {
     removeMentions,
     removeTags,
     replaceEmojiShortcodesWithImageTags,
-    replaceHttpsLinks
+    replaceHttpsLinks,
+    wordRegex,
 } from "../../helpers/string_helpers";
 import {
     AccountLike,
@@ -52,7 +53,6 @@ import {
     TrendingLink,
     WeightedScore,
 } from "../../types";
-import { trace } from "console";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -266,8 +266,7 @@ export default class Toot implements TootObj {
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str: string): boolean {
         str = str.trim().toLowerCase();
-        const regex = new RegExp(`\\b${escape(str)}\\b`);
-        return this.containsTag(str) || regex.test(this.contentWithCard().toLowerCase());
+        return this.containsTag(str) || wordRegex(str).test(this.contentWithCard());
     }
 
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search

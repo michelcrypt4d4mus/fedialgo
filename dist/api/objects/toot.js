@@ -191,8 +191,7 @@ class Toot {
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str) {
         str = str.trim().toLowerCase();
-        const regex = new RegExp(`\\b${escape(str)}\\b`);
-        return this.containsTag(str) || regex.test(this.contentWithCard().toLowerCase());
+        return this.containsTag(str) || (0, string_helpers_1.wordRegex)(str).test(this.contentWithCard());
     }
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
     containsTag(tag, fullScan) {
