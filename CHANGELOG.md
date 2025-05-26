@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.52.0
 * Add getFavouritedTagToots() to get unfollowed / not participated tags based on favourites
 
 ### v0.51.5
