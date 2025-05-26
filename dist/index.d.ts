@@ -81,6 +81,7 @@ declare class TheAlgorithm {
     mostRecentHomeTootAgeInSeconds(): number | null;
     refreshMutedAccounts(): Promise<void>;
     reset(complete?: boolean): Promise<void>;
+    serverInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
     updateUserWeights(userWeights: Weights): Promise<Toot[]>;

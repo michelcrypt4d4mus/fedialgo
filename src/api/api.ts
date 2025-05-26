@@ -362,6 +362,16 @@ export default class MastoApi {
         }
     }
 
+    // Retrieve the user's home instance configuration from the API
+    async instanceInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance> {
+        try {
+            return await this.api.v2.instance.fetch();
+        } catch (err) {
+            console.error(`[MastoApi] Failed to fetch user's instance info, trying V1 API:`, err);
+            return await this.api.v1.instance.fetch();
+        }
+    }
+
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //

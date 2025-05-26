@@ -263,7 +263,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config_1.config,
-            Homeserver: await api_1.default.instance.user.homeInstanceInfo(),
+            Homeserver: await this.serverInfo(),
             Storage: await Storage_1.default.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),
@@ -337,6 +337,10 @@ class TheAlgorithm {
         else {
             await this.loadCachedData();
         }
+    }
+    // Return info about the Fedialgo user's home mastodon instance
+    async serverInfo() {
+        return await api_1.default.instance.instanceInfo();
     }
     tagUrl(tag) {
         return api_1.default.instance.tagUrl(tag);

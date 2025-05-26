@@ -107,7 +107,7 @@ class Account {
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || [], fontSize);
     }
-    // Get the accounts instance info from the MastoApi instance
+    // Get the account's instance info from the public API (note some servers don't provide this)
     async homeInstanceInfo() {
         const server = new mastodon_server_1.default(this.homeserver()); // Ensure the server is loaded
         return await server.fetchServerInfo();

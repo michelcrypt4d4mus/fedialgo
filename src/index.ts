@@ -18,7 +18,7 @@ import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_s
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MastoApi, { isAccessTokenRevokedError } from "./api/api";
-import MastodonServer from './api/mastodon_server';
+import MastodonServer, { InstanceResponse } from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
@@ -279,7 +279,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config,
-            Homeserver: await MastoApi.instance.user.homeInstanceInfo(),
+            Homeserver: await this.serverInfo(),
             Storage: await Storage.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),
@@ -363,6 +363,11 @@ class TheAlgorithm {
         } else {
             await this.loadCachedData();
         }
+    }
+
+    // Return info about the Fedialgo user's home mastodon instance
+    async serverInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance> {
+        return await MastoApi.instance.instanceInfo();
     }
 
     tagUrl(tag: string | MastodonTag): string {
