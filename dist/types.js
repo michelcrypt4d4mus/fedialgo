@@ -39,6 +39,7 @@ var CacheKey;
 (function (CacheKey) {
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
+    CacheKey["FAVOURITED_HASHTAG_TOOTS"] = "FavouritedHashtagToots";
     CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
     CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
     CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";

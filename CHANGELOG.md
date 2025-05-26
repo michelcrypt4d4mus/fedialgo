@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add getFavouritedTagToots() to get unfollowed / not participated tags based on favourites
 
 ### v0.51.5
 * (Demo App) Avoid invalid file extensions in the MIME -> extension mapping

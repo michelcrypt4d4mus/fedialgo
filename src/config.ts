@@ -119,6 +119,7 @@ type TrendingConfig = {
 // See Config for comments explaining these values
 interface ConfigType {
     api: ApiConfig;
+    favouritedTags: TagTootsConfig,
     fediverse: FediverseConfig;
     gui: GuiConfig;
     locale: LocaleConfig;
@@ -209,6 +210,12 @@ class Config implements ConfigType {
                 minutesUntilStale: 15,
             },
         } as ApiDataConfig,
+    }
+
+    favouritedTags = {
+        maxToots: 100,                          // How many toots to pull for each tag
+        numTags: 15,                            // How many tags to pull toots for
+        numTootsPerTag: 5,                      // How many toots to pull for each tag
     }
 
     fediverse = {

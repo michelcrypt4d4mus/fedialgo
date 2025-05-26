@@ -86,6 +86,7 @@ type TrendingConfig = {
 };
 interface ConfigType {
     api: ApiConfig;
+    favouritedTags: TagTootsConfig;
     fediverse: FediverseConfig;
     gui: GuiConfig;
     locale: LocaleConfig;
@@ -106,6 +107,11 @@ declare class Config implements ConfigType {
         mutexWarnSeconds: number;
         timeoutMS: number;
         data: ApiDataConfig;
+    };
+    favouritedTags: {
+        maxToots: number;
+        numTags: number;
+        numTootsPerTag: number;
     };
     fediverse: {
         minServerMAU: number;

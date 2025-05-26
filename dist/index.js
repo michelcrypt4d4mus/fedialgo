@@ -210,6 +210,7 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
+            this.fetchAndMergeToots(hashtags_1.getFavouritedTagToots, "getFavouritedTagToots"),
             this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
             this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), "fediverseTrendingToots"),

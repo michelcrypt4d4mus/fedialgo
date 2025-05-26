@@ -108,6 +108,11 @@ class Config {
             },
         },
     };
+    favouritedTags = {
+        maxToots: 100,
+        numTags: 15,
+        numTootsPerTag: 5, // How many toots to pull for each tag
+    };
     fediverse = {
         minServerMAU: 100,
         numServersToCheck: 30,

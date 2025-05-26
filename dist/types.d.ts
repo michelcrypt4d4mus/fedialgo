@@ -37,6 +37,7 @@ export type WeightName = ScoreName | NonScoreWeightName;
 export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",
+    FAVOURITED_HASHTAG_TOOTS = "FavouritedHashtagToots",
     FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
     FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
     FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
