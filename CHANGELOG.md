@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.50.3
 * (Demo App) Refactor `AttachmentsModal` into `MultimediaNode` component, only register an arrow key listener when there's more than one image
 
 ### v0.50.2
