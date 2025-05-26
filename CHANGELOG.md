@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.50.5
+* Fix bug in wordRegex() method (AI sucks)
+
 ### v0.50.4
 * Return Trending data in `getCurrentState()`
 * Refactor `UserData` population, add `regex` property to trending links and tags
