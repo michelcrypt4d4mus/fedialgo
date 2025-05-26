@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.50.6
+* (Demo App) Disable background `resolve()` resolution of toots on scroll
+
 ### v0.50.5
 * Fix bug in wordRegex() method (AI sucks)
 
