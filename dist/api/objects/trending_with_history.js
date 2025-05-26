@@ -13,6 +13,7 @@ function decorateLinkHistory(link) {
 }
 exports.decorateLinkHistory = decorateLinkHistory;
 ;
+// Decorate a mastodon tag with computed history data, adding numToots & numAccounts
 function decorateTagHistory(tag) {
     const newTag = tag;
     newTag.regex = (0, string_helpers_1.wordRegex)(newTag.name);

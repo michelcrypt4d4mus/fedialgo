@@ -194,7 +194,7 @@ const toLocaleInt = (num) => {
 exports.toLocaleInt = toLocaleInt;
 // Create a regex that matches a whole word, case-insensitive
 const wordRegex = (pattern) => {
-    return new RegExp(`\\b${escape([pattern.trim()])}\\b`, 'i');
+    return new RegExp(`\\b${escape(pattern.trim())}\\b`, 'i');
 };
 exports.wordRegex = wordRegex;
 //# sourceMappingURL=string_helpers.js.map

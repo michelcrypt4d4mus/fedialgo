@@ -37,6 +37,8 @@ export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
     return newLink;
 };
 
+
+// Decorate a mastodon tag with computed history data, adding numToots & numAccounts
 export function decorateTagHistory(tag: MastodonTag): TagWithUsageCounts {
     const newTag = tag as TagWithUsageCounts;
     newTag.regex = wordRegex(newTag.name);

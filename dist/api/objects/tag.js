@@ -20,7 +20,13 @@ const SORT_TAGS_BY = [
 function buildTagNames(tags) {
     return tags.reduce((tagNames, tag) => {
         const newTag = tag;
-        newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
+        try {
+            newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
+        }
+        catch (e) {
+            console.warn(`Failed to create regex for tag "${tag.name}":`, e);
+            newTag.regex = (0, string_helpers_1.wordRegex)(BROKEN_TAG);
+        }
         tagNames[tag.name] = newTag;
         return tagNames;
     }, {});
