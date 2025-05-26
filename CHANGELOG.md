@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.51.2
+* (Demo App) Fix bug with serverInfo instantiation
+
 ### v0.51.1
 * (Demo App) Fix bug with image previews in replies
 
