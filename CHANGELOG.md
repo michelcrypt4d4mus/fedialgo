@@ -1,6 +1,9 @@
 # NEXT RELEASE
-* Add serverInfo() to TheAlgorithm; add serverInfo() response to getCurrentState()
-* Add homeInstanceInfo() method to Account;
+
+# v0.51.0
+* Add `serverInfo()` to `TheAlgorithm`; add `serverInfo()` response to `getCurrentState()`
+* Add `homeInstanceInfo()` method to `Account`
+* (Demo App) Validate replies adhere to the maxCharacters and maxMediaAttachments configured for the user's server
 
 ### v0.50.6
 * (Demo App) Disable background `resolve()` resolution of toots on scroll
