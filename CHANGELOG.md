@@ -1,6 +1,6 @@
 # NEXT RELEASE
-* Return Trending data in getCurrentState(), Refactor UserData population, add regex property to trending links and tags
-* Refactor UserData population, add regex
+* Return Trending data in `getCurrentState()`
+* Refactor `UserData` population, add `regex` property to trending links and tags
 
 ### v0.50.3
 * (Demo App) Refactor `AttachmentsModal` into `MultimediaNode` component, only register an arrow key listener when there's more than one image
