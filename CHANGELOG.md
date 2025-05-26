@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Refactor `AttachmentsModal` into `MultimediaNode` component, only register an arrow key listener when there's more than one image
 
 ### v0.50.2
 * (Demo App) Stick the left panel to top but allow scrolling within it if it's more than the viewport height
