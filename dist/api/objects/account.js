@@ -109,7 +109,7 @@ class Account {
     }
     // Get the account's instance info from the public API (note some servers don't provide this)
     async homeInstanceInfo() {
-        const server = new mastodon_server_1.default(this.homeserver()); // Ensure the server is loaded
+        const server = new mastodon_server_1.default(this.homeserver());
         return await server.fetchServerInfo();
     }
     // 'https://journa.host/@dell' -> 'journa.host'
@@ -147,7 +147,7 @@ class Account {
         }
     }
     ////////////////////////////
-    //     Class Methods      //
+    //     Static Methods     //
     ////////////////////////////
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
     static buildAccountNames(accounts) {

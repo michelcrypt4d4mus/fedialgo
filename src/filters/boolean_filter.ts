@@ -76,11 +76,11 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, validValues: string[]) => {
         return validValues.includes(toot.realToot().application?.name);
     },
-    [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().language || config.locale.defaultLanguage);
-    },
     [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
         return !!validValues.find((v) => toot.realToot().containsString(v));
+    },
+    [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
+        return validValues.includes(toot.realToot().language || config.locale.defaultLanguage);
     },
     [BooleanFilterName.TYPE]: (toot: Toot, validValues: string[]) => {
         return validValues.some((v) => TYPE_FILTERS[v as TypeFilterName](toot));

@@ -5,6 +5,7 @@ interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
+    homeInstanceInfo?: () => Promise<InstanceResponse>;
     homeserver?: () => string;
     homserverURL?: () => string;
     noteWithAccountInfo?: () => string;

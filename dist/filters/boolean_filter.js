@@ -72,11 +72,11 @@ const TOOT_MATCHERS = {
     [BooleanFilterName.APP]: (toot, validValues) => {
         return validValues.includes(toot.realToot().application?.name);
     },
-    [BooleanFilterName.LANGUAGE]: (toot, validValues) => {
-        return validValues.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
-    },
     [BooleanFilterName.HASHTAG]: (toot, validValues) => {
         return !!validValues.find((v) => toot.realToot().containsString(v));
+    },
+    [BooleanFilterName.LANGUAGE]: (toot, validValues) => {
+        return validValues.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
     },
     [BooleanFilterName.TYPE]: (toot, validValues) => {
         return validValues.some((v) => exports.TYPE_FILTERS[v](toot));
