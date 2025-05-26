@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.52.1
 * Don't remove user's own toots from the threaded view
 
 ## v0.52.0
