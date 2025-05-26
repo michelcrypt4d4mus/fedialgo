@@ -14,12 +14,13 @@ import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWith
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
-const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
+const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
+    homeInstanceInfo?: () => Promise<InstanceResponse>;
     homeserver?: () => string;
     homserverURL?: () => string;
     noteWithAccountInfo?: () => string;
@@ -116,7 +117,7 @@ export default class Account implements AccountObj {
 
     // Get the account's instance info from the public API (note some servers don't provide this)
     async homeInstanceInfo(): Promise<InstanceResponse> {
-        const server = new MastodonServer(this.homeserver());  // Ensure the server is loaded
+        const server = new MastodonServer(this.homeserver());
         return await server.fetchServerInfo();
     }
 
@@ -158,7 +159,7 @@ export default class Account implements AccountObj {
     }
 
     ////////////////////////////
-    //     Class Methods      //
+    //     Static Methods     //
     ////////////////////////////
 
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
