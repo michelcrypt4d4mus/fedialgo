@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.51.5
+* (Demo App) Avoid invalid file extensions in the MIME -> extension mapping
+
 ### v0.51.4
 * (Demo App) Use `useDropZone()` instead of `Dropzone` for attachment uploads
 
