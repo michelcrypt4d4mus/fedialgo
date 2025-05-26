@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't remove user's own toots from the threaded view
 
 ## v0.52.0
 * Add `getFavouritedTagToots()` to get non followed / non participated tags based on favourites into the mix

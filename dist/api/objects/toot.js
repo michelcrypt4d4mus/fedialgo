@@ -608,7 +608,8 @@ class Toot {
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
         let toots = await this.completeToots(statuses, logPrefix, false);
-        toots = await this.removeInvalidToots(toots, logPrefix);
+        if (!skipSort)
+            toots = await this.removeInvalidToots(toots, logPrefix); // TODO: without the if this removes users own toots from threads
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         // Make a first pass at scoring with whatever scorers are ready to score
