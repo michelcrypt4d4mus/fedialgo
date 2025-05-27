@@ -9,11 +9,12 @@ import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
 import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
-import { buildTagNames, countTags, sortTagsWithHistory } from "./objects/tag";
+import { buildTagNames } from "./objects/tag";
 import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { wordRegex } from "../helpers/string_helpers";
+import TagList from "./tag_list";
 
 // Raw API data required to build UserData
 interface UserApiData {
@@ -27,7 +28,6 @@ interface UserApiData {
 
 
 export default class UserData {
-    favouritedTagCounts: StringNumberDict = {};
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagNames = {};
     languagesPostedIn: StringNumberDict = {};
@@ -39,12 +39,11 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
-        userData.favouritedTagCounts = countTags(data.favouritedToots);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = buildTagNames(data.followedTags);
+        userData.followedTags = new TagList(data.followedTags).tagNameDict();
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
+        userData.participatedHashtags = TagList.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         traceLog("[UserData] built from data:", userData);
@@ -80,7 +79,7 @@ export default class UserData {
 
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags(): TagWithUsageCounts[] {
-        return sortTagsWithHistory(this.participatedHashtags);
+        return (new TagList(Object.values(this.participatedHashtags))).topTags();
     }
 
     /////////////////////////////
@@ -94,11 +93,6 @@ export default class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         traceLog(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
-    }
-
-    // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]> {
-        return sortTagsWithHistory(await UserData.getUserParticipatedTags());
     }
 
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)

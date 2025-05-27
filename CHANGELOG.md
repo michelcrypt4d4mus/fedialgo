@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Introduce TagList class to manage participated/favourited/trending tags
 
 ### v0.52.1
 * Don't remove user's own toots from the threaded view

@@ -34,11 +34,11 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const types_1 = require("../types");
+const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
-const string_helpers_1 = require("../helpers/string_helpers");
 const mastodon_server_1 = require("./mastodon_server");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
@@ -162,7 +162,7 @@ class MastoApi {
                 const statuses = await fetch();
                 (0, log_helpers_1.traceLog)(`${(0, string_helpers_1.bracketed)(key)} Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, key);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords);
+                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, key);
                 await Storage_1.default.set(key, toots);
             }
             return toots;

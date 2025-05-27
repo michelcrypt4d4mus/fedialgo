@@ -12,12 +12,12 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "..
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList, CacheKey } from "../types";
+import { ApiMutex, CacheKey, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList } from "../types";
+import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
-import { SET_LOADING_STATUS, bracketed, extractDomain } from '../helpers/string_helpers';
 import { TrendingType } from "./mastodon_server";
 
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
@@ -199,7 +199,7 @@ export default class MastoApi {
                 const statuses = await fetch();
                 traceLog(`${bracketed(key)} Retrieved ${statuses.length} Statuses ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, key);
-                toots = truncateToConfiguredLength(toots, maxRecords);
+                toots = truncateToConfiguredLength(toots, maxRecords, key);
                 await Storage.set(key, toots);
             }
 

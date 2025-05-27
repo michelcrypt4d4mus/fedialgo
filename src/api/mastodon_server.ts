@@ -9,12 +9,12 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
+import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { config } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { removeMutedTags } from "../feeds/hashtags";
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
 import {
@@ -34,7 +34,6 @@ import {
     shuffle,
     sortKeysByValue,
     transformKeys,
-    truncateToConfiguredLength,
     zipPromises
 } from "../helpers/collection_helpers";
 
@@ -131,7 +130,7 @@ export default class MastodonServer {
         const numTags = config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => decorateTagHistory(repairTag(tag)));
-        return trendingTags.filter(tag => !config.trending.tags.invalidTrendingTags.includes(tag.name));
+        return trendingTags;
     }
 
     ///////////////////////////////////
@@ -202,9 +201,7 @@ export default class MastodonServer {
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
-                uniqueTags = await removeMutedTags(uniqueTags);
-                return truncateToConfiguredLength(uniqueTags, config.trending.tags.numTags);
+                return uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
             }
         });
     }
@@ -244,13 +241,13 @@ export default class MastodonServer {
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData(): Promise<TrendingStorage> {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tags, toots] = await Promise.all([
+        const [links, tagList, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
-            this.fediverseTrendingTags(),
+            TagList.fromTrending(),
             this.fediverseTrendingToots(),
         ]);
 
-        return { links, tags, toots };
+        return { links, tags: tagList.topTags(), toots };
     }
 
     ///////////////////////////////////////

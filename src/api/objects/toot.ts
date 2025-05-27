@@ -2,7 +2,6 @@
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
-const escape = require('regexp.escape');
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";
 import { Type } from 'class-transformer';
@@ -11,6 +10,7 @@ import Account from "./account";
 import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
+import TagList from "../tag_list";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
@@ -754,9 +754,8 @@ export default class Toot implements TootObj {
     static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
         let startedAt = new Date();
         const userData = await MastoApi.instance.getUserData();
-        const trendingTags = await MastodonServer.fediverseTrendingTags();
+        const trendingTags = (await TagList.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        startedAt = new Date();
         let tootsToComplete = toots;
         let completeToots: TootLike[] = [];
 

@@ -3,19 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sortTagsWithHistory = exports.repairTag = exports.countTags = exports.buildTagNames = void 0;
+exports.tagStr = exports.repairTag = exports.buildTagNames = void 0;
 /*
  * Helper methods for dealing with Mastodon's Tag objects.
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 const api_1 = __importDefault(require("../../api/api"));
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
-const SORT_TAGS_BY = [
-    "numToots",
-    "name"
-];
 // Build a lookup table of tag names to tag objects
 function buildTagNames(tags) {
     return tags.reduce((tagNames, tag) => {
@@ -26,15 +21,6 @@ function buildTagNames(tags) {
     }, {});
 }
 exports.buildTagNames = buildTagNames;
-;
-// Count up the number of tags that appear in a set of toots
-function countTags(toots) {
-    return toots.reduce((tagCounts, toot) => {
-        toot.realToot().tags?.forEach(tag => (0, collection_helpers_1.incrementCount)(tagCounts, tag.name));
-        return tagCounts;
-    }, {});
-}
-exports.countTags = countTags;
 ;
 // Lowercase the tag name, replace URL with one on homeserver
 function repairTag(tag) {
@@ -56,10 +42,6 @@ function repairTag(tag) {
 }
 exports.repairTag = repairTag;
 ;
-// Return array of TrendingTags sorted by numToots
-function sortTagsWithHistory(userTags) {
-    return (0, collection_helpers_1.sortObjsByProps)(Object.values(userTags), SORT_TAGS_BY, [false, true]);
-}
-exports.sortTagsWithHistory = sortTagsWithHistory;
-;
+const tagStr = (tag) => `${tag.name} (${tag.numToots} numToots)`;
+exports.tagStr = tagStr;
 //# sourceMappingURL=tag.js.map

@@ -18,7 +18,7 @@ import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_s
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MastoApi, { isAccessTokenRevokedError } from "./api/api";
-import MastodonServer, { InstanceResponse } from './api/mastodon_server';
+import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
@@ -32,6 +32,7 @@ import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
+import TootsForTagsList from "./api/toots_for_tags_list";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
@@ -42,7 +43,6 @@ import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
-import { getFavouritedTagToots, getParticipatedHashtagToots, getRecentTootsForTrendingTags } from "./feeds/hashtags";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isValueInStringEnum, computeMinMax, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
@@ -222,10 +222,10 @@ class TheAlgorithm {
         await sleep(config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(getFavouritedTagToots, "getFavouritedTagToots"),
-            this.fetchAndMergeToots(getParticipatedHashtagToots, "getParticipatedHashtagToots"),
-            this.fetchAndMergeToots(getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
-            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer), "fediverseTrendingToots"),
+            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.FAVOURITED_HASHTAG_TOOTS), CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.PARTICIPATED_TAG_TOOTS), CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.TRENDING_TAG_TOOTS), CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -427,13 +427,13 @@ class TheAlgorithm {
 
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    private async fetchAndMergeToots(tootFetcher: () => Promise<Toot[]>, logPrefix: string): Promise<Toot[]> {
+    private async fetchAndMergeToots(tootFetcher: Promise<Toot[]>, logPrefix: string): Promise<Toot[]> {
         logPrefix = bracketed(logPrefix); // tootFetcher.name yield empty string in production :(
         const startedAt = new Date();
         let newToots: Toot[] = [];
 
         try {
-            newToots = await tootFetcher();
+            newToots = await tootFetcher;
             this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${ageString(startedAt)}`);

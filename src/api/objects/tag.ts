@@ -3,17 +3,10 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
-import Toot from "./toot";
-import { incrementCount, sortObjsByProps } from "../../helpers/collection_helpers";
 import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
 import { removeDiacritics, wordRegex } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
-
-const SORT_TAGS_BY = [
-    "numToots" as keyof TagWithUsageCounts,
-    "name" as keyof TagWithUsageCounts
-];
 
 
 // Build a lookup table of tag names to tag objects
@@ -24,18 +17,6 @@ export function buildTagNames(tags: MastodonTag[]): TagNames {
         tagNames[tag.name] = newTag;
         return tagNames;
     }, {} as TagNames);
-};
-
-
-// Count up the number of tags that appear in a set of toots
-export function countTags(toots: Toot[]): StringNumberDict {
-    return toots.reduce(
-        (tagCounts: StringNumberDict, toot: Toot) => {
-            toot.realToot().tags?.forEach(tag => incrementCount(tagCounts, tag.name));
-            return tagCounts;
-        },
-        {} as StringNumberDict
-    );
 };
 
 
@@ -59,8 +40,4 @@ export function repairTag(tag: MastodonTag): MastodonTag {
 };
 
 
-
-// Return array of TrendingTags sorted by numToots
-export function sortTagsWithHistory(userTags: TagNames): TagWithUsageCounts[] {
-    return sortObjsByProps(Object.values(userTags), SORT_TAGS_BY, [false, true]);
-};
+export const tagStr = (tag: TagWithUsageCounts) => `${tag.name} (${tag.numToots} numToots)`;

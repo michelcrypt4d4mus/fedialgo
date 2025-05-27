@@ -353,7 +353,7 @@ export function truncateToConfiguredLength(array: any[], maxRecords: number, lab
     const logPfx = bracketed(label || "truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} to ${maxRecords}`);
+    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
     return array;
 };
 

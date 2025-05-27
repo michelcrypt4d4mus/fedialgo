@@ -65,6 +65,7 @@ const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
+const toots_for_tags_list_1 = __importDefault(require("./api/toots_for_tags_list"));
 const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
@@ -80,7 +81,6 @@ Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 const moar_data_poller_1 = require("./api/moar_data_poller");
-const hashtags_1 = require("./feeds/hashtags");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
@@ -210,10 +210,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(hashtags_1.getFavouritedTagToots, "getFavouritedTagToots"),
-            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
-            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), "fediverseTrendingToots"),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.PARTICIPATED_TAG_TOOTS), types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -399,7 +399,7 @@ class TheAlgorithm {
         const startedAt = new Date();
         let newToots = [];
         try {
-            newToots = await tootFetcher();
+            newToots = await tootFetcher;
             this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
         }
         catch (e) {

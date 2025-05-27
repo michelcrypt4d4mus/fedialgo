@@ -55,7 +55,7 @@ type ScoringConfig = {
     scoringBatchSize: number;
     timeDecayExponent: number;
 };
-interface TagTootsConfig {
+export interface TagTootsConfig {
     maxToots: number;
     numTags: number;
     numTootsPerTag: number;

@@ -12,12 +12,12 @@ const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
+const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
-const hashtags_1 = require("../feeds/hashtags");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
@@ -94,7 +94,7 @@ class MastodonServer {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)((0, tag_1.repairTag)(tag)));
-        return trendingTags.filter(tag => !config_1.config.trending.tags.invalidTrendingTags.includes(tag.name));
+        return trendingTags;
     }
     ///////////////////////////////////
     //        Private Methods       //
@@ -158,9 +158,7 @@ class MastodonServer {
             key: types_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
-                uniqueTags = await (0, hashtags_1.removeMutedTags)(uniqueTags);
-                return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, config_1.config.trending.tags.numTags);
+                return (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
             }
         });
     }
@@ -195,12 +193,12 @@ class MastodonServer {
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData() {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tags, toots] = await Promise.all([
+        const [links, tagList, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
-            this.fediverseTrendingTags(),
+            tag_list_1.default.fromTrending(),
             this.fediverseTrendingToots(),
         ]);
-        return { links, tags, toots };
+        return { links, tags: tagList.topTags(), toots };
     }
     ///////////////////////////////////////
     //      Private Static Methods       //

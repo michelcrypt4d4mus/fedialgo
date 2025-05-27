@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { MastodonTag, CacheKey } from "../types";
+import { CacheKey, MastodonTag } from "../types";
 interface ApiParams {
     maxRecords?: number;
     moar?: boolean;
