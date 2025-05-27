@@ -7,7 +7,6 @@ const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
-const tag_1 = require("./objects/tag");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
@@ -26,10 +25,10 @@ class UserData {
     static buildFromData(data) {
         const userData = new UserData();
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
-        userData.followedTags = (0, tag_1.buildTagNames)(data.followedTags);
+        userData.followedTags = new tag_list_1.default(data.followedTags).tagNameDict();
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
+        userData.participatedHashtags = tag_list_1.default.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         (0, log_helpers_1.traceLog)("[UserData] built from data:", userData);
@@ -73,11 +72,6 @@ class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         (0, log_helpers_1.traceLog)(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
-    }
-    // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getUserParticipatedTagsSorted() {
-        const participatedTags = new tag_list_1.default(Object.values(await UserData.getUserParticipatedTags()));
-        return participatedTags.topTags();
     }
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
     // The numToots prop is set to number of times user tooted it

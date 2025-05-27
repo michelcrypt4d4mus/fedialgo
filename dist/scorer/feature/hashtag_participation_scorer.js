@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score toots containing hashtags the user posts about a lot
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const user_data_1 = __importDefault(require("../../api/user_data"));
+const tag_list_1 = __importDefault(require("../../api/objects/tag_list"));
 const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class HashtagParticipationScorer extends feature_scorer_1.default {
@@ -16,11 +16,7 @@ class HashtagParticipationScorer extends feature_scorer_1.default {
         super(types_1.ScoreName.PARTICIPATED_TAGS);
     }
     async prepareScoreData() {
-        const userTags = await user_data_1.default.getUserParticipatedTags();
-        return Object.values(userTags).reduce((acc, tag) => {
-            acc[tag.name] = tag.numToots || 0;
-            return acc;
-        }, {});
+        return (await tag_list_1.default.fromParticipated()).numTootsLookupDict();
     }
     ;
     // Use the square root of the number of toots with the hashtag to prevent runaway scores

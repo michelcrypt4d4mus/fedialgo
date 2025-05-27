@@ -23,6 +23,8 @@ export async function getFavouritedTagToots(): Promise<Toot[]> {
 // Get recent toots from hashtags the user has participated in frequently
 export async function getParticipatedHashtagToots(): Promise<Toot[]> {
     const tagList = await TagList.fromParticipated();
+    await tagList.removeFollowedAndMutedTags();
+    await tagList.removeTrendingTags();
     return await getCacheableTootsForTags(tagList, CacheKey.PARTICIPATED_TAG_TOOTS);
 };
 

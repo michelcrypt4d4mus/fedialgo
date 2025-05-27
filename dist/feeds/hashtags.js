@@ -20,6 +20,8 @@ exports.getFavouritedTagToots = getFavouritedTagToots;
 // Get recent toots from hashtags the user has participated in frequently
 async function getParticipatedHashtagToots() {
     const tagList = await tag_list_1.default.fromParticipated();
+    await tagList.removeFollowedAndMutedTags();
+    await tagList.removeTrendingTags();
     return await getCacheableTootsForTags(tagList, types_1.CacheKey.PARTICIPATED_TAG_TOOTS);
 }
 exports.getParticipatedHashtagToots = getParticipatedHashtagToots;

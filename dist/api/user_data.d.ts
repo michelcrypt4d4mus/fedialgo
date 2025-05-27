@@ -23,7 +23,6 @@ export default class UserData {
     isDataStale(): Promise<boolean>;
     popularUserTags(): TagWithUsageCounts[];
     static getMutedKeywords(): Promise<string[]>;
-    static getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]>;
     static getUserParticipatedTags(): Promise<TagNames>;
     private static buildUserParticipatedHashtags;
 }

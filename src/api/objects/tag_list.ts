@@ -7,10 +7,9 @@ import Toot from "./toot";
 import UserData from "../user_data";
 import { config, TagTootsConfig } from "../../config";
 import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
-import { sortObjsByProps } from "../../helpers/collection_helpers";
+import { sortObjsByProps, truncateToConfiguredLength } from "../../helpers/collection_helpers";
 import { traceLog } from "../../helpers/log_helpers";
-import { truncateToConfiguredLength } from "../../helpers/collection_helpers";
-import { bracketed, wordRegex } from "../../helpers/string_helpers";
+import { wordRegex } from "../../helpers/string_helpers";
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TagWithUsageCounts,
@@ -22,22 +21,22 @@ export default class TagList {
     tags: TagWithUsageCounts[];
     tootsConfig?: TagTootsConfig;
 
-    constructor(tags: MastodonTag[], config?: TagTootsConfig) {
+    constructor(tags: MastodonTag[], cfg?: TagTootsConfig) {
         this.tags = tags.map(tag => {
             const newTag = tag as TagWithUsageCounts;
             newTag.regex ||= wordRegex(tag.name);
             return newTag;
         });
 
-        this.tootsConfig = config;
+        this.tootsConfig = cfg;
     }
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
         const participatedTags = (await TagList.fromParticipated()).tagNameDict();
         const tagList = this.fromUsageCounts(await MastoApi.instance.getFavouritedToots(), config.favouritedTags);
-        await tagList.removeTrendingTags(bracketed('TagList.fromFavourites()'));
         await tagList.removeFollowedAndMutedTags();
+        await tagList.removeTrendingTags();
 
         // Filter out tags that are already followed or have high participation by the fedialgo user
         tagList.tags = tagList.tags.filter((tag) => {
@@ -60,10 +59,7 @@ export default class TagList {
 
     // Tags the user has posted in
     static async fromParticipated(): Promise<TagList> {
-        const tagList = this.fromUsageCounts(await MastoApi.instance.getRecentUserToots(), config.participatedTags);
-        await tagList.removeTrendingTags(bracketed('TagList.fromParticipated()'));
-        await tagList.removeFollowedAndMutedTags();
-        return tagList;
+        return this.fromUsageCounts(await MastoApi.instance.getRecentUserToots(), config.participatedTags);
     }
 
     // Trending tags across the fediverse
@@ -74,7 +70,7 @@ export default class TagList {
     }
 
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
-    private static fromUsageCounts(toots: Toot[], cfg?: TagTootsConfig): TagList {
+    static fromUsageCounts(toots: Toot[], cfg?: TagTootsConfig): TagList {
         const tagsWithUsageCounts = toots.reduce(
             (tagCounts, toot) => {
                 toot.realToot().tags?.forEach((tag) => {
@@ -111,23 +107,21 @@ export default class TagList {
         await this.removeFollowedTags();
     };
 
-
     // Screen a list of hashtags against the user's followed tags, removing any that are followed.
     async removeFollowedTags(): Promise<void> {
         const followedKeywords = (await MastoApi.instance.getFollowedTags()).map(t => t.name);
-        this.removeKeywordsFromTags(followedKeywords, "[removeFollowedTags()]");
+        this.removeKeywordsFromTags(followedKeywords);
     };
 
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.
     async removeMutedTags(): Promise<void> {
-        const mutedKeywords = await UserData.getMutedKeywords();
-        this.removeKeywordsFromTags(mutedKeywords, "[removeMutedTags()]");
+        this.removeKeywordsFromTags(await UserData.getMutedKeywords());
     };
 
     // Remove any trending tags from a list of tags
-    async removeTrendingTags(logPrefix?: string): Promise<void> {
+    async removeTrendingTags(): Promise<void> {
         const trendingTagList = await TagList.fromTrending();
-        this.removeKeywordsFromTags(trendingTagList.tags.map(t => t.name), logPrefix);
+        this.removeKeywordsFromTags(trendingTagList.tags.map(t => t.name));
     }
 
     // Return a dictionary of tag names to tags
@@ -146,15 +140,14 @@ export default class TagList {
     }
 
     // Remove tags that match any of the keywords
-    private async removeKeywordsFromTags(keywords: string[], logPrefix?: string): Promise<void> {
-        logPrefix ||= "[removeKeywordsFromTags()]";
+    private async removeKeywordsFromTags(keywords: string[]): Promise<void> {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
 
         if (validTags.length != this.tags.length) {
-            traceLog(`${logPrefix} Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
+            traceLog(`Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
         }
 
         this.tags = validTags;
     };
-;}
+};

@@ -40,10 +40,10 @@ export default class UserData {
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = buildTagNames(data.followedTags);
+        userData.followedTags = new TagList(data.followedTags).tagNameDict();
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = UserData.buildUserParticipatedHashtags(data.recentToots);
+        userData.participatedHashtags = TagList.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         traceLog("[UserData] built from data:", userData);
@@ -93,12 +93,6 @@ export default class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         traceLog(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
-    }
-
-    // Fetch or load array of TrendingTags sorted by number of times the user tooted it
-    static async getUserParticipatedTagsSorted(): Promise<TagWithUsageCounts[]> {
-        const participatedTags = new TagList(Object.values(await UserData.getUserParticipatedTags()));
-        return participatedTags.topTags();
     }
 
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
