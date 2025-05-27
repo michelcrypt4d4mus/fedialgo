@@ -27,6 +27,10 @@ class TootsForTagsList {
             await tagList.removeFollowedAndMutedTags();
             await tagList.removeTrendingTags();
             tagList.removeInvalidTrendingTags();
+            // Remove tags that have been used in 2 or more toots by the user
+            // TODO: use a configured value or a heuristic instead of hardcoded 2
+            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
+            tagList.tags = tagList.tags.filter((tag) => !((participatedTags[tag.name]?.numToots || 0) >= 2));
         }
         else if (cacheKey === types_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
             tootsConfig = config_1.config.participatedTags;
@@ -57,7 +61,7 @@ class TootsForTagsList {
     topTags(numTags) {
         numTags ||= this.tootsConfig.numTags;
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
-        console.debug(`${(0, string_helpers_1.bracketed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
+        console.debug(`${(0, string_helpers_1.bracketed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
         return tags;
     }
     // Get toots for the list of tags, caching the results
