@@ -10,7 +10,9 @@ const api_1 = __importDefault(require("./api"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const types_1 = require("../types");
 const config_1 = require("../config");
+const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const string_helpers_1 = require("../helpers/string_helpers");
 class TootsForTagsList {
     cacheKey;
     tagList;
@@ -54,7 +56,9 @@ class TootsForTagsList {
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags) {
         numTags ||= this.tootsConfig.numTags;
-        return (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
+        const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
+        console.debug(`${(0, string_helpers_1.bracketed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
+        return tags;
     }
     // Get toots for the list of tags, caching the results
     async getToots() {

@@ -6,8 +6,10 @@ import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { CacheKey, TagWithUsageCounts } from "../types";
 import { config, TagTootsConfig } from "../config";
+import { tagStr } from "./objects/tag";
 import { traceLog } from "../helpers/log_helpers";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { bracketed } from "../helpers/string_helpers";
 
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
     | CacheKey.FAVOURITED_HASHTAG_TOOTS
@@ -60,7 +62,9 @@ export default class TootsForTagsList {
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.tootsConfig.numTags;
-        return truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
+        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
+        console.debug(`${bracketed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i}: ${tagStr(t)}`).join("\n"));
+        return tags;
     }
 
     // Get toots for the list of tags, caching the results

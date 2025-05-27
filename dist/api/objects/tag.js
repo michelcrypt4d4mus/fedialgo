@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.repairTag = exports.buildTagNames = void 0;
+exports.tagStr = exports.repairTag = exports.buildTagNames = void 0;
 /*
  * Helper methods for dealing with Mastodon's Tag objects.
  * API docs: https://docs.joinmastodon.org/entities/Tag/
@@ -42,4 +42,6 @@ function repairTag(tag) {
 }
 exports.repairTag = repairTag;
 ;
+const tagStr = (tag) => `${tag.name} (${tag.numToots})`;
+exports.tagStr = tagStr;
 //# sourceMappingURL=tag.js.map
