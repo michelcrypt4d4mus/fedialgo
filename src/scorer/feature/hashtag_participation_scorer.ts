@@ -2,7 +2,7 @@
  * Score toots containing hashtags the user posts about a lot
  */
 import FeatureScorer from '../feature_scorer';
-import TagList from '../../api/objects/tag_list';
+import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
 import UserData from '../../api/user_data';
 import { ScoreName, StringNumberDict } from "../../types";

@@ -199,7 +199,7 @@ export default class MastoApi {
                 const statuses = await fetch();
                 traceLog(`${bracketed(key)} Retrieved ${statuses.length} Statuses ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, key);
-                toots = truncateToConfiguredLength(toots, maxRecords);
+                toots = truncateToConfiguredLength(toots, maxRecords, key);
                 await Storage.set(key, toots);
             }
 

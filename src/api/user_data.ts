@@ -14,7 +14,7 @@ import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { wordRegex } from "../helpers/string_helpers";
-import TagList from "./objects/tag_list";
+import TagList from "./tag_list";
 
 // Raw API data required to build UserData
 interface UserApiData {

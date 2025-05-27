@@ -11,7 +11,7 @@ const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
-const tag_list_1 = __importDefault(require("./objects/tag_list"));
+const tag_list_1 = __importDefault(require("./tag_list"));
 ;
 class UserData {
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory

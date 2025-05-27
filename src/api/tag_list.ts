@@ -1,15 +1,15 @@
 /*
  * A list of tags with usage counts.
  */
-import MastoApi from "../api";
-import MastodonServer from "../mastodon_server";
-import Toot from "./toot";
-import UserData from "../user_data";
-import { CacheKey, MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
-import { config, TagTootsConfig } from "../../config";
-import { sortObjsByProps, truncateToConfiguredLength } from "../../helpers/collection_helpers";
-import { traceLog } from "../../helpers/log_helpers";
-import { wordRegex } from "../../helpers/string_helpers";
+import MastoApi from "./api";
+import MastodonServer from "./mastodon_server";
+import Toot from "./objects/toot";
+import UserData from "./user_data";
+import { CacheKey, MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
+import { config } from "../config";
+import { sortObjsByProps } from "../helpers/collection_helpers";
+import { traceLog } from "../helpers/log_helpers";
+import { wordRegex } from "../helpers/string_helpers";
 
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
     | CacheKey.FAVOURITED_HASHTAG_TOOTS
@@ -142,81 +142,3 @@ export default class TagList {
         this.tags = validTags;
     };
 };
-
-
-export class TagsForTootsList {
-    cacheKey: TagTootsCacheKey;
-    tagList: TagList;
-    tootsConfig: TagTootsConfig;
-
-    // Alternate constructor
-    static async create(cacheKey: TagTootsCacheKey): Promise<TagsForTootsList> {
-        let tootsConfig: TagTootsConfig;
-        let tagList: TagList;
-
-        if (cacheKey === CacheKey.FAVOURITED_HASHTAG_TOOTS) {
-            tootsConfig = config.favouritedTags;
-            tagList = await TagList.fromFavourites();
-            await tagList.removeFollowedAndMutedTags();
-            await tagList.removeTrendingTags();
-            tagList.removeInvalidTrendingTags();
-        } else if (cacheKey === CacheKey.PARTICIPATED_TAG_TOOTS) {
-            tootsConfig = config.participatedTags;
-            tagList = await TagList.fromParticipated();
-            await tagList.removeFollowedAndMutedTags();
-            await tagList.removeTrendingTags();
-        } else if (cacheKey === CacheKey.TRENDING_TAG_TOOTS) {
-            tootsConfig = config.trending.tags;
-            tagList = await TagList.fromTrending();
-        } else {
-            throw new Error(`TagsForTootsList: Invalid cacheKey ${cacheKey}`);
-        }
-
-        return new TagsForTootsList(cacheKey, tagList, tootsConfig);
-    }
-
-    // Create then immediately fetch toots for the tags
-    static async getTootsForTags(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
-        const tagList = await TagsForTootsList.create(cacheKey);
-        return await tagList.getCacheableTootsForTags();
-    }
-
-    private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
-        this.tagList = tagList;
-        this.cacheKey = cacheKey;
-        this.tootsConfig = tootsConfig;
-    }
-
-    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
-    topTags(numTags?: number): TagWithUsageCounts[] {
-        numTags ||= this.tootsConfig.numTags;
-        return truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
-    }
-
-    // Get toots for a list of tags, caching the results
-    async getCacheableTootsForTags(): Promise<Toot[]> {
-        return await MastoApi.instance.getCacheableToots(
-            async () => await MastoApi.instance.getStatusesForTags(this.topTags(), this.tootsConfig.numTootsPerTag),
-            this.cacheKey,
-            this.tootsConfig.maxToots,
-        );
-    };
-};
-
-
-// // Get toots for hashtags the user has favourited a lot
-// export async function getFavouritedTagToots(): Promise<Toot[]> {
-//     return await TagsForTootsList.getTootsForTags(CacheKey.FAVOURITED_HASHTAG_TOOTS);
-// };
-
-
-// // Get recent toots from hashtags the user has participated in frequently
-// export async function getParticipatedHashtagToots(): Promise<Toot[]> {
-//     return await TagsForTootsList.getTootsForTags(CacheKey.PARTICIPATED_TAG_TOOTS);
-// };
-
-
-// // Get toots for the top trending tags via the search endpoint.
-// export async function getRecentTootsForTrendingTags(): Promise<Toot[]> {
-//     return await TagsForTootsList.getTootsForTags(CacheKey.TRENDING_TAG_TOOTS);
-// };

@@ -162,7 +162,7 @@ class MastoApi {
                 const statuses = await fetch();
                 (0, log_helpers_1.traceLog)(`${(0, string_helpers_1.bracketed)(key)} Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, key);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords);
+                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, key);
                 await Storage_1.default.set(key, toots);
             }
             return toots;

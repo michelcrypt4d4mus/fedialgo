@@ -2,7 +2,7 @@
  * Score how many times the current user has favourited the toot's hashtags in the past.
  */
 import FeatureScorer from '../feature_scorer';
-import TagList from '../../api/objects/tag_list';
+import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
 import { ScoreName, StringNumberDict } from '../../types';
 import { sumArray } from '../../helpers/collection_helpers';

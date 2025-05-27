@@ -1,7 +1,5 @@
-import Toot from "./toot";
-import { CacheKey, MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
-import { TagTootsConfig } from "../../config";
-type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS | CacheKey.FAVOURITED_HASHTAG_TOOTS | CacheKey.TRENDING_TAG_TOOTS;
+import Toot from "./objects/toot";
+import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 export default class TagList {
     tags: TagWithUsageCounts[];
     constructor(tags: MastodonTag[]);
@@ -20,14 +18,3 @@ export default class TagList {
     topTags(numTags?: number): TagWithUsageCounts[];
     private removeKeywordsFromTags;
 }
-export declare class TagsForTootsList {
-    cacheKey: TagTootsCacheKey;
-    tagList: TagList;
-    tootsConfig: TagTootsConfig;
-    static create(cacheKey: TagTootsCacheKey): Promise<TagsForTootsList>;
-    static getTootsForTags(cacheKey: TagTootsCacheKey): Promise<Toot[]>;
-    private constructor();
-    topTags(numTags?: number): TagWithUsageCounts[];
-    getToots(): Promise<Toot[]>;
-}
-export {};
