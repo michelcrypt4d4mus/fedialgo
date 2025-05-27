@@ -222,10 +222,10 @@ class TheAlgorithm {
         await sleep(config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(getFavouritedTagToots, "getFavouritedTagToots"),
-            this.fetchAndMergeToots(getParticipatedHashtagToots, "getParticipatedHashtagToots"),
-            this.fetchAndMergeToots(getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
-            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer), "fediverseTrendingToots"),
+            this.fetchAndMergeToots(getFavouritedTagToots, CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(getParticipatedHashtagToots, CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(getRecentTootsForTrendingTags, CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots.bind(MastodonServer), CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),

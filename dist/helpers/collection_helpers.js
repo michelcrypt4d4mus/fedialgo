@@ -303,7 +303,7 @@ function truncateToConfiguredLength(array, maxRecords, label) {
     const logPfx = (0, string_helpers_1.bracketed)(label || "truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} to ${maxRecords}`);
+    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
     return array;
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;

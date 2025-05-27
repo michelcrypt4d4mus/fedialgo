@@ -2,15 +2,9 @@
  * Methods used to fetch toots for the timeline based on hashtags
  */
 import MastoApi from "../api/api";
-import MastodonServer from "../api/mastodon_server";
 import TagList from "../api/objects/tag_list";
 import Toot from "../api/objects/toot";
-import UserData from "../api/user_data";
-import { bracketed } from "../helpers/string_helpers";
-import { CacheKey, MastodonTag, TagWithUsageCounts } from "../types";
-import { config, TagTootsConfig } from "../config";
-import { traceLog } from "../helpers/log_helpers";
-import { truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { CacheKey } from "../types";
 
 
 // Get toots for hashtags the user has favourited a lot

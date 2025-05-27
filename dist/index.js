@@ -210,10 +210,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(hashtags_1.getFavouritedTagToots, "getFavouritedTagToots"),
-            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, "getParticipatedHashtagToots"),
-            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, "getRecentTootsForTrendingTags"),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), "fediverseTrendingToots"),
+            this.fetchAndMergeToots(hashtags_1.getFavouritedTagToots, types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, types_1.CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
