@@ -19,7 +19,7 @@ const SORT_TAGS_BY = [
 
 export default class TagList {
     tags: TagWithUsageCounts[];
-    tootsConfig?: TagTootsConfig;
+    tootsConfig?: TagTootsConfig;  // TODO: maybe not ideal to have this set in contexts we don't use it...
 
     constructor(tags: MastodonTag[], cfg?: TagTootsConfig) {
         this.tags = tags.map(tag => {
@@ -33,23 +33,7 @@ export default class TagList {
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
-        const participatedTags = (await TagList.fromParticipated()).tagNameDict();
-        const tagList = this.fromUsageCounts(await MastoApi.instance.getFavouritedToots(), config.favouritedTags);
-        await tagList.removeFollowedAndMutedTags();
-        await tagList.removeTrendingTags();
-
-        // Filter out tags that are already followed or have high participation by the fedialgo user
-        tagList.tags = tagList.tags.filter((tag) => {
-            if (config.trending.tags.invalidTrendingTags.includes(tag.name)) {
-                return false;
-            } else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value or (better) a heuristic based on the data
-                return false;
-            } else {
-                return true;
-            }
-        });
-
-        return tagList;
+        return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots(), config.favouritedTags);
     }
 
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
@@ -66,6 +50,7 @@ export default class TagList {
     static async fromTrending(): Promise<TagList> {
         const tagList = new TagList(await MastodonServer.fediverseTrendingTags(), config.trending.tags);
         tagList.removeFollowedAndMutedTags();
+        tagList.removeInvalidTrendingTags();
         return tagList;
     }
 
@@ -113,6 +98,12 @@ export default class TagList {
         this.removeKeywordsFromTags(followedKeywords);
     };
 
+    // Remove the configured list of invalid trending tags
+    // TODO: TagTootsConfig could have an invalidTags property...
+    removeInvalidTrendingTags(): void {
+        this.removeKeywordsFromTags(config.trending.tags.invalidTrendingTags);
+    };
+
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.
     async removeMutedTags(): Promise<void> {
         this.removeKeywordsFromTags(await UserData.getMutedKeywords());
@@ -151,3 +142,16 @@ export default class TagList {
         this.tags = validTags;
     };
 };
+
+
+export class TagsForTootsList extends TagList {
+    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
+    static async fromFavourites(): Promise<TagsForTootsList> {
+        return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots(), config.favouritedTags);
+    }
+
+    // Tags the user follows  // TODO: could look for tags in the accounts they follow too
+    static async fromFollowedTags(): Promise<TagsForTootsList> {
+        return new TagsForTootsList(await MastoApi.instance.getFollowedTags());
+    }
+}

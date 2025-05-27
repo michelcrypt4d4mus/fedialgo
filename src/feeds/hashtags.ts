@@ -2,14 +2,21 @@
  * Methods used to fetch toots for the timeline based on hashtags
  */
 import MastoApi from "../api/api";
-import TagList from "../api/objects/tag_list";
+import TagList, { TagsForTootsList } from "../api/objects/tag_list";
 import Toot from "../api/objects/toot";
 import { CacheKey } from "../types";
 
 
 // Get toots for hashtags the user has favourited a lot
 export async function getFavouritedTagToots(): Promise<Toot[]> {
+    const participatedTags = (await TagList.fromParticipated()).tagNameDict();
     const tagList = await TagList.fromFavourites();
+    await tagList.removeFollowedAndMutedTags();
+    await tagList.removeTrendingTags();
+    tagList.removeInvalidTrendingTags();
+    // Filter out tags that have high participation by the fedialgo user
+    // TODO: make this a config value or (better) a heuristic based on the data
+    tagList.tags = tagList.tags.filter((tag) => !((participatedTags[tag.name]?.numToots || 0) >= 2));
     return await getCacheableTootsForTags(tagList, CacheKey.FAVOURITED_HASHTAG_TOOTS);
 };
 

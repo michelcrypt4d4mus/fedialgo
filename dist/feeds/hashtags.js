@@ -12,7 +12,14 @@ const tag_list_1 = __importDefault(require("../api/objects/tag_list"));
 const types_1 = require("../types");
 // Get toots for hashtags the user has favourited a lot
 async function getFavouritedTagToots() {
+    const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
     const tagList = await tag_list_1.default.fromFavourites();
+    await tagList.removeFollowedAndMutedTags();
+    await tagList.removeTrendingTags();
+    tagList.removeInvalidTrendingTags();
+    // Filter out tags that have high participation by the fedialgo user
+    // TODO: make this a config value or (better) a heuristic based on the data
+    tagList.tags = tagList.tags.filter((tag) => !((participatedTags[tag.name]?.numToots || 0) >= 2));
     return await getCacheableTootsForTags(tagList, types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS);
 }
 exports.getFavouritedTagToots = getFavouritedTagToots;

@@ -19,7 +19,7 @@ const SORT_TAGS_BY = [
 ];
 class TagList {
     tags;
-    tootsConfig;
+    tootsConfig; // TODO: maybe not ideal to have this set in contexts we don't use it...
     constructor(tags, cfg) {
         this.tags = tags.map(tag => {
             const newTag = tag;
@@ -30,23 +30,7 @@ class TagList {
     }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
-        const participatedTags = (await TagList.fromParticipated()).tagNameDict();
-        const tagList = this.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), config_1.config.favouritedTags);
-        await tagList.removeFollowedAndMutedTags();
-        await tagList.removeTrendingTags();
-        // Filter out tags that are already followed or have high participation by the fedialgo user
-        tagList.tags = tagList.tags.filter((tag) => {
-            if (config_1.config.trending.tags.invalidTrendingTags.includes(tag.name)) {
-                return false;
-            }
-            else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value or (better) a heuristic based on the data
-                return false;
-            }
-            else {
-                return true;
-            }
-        });
-        return tagList;
+        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), config_1.config.favouritedTags);
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
     static async fromFollowedTags() {
@@ -60,6 +44,7 @@ class TagList {
     static async fromTrending() {
         const tagList = new TagList(await mastodon_server_1.default.fediverseTrendingTags(), config_1.config.trending.tags);
         tagList.removeFollowedAndMutedTags();
+        tagList.removeInvalidTrendingTags();
         return tagList;
     }
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
@@ -95,6 +80,12 @@ class TagList {
     async removeFollowedTags() {
         const followedKeywords = (await api_1.default.instance.getFollowedTags()).map(t => t.name);
         this.removeKeywordsFromTags(followedKeywords);
+    }
+    ;
+    // Remove the configured list of invalid trending tags
+    // TODO: TagTootsConfig could have an invalidTags property...
+    removeInvalidTrendingTags() {
+        this.removeKeywordsFromTags(config_1.config.trending.tags.invalidTrendingTags);
     }
     ;
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.

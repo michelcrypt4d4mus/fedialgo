@@ -13,6 +13,7 @@ export default class TagList {
     numTootsLookupDict(): StringNumberDict;
     removeFollowedAndMutedTags(): Promise<void>;
     removeFollowedTags(): Promise<void>;
+    removeInvalidTrendingTags(): void;
     removeMutedTags(): Promise<void>;
     removeTrendingTags(): Promise<void>;
     tagNameDict(): TagNames;
