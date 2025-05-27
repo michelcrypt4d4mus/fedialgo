@@ -22,6 +22,16 @@ class TagList {
             return newTag;
         });
     }
+    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
+    static async fromFavourites() {
+        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
+    }
+    static async fromFollowedTags() {
+        return new TagList(await api_1.default.instance.getFollowedTags());
+    }
+    static async fromParticipated() {
+        return this.fromUsageCounts(await api_1.default.instance.getRecentUserToots());
+    }
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
     static fromUsageCounts(toots) {
         const tagsWithUsageCounts = toots.reduce((tagCounts, toot) => {
@@ -37,16 +47,6 @@ class TagList {
             return tagCounts;
         }, {});
         return new TagList(Object.values(tagsWithUsageCounts));
-    }
-    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
-    static async fromFavourites() {
-        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
-    }
-    static async fromFollowedTags() {
-        return new TagList(await api_1.default.instance.getFollowedTags());
-    }
-    static async fromParticipated() {
-        return this.fromUsageCounts(await api_1.default.instance.getRecentUserToots());
     }
     // Returns a dict of tag names to numToots
     numTootsLookupDict() {

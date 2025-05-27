@@ -24,8 +24,21 @@ export default class TagList {
         });
     }
 
+    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
+    static async fromFavourites(): Promise<TagList> {
+        return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots());
+    }
+
+    static async fromFollowedTags(): Promise<TagList> {
+        return new TagList(await MastoApi.instance.getFollowedTags());
+    }
+
+    static async fromParticipated(): Promise<TagList> {
+        return this.fromUsageCounts(await MastoApi.instance.getRecentUserToots());
+    }
+
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
-    static fromUsageCounts(toots: Toot[]): TagList {
+    private static fromUsageCounts(toots: Toot[]): TagList {
         const tagsWithUsageCounts = toots.reduce(
             (tagCounts, toot) => {
                 toot.realToot().tags?.forEach((tag) => {
@@ -46,19 +59,6 @@ export default class TagList {
         );
 
         return new TagList(Object.values(tagsWithUsageCounts));
-    }
-
-    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
-    static async fromFavourites(): Promise<TagList> {
-        return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots());
-    }
-
-    static async fromFollowedTags(): Promise<TagList> {
-        return new TagList(await MastoApi.instance.getFollowedTags());
-    }
-
-    static async fromParticipated(): Promise<TagList> {
-        return this.fromUsageCounts(await MastoApi.instance.getRecentUserToots());
     }
 
     // Returns a dict of tag names to numToots
