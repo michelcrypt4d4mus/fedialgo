@@ -756,7 +756,6 @@ export default class Toot implements TootObj {
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = (await TagList.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        startedAt = new Date();
         let tootsToComplete = toots;
         let completeToots: TootLike[] = [];
 

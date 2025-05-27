@@ -626,7 +626,6 @@ class Toot {
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = (await tag_list_1.default.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
-        startedAt = new Date();
         let tootsToComplete = toots;
         let completeToots = [];
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
