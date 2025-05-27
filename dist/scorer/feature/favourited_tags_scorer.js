@@ -17,8 +17,7 @@ class FavouritedTagsScorer extends feature_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        const rankedTags = await tag_list_1.default.fromFavourites();
-        return rankedTags.numTootsLookupDict();
+        return (await tag_list_1.default.fromFavourites()).numTootsLookupDict();
     }
     ;
     async _score(toot) {

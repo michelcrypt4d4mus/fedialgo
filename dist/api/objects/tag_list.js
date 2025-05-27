@@ -12,6 +12,7 @@ const user_data_1 = __importDefault(require("../user_data"));
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const log_helpers_1 = require("../../helpers/log_helpers");
+const collection_helpers_2 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const SORT_TAGS_BY = [
     "numToots",
@@ -30,9 +31,22 @@ class TagList {
     }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
+        const participatedTags = (await TagList.fromParticipated()).tagNameDict();
         const tagList = this.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), config_1.config.favouritedTags);
         await tagList.removeTrendingTags((0, string_helpers_1.bracketed)('TagList.fromFavourites()'));
         await tagList.removeFollowedAndMutedTags();
+        // Filter out tags that are already followed or have high participation by the fedialgo user
+        tagList.tags = tagList.tags.filter((tag) => {
+            if (config_1.config.trending.tags.invalidTrendingTags.includes(tag.name)) {
+                return false;
+            }
+            else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value or (better) a heuristic based on the data
+                return false;
+            }
+            else {
+                return true;
+            }
+        });
         return tagList;
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
@@ -109,7 +123,7 @@ class TagList {
     topTags(numTags) {
         numTags ||= this.tootsConfig?.numTags;
         this.tags = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.tags), SORT_TAGS_BY, [false, true]);
-        return numTags ? this.tags.slice(0, numTags) : this.tags;
+        return numTags ? (0, collection_helpers_2.truncateToConfiguredLength)(this.tags, numTags, "topTags()") : this.tags;
     }
     // Remove tags that match any of the keywords
     async removeKeywordsFromTags(keywords, logPrefix) {

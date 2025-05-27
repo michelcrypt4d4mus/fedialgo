@@ -2,7 +2,6 @@
  * Score how many times the current user has favourited the toot's hashtags in the past.
  */
 import FeatureScorer from '../feature_scorer';
-import MastoApi from '../../api/api';
 import TagList from '../../api/objects/tag_list';
 import Toot from '../../api/objects/toot';
 import { ScoreName, StringNumberDict } from '../../types';
@@ -17,8 +16,7 @@ export default class FavouritedTagsScorer extends FeatureScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const rankedTags = await TagList.fromFavourites();
-        return rankedTags.numTootsLookupDict();
+        return (await TagList.fromFavourites()).numTootsLookupDict();
     };
 
     async _score(toot: Toot) {

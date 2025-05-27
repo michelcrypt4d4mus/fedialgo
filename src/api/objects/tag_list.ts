@@ -9,6 +9,7 @@ import { config, TagTootsConfig } from "../../config";
 import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../../types";
 import { sortObjsByProps } from "../../helpers/collection_helpers";
 import { traceLog } from "../../helpers/log_helpers";
+import { truncateToConfiguredLength } from "../../helpers/collection_helpers";
 import { bracketed, wordRegex } from "../../helpers/string_helpers";
 
 const SORT_TAGS_BY = [
@@ -33,9 +34,22 @@ export default class TagList {
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
+        const participatedTags = (await TagList.fromParticipated()).tagNameDict();
         const tagList = this.fromUsageCounts(await MastoApi.instance.getFavouritedToots(), config.favouritedTags);
         await tagList.removeTrendingTags(bracketed('TagList.fromFavourites()'));
         await tagList.removeFollowedAndMutedTags();
+
+        // Filter out tags that are already followed or have high participation by the fedialgo user
+        tagList.tags = tagList.tags.filter((tag) => {
+            if (config.trending.tags.invalidTrendingTags.includes(tag.name)) {
+                return false;
+            } else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value or (better) a heuristic based on the data
+                return false;
+            } else {
+                return true;
+            }
+        });
+
         return tagList;
     }
 
@@ -128,7 +142,7 @@ export default class TagList {
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.tootsConfig?.numTags;
         this.tags = sortObjsByProps(Object.values(this.tags), SORT_TAGS_BY, [false, true]);
-        return numTags ? this.tags.slice(0, numTags) : this.tags;
+        return numTags ? truncateToConfiguredLength(this.tags, numTags, "topTags()") : this.tags;
     }
 
     // Remove tags that match any of the keywords
