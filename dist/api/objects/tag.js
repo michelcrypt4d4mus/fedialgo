@@ -42,6 +42,6 @@ function repairTag(tag) {
 }
 exports.repairTag = repairTag;
 ;
-const tagStr = (tag) => `${tag.name} (${tag.numToots})`;
+const tagStr = (tag) => `${tag.name} (${tag.numToots} numToots)`;
 exports.tagStr = tagStr;
 //# sourceMappingURL=tag.js.map

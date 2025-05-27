@@ -40,4 +40,4 @@ export function repairTag(tag: MastodonTag): MastodonTag {
 };
 
 
-export const tagStr = (tag: TagWithUsageCounts) => `${tag.name} (${tag.numToots})`;
+export const tagStr = (tag: TagWithUsageCounts) => `${tag.name} (${tag.numToots} numToots)`;
