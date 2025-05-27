@@ -80,7 +80,7 @@ Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 const moar_data_poller_1 = require("./api/moar_data_poller");
-const hashtags_1 = require("./feeds/hashtags");
+const tag_list_1 = require("./api/objects/tag_list");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 Object.defineProperty(exports, "isDebugMode", { enumerable: true, get: function () { return environment_helpers_1.isDebugMode; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
@@ -210,10 +210,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(hashtags_1.getFavouritedTagToots, types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(hashtags_1.getParticipatedHashtagToots, types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(hashtags_1.getRecentTootsForTrendingTags, types_1.CacheKey.TRENDING_TAG_TOOTS),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots.bind(mastodon_server_1.default), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            this.fetchAndMergeToots(tag_list_1.TagsForTootsList.getTootsForTags(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(tag_list_1.TagsForTootsList.getTootsForTags(types_1.CacheKey.PARTICIPATED_TAG_TOOTS), types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(tag_list_1.TagsForTootsList.getTootsForTags(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -399,7 +399,7 @@ class TheAlgorithm {
         const startedAt = new Date();
         let newToots = [];
         try {
-            newToots = await tootFetcher();
+            newToots = await tootFetcher;
             this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
         }
         catch (e) {

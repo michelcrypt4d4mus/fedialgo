@@ -3,12 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getRecentTootsForTrendingTags = exports.getParticipatedHashtagToots = exports.getFavouritedTagToots = exports.TagsForTootsList = void 0;
 /*
  * A list of tags with usage counts.
  */
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const user_data_1 = __importDefault(require("../user_data"));
+const types_1 = require("../../types");
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const log_helpers_1 = require("../../helpers/log_helpers");
@@ -19,36 +21,34 @@ const SORT_TAGS_BY = [
 ];
 class TagList {
     tags;
-    tootsConfig; // TODO: maybe not ideal to have this set in contexts we don't use it...
-    constructor(tags, cfg) {
+    constructor(tags) {
         this.tags = tags.map(tag => {
             const newTag = tag;
             newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
             return newTag;
         });
-        this.tootsConfig = cfg;
     }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
-        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), config_1.config.favouritedTags);
+        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
     static async fromFollowedTags() {
-        return new TagList(await api_1.default.instance.getFollowedTags());
+        return new this(await api_1.default.instance.getFollowedTags());
     }
     // Tags the user has posted in
     static async fromParticipated() {
-        return this.fromUsageCounts(await api_1.default.instance.getRecentUserToots(), config_1.config.participatedTags);
+        return this.fromUsageCounts(await api_1.default.instance.getRecentUserToots());
     }
     // Trending tags across the fediverse
     static async fromTrending() {
-        const tagList = new TagList(await mastodon_server_1.default.fediverseTrendingTags(), config_1.config.trending.tags);
+        const tagList = new this(await mastodon_server_1.default.fediverseTrendingTags());
         tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
         return tagList;
     }
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
-    static fromUsageCounts(toots, cfg) {
+    static fromUsageCounts(toots) {
         const tagsWithUsageCounts = toots.reduce((tagCounts, toot) => {
             toot.realToot().tags?.forEach((tag) => {
                 const newTag = tag;
@@ -61,7 +61,7 @@ class TagList {
             });
             return tagCounts;
         }, {});
-        return new TagList(Object.values(tagsWithUsageCounts), cfg);
+        return new this(Object.values(tagsWithUsageCounts));
     }
     // Returns a dict of tag names to numToots
     numTootsLookupDict() {
@@ -107,9 +107,8 @@ class TagList {
     }
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags) {
-        numTags ||= this.tootsConfig?.numTags;
         this.tags = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.tags), SORT_TAGS_BY, [false, true]);
-        return numTags ? (0, collection_helpers_1.truncateToConfiguredLength)(this.tags, numTags, "topTags()") : this.tags;
+        return numTags ? this.tags.slice(0, numTags) : this.tags;
     }
     // Remove tags that match any of the keywords
     async removeKeywordsFromTags(keywords) {
@@ -123,5 +122,76 @@ class TagList {
     ;
 }
 exports.default = TagList;
+;
+class TagsForTootsList {
+    cacheKey;
+    tagList;
+    tootsConfig;
+    // Alternate constructor
+    static async create(cacheKey) {
+        let tootsConfig;
+        let tagList;
+        if (cacheKey === types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS) {
+            tootsConfig = config_1.config.favouritedTags;
+            tagList = await TagList.fromFavourites();
+            await tagList.removeFollowedAndMutedTags();
+            await tagList.removeTrendingTags();
+            tagList.removeInvalidTrendingTags();
+        }
+        else if (cacheKey === types_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
+            tootsConfig = config_1.config.participatedTags;
+            tagList = await TagList.fromParticipated();
+            await tagList.removeFollowedAndMutedTags();
+            await tagList.removeTrendingTags();
+        }
+        else if (cacheKey === types_1.CacheKey.TRENDING_TAG_TOOTS) {
+            tootsConfig = config_1.config.trending.tags;
+            tagList = await TagList.fromTrending();
+        }
+        else {
+            throw new Error(`TagsForTootsList: Invalid cacheKey ${cacheKey}`);
+        }
+        return new TagsForTootsList(cacheKey, tagList, tootsConfig);
+    }
+    // Create then immediately fetch toots for the tags
+    static async getTootsForTags(cacheKey) {
+        const tagList = await TagsForTootsList.create(cacheKey);
+        return await tagList.getCacheableTootsForTags();
+    }
+    constructor(cacheKey, tagList, tootsConfig) {
+        this.tagList = tagList;
+        this.cacheKey = cacheKey;
+        this.tootsConfig = tootsConfig;
+    }
+    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
+    topTags(numTags) {
+        numTags ||= this.tootsConfig.numTags;
+        return (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
+    }
+    // Get toots for a list of tags, caching the results
+    async getCacheableTootsForTags() {
+        return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(this.topTags(), this.tootsConfig.numTootsPerTag), this.cacheKey, this.tootsConfig.maxToots);
+    }
+    ;
+}
+exports.TagsForTootsList = TagsForTootsList;
+;
+// Get toots for hashtags the user has favourited a lot
+async function getFavouritedTagToots() {
+    return await TagsForTootsList.getTootsForTags(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS);
+}
+exports.getFavouritedTagToots = getFavouritedTagToots;
+;
+// Get recent toots from hashtags the user has participated in frequently
+async function getParticipatedHashtagToots() {
+    return await TagsForTootsList.getTootsForTags(types_1.CacheKey.PARTICIPATED_TAG_TOOTS);
+}
+exports.getParticipatedHashtagToots = getParticipatedHashtagToots;
+;
+// Get toots for the top trending tags via the search endpoint.
+async function getRecentTootsForTrendingTags() {
+    return await TagsForTootsList.getTootsForTags(types_1.CacheKey.TRENDING_TAG_TOOTS);
+}
+exports.getRecentTootsForTrendingTags = getRecentTootsForTrendingTags;
 ;
 //# sourceMappingURL=tag_list.js.map
