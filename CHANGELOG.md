@@ -1,7 +1,9 @@
 # NEXT RELEASE
+
+### v0.53.1
 * Lower config.batchCompleteSleepBetweenMS from 250ms to 150ms because the completeProperties() seems to be much faster now
 
-# v0.53.0
+## v0.53.0
 * Introduce `TagList` and `TootsForTagsList` classes to manage participated/favourited/trending tags
 
 ### v0.52.1
