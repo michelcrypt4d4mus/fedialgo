@@ -14,7 +14,6 @@ import { ageString } from "../helpers/time_helpers";
 import { config } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { removeMutedTags } from "../feeds/hashtags";
 import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
 import {
@@ -202,9 +201,7 @@ export default class MastodonServer {
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
-                uniqueTags = await removeMutedTags(uniqueTags);
-                return truncateToConfiguredLength(uniqueTags, config.trending.tags.numTags);
+                return uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
             }
         });
     }

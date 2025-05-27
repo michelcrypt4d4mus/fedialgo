@@ -17,7 +17,6 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
-const hashtags_1 = require("../feeds/hashtags");
 const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
@@ -158,9 +157,7 @@ class MastodonServer {
             key: types_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                let uniqueTags = (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
-                uniqueTags = await (0, hashtags_1.removeMutedTags)(uniqueTags);
-                return (0, collection_helpers_1.truncateToConfiguredLength)(uniqueTags, config_1.config.trending.tags.numTags);
+                return (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
             }
         });
     }

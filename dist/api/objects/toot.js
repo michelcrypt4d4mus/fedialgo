@@ -17,13 +17,13 @@ exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt 
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
  */
-const escape = require('regexp.escape');
 const change_case_1 = require("change-case");
 const class_transformer_1 = require("class-transformer");
 const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const scorer_1 = __importDefault(require("../../scorer/scorer"));
+const tag_list_1 = __importDefault(require("./tag_list"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
@@ -624,7 +624,7 @@ class Toot {
     static async completeToots(toots, logPrefix, isDeepInspect) {
         let startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();
-        const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+        const trendingTags = (await tag_list_1.default.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
         startedAt = new Date();
         let tootsToComplete = toots;
