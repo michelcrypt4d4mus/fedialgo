@@ -12,6 +12,7 @@ const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
+const tag_list_1 = __importDefault(require("./objects/tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
@@ -192,12 +193,12 @@ class MastodonServer {
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData() {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tags, toots] = await Promise.all([
+        const [links, tagList, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
-            this.fediverseTrendingTags(),
+            tag_list_1.default.fromTrending(),
             this.fediverseTrendingToots(),
         ]);
-        return { links, tags, toots };
+        return { links, tags: tagList.topTags(), toots };
     }
     ///////////////////////////////////////
     //      Private Static Methods       //
