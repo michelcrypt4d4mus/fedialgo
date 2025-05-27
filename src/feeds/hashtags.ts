@@ -3,52 +3,49 @@
  */
 import MastoApi from "../api/api";
 import MastodonServer from "../api/mastodon_server";
+import TagList from "../api/objects/tag_list";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { bracketed } from "../helpers/string_helpers";
+import { CacheKey, MastodonTag } from "../types";
 import { config } from "../config";
-import { buildTagNames, countTags } from "../api/objects/tag";
-import { MastodonTag, CacheKey, StringNumberDict } from "../types";
-import { sortKeysByValue, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
-import { mastodon } from "masto";
+import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 
 
 export async function getFavouritedTagToots(): Promise<Toot[]> {
     const logPrefix = bracketed("getFavouritedHashtagToots()");
-    const favouritedTagCounts = countTags(await MastoApi.instance.getFavouritedToots());
-    const followedTags = buildTagNames(await MastoApi.instance.getFollowedTags());
-    const participatedTags = await UserData.getUserParticipatedTags();
+    const favouritedTags = await TagList.fromFavourites();
+    const followedTags = (await TagList.fromFollowedTags()).tagNameDict();
+    const participatedTags = (await TagList.fromParticipated()).tagNameDict();
+    console.debug(`${logPrefix} followedTags:`, followedTags);
+    console.debug(`${logPrefix} participatedTags:`, participatedTags);
 
-    let favouritedNotParticipatedTagCounts = Object.entries(favouritedTagCounts).reduce(
-        (acc, [tagName, count]) => {
-            if (config.trending.tags.invalidTrendingTags.includes(tagName)) {
-                return acc;
-            }
+    // Filter out tags that are followed or have high participation by the fedialgo user
+    const favouritedNonParticipatedTags = favouritedTags.tags.filter((tag) => {
+        let isValid = true;
 
-            // TODO: filter out tags with low particiaption with a heuristic based on favourited tag counts
-            if (!followedTags[tagName] && (participatedTags[tagName]?.numToots || 0) <= 2) {
-                acc[tagName] = count;
-            }
+        if (config.trending.tags.invalidTrendingTags.includes(tag.name)) {
+            isValid = false;
+        } else if (tag.name in followedTags) {
+            isValid = false;
+        } else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value or (better) a heuristic based on the data
+            isValid = false;
+        }
 
-            return acc;
-        },
-        {} as StringNumberDict
-    );
-
-    let tagNames = sortKeysByValue(favouritedNotParticipatedTagCounts).slice(0, config.favouritedTags.numTags);
-
-    tagNames.forEach(tagName => {
-        traceLog(`${logPrefix} Favourited not followed/participated tag: ${tagName} (${favouritedTagCounts[tagName]} times)`);
+        // traceLog(`${logPrefix} Check favourited tag: ${tag.name} (isValid=${isValid}, ${tag.numToots} faves)\nfollowedTags entry:`, followedTags[tag.name], "\nparticipatedTags entry:", participatedTags[tag.name]);
+        return isValid;
     });
 
-    // TODO: this sucks
-    const tags = tagNames.map(name => {
-        return {name: name, url: MastoApi.instance.tagUrl(name), history: []} as mastodon.v1.Tag;
+    console.debug(`${logPrefix} ${favouritedNonParticipatedTags.length} of ${favouritedTags.tags.length} favourited tags not followed/participated`);
+    const topFavouritedTags = (new TagList(favouritedNonParticipatedTags)).topTags(config.favouritedTags.numTags);
+
+    topFavouritedTags.forEach((tag, i) => {
+        traceLog(`${logPrefix} Favourited not followed/participated tag ${i}: ${tag.name} (${tag.numToots} faves)`);
     });
 
     return await MastoApi.instance.getCacheableToots(
-        async () => await MastoApi.instance.getStatusesForTags(tags, config.favouritedTags.numTootsPerTag),
+        async () => await MastoApi.instance.getStatusesForTags(topFavouritedTags, config.favouritedTags.numTootsPerTag),
         CacheKey.FAVOURITED_HASHTAG_TOOTS,
         config.favouritedTags.maxToots,
     );

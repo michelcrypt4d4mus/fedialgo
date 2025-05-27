@@ -12,9 +12,9 @@ const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const tag_list_1 = __importDefault(require("./objects/tag_list"));
 ;
 class UserData {
-    favouritedTagCounts = {};
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = {};
     languagesPostedIn = {};
@@ -25,7 +25,6 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
-        userData.favouritedTagCounts = (0, tag_1.countTags)(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = (0, tag_1.buildTagNames)(data.followedTags);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
@@ -62,7 +61,7 @@ class UserData {
     }
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
-        return (0, tag_1.sortTagsWithHistory)(this.participatedHashtags);
+        return (new tag_list_1.default(Object.values(this.participatedHashtags))).topTags();
     }
     /////////////////////////////
     //      Static Methods     //
@@ -77,7 +76,8 @@ class UserData {
     }
     // Fetch or load array of TrendingTags sorted by number of times the user tooted it
     static async getUserParticipatedTagsSorted() {
-        return (0, tag_1.sortTagsWithHistory)(await UserData.getUserParticipatedTags());
+        const participatedTags = new tag_list_1.default(Object.values(await UserData.getUserParticipatedTags()));
+        return participatedTags.topTags();
     }
     // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
     // The numToots prop is set to number of times user tooted it

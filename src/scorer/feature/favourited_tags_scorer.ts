@@ -3,8 +3,8 @@
  */
 import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
+import TagList from '../../api/objects/tag_list';
 import Toot from '../../api/objects/toot';
-import { countTags } from '../../api/objects/tag';
 import { ScoreName, StringNumberDict } from '../../types';
 import { sumArray } from '../../helpers/collection_helpers';
 
@@ -17,7 +17,8 @@ export default class FavouritedTagsScorer extends FeatureScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return countTags(await MastoApi.instance.getFavouritedToots());
+        const rankedTags = await TagList.fromFavourites();
+        return rankedTags.numTootsLookupDict();
     };
 
     async _score(toot: Toot) {

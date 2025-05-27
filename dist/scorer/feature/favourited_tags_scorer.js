@@ -7,8 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times the current user has favourited the toot's hashtags in the past.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const api_1 = __importDefault(require("../../api/api"));
-const tag_1 = require("../../api/objects/tag");
+const tag_list_1 = __importDefault(require("../../api/objects/tag_list"));
 const types_1 = require("../../types");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class FavouritedTagsScorer extends feature_scorer_1.default {
@@ -18,7 +17,8 @@ class FavouritedTagsScorer extends feature_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        return (0, tag_1.countTags)(await api_1.default.instance.getFavouritedToots());
+        const rankedTags = await tag_list_1.default.fromFavourites();
+        return rankedTags.numTootsLookupDict();
     }
     ;
     async _score(toot) {

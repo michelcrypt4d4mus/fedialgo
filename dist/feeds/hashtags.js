@@ -9,37 +9,41 @@ exports.removeMutedTags = exports.getRecentTootsForTrendingTags = exports.getPar
  */
 const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
+const tag_list_1 = __importDefault(require("../api/objects/tag_list"));
 const user_data_1 = __importDefault(require("../api/user_data"));
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
-const tag_1 = require("../api/objects/tag");
 const types_1 = require("../types");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 async function getFavouritedTagToots() {
     const logPrefix = (0, string_helpers_1.bracketed)("getFavouritedHashtagToots()");
-    const favouritedTagCounts = (0, tag_1.countTags)(await api_1.default.instance.getFavouritedToots());
-    const followedTags = (0, tag_1.buildTagNames)(await api_1.default.instance.getFollowedTags());
-    const participatedTags = await user_data_1.default.getUserParticipatedTags();
-    let favouritedNotParticipatedTagCounts = Object.entries(favouritedTagCounts).reduce((acc, [tagName, count]) => {
-        if (config_1.config.trending.tags.invalidTrendingTags.includes(tagName)) {
-            return acc;
+    const favouritedTags = await tag_list_1.default.fromFavourites();
+    const followedTags = (await tag_list_1.default.fromFollowedTags()).tagNameDict();
+    const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
+    console.debug(`${logPrefix} followedTags:`, followedTags);
+    console.debug(`${logPrefix} participatedTags:`, participatedTags);
+    // Filter out tags that are followed or have low participation by the fedialgo user
+    const favouritedNonParticipatedTags = favouritedTags.tags.filter((tag) => {
+        let isValid = true;
+        if (config_1.config.trending.tags.invalidTrendingTags.includes(tag.name)) {
+            isValid = false;
         }
-        // TODO: filter out tags with low particiaption with a heuristic based on favourited tag counts
-        if (!followedTags[tagName] && (participatedTags[tagName]?.numToots || 0) <= 2) {
-            acc[tagName] = count;
+        else if (tag.name in followedTags) {
+            isValid = false;
         }
-        return acc;
-    }, {});
-    let tagNames = (0, collection_helpers_1.sortKeysByValue)(favouritedNotParticipatedTagCounts).slice(0, config_1.config.favouritedTags.numTags);
-    tagNames.forEach(tagName => {
-        (0, log_helpers_1.traceLog)(`${logPrefix} Favourited not followed/participated tag: ${tagName} (${favouritedTagCounts[tagName]} times)`);
+        else if ((participatedTags[tag.name]?.numToots || 0) >= 2) { // TODO: make this a config value
+            isValid = false;
+        }
+        console.debug(`${logPrefix} Check favourited tag: ${tag.name} (isValid=${isValid}, ${tag.numToots} faves)\nfollowedTags entry:`, followedTags[tag.name], "\nparticipatedTags entry:", participatedTags[tag.name]);
+        return isValid;
     });
-    // TODO: this sucks
-    const tags = tagNames.map(name => {
-        return { name: name, url: api_1.default.instance.tagUrl(name), history: [] };
+    console.debug(`${logPrefix} ${favouritedNonParticipatedTags.length} of ${favouritedTags.tags.length} favourited tags not followed/participated`);
+    const topFavouritedTags = (new tag_list_1.default(favouritedNonParticipatedTags)).topTags(config_1.config.favouritedTags.numTags);
+    topFavouritedTags.forEach((tag, i) => {
+        (0, log_helpers_1.traceLog)(`${logPrefix} Favourited not followed/participated tag ${i}: ${tag.name} (${tag.numToots} faves)`);
     });
-    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(tags, config_1.config.favouritedTags.numTootsPerTag), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS, config_1.config.favouritedTags.maxToots);
+    return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(topFavouritedTags, config_1.config.favouritedTags.numTootsPerTag), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS, config_1.config.favouritedTags.maxToots);
 }
 exports.getFavouritedTagToots = getFavouritedTagToots;
 ;
