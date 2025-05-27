@@ -276,7 +276,7 @@ class Config {
     };
     toots = {
         batchCompleteSize: 25,
-        batchCompleteSleepBetweenMS: 250,
+        batchCompleteSleepBetweenMS: 150,
         completeAfterMinutes: exports.MINUTES_IN_DAY,
         maxAgeInDays: 7,
         maxTimelineLength: 3000,
