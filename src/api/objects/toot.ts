@@ -697,10 +697,10 @@ export default class Toot implements TootObj {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if (isImage(media.remoteUrl)) {
-                    console.debug(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
+                    traceLog(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
                     media.type = MediaCategory.IMAGE;
                 } else if (isVideo(media.remoteUrl)) {
-                    console.debug(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
+                    traceLog(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
                     media.type = MediaCategory.VIDEO;
                 } else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
                     console.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
