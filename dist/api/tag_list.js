@@ -51,6 +51,7 @@ class TagList {
     static fromUsageCounts(toots) {
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const tagsWithUsageCounts = toots.reduce((tagCounts, toot) => {
+            // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
             toot = (retootsPct > config_1.config.participatedTags.minPctToCountRetoots) ? toot.realToot() : toot;
             toot.tags.forEach((tag) => {
                 const newTag = Object.assign({}, tag);

@@ -150,12 +150,13 @@ export default abstract class Scorer {
                 // TODO: outlierDampener is always greater than 0...
                 if (outlierDampener > 0) {
                     const scorerScore = weightedScore;
+                    const outlierExponent = 1 / outlierDampener;
 
                     // Diversity scores are negative so we temporarily flip the sign to get the root
                     if (scorerScore >= 0) {
-                        weightedScore = Math.pow(scorerScore, 1 / outlierDampener);
+                        weightedScore = Math.pow(scorerScore, outlierExponent);
                     } else {
-                        weightedScore = -1 * Math.pow(-1 * scorerScore, 1 / outlierDampener);
+                        weightedScore = -1 * Math.pow(-1 * scorerScore, outlierExponent);
                     }
                 }
 

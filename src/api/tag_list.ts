@@ -59,6 +59,7 @@ export default class TagList {
 
         const tagsWithUsageCounts = toots.reduce(
             (tagCounts, toot) => {
+                // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
                 toot = (retootsPct > config.participatedTags.minPctToCountRetoots) ? toot.realToot() : toot;
 
                 toot.tags.forEach((tag) => {

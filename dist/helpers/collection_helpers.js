@@ -182,6 +182,8 @@ exports.keyByProperty = keyByProperty;
 ;
 // Divide array into numPercentiles sections, returns array of arrays of type T objects
 function percentileSegments(array, fxn, numPercentiles) {
+    if (!numPercentiles)
+        throw new Error("percentileSegments() requires numPercentiles > 0");
     array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
     let batchSize = array.length / numPercentiles;
     if (batchSize % 1 != 0)
