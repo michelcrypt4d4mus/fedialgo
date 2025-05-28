@@ -368,6 +368,10 @@ class Toot {
     realURL() {
         return this.realToot().url || this.realURI();
     }
+    // Return the webfinger URIs of the accounts mentioned in the toot + the author
+    replyMentions() {
+        return [this.realAccount().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(string_helpers_1.at);
+    }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
         try {

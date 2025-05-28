@@ -120,6 +120,7 @@ export default class Toot implements TootObj {
     realToot(): Toot;
     realURI(): string;
     realURL(): string;
+    replyMentions(): string[];
     resolve(): Promise<Toot>;
     resolveID(): Promise<string>;
     tootedAt(): Date;

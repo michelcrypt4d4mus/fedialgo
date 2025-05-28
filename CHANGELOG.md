@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add replyMentions to Toot objects
 * Collate all trendingLinks on a `Toot`, don't settle for first found.
 * Add `numTimesShown` to standard `PROPS_THAT_CHANGE` calculation
 

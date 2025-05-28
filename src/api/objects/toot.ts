@@ -24,6 +24,7 @@ import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
     VIDEO_TYPES,
+    at,
     bracketed,
     collapseWhitespace,
     extractDomain,
@@ -467,6 +468,11 @@ export default class Toot implements TootObj {
     // Default to this.realURI() if url property is empty
     realURL(): string {
         return this.realToot().url || this.realURI();
+    }
+
+    // Return the webfinger URIs of the accounts mentioned in the toot + the author
+    replyMentions(): string[] {
+        return [this.realAccount().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(at);
     }
 
      // Get Status obj for toot from user's home server so the property URLs point to the home sever.
