@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.53.5
+* (Demo App) Remove unused node-emoji package
+
 ### v0.53.4
 * (Demo App) Bump up `tsconfig.json`'s `jsx` to `react-jsx`
 
