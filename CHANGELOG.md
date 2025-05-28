@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.53.10
-* Fix bug with moar data poller favourited toots puller
+* Fix bug with moar data poller favourited toots puller that caused it to think it was finished after pulling only the minimum number of favourited toots
 
 ### v0.53.9
 * Actually fix the 'realURI is not a function' by making sure all `Toot` related `CacheKey`s are in `STORAGE_KEYS_WITH_TOOTS`

@@ -78,7 +78,7 @@ export default class Toot implements TootObj {
     reblogged?: boolean | null;
     text?: string | null;
     url?: string | null;
-    numTimesShown?: number;
+    numTimesShown: number;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];
     participatedTags?: TagWithUsageCounts[];

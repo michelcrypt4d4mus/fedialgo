@@ -51,6 +51,7 @@ const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
+const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesShown");
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
     "in",
@@ -652,11 +653,11 @@ class Toot {
                 return; // If there's only one toot, nothing to do
             const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
-            const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably use most recent toot
-            // Deal with tag and filter arrays
+            // Deal with array properties that we want to collate
             const uniqFiltered = this.uniqFlatMap(uriToots, "filtered", (f) => f.filter.id);
             const uniqFollowedTags = this.uniqFlatMap(uriToots, "followedTags", (t) => t.name);
+            const uniqTrendingLinks = this.uniqFlatMap(uriToots, "trendingLinks", (t) => t.url);
             const uniqTrendingTags = this.uniqFlatMap(uriToots, "trendingTags", (t) => t.name);
             const uniqSources = this.uniqFlatMap(uriToots, "sources", (source) => source);
             // Collate multiple retooters if they exist
@@ -667,22 +668,23 @@ class Toot {
             // Helper method to collate the isFollowed property for the accounts
             const isFollowed = (uri) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
             // Counts may increase over time w/repeated fetches so we collate the max
-            const propsThatChange = numeric_filter_1.FILTERABLE_SCORES.reduce((propValues, propName) => {
+            const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
                 propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
                 return propValues;
             }, {});
             uriToots.forEach((toot) => {
                 // propsThatChange are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
+                toot.realToot().numTimesShown = propsThatChange.numTimesShown;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
                 toot.realToot().repliesCount = propsThatChange.repliesCount;
                 // Props set on first found
                 toot.realToot().completedAt ??= firstCompleted?.completedAt; // DON'T automatically copy to base toot - some fields may need setting later
-                toot.realToot().trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags + sources + server side filter matches
                 toot.realToot().followedTags = uniqFollowedTags;
+                toot.realToot().trendingLinks = uniqTrendingLinks;
                 toot.realToot().trendingTags = uniqTrendingTags;
                 toot.filtered = uniqFiltered;
                 toot.sources = uniqSources;
@@ -692,7 +694,6 @@ class Toot {
                 toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
-                toot.realToot().numTimesShown = Math.max(...uriToots.map(t => t.realToot().numTimesShown || 0));
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);

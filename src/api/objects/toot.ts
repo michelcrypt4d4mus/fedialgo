@@ -49,6 +49,7 @@ import {
     StatusList,
     TagWithUsageCounts,
     TootLike,
+    TootNumberProp,
     TootScore,
     TrendingLink,
     WeightedScore,
@@ -70,6 +71,7 @@ const BLUESKY_BRIDGY = 'bsky.brid.gy';
 const REPAIR_TOOT = bracketed("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
+const PROPS_THAT_CHANGE = FILTERABLE_SCORES.concat("numTimesShown");
 
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
@@ -168,7 +170,7 @@ export default class Toot implements TootObj {
     url?: string | null;
 
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
-    numTimesShown?: number;
+    numTimesShown!: number;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
     participatedTags?: TagWithUsageCounts[];     // Array of tags that the user has participated in that exist in this toot
@@ -793,11 +795,11 @@ export default class Toot implements TootObj {
 
             const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
-            const firstTrendingLinks = uriToots.find(toot => !!toot.realToot().trendingLinks);
             const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably use most recent toot
-            // Deal with tag and filter arrays
+            // Deal with array properties that we want to collate
             const uniqFiltered = this.uniqFlatMap<mastodon.v1.FilterResult>(uriToots, "filtered", (f) => f.filter.id);
             const uniqFollowedTags = this.uniqFlatMap<mastodon.v1.Tag>(uriToots, "followedTags", (t) => t.name);
+            const uniqTrendingLinks = this.uniqFlatMap<TrendingLink>(uriToots, "trendingLinks", (t) => t.url);
             const uniqTrendingTags = this.uniqFlatMap<TagWithUsageCounts>(uriToots, "trendingTags", (t) => t.name);
             const uniqSources = this.uniqFlatMap<string>(uriToots, "sources", (source) => source);
             // Collate multiple retooters if they exist
@@ -809,23 +811,24 @@ export default class Toot implements TootObj {
             const isFollowed = (uri: string) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
 
             // Counts may increase over time w/repeated fetches so we collate the max
-            const propsThatChange = FILTERABLE_SCORES.reduce((propValues, propName) => {
+            const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
                 propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
                 return propValues;
-            }, {} as Record<KeysOfValueType<Toot, number>, number>);
+            }, {} as Record<TootNumberProp, number>);
 
             uriToots.forEach((toot) => {
                 // propsThatChange are only set on the realToot
                 toot.realToot().favouritesCount = propsThatChange.favouritesCount;
+                toot.realToot().numTimesShown = propsThatChange.numTimesShown;
                 toot.realToot().reblogsCount = propsThatChange.reblogsCount;
                 toot.realToot().repliesCount = propsThatChange.repliesCount;
                 // Props set on first found
                 toot.realToot().completedAt ??= firstCompleted?.completedAt;  // DON'T automatically copy to base toot - some fields may need setting later
-                toot.realToot().trendingLinks ??= firstTrendingLinks?.trendingLinks;
                 toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags + sources + server side filter matches
                 toot.realToot().followedTags = uniqFollowedTags;
+                toot.realToot().trendingLinks = uniqTrendingLinks;
                 toot.realToot().trendingTags = uniqTrendingTags;
                 toot.filtered = uniqFiltered;
                 toot.sources = uniqSources;
@@ -835,7 +838,6 @@ export default class Toot implements TootObj {
                 toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted);  // Liberally set muted on retoots and real toots
-                toot.realToot().numTimesShown = Math.max(...uriToots.map(t => t.realToot().numTimesShown || 0));
 
                 // Reblog props
                 if (toot.reblog) {
