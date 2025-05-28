@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.53.8
 * Temporary workaround for 'realURI is not a function' errors
 
 ### v0.53.7
