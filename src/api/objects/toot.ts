@@ -270,7 +270,7 @@ export default class Toot implements TootObj {
 
     // Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search
     containsTag(tag: TagWithUsageCounts, fullScan?: boolean): boolean {
-        if (fullScan && (tag.name.length > 1) && !(TAG_ONLY_STRINGS.has(tag.name))) {
+        if (fullScan && (tag.name.length > 1) && !TAG_ONLY_STRINGS.has(tag.name)) {
             if (!tag.regex) {
                 console.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = wordRegex(tag.name);

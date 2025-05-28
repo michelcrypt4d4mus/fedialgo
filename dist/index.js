@@ -210,9 +210,9 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.PARTICIPATED_TAG_TOOTS), types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getTootsForTags(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.PARTICIPATED_TAG_TOOTS), types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
@@ -562,7 +562,7 @@ class TheAlgorithm {
         else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
-        (0, log_helpers_1.logDebug)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
+        (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {

@@ -8,9 +8,10 @@ export default class TootsForTagsList {
     tagList: TagList;
     tootsConfig: TagTootsConfig;
     static create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList>;
-    static getTootsForTags(cacheKey: TagTootsCacheKey): Promise<Toot[]>;
+    static getToots(cacheKey: TagTootsCacheKey): Promise<Toot[]>;
     private constructor();
-    topTags(numTags?: number): TagWithUsageCounts[];
     getToots(): Promise<Toot[]>;
+    topTags(numTags?: number): TagWithUsageCounts[];
+    private static removeUnwantedTags;
 }
 export {};

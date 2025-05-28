@@ -12,9 +12,9 @@ export default class TagList {
     removeFollowedAndMutedTags(): Promise<void>;
     removeFollowedTags(): Promise<void>;
     removeInvalidTrendingTags(): void;
+    removeKeywordsFromTags(keywords: string[]): void;
     removeMutedTags(): Promise<void>;
     removeTrendingTags(): Promise<void>;
     tagNameDict(): TagNames;
     topTags(numTags?: number): TagWithUsageCounts[];
-    private removeKeywordsFromTags;
 }

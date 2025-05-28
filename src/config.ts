@@ -81,6 +81,7 @@ type ScoringConfig = {
 };
 
 export interface TagTootsConfig {
+    invalidTags?: string[];  // Tags that are too generic to be considered trending
     maxToots: number;
     numTags: number;
     numTootsPerTag: number;
@@ -100,7 +101,6 @@ type TrendingLinksConfig = {
 };
 
 interface TrendingTagsConfig extends TagTootsConfig {
-    invalidTrendingTags: string[];
     numTagsPerServer: number;
 };
 
@@ -114,7 +114,6 @@ type TrendingConfig = {
     tags: TrendingTagsConfig;
     toots: TrendingTootsConfig;
 };
-
 
 // See Config for comments explaining these values
 interface ConfigType {
@@ -355,6 +354,12 @@ class Config implements ConfigType {
     }
 
     participatedTags = {
+        invalidTags: [
+            "eupol",
+            "news",
+            "uspol",
+            "uspolitics",
+        ],
         maxToots: 200,                          // How many total toots to include for the user's most participated tags
         numTags: 30,                            // Pull toots for this many of the user's most participated tags
         numTootsPerTag: 10,                     // How many toots to pull for each participated tag
@@ -399,7 +404,7 @@ class Config implements ConfigType {
             numTrendingLinksPerServer: 20,      // How many trending links to pull from each server
         },
         tags: {
-            invalidTrendingTags: [              // Tags that are too generic to be considered trending
+            invalidTags: [              // Tags that are too generic to be considered trending
                 "government",
                 "news",
                 "photography",

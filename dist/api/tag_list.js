@@ -83,7 +83,17 @@ class TagList {
     // Remove the configured list of invalid trending tags
     // TODO: TagTootsConfig could have an invalidTags property...
     removeInvalidTrendingTags() {
-        this.removeKeywordsFromTags(config_1.config.trending.tags.invalidTrendingTags);
+        this.removeKeywordsFromTags(config_1.config.trending.tags.invalidTags);
+    }
+    ;
+    // Remove tags that match any of the keywords
+    removeKeywordsFromTags(keywords) {
+        keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
+        const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
+        if (validTags.length != this.tags.length) {
+            (0, log_helpers_1.traceLog)(`Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
+        }
+        this.tags = validTags;
     }
     ;
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.
@@ -108,16 +118,6 @@ class TagList {
         this.tags = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.tags), SORT_TAGS_BY, [false, true]);
         return numTags ? this.tags.slice(0, numTags) : this.tags;
     }
-    // Remove tags that match any of the keywords
-    async removeKeywordsFromTags(keywords) {
-        keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
-        const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
-        if (validTags.length != this.tags.length) {
-            (0, log_helpers_1.traceLog)(`Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
-        }
-        this.tags = validTags;
-    }
-    ;
 }
 exports.default = TagList;
 ;

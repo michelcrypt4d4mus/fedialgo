@@ -222,9 +222,9 @@ class TheAlgorithm {
         await sleep(config.api.hashtagTootRetrievalDelaySeconds);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.FAVOURITED_HASHTAG_TOOTS), CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.PARTICIPATED_TAG_TOOTS), CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(TootsForTagsList.getTootsForTags(CacheKey.TRENDING_TAG_TOOTS), CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.FAVOURITED_HASHTAG_TOOTS), CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.PARTICIPATED_TAG_TOOTS), CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.TRENDING_TAG_TOOTS), CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
@@ -617,7 +617,7 @@ class TheAlgorithm {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
 
-        logDebug(`[${SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
+        traceLog(`[${SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
     }
 
     // Info about the state of this TheAlgorithm instance

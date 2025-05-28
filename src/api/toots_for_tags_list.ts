@@ -29,18 +29,15 @@ export default class TootsForTagsList {
         if (cacheKey === CacheKey.FAVOURITED_HASHTAG_TOOTS) {
             tootsConfig = config.favouritedTags;
             tagList = await TagList.fromFavourites();
-            await tagList.removeFollowedAndMutedTags();
-            await tagList.removeTrendingTags();
-            tagList.removeInvalidTrendingTags();
+            await this.removeUnwantedTags(tagList, tootsConfig);
             // Remove tags that have been used in 2 or more toots by the user
             // TODO: use a configured value or a heuristic instead of hardcoded 2
             const participatedTags = (await TagList.fromParticipated()).tagNameDict();
-            tagList.tags = tagList.tags.filter((tag) => !((participatedTags[tag.name]?.numToots || 0) >= 2));
+            tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
         } else if (cacheKey === CacheKey.PARTICIPATED_TAG_TOOTS) {
             tootsConfig = config.participatedTags;
             tagList = await TagList.fromParticipated();
-            await tagList.removeFollowedAndMutedTags();
-            await tagList.removeTrendingTags();
+            await this.removeUnwantedTags(tagList, tootsConfig);
         } else if (cacheKey === CacheKey.TRENDING_TAG_TOOTS) {
             tootsConfig = config.trending.tags;
             tagList = await TagList.fromTrending();
@@ -52,23 +49,15 @@ export default class TootsForTagsList {
     }
 
     // Create then immediately fetch toots for the tags
-    static async getTootsForTags(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
+    static async getToots(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
         const tagList = await TootsForTagsList.create(cacheKey);
         return await tagList.getToots();
     }
 
     private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
-        this.tagList = tagList;
         this.cacheKey = cacheKey;
+        this.tagList = tagList;
         this.tootsConfig = tootsConfig;
-    }
-
-    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
-    topTags(numTags?: number): TagWithUsageCounts[] {
-        numTags ||= this.tootsConfig.numTags;
-        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
-        console.debug(`${bracketed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
-        return tags;
     }
 
     // Get toots for the list of tags, caching the results
@@ -79,4 +68,19 @@ export default class TootsForTagsList {
             this.tootsConfig.maxToots,
         );
     };
+
+    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
+    topTags(numTags?: number): TagWithUsageCounts[] {
+        numTags ||= this.tootsConfig.numTags;
+        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
+        console.debug(`${bracketed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
+        return tags;
+    }
+
+    private static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {
+        await tagList.removeFollowedAndMutedTags();
+        await tagList.removeTrendingTags();
+        tagList.removeInvalidTrendingTags();
+        tagList.removeKeywordsFromTags(tootsConfig.invalidTags || []);
+    }
 };

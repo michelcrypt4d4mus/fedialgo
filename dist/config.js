@@ -247,6 +247,12 @@ class Config {
         locale: DEFAULT_LOCALE,
     };
     participatedTags = {
+        invalidTags: [
+            "eupol",
+            "news",
+            "uspol",
+            "uspolitics",
+        ],
         maxToots: 200,
         numTags: 30,
         numTootsPerTag: 10, // How many toots to pull for each participated tag
@@ -288,7 +294,7 @@ class Config {
             numTrendingLinksPerServer: 20, // How many trending links to pull from each server
         },
         tags: {
-            invalidTrendingTags: [
+            invalidTags: [
                 "government",
                 "news",
                 "photography",

@@ -56,6 +56,7 @@ type ScoringConfig = {
     timeDecayExponent: number;
 };
 export interface TagTootsConfig {
+    invalidTags?: string[];
     maxToots: number;
     numTags: number;
     numTootsPerTag: number;
@@ -72,7 +73,6 @@ type TrendingLinksConfig = {
     numTrendingLinksPerServer: number;
 };
 interface TrendingTagsConfig extends TagTootsConfig {
-    invalidTrendingTags: string[];
     numTagsPerServer: number;
 }
 type TrendingTootsConfig = {
@@ -131,6 +131,7 @@ declare class Config implements ConfigType {
         locale: string;
     };
     participatedTags: {
+        invalidTags: string[];
         maxToots: number;
         numTags: number;
         numTootsPerTag: number;
@@ -168,7 +169,7 @@ declare class Config implements ConfigType {
             numTrendingLinksPerServer: number;
         };
         tags: {
-            invalidTrendingTags: string[];
+            invalidTags: string[];
             maxToots: number;
             numTagsPerServer: number;
             numTags: number;
