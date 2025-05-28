@@ -55,10 +55,14 @@ export default class TagList {
 
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
     static fromUsageCounts(toots: Toot[]): TagList {
+        let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
+
         const tagsWithUsageCounts = toots.reduce(
             (tagCounts, toot) => {
-                toot.realToot().tags?.forEach((tag) => {
-                    const newTag = tag as TagWithUsageCounts;
+                toot = (retootsPct > config.participatedTags.minPctToCountRetoots) ? toot.realToot() : toot;
+
+                toot.tags.forEach((tag) => {
+                    const newTag = Object.assign({}, tag) as TagWithUsageCounts;
                     newTag.numToots ??= 0;
 
                     if (!(tag.name in tagCounts) && (newTag.numToots > 0)) {

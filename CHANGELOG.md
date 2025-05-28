@@ -1,16 +1,17 @@
 # NEXT RELEASE
+* Stop considering retoots of toots w/hashtags to be "participation" in those hashtags unless the user is mostly a retooter (meaning more than config.participatedToots.minPctToCountRetoots of their toots are retoots)
 
 ### v0.53.6
 * (Demo App) Adjust the color gradients so there's more color variation in the low/middle range in the hashtag filters
 
 ### v0.53.5
-* (Demo App) Remove unused node-emoji package
+* (Demo App) Remove unused `node-emoji` package
 
 ### v0.53.4
 * (Demo App) Bump up `tsconfig.json`'s `jsx` to `react-jsx`
 
 ### v0.53.3
-* Use a workaround for the weird issue with half width japanese characters
+* Use a workaround for the weird issue with half width japanese characters when determining a hashtag's language
 * (Demo App) Bump up `tsconfig.json`'s `target` to `ES2016`
 
 ### v0.53.2

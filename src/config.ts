@@ -70,6 +70,10 @@ type LocaleConfig = {
     locale: string;
 };
 
+interface ParticipatedTagsConfig extends TagTootsConfig {
+    minPctToCountRetoots: number;
+};
+
 type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
@@ -81,7 +85,7 @@ type ScoringConfig = {
 };
 
 export interface TagTootsConfig {
-    invalidTags?: string[];  // Tags that are too generic to be considered trending
+    invalidTags?: string[];
     maxToots: number;
     numTags: number;
     numTootsPerTag: number;
@@ -122,7 +126,7 @@ interface ConfigType {
     fediverse: FediverseConfig;
     gui: GuiConfig;
     locale: LocaleConfig;
-    participatedTags: TagTootsConfig;
+    participatedTags: ParticipatedTagsConfig;
     scoring: ScoringConfig;
     toots: TootsConfig;
     trending: TrendingConfig;
@@ -361,6 +365,7 @@ class Config implements ConfigType {
             "uspolitics",
         ],
         maxToots: 200,                          // How many total toots to include for the user's most participated tags
+        minPctToCountRetoots: 0.75,             // Minimum percentage of retweets to count them as "participation"
         numTags: 30,                            // Pull toots for this many of the user's most participated tags
         numTootsPerTag: 10,                     // How many toots to pull for each participated tag
     }
