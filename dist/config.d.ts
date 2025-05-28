@@ -46,6 +46,9 @@ type LocaleConfig = {
     language: string;
     locale: string;
 };
+interface ParticipatedTagsConfig extends TagTootsConfig {
+    minPctToCountRetoots: number;
+}
 type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
@@ -90,7 +93,7 @@ interface ConfigType {
     fediverse: FediverseConfig;
     gui: GuiConfig;
     locale: LocaleConfig;
-    participatedTags: TagTootsConfig;
+    participatedTags: ParticipatedTagsConfig;
     scoring: ScoringConfig;
     toots: TootsConfig;
     trending: TrendingConfig;
@@ -133,6 +136,7 @@ declare class Config implements ConfigType {
     participatedTags: {
         invalidTags: string[];
         maxToots: number;
+        minPctToCountRetoots: number;
         numTags: number;
         numTootsPerTag: number;
     };

@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Stop considering retoots of toots w/hashtags to be "participation" in those hashtags unless the user is mostly a retooter (meaning more than config.participatedToots.minPctToCountRetoots of their toots are retoots)
+
+### v0.53.7
+* Stop considering retoots of toots w/hashtags to be "participation" in those hashtags unless the user is mostly a retooter (meaning more than `config.participatedToots.minPctToCountRetoots` of their toots are retoots)
 
 ### v0.53.6
 * (Demo App) Adjust the color gradients so there's more color variation in the low/middle range in the hashtag filters

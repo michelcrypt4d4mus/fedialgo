@@ -27,6 +27,7 @@ const LOG_PREFIX = "[Config]";
 ;
 ;
 ;
+;
 // App level config that is not user configurable
 class Config {
     api = {
@@ -254,6 +255,7 @@ class Config {
             "uspolitics",
         ],
         maxToots: 200,
+        minPctToCountRetoots: 0.75,
         numTags: 30,
         numTootsPerTag: 10, // How many toots to pull for each participated tag
     };

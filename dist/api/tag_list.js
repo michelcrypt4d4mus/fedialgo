@@ -49,9 +49,11 @@ class TagList {
     }
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
     static fromUsageCounts(toots) {
+        let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const tagsWithUsageCounts = toots.reduce((tagCounts, toot) => {
-            toot.realToot().tags?.forEach((tag) => {
-                const newTag = tag;
+            toot = (retootsPct > config_1.config.participatedTags.minPctToCountRetoots) ? toot.realToot() : toot;
+            toot.tags.forEach((tag) => {
+                const newTag = Object.assign({}, tag);
                 newTag.numToots ??= 0;
                 if (!(tag.name in tagCounts) && (newTag.numToots > 0)) {
                     console.warn(`countTags(): "${tag.name}" not in tagCounts but numToots is > 0`, tag);
