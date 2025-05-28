@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Temporary workaround for 'realURI is not a function' errors
 
 ### v0.53.7
 * Stop considering retoots of toots w/hashtags to be "participation" in those hashtags unless the user is mostly a retooter meaning more than `config.participatedToots.minPctToCountRetoots` of their toots are retoots

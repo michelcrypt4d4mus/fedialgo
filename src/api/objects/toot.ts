@@ -784,6 +784,15 @@ export default class Toot implements TootObj {
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots: Toot[], logPrefix?: string): Toot[] {
         logPrefix = `${bracketed(logPrefix || "dedupeToots")} dedupeToots()`;
+
+        // TODO: Workaround for weird errors sometimes when reloading page saying that toot.realURI is not a function
+        let [goodToots, badToots] = split(toots, (toot) => (typeof toot.realURI == "function"));
+
+        if (badToots.length > 0) {
+            console.error(`${logPrefix} Found ${badToots.length} bad toots that don't have realURI() method:`, badToots);
+            toots = goodToots.concat(badToots.map((toot) => Toot.build(toot)));
+        }
+
         const tootsByURI = groupBy<Toot>(toots, toot => toot.realURI());
 
         // Collect the properties of a single Toot from all the instances of the same URI (we can

@@ -644,6 +644,12 @@ class Toot {
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
     static dedupeToots(toots, logPrefix) {
         logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix || "dedupeToots")} dedupeToots()`;
+        // TODO: Workaround for weird errors sometimes when reloading page saying that toot.realURI is not a function
+        let [goodToots, badToots] = (0, collection_helpers_1.split)(toots, (toot) => (typeof toot.realURI == "function"));
+        if (badToots.length > 0) {
+            console.error(`${logPrefix} Found ${badToots.length} bad toots that don't have realURI() method:`, badToots);
+            toots = goodToots.concat(badToots.map((toot) => Toot.build(toot)));
+        }
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
