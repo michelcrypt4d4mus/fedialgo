@@ -35,6 +35,7 @@ var NonScoreWeightName;
 })(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
 // Keys that are valid for local browser storage.
+// Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 var CacheKey;
 (function (CacheKey) {
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
@@ -47,13 +48,13 @@ var CacheKey;
     CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
     CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
-    CacheKey["HOME_TIMELINE"] = "HomeTimeline";
+    CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
     CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     CacheKey["NOTIFICATIONS"] = "Notifications";
     CacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
-    CacheKey["TIMELINE"] = "Timeline";
+    CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
     CacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;

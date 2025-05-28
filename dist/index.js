@@ -474,8 +474,8 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
-        this.feed = await Storage_1.default.getCoerced(types_1.CacheKey.TIMELINE);
-        this.homeFeed = await Storage_1.default.getCoerced(types_1.CacheKey.HOME_TIMELINE);
+        this.feed = await Storage_1.default.getCoerced(types_1.CacheKey.TIMELINE_TOOTS);
+        this.homeFeed = await Storage_1.default.getCoerced(types_1.CacheKey.HOME_TIMELINE_TOOTS);
         this.mastodonServers = (await Storage_1.default.get(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS) || {});
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
@@ -539,7 +539,7 @@ class TheAlgorithm {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, "scoreAndFilterFeed()");
-        await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
+        await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
@@ -596,7 +596,7 @@ class TheAlgorithm {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
             console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage_1.default.set(types_1.CacheKey.TIMELINE, this.feed);
+            await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {

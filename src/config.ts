@@ -179,7 +179,7 @@ class Config implements ConfigType {
             [CacheKey.HASHTAG_TOOTS]: {
                 // TODO: this is here for the mutexes but nothing is actually cached
             },
-            [CacheKey.HOME_TIMELINE]: {
+            [CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
                 lookbackForUpdatesMinutes: 180,    // How long to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
@@ -206,7 +206,7 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 24 * MINUTES_IN_HOUR,
             },
-            [CacheKey.TIMELINE]: {
+            [CacheKey.TIMELINE_TOOTS]: {
                 // TODO: shouldn't have to configure this empty object but we do for typing reasons
             },
             [CacheKey.TRENDING_TAG_TOOTS]: {
@@ -485,8 +485,8 @@ const config = new Config();
 
 // Quick load mode settings
 if (isQuickMode) {
-    config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 400;
-    config.api.data[CacheKey.HOME_TIMELINE]!.lookbackForUpdatesMinutes = 15;
+    config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.initialMaxRecords = 400;
+    config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.lookbackForUpdatesMinutes = 15;
     config.api.backgroundLoadIntervalMinutes = SECONDS_IN_HOUR;
     config.participatedTags.numTags = 20;
     config.trending.tags.numTags = 20;
@@ -503,7 +503,7 @@ if (isDebugMode) {
 
 // Heavy load test settings
 if (isLoadTest) {
-    config.api.data[CacheKey.HOME_TIMELINE]!.initialMaxRecords = 2_500;
+    config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.initialMaxRecords = 2_500;
     config.toots.maxTimelineLength = 5_000;
     config.api.maxRecordsForFeatureScoring = 15_000;
     config.participatedTags.maxToots = 500;

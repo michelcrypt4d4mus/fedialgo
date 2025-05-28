@@ -40,24 +40,15 @@ type StorableObjWithStaleness = {
     updatedAt: Date,
 };
 
-// The cache values at these keys contain SerializedToot objects
-export const STORAGE_KEYS_WITH_TOOTS: StorageKey[] = [
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
-    CacheKey.HASHTAG_TOOTS,
-    CacheKey.HOME_TIMELINE,
-    CacheKey.PARTICIPATED_TAG_TOOTS,
-    CacheKey.TIMELINE,
-    CacheKey.TRENDING_TAG_TOOTS,
-    // These don't have completeProperties() called on them, but they are still toots
-    CacheKey.FAVOURITED_TOOTS,
-    CacheKey.RECENT_USER_TOOTS,
-];
+export const STORAGE_KEYS_WITH_TOOTS: StorageKey[] = Object.entries(CacheKey).reduce(
+    (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
+    [] as CacheKey[]
+);
 
-export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = [
-    CacheKey.BLOCKED_ACCOUNTS,
-    CacheKey.FOLLOWED_ACCOUNTS,
-    CacheKey.MUTED_ACCOUNTS,
-];
+export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
+    (keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys,
+    [] as CacheKey[]
+);
 
 const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
     ...STORAGE_KEYS_WITH_TOOTS,
@@ -402,7 +393,7 @@ export default class Storage {
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     private static async secondsSinceMostRecentToot(): Promise<number | null> {
-        const timelineToots = await this.get(CacheKey.TIMELINE);
+        const timelineToots = await this.get(CacheKey.TIMELINE_TOOTS);
         if (!timelineToots) return null;
         const mostRecent = mostRecentTootedAt(timelineToots as Toot[]);
 

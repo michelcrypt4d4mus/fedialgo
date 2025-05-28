@@ -109,7 +109,7 @@ export default class MastoApi {
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
-        const cacheKey = CacheKey.HOME_TIMELINE;
+        const cacheKey = CacheKey.HOME_TIMELINE_TOOTS;
         const logPrefix = bracketed(cacheKey);
         const startedAt = new Date();
 
@@ -125,7 +125,7 @@ export default class MastoApi {
         } else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = mostRecentTootedAt(homeTimelineToots);
-            const lookbackSeconds = config.api.data[CacheKey.HOME_TIMELINE]?.lookbackForUpdatesMinutes! * 60;
+            const lookbackSeconds = config.api.data[CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes! * 60;
             cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, lookbackSeconds) : timelineCutoffAt();
             cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
             console.debug(`${logPrefix} maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);

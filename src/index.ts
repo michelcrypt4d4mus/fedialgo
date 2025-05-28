@@ -525,8 +525,8 @@ class TheAlgorithm {
 
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
-        this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE);
-        this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE);
+        this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE_TOOTS);
+        this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
         this.mastodonServers = (await Storage.get(CacheKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
@@ -595,7 +595,7 @@ class TheAlgorithm {
         await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, true);
         this.feed = truncateToConfiguredLength(this.feed, config.toots.maxTimelineLength, "scoreAndFilterFeed()");
-        await Storage.set(CacheKey.TIMELINE, this.feed);
+        await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
 
@@ -653,7 +653,7 @@ class TheAlgorithm {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
             console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage.set(CacheKey.TIMELINE, this.feed);
+            await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         } catch (error) {
             console.error(`${logPrefix} Error saving toots:`, error);

@@ -46,6 +46,7 @@ export type WeightName = ScoreName | NonScoreWeightName;
 
 
 // Keys that are valid for local browser storage.
+// Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_TOOTS = 'FavouritedToots',
@@ -57,13 +58,13 @@ export enum CacheKey {
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE = 'HomeTimeline',  // Just toots that are in the home timeline (followed accounts + tags)
+    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',  // Just toots that are in the home timeline (followed accounts + tags)
     MUTED_ACCOUNTS = 'MutedAccounts',
     NOTIFICATIONS = 'Notifications',
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE = 'Timeline',  // The entire time line (home timeline + trending toots etc.)
+    TIMELINE_TOOTS = 'TimelineToots',  // The entire time line (home timeline + trending toots etc.)
     TRENDING_TAG_TOOTS = 'TrendingTagToots',
 };
 

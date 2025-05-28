@@ -45,23 +45,8 @@ const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
-// The cache values at these keys contain SerializedToot objects
-exports.STORAGE_KEYS_WITH_TOOTS = [
-    types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-    types_1.CacheKey.HASHTAG_TOOTS,
-    types_1.CacheKey.HOME_TIMELINE,
-    types_1.CacheKey.PARTICIPATED_TAG_TOOTS,
-    types_1.CacheKey.TIMELINE,
-    types_1.CacheKey.TRENDING_TAG_TOOTS,
-    // These don't have completeProperties() called on them, but they are still toots
-    types_1.CacheKey.FAVOURITED_TOOTS,
-    types_1.CacheKey.RECENT_USER_TOOTS,
-];
-exports.STORAGE_KEYS_WITH_ACCOUNTS = [
-    types_1.CacheKey.BLOCKED_ACCOUNTS,
-    types_1.CacheKey.FOLLOWED_ACCOUNTS,
-    types_1.CacheKey.MUTED_ACCOUNTS,
-];
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
+exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
@@ -367,7 +352,7 @@ class Storage {
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
-        const timelineToots = await this.get(types_1.CacheKey.TIMELINE);
+        const timelineToots = await this.get(types_1.CacheKey.TIMELINE_TOOTS);
         if (!timelineToots)
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);

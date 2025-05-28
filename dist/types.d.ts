@@ -45,13 +45,13 @@ export declare enum CacheKey {
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     HASHTAG_TOOTS = "HashtagToots",
-    HOME_TIMELINE = "HomeTimeline",
+    HOME_TIMELINE_TOOTS = "HomeTimelineToots",
     MUTED_ACCOUNTS = "MutedAccounts",
     NOTIFICATIONS = "Notifications",
     PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     RECENT_USER_TOOTS = "RecentUserToots",
     SERVER_SIDE_FILTERS = "ServerFilters",
-    TIMELINE = "Timeline",
+    TIMELINE_TOOTS = "TimelineToots",
     TRENDING_TAG_TOOTS = "TrendingTagToots"
 }
 export declare enum AlgorithmStorageKey {

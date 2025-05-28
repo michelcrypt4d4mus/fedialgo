@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Actually fix the 'realURI is not a function' by making sure all Toot related cache keys are in STORAGE_KEYS_WITH_TOOTS
 
 ### v0.53.8
 * Temporary workaround for 'realURI is not a function' errors
