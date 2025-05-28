@@ -1,7 +1,10 @@
 # NEXT RELEASE
-* Add replyMentions to Toot objects
-* Collate all trendingLinks on a `Toot`, don't settle for first found.
+
+# v0.54.0
+* Add `replyMentions()` method to Toot objects
+* Collate all `trendingLinks` on a `Toot`, don't settle for first found
 * Add `numTimesShown` to standard `PROPS_THAT_CHANGE` calculation
+* (Demo App) Inject Toot.replyMentions() account tags into top of replies; disable submit reply button until toot's ID is resolved
 
 ### v0.53.10
 * Fix bug with moar data poller favourited toots puller that caused it to think it was finished after pulling only the minimum number of favourited toots
