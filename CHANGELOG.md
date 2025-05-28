@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Collate all trendingLinks on a `Toot`, don't settle for first found.
+* Add `numTimesShown` to standard `PROPS_THAT_CHANGE` calculation
 
 ### v0.53.10
 * Fix bug with moar data poller favourited toots puller that caused it to think it was finished after pulling only the minimum number of favourited toots
