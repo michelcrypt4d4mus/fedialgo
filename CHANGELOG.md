@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.53.4
+* (Demo App) Bump up `tsconfig.json`'s `jsx` to `react-jsx`
+
 ### v0.53.3
 * Use a workaround for the weird issue with half width japanese characters
 * (Demo App) Bump up `tsconfig.json`'s `target` to `ES2016`
