@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.53.6
+* (Demo App) Adjust the color gradients so there's more color variation in the low/middle range in the hashtag filters
+
 ### v0.53.5
 * (Demo App) Remove unused node-emoji package
 
