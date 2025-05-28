@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove japanese/korean/cyrillic etc. tags from trending list unless that's the user's current language
 * Add `invalidTags` property to `TagTootsConfig` type
 * Bump up filtering out of participated tags from favourited tag toots pull to "more than 3 uses"
 

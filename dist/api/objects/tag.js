@@ -9,14 +9,13 @@ exports.tagStr = exports.repairTag = exports.buildTagNames = void 0;
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 const api_1 = __importDefault(require("../../api/api"));
+const language_helper_1 = require("../../helpers/language_helper");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Build a lookup table of tag names to tag objects
 function buildTagNames(tags) {
     return tags.reduce((tagNames, tag) => {
-        const newTag = tag;
-        newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
-        tagNames[tag.name] = newTag;
+        tagNames[tag.name];
         return tagNames;
     }, {});
 }
@@ -38,10 +37,13 @@ function repairTag(tag) {
         console.warn(`MastoApi.instance is null!`);
         tag.url = tag.url.toLowerCase() || "";
     }
+    const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
+    if (language)
+        tag.language = language; // Don't set unnecessarily for storage space reasons
     return tag;
 }
 exports.repairTag = repairTag;
 ;
-const tagStr = (tag) => `${tag.name} (${tag.numToots} numToots)`;
+const tagStr = (tag) => `${tag.name} (${tag.numToots} numToots, language: ${tag.language})`;
 exports.tagStr = tagStr;
 //# sourceMappingURL=tag.js.map

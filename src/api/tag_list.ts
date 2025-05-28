@@ -5,15 +5,12 @@ import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
-import { CacheKey, MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 import { config } from "../config";
+import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
+import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import { wordRegex } from "../helpers/string_helpers";
-
-type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
-    | CacheKey.FAVOURITED_HASHTAG_TOOTS
-    | CacheKey.TRENDING_TAG_TOOTS;
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TagWithUsageCounts,
@@ -27,6 +24,7 @@ export default class TagList {
     constructor(tags: MastodonTag[]) {
         this.tags = tags.map(tag => {
             const newTag = tag as TagWithUsageCounts;
+            repairTag(newTag);
             newTag.regex ||= wordRegex(tag.name);
             return newTag;
         });
@@ -89,8 +87,8 @@ export default class TagList {
 
     // Filter out any tags that are muted or followed
     async removeFollowedAndMutedTags(): Promise<void> {
-        await this.removeMutedTags();
         await this.removeFollowedTags();
+        await this.removeMutedTags();
     };
 
     // Screen a list of hashtags against the user's followed tags, removing any that are followed.
@@ -99,10 +97,10 @@ export default class TagList {
         this.removeKeywordsFromTags(followedKeywords);
     };
 
-    // Remove the configured list of invalid trending tags
-    // TODO: TagTootsConfig could have an invalidTags property...
+    // Remove the configured list of invalid trending tags as well as japanese/korean etc. tags
     removeInvalidTrendingTags(): void {
         this.removeKeywordsFromTags(config.trending.tags.invalidTags);
+        this.tags = this.tags.filter(tag => (!tag.language) || (tag.language == config.locale.language));
     };
 
     // Remove tags that match any of the keywords
@@ -121,12 +119,6 @@ export default class TagList {
     async removeMutedTags(): Promise<void> {
         this.removeKeywordsFromTags(await UserData.getMutedKeywords());
     };
-
-    // Remove any trending tags from a list of tags
-    async removeTrendingTags(): Promise<void> {
-        const trendingTagList = await TagList.fromTrending();
-        this.removeKeywordsFromTags(trendingTagList.tags.map(t => t.name));
-    }
 
     // Return a dictionary of tag names to tags
     tagNameDict(): TagNames {

@@ -26,24 +26,23 @@ import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
 import { config } from "../../config";
 import { MastodonTag, TagWithUsageCounts, TrendingLink, TrendingWithHistory } from "../../types";
+import { repairTag } from "./tag";
 import { wordRegex } from "../../helpers/string_helpers";
 
 
 // Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
-export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
+export function decorateLinkHistory(link: mastodon.v1.TrendLink): void {
     const newLink = link as TrendingLink;
     newLink.regex = wordRegex(newLink.url);
     decorateHistoryScores(newLink);
-    return newLink;
 };
 
 
 // Decorate a mastodon tag with computed history data, adding numToots & numAccounts
-export function decorateTagHistory(tag: MastodonTag): TagWithUsageCounts {
+export function decorateTagHistory(tag: MastodonTag): void {
     const newTag = tag as TagWithUsageCounts;
-    newTag.regex = wordRegex(newTag.name);
+    repairTag(newTag);
     decorateHistoryScores(newTag);
-    return newTag;
 };
 
 

@@ -7,7 +7,6 @@ import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { config } from "../config";
-import { detectHashtagLanguage } from "../helpers/language_helper";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { traceLog } from "../helpers/log_helpers";
 import {
@@ -110,11 +109,9 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
-            const language = detectHashtagLanguage(tag.name);
-
-            if (language && language != config.locale.language) {
-                suppressedNonLatinTags[language] ??= {};
-                incrementCount(suppressedNonLatinTags[language], tag.name);
+            if (tag.language && tag.language != config.locale.language) {
+                suppressedNonLatinTags[tag.language] ??= {};
+                incrementCount(suppressedNonLatinTags[tag.language], tag.name);
                 return;
             };
 

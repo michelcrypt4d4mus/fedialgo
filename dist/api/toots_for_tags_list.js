@@ -68,8 +68,8 @@ class TootsForTagsList {
     }
     static async removeUnwantedTags(tagList, tootsConfig) {
         await tagList.removeFollowedAndMutedTags();
-        await tagList.removeTrendingTags();
         tagList.removeInvalidTrendingTags();
+        tagList.removeKeywordsFromTags((await tag_list_1.default.fromTrending()).tags.map(t => t.name)); // Remove trending tags
         tagList.removeKeywordsFromTags(tootsConfig.invalidTags || []);
     }
 }

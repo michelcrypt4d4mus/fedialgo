@@ -35,7 +35,6 @@ const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
-const language_helper_1 = require("../helpers/language_helper");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 exports.DEFAULT_FILTERS = {
@@ -115,10 +114,9 @@ function updateBooleanFilterOptions(filters, toots) {
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
         toot.realToot().tags.forEach((tag) => {
-            const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
-            if (language && language != config_1.config.locale.language) {
-                suppressedNonLatinTags[language] ??= {};
-                (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[language], tag.name);
+            if (tag.language && tag.language != config_1.config.locale.language) {
+                suppressedNonLatinTags[tag.language] ??= {};
+                (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[tag.language], tag.name);
                 return;
             }
             ;

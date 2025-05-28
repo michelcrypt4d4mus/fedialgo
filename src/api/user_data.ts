@@ -29,12 +29,12 @@ interface UserApiData {
 
 export default class UserData {
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
-    followedTags: TagNames = {};
+    followedTags: TagNames = {};  // TODO: could be TagList?
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
-    participatedHashtags: TagNames = {};
+    participatedHashtags: TagNames = {};  // TODO: could be TagList?
     preferredLanguage: string = config.locale.defaultLanguage;
-    serverSideFilters: mastodon.v2.Filter[] = [];
+    serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
@@ -93,28 +93,5 @@ export default class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         traceLog(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
         return keywords;
-    }
-
-    // Fetch or load TrendingTag objects for the user's Toot history (tags the user has tooted)
-    // The numToots prop is set to number of times user tooted it
-    static async getUserParticipatedTags(): Promise<TagNames> {
-        const recentToots = await MastoApi.instance.getRecentUserToots();
-        return this.buildUserParticipatedHashtags(recentToots);
-    }
-
-    // Build a dict of tag names to the number of times the user tooted it from a list of toots
-    private static buildUserParticipatedHashtags(userToots: TootLike[]): TagNames {
-        // Ignores reblogs. Only counts toots authored by the user
-        const tags = userToots.flatMap(toot => toot.tags || []) as TagWithUsageCounts[];
-
-        return tags.reduce(
-            (tags, tag) => {
-                tags[tag.name] ??= tag;
-                tags[tag.name].numToots = (tags[tag.name].numToots || 0) + 1;
-                tags[tag.name].regex = wordRegex(tag.name);
-                return tags;
-            },
-            {} as TagNames
-        );
     }
 };

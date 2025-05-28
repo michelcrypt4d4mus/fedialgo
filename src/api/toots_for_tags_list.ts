@@ -79,8 +79,8 @@ export default class TootsForTagsList {
 
     private static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {
         await tagList.removeFollowedAndMutedTags();
-        await tagList.removeTrendingTags();
         tagList.removeInvalidTrendingTags();
+        tagList.removeKeywordsFromTags((await TagList.fromTrending()).tags.map(t => t.name)); // Remove trending tags
         tagList.removeKeywordsFromTags(tootsConfig.invalidTags || []);
     }
 };

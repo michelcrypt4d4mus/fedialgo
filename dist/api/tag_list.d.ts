@@ -14,7 +14,6 @@ export default class TagList {
     removeInvalidTrendingTags(): void;
     removeKeywordsFromTags(keywords: string[]): void;
     removeMutedTags(): Promise<void>;
-    removeTrendingTags(): Promise<void>;
     tagNameDict(): TagNames;
     topTags(numTags?: number): TagWithUsageCounts[];
 }

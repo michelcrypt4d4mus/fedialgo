@@ -139,6 +139,7 @@ export type StorableWithTimestamp = {
     value: StorableObj;
 };
 export interface TagWithUsageCounts extends mastodon.v1.Tag, TrendingHistory {
+    language?: string;
 }
 export type TootContext = {
     ancestors: Toot[];

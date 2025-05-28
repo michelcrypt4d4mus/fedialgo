@@ -18,7 +18,6 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const log_helpers_1 = require("../helpers/log_helpers");
-const tag_1 = require("./objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -92,8 +91,8 @@ class MastodonServer {
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        const trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)((0, tag_1.repairTag)(tag)));
+        let trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
+        trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
         return trendingTags;
     }
     ///////////////////////////////////

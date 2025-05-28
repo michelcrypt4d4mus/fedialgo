@@ -214,6 +214,8 @@ const LANGUAGE_REGEXES = {
     [exports.LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
     // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
+    // TODO: also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
+    // Both of these are weird - in some editors you can delete just the accent mark
     [exports.LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'iv'),
     [exports.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
     [exports.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
@@ -301,7 +303,8 @@ function detectLanguage(text) {
 }
 exports.detectLanguage = detectLanguage;
 ;
-// Returns the language code of the matched regex (if any). This is our janky version of language detection.
+// Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
+// meant for non Latin scripts like japanese, korean, etc.
 function detectHashtagLanguage(str) {
     let language;
     Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {

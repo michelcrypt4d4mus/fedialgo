@@ -15,7 +15,6 @@ import { ageString } from "../helpers/time_helpers";
 import { config } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { repairTag } from "./objects/tag";
 import { TELEMETRY } from "../helpers/string_helpers";
 import {
     ApiMutex,
@@ -128,8 +127,8 @@ export default class MastodonServer {
     // Get the tags that are trending on 'server'
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
-        const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => decorateTagHistory(repairTag(tag)));
+        let trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
+        trendingTags.forEach(tag => decorateTagHistory(tag));
         return trendingTags;
     }
 

@@ -62,7 +62,7 @@ export default class Toot implements TootObj {
     repliesCount: number;
     sensitive: boolean;
     spoilerText: string;
-    tags: mastodon.v1.Tag[];
+    tags: TagWithUsageCounts[];
     visibility: mastodon.v1.StatusVisibility;
     bookmarked?: boolean | null;
     card?: mastodon.v1.PreviewCard | null;

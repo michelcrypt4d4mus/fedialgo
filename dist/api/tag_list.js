@@ -10,6 +10,7 @@ const api_1 = __importDefault(require("./api"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const user_data_1 = __importDefault(require("./user_data"));
 const config_1 = require("../config");
+const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
@@ -22,6 +23,7 @@ class TagList {
     constructor(tags) {
         this.tags = tags.map(tag => {
             const newTag = tag;
+            (0, tag_1.repairTag)(newTag);
             newTag.regex ||= (0, string_helpers_1.wordRegex)(tag.name);
             return newTag;
         });
@@ -70,8 +72,8 @@ class TagList {
     }
     // Filter out any tags that are muted or followed
     async removeFollowedAndMutedTags() {
-        await this.removeMutedTags();
         await this.removeFollowedTags();
+        await this.removeMutedTags();
     }
     ;
     // Screen a list of hashtags against the user's followed tags, removing any that are followed.
@@ -80,10 +82,10 @@ class TagList {
         this.removeKeywordsFromTags(followedKeywords);
     }
     ;
-    // Remove the configured list of invalid trending tags
-    // TODO: TagTootsConfig could have an invalidTags property...
+    // Remove the configured list of invalid trending tags as well as japanese/korean etc. tags
     removeInvalidTrendingTags() {
         this.removeKeywordsFromTags(config_1.config.trending.tags.invalidTags);
+        this.tags = this.tags.filter(tag => (!tag.language) || (tag.language == config_1.config.locale.language));
     }
     ;
     // Remove tags that match any of the keywords
@@ -101,11 +103,6 @@ class TagList {
         this.removeKeywordsFromTags(await user_data_1.default.getMutedKeywords());
     }
     ;
-    // Remove any trending tags from a list of tags
-    async removeTrendingTags() {
-        const trendingTagList = await TagList.fromTrending();
-        this.removeKeywordsFromTags(trendingTagList.tags.map(t => t.name));
-    }
     // Return a dictionary of tag names to tags
     tagNameDict() {
         return this.tags.reduce((tagNames, tag) => {

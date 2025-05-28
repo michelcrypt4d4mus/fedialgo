@@ -220,7 +220,9 @@ export type StorableWithTimestamp = {
     value: StorableObj;
 };
 
-export interface TagWithUsageCounts extends mastodon.v1.Tag, TrendingHistory {};
+export interface TagWithUsageCounts extends mastodon.v1.Tag, TrendingHistory {
+    language?: string;
+};
 
 // Similar to mastodon.v1.Context: https://docs.joinmastodon.org/entities/Context/
 export type TootContext = {

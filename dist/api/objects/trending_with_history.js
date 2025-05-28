@@ -3,22 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateTagHistory = exports.decorateLinkHistory = void 0;
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
+const tag_1 = require("./tag");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
 function decorateLinkHistory(link) {
     const newLink = link;
     newLink.regex = (0, string_helpers_1.wordRegex)(newLink.url);
     decorateHistoryScores(newLink);
-    return newLink;
 }
 exports.decorateLinkHistory = decorateLinkHistory;
 ;
 // Decorate a mastodon tag with computed history data, adding numToots & numAccounts
 function decorateTagHistory(tag) {
     const newTag = tag;
-    newTag.regex = (0, string_helpers_1.wordRegex)(newTag.name);
+    (0, tag_1.repairTag)(newTag);
     decorateHistoryScores(newTag);
-    return newTag;
 }
 exports.decorateTagHistory = decorateTagHistory;
 ;
