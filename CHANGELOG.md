@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+### v0.53.3
 * Use a workaround for the weird issue with half width japanese characters
+* (Demo App) Bump up `tsconfig.json`'s `target` to `ES2016`
 
 ### v0.53.2
 * Remove japanese/korean/cyrillic etc. tags from trending list unless that's the user's current language
