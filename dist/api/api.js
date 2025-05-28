@@ -421,7 +421,7 @@ class MastoApi {
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
                         let msg = `${logPfx} maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
-                        console.debug(msg, minMaxId, `\nrequestDefaults:`, requestDefaults);
+                        console.debug(msg, minMaxId, `, maxRecords=${maxRecords}\nrequestDefaults:`, requestDefaults);
                     }
                 }
                 ;
