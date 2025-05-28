@@ -402,7 +402,7 @@ class MastoApi {
                         return cachedRows;
                     const minMaxId = (0, collection_helpers_1.findMinMaxId)(cachedRows);
                     if (moar) {
-                        maxRecords = maxRecords + rows.length; // Add another unit of maxRecords to the rows we have now
+                        maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to the rows we have now
                     }
                     // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
                     if (requestDefaults?.supportsMinMaxId && minMaxId) {
