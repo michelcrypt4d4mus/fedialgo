@@ -207,15 +207,18 @@ export const FOREIGN_SCRIPTS: StringSet = new Set([
     LANGUAGE_CODES.korean,
 ]);
 
+// TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
+//       also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
+//       Both of these are weird - in some editors you can delete just the accent mark
+// As a workaround we use a regex that triggers Japanese ID if the first two characters are Japanese
+const JP_CHAR_PATTERN = 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}';
+
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
 const LANGUAGE_REGEXES = {
     [LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
     [LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'), // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
-    // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
-    // TODO: also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
-    // Both of these are weird - in some editors you can delete just the accent mark
-    [LANGUAGE_CODES.japanese]: new RegExp(`^[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}]{2,}[ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\da-z]*$`, 'iv'),
+    [LANGUAGE_CODES.japanese]: new RegExp(`^[${JP_CHAR_PATTERN}]{1,}([${JP_CHAR_PATTERN}\\da-z]*$|[${JP_CHAR_PATTERN}]{2,})`, 'iv'),
     [LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'), // [KOREAN_LANGUAGE]: /^[가-힣]{2,}/,
     [LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
 };
