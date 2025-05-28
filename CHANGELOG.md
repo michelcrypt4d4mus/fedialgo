@@ -1,6 +1,10 @@
 # NEXT RELEASE
 
-# v0.54.0
+### v0.54.1
+* (Demo App) Memoization optimizations for `StatusComponent` props, `TrendingInfo` sections (the most expensive renders according to profiler)
+* (Demo App) Standardize logging through `ComponentLogger` class
+
+## v0.54.0
 * Add `replyMentions()` method to Toot objects
 * Collate all `trendingLinks` on a `Toot`, don't settle for first found
 * Add `numTimesShown` to standard `PROPS_THAT_CHANGE` calculation
