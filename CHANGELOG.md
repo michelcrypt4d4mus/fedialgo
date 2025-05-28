@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.53.10
 * Fix bug with moar data poller favourited toots puller
 
 ### v0.53.9
