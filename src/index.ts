@@ -462,16 +462,17 @@ class TheAlgorithm {
 
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
-        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         const logPrefix = bracketed(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+
+        // Required for refreshing muted accounts  // TODO: this is pretty janky...
+        this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);
+        // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await Toot.completeToots(this.feed, logPrefix, isDeepInspect);
-        this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);  // Required for refreshing muted accounts
         updateBooleanFilterOptions(this.filters, this.feed);
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
-        this.loadingStatus = null;
 
         if (this.loadStartedAt) {
             this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
@@ -481,6 +482,7 @@ class TheAlgorithm {
         }
 
         this.loadStartedAt = null;
+        this.loadingStatus = null;
         MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }

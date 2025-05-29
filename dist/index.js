@@ -425,16 +425,16 @@ class TheAlgorithm {
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
         const logPrefix = (0, string_helpers_1.bracketed)(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+        // Required for refreshing muted accounts  // TODO: this is pretty janky...
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix);
+        // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await toot_1.default.completeToots(this.feed, logPrefix, isDeepInspect);
-        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix); // Required for refreshing muted accounts
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)
+        //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
-        this.loadingStatus = null;
         if (this.loadStartedAt) {
             this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
@@ -443,6 +443,7 @@ class TheAlgorithm {
             console.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
         }
         this.loadStartedAt = null;
+        this.loadingStatus = null;
         api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
