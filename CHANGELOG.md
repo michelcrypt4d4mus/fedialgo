@@ -2,6 +2,7 @@
 * Add information about storage usage for each primitive type to `getCurrentState()`
 * `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
 * Add telemetry to `MastoApi` for request wait times (data is returned in `getCurrentState()` under the new `Api` section)
+* `QUICK_MODE` isn't always turned on when NODE_ENV=development and/the FEDIALGO_DEBUG env var is turned on; has to be enabled separately now
 
 ### v0.54.12
 * Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`
