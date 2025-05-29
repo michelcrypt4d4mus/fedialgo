@@ -501,7 +501,7 @@ export default class MastoApi {
 
             // 'limit' is the name of the max records per page param in the Mastodon API
             const limit = Math.min(maxRecords, requestDefaults?.limit || config.api.defaultRecordsPerPage);
-            traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, limit, minId, maxId, maxRecords});
+            traceLog(`${logPfx} fetchData() params w/filled in defaults:`, {...params, limit, minId, maxId, maxRecords});
             // Telemetry stuff, reset the WaitTime timer immediately before API request starts
             this.waitTimes[cacheKey] ??= new WaitTime();
             this.waitTimes[cacheKey]!.markStart();
