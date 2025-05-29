@@ -42,14 +42,6 @@ export class BytesDict {
     }
 
     toBytesStringDict(): Record<string, string> {
-        return {
-            arrays: byteString(this.arrays),
-            booleans: byteString(this.booleans),
-            functions: byteString(this.functions),
-            keys: byteString(this.keys),
-            numbers: byteString(this.numbers),
-            strings: byteString(this.strings),
-            objects: byteString(this.objects)
-        };
+        return Object.fromEntries(Object.entries(this.toDict()).map(([k, v]) => [k, byteString(v)]));
     }
 };

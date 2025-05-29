@@ -40,15 +40,7 @@ class BytesDict {
         };
     }
     toBytesStringDict() {
-        return {
-            arrays: (0, string_helpers_1.byteString)(this.arrays),
-            booleans: (0, string_helpers_1.byteString)(this.booleans),
-            functions: (0, string_helpers_1.byteString)(this.functions),
-            keys: (0, string_helpers_1.byteString)(this.keys),
-            numbers: (0, string_helpers_1.byteString)(this.numbers),
-            strings: (0, string_helpers_1.byteString)(this.strings),
-            objects: (0, string_helpers_1.byteString)(this.objects)
-        };
+        return Object.fromEntries(Object.entries(this.toDict()).map(([k, v]) => [k, (0, string_helpers_1.byteString)(v)]));
     }
 }
 exports.BytesDict = BytesDict;
