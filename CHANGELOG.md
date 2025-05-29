@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.54.5
+* (Demo App) Add tooltips to all the filter header switches; add `HeaderSwitch` component
+* (Demo App) Consolidate configurable stuff `Config` object
+
 ### v0.54.4
 * (Demo App) Fix `FindFollowers` style
 
