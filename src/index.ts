@@ -466,7 +466,7 @@ class TheAlgorithm {
         const logPrefix = bracketed(`${SET_LOADING_STATUS} finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
-        await Toot.completeToots(this.feed, TRIGGER_FEED + " DEEP", isDeepInspect);
+        await Toot.completeToots(this.feed, logPrefix, isDeepInspect);
         this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);  // Required for refreshing muted accounts
         updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this takes too long (4 minutes for 3000 toots)

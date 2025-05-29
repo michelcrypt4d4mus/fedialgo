@@ -1,12 +1,16 @@
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
-interface ChunkOptions {
-    chunkSize?: number;
-    numChunks?: number;
-}
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
-export declare function batchMap<T>(items: T[], mapFxn: (item: T) => Promise<any>, label?: string, batchSize?: number, sleepBetweenMS?: number): Promise<any[]>;
-export declare function makeChunks<T>(array: T[], options: ChunkOptions, logPrefix?: string): T[][];
+export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
+    batchSize?: number;
+    logPrefix?: string;
+    sleepBetweenMS?: number;
+}): Promise<any[]>;
+export declare function makeChunks<T>(array: T[], options: {
+    chunkSize?: number;
+    logPrefix?: string;
+    numChunks?: number;
+}): T[][];
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
@@ -31,4 +35,3 @@ export declare const uniquify: (array: (string | undefined)[]) => string[] | und
 export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
-export {};

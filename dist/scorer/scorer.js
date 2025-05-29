@@ -74,9 +74,8 @@ class Scorer {
                 // Feed scorers' data must be refreshed each time the feed changes
                 scorer_cache_1.default.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
             }
-            try {
-                // Score the toots asynchronously in batches
-                await (0, collection_helpers_1.batchMap)(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
+            try { // Score the toots asynchronously in batches
+                await (0, collection_helpers_1.batchMap)(toots, t => this.decorateWithScoreInfo(t, scorers), { logPrefix: LOG_PREFIX });
             }
             finally {
                 releaseMutex?.();

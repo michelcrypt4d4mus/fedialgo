@@ -763,12 +763,14 @@ export default class Toot implements TootObj {
 
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
+        logPrefix = bracketed(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
+        let completeToots: TootLike[] = [];
+        let tootsToComplete = toots;
         let startedAt = new Date();
+
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = (await TagList.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        let tootsToComplete = toots;
-        let completeToots: TootLike[] = [];
 
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
         if (isDeepInspect) {
@@ -782,9 +784,11 @@ export default class Toot implements TootObj {
                 toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
                 return toot as Toot;
             },
-            "completeToots",
-            config.toots.batchCompleteSize,
-            isDeepInspect ? config.toots.batchCompleteSleepBetweenMS : 0
+            {
+                logPrefix,
+                batchSize: config.toots.batchCompleteSize,
+                sleepBetweenMS: isDeepInspect ? config.toots.batchCompleteSleepBetweenMS : 0
+            }
         );
 
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;

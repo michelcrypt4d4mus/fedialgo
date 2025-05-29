@@ -97,9 +97,8 @@ export default abstract class Scorer {
                 ScorerCache.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
             }
 
-            try {
-                // Score the toots asynchronously in batches
-                await batchMap<Toot>(toots, (t) => this.decorateWithScoreInfo(t, scorers), "Scorer");
+            try {  // Score the toots asynchronously in batches
+                await batchMap(toots, t => this.decorateWithScoreInfo(t, scorers), {logPrefix: LOG_PREFIX});
             } finally {
                 releaseMutex?.();
             }

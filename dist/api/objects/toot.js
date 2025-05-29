@@ -629,12 +629,13 @@ class Toot {
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logPrefix, isDeepInspect) {
+        logPrefix = (0, string_helpers_1.bracketed)(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
+        let completeToots = [];
+        let tootsToComplete = toots;
         let startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = (await tag_list_1.default.fromTrending()).topTags();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
-        let tootsToComplete = toots;
-        let completeToots = [];
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
         if (isDeepInspect) {
             [completeToots, tootsToComplete] = ((0, collection_helpers_1.split)(toots, (t) => t instanceof Toot && t.isComplete()));
@@ -643,7 +644,11 @@ class Toot {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
-        }, "completeToots", config_1.config.toots.batchCompleteSize, isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0);
+        }, {
+            logPrefix,
+            batchSize: config_1.config.toots.batchCompleteSize,
+            sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
+        });
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
         console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);

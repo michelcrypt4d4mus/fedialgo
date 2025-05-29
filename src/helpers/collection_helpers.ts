@@ -11,11 +11,6 @@ import { sleep } from './time_helpers';
 
 const BATCH_MAP = "batchMap()";
 
-interface ChunkOptions {
-    chunkSize?: number;  // Size of each chunk
-    numChunks?: number;  // Number of chunks to split the array into
-}
-
 
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
@@ -31,59 +26,61 @@ export function average(values: number[]): number {
 };
 
 
-// Process a list of promises in batches of batchSize. Returns list of results mapped by mapFxn.
-// From https://dev.to/woovi/processing-promises-in-batch-2le6
+// Process an array async in batches of batchSize. From https://dev.to/woovi/processing-promises-in-batch-2le6
 //    - items: array of items to process
-//    - mapFxn: function to call for each item
-//    - label: optional label for logging
+//    - fxn: function to call for each item
+//    - logPrefix: optional label for logging
 //    - batchSize: number of items to process at once
 //    - sleepBetweenMS: optional number of milliseconds to sleep between batches
+// If fxn returns anything it returns the results of mapping items with fxn().
 export async function batchMap<T>(
-    items: T[],
-    mapFxn: (item: T) => Promise<any>,
-    label?: string,
-    batchSize?: number,
-    sleepBetweenMS?: number
+    array: T[],
+    fxn: (e: T) => Promise<any>,
+    options?: {
+        batchSize?: number,
+        logPrefix?: string,
+        sleepBetweenMS?: number
+    }
 ): Promise<any[]> {
-    let logPrefix = label ? `[${label}] ${BATCH_MAP}` : bracketed(BATCH_MAP);
+    let { batchSize, logPrefix, sleepBetweenMS } = (options || {});
+    logPrefix = logPrefix ? `${bracketed(logPrefix)} ${BATCH_MAP}` : bracketed(BATCH_MAP);
     const chunkSize = batchSize || config.scoring.scoringBatchSize;
-    const chunks = makeChunks(items, {chunkSize: chunkSize}, logPrefix);
+    const chunks = makeChunks(array, { chunkSize, logPrefix });
     let results: any[] = [];
 
-    // Iterate manually - passing an async method to map() or forEach() will not wait for promises to resolve
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
-        // console.debug(`${logPrefix} Processing chunk ${i + 1} of ${chunks.length} (${chunk.length} items):`, chunk);
-        const newResults = await Promise.all(chunk.map(mapFxn));
-        // console.debug(`${logPrefix} Processed chunk ${i + 1} into:`, newResults);
-        // Don't bother with empty results (not all map fxns return a value)
-        if (newResults.filter(Boolean).length) results = [...results, ...newResults];
+        const newResults = await Promise.all(chunk.map(fxn));
+        if (newResults.filter(Boolean).length) results = [...results, ...newResults]; // Only append non-null results
 
         if (sleepBetweenMS && (i < (chunks.length - 1))) {
-            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${items.length}, sleeping ${sleepBetweenMS}ms`);
+            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${array.length}, sleeping ${sleepBetweenMS}ms`);
             await sleep(sleepBetweenMS);
         }
     };
 
-    // console.debug(`${logPrefix} Processed ${items.length} items in ${chunks.length} chunks of size ${chunkSize}, returning ${results.length} results`, results);
     return results;
 };
 
 
-// Split the array into numChunks using reduce
-export function makeChunks<T>(array: T[], options: ChunkOptions, logPrefix?: string): T[][] {
+// Split the array into numChunks OR n chunks of size chunkSize
+export function makeChunks<T>(
+    array: T[],
+    options: {
+        chunkSize?: number,
+        logPrefix?: string,
+        numChunks?: number
+    }
+): T[][] {
+    let { chunkSize, logPrefix, numChunks } = options;
     logPrefix = bracketed(logPrefix || "makeChunks()");
 
-    if (options.numChunks && options.chunkSize) {
-        throw new Error("makeChunks() requires either numChunks or chunkSize to be set, not both");
-    } else if (options.numChunks) {
-        options.chunkSize = Math.ceil(array.length / options.numChunks);
-    } else if (!options.numChunks && !options.chunkSize) {
-        throw new Error("makeChunks() requires either numChunks or chunkSize to be set")
+    if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
+        throw new Error(`${logPrefix} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
     }
 
-    // console.log(`${logPrefix} lodash called, options:`, options, `\narray:`, array, `\nmade chunks:`, chunk(array, options.chunkSize))
-    return chunk(array, options.chunkSize);
+    chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
+    return chunk(array, chunkSize);
 };
 
 
@@ -256,7 +253,7 @@ export function percentileSegments<T>(
     numPercentiles: number
 ): T[][] {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, {numChunks: numPercentiles}, `percentileSegments(${numPercentiles})`);
+    return makeChunks(sortedArray, {logPrefix: `percentileSegments(${numPercentiles})`, numChunks: numPercentiles});
 };
 
 
