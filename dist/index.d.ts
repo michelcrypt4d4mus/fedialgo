@@ -12,7 +12,6 @@ import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_s
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import { isAccessTokenRevokedError } from "./api/api";
-import { TrendingType } from "./types";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
@@ -33,8 +32,9 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { isDebugMode } from './helpers/environment_helpers';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
+import { ComponentLogger } from './helpers/log_helpers';
 import { isValueInStringEnum, makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
-import { FeedFilterSettings, KeysOfValueType, MastodonInstance, MastodonTag, MediaCategory, MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoreStats, StringNumberDict, TagWithUsageCounts, TrendingData, TrendingLink, TrendingObj, TrendingWithHistory, WeightName, Weights, WeightInfoDict } from "./types";
+import { FeedFilterSettings, KeysOfValueType, MastodonInstance, MastodonTag, MediaCategory, MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoreStats, StringNumberDict, TagWithUsageCounts, TrendingData, TrendingLink, TrendingObj, TrendingType, TrendingWithHistory, WeightName, Weights, WeightInfoDict } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -106,5 +106,5 @@ declare class TheAlgorithm {
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
-export { type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
+export { type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, ComponentLogger, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 sortKeysByValue, timeString, };

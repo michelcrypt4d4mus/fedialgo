@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.strBytes = exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.ComponentLogger = exports.WaitTime = exports.strBytes = exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -165,5 +165,43 @@ class WaitTime {
     }
 }
 exports.WaitTime = WaitTime;
+;
+// Log lines with "[DEMO APP] <ComponentName>" prefixed
+// TODO: use this version in the demo app (it's a copy/pasta)
+class ComponentLogger {
+    componentName;
+    logPrefix;
+    subtitle;
+    constructor(componentName, subtitle) {
+        this.componentName = componentName;
+        this.subtitle = subtitle;
+        this.logPrefix = `<${componentName}>` + (subtitle ? ` (${subtitle})` : "");
+    }
+    error(msg, ...args) {
+        console.error(this.makeMsg(msg), ...args);
+    }
+    warn(msg, ...args) {
+        console.warn(this.makeMsg(msg), ...args);
+    }
+    log(msg, ...args) {
+        console.log(this.makeMsg(msg), ...args);
+    }
+    info(msg, ...args) {
+        console.info(this.makeMsg(msg), ...args);
+    }
+    debug(msg, ...args) {
+        console.debug(this.makeMsg(msg), ...args);
+    }
+    // Only writes logs in debug mode
+    trace(msg, ...args) {
+        if (!environment_helpers_1.isDebugMode)
+            return;
+        this.debug(msg, ...args);
+    }
+    makeMsg(msg) {
+        return `${this.logPrefix} ${msg}`;
+    }
+}
+exports.ComponentLogger = ComponentLogger;
 ;
 //# sourceMappingURL=log_helpers.js.map
