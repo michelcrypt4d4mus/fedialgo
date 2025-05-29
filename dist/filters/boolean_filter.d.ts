@@ -3,9 +3,9 @@ import TootFilter from "./toot_filter";
 import { FilterArgs, StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare enum BooleanFilterName {
-    TYPE = "type",
-    LANGUAGE = "language",
     HASHTAG = "hashtag",
+    LANGUAGE = "language",
+    TYPE = "type",
     USER = "user",
     APP = "app"
 }

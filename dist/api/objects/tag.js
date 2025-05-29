@@ -23,11 +23,15 @@ exports.buildTagNames = buildTagNames;
 ;
 // Lowercase the tag name, replace URL with one on homeserver
 function repairTag(tag) {
+    const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
+    if (language)
+        tag.language = language; // Don't set unnecessarily for storage space reasons
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);
         tag.name = BROKEN_TAG;
     }
-    else {
+    else if (!language) {
+        // If it's not a non-Latin language tag remove diacritics // TODO: should we remove diacritics?
         tag.name = (0, string_helpers_1.removeDiacritics)(tag.name.toLowerCase());
     }
     if (api_1.default.instance) {
@@ -37,9 +41,6 @@ function repairTag(tag) {
         console.warn(`MastoApi.instance is null!`);
         tag.url = tag.url.toLowerCase() || "";
     }
-    const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
-    if (language)
-        tag.language = language; // Don't set unnecessarily for storage space reasons
     return tag;
 }
 exports.repairTag = repairTag;

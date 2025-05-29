@@ -11,9 +11,9 @@ const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
 var BooleanFilterName;
 (function (BooleanFilterName) {
-    BooleanFilterName["TYPE"] = "type";
-    BooleanFilterName["LANGUAGE"] = "language";
     BooleanFilterName["HASHTAG"] = "hashtag";
+    BooleanFilterName["LANGUAGE"] = "language";
+    BooleanFilterName["TYPE"] = "type";
     BooleanFilterName["USER"] = "user";
     BooleanFilterName["APP"] = "app";
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
