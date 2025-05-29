@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.54.14
+* (Demo App) Fix bug where long filter labels weren't getting trimmed to configured length
+
 ### v0.54.13 (not deployed to production)
 * Add information about storage usage for each primitive type to `getCurrentState()`
 * `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
