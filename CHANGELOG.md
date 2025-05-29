@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.54.6
+
 ### v0.54.5
 * (Demo App) Add tooltips to all the filter header switches; add `HeaderSwitch` component
 * (Demo App) Consolidate configurable stuff `Config` object
