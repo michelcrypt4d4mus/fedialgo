@@ -34,6 +34,7 @@ const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const types_1 = require("../../types");
+const environment_helpers_1 = require("../../helpers/environment_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -42,6 +43,13 @@ var TootVisibility;
     TootVisibility["PRIVATE"] = "private";
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (TootVisibility = {}));
+;
+var TootCacheKey;
+(function (TootCacheKey) {
+    TootCacheKey["CONTENT_STRIPPED"] = "contentStripped";
+    TootCacheKey["CONTENT_WITH_EMOJIS"] = "contentWithEmojis";
+    TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
+})(TootCacheKey || (TootCacheKey = {}));
 ;
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
@@ -113,6 +121,8 @@ class Toot {
     audioAttachments;
     imageAttachments;
     videoAttachments;
+    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
+    contentCache = {};
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(toot) {
         const tootObj = new Toot();
@@ -255,7 +265,8 @@ class Toot {
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        return this.addEmojiHtmlTags(this.content, fontSize);
+        this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS] ??= this.addEmojiHtmlTags(this.content, fontSize);
+        return this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS];
     }
     // String that describes the toot in not so many characters
     describe() {
@@ -317,7 +328,7 @@ class Toot {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters) {
         if (this.isUsersOwnToot()) {
-            (0, log_helpers_1.traceLog)(`Removing fedialgo user's own toot: ${this.describe()}`);
+            (0, log_helpers_1.traceLog)(`Removing fedialgo user's own toot:`, this.describe());
             return false;
         }
         else if (this.reblog?.muted || this.muted) {
@@ -469,14 +480,21 @@ class Toot {
     }
     // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
     contentStripped() {
-        return (0, string_helpers_1.collapseWhitespace)((0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentWithCard())))));
+        if (!this.contentCache[TootCacheKey.CONTENT_STRIPPED]) {
+            const str = (0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentWithCard())));
+            this.contentCache[TootCacheKey.CONTENT_STRIPPED] = (0, string_helpers_1.collapseWhitespace)((0, string_helpers_1.removeMentions)(str));
+        }
+        return this.contentCache[TootCacheKey.CONTENT_STRIPPED];
     }
     // Return the content with the card title and description added in parentheses, stripped of diacritics for matching tags
-    // TODO: memoize?
+    // cache results for future calls to containsString() and containsTag() etc.
     contentWithCard() {
-        const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-        const txt = (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
-        return (0, string_helpers_1.removeDiacritics)(txt);
+        if (!this.contentCache[TootCacheKey.CONTENT_WITH_CARD]) {
+            const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
+            const txt = (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
+            this.contentCache[TootCacheKey.CONTENT_WITH_CARD] = (0, string_helpers_1.removeDiacritics)(txt);
+        }
+        return this.contentCache[TootCacheKey.CONTENT_WITH_CARD];
     }
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
@@ -718,9 +736,12 @@ class Toot {
         // Choose the most recent retoot from the group of toots with the same realURI() value
         const deduped = Object.values(tootsByURI).map((toots) => {
             const mostRecent = (0, exports.mostRecentToot)(toots);
-            // Log when we are collating retoots and toots with the same realURI()
-            if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                (0, log_helpers_1.traceLog)(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+            // Skip logging this in production
+            if (!environment_helpers_1.isProduction) {
+                // Log when we are collating retoots and toots with the same realURI()
+                if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
+                    (0, log_helpers_1.traceLog)(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                }
             }
             return mostRecent;
         });

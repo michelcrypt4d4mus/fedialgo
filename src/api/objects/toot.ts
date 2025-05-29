@@ -56,6 +56,7 @@ import {
     TrendingLink,
     WeightedScore,
 } from "../../types";
+import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -64,6 +65,18 @@ enum TootVisibility {
     PRIVATE = "private",
     UNLISTED = "unlisted",
 };
+
+enum TootCacheKey {
+    CONTENT_STRIPPED = "contentStripped",
+    CONTENT_WITH_EMOJIS = "contentWithEmojis",
+    CONTENT_WITH_CARD = "contentWithCard",
+};
+
+// Cache for methods that build strings from the toot content.
+type TootCache = {
+    [key in TootCacheKey]?: string;
+};
+
 
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
@@ -186,6 +199,8 @@ export default class Toot implements TootObj {
     audioAttachments!: mastodon.v1.MediaAttachment[];
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
+    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
+    private contentCache: TootCache = {};
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(toot: SerializableToot): Toot {
@@ -343,7 +358,11 @@ export default class Toot implements TootObj {
 
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
-        return this.addEmojiHtmlTags(this.content, fontSize);
+        if (!this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS])  {
+            this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS] = this.addEmojiHtmlTags(this.content, fontSize);
+        }
+
+        return this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS];
     }
 
     // String that describes the toot in not so many characters
@@ -415,7 +434,7 @@ export default class Toot implements TootObj {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
         if (this.isUsersOwnToot()) {
-            traceLog(`Removing fedialgo user's own toot: ${this.describe()}`);
+            traceLog(`Removing fedialgo user's own toot:`, this.describe());
             return false;
         } else if (this.reblog?.muted || this.muted) {
             traceLog(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
@@ -586,15 +605,24 @@ export default class Toot implements TootObj {
 
     // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
     private contentStripped(): string {
-        return collapseWhitespace(removeMentions(removeEmojis(removeTags(removeLinks(this.contentWithCard())))));
+        if (!this.contentCache[TootCacheKey.CONTENT_STRIPPED]) {
+            const str = removeEmojis(removeTags(removeLinks(this.contentWithCard())));
+            this.contentCache[TootCacheKey.CONTENT_STRIPPED] = collapseWhitespace(removeMentions(str));
+        }
+
+        return this.contentCache[TootCacheKey.CONTENT_STRIPPED];
     }
 
     // Return the content with the card title and description added in parentheses, stripped of diacritics for matching tags
-    // TODO: memoize?
+    // cache results for future calls to containsString() and containsTag() etc.
     private contentWithCard(): string {
-        const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-        const txt = (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
-        return removeDiacritics(txt);
+        if (!this.contentCache[TootCacheKey.CONTENT_WITH_CARD]) {
+            const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
+            const txt = (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
+            this.contentCache[TootCacheKey.CONTENT_WITH_CARD] = removeDiacritics(txt);
+        }
+
+        return this.contentCache[TootCacheKey.CONTENT_WITH_CARD];
     }
 
     // Figure out an appropriate language for the toot based on the content.
@@ -867,9 +895,12 @@ export default class Toot implements TootObj {
         const deduped = Object.values(tootsByURI).map((toots) => {
             const mostRecent = mostRecentToot(toots)! as Toot;
 
-            // Log when we are collating retoots and toots with the same realURI()
-            if (uniquify(toots.map(t => t.uri))!.length > 1) {
-                traceLog(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+            // Skip logging this in production
+            if (!isProduction) {
+                // Log when we are collating retoots and toots with the same realURI()
+                if (uniquify(toots.map(t => t.uri))!.length > 1) {
+                    traceLog(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                }
             }
 
             return mostRecent;

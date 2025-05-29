@@ -232,11 +232,4 @@ There's a pre-commit git hook that runs `npm run build` but unfortunately it doe
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 
 ### What's slow:
-Some recent stats:
-
-* [FavouritedToots] Completing fetch at page 8, 40 in page, 320 records so far in 15.1 seconds, shouldStop=undefined
-* [getParticipatedHashtagToots] TELEMETRY fetched 200 toots in 56.1 seconds, current state
-* [HomeTimeline] Completing fetch at page 10, 40 in page, 400 records so far in 67.3 seconds, shouldStop=undefined
-* [RecentNotifications] Completing fetch at page 6, 80 in page, 480 records so far in 13.6 seconds
-* [RecentUserToots] Completing fetch at page 12, 40 in page, 480 records so far in 14.8 seconds
-* Loaded + completely scored 2,708 toots for timeline in 204.1 seconds (1,594 home timeline toots covering 12 hours)
+According to Chrome profiler it's the retrieval of the user's favourites that is the biggest bottleneck at initial load time. Took ~10 seconds, getting user's old toots took ~5s.

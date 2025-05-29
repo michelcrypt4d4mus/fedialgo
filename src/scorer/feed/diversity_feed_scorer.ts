@@ -70,7 +70,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                     // Always decrement the penalty for the tag
                     incrementCount(tootsWithTagScoredSoFar, tag.name);
                     decrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
-                    const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
+                    // const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
 
                     if (toot.account.isFollowed || toot.reblog?.account.isFollowed) {
                         // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
