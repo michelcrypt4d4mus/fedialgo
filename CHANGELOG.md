@@ -1,6 +1,8 @@
 # NEXT RELEASE
 * Add filters to `getCurrentState()` return value
 * Remove diacritics from text when filtering for hashtag matches. Fixes bug where german/french etc. tags weren't filtering correctly bc tag names have already had diacritics stripped
+* Hopefully fix bug where japanese half width chars with diacritics were not matching the japanese regex because their diacritics were being stripped early
+* (Demo App) Reorder filters so interactions filter is at the top
 
 ### v0.54.1
 * (Demo App) Memoization optimizations for `StatusComponent` props, `TrendingInfo` sections (the most expensive renders according to profiler)

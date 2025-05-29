@@ -21,10 +21,14 @@ export function buildTagNames(tags: MastodonTag[]): TagNames {
 
 // Lowercase the tag name, replace URL with one on homeserver
 export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
+    const language = detectHashtagLanguage(tag.name);
+    if (language) tag.language = language;  // Don't set unnecessarily for storage space reasons
+
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);
         tag.name = BROKEN_TAG;
-    } else {
+    } else if (!language) {
+        // If it's not a non-Latin language tag remove diacritics // TODO: should we remove diacritics?
         tag.name = removeDiacritics(tag.name.toLowerCase());
     }
 
@@ -35,8 +39,6 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
         tag.url = tag.url.toLowerCase() || "";
     }
 
-    const language = detectHashtagLanguage(tag.name);
-    if (language) tag.language = language;  // Don't set unnecessarily for storage space reasons
     return tag;
 };
 

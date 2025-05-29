@@ -16,9 +16,9 @@ const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 // This is the order the filters will appear in the UI in the demo app
 export enum BooleanFilterName {
-    TYPE = 'type',
-    LANGUAGE = 'language',
     HASHTAG = 'hashtag',
+    LANGUAGE = 'language',
+    TYPE = 'type',
     USER = 'user',
     APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
 };
