@@ -471,7 +471,8 @@ class Toot {
     contentStripped() {
         return (0, string_helpers_1.collapseWhitespace)((0, string_helpers_1.removeMentions)((0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentWithCard())))));
     }
-    // Return the content with the card title and description added in parentheses
+    // Return the content with the card title and description added in parentheses, stripped of diacritics for matching tags
+    // TODO: memoize?
     contentWithCard() {
         const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
         const txt = (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
