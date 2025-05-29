@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+### v0.54.3
 * Export `LANGUAGE_CODES` dict
+* (Demo App) Show full language name in filter section, not just 2 character code
 
 ### v0.54.2
 * Add filters to `getCurrentState()` return value

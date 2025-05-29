@@ -167,6 +167,7 @@ export const LANGUAGE_NAMES: StringDict = {
     sundanese: "su",
     swedish: "sv",
     swahili: "sw",
+    taiwanese: "zh-TW",  // Chinese (Taiwan)
     tamil: "ta",
     telugu: "te",
     tajik: "tg",
@@ -195,6 +196,7 @@ export const LANGUAGE_NAMES: StringDict = {
     yoruba: "yo",
     zhuang: "za",
     chinese: "zh",
+    chineseMainland: "zh-CN",  // Chinese (China)
     zulu: "zu",
 };
 
@@ -205,10 +207,10 @@ export const LANGUAGE_CODES: StringDict = swapKeysAndValues(LANGUAGE_NAMES);
 export const FOREIGN_SCRIPTS: StringSet = new Set([
     LANGUAGE_NAMES.arabic,
     LANGUAGE_NAMES.chinese,
-    `${LANGUAGE_NAMES.chinese}-CN`,
-    `${LANGUAGE_NAMES.chinese}-TW`,
+    LANGUAGE_NAMES.chineseMainland,
     LANGUAGE_NAMES.japanese,
     LANGUAGE_NAMES.korean,
+    LANGUAGE_NAMES.taiwanese,
 ]);
 
 // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??

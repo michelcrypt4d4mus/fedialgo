@@ -170,6 +170,7 @@ exports.LANGUAGE_NAMES = {
     sundanese: "su",
     swedish: "sv",
     swahili: "sw",
+    taiwanese: "zh-TW",
     tamil: "ta",
     telugu: "te",
     tajik: "tg",
@@ -198,6 +199,7 @@ exports.LANGUAGE_NAMES = {
     yoruba: "yo",
     zhuang: "za",
     chinese: "zh",
+    chineseMainland: "zh-CN",
     zulu: "zu",
 };
 // Mapping of language codes to the actual name of the language
@@ -206,10 +208,10 @@ exports.LANGUAGE_CODES = (0, collection_helpers_1.swapKeysAndValues)(exports.LAN
 exports.FOREIGN_SCRIPTS = new Set([
     exports.LANGUAGE_NAMES.arabic,
     exports.LANGUAGE_NAMES.chinese,
-    `${exports.LANGUAGE_NAMES.chinese}-CN`,
-    `${exports.LANGUAGE_NAMES.chinese}-TW`,
+    exports.LANGUAGE_NAMES.chineseMainland,
     exports.LANGUAGE_NAMES.japanese,
     exports.LANGUAGE_NAMES.korean,
+    exports.LANGUAGE_NAMES.taiwanese,
 ]);
 // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
 //       also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
