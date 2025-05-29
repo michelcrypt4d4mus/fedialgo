@@ -265,7 +265,9 @@ class Toot {
     }
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags
     contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS] ??= this.addEmojiHtmlTags(this.content, fontSize);
+        if (!this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS]) {
+            this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS] = this.addEmojiHtmlTags(this.content, fontSize);
+        }
         return this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS];
     }
     // String that describes the toot in not so many characters
