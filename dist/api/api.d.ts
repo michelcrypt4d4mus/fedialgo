@@ -22,8 +22,6 @@ export default class MastoApi {
     userData?: UserData;
     private mutexes;
     private requestSemphore;
-    tagUrl: (tag: MastodonTag | string) => string;
-    endpointURL: (endpoint: string) => string;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();
@@ -45,6 +43,8 @@ export default class MastoApi {
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     setSemaphoreConcurrency(concurrency: number): void;
+    tagUrl(tag: MastodonTag | string): string;
+    private endpointURL;
     private getApiRecords;
     private buildParams;
     private buildFromApiObjects;

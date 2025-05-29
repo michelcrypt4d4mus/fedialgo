@@ -19,6 +19,7 @@ import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import MastoApi, { isAccessTokenRevokedError } from "./api/api";
 import MastodonServer from './api/mastodon_server';
+import { TrendingType } from "./types";
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
@@ -702,6 +703,7 @@ export {
     MediaCategory,
     NonScoreWeightName,
     ScoreName,
+    TrendingType,
     TypeFilterName,
     WeightName,
     WeightPresetLabel,

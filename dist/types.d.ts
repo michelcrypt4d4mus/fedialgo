@@ -67,6 +67,12 @@ export declare enum MediaCategory {
     IMAGE = "image",
     VIDEO = "video"
 }
+export declare enum TrendingType {
+    LINKS = "links",
+    SERVERS = "servers",
+    STATUSES = "statuses",
+    TAGS = "tags"
+}
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
@@ -154,12 +160,12 @@ export type TootScore = {
 export type TootScores = Record<ScoreName, WeightedScore>;
 export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {
 }
-export interface TrendingData {
+export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;
     toots: Toot[];
     tags: TagWithUsageCounts[];
-}
+};
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
 export interface TrendingHistory {

@@ -91,6 +91,14 @@ export enum MediaCategory {
     VIDEO = "video",
 };
 
+// Kinds of trending data that can be fetched
+export enum TrendingType {
+    LINKS = "links",
+    SERVERS = 'servers',  // Not necessarily really a trending data type but for now...
+    STATUSES = "statuses",
+    TAGS = "tags"
+};
+
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -240,7 +248,8 @@ export type TootScore = {
 export type TootScores = Record<ScoreName, WeightedScore>;
 export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {};
 
-export interface TrendingData {
+// TODO enforce that keys are TrendingType enum?
+export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;
     toots: Toot[];

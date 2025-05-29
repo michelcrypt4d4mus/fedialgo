@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = void 0;
 /*
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  */
@@ -21,13 +20,6 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-var TrendingType;
-(function (TrendingType) {
-    TrendingType["STATUSES"] = "statuses";
-    TrendingType["LINKS"] = "links";
-    TrendingType["TAGS"] = "tags";
-})(TrendingType || (exports.TrendingType = TrendingType = {}));
-;
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
@@ -67,7 +59,7 @@ class MastodonServer {
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
     async fetchTrendingStatuses() {
-        const toots = await this.fetchTrending(TrendingType.STATUSES);
+        const toots = await this.fetchTrending(types_1.TrendingType.STATUSES);
         const trendingToots = toots.map(t => toot_1.default.build(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
@@ -84,14 +76,14 @@ class MastodonServer {
             return [];
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending(TrendingType.LINKS, numLinks);
+        const trendingLinks = await this.fetchTrending(types_1.TrendingType.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        let trendingTags = await this.fetchTrending(TrendingType.TAGS, numTags);
+        let trendingTags = await this.fetchTrending(types_1.TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
         return trendingTags;
     }

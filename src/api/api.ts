@@ -18,7 +18,7 @@ import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
-import { TrendingType } from "./mastodon_server";
+import { TrendingType } from "../types";
 
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
@@ -73,10 +73,6 @@ export default class MastoApi {
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
     private requestSemphore = new Semaphore(config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
-
-    // URL for tag on the user's homeserver
-    tagUrl = (tag: MastodonTag | string) => `${this.endpointURL(TrendingType.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
-    endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -426,9 +422,17 @@ export default class MastoApi {
         this.requestSemphore = new Semaphore(concurrency);
     }
 
+    // URL for tag on the user's homeserver
+    tagUrl(tag: MastodonTag | string) {
+        return `${this.endpointURL(TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
+    }
+
     /////////////////////////////
     //     Private Methods     //
     /////////////////////////////
+
+    // URL for a given API endpoint on this user's home server
+    private endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale

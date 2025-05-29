@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
+exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -80,6 +80,14 @@ var MediaCategory;
     MediaCategory["VIDEO"] = "video";
 })(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 ;
+// Kinds of trending data that can be fetched
+var TrendingType;
+(function (TrendingType) {
+    TrendingType["LINKS"] = "links";
+    TrendingType["SERVERS"] = "servers";
+    TrendingType["STATUSES"] = "statuses";
+    TrendingType["TAGS"] = "tags";
+})(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
 ;
 ;

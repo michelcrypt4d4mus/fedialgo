@@ -26,6 +26,7 @@ import {
     TrendingLink,
     TrendingObj,
     TrendingData,
+    TrendingType,
 } from "../types";
 import {
     countValues,
@@ -34,12 +35,6 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
-
-export enum TrendingType {
-    STATUSES = "statuses",
-    LINKS = "links",
-    TAGS = "tags",
-};
 
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;

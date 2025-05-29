@@ -39,7 +39,7 @@ const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
-const mastodon_server_1 = require("./mastodon_server");
+const types_2 = require("../types");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -56,9 +56,6 @@ class MastoApi {
     userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
-    // URL for tag on the user's homeserver
-    tagUrl = (tag) => `${this.endpointURL(mastodon_server_1.TrendingType.TAGS)}/${typeof tag === "string" ? tag : tag.name}`;
-    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
@@ -345,7 +342,7 @@ class MastoApi {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         let logPrefix = `[API searchForToots("${searchStr}")]`;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
-        const query = { limit: maxRecords, q: searchStr, type: mastodon_server_1.TrendingType.STATUSES };
+        const query = { limit: maxRecords, q: searchStr, type: types_2.TrendingType.STATUSES };
         logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {
@@ -369,9 +366,15 @@ class MastoApi {
         console.log(`[MastoApi] Setting semaphore to background concurrency to ${concurrency}`);
         this.requestSemphore = new async_mutex_1.Semaphore(concurrency);
     }
+    // URL for tag on the user's homeserver
+    tagUrl(tag) {
+        return `${this.endpointURL(types_2.TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
+    }
     /////////////////////////////
     //     Private Methods     //
     /////////////////////////////
+    // URL for a given API endpoint on this user's home server
+    endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments

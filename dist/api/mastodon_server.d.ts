@@ -1,10 +1,5 @@
 import Toot from "./objects/toot";
 import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingData } from "../types";
-export declare enum TrendingType {
-    STATUSES = "statuses",
-    LINKS = "links",
-    TAGS = "tags"
-}
 export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
