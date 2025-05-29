@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Add Thai language detection
+* Add Thai, Hindi, Hebrew language detection for hashtags
 
 ### v0.54.5 / v0.54.6
 * (Demo App) Add tooltips to all the filter header switches; add `HeaderSwitch` component

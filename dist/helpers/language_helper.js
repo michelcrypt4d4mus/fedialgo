@@ -223,6 +223,8 @@ exports.FOREIGN_SCRIPTS = new Set([
 const LANGUAGE_CHAR_CLASSES = {
     [exports.LANGUAGE_NAMES.arabic]: `\\p{Script=Arabic}`,
     [exports.LANGUAGE_NAMES.greek]: `\\p{Script=Greek}`,
+    [exports.LANGUAGE_NAMES.hebrew]: `\\p{Script=Hebrew}`,
+    [exports.LANGUAGE_NAMES.hindi]: `\\p{Script=Devanagari}`,
     [exports.LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
     [exports.LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
     [exports.LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,

@@ -224,6 +224,8 @@ export const FOREIGN_SCRIPTS: StringSet = new Set([
 const LANGUAGE_CHAR_CLASSES: Record<string, string> = {
     [LANGUAGE_NAMES.arabic]: `\\p{Script=Arabic}`,
     [LANGUAGE_NAMES.greek]: `\\p{Script=Greek}`,
+    [LANGUAGE_NAMES.hebrew]: `\\p{Script=Hebrew}`,
+    [LANGUAGE_NAMES.hindi]: `\\p{Script=Devanagari}`,
     [LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
     [LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
     [LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
