@@ -1,10 +1,12 @@
 # NEXT RELEASE
+
+### v0.54.2
 * Add filters to `getCurrentState()` return value
 * Remove diacritics from text when filtering for hashtag matches. Fixes bug where german/french etc. tags weren't filtering correctly bc tag names have already had diacritics stripped
 * Change hashtag language detection regexes to match substrings instead of whole strings
 * Fix bug where japanese/arabic/etc. tags reappear when trending tags are loaded from the cache at startup
-* Add lodash library, use it for makeChunks()
-* (Demo App) Reorder filters so interactions filter is at the top
+* Add `lodash` library, use it for `makeChunks()` which is exported as a helper method
+* (Demo App) Reorder filters so interactions filter is at the top. Filters switches now have column based sorting instead of row based sorting.
 
 ### v0.54.1
 * (Demo App) Memoization optimizations for `StatusComponent` props, `TrendingInfo` sections (the most expensive renders according to profiler)
