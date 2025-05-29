@@ -6,9 +6,9 @@ import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
+import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
-import { traceLog } from "../helpers/log_helpers";
 import {
     BooleanFilters,
     FeedFilterSettings,
@@ -25,6 +25,8 @@ export const DEFAULT_FILTERS = {
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
 
+const logger = new ComponentLogger('feed_filters.ts');
+
 
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
@@ -39,7 +41,8 @@ export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilter
         return filters
     }, {} as NumericFilters);
 
-    populateMissingNumericFilters(filterArgs);
+    populateMissingFilters(filterArgs);
+    logger.trace(`buildFiltersFromArgs() result:`, filterArgs);
     return filterArgs;
 };
 
@@ -49,8 +52,8 @@ export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilter
 export function buildNewFilterSettings(): FeedFilterSettings {
     // Stringify and parse to get a deep copy of the default filters
     const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
-    filters.booleanFilters[BooleanFilterName.TYPE] = new BooleanFilter({title: BooleanFilterName.TYPE});
-    populateMissingNumericFilters(filters);
+    populateMissingFilters(filters);
+    logger.trace(`buildNewFilterSettings() result:`, filters);
     return filters;
 };
 
@@ -62,7 +65,7 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 
     // For upgrades of existing users for the rename of booleanFilterArgs
     if ("feedFilterSectionArgs" in filters) {
-        console.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
+        logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs as BooleanFilterArgs[];
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
@@ -74,7 +77,7 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
 
     if (wasChanged) {
-        console.warn(`Repaired invalid filter args:`, filters);
+        logger.warn(`Repaired invalid filter args:`, filters);
     }
 
     filters.booleanFilterArgs = validBooleanFilterArgs;
@@ -87,13 +90,12 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): FeedFilterSettings {
-    const logPrefx = `[updateBooleanFilterOptions()]`
+    const logPrefx = `<updateBooleanFilterOptions()>`
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
+    populateMissingFilters(filters);  // Ensure all filters are instantiated
 
     const tootCounts = Object.values(BooleanFilterName).reduce(
         (counts, propertyName) => {
-            // Instantiate missing filter sections  // TODO: maybe this should happen in Storage?
-            filters.booleanFilters[propertyName] ??= new BooleanFilter({title: propertyName});
             counts[propertyName as BooleanFilterName] = {} as StringNumberDict;
             return counts;
         },
@@ -138,7 +140,7 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
     }
 
     Storage.setFilters(filters);  // NOTE: there's no "await" here...
-    traceLog(`${logPrefx} completed, built filters:`, filters);
+    logger.trace(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };
 
@@ -160,16 +162,44 @@ export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],)
         })
     });
 
-    console.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
+    logger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage.setFilters(filters);
 };
 
 
-// Fill in any missing numeric filters
-function populateMissingNumericFilters(filters: FeedFilterSettings): void {
+// Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
+// when Storage tries to restore the filter objects).
+function populateMissingFilters(filters: FeedFilterSettings): void {
     FILTERABLE_SCORES.forEach(scoreName => {
         filters.numericFilters[scoreName] ??= new NumericFilter({title: scoreName});
+    });
+
+    Object.values(BooleanFilterName).forEach((booleanFilterName) => {
+        const filter = filters.booleanFilters[booleanFilterName];
+
+        if (!filter) {
+            logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
+            filters.booleanFilters[booleanFilterName] = new BooleanFilter({title: booleanFilterName});
+            return;
+        }
+
+        // TODO: this is a test for a weird bug where firefox wouldn't recognize that a new method existed on BooleanFilter
+        try {
+            filter.isThisSelectionEnabled("dummyOption");
+            // logger.debug(`populateMissingFilters() - Filter "${booleanFilterName}" exists and isThisSelectionEnabled() works`);
+        } catch (e) {
+            logger.error(`populateMissingFilters() - Filter "${booleanFilterName}" existed but failed to call isThisSelectionEnabled()! Overwriting with new object`, e);
+            let args: BooleanFilterArgs = {title: booleanFilterName};
+
+            try {
+                args = filter.toArgs();
+            } catch (e) {
+                logger.error(`populateMissingFilters() - Failed to convert filter "${booleanFilterName}" to args, using default args`, e);
+            }
+
+            filters.booleanFilters[booleanFilterName] = new BooleanFilter(args);
+        }
     });
 };
 
@@ -179,7 +209,7 @@ function removeInvalidFilterArgs(args: FilterArgs[], titleValidator: (title: str
     const [validArgs, invalidArgs] = split(args, arg => titleValidator(arg.title));
 
     if (invalidArgs.length > 0) {
-        console.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+        logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
     }
 
     return validArgs;

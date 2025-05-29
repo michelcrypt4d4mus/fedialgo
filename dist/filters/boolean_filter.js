@@ -122,7 +122,7 @@ class BooleanFilter extends toot_filter_1.default {
         return this.invertSelection ? !isMatched : isMatched;
     }
     // If the option is in validValues then it's enabled
-    isOptionEnabled(optionName) {
+    isThisSelectionEnabled(optionName) {
         return this.validValues.includes(optionName);
     }
     // Update the filter with the possible options that can be selected for validValues
@@ -135,11 +135,11 @@ class BooleanFilter extends toot_filter_1.default {
     // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element, isValidOption) {
         console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
-        if (isValidOption && !this.isOptionEnabled(element)) {
+        if (isValidOption && !this.isThisSelectionEnabled(element)) {
             this.validValues.push(element);
         }
         else {
-            if (!this.isOptionEnabled(element)) {
+            if (!this.isThisSelectionEnabled(element)) {
                 console.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
                 return;
             }

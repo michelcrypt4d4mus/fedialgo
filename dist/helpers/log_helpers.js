@@ -175,7 +175,7 @@ class ComponentLogger {
     constructor(componentName, subtitle) {
         this.componentName = componentName;
         this.subtitle = subtitle;
-        this.logPrefix = `<${componentName}>` + (subtitle ? ` (${subtitle})` : "");
+        this.logPrefix = `[${componentName}]` + (subtitle ? ` <${subtitle}>` : "");
     }
     error(msg, ...args) {
         console.error(this.makeMsg(msg), ...args);

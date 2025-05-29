@@ -42,12 +42,17 @@ const math_helper_1 = require("./helpers/math_helper");
 const feed_filters_1 = require("./filters/feed_filters");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
+const log_helpers_1 = require("./helpers/log_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const math_helper_2 = require("./helpers/math_helper");
-const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
+// Configure localForage to use WebSQL as the driver
+localforage_1.default.config({
+    name: string_helpers_1.FEDIALGO,
+    storeName: `${string_helpers_1.FEDIALGO}_user_data`,
+});
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
@@ -57,32 +62,22 @@ const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     types_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
-const buildLogMsg = (s) => `${LOG_PREFIX} ${s}`;
-const error = (s, ...args) => console.error(buildLogMsg(s), ...args);
-const warn = (s, ...args) => console.warn(buildLogMsg(s), ...args);
-const log = (s, ...args) => console.log(buildLogMsg(s), ...args);
-const debug = (s, ...args) => console.debug(buildLogMsg(s), ...args);
-const trace = (s, ...args) => (0, log_helpers_1.traceLog)(buildLogMsg(s), ...args);
-// Configure localForage to use WebSQL as the driver
-localforage_1.default.config({
-    name: string_helpers_1.FEDIALGO,
-    storeName: `${string_helpers_1.FEDIALGO}_user_data`,
-});
+const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
 class Storage {
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
-        log(`Clearing all storage...`);
+        logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeights();
         await localforage_1.default.clear();
         if (user) {
-            log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+            logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
             await this.setIdentity(user);
             if (weights)
                 await this.setWeightings(weights);
         }
         else {
-            warn(`No user identity found, cleared storage anyways`);
+            logger.warn(`No user identity found, cleared storage anyways`);
         }
     }
     // Get the value at the given key (with the user ID as a prefix)
@@ -94,7 +89,7 @@ class Storage {
         else if (!withTimestamp.updatedAt) {
             // TODO: remove this logic eventually, it's only for upgrading existing users
             // Code to handle upgrades of existing users who won't have the updatedAt / value format in browser storage
-            warn(`No updatedAt found for "${key}", likely due to a fedialgo upgrade. Clearing cache.`);
+            logger.warn(`No updatedAt found for "${key}", likely due to a fedialgo upgrade. Clearing cache.`);
             await this.remove(key);
             return null;
         }
@@ -118,15 +113,16 @@ class Storage {
             return null;
         try {
             if ((0, feed_filters_1.repairFilterSettings)(filters)) {
-                warn(`Repaired old filter settings, updating...`);
+                logger.warn(`Repaired old filter settings, updating...`);
                 await this.set(types_1.AlgorithmStorageKey.FILTERS, filters);
             }
         }
         catch (e) {
-            error(`Error repairing filter settings, returning null:`, e);
+            logger.error(`Error repairing filter settings, returning null:`, e);
             await this.remove(types_1.AlgorithmStorageKey.FILTERS);
             return null;
         }
+        logger.debug(`getFilters() loaded filters from storage:`, filters);
         // Filters are saved in a serialized format that requires deserialization
         return (0, feed_filters_1.buildFiltersFromArgs)(filters);
     }
@@ -163,14 +159,14 @@ class Storage {
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
             if (!(0, math_helper_2.isNumber)(value)) {
-                warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
+                logger.warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;
             }
         });
         // If any changes were made to the Storage weightings, save them back to storage
         if (shouldSave) {
-            log(`Saving repaired user weights:`, weights);
+            logger.log(`Saving repaired user weights:`, weights);
             await Storage.setWeightings(weights);
         }
         return weights;
@@ -180,7 +176,7 @@ class Storage {
         const logPrefix = `getWithStaleness("${key}"):`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            trace(`${logPrefix} No data found, returning null`);
+            logger.trace(`${logPrefix} No data found, returning null`);
             return null;
         }
         ;
@@ -190,14 +186,14 @@ class Storage {
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
         if (dataAgeInMinutes > staleAfterMinutes) {
-            debug(`${logPrefix} Data is stale ${minutesMsg}`);
+            logger.debug(`${logPrefix} Data is stale ${minutesMsg}`);
             isStale = true;
         }
         else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value))
                 msg += ` (${withTimestamp.value.length} records)`;
-            trace(`${logPrefix} ${msg}`);
+            logger.trace(`${logPrefix} ${msg}`);
         }
         // Check for unique IDs in the stored data if we're in debug mode
         if (environment_helpers_1.isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
@@ -235,7 +231,7 @@ class Storage {
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {
         const storageKey = key == types_1.AlgorithmStorageKey.USER ? key : await this.buildKey(key);
-        log(`Removing value at key: ${storageKey}`);
+        logger.log(`Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }
     // Set the value at the given key (with the user ID as a prefix)
@@ -244,7 +240,7 @@ class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt, value: storableValue };
-        trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        logger.trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Serialize the FeedFilterSettings object
@@ -264,7 +260,7 @@ class Storage {
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
         storedData[types_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
-        console.log(`Loaded user identity:`, storedData[types_1.AlgorithmStorageKey.USER]);
+        logger.log(`Loaded user identity:`, storedData[types_1.AlgorithmStorageKey.USER]);
         let totalBytes = 0;
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
@@ -288,7 +284,7 @@ class Storage {
                     info[key].type = 'object';
                 }
                 else {
-                    console.warn(`Unknown type for key "${key}":`, value);
+                    logger.warn(`Unknown type for key "${key}":`, value);
                 }
             }
             else {
@@ -307,9 +303,9 @@ class Storage {
     static async buildKey(key) {
         let user = await this.getIdentity();
         if (!user) {
-            warn(`No user identity found, checking MastoApi...`);
+            logger.warn(`No user identity found, checking MastoApi...`);
             if (api_1.default.instance.user) {
-                warn(`No user identity found! MastoApi has a user ID, using that instead`);
+                logger.warn(`No user identity found! MastoApi has a user ID, using that instead`);
                 user = api_1.default.instance.user;
                 await this.setIdentity(user);
             }
@@ -326,7 +322,7 @@ class Storage {
                 return value.map((t) => (0, class_transformer_1.plainToInstance)(account_1.default, t));
             }
             else {
-                warn(`Expected array of accounts at key "${key}", but got:`, value);
+                logger.warn(`Expected array of accounts at key "${key}", but got:`, value);
                 return (0, class_transformer_1.plainToInstance)(account_1.default, value);
             }
         }
@@ -335,7 +331,7 @@ class Storage {
                 return value.map((t) => (0, class_transformer_1.plainToInstance)(toot_1.default, t));
             }
             else {
-                warn(`Expected array of toots at key "${key}", but got:`, value);
+                logger.warn(`Expected array of toots at key "${key}", but got:`, value);
                 return (0, class_transformer_1.plainToInstance)(toot_1.default, value);
             }
         }
@@ -372,7 +368,7 @@ class Storage {
             return (0, time_helpers_1.ageInSeconds)(mostRecent.getTime());
         }
         else {
-            debug(`No most recent toot found`);
+            logger.debug(`No most recent toot found`);
             return null;
         }
     }
@@ -390,7 +386,7 @@ class Storage {
     // Store the fedialgo user's Account object
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
-        trace(`Setting fedialgo user identity to:`, user);
+        logger.trace(`Setting fedialgo user identity to:`, user);
         await localforage_1.default.setItem(types_1.AlgorithmStorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
     }
     static async updatedAt(key) {

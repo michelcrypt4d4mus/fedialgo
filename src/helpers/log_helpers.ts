@@ -195,7 +195,7 @@ export class ComponentLogger {
     constructor(componentName: string, subtitle?: string) {
         this.componentName = componentName;
         this.subtitle = subtitle;
-        this.logPrefix = `<${componentName}>` + (subtitle ? ` (${subtitle})` : "");
+        this.logPrefix = `[${componentName}]` + (subtitle ? ` <${subtitle}>` : "");
     }
 
     error(msg: string, ...args: any[]) {
