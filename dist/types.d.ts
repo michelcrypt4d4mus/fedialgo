@@ -69,7 +69,7 @@ export declare enum MediaCategory {
 }
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;
-export type MastodonInstances = Record<string, MastodonInstance | MastodonInstanceEmpty>;
+export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
@@ -109,10 +109,6 @@ export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
 }
-export type MastodonInstanceEmpty = {
-    followedPctOfMAU?: number;
-    MAU?: number;
-};
 export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
 export interface MinMax {
     min: number;

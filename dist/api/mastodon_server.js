@@ -237,9 +237,9 @@ class MastodonServer {
             serverDict = { ...serverDict, ...extraServerInfos };
         }
         // Create a dict of the ratio of the number of users followed on a server to the MAU of that server.
-        const servers = Object.entries(serverDict).reduce((serverDict, [domain, _instance]) => {
-            // Replace any null responses with MastodonInstanceEmpty objs
-            const instance = _instance ? _instance : {};
+        // Filter out any null responses.
+        const servers = Object.entries(serverDict).filter(([_k, v]) => !!v).reduce((serverDict, [domain, _instance]) => {
+            const instance = _instance;
             const domainAccountsFollowed = followedUserDomainCounts[domain] || 0;
             instance.MAU = _instance?.usage?.users?.activeMonth || 0; // copy MAU to top level
             instance.followedPctOfMAU = instance.MAU ? (domainAccountsFollowed / instance.MAU) : 0;

@@ -69,6 +69,7 @@ import {
     AlgorithmStorageKey,
     FeedFilterSettings,
     KeysOfValueType,
+    MastodonInstance,
     MastodonTag,
     MediaCategory,
     MinMaxAvgScore,
@@ -674,6 +675,7 @@ export {
     // Types
     type FeedFilterSettings,
     type KeysOfValueType,
+    type MastodonInstance,
     type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
