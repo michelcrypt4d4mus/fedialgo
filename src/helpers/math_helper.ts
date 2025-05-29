@@ -2,7 +2,6 @@
  * Math and numbers.
  */
 import { byteString, NUMBER_REGEX } from "./string_helpers";
-import { strBytes } from "./log_helpers";
 import { StringNumberDict } from "../types";
 
 
@@ -43,5 +42,27 @@ export class BytesDict {
 
     toBytesStringDict(): Record<string, string> {
         return Object.fromEntries(Object.entries(this.toDict()).map(([k, v]) => [k, byteString(v)]));
+    }
+};
+
+
+export function sizeFromTextEncoder(obj: object): number {
+    try {
+        const jsonString = JSON.stringify(obj);
+        return new TextEncoder().encode(jsonString).length;
+    } catch (err) {
+        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        return 0;
+    }
+};
+
+
+export function sizeFromBufferByteLength(obj: object): number {
+    try {
+        const jsonString = JSON.stringify(obj);
+        return Buffer.byteLength(jsonString, 'utf8');
+    } catch (err) {
+        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        return 0;
     }
 };

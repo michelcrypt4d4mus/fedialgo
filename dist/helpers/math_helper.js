@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BytesDict = exports.isNumber = void 0;
+exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.BytesDict = exports.isNumber = void 0;
 /*
  * Math and numbers.
  */
@@ -44,5 +44,29 @@ class BytesDict {
     }
 }
 exports.BytesDict = BytesDict;
+;
+function sizeFromTextEncoder(obj) {
+    try {
+        const jsonString = JSON.stringify(obj);
+        return new TextEncoder().encode(jsonString).length;
+    }
+    catch (err) {
+        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        return 0;
+    }
+}
+exports.sizeFromTextEncoder = sizeFromTextEncoder;
+;
+function sizeFromBufferByteLength(obj) {
+    try {
+        const jsonString = JSON.stringify(obj);
+        return Buffer.byteLength(jsonString, 'utf8');
+    }
+    catch (err) {
+        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        return 0;
+    }
+}
+exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
 ;
 //# sourceMappingURL=math_helper.js.map

@@ -1,7 +1,8 @@
 type DateArg = Date | number | string | null | undefined;
 export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;
 export declare const ageInMinutes: (date: DateArg, endTime?: DateArg) => number;
-export declare function ageInSeconds(date: DateArg, endTime?: DateArg): number;
+export declare const ageInSeconds: (date: DateArg, endTime?: DateArg) => number;
+export declare function ageInMS(date: DateArg, endTime?: DateArg): number;
 export declare function ageString(date: DateArg): string;
 export declare function coerceDate(date: DateArg): Date | null;
 export declare function mostRecent(...args: (Date | null)[]): Date | null;

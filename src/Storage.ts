@@ -11,7 +11,7 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { BytesDict } from "./helpers/math_helper";
+import { BytesDict, sizeFromBufferByteLength, sizeFromTextEncoder } from "./helpers/math_helper";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
@@ -311,6 +311,8 @@ export default class Storage {
                         bytes: sizeInBytes,
                         bytesStr: byteString(sizeInBytes),
                         sizeOfByType: sizes.toBytesStringDict(),  // kind of janky way to find out what % of storage is numbers, strings, etc.
+                        sizeFromBufferByteLength: sizeFromBufferByteLength(value),
+                        sizeFromTextEncoder: sizeFromTextEncoder(value),
                     }
 
                     if (Array.isArray(value)) {

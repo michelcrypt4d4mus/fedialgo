@@ -22,6 +22,8 @@ export default class MastoApi {
     userData?: UserData;
     private mutexes;
     private requestSemphore;
+    private waitedAt;
+    private waitingMS;
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();

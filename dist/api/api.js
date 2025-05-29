@@ -56,6 +56,9 @@ class MastoApi {
     userData; // Save UserData in the API object to avoid polling local storage over and over
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+    // These are just for measuring performance (poorly)
+    waitedAt = {}; // When the last request was made
+    waitingMS = {}; // Total time spent waiting for API requests to complete
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
@@ -430,7 +433,9 @@ class MastoApi {
                 ;
             }
             (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, limit, minId, maxId, maxRecords });
+            this.waitedAt[cacheKey] = new Date(); // Reset the waiting timer
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
+                this.waitingMS[cacheKey] = (this.waitingMS[cacheKey] || 0) + (0, time_helpers_1.ageInMS)(this.waitedAt[cacheKey]);
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
@@ -443,6 +448,8 @@ class MastoApi {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
                     (pageNumber % 5 == 0) ? console.debug(msg) : (0, log_helpers_1.traceLog)(msg);
                 }
+                // Reset timer to try to only measure the time spent waiting for the API to respond
+                this.waitedAt[cacheKey] = new Date();
             }
         }
         catch (e) {

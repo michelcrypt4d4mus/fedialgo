@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -12,25 +12,25 @@ const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 // Compute the difference from 'date' to now in minutes
 const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
 exports.ageInHours = ageInHours;
-const ageInMinutes = (date, endTime) => ageInSeconds(date, endTime) / 60.0;
+const ageInMinutes = (date, endTime) => (0, exports.ageInSeconds)(date, endTime) / 60.0;
 exports.ageInMinutes = ageInMinutes;
-// Compute the difference from 'date' to now in seconds.
-// Accepts ISO format strings, millisecond timestamps, and Date objects.
-function ageInSeconds(date, endTime) {
+const ageInSeconds = (date, endTime) => ageInMS(date, endTime) / 1000.0;
+exports.ageInSeconds = ageInSeconds;
+function ageInMS(date, endTime) {
     if (!date) {
         console.warn("Invalid date passed to ageInSeconds():", date);
         return -1;
     }
     endTime = coerceDate(endTime || new Date());
-    return (endTime.getTime() - coerceDate(date).getTime()) / 1000;
+    return endTime.getTime() - coerceDate(date).getTime();
 }
-exports.ageInSeconds = ageInSeconds;
+exports.ageInMS = ageInMS;
 ;
 // Make a nice string like "in 2.5 minutes"
 function ageString(date) {
     if (!date)
         return string_helpers_1.NULL;
-    const seconds = ageInSeconds(date);
+    const seconds = (0, exports.ageInSeconds)(date);
     const secondsStr = seconds < 0.1 ? seconds.toFixed(3) : seconds.toFixed(1);
     return `in ${secondsStr} seconds`;
 }
@@ -95,7 +95,7 @@ const timeString = (_timestamp, locale) => {
     ;
     const timestamp = coerceDate(_timestamp);
     const isToday = timestamp.getDate() == new Date().getDate();
-    const seconds = ageInSeconds(timestamp);
+    const seconds = (0, exports.ageInSeconds)(timestamp);
     let str;
     if (isToday) {
         str = "today";

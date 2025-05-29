@@ -11,7 +11,7 @@ import Account from "./objects/account";
 import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "../Storage";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
+import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { ApiMutex, CacheKey, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList } from "../types";
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
@@ -73,6 +73,10 @@ export default class MastoApi {
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
     private requestSemphore = new Semaphore(config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+
+    // These are just for measuring performance (poorly)
+    private waitedAt: {[key in CacheKey]?: Date} = {};          // When the last request was made
+    private waitingMS: {[key in CacheKey]?: number} = {}; // Total time spent waiting for API requests to complete
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -492,8 +496,10 @@ export default class MastoApi {
             }
 
             traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, limit, minId, maxId, maxRecords});
+            this.waitedAt[cacheKey] = new Date();  // Reset the waiting timer
 
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
+                this.waitingMS[cacheKey] = (this.waitingMS[cacheKey] || 0) + ageInMS(this.waitedAt[cacheKey]);
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
@@ -506,6 +512,9 @@ export default class MastoApi {
                     const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
                     (pageNumber % 5 == 0) ? console.debug(msg) : traceLog(msg);
                 }
+
+                // Reset timer to try to only measure the time spent waiting for the API to respond
+                this.waitedAt[cacheKey] = new Date();
             }
         } catch (e) {
             // TODO: handle rate limiting errors

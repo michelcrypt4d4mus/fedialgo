@@ -2,6 +2,7 @@
  * Logging related methods.
  */
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+import size from 'lodash/size';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
 import { BytesDict } from './math_helper';
@@ -9,7 +10,6 @@ import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
-import { size } from 'lodash';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";

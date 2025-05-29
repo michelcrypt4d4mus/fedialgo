@@ -14,17 +14,16 @@ const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 // Compute the difference from 'date' to now in minutes
 export const ageInHours = (date: DateArg, endTime?: DateArg) => ageInMinutes(date, endTime) / 60.0;
 export const ageInMinutes = (date: DateArg, endTime?: DateArg) => ageInSeconds(date, endTime) / 60.0;
+export const ageInSeconds = (date: DateArg, endTime?: DateArg) => ageInMS(date, endTime) / 1000.0;
 
-// Compute the difference from 'date' to now in seconds.
-// Accepts ISO format strings, millisecond timestamps, and Date objects.
-export function ageInSeconds(date: DateArg, endTime?: DateArg): number {
+export function ageInMS(date: DateArg, endTime?: DateArg): number {
     if (!date) {
         console.warn("Invalid date passed to ageInSeconds():", date);
         return -1;
     }
 
     endTime = coerceDate(endTime || new Date());
-    return (endTime!.getTime() - coerceDate(date)!.getTime()) / 1000;
+    return endTime!.getTime() - coerceDate(date)!.getTime();
 };
 
 

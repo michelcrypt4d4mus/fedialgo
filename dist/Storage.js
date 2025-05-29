@@ -275,7 +275,9 @@ class Storage {
                 info[key] = {
                     bytes: sizeInBytes,
                     bytesStr: (0, string_helpers_1.byteString)(sizeInBytes),
-                    sizeOfByType: sizes.toBytesStringDict(), // kind of janky way to find out what % of storage is numbers, strings, etc.
+                    sizeOfByType: sizes.toBytesStringDict(),
+                    sizeFromBufferByteLength: (0, math_helper_1.sizeFromBufferByteLength)(value),
+                    sizeFromTextEncoder: (0, math_helper_1.sizeFromTextEncoder)(value),
                 };
                 if (Array.isArray(value)) {
                     info[key].numElements = value.length;

@@ -11,3 +11,5 @@ export declare class BytesDict {
     toDict(): StringNumberDict;
     toBytesStringDict(): Record<string, string>;
 }
+export declare function sizeFromTextEncoder(obj: object): number;
+export declare function sizeFromBufferByteLength(obj: object): number;
