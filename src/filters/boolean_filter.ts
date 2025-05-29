@@ -144,7 +144,7 @@ export default class BooleanFilter extends TootFilter {
     setOptions(optionInfo: StringNumberDict) {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
-        this.optionInfo = {...optionInfo}; // TODO: this is to trigger useMemo() in the demo app, not great
+        this.optionInfo = {...optionInfo}; // TODO: new object ID triggers useMemo() in the demo app, not great
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

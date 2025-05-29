@@ -1,12 +1,12 @@
 # NEXT RELEASE
 
-### v0.54.13
+### v0.54.13 (not deployed to production)
 * Add information about storage usage for each primitive type to `getCurrentState()`
 * `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
 * Add telemetry to `MastoApi` for request wait times (data is returned in `getCurrentState()` under the new `Api` section)
 * `QUICK_MODE` isn't always turned on when `NODE_ENV=development` and/the `FEDIALGO_DEBUG` env var is turned on; has to be enabled separately now
-* Add `BooleanFilter.isThisSelectionEnabled()` method
-* ~~Fix bug where BooleanFilters weren't being fully reconstructed as class instances (they were just objects and so had no methods)~~
+* Add `BooleanFilter.isThisSelectionEnabled()` method (**THIS IS WHERE THE ISSUES STARTED**)
+* (maybe) ~~fixed bug where BooleanFilters weren't being fully reconstructed as class instances (they were just objects and so had no methods)~~
 * Export ComponentLogger class
 
 ### v0.54.12
