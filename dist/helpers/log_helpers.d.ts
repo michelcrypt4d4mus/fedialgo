@@ -1,6 +1,7 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 import { BytesDict } from './math_helper';
 export type WaitTime = {
+    avgMsPerRequest: number;
     milliseconds: number;
     numRequests: number;
 };

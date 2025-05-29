@@ -508,9 +508,10 @@ export default class MastoApi {
 
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
                 // TODO: telemetry stuff that should be removed eventually
-                this.waitTimes[cacheKey] ??= {milliseconds: 0, numRequests: 0};
+                this.waitTimes[cacheKey] ??= {avgMsPerRequest: 0, milliseconds: 0, numRequests: 0};
                 this.waitTimes[cacheKey]!.numRequests += 1;
                 this.waitTimes[cacheKey]!.milliseconds += ageInMS(this.waitedAt[cacheKey]);
+                this.waitTimes[cacheKey]!.avgMsPerRequest = this.waitTimes[cacheKey]!.milliseconds / this.waitTimes[cacheKey]!.numRequests;
 
                 // The actual action
                 rows = rows.concat(page as T[]);

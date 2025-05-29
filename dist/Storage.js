@@ -276,7 +276,7 @@ class Storage {
                     bytes: sizeInBytes,
                     bytesStr: (0, string_helpers_1.byteString)(sizeInBytes),
                     sizeOfByType: sizes.toBytesStringDict(),
-                    sizeFromBufferByteLength: (0, math_helper_1.sizeFromBufferByteLength)(value),
+                    // sizeFromBufferByteLength: sizeFromBufferByteLength(value),
                     sizeFromTextEncoder: (0, math_helper_1.sizeFromTextEncoder)(value),
                 };
                 if (Array.isArray(value)) {

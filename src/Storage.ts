@@ -311,7 +311,7 @@ export default class Storage {
                         bytes: sizeInBytes,
                         bytesStr: byteString(sizeInBytes),
                         sizeOfByType: sizes.toBytesStringDict(),  // kind of janky way to find out what % of storage is numbers, strings, etc.
-                        sizeFromBufferByteLength: sizeFromBufferByteLength(value),
+                        // sizeFromBufferByteLength: sizeFromBufferByteLength(value),
                         sizeFromTextEncoder: sizeFromTextEncoder(value),
                     }
 

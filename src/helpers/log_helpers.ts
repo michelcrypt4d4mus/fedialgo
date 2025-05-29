@@ -2,7 +2,6 @@
  * Logging related methods.
  */
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
-import size from 'lodash/size';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
 import { BytesDict } from './math_helper';
@@ -12,6 +11,7 @@ import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
 
 export type WaitTime = {
+    avgMsPerRequest: number;
     milliseconds: number;
     numRequests: number;
 };
