@@ -43,10 +43,11 @@ const feed_filters_1 = require("./filters/feed_filters");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
+const math_helper_2 = require("./helpers/math_helper");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const math_helper_2 = require("./helpers/math_helper");
+const math_helper_3 = require("./helpers/math_helper");
 const types_1 = require("./types");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
@@ -158,7 +159,7 @@ class Storage {
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
-            if (!(0, math_helper_2.isNumber)(value)) {
+            if (!(0, math_helper_3.isNumber)(value)) {
                 logger.warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;
@@ -266,7 +267,7 @@ class Storage {
             if (obj) {
                 const value = key == types_1.AlgorithmStorageKey.USER ? obj : obj.value;
                 const sizes = new math_helper_1.BytesDict();
-                const sizeInBytes = (0, log_helpers_1.sizeOf)(value, sizes);
+                const sizeInBytes = (0, math_helper_2.sizeOf)(value, sizes);
                 totalBytes += sizeInBytes;
                 info[key] = {
                     bytes: sizeInBytes,

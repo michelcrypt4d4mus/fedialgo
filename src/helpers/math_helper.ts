@@ -3,6 +3,8 @@
  */
 import { byteString, NUMBER_REGEX } from "./string_helpers";
 import { StringNumberDict } from "../types";
+import { sumArray } from "./collection_helpers";
+import { strBytes } from "./log_helpers";
 
 
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
@@ -65,4 +67,57 @@ export function sizeFromBufferByteLength(obj: object): number {
         console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
         return 0;
     }
+};
+
+
+// Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
+export function sizeOf(obj: any, sizes: BytesDict): number {
+    if (obj === null || obj === undefined) return 0;
+    let bytes = 0;
+
+    switch (typeof obj) {
+        case "number":
+            bytes += 8;
+            sizes.numbers += 8;
+            break;
+        case "string":
+            const stringLength = strBytes(obj);
+            bytes += stringLength;
+            sizes.strings += stringLength;
+            break;
+        case "boolean":
+            bytes += 4;
+            sizes.booleans += 4;
+            break;
+        case "function":
+            const fxnLength = strBytes(obj.toString());
+            bytes += fxnLength; // functions aren't serialized in JSON i don't think?
+            sizes.functions += fxnLength;
+            break;
+        case "object":
+            if (Array.isArray(obj)) {
+                const arrayBytes = sumArray(obj.map((item) => sizeOf(item, sizes)));
+                bytes += arrayBytes;
+                sizes.arrays += arrayBytes;
+            } else {
+                Object.entries(obj).forEach(([key, value]) => {
+                    const keyBytes = strBytes(key);
+                    bytes += keyBytes;
+                    sizes.strings += keyBytes;
+                    sizes.keys += keyBytes; // keys in objects
+
+                    const valueBytes = sizeOf(value, sizes);
+                    bytes += valueBytes;
+                    sizes.objects += valueBytes; // count objects in the size
+                });
+            }
+
+            break;
+        default:
+            console.warn(`sizeOf() unknown type: ${typeof obj}`);
+            bytes += strBytes(obj.toString());
+            break;
+    }
+
+    return bytes;
 };

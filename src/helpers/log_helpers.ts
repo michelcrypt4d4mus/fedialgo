@@ -4,10 +4,8 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
-import { BytesDict } from './math_helper';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
-import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
 
 // Log prefixes
@@ -82,59 +80,6 @@ export function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ..
 export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
     console.debug(`${bracketed(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-};
-
-
-// Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
-export function sizeOf(obj: any, sizes: BytesDict): number {
-    if (obj === null || obj === undefined) return 0;
-    let bytes = 0;
-
-    switch (typeof obj) {
-        case "number":
-            bytes += 8;
-            sizes.numbers += 8;
-            break;
-        case "string":
-            const stringLength = strBytes(obj);
-            bytes += stringLength;
-            sizes.strings += stringLength;
-            break;
-        case "boolean":
-            bytes += 4;
-            sizes.booleans += 4;
-            break;
-        case "function":
-            const fxnLength = strBytes(obj.toString());
-            bytes += fxnLength;  // functions aren't serialized in JSON i don't think?
-            sizes.functions += fxnLength;
-            break;
-        case "object":
-            if (Array.isArray(obj)) {
-                const arrayBytes = sumArray(obj.map((item) => sizeOf(item, sizes)));
-                bytes += arrayBytes;
-                sizes.arrays += arrayBytes;
-            } else {
-                Object.entries(obj).forEach(([key, value]) => {
-                    const keyBytes = strBytes(key);
-                    bytes += keyBytes;
-                    sizes.strings += keyBytes;
-                    sizes.keys += keyBytes;  // keys in objects
-
-                    const valueBytes = sizeOf(value, sizes);
-                    bytes += valueBytes;
-                    sizes.objects += valueBytes;  // count objects in the size
-                });
-            }
-
-            break;
-        default:
-            console.warn(`sizeOf() unknown type: ${typeof obj}`);
-            bytes += strBytes(obj.toString());
-            break;
-    }
-
-    return bytes;
 };
 
 

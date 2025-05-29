@@ -13,3 +13,4 @@ export declare class BytesDict {
 }
 export declare function sizeFromTextEncoder(obj: object): number;
 export declare function sizeFromBufferByteLength(obj: object): number;
+export declare function sizeOf(obj: any, sizes: BytesDict): number;
