@@ -267,6 +267,7 @@ class TheAlgorithm {
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
+            Api: { waitTimes: api_1.default.instance.waitTimes },
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

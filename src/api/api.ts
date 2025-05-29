@@ -16,7 +16,7 @@ import { ApiMutex, CacheKey, MastodonApiObject, MastodonObjWithID, MastodonTag, 
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, traceLog, WaitTime } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from "../types";
 
@@ -76,7 +76,7 @@ export default class MastoApi {
 
     // These are just for measuring performance (poorly)
     private waitedAt: {[key in CacheKey]?: Date} = {};          // When the last request was made
-    private waitingMS: {[key in CacheKey]?: number} = {}; // Total time spent waiting for API requests to complete
+    waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Total time spent waiting for API requests to complete
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -499,7 +499,12 @@ export default class MastoApi {
             this.waitedAt[cacheKey] = new Date();  // Reset the waiting timer
 
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
-                this.waitingMS[cacheKey] = (this.waitingMS[cacheKey] || 0) + ageInMS(this.waitedAt[cacheKey]);
+                // TODO: telemetry stuff that should be removed eventually
+                this.waitTimes[cacheKey] ??= {milliseconds: 0, numRequests: 0};
+                this.waitTimes[cacheKey]!.numRequests += 1;
+                this.waitTimes[cacheKey]!.milliseconds += ageInMS(this.waitedAt[cacheKey]);
+
+                // The actual action
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!

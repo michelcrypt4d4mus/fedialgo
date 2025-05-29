@@ -58,7 +58,7 @@ class MastoApi {
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     // These are just for measuring performance (poorly)
     waitedAt = {}; // When the last request was made
-    waitingMS = {}; // Total time spent waiting for API requests to complete
+    waitTimes = {}; // Total time spent waiting for API requests to complete
     static init(api, user) {
         if (MastoApi.#instance) {
             console.warn("MastoApi instance already initialized...");
@@ -435,7 +435,11 @@ class MastoApi {
             (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/defaults:`, { ...params, limit, minId, maxId, maxRecords });
             this.waitedAt[cacheKey] = new Date(); // Reset the waiting timer
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
-                this.waitingMS[cacheKey] = (this.waitingMS[cacheKey] || 0) + (0, time_helpers_1.ageInMS)(this.waitedAt[cacheKey]);
+                // TODO: telemetry stuff that should be removed eventually
+                this.waitTimes[cacheKey] ??= { milliseconds: 0, numRequests: 0 };
+                this.waitTimes[cacheKey].numRequests += 1;
+                this.waitTimes[cacheKey].milliseconds += (0, time_helpers_1.ageInMS)(this.waitedAt[cacheKey]);
+                // The actual action
                 rows = rows.concat(page);
                 pageNumber += 1;
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!

@@ -3,6 +3,7 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { CacheKey, MastodonTag } from "../types";
+import { WaitTime } from '../helpers/log_helpers';
 interface ApiParams {
     maxRecords?: number;
     moar?: boolean;
@@ -23,7 +24,9 @@ export default class MastoApi {
     private mutexes;
     private requestSemphore;
     private waitedAt;
-    private waitingMS;
+    waitTimes: {
+        [key in CacheKey]?: WaitTime;
+    };
     static init(api: mastodon.rest.Client, user: Account): void;
     static get instance(): MastoApi;
     private constructor();

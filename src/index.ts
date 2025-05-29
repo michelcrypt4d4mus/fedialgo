@@ -285,6 +285,7 @@ class TheAlgorithm {
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
+            Api: {waitTimes: MastoApi.instance.waitTimes},
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

@@ -11,6 +11,11 @@ import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
 
+export type WaitTime = {
+    milliseconds: number;
+    numRequests: number;
+};
+
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export const CLEANUP_FEED = "cleanupFeed()";

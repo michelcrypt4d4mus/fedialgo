@@ -1,5 +1,9 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 import { BytesDict } from './math_helper';
+export type WaitTime = {
+    milliseconds: number;
+    numRequests: number;
+};
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const CLEANUP_FEED = "cleanupFeed()";
 export declare const PREP_SCORERS = "prepareScorers()";
