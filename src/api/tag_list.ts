@@ -114,7 +114,7 @@ export default class TagList {
         const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
 
         if (validTags.length != this.tags.length) {
-            traceLog(`Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
+            traceLog(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
         }
 
         this.tags = validTags;

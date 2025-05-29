@@ -103,7 +103,7 @@ class MastodonServer {
         let url = this.endpointUrl(endpoint);
         if (limit)
             url += `?limit=${limit}`;
-        (0, log_helpers_1.traceLog)(`[${this.endpointDomain(endpoint)}] fetching...`);
+        // traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
         const json = await axios_1.default.get(url, { timeout: config_1.config.api.timeoutMS });
         if (json.status === 200 && json.data) {

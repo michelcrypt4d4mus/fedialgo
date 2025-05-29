@@ -140,7 +140,7 @@ export default class MastodonServer {
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
         let url = this.endpointUrl(endpoint);
         if (limit) url += `?limit=${limit}`;
-        traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
+        // traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
         const startedAt = new Date();
         const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
 

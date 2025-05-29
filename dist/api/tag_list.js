@@ -96,7 +96,7 @@ class TagList {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
         if (validTags.length != this.tags.length) {
-            (0, log_helpers_1.traceLog)(`Filtered out ${this.tags.length - validTags.length} tags:`, this.tags);
+            (0, log_helpers_1.traceLog)(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
         }
         this.tags = validTags;
     }
