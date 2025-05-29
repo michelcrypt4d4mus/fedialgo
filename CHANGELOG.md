@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.54.4
+* (Demo App) Fix `FindFollowers` style
+
 ### v0.54.3
 * Export `LANGUAGE_CODES` dict
 * (Demo App) Show full language name in filter section, not just 2 character code
