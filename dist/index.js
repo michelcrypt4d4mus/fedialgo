@@ -326,7 +326,6 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(complete = false) {
         console.warn(`reset() called, clearing all storage...`);
-        api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater);
@@ -334,8 +333,10 @@ class TheAlgorithm {
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
-        this.feed = [];
         this.numTriggers = 0;
+        this.feed = [];
+        // Call other classes' reset methods
+        api_1.default.instance.reset();
         await Storage_1.default.clearAll();
         if (complete) {
             await Storage_1.default.remove(types_2.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded

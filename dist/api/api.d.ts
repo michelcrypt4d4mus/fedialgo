@@ -47,6 +47,7 @@ export default class MastoApi {
     instanceInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    reset(): void;
     setSemaphoreConcurrency(concurrency: number): void;
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;

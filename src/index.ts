@@ -354,7 +354,6 @@ class TheAlgorithm {
     // Clear everything from browser storage except the user's identity and weightings
     async reset(complete: boolean = false): Promise<void> {
         console.warn(`reset() called, clearing all storage...`);
-        MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsInitial);
         this.dataPoller && clearInterval(this.dataPoller!);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater!);
@@ -362,8 +361,11 @@ class TheAlgorithm {
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
-        this.feed = [];
         this.numTriggers = 0;
+        this.feed = [];
+
+        // Call other classes' reset methods
+        MastoApi.instance.reset();
         await Storage.clearAll();
 
         if (complete) {

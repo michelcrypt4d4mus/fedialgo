@@ -362,6 +362,14 @@ class MastoApi {
             releaseSemaphore();
         }
     }
+    reset() {
+        console.log("[API reset()] Resetting MastoApi telemetry and userData");
+        this.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
+        this.userData = undefined; // Clear the user data cache
+        this.waitedAt = {}; // Reset the waiting timer
+        this.waitTimes = {}; // Reset the wait times
+    }
+    ;
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
     // drain switching back to the browser window, which triggers a lot of background requests
     // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
