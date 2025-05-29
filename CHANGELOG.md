@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Add a TootCache typed property to Toot that memoizes the results of frequently called string functions like contentWithCard() or contentWithEmojis()
+* Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`
 
 ### v0.54.11
 * Exclude object's functions when computing browser storage usage (the fxns aren't serialized to storage?)
