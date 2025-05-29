@@ -465,9 +465,9 @@ class TheAlgorithm {
         const logPrefix = bracketed(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
-
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
         this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);
+
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await Toot.completeToots(this.feed, logPrefix, isDeepInspect);
         updateBooleanFilterOptions(this.filters, this.feed);
