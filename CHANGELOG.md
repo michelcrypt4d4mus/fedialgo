@@ -1,7 +1,7 @@
 # NEXT RELEASE
 * Add information about storage usage for each primitive type to `getCurrentState()`
-* MastoApi now has a reset() method which is called by TheAlgorithm during resets
-* Add telemetry to MastoApi for request wait times (data is returned in getCurrentState())
+* `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
+* Add telemetry to `MastoApi` for request wait times (data is returned in `getCurrentState()` under the new `Api` section)
 
 ### v0.54.12
 * Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`
