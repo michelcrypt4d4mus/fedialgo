@@ -3,6 +3,7 @@
 * Remove diacritics from text when filtering for hashtag matches. Fixes bug where german/french etc. tags weren't filtering correctly bc tag names have already had diacritics stripped
 * Change hashtag language detection regexes to match substrings instead of whole strings
 * Fix bug where japanese/arabic/etc. tags reappear when trending tags are loaded from the cache at startup
+* Add lodash library, use it for makeChunks()
 * (Demo App) Reorder filters so interactions filter is at the top
 
 ### v0.54.1

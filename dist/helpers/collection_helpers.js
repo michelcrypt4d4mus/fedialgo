@@ -1,12 +1,17 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
+const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const math_helper_1 = require("./math_helper");
+const BATCH_MAP = "batchMap()";
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
@@ -30,21 +35,35 @@ exports.average = average;
 //    - batchSize: number of items to process at once
 //    - sleepBetweenMS: optional number of milliseconds to sleep between batches
 async function batchMap(items, mapFxn, label, batchSize, sleepBetweenMS) {
-    batchSize ||= config_1.config.scoring.scoringBatchSize;
+    const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
+    let logPrefix = label ? `[${label}] ${BATCH_MAP}` : (0, string_helpers_1.bracketed)(BATCH_MAP);
+    const chunks = makeChunks(items, { chunkSize: chunkSize });
     let results = [];
-    let logPrefix = `[${label || 'batchMap'}]`;
-    for (let start = 0; start < items.length; start += batchSize) {
-        const end = start + batchSize > items.length ? items.length : start + batchSize;
-        const slicedResults = await Promise.all(items.slice(start, end).map(mapFxn));
-        results = [...results, ...slicedResults];
-        if (sleepBetweenMS && (items.length > end)) {
-            console.debug(`${logPrefix} batchMap() ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
+    chunks.forEach(async (chunk, i) => {
+        results = results.concat(await Promise.all(chunk.map(mapFxn)));
+        if (sleepBetweenMS && (i < (chunks.length - 1))) {
+            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${items.length}, sleeping ${sleepBetweenMS}ms`);
             await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
         }
-    }
+    });
     return results;
 }
 exports.batchMap = batchMap;
+;
+// Split the array into numChunks using reduce
+function makeChunks(array, options) {
+    if (options.numChunks && options.chunkSize) {
+        throw new Error("makeChunks() requires either numChunks or chunkSize to be set, not both");
+    }
+    else if (options.numChunks) {
+        options.chunkSize = Math.ceil(array.length / options.numChunks);
+    }
+    else if (!options.numChunks && !options.chunkSize) {
+        throw new Error("makeChunks() requires either numChunks or chunkSize to be set");
+    }
+    return (0, chunk_1.default)(array, options.chunkSize);
+}
+exports.makeChunks = makeChunks;
 ;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
@@ -181,22 +200,10 @@ function keyByProperty(array, keyFxn) {
 }
 exports.keyByProperty = keyByProperty;
 ;
-// Divide array into numPercentiles sections, returns array of arrays of type T objects
+// Sort array by fxn() value & divide into numPercentiles sections
 function percentileSegments(array, fxn, numPercentiles) {
-    if (!numPercentiles)
-        throw new Error("percentileSegments() requires numPercentiles > 0");
-    array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    let batchSize = array.length / numPercentiles;
-    if (batchSize % 1 != 0)
-        batchSize += 1;
-    batchSize = Math.floor(batchSize);
-    const percentileSegments = [];
-    for (let start = 0; start < array.length; start += batchSize) {
-        const end = start + batchSize > array.length ? array.length : start + batchSize;
-        const section = array.slice(start, end);
-        percentileSegments.push(section);
-    }
-    return percentileSegments;
+    const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
+    return makeChunks(sortedArray, { numChunks: numPercentiles });
 }
 exports.percentileSegments = percentileSegments;
 ;

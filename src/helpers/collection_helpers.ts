@@ -1,10 +1,19 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
+import chunk from 'lodash/chunk';
+
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
+
+const BATCH_MAP = "batchMap()";
+
+interface ChunkOptions {
+    chunkSize?: number;  // Size of each chunk
+    numChunks?: number;  // Number of chunks to split the array into
+}
 
 
 // Return a new object with only the key/value pairs that have a value greater than minValue
@@ -29,28 +38,41 @@ export function average(values: number[]): number {
 //    - batchSize: number of items to process at once
 //    - sleepBetweenMS: optional number of milliseconds to sleep between batches
 export async function batchMap<T>(
-    items: Array<T>,
+    items: T[],
     mapFxn: (item: T) => Promise<any>,
     label?: string,
     batchSize?: number,
     sleepBetweenMS?: number
 ): Promise<any[]> {
-    batchSize ||= config.scoring.scoringBatchSize;
+    const chunkSize = batchSize || config.scoring.scoringBatchSize;
+    let logPrefix = label ? `[${label}] ${BATCH_MAP}` : bracketed(BATCH_MAP);
+    const chunks = makeChunks(items, {chunkSize: chunkSize});
     let results: any[] = [];
-    let logPrefix = `[${label || 'batchMap'}]`;
 
-    for (let start = 0; start < items.length; start += batchSize) {
-        const end = start + batchSize > items.length ? items.length : start + batchSize;
-        const slicedResults = await Promise.all(items.slice(start, end).map(mapFxn));
-        results = [...results, ...slicedResults]
+    chunks.forEach(async (chunk, i) => {
+        results = results.concat(await Promise.all(chunk.map(mapFxn)));
 
-        if (sleepBetweenMS && (items.length > end)) {
-            console.debug(`${logPrefix} batchMap() ${end} of ${items.length}, sleeping for ${sleepBetweenMS}ms...`);
+        if (sleepBetweenMS && (i < (chunks.length - 1))) {
+            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${items.length}, sleeping ${sleepBetweenMS}ms`);
             await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
         }
-    }
+    });
 
     return results;
+};
+
+
+// Split the array into numChunks using reduce
+export function makeChunks<T>(array: T[], options: ChunkOptions): T[][] {
+    if (options.numChunks && options.chunkSize) {
+        throw new Error("makeChunks() requires either numChunks or chunkSize to be set, not both");
+    } else if (options.numChunks) {
+        options.chunkSize = Math.ceil(array.length / options.numChunks);
+    } else if (!options.numChunks && !options.chunkSize) {
+        throw new Error("makeChunks() requires either numChunks or chunkSize to be set")
+    }
+
+    return chunk(array, options.chunkSize);
 };
 
 
@@ -216,26 +238,14 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
 };
 
 
-// Divide array into numPercentiles sections, returns array of arrays of type T objects
+// Sort array by fxn() value & divide into numPercentiles sections
 export function percentileSegments<T>(
     array: T[],
     fxn: (element: T) => number | undefined,
     numPercentiles: number
 ): T[][] {
-    if (!numPercentiles) throw new Error("percentileSegments() requires numPercentiles > 0");
-    array = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    let batchSize = array.length / numPercentiles;
-    if (batchSize % 1 != 0) batchSize += 1;
-    batchSize = Math.floor(batchSize);
-    const percentileSegments: T[][] = [];
-
-    for (let start = 0; start < array.length; start += batchSize) {
-        const end = start + batchSize > array.length ? array.length : start + batchSize;
-        const section = array.slice(start, end);
-        percentileSegments.push(section);
-    }
-
-    return percentileSegments;
+    const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
+    return makeChunks(sortedArray, {numChunks: numPercentiles});
 };
 
 
