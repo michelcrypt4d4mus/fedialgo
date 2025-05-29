@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.54.15
+* (Demo App) Fix memoization watcher for type filter
+* (Demo App) Use ComponentLogger from fedialgo package
+
 ### v0.54.14
 * (Demo App) Fix bug where long filter labels weren't getting trimmed to configured length
 
