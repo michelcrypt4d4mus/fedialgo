@@ -3,15 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = void 0;
+exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
 /*
  * Detecting language etc.
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
 const tinyld_1 = require("tinyld");
 const math_helper_1 = require("./math_helper");
+const collection_helpers_1 = require("./collection_helpers");
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
-exports.LANGUAGE_CODES = {
+exports.LANGUAGE_NAMES = {
     afar: "aa",
     abkhazian: "ab",
     avestan: "ae",
@@ -199,14 +200,16 @@ exports.LANGUAGE_CODES = {
     chinese: "zh",
     zulu: "zu",
 };
+// Mapping of language codes to the actual name of the language
+exports.LANGUAGE_CODES = (0, collection_helpers_1.swapKeysAndValues)(exports.LANGUAGE_NAMES);
 // The tinyld library is better at detecting these languages than the LanguageDetector.
 exports.FOREIGN_SCRIPTS = new Set([
-    exports.LANGUAGE_CODES.arabic,
-    exports.LANGUAGE_CODES.chinese,
-    `${exports.LANGUAGE_CODES.chinese}-CN`,
-    `${exports.LANGUAGE_CODES.chinese}-TW`,
-    exports.LANGUAGE_CODES.japanese,
-    exports.LANGUAGE_CODES.korean,
+    exports.LANGUAGE_NAMES.arabic,
+    exports.LANGUAGE_NAMES.chinese,
+    `${exports.LANGUAGE_NAMES.chinese}-CN`,
+    `${exports.LANGUAGE_NAMES.chinese}-TW`,
+    exports.LANGUAGE_NAMES.japanese,
+    exports.LANGUAGE_NAMES.korean,
 ]);
 // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
 //       also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
@@ -216,11 +219,11 @@ exports.FOREIGN_SCRIPTS = new Set([
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
 const LANGUAGE_CHAR_CLASSES = {
-    [exports.LANGUAGE_CODES.arabic]: `\\p{Script=Arabic}`,
-    [exports.LANGUAGE_CODES.greek]: `\\p{Script=Greek}`,
-    [exports.LANGUAGE_CODES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
-    [exports.LANGUAGE_CODES.korean]: `\\p{Script=Hangul}`,
-    [exports.LANGUAGE_CODES.russian]: `\\p{Script=Cyrillic}`,
+    [exports.LANGUAGE_NAMES.arabic]: `\\p{Script=Arabic}`,
+    [exports.LANGUAGE_NAMES.greek]: `\\p{Script=Greek}`,
+    [exports.LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
+    [exports.LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
+    [exports.LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
 };
 // Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
 const LANGUAGE_REGEXES = Object.entries(LANGUAGE_CHAR_CLASSES).reduce((regexes, [lang, chars]) => {
@@ -233,10 +236,10 @@ const MIN_TINYLD_ACCURACY = 0.4; // TinyLD is better at some languages but can b
 const OVERRULE_LANG_ACCURACY = 0.03;
 const VERY_HIGH_LANG_ACCURACY = 0.7;
 // International locales, see: https://gist.github.com/wpsmith/7604842
-const GREEK_LOCALE = `${exports.LANGUAGE_CODES.greek}-GR`;
-const JAPANESE_LOCALE = `${exports.LANGUAGE_CODES.japanese}-JP`;
-const KOREAN_LOCALE = `${exports.LANGUAGE_CODES.korean}-KR`;
-const RUSSIAN_LOCALE = `${exports.LANGUAGE_CODES.russian}-${exports.LANGUAGE_CODES.russian.toUpperCase()}`;
+const GREEK_LOCALE = `${exports.LANGUAGE_NAMES.greek}-GR`;
+const JAPANESE_LOCALE = `${exports.LANGUAGE_NAMES.japanese}-JP`;
+const KOREAN_LOCALE = `${exports.LANGUAGE_NAMES.korean}-KR`;
+const RUSSIAN_LOCALE = `${exports.LANGUAGE_NAMES.russian}-${exports.LANGUAGE_NAMES.russian.toUpperCase()}`;
 const IGNORE_LANGUAGES = new Set([
     "ber",
     "eo",
@@ -338,7 +341,7 @@ function buildLangDetectResult(minAccuracy, langAccuracies) {
 function detectLangWithLangDetector(text) {
     // Reshape LanguageDetector return value to look like tinyLD return value
     const langsFromLangDetector = LANG_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
-        let languageCode = exports.LANGUAGE_CODES[language];
+        let languageCode = exports.LANGUAGE_NAMES[language];
         if (!languageCode) {
             if (i < 3)
                 console.warn(`[detectLangWithLangDetector()] "${language}" isn't in LANGUAGE_CODES!"`);

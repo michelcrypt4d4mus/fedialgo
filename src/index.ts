@@ -45,6 +45,7 @@ import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, 
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
+import { LANGUAGE_CODES } from './helpers/language_helper';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     BACKFILL_FEED,
@@ -690,6 +691,7 @@ export {
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
+    LANGUAGE_CODES,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
     // Classes

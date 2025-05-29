@@ -1,4 +1,4 @@
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringDict, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
@@ -29,6 +29,7 @@ export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)
 export declare function split<T>(array: T[], condition: (element: T) => boolean): [T[], T[]];
 export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
+export declare function swapKeysAndValues<T extends StringDict>(dict: T): StringDict;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
 export declare function truncateToConfiguredLength(array: any[], maxRecords: number, label?: string): any[];
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;

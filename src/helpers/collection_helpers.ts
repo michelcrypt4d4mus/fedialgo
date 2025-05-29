@@ -5,7 +5,7 @@ import chunk from 'lodash/chunk';
 
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
 import { sleep } from './time_helpers';
 
@@ -344,6 +344,12 @@ export function sumArray(arr: (number | null | undefined)[]): number {
 // Sum the values of a dict
 export function sumValues(obj: StringNumberDict | Weights): number {
     return sumArray(Object.values(obj));
+};
+
+
+// Turn values into keys and keys into values.
+export function swapKeysAndValues<T extends StringDict>(dict: T): StringDict {
+    return Object.fromEntries(Object.entries(dict).map(entry => entry.toReversed()))
 };
 
 

@@ -5,10 +5,11 @@ import LanguageDetect from 'languagedetect';
 import { detectAll } from 'tinyld';
 
 import { isNumber } from "./math_helper";
-import { StringSet } from '../types';
+import { StringDict, StringSet } from '../types';
+import { swapKeysAndValues } from './collection_helpers';
 
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
-export const LANGUAGE_CODES: Record<string, string> = {
+export const LANGUAGE_NAMES: StringDict = {
     afar: "aa",
     abkhazian: "ab",
     avestan: "ae",
@@ -197,14 +198,17 @@ export const LANGUAGE_CODES: Record<string, string> = {
     zulu: "zu",
 };
 
+// Mapping of language codes to the actual name of the language
+export const LANGUAGE_CODES: StringDict = swapKeysAndValues(LANGUAGE_NAMES);
+
 // The tinyld library is better at detecting these languages than the LanguageDetector.
 export const FOREIGN_SCRIPTS: StringSet = new Set([
-    LANGUAGE_CODES.arabic,
-    LANGUAGE_CODES.chinese,
-    `${LANGUAGE_CODES.chinese}-CN`,
-    `${LANGUAGE_CODES.chinese}-TW`,
-    LANGUAGE_CODES.japanese,
-    LANGUAGE_CODES.korean,
+    LANGUAGE_NAMES.arabic,
+    LANGUAGE_NAMES.chinese,
+    `${LANGUAGE_NAMES.chinese}-CN`,
+    `${LANGUAGE_NAMES.chinese}-TW`,
+    LANGUAGE_NAMES.japanese,
+    LANGUAGE_NAMES.korean,
 ]);
 
 // TODO: this doesn't seem to match the "de" (で) character in "これを見た人は無言で"??
@@ -216,11 +220,11 @@ export const FOREIGN_SCRIPTS: StringSet = new Set([
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
 const LANGUAGE_CHAR_CLASSES: Record<string, string> = {
-    [LANGUAGE_CODES.arabic]: `\\p{Script=Arabic}`,
-    [LANGUAGE_CODES.greek]: `\\p{Script=Greek}`,
-    [LANGUAGE_CODES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
-    [LANGUAGE_CODES.korean]: `\\p{Script=Hangul}`,
-    [LANGUAGE_CODES.russian]: `\\p{Script=Cyrillic}`,
+    [LANGUAGE_NAMES.arabic]: `\\p{Script=Arabic}`,
+    [LANGUAGE_NAMES.greek]: `\\p{Script=Greek}`,
+    [LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
+    [LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
+    [LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
 };
 
 // Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
@@ -236,10 +240,10 @@ const OVERRULE_LANG_ACCURACY = 0.03;
 const VERY_HIGH_LANG_ACCURACY = 0.7;
 
 // International locales, see: https://gist.github.com/wpsmith/7604842
-const GREEK_LOCALE = `${LANGUAGE_CODES.greek}-GR`;
-const JAPANESE_LOCALE = `${LANGUAGE_CODES.japanese}-JP`;
-const KOREAN_LOCALE = `${LANGUAGE_CODES.korean}-KR`;
-const RUSSIAN_LOCALE = `${LANGUAGE_CODES.russian}-${LANGUAGE_CODES.russian.toUpperCase()}`;
+const GREEK_LOCALE = `${LANGUAGE_NAMES.greek}-GR`;
+const JAPANESE_LOCALE = `${LANGUAGE_NAMES.japanese}-JP`;
+const KOREAN_LOCALE = `${LANGUAGE_NAMES.korean}-KR`;
+const RUSSIAN_LOCALE = `${LANGUAGE_NAMES.russian}-${LANGUAGE_NAMES.russian.toUpperCase()}`;
 
 const IGNORE_LANGUAGES: StringSet = new Set([
     "ber",  // Berber
@@ -373,7 +377,7 @@ function buildLangDetectResult(minAccuracy: number, langAccuracies?: LanguageAcc
 function detectLangWithLangDetector(text: string): DetectLangLibraryResult {
     // Reshape LanguageDetector return value to look like tinyLD return value
     const langsFromLangDetector = LANG_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
-        let languageCode = LANGUAGE_CODES[language];
+        let languageCode = LANGUAGE_NAMES[language];
 
         if (!languageCode) {
             if (i < 3) console.warn(`[detectLangWithLangDetector()] "${language}" isn't in LANGUAGE_CODES!"`);

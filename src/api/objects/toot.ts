@@ -16,7 +16,7 @@ import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } fr
 import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
-import { FOREIGN_SCRIPTS, LANGUAGE_CODES, detectLanguage } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import { TypeFilterName } from "../../filters/boolean_filter";
@@ -645,9 +645,9 @@ export default class Toot implements TootObj {
         }
 
         // Prioritize English in edge cases with low tinyLD accuracy but "en" either in toot or in LangDetector result
-        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == LANGUAGE_CODES.english) {
+        if (!tinyLD.isAccurate && langDetector.isAccurate && langDetector.chosenLang == LANGUAGE_NAMES.english) {
             logTrace(`Accepting "en" from langDetector.detectedLang`);
-            this.language = LANGUAGE_CODES.english;
+            this.language = LANGUAGE_NAMES.english;
             return;
         }
 
