@@ -182,3 +182,49 @@ export class WaitTime {
         };
     }
 };
+
+
+
+// Log lines with "[DEMO APP] <ComponentName>" prefixed
+// TODO: use this version in the demo app (it's a copy/pasta)
+export class ComponentLogger {
+    componentName: string;
+    logPrefix: string;
+    subtitle?: string;
+
+    constructor(componentName: string, subtitle?: string) {
+        this.componentName = componentName;
+        this.subtitle = subtitle;
+        this.logPrefix = `<${componentName}>` + (subtitle ? ` (${subtitle})` : "");
+    }
+
+    error(msg: string, ...args: any[]) {
+        console.error(this.makeMsg(msg), ...args);
+    }
+
+    warn(msg: string, ...args: any[]) {
+        console.warn(this.makeMsg(msg), ...args);
+    }
+
+    log(msg: string, ...args: any[]) {
+        console.log(this.makeMsg(msg), ...args);
+    }
+
+    info(msg: string, ...args: any[]) {
+        console.info(this.makeMsg(msg), ...args);
+    }
+
+    debug(msg: string, ...args: any[]) {
+        console.debug(this.makeMsg(msg), ...args);
+    }
+
+    // Only writes logs in debug mode
+    trace(msg: string, ...args: any[]) {
+        if (!isDebugMode) return;
+        this.debug(msg, ...args);
+    }
+
+    private makeMsg(msg: string): string {
+        return `${this.logPrefix} ${msg}`;
+    }
+};
