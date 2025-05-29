@@ -280,6 +280,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Config: config,
+            Filters: this.filters,
             Homeserver: await this.serverInfo(),
             Storage: await Storage.storedObjsInfo(),
             Trending: this.trendingData,

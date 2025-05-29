@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add filters to `getCurrentState()` return value
 
 ### v0.54.1
 * (Demo App) Memoization optimizations for `StatusComponent` props, `TrendingInfo` sections (the most expensive renders according to profiler)
