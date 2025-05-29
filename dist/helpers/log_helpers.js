@@ -167,15 +167,18 @@ class WaitTime {
 exports.WaitTime = WaitTime;
 ;
 // Log lines with "[DEMO APP] <ComponentName>" prefixed
-// TODO: use this version in the demo app (it's a copy/pasta)
+// TODO: Move to its own file
 class ComponentLogger {
     componentName;
     logPrefix;
     subtitle;
-    constructor(componentName, subtitle) {
+    subsubtitle;
+    constructor(componentName, subtitle, subsubtitle) {
         this.componentName = componentName;
         this.subtitle = subtitle;
-        this.logPrefix = `[${componentName}]` + (subtitle ? ` <${subtitle}>` : "");
+        this.subsubtitle = subsubtitle;
+        this.logPrefix = (0, string_helpers_1.bracketed)(componentName) + (subtitle ? ` <${subtitle}>` : "");
+        this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
     }
     error(msg, ...args) {
         console.error(this.makeMsg(msg), ...args);

@@ -10,7 +10,7 @@
 * `QUICK_MODE` isn't always turned on when `NODE_ENV=development` and/the `FEDIALGO_DEBUG` env var is turned on; has to be enabled separately now
 * Add `BooleanFilter.isThisSelectionEnabled()` method (**THIS IS WHERE THE ISSUES STARTED**)
 * (maybe) ~~fixed bug where `BooleanFilter` wasn't being fully reconstructed as class instances (they were just objects and so had no instance methods)~~
-* Export ComponentLogger class
+* Export `ComponentLogger` class
 
 ### v0.54.12
 * Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`
