@@ -17,5 +17,5 @@ type LanguageDetectInfo = {
     tinyLD: DetectLangLibraryResult;
 };
 export declare function detectLanguage(text: string): LanguageDetectInfo;
-export declare function detectHashtagLanguage(str: string): string | undefined;
+export declare function detectHashtagLanguage(tagName: string): string | undefined;
 export {};

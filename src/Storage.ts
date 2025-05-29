@@ -7,6 +7,7 @@ import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
 import MastoApi from "./api/api";
+import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
@@ -16,6 +17,7 @@ import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
+import { isNumber } from "./helpers/math_helper";
 import { logAndThrowError, sizeOf, traceLog } from './helpers/log_helpers';
 import {
     CacheKey,
@@ -152,9 +154,13 @@ export default class Storage {
 
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrendingData(): Promise<TrendingStorage> {
+        const trendingTags = await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS)
+        const trendingTagList = new TagList(trendingTags);
+        trendingTagList.removeInvalidTrendingTags();  // TODO: sucks to do this here...
+
         return {
             links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
-            tags: await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS),
+            tags: trendingTagList.topTags(),
             toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
@@ -169,7 +175,7 @@ export default class Storage {
         Object.entries(DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key as WeightName]
 
-            if (!value && value !== 0) {
+            if (!isNumber(value)) {
                 warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
                 shouldSave = true;

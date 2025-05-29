@@ -6,6 +6,7 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
  */
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
+const math_helper_1 = require("./math_helper");
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
@@ -14,7 +15,7 @@ exports.atLeastValues = atLeastValues;
 ;
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 function average(values) {
-    values = values.filter(v => v || v == 0);
+    values = values.filter(math_helper_1.isNumber);
     if (values.length == 0)
         return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
@@ -110,7 +111,7 @@ function findMinMaxId(array) {
         return undefined;
     }
     const idVals = array.map(e => e.id);
-    const isNumberArray = idVals.every(string_helpers_1.isNumber);
+    const isNumberArray = idVals.every(math_helper_1.isNumber);
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
         return undefined;

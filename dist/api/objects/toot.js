@@ -608,7 +608,7 @@ class Toot {
     // Build array of new Toot objects from an array of Status objects (or Toots).
     // Toots returned by this method should have most of their properties set correctly.
     static async buildToots(statuses, source, skipSort) {
-        if (statuses.length == 0)
+        if (!statuses.length)
             return []; // Avoid the data fetching if we don't to build anything
         const logPrefix = `${(0, string_helpers_1.bracketed)(source)} buildToots()`;
         const startedAt = new Date();

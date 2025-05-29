@@ -1,10 +1,10 @@
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
-import { bracketed, compareStr, hashObject, isNumber } from "./string_helpers";
+import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
-import { traceLog } from "./log_helpers";
+import { isNumber } from "./math_helper";
 
 
 // Return a new object with only the key/value pairs that have a value greater than minValue
@@ -15,7 +15,7 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
 
 // Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
 export function average(values: number[]): number {
-    values = values.filter(v => v || v == 0);
+    values = values.filter(isNumber);
     if (values.length == 0) return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
 };

@@ -743,7 +743,7 @@ export default class Toot implements TootObj {
         source: string,
         skipSort?: boolean
     ): Promise<Toot[]> {
-        if (statuses.length == 0) return [];  // Avoid the data fetching if we don't to build anything
+        if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
         const logPrefix = `${bracketed(source)} buildToots()`;
         const startedAt = new Date();
 

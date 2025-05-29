@@ -34,6 +34,7 @@ const localforage_1 = __importDefault(require("localforage"));
 const class_transformer_1 = require("class-transformer");
 const account_1 = __importDefault(require("./api/objects/account"));
 const api_1 = __importDefault(require("./api/api"));
+const tag_list_1 = __importDefault(require("./api/tag_list"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
@@ -43,6 +44,7 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
+const math_helper_1 = require("./helpers/math_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
@@ -139,9 +141,12 @@ class Storage {
     }
     // Get trending tags, toots, and links as a single TrendingStorage object
     static async getTrendingData() {
+        const trendingTags = await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
+        const trendingTagList = new tag_list_1.default(trendingTags);
+        trendingTagList.removeInvalidTrendingTags(); // TODO: sucks to do this here...
         return {
             links: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
-            tags: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TAGS),
+            tags: trendingTagList.topTags(),
             toots: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
@@ -154,7 +159,7 @@ class Storage {
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
-            if (!value && value !== 0) {
+            if (!(0, math_helper_1.isNumber)(value)) {
                 warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;

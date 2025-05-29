@@ -9,7 +9,7 @@ exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
 const tinyld_1 = require("tinyld");
-const string_helpers_1 = require("./string_helpers");
+const math_helper_1 = require("./math_helper");
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 exports.LANGUAGE_CODES = {
     afar: "aa",
@@ -212,16 +212,21 @@ exports.FOREIGN_SCRIPTS = new Set([
 //       also doesn't match half width "ga" (が) character in "やったことある人がいたら嬉しいゲーム";
 //       Both of these are weird - in some editors you can delete just the accent mark
 // As a workaround we use a regex that triggers Japanese ID if the first two characters are Japanese
-const JP_CHAR_PATTERN = 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}';
+// const JP_CHAR_PATTERN = 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}';
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
-const LANGUAGE_REGEXES = {
-    [exports.LANGUAGE_CODES.arabic]: new RegExp(`^[\\p{Script=Arabic}\\d]+$`, 'v'),
-    [exports.LANGUAGE_CODES.greek]: new RegExp(`^[\\p{Script=Greek}\\d]+$`, 'v'),
-    [exports.LANGUAGE_CODES.japanese]: new RegExp(`^[${JP_CHAR_PATTERN}]{1,}([${JP_CHAR_PATTERN}\\da-z]*$|[${JP_CHAR_PATTERN}]{2,})`, 'iv'),
-    [exports.LANGUAGE_CODES.korean]: new RegExp(`^[\\p{Script=Hangul}\\d]+$`, 'v'),
-    [exports.LANGUAGE_CODES.russian]: new RegExp(`^[\\p{Script=Cyrillic}\\d]+$`, 'v'),
+const LANGUAGE_CHAR_CLASSES = {
+    [exports.LANGUAGE_CODES.arabic]: `\\p{Script=Arabic}`,
+    [exports.LANGUAGE_CODES.greek]: `\\p{Script=Greek}`,
+    [exports.LANGUAGE_CODES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
+    [exports.LANGUAGE_CODES.korean]: `\\p{Script=Hangul}`,
+    [exports.LANGUAGE_CODES.russian]: `\\p{Script=Cyrillic}`,
 };
+// Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
+const LANGUAGE_REGEXES = Object.entries(LANGUAGE_CHAR_CLASSES).reduce((regexes, [lang, chars]) => {
+    regexes[lang] = new RegExp(`^[${chars}\\d]+$|[${chars}]{3}`, 'iv'); // 'v' flag is for unicode sets
+    return regexes;
+}, {});
 const LANG_DETECTOR = new languagedetect_1.default();
 const MIN_LANG_DETECTOR_ACCURACY = 0.2; // LanguageDetect library never gets very high accuracy
 const MIN_TINYLD_ACCURACY = 0.4; // TinyLD is better at some languages but can be overconfident
@@ -307,14 +312,13 @@ exports.detectLanguage = detectLanguage;
 ;
 // Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
 // meant for non Latin scripts like japanese, korean, etc.
-function detectHashtagLanguage(str) {
-    let language;
-    Object.entries(LANGUAGE_REGEXES).forEach(([lang, regex]) => {
-        if (regex.test(str) && !(0, string_helpers_1.isNumber)(str)) {
-            language = lang;
+function detectHashtagLanguage(tagName) {
+    for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
+        if (regex.test(tagName) && !(0, math_helper_1.isNumber)(tagName)) {
+            return language;
         }
-    });
-    return language;
+    }
+    ;
 }
 exports.detectHashtagLanguage = detectHashtagLanguage;
 ;

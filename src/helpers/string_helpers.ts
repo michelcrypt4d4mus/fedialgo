@@ -24,6 +24,7 @@ const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const HAHSTAG_REGEX = /#\w+/g;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
+export const NUMBER_REGEX = /^[\d.]+$/;
 const WHITESPACE_REGEX = /\s+/g;
 
 // Multimedia types
@@ -54,9 +55,6 @@ export const quoted = (str: string | null): string => str == null ? NULL : `"${s
 
 // for use with sort()
 export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
-// Returns true if n is a number or a string that can be converted to a number
-export const isNumber = (n: string | number): boolean => (typeof n == "number") || /^[\d.]+$/.test(n);
-
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
 // Remove diacritics ("ó" => "o", "é" => "e", etc.)
