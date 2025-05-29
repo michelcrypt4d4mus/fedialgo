@@ -38,13 +38,14 @@ const tag_list_1 = __importDefault(require("./api/tag_list"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
+const math_helper_1 = require("./helpers/math_helper");
 const feed_filters_1 = require("./filters/feed_filters");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const math_helper_1 = require("./helpers/math_helper");
+const math_helper_2 = require("./helpers/math_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
@@ -161,7 +162,7 @@ class Storage {
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
-            if (!(0, math_helper_1.isNumber)(value)) {
+            if (!(0, math_helper_2.isNumber)(value)) {
                 warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;
@@ -268,11 +269,13 @@ class Storage {
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
                 const value = key == types_1.AlgorithmStorageKey.USER ? obj : obj.value;
-                const sizeInBytes = (0, log_helpers_1.sizeOf)(value);
+                const sizes = new math_helper_1.BytesDict();
+                const sizeInBytes = (0, log_helpers_1.sizeOf)(value, sizes);
                 totalBytes += sizeInBytes;
                 info[key] = {
                     bytes: sizeInBytes,
                     bytesStr: (0, string_helpers_1.byteString)(sizeInBytes),
+                    sizeOfByType: sizes.toBytesStringDict(), // kind of janky way to find out what % of storage is numbers, strings, etc.
                 };
                 if (Array.isArray(value)) {
                     info[key].numElements = value.length;

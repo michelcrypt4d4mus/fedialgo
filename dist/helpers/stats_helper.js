@@ -4,6 +4,7 @@ exports.rechartsDataPoints = void 0;
 const collection_helpers_1 = require("./collection_helpers");
 const types_1 = require("../types");
 const string_helpers_1 = require("./string_helpers");
+const log_helpers_1 = require("./log_helpers");
 // Return an array of objects suitable for use with Recharts
 function rechartsDataPoints(toots, numPercentiles = 5) {
     const stats = [];
@@ -38,7 +39,7 @@ function rechartsDataPoints(toots, numPercentiles = 5) {
             });
         });
     });
-    // console.log(`[rechartsDataPoints()]`, stats);
+    (0, log_helpers_1.traceLog)(`[rechartsDataPoints()]`, stats);
     return stats;
 }
 exports.rechartsDataPoints = rechartsDataPoints;

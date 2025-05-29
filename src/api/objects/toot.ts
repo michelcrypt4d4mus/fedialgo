@@ -17,6 +17,7 @@ import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uni
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
+import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
 import { logTootRemoval, traceLog } from '../../helpers/log_helpers';
 import { repairTag } from "./tag";
 import { TypeFilterName } from "../../filters/boolean_filter";
@@ -56,7 +57,6 @@ import {
     TrendingLink,
     WeightedScore,
 } from "../../types";
-import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
@@ -73,6 +73,7 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
+// TODO: we should bust the cache if the took is edited...
 type TootCache = {
     [key in TootCacheKey]?: string;
 };

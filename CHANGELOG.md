@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add information about storage usage for each primitive type to getCurrentState()
 
 ### v0.54.12
 * Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`

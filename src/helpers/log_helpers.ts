@@ -4,10 +4,12 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
 import { ageInSeconds, ageString } from '../helpers/time_helpers';
+import { BytesDict } from './math_helper';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
+import { size } from 'lodash';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -85,30 +87,44 @@ export function logTootRemoval(prefix: string, tootType: string, numRemoved: num
 
 
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
-export function sizeOf(obj: any): number {
-    var bytes = 0;
-    if (obj === null || obj === undefined) return bytes;
+export function sizeOf(obj: any, sizes: BytesDict): number {
+    if (obj === null || obj === undefined) return 0;
+    let bytes = 0;
 
     switch (typeof obj) {
         case "number":
             bytes += 8;
+            sizes.numbers += 8;
             break;
         case "string":
-            bytes += strBytes(obj);
+            const stringLength = strBytes(obj);
+            bytes += stringLength;
+            sizes.strings += stringLength;
             break;
         case "boolean":
             bytes += 4;
+            sizes.booleans += 4;
             break;
         case "function":
-            // bytes += strBytes(obj.toString());  // functions aren't serialized in JSON i don't think?
+            const fxnLength = strBytes(obj.toString());
+            bytes += fxnLength;  // functions aren't serialized in JSON i don't think?
+            sizes.functions += fxnLength;
             break;
         case "object":
             if (Array.isArray(obj)) {
-                bytes += sumArray(obj.map(sizeOf));
+                const arrayBytes = sumArray(obj.map((item) => sizeOf(item, sizes)));
+                bytes += arrayBytes;
+                sizes.arrays += arrayBytes;
             } else {
                 Object.entries(obj).forEach(([key, value]) => {
-                    bytes += strBytes(key);
-                    bytes += sizeOf(value);
+                    const keyBytes = strBytes(key);
+                    bytes += keyBytes;
+                    sizes.strings += keyBytes;
+                    sizes.keys += keyBytes;  // keys in objects
+
+                    const valueBytes = sizeOf(value, sizes);
+                    bytes += valueBytes;
+                    sizes.objects += valueBytes;  // count objects in the size
                 });
             }
 
@@ -139,4 +155,4 @@ export function traceLog(msg: string, ...args: any[]): void {
 
 
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
-const strBytes = (str: string): number => str.length;
+export const strBytes = (str: string): number => str.length;

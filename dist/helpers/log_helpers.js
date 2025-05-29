@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.strBytes = exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -75,37 +75,50 @@ function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
 exports.logTootRemoval = logTootRemoval;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
-function sizeOf(obj) {
-    var bytes = 0;
+function sizeOf(obj, sizes) {
     if (obj === null || obj === undefined)
-        return bytes;
+        return 0;
+    let bytes = 0;
     switch (typeof obj) {
         case "number":
             bytes += 8;
+            sizes.numbers += 8;
             break;
         case "string":
-            bytes += strBytes(obj);
+            const stringLength = (0, exports.strBytes)(obj);
+            bytes += stringLength;
+            sizes.strings += stringLength;
             break;
         case "boolean":
             bytes += 4;
+            sizes.booleans += 4;
             break;
         case "function":
-            // bytes += strBytes(obj.toString());  // functions aren't serialized in JSON i don't think?
+            const fxnLength = (0, exports.strBytes)(obj.toString());
+            bytes += fxnLength; // functions aren't serialized in JSON i don't think?
+            sizes.functions += fxnLength;
             break;
         case "object":
             if (Array.isArray(obj)) {
-                bytes += (0, collection_helpers_1.sumArray)(obj.map(sizeOf));
+                const arrayBytes = (0, collection_helpers_1.sumArray)(obj.map((item) => sizeOf(item, sizes)));
+                bytes += arrayBytes;
+                sizes.arrays += arrayBytes;
             }
             else {
                 Object.entries(obj).forEach(([key, value]) => {
-                    bytes += strBytes(key);
-                    bytes += sizeOf(value);
+                    const keyBytes = (0, exports.strBytes)(key);
+                    bytes += keyBytes;
+                    sizes.strings += keyBytes;
+                    sizes.keys += keyBytes; // keys in objects
+                    const valueBytes = sizeOf(value, sizes);
+                    bytes += valueBytes;
+                    sizes.objects += valueBytes; // count objects in the size
                 });
             }
             break;
         default:
             console.warn(`sizeOf() unknown type: ${typeof obj}`);
-            bytes += strBytes(obj.toString());
+            bytes += (0, exports.strBytes)(obj.toString());
             break;
     }
     return bytes;
@@ -128,4 +141,5 @@ exports.traceLog = traceLog;
 ;
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
 const strBytes = (str) => str.length;
+exports.strBytes = strBytes;
 //# sourceMappingURL=log_helpers.js.map

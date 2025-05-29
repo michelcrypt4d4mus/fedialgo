@@ -5,6 +5,7 @@ import Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
 import { MinMaxAvgScore, ScoreName, ScoresStats, WeightedScore } from "../types";
 import { suffixedInt } from "./string_helpers";
+import { traceLog } from "./log_helpers";
 
 
 // Return an array of objects suitable for use with Recharts
@@ -34,7 +35,7 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
         });
     });
 
-    // console.log(`[rechartsDataPoints()]`, stats);
+    traceLog(`[rechartsDataPoints()]`, stats);
     return stats;
 };
 
