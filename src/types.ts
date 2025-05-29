@@ -248,7 +248,7 @@ export type TootScore = {
 export type TootScores = Record<ScoreName, WeightedScore>;
 export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {};
 
-// TODO enforce that keys are TrendingType enum?
+// TODO: we can't enforce that keys are TrendingType enum because "toots" is different from "statuses"
 export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;

@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.54.9
+* (Demo App) Trending panel configuration options
+
 ### v0.54.8
 * Export `TrendingType` enum
 
