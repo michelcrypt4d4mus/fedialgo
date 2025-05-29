@@ -49,6 +49,7 @@ export const LANGUAGE_NAMES: StringDict = {
     dzongkha: "dz",
     ewe: "ee",
     greek: "el",
+    pidgin: "en", // Actually Nigerian Pidgin is pcm but we assume it means English. Must come before "english"
     english: "en",
     esperanto: "eo",
     spanish: "es",
@@ -140,7 +141,6 @@ export const LANGUAGE_NAMES: StringDict = {
     pali: "pi",
     polish: "pl",
     pashto: "ps",
-    pidgin: "en", // Actually Nigerian Pidgin is pcm but we assume it means English
     portuguese: "pt",
     quechua: "qu",
     romansh: "rm",

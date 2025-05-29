@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Export LANGUAGE_CODES dict
+* Export `LANGUAGE_CODES` dict
 
 ### v0.54.2
 * Add filters to `getCurrentState()` return value
