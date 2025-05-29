@@ -11,6 +11,7 @@ const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const math_helper_1 = require("./math_helper");
+const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
@@ -35,23 +36,33 @@ exports.average = average;
 //    - batchSize: number of items to process at once
 //    - sleepBetweenMS: optional number of milliseconds to sleep between batches
 async function batchMap(items, mapFxn, label, batchSize, sleepBetweenMS) {
-    const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
     let logPrefix = label ? `[${label}] ${BATCH_MAP}` : (0, string_helpers_1.bracketed)(BATCH_MAP);
-    const chunks = makeChunks(items, { chunkSize: chunkSize });
+    const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
+    const chunks = makeChunks(items, { chunkSize: chunkSize }, logPrefix);
     let results = [];
-    chunks.forEach(async (chunk, i) => {
-        results = results.concat(await Promise.all(chunk.map(mapFxn)));
+    // Iterate manually - passing an async method to map() or forEach() will not wait for promises to resolve
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        // console.debug(`${logPrefix} Processing chunk ${i + 1} of ${chunks.length} (${chunk.length} items):`, chunk);
+        const newResults = await Promise.all(chunk.map(mapFxn));
+        // console.debug(`${logPrefix} Processed chunk ${i + 1} into:`, newResults);
+        // Don't bother with empty results (not all map fxns return a value)
+        if (newResults.filter(Boolean).length)
+            results = [...results, ...newResults];
         if (sleepBetweenMS && (i < (chunks.length - 1))) {
             console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${items.length}, sleeping ${sleepBetweenMS}ms`);
-            await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
+            await (0, time_helpers_1.sleep)(sleepBetweenMS);
         }
-    });
+    }
+    ;
+    // console.debug(`${logPrefix} Processed ${items.length} items in ${chunks.length} chunks of size ${chunkSize}, returning ${results.length} results`, results);
     return results;
 }
 exports.batchMap = batchMap;
 ;
 // Split the array into numChunks using reduce
-function makeChunks(array, options) {
+function makeChunks(array, options, logPrefix) {
+    logPrefix = (0, string_helpers_1.bracketed)(logPrefix || "makeChunks()");
     if (options.numChunks && options.chunkSize) {
         throw new Error("makeChunks() requires either numChunks or chunkSize to be set, not both");
     }
@@ -61,6 +72,7 @@ function makeChunks(array, options) {
     else if (!options.numChunks && !options.chunkSize) {
         throw new Error("makeChunks() requires either numChunks or chunkSize to be set");
     }
+    // console.log(`${logPrefix} lodash called, options:`, options, `\narray:`, array, `\nmade chunks:`, chunk(array, options.chunkSize))
     return (0, chunk_1.default)(array, options.chunkSize);
 }
 exports.makeChunks = makeChunks;
@@ -203,7 +215,7 @@ exports.keyByProperty = keyByProperty;
 // Sort array by fxn() value & divide into numPercentiles sections
 function percentileSegments(array, fxn, numPercentiles) {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, { numChunks: numPercentiles });
+    return makeChunks(sortedArray, { numChunks: numPercentiles }, `percentileSegments(${numPercentiles})`);
 }
 exports.percentileSegments = percentileSegments;
 ;

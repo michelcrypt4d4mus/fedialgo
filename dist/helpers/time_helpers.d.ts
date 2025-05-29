@@ -7,7 +7,7 @@ export declare function coerceDate(date: DateArg): Date | null;
 export declare function mostRecent(...args: (Date | null)[]): Date | null;
 export declare function nowString(): string;
 export declare function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string;
-export declare function sleep(seconds: number): Promise<void>;
+export declare function sleep(milliseconds: number): Promise<void>;
 export declare function subtractSeconds(date: Date, seconds: number): Date;
 export declare const timeString: (_timestamp: DateArg, locale?: string) => string;
 export declare function timelineCutoffAt(): Date;

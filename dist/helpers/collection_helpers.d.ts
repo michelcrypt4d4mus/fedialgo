@@ -6,7 +6,7 @@ interface ChunkOptions {
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(items: T[], mapFxn: (item: T) => Promise<any>, label?: string, batchSize?: number, sleepBetweenMS?: number): Promise<any[]>;
-export declare function makeChunks<T>(array: T[], options: ChunkOptions): T[][];
+export declare function makeChunks<T>(array: T[], options: ChunkOptions, logPrefix?: string): T[][];
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;

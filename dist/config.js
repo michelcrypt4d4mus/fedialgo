@@ -367,11 +367,11 @@ const config = new Config();
 exports.config = config;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 400;
-    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 15;
+    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
+    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
-    config.participatedTags.numTags = 20;
-    config.trending.tags.numTags = 20;
+    config.participatedTags.numTags = 10;
+    config.trending.tags.numTags = 10;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {

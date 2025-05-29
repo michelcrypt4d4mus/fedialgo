@@ -74,8 +74,8 @@ function quotedISOFmt(date, withMilliseconds) {
 exports.quotedISOFmt = quotedISOFmt;
 ;
 // Sleep helper
-async function sleep(seconds) {
-    await new Promise(r => setTimeout(r, seconds * 1000));
+async function sleep(milliseconds) {
+    await new Promise(r => setTimeout(r, milliseconds));
 }
 exports.sleep = sleep;
 ;

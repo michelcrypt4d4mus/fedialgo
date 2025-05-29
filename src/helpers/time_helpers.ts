@@ -75,8 +75,8 @@ export function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string 
 
 
 // Sleep helper
-export async function sleep(seconds: number): Promise<void> {
-    await new Promise(r => setTimeout(r, seconds * 1000));
+export async function sleep(milliseconds: number): Promise<void> {
+    await new Promise(r => setTimeout(r, milliseconds));
 };
 
 

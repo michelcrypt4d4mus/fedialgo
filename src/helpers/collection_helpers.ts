@@ -7,6 +7,7 @@ import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, CacheKey, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
+import { sleep } from './time_helpers';
 
 const BATCH_MAP = "batchMap()";
 
@@ -44,26 +45,35 @@ export async function batchMap<T>(
     batchSize?: number,
     sleepBetweenMS?: number
 ): Promise<any[]> {
-    const chunkSize = batchSize || config.scoring.scoringBatchSize;
     let logPrefix = label ? `[${label}] ${BATCH_MAP}` : bracketed(BATCH_MAP);
-    const chunks = makeChunks(items, {chunkSize: chunkSize});
+    const chunkSize = batchSize || config.scoring.scoringBatchSize;
+    const chunks = makeChunks(items, {chunkSize: chunkSize}, logPrefix);
     let results: any[] = [];
 
-    chunks.forEach(async (chunk, i) => {
-        results = results.concat(await Promise.all(chunk.map(mapFxn)));
+    // Iterate manually - passing an async method to map() or forEach() will not wait for promises to resolve
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        // console.debug(`${logPrefix} Processing chunk ${i + 1} of ${chunks.length} (${chunk.length} items):`, chunk);
+        const newResults = await Promise.all(chunk.map(mapFxn));
+        // console.debug(`${logPrefix} Processed chunk ${i + 1} into:`, newResults);
+        // Don't bother with empty results (not all map fxns return a value)
+        if (newResults.filter(Boolean).length) results = [...results, ...newResults];
 
         if (sleepBetweenMS && (i < (chunks.length - 1))) {
             console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${items.length}, sleeping ${sleepBetweenMS}ms`);
-            await new Promise((resolve) => setTimeout(resolve, sleepBetweenMS));
+            await sleep(sleepBetweenMS);
         }
-    });
+    };
 
+    // console.debug(`${logPrefix} Processed ${items.length} items in ${chunks.length} chunks of size ${chunkSize}, returning ${results.length} results`, results);
     return results;
 };
 
 
 // Split the array into numChunks using reduce
-export function makeChunks<T>(array: T[], options: ChunkOptions): T[][] {
+export function makeChunks<T>(array: T[], options: ChunkOptions, logPrefix?: string): T[][] {
+    logPrefix = bracketed(logPrefix || "makeChunks()");
+
     if (options.numChunks && options.chunkSize) {
         throw new Error("makeChunks() requires either numChunks or chunkSize to be set, not both");
     } else if (options.numChunks) {
@@ -72,6 +82,7 @@ export function makeChunks<T>(array: T[], options: ChunkOptions): T[][] {
         throw new Error("makeChunks() requires either numChunks or chunkSize to be set")
     }
 
+    // console.log(`${logPrefix} lodash called, options:`, options, `\narray:`, array, `\nmade chunks:`, chunk(array, options.chunkSize))
     return chunk(array, options.chunkSize);
 };
 
@@ -245,7 +256,7 @@ export function percentileSegments<T>(
     numPercentiles: number
 ): T[][] {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, {numChunks: numPercentiles});
+    return makeChunks(sortedArray, {numChunks: numPercentiles}, `percentileSegments(${numPercentiles})`);
 };
 
 
