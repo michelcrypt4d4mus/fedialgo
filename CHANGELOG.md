@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Exclude object's functions when computing browser storage usage (the fxns aren't serialized to storage?)
 
 ### v0.54.10
 * (Demo App) Sort fediverse server list by `followedPctOfMAU`

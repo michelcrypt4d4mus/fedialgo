@@ -90,7 +90,8 @@ function sizeOf(obj) {
             bytes += 4;
             break;
         case "function":
-            bytes += strBytes(obj.toString());
+            // bytes += strBytes(obj.toString());  // functions aren't serialized in JSON i don't think?
+            break;
         case "object":
             if (Array.isArray(obj)) {
                 bytes += (0, collection_helpers_1.sumArray)(obj.map(sizeOf));

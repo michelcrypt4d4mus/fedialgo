@@ -100,7 +100,8 @@ export function sizeOf(obj: any): number {
             bytes += 4;
             break;
         case "function":
-            bytes += strBytes(obj.toString());
+            // bytes += strBytes(obj.toString());  // functions aren't serialized in JSON i don't think?
+            break;
         case "object":
             if (Array.isArray(obj)) {
                 bytes += sumArray(obj.map(sizeOf));
