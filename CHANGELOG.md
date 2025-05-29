@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.54.12
 * Add a `TootCache` object property to each `Toot` that memoizes the results of frequently called string functions like `contentWithCard()` or `contentWithEmojis()`
 
 ### v0.54.11
