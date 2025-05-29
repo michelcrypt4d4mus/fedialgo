@@ -3,18 +3,12 @@
  */
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 
-import { ageInSeconds, ageString } from '../helpers/time_helpers';
+import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { BytesDict } from './math_helper';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { sumArray } from './collection_helpers';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
-
-export type WaitTime = {
-    avgMsPerRequest: number;
-    milliseconds: number;
-    numRequests: number;
-};
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -161,3 +155,30 @@ export function traceLog(msg: string, ...args: any[]): void {
 
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
 export const strBytes = (str: string): number => str.length;
+
+
+// Helper class for telemetry
+export class WaitTime {
+    avgMsPerRequest: number = 0;
+    milliseconds: number = 0;
+    numRequests: number = 0;
+    startedAt: Date = new Date();  // TODO: this shouldn't really be set yet...
+
+    markStart(): void {
+        this.startedAt = new Date();
+    }
+
+    markEnd(): void {
+        this.milliseconds += ageInMS(this.startedAt);
+        this.numRequests++;
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
+    }
+
+    toDict(): Record<string, number> {
+        return {
+            avgMsPerRequest: this.avgMsPerRequest,
+            milliseconds: this.milliseconds,
+            numRequests: this.numRequests
+        };
+    }
+};

@@ -71,12 +71,9 @@ export default class MastoApi {
     homeDomain: string;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
+    waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Just for measuring performance (poorly)
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
     private requestSemphore = new Semaphore(config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
-
-    // These are just for measuring performance (poorly)
-    private waitedAt: {[key in CacheKey]?: Date} = {};          // When the last request was made
-    waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Total time spent waiting for API requests to complete
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -422,8 +419,7 @@ export default class MastoApi {
         console.log("[API reset()] Resetting MastoApi telemetry and userData");
         this.setSemaphoreConcurrency(config.api.maxConcurrentRequestsInitial);
         this.userData = undefined;  // Clear the user data cache
-        this.waitedAt = {};  // Reset the waiting timer
-        this.waitTimes = {};  // Reset the wait times
+        this.waitTimes = {};  // Reset the waiting timer
     };
 
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
@@ -452,20 +448,20 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { breakIf, cacheKey, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
         let logPfx = `${bracketed(cacheKey)}`;
-        if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set`);
+        if (moar && (skipCache || maxId)) console.warn(`${logPfx} skipCache=true AND moar or maxId set!`);
 
         // Parse params and set defaults
         const requestDefaults = config.api.data[cacheKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? MIN_RECORDS_FOR_FEATURE_SCORING;
-        const limit = Math.min(maxRecords, requestDefaults?.limit || config.api.defaultRecordsPerPage);  // max records per page
         breakIf ??= DEFAULT_BREAK_IF;
+        // Declare required variables
         let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
-
-        // Skip mutex for requests that aren't trying to get at the same data
-        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logPfx);
-        const startedAt = new Date();
         let pageNumber = 0;
         let rows: T[] = [];
+
+        // Lock mutex unless skipMutex is true
+        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logPfx);
+        const startedAt = new Date();
 
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
@@ -503,15 +499,15 @@ export default class MastoApi {
                 };
             }
 
+            // 'limit' is the name of the max records per page param in the Mastodon API
+            const limit = Math.min(maxRecords, requestDefaults?.limit || config.api.defaultRecordsPerPage);
             traceLog(`${logPfx} fetchData() params w/defaults:`, {...params, limit, minId, maxId, maxRecords});
-            this.waitedAt[cacheKey] = new Date();  // Reset the waiting timer
+            // Telemetry stuff, reset the WaitTime timer immediately before API request starts
+            this.waitTimes[cacheKey] ??= new WaitTime();
+            this.waitTimes[cacheKey]!.markStart();
 
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
-                // TODO: telemetry stuff that should be removed eventually
-                this.waitTimes[cacheKey] ??= {avgMsPerRequest: 0, milliseconds: 0, numRequests: 0};
-                this.waitTimes[cacheKey]!.numRequests += 1;
-                this.waitTimes[cacheKey]!.milliseconds += ageInMS(this.waitedAt[cacheKey]);
-                this.waitTimes[cacheKey]!.avgMsPerRequest = this.waitTimes[cacheKey]!.milliseconds / this.waitTimes[cacheKey]!.numRequests;
+                this.waitTimes[cacheKey]!.markEnd();   // TODO: telemetry stuff that should be removed eventually
 
                 // The actual action
                 rows = rows.concat(page as T[]);
@@ -528,7 +524,7 @@ export default class MastoApi {
                 }
 
                 // Reset timer to try to only measure the time spent waiting for the API to respond
-                this.waitedAt[cacheKey] = new Date();
+                this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
             // TODO: handle rate limiting errors

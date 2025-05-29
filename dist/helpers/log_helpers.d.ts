@@ -1,10 +1,5 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 import { BytesDict } from './math_helper';
-export type WaitTime = {
-    avgMsPerRequest: number;
-    milliseconds: number;
-    numRequests: number;
-};
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const CLEANUP_FEED = "cleanupFeed()";
 export declare const PREP_SCORERS = "prepareScorers()";
@@ -18,3 +13,12 @@ export declare function logTootRemoval(prefix: string, tootType: string, numRemo
 export declare function sizeOf(obj: any, sizes: BytesDict): number;
 export declare function traceLog(msg: string, ...args: any[]): void;
 export declare const strBytes: (str: string) => number;
+export declare class WaitTime {
+    avgMsPerRequest: number;
+    milliseconds: number;
+    numRequests: number;
+    startedAt: Date;
+    markStart(): void;
+    markEnd(): void;
+    toDict(): Record<string, number>;
+}

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.strBytes = exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.WaitTime = exports.strBytes = exports.traceLog = exports.sizeOf = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -142,4 +142,28 @@ exports.traceLog = traceLog;
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
 const strBytes = (str) => str.length;
 exports.strBytes = strBytes;
+// Helper class for telemetry
+class WaitTime {
+    avgMsPerRequest = 0;
+    milliseconds = 0;
+    numRequests = 0;
+    startedAt = new Date(); // TODO: this shouldn't really be set yet...
+    markStart() {
+        this.startedAt = new Date();
+    }
+    markEnd() {
+        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
+        this.numRequests++;
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
+    }
+    toDict() {
+        return {
+            avgMsPerRequest: this.avgMsPerRequest,
+            milliseconds: this.milliseconds,
+            numRequests: this.numRequests
+        };
+    }
+}
+exports.WaitTime = WaitTime;
+;
 //# sourceMappingURL=log_helpers.js.map
