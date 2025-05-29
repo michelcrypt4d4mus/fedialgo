@@ -1,15 +1,11 @@
 # NEXT RELEASE
+* Add Thai language detection
 
-### v0.54.6
-
-### v0.54.5
+### v0.54.5 / v0.54.6
 * (Demo App) Add tooltips to all the filter header switches; add `HeaderSwitch` component
 * (Demo App) Consolidate configurable stuff `Config` object
 
-### v0.54.4
-* (Demo App) Fix `FindFollowers` style
-
-### v0.54.3
+### v0.54.3 / v0.54.4
 * Export `LANGUAGE_CODES` dict
 * (Demo App) Show full language name in filter section, not just 2 character code
 

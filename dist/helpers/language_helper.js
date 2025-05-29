@@ -226,6 +226,7 @@ const LANGUAGE_CHAR_CLASSES = {
     [exports.LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
     [exports.LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
     [exports.LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
+    [exports.LANGUAGE_NAMES.thai]: `\\p{Script=Thai}`,
 };
 // Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
 const LANGUAGE_REGEXES = Object.entries(LANGUAGE_CHAR_CLASSES).reduce((regexes, [lang, chars]) => {
