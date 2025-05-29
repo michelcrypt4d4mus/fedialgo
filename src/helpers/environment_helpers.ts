@@ -10,6 +10,9 @@ console.log(
 );
 
 export const isDebugMode = process.env.FEDIALGO_DEBUG === "true";
-export const isLoadTest = process.env.LOAD_TEST === "true";
 export const isProduction = process.env.NODE_ENV === "production";
-export const isQuickMode = isDebugMode || (process.env.QUICK_MODE === "true");
+
+// Set for a much shorter startup time, useful for development and testing
+export const isQuickMode = process.env.QUICK_MODE === "true";
+// Set for long stress tests, pulling tons of data from the mastodon API
+export const isLoadTest = process.env.LOAD_TEST === "true";
