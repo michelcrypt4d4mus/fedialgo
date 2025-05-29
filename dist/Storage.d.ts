@@ -1,6 +1,6 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { CacheKey, FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingStorage, Weights } from "./types";
+import { CacheKey, FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingData, Weights } from "./types";
 type StorableObjWithStaleness = {
     isStale: boolean;
     obj: StorableObjWithCache;
@@ -14,7 +14,7 @@ export default class Storage {
     static getCoerced<T>(key: CacheKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
     static getIfNotStale<T extends StorableObjWithCache>(key: CacheKey): Promise<T | null>;
-    static getTrendingData(): Promise<TrendingStorage>;
+    static getTrendingData(): Promise<TrendingData>;
     static getWeights(): Promise<Weights>;
     static getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null>;
     static isDataStale(key: CacheKey): Promise<boolean>;

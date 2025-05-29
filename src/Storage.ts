@@ -31,9 +31,10 @@ import {
     StorageKey,
     TagWithUsageCounts,
     TrendingLink,
-    TrendingStorage,
+    TrendingData,
     WeightName,
     Weights,
+    MastodonInstances,
 } from "./types";
 
 type StorableObjWithStaleness = {
@@ -152,14 +153,16 @@ export default class Storage {
         }
     }
 
-    // Get trending tags, toots, and links as a single TrendingStorage object
-    static async getTrendingData(): Promise<TrendingStorage> {
+    // Get trending tags, toots, and links as a single TrendingData object
+    static async getTrendingData(): Promise<TrendingData> {
+        const servers = (await this.get(CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS)
         const trendingTagList = new TagList(trendingTags);
         trendingTagList.removeInvalidTrendingTags();  // TODO: sucks to do this here...
 
         return {
             links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
+            servers: servers as MastodonInstances,
             tags: trendingTagList.topTags(),
             toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };

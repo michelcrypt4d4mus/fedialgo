@@ -1,5 +1,5 @@
 import Toot from "./objects/toot";
-import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingStorage } from "../types";
+import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingData } from "../types";
 export declare enum TrendingType {
     STATUSES = "statuses",
     LINKS = "links",
@@ -25,7 +25,7 @@ export default class MastodonServer {
     static fediverseTrendingTags(): Promise<TagWithUsageCounts[]>;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
-    static getTrendingData(): Promise<TrendingStorage>;
+    static getTrendingData(): Promise<TrendingData>;
     private static fetchMastodonInstances;
     private static fetchTrendingObjsFromAllServers;
     private static getTopServerDomains;

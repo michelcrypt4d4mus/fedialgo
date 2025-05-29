@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add servers to renamed TrendingData type; remove TheAlgorithm.mastodonServers property; export TrendingData type
 * Add Thai, Hindi, Hebrew language detection for hashtags
 
 ### v0.54.5 / v0.54.6

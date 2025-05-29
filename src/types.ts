@@ -245,8 +245,9 @@ export type TootScore = {
 export type TootScores = Record<ScoreName, WeightedScore>;
 export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {};
 
-export interface TrendingStorage {
+export interface TrendingData {
     links: TrendingLink[];
+    servers: MastodonInstances;
     toots: Toot[];
     tags: TagWithUsageCounts[];
 };

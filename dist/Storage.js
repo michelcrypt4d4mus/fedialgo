@@ -139,13 +139,15 @@ class Storage {
             return withStaleness.obj;
         }
     }
-    // Get trending tags, toots, and links as a single TrendingStorage object
+    // Get trending tags, toots, and links as a single TrendingData object
     static async getTrendingData() {
+        const servers = (await this.get(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
         const trendingTagList = new tag_list_1.default(trendingTags);
         trendingTagList.removeInvalidTrendingTags(); // TODO: sucks to do this here...
         return {
             links: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
+            servers: servers,
             tags: trendingTagList.topTags(),
             toots: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };

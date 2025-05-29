@@ -121,8 +121,7 @@ class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
-    mastodonServers = {};
-    trendingData = { links: [], tags: [], toots: [] };
+    trendingData = { links: [], tags: [], servers: {}, toots: [] };
     userData = new user_data_1.default();
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     // Constructor argument variables
@@ -219,7 +218,6 @@ class TheAlgorithm {
             this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
-            mastodon_server_1.default.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
         ]);
@@ -333,7 +331,6 @@ class TheAlgorithm {
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
-        this.mastodonServers = {};
         this.feed = [];
         this.numTriggers = 0;
         await Storage_1.default.clearAll();
@@ -481,7 +478,6 @@ class TheAlgorithm {
     async loadCachedData() {
         this.feed = await Storage_1.default.getCoerced(types_1.CacheKey.TIMELINE_TOOTS);
         this.homeFeed = await Storage_1.default.getCoerced(types_1.CacheKey.HOME_TIMELINE_TOOTS);
-        this.mastodonServers = (await Storage_1.default.get(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS) || {});
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();

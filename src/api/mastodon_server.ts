@@ -22,11 +22,11 @@ import {
     MastodonInstance,
     MastodonInstances,
     CacheKey,
+    FEDIVERSE_KEYS,
     TagWithUsageCounts,
     TrendingLink,
     TrendingObj,
-    TrendingStorage,
-    FEDIVERSE_KEYS,
+    TrendingData,
 } from "../types";
 import {
     countValues,
@@ -238,15 +238,16 @@ export default class MastodonServer {
     }
 
     // Collect all three kinds of trending data (links, tags, toots) in one call
-    static async getTrendingData(): Promise<TrendingStorage> {
+    static async getTrendingData(): Promise<TrendingData> {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tagList, toots] = await Promise.all([
+        const [links, tagList, servers, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
             TagList.fromTrending(),
+            this.getMastodonInstancesInfo(),
             this.fediverseTrendingToots(),
         ]);
 
-        return { links, tags: tagList.topTags(), toots };
+        return { links, servers, tags: tagList.topTags(), toots };
     }
 
     ///////////////////////////////////////

@@ -69,7 +69,6 @@ import {
     AlgorithmStorageKey,
     FeedFilterSettings,
     KeysOfValueType,
-    MastodonInstances,
     MastodonTag,
     MediaCategory,
     MinMaxAvgScore,
@@ -79,9 +78,9 @@ import {
     CacheKey,
     StringNumberDict,
     TagWithUsageCounts,
+    TrendingData,
     TrendingLink,
     TrendingObj,
-    TrendingStorage,
     TrendingWithHistory,
     WeightName,
     Weights,
@@ -120,8 +119,7 @@ class TheAlgorithm {
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
-    mastodonServers: MastodonInstances = {};
-    trendingData: TrendingStorage = {links: [], tags: [], toots: []};
+    trendingData: TrendingData = {links: [], tags: [], servers: {}, toots: []};
     userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
@@ -234,7 +232,6 @@ class TheAlgorithm {
             this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.TRENDING_TAG_TOOTS), CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
-            MastodonServer.getMastodonInstancesInfo().then((servers) => this.mastodonServers = servers),
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             MastoApi.instance.getUserData().then((userData) => this.userData = userData),
         ]);
@@ -362,7 +359,6 @@ class TheAlgorithm {
         this.hasProvidedAnyTootsToClient = false;
         this.loadingStatus = READY_TO_LOAD_MSG;
         this.loadStartedAt = null;
-        this.mastodonServers = {};
         this.feed = [];
         this.numTriggers = 0;
         await Storage.clearAll();
@@ -537,7 +533,6 @@ class TheAlgorithm {
     private async loadCachedData(): Promise<void> {
         this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE_TOOTS);
         this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
-        this.mastodonServers = (await Storage.get(CacheKey.FEDIVERSE_POPULAR_SERVERS) || {}) as MastodonInstances;
         this.trendingData = await Storage.getTrendingData();
         this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
@@ -683,6 +678,7 @@ export {
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
+    type TrendingData,
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
