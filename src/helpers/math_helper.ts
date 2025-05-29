@@ -50,21 +50,18 @@ export class BytesDict {
 
 export function sizeFromTextEncoder(obj: object): number {
     try {
-        const jsonString = JSON.stringify(obj);
-        return new TextEncoder().encode(jsonString).length;
+        return new TextEncoder().encode(JSON.stringify(obj)).length;
     } catch (err) {
-        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        console.error("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
         return 0;
     }
 };
 
-
 export function sizeFromBufferByteLength(obj: object): number {
     try {
-        const jsonString = JSON.stringify(obj);
-        return Buffer.byteLength(jsonString, 'utf8');
+        return Buffer.byteLength(JSON.stringify(obj), 'utf8');
     } catch (err) {
-        console.warn("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
+        console.error("sizeFromBufferByteLength() failed to encode object with error:", err, `\nobject:`, obj);
         return 0;
     }
 };
