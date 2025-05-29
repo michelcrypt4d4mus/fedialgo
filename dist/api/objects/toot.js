@@ -474,7 +474,8 @@ class Toot {
     // Return the content with the card title and description added in parentheses
     contentWithCard() {
         const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-        return (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
+        const txt = (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
+        return (0, string_helpers_1.removeDiacritics)(txt);
     }
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {

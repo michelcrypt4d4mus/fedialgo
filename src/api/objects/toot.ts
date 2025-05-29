@@ -32,6 +32,7 @@ import {
     htmlToText,
     isImage,
     isVideo,
+    removeDiacritics,
     removeEmojis,
     removeLinks,
     removeMentions,
@@ -588,10 +589,12 @@ export default class Toot implements TootObj {
         return collapseWhitespace(removeMentions(removeEmojis(removeTags(removeLinks(this.contentWithCard())))));
     }
 
-    // Return the content with the card title and description added in parentheses
+    // Return the content with the card title and description added in parentheses, stripped of diacritics for matching tags
+    // TODO: memoize?
     private contentWithCard(): string {
         const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-        return (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
+        const txt = (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
+        return removeDiacritics(txt);
     }
 
     // Figure out an appropriate language for the toot based on the content.
