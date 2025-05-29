@@ -1,7 +1,8 @@
 # NEXT RELEASE
 
-### v0.54.9
-* (Demo App) Trending panel configuration options
+### v0.54.10
+* (Demo App) Sort fediverse server list by `followedPctOfMAU`
+* (Demo App) Trending panel configuration options in main config
 
 ### v0.54.8
 * Export `TrendingType` enum
