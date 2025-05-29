@@ -56,7 +56,7 @@ function computeScoreStats(toots, numPercentiles) {
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(toots, scoreType, scoreName, numPercentiles) {
     const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);
-    return (0, collection_helpers_1.percentileSegments)(toots, getScoreOfType, numPercentiles).map((segment) => {
+    return (0, collection_helpers_1.makePercentileChunks)(toots, getScoreOfType, numPercentiles).map((segment) => {
         const sectionScores = segment.map(getScoreOfType);
         return {
             average: (0, collection_helpers_1.average)(sectionScores),

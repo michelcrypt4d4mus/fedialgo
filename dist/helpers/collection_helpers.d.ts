@@ -22,7 +22,7 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
-export declare function percentileSegments<T>(array: T[], fxn: (element: T) => number | undefined, numPercentiles: number): T[][];
+export declare function makePercentileChunks<T>(array: T[], fxn: (element: T) => number | undefined, numPercentiles: number): T[][];
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];

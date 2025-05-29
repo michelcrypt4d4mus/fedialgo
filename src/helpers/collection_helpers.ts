@@ -247,13 +247,13 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
 
 
 // Sort array by fxn() value & divide into numPercentiles sections
-export function percentileSegments<T>(
+export function makePercentileChunks<T>(
     array: T[],
     fxn: (element: T) => number | undefined,
     numPercentiles: number
 ): T[][] {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, {logPrefix: `percentileSegments(${numPercentiles})`, numChunks: numPercentiles});
+    return makeChunks(sortedArray, {logPrefix: `makePercentileChunks(${numPercentiles})`, numChunks: numPercentiles});
 };
 
 

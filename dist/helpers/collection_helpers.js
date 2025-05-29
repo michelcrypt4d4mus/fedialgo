@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.percentileSegments = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -204,11 +204,11 @@ function keyByProperty(array, keyFxn) {
 exports.keyByProperty = keyByProperty;
 ;
 // Sort array by fxn() value & divide into numPercentiles sections
-function percentileSegments(array, fxn, numPercentiles) {
+function makePercentileChunks(array, fxn, numPercentiles) {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, { logPrefix: `percentileSegments(${numPercentiles})`, numChunks: numPercentiles });
+    return makeChunks(sortedArray, { logPrefix: `makePercentileChunks(${numPercentiles})`, numChunks: numPercentiles });
 }
-exports.percentileSegments = percentileSegments;
+exports.makePercentileChunks = makePercentileChunks;
 ;
 // Randomize the order of an array
 function shuffle(array) {

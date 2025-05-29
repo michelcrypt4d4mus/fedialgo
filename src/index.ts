@@ -44,7 +44,6 @@ import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './confi
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { isValueInStringEnum, computeMinMax, percentileSegments, sortKeysByValue, truncateToConfiguredLength } from "./helpers/collection_helpers";
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
@@ -53,11 +52,18 @@ import {
     TRIGGER_FEED,
     lockExecution,
     logAndThrowError,
-    logDebug,
     logInfo,
     logTelemetry,
     traceLog,
 } from './helpers/log_helpers';
+import {
+    computeMinMax,
+    isValueInStringEnum,
+    makeChunks,
+    makePercentileChunks,
+    sortKeysByValue,
+    truncateToConfiguredLength
+} from "./helpers/collection_helpers";
 import {
     AlgorithmStorageKey,
     FeedFilterSettings,
@@ -704,7 +710,8 @@ export {
     isAccessTokenRevokedError,
     isDebugMode,
     isValueInStringEnum,
-    percentileSegments,
+    makeChunks,
+    makePercentileChunks, // TODO: unused in demo app (for now)
     sortKeysByValue,
     timeString,
 };

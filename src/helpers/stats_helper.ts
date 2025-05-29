@@ -2,7 +2,7 @@
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
 import Toot from "../api/objects/toot";
-import { average, percentileSegments } from "./collection_helpers";
+import { average, makePercentileChunks } from "./collection_helpers";
 import { MinMaxAvgScore, ScoreName, ScoresStats, WeightedScore } from "../types";
 import { suffixedInt } from "./string_helpers";
 
@@ -61,7 +61,7 @@ function scoreStats(
 ): MinMaxAvgScore[] {
     const getScoreOfType = (t: Toot) => t.getIndividualScore(scoreType, scoreName);
 
-    return percentileSegments(toots, getScoreOfType, numPercentiles).map((segment) => {
+    return makePercentileChunks(toots, getScoreOfType, numPercentiles).map((segment) => {
         const sectionScores = segment.map(getScoreOfType);
 
         return {
