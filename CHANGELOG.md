@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.54.13
 * Add information about storage usage for each primitive type to `getCurrentState()`
 * `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
 * Add telemetry to `MastoApi` for request wait times (data is returned in `getCurrentState()` under the new `Api` section)
