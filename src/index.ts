@@ -463,7 +463,7 @@ class TheAlgorithm {
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
         // Now that all data has arrived, go back over and do the slow calculations of Toot.trendingLinks etc.
-        const logPrefix = bracketed(`${SET_LOADING_STATUS} finishFeedUpdate()`);
+        const logPrefix = bracketed(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         await Toot.completeToots(this.feed, logPrefix, isDeepInspect);
