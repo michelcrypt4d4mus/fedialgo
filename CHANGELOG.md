@@ -1,6 +1,9 @@
 # NEXT RELEASE
+
+### v0.54.7
 * Add servers to renamed TrendingData type; remove TheAlgorithm.mastodonServers property; export TrendingData and MastodonInstance types
 * Add Thai, Hindi, Hebrew language detection for hashtags
+* (Demo App) Toggling of how many trending links/tags/etc. are shown
 
 ### v0.54.5 / v0.54.6
 * (Demo App) Add tooltips to all the filter header switches; add `HeaderSwitch` component
