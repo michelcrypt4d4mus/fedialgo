@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.54.11
 * Exclude object's functions when computing browser storage usage (the fxns aren't serialized to storage?)
 
 ### v0.54.10
