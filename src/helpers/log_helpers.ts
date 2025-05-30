@@ -14,10 +14,6 @@ export const CLEANUP_FEED = "cleanupFeed()";
 export const PREP_SCORERS = "prepareScorers()";
 export const TRIGGER_FEED = "triggerFeedUpdate()";
 
-// console.log methods with a prefix
-export const logDebug = (pfx: string, msg: string, ...args: any[]) => console.debug(prefixed(pfx, msg), ...args);
-export const logInfo = (pfx: string, msg: string, ...args: any[]) => console.info(prefixed(pfx, msg), ...args);
-
 
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 export async function lockExecution(
@@ -72,7 +68,7 @@ export function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ..
         msg += `, ${args.shift()}`;
     }
 
-    logInfo(logPrefix, msg, ...args);
+    console.info(prefixed(logPrefix, msg), ...args)
 };
 
 

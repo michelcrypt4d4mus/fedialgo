@@ -3,8 +3,6 @@ export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const CLEANUP_FEED = "cleanupFeed()";
 export declare const PREP_SCORERS = "prepareScorers()";
 export declare const TRIGGER_FEED = "triggerFeedUpdate()";
-export declare const logDebug: (pfx: string, msg: string, ...args: any[]) => void;
-export declare const logInfo: (pfx: string, msg: string, ...args: any[]) => void;
 export declare function lockExecution(locker: Mutex | Semaphore, logPrefix: string): Promise<MutexInterface.Releaser | SemaphoreInterface.Releaser>;
 export declare function logAndThrowError(message: string, obj?: any): never;
 export declare function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ...args: any[]): void;

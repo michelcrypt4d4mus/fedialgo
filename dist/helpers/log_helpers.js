@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponentLogger = exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.logInfo = exports.logDebug = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.ComponentLogger = exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -10,11 +10,6 @@ exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 exports.CLEANUP_FEED = "cleanupFeed()";
 exports.PREP_SCORERS = "prepareScorers()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
-// console.log methods with a prefix
-const logDebug = (pfx, msg, ...args) => console.debug((0, string_helpers_1.prefixed)(pfx, msg), ...args);
-exports.logDebug = logDebug;
-const logInfo = (pfx, msg, ...args) => console.info((0, string_helpers_1.prefixed)(pfx, msg), ...args);
-exports.logInfo = logInfo;
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 async function lockExecution(locker, logPrefix) {
     const startedAt = new Date();
@@ -61,7 +56,7 @@ function logTelemetry(logPrefix, msg, startedAt, ...args) {
     if (args.length && typeof args[0] == 'string') {
         msg += `, ${args.shift()}`;
     }
-    (0, exports.logInfo)(logPrefix, msg, ...args);
+    console.info((0, string_helpers_1.prefixed)(logPrefix, msg), ...args);
 }
 exports.logTelemetry = logTelemetry;
 ;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMoarData = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
+exports.getMoarData = exports.moarDataLogger = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
 /*
  * Background polling to try to get more user data for the scoring algorithm
  * after things have died down from the intitial load.
@@ -15,13 +15,13 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
-const logger = new log_helpers_1.ComponentLogger(exports.GET_MOAR_DATA);
+exports.moarDataLogger = new log_helpers_1.ComponentLogger(exports.GET_MOAR_DATA);
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
-    logger.log(`triggered by timer...`);
+    exports.moarDataLogger.log(`triggered by timer...`);
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const startedAt = new Date();
     const pollers = [
@@ -36,7 +36,7 @@ async function getMoarData() {
         // Launch with moar flag those that are insufficient
         const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
             if (size >= config_1.config.api.maxRecordsForFeatureScoring) {
-                logger.log(`${pollers[i].name} has enough records (${size})`);
+                exports.moarDataLogger.log(`${pollers[i].name} has enough records (${size})`);
                 return 0;
             }
             ;
@@ -48,9 +48,9 @@ async function getMoarData() {
             extraCount < 0 ? console.warn(msg) : console.log(msg);
             return extraCount || 0;
         }));
-        logger.log(`Finished ${(0, time_helpers_1.ageString)(startedAt)}`);
+        exports.moarDataLogger.log(`Finished ${(0, time_helpers_1.ageString)(startedAt)}`);
         if (newRecordCounts.every((x) => x <= 0)) {
-            logger.log(`All ${pollers.length} pollers have enough data`);
+            exports.moarDataLogger.log(`All ${pollers.length} pollers have enough data`);
             return false;
         }
         else {

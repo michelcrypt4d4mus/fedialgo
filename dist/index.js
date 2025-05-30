@@ -202,7 +202,7 @@ class TheAlgorithm {
     }
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots) {
-        (0, log_helpers_1.logInfo)(log_helpers_1.TRIGGER_FEED, `called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        this.logger.log(`<${log_helpers_1.TRIGGER_FEED}> called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
         if (moreOldToots)
             return await this.triggerHomeTimelineBackFill();
@@ -423,28 +423,28 @@ class TheAlgorithm {
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
             const msg = `First ${filteredFeed.length} toots sent to client`;
-            this.logTelemetry('filterFeedAndSetInApp', msg, this.loadStartedAt || new Date());
+            this.logTelemetry('filterFeedAndSetInApp()', msg, this.loadStartedAt || new Date());
         }
         return filteredFeed;
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logPrefix = `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)(`finishFeedUpdate()`)}`;
+        const logger = new log_helpers_1.ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        this.logger.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+        logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
-        this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix);
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logger.logPrefix);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        await toot_1.default.completeToots(this.feed, logPrefix, isDeepInspect);
+        await toot_1.default.completeToots(this.feed, logger.logPrefix, isDeepInspect);
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
-            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
+            this.logTelemetry(logger.logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
-            this.logger.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
+            logger.warn(`${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
         }
         this.loadStartedAt = null;
         this.loadingStatus = null;
@@ -461,19 +461,19 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
         if (this.dataPoller) {
-            this.logger.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            moar_data_poller_1.moarDataLogger.log(`data poller already exists, not starting another one`);
             return;
         }
         this.dataPoller = setInterval(async () => {
             const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
             await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
             if (!shouldContinue) {
-                (0, log_helpers_1.logInfo)(moar_data_poller_1.MOAR_DATA_PREFIX, `stopping data poller...`);
+                moar_data_poller_1.moarDataLogger.log(`stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
         if (this.cacheUpdater) {
-            this.logger.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            moar_data_poller_1.moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
             return;
         }
         this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);

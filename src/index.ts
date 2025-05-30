@@ -42,7 +42,7 @@ import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } f
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, arrowed, bracketed, extractDomain } from './helpers/string_helpers';
-import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
+import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
@@ -54,7 +54,6 @@ import {
     ComponentLogger,
     lockExecution,
     logAndThrowError,
-    logInfo,
     logTelemetry,
 } from './helpers/log_helpers';
 import {
@@ -215,7 +214,7 @@ class TheAlgorithm {
 
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots?: boolean): Promise<void> {
-        logInfo(TRIGGER_FEED, `called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        this.logger.log(`<${TRIGGER_FEED}> called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
         if (moreOldToots) return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping()) return;
@@ -462,7 +461,7 @@ class TheAlgorithm {
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
             const msg = `First ${filteredFeed.length} toots sent to client`;
-            this.logTelemetry('filterFeedAndSetInApp', msg, this.loadStartedAt || new Date());
+            this.logTelemetry('filterFeedAndSetInApp()', msg, this.loadStartedAt || new Date());
         }
 
         return filteredFeed;
@@ -470,23 +469,23 @@ class TheAlgorithm {
 
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
-        const logPrefix = `${this.logger.logPrefix} ${arrowed(`finishFeedUpdate()`)}`;
+        const logger = new ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        this.logger.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+        logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
-        this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);
+        this.feed = await Toot.removeInvalidToots(this.feed, logger.logPrefix);
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        await Toot.completeToots(this.feed, logPrefix, isDeepInspect);
+        await Toot.completeToots(this.feed, logger.logPrefix, isDeepInspect);
         updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
 
         if (this.loadStartedAt) {
-            this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
+            this.logTelemetry(logger.logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
-            this.logger.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
+            logger.warn(`${TELEMETRY} finished but loadStartedAt is null!`);
         }
 
         this.loadStartedAt = null;
@@ -506,7 +505,7 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     private launchBackgroundPoller(): void {
         if (this.dataPoller) {
-            this.logger.log(`${MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            moarDataLogger.log(`data poller already exists, not starting another one`);
             return;
         }
 
@@ -516,7 +515,7 @@ class TheAlgorithm {
                 await this.recomputeScorers();  // Force scorers to recompute data, rescore the feed
 
                 if (!shouldContinue) {
-                    logInfo(MOAR_DATA_PREFIX, `stopping data poller...`);
+                    moarDataLogger.log(`stopping data poller...`);
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
@@ -524,7 +523,7 @@ class TheAlgorithm {
         );
 
         if (this.cacheUpdater) {
-            this.logger.log(`${MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
             return;
         }
 
