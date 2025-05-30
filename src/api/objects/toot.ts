@@ -309,8 +309,8 @@ export default class Toot implements TootObj {
     containsTagsMsg(): string | undefined {
         let msgs = [
             this.containsTagsOfTypeMsg(TypeFilterName.FOLLOWED_HASHTAGS),
-            this.containsTagsOfTypeMsg(TypeFilterName.TRENDING_HASHTAGS),
-            this.containsTagsOfTypeMsg(TypeFilterName.PARTICIPATED_HASHTAGS),
+            this.containsTagsOfTypeMsg(TypeFilterName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(TypeFilterName.PARTICIPATED_TAGS),
         ];
 
         msgs = msgs.filter((msg) => msg);
@@ -588,9 +588,9 @@ export default class Toot implements TootObj {
 
         if (tagType == TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
-        } else if (tagType == TypeFilterName.PARTICIPATED_HASHTAGS) {
+        } else if (tagType == TypeFilterName.PARTICIPATED_TAGS) {
             tags = this.participatedTags || [];
-        } else if (tagType == TypeFilterName.TRENDING_HASHTAGS) {
+        } else if (tagType == TypeFilterName.TRENDING_TAGS) {
             tags = this.trendingTags || [];
         } else {
             logger.warn(`${arrowed('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);

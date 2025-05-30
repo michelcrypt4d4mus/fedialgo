@@ -28,7 +28,7 @@ class FeatureScorer extends scorer_1.default {
             this.scoreData = {};
         }
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `(prepareScoreData()) finished ${(0, time_helpers_1.ageString)(startTime)}`;
+            const msg = `prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
             this.logger.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
         this.isReady = true;

@@ -221,8 +221,8 @@ class Toot {
     containsTagsMsg() {
         let msgs = [
             this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.TRENDING_HASHTAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.PARTICIPATED_HASHTAGS),
+            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS),
         ];
         msgs = msgs.filter((msg) => msg);
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
@@ -462,10 +462,10 @@ class Toot {
         if (tagType == boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.PARTICIPATED_HASHTAGS) {
+        else if (tagType == boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS) {
             tags = this.participatedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.TRENDING_HASHTAGS) {
+        else if (tagType == boolean_filter_1.TypeFilterName.TRENDING_TAGS) {
             tags = this.trendingTags || [];
         }
         else {

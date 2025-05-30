@@ -18,15 +18,15 @@ export declare enum TypeFilterName {
     IMAGES = "images",
     LINKS = "links",
     MENTIONS = "mentions",
+    PARTICIPATED_TAGS = "participatedHashtags",
     POLLS = "polls",
-    PARTICIPATED_HASHTAGS = "participatedHashtags",
     PRIVATE = "private",
     REPLIES = "replies",
     RETOOTS = "retoots",
     SENSITIVE = "sensitive",
     SPOILERED = "spoilered",
-    TRENDING_HASHTAGS = "trendingHashtags",
     TRENDING_LINKS = "trendingLinks",
+    TRENDING_TAGS = "trendingHashtags",
     TRENDING_TOOTS = "trendingToots",
     VIDEOS = "videos"
 }

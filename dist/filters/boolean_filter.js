@@ -28,15 +28,15 @@ var TypeFilterName;
     TypeFilterName["IMAGES"] = "images";
     TypeFilterName["LINKS"] = "links";
     TypeFilterName["MENTIONS"] = "mentions";
+    TypeFilterName["PARTICIPATED_TAGS"] = "participatedHashtags";
     TypeFilterName["POLLS"] = "polls";
-    TypeFilterName["PARTICIPATED_HASHTAGS"] = "participatedHashtags";
     TypeFilterName["PRIVATE"] = "private";
     TypeFilterName["REPLIES"] = "replies";
     TypeFilterName["RETOOTS"] = "retoots";
     TypeFilterName["SENSITIVE"] = "sensitive";
     TypeFilterName["SPOILERED"] = "spoilered";
-    TypeFilterName["TRENDING_HASHTAGS"] = "trendingHashtags";
     TypeFilterName["TRENDING_LINKS"] = "trendingLinks";
+    TypeFilterName["TRENDING_TAGS"] = "trendingHashtags";
     TypeFilterName["TRENDING_TOOTS"] = "trendingToots";
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
@@ -56,14 +56,14 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
-    [TypeFilterName.PARTICIPATED_HASHTAGS]: (toot) => !!toot.realToot().participatedTags?.length,
+    [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
     [TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate(),
     [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
     [TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
     [TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
-    [TypeFilterName.TRENDING_HASHTAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
+    [TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
     [TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments.length,
 };
