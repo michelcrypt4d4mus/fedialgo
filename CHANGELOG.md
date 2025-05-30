@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Undo some memoization in `Feed.tsx` after the scroll listener `showMoreToots()` somehow went crazy and loaded the entire timeline
 
 ### v0.54.19
 
