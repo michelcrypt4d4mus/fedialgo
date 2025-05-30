@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.54.16
+* Logging cleanup
+
 ### v0.54.15
 * (Demo App) Fix memoization watcher for type filter
 * (Demo App) Use ComponentLogger from fedialgo package
