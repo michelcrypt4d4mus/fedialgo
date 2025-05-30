@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
+const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app

@@ -7,10 +7,10 @@ import { Type } from "class-transformer";
 
 import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
-import { AccountLike, AccountNames, StringNumberDict } from "../../types";
 import { config } from "../../config";
 import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';

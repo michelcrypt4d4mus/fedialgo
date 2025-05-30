@@ -19,6 +19,7 @@ import {
     type WeightInfo
 } from "../types";
 
+
 // There's a scorer for each of these ScoreNames
 export enum ScoreName {
     ALREADY_SHOWN = 'AlreadyShown',
@@ -42,8 +43,7 @@ export enum ScoreName {
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = 'VideoAttachments'
-}
-;
+};
 
 // Order currently influences the order of the score weighting sliders in the demo app
 export enum NonScoreWeightName {
@@ -54,6 +54,7 @@ export enum NonScoreWeightName {
 
 // Names of all the user adjustable score weightings, both those with a Scorer and those without
 export type WeightName = ScoreName | NonScoreWeightName;
+
 
 // Local constants
 const LOG_PREFIX = "Scorer";

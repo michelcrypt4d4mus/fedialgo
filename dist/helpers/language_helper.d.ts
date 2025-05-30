@@ -1,4 +1,4 @@
-import { StringDict, StringSet } from '../types';
+import { type StringDict, type StringSet } from '../types';
 export declare const LANGUAGE_NAMES: StringDict;
 export declare const LANGUAGE_CODES: StringDict;
 export declare const FOREIGN_SCRIPTS: StringSet;

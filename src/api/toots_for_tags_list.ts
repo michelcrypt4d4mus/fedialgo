@@ -5,12 +5,12 @@ import MastoApi from "./api";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { arrowed } from "../helpers/string_helpers";
-import { TagWithUsageCounts } from "../types";
 import { CacheKey } from '../Storage';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, TagTootsConfig } from "../config";
 import { tagStr } from "./objects/tag";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { type TagWithUsageCounts } from "../types";
 
 const logger = new ComponentLogger("TootsForTagsList");
 

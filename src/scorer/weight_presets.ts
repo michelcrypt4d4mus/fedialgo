@@ -2,9 +2,8 @@
  * Preset configurations to simplify user weight management.
  */
 import { isValueInStringEnum } from "../helpers/collection_helpers";
-import { Weights } from "../types";
-import { NonScoreWeightName } from './scorer';
-import { ScoreName } from './scorer';
+import { NonScoreWeightName, ScoreName } from './scorer';
+import { type Weights } from "../types";
 
 export enum WeightPresetLabel {
     CHRONOLOGICAL = 'Chronological',

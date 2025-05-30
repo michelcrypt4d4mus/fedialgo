@@ -31,10 +31,10 @@ const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
+const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
 const string_helpers_1 = require("../../helpers/string_helpers");
-const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -172,8 +172,8 @@ class Toot {
         tootObj.trendingTags = toot.trendingTags;
         tootObj.repair();
         // These must be set after repair() has a chance to fix any broken media types
-        tootObj.audioAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.AUDIO);
-        tootObj.imageAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.IMAGE);
+        tootObj.audioAttachments = tootObj.attachmentsOfType(enums_1.MediaCategory.AUDIO);
+        tootObj.imageAttachments = tootObj.attachmentsOfType(enums_1.MediaCategory.IMAGE);
         tootObj.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
         if (tootObj.account.suspended) {
             logger.warn(`Toot from suspended account:`, tootObj);
@@ -191,13 +191,13 @@ class Toot {
     // TODO: can one toot have video and imagess? If so, we should return both (or something)
     attachmentType() {
         if (this.imageAttachments.length > 0) {
-            return types_1.MediaCategory.IMAGE;
+            return enums_1.MediaCategory.IMAGE;
         }
         else if (this.videoAttachments.length > 0) {
-            return types_1.MediaCategory.VIDEO;
+            return enums_1.MediaCategory.VIDEO;
         }
         else if (this.audioAttachments.length > 0) {
-            return types_1.MediaCategory.AUDIO;
+            return enums_1.MediaCategory.AUDIO;
         }
     }
     // True if toot contains 'str' in the tags, the content, or the link preview card description
@@ -598,15 +598,15 @@ class Toot {
             if (media.type == UNKNOWN) {
                 if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
                     logger.trace(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
-                    media.type = types_1.MediaCategory.IMAGE;
+                    media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
                     logger.trace(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
-                    media.type = types_1.MediaCategory.VIDEO;
+                    media.type = enums_1.MediaCategory.VIDEO;
                 }
                 else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
                     logger.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
-                    media.type = types_1.MediaCategory.IMAGE;
+                    media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else {
                     logger.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);

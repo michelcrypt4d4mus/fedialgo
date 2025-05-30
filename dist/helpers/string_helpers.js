@@ -10,7 +10,7 @@ exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.re
 const escape = require('regexp.escape');
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
-const types_1 = require("../types");
+const enums_1 = require("../enums");
 // Number constants
 exports.DEFAULT_FONT_SIZE = 15;
 exports.KILOBYTE = 1024;
@@ -33,13 +33,13 @@ exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 exports.VIDEO_EXTENSIONS = ["mp4"];
 exports.VIDEO_TYPES = [
     exports.GIFV,
-    types_1.MediaCategory.VIDEO,
+    enums_1.MediaCategory.VIDEO,
 ];
 // MEDIA_TYPES contains all valid values for mastodon.v1.MediaAttachment.type
 exports.MEDIA_TYPES = [
     ...exports.VIDEO_TYPES,
-    types_1.MediaCategory.AUDIO,
-    types_1.MediaCategory.IMAGE,
+    enums_1.MediaCategory.AUDIO,
+    enums_1.MediaCategory.IMAGE,
 ];
 // Alphabetize an array of strings
 const alphabetize = (arr) => arr.sort(exports.compareStr);

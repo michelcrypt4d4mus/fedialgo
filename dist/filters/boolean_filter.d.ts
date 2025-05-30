@@ -1,6 +1,6 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { FilterArgs, StringNumberDict } from "../types";
+import { type FilterArgs, type StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare enum BooleanFilterName {
     HASHTAG = "hashtag",

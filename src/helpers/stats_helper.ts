@@ -3,10 +3,10 @@
  */
 import Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
-import { MinMaxAvgScore, ScoresStats, WeightedScore } from "../types";
 import { ScoreName } from '../scorer/scorer';
 import { suffixedInt } from "./string_helpers";
 import { traceLog } from "./log_helpers";
+import { type MinMaxAvgScore, type ScoresStats, type WeightedScore } from "../types";
 
 
 // Return an array of objects suitable for use with Recharts

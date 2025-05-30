@@ -1,4 +1,4 @@
-import { Weights } from "../types";
+import { type Weights } from "../types";
 export declare enum WeightPresetLabel {
     CHRONOLOGICAL = "Chronological",
     DISCUSSIONS = "Discussions",

@@ -1,6 +1,6 @@
 import Toot from '../api/objects/toot';
 import { ComponentLogger } from '../helpers/log_helpers';
-import { FilterArgs, FilterTitle } from "../types";
+import { type FilterArgs, type FilterTitle } from "../types";
 export default abstract class TootFilter {
     description: string;
     invertSelection: boolean;

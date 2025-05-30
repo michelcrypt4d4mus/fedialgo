@@ -11,29 +11,6 @@ import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scor
 import Toot, { SerializableToot } from './api/objects/toot';
 import { CacheKey } from './Storage';
 
-export const FEDIVERSE_KEYS = [
-    CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    CacheKey.FEDIVERSE_TRENDING_LINKS,
-    CacheKey.FEDIVERSE_TRENDING_TAGS,
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
-
-// Self explanatory
-export enum MediaCategory {
-    AUDIO = "audio",
-    IMAGE = "image",
-    VIDEO = "video",
-};
-
-// Kinds of trending data that can be fetched
-export enum TrendingType {
-    LINKS = "links",
-    SERVERS = 'servers',  // Not necessarily really a trending data type but for now...
-    STATUSES = "statuses",
-    TAGS = "tags"
-};
-
-
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;

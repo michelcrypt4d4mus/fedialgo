@@ -25,9 +25,14 @@ import { mastodon } from "masto";
 import Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
 import { config } from "../../config";
-import { MastodonTag, TagWithUsageCounts, TrendingLink, TrendingWithHistory } from "../../types";
 import { repairTag } from "./tag";
 import { wordRegex } from "../../helpers/string_helpers";
+import {
+    type MastodonTag,
+    type TagWithUsageCounts,
+    type TrendingLink,
+    type TrendingWithHistory
+} from "../../types";
 
 
 // Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts

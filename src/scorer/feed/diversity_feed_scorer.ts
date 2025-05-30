@@ -6,8 +6,8 @@ import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
-import { StringNumberDict } from "../../types";
 import { ScoreName } from '../scorer';
+import { type StringNumberDict } from "../../types";
 
 
 export default class DiversityFeedScorer extends FeedScorer {

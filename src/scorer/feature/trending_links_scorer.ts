@@ -5,9 +5,9 @@
 import FeatureScorer from '../feature_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict } from "../../types";
 import { ScoreName } from '../scorer';
 import { sumArray } from '../../helpers/collection_helpers';
+import { type StringNumberDict } from "../../types";
 
 
 export default class TrendingLinksScorer extends FeatureScorer {

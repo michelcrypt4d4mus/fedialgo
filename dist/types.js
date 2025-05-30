@@ -1,30 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = void 0;
-const Storage_1 = require("./Storage");
-exports.FEDIVERSE_KEYS = [
-    Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
-// Self explanatory
-var MediaCategory;
-(function (MediaCategory) {
-    MediaCategory["AUDIO"] = "audio";
-    MediaCategory["IMAGE"] = "image";
-    MediaCategory["VIDEO"] = "video";
-})(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
-;
-// Kinds of trending data that can be fetched
-var TrendingType;
-(function (TrendingType) {
-    TrendingType["LINKS"] = "links";
-    TrendingType["SERVERS"] = "servers";
-    TrendingType["STATUSES"] = "statuses";
-    TrendingType["TAGS"] = "tags";
-})(TrendingType || (exports.TrendingType = TrendingType = {}));
-;
 ;
 ;
 ;

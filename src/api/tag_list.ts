@@ -7,10 +7,16 @@ import Toot from "./objects/toot";
 import UserData from "./user_data";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
-import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
+import {
+    type MastodonTag,
+    type StringNumberDict,
+    type TagNames,
+    type TagWithUsageCounts
+} from "../types";
+
 
 const logger = new ComponentLogger("TagList");
 

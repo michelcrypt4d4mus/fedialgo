@@ -12,7 +12,7 @@ import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
-import { BytesDict, sizeFromBufferByteLength, sizeFromTextEncoder } from "./helpers/math_helper";
+import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
@@ -53,14 +53,14 @@ export enum CacheKey {
     FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
-    HASHTAG_TOOTS = 'HashtagToots',// TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',// Just toots that are in the home timeline (followed accounts + tags)
+    HASHTAG_TOOTS = 'HashtagToots',             // TODO: there's nothing actually stored here but it's a flag for Toot serialization
+    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',  // Toots that the API returns for the home timeline
     MUTED_ACCOUNTS = 'MutedAccounts',
     NOTIFICATIONS = 'Notifications',
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',// The entire time line (home timeline + trending toots etc.)
+    TIMELINE_TOOTS = 'TimelineToots',           // The entire timeline (home timeline + trending toots etc.)
     TRENDING_TAG_TOOTS = 'TrendingTagToots'
 };
 

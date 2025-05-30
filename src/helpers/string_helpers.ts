@@ -6,7 +6,7 @@ import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { mastodon } from 'masto';
 
-import { MediaCategory } from '../types';
+import { MediaCategory } from '../enums';
 
 // Number constants
 export const DEFAULT_FONT_SIZE = 15;

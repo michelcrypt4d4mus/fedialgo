@@ -1,6 +1,6 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { FilterArgs, TootNumberProp } from "../types";
+import { type FilterArgs, type TootNumberProp } from "../types";
 export declare const FILTERABLE_SCORES: TootNumberProp[];
 export declare const isNumericFilterName: (name: string) => boolean;
 export interface NumericFilterArgs extends FilterArgs {

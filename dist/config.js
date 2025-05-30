@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
-const log_helpers_1 = require("./helpers/log_helpers");
-const types_1 = require("./types");
 const Storage_1 = require("./Storage");
+const log_helpers_1 = require("./helpers/log_helpers");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_2 = require("./helpers/log_helpers");
 const scorer_1 = require("./scorer/scorer");
@@ -322,8 +321,8 @@ class Config {
     ;
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
     minTrendingMinutesUntilStale() {
-        const trendStalenesses = types_1.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
-        if (trendStalenesses.length != types_1.FEDIVERSE_KEYS.length) {
+        const trendStalenesses = exports.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        if (trendStalenesses.length != exports.FEDIVERSE_KEYS.length) {
             logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
             return 60;
         }
@@ -399,4 +398,10 @@ if (environment_helpers_1.isLoadTest) {
     config.trending.tags.numTags = 40;
 }
 ;
+exports.FEDIVERSE_KEYS = [
+    Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
 //# sourceMappingURL=config.js.map

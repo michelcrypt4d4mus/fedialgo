@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
+const tag_list_1 = __importDefault(require("./tag_list"));
 const Storage_2 = require("../Storage");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const tag_list_1 = __importDefault(require("./tag_list"));
 const logger = new log_helpers_1.ComponentLogger("UserData");
 ;
 class UserData {

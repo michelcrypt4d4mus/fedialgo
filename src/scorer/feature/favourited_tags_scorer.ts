@@ -4,9 +4,9 @@
 import FeatureScorer from '../feature_scorer';
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict } from '../../types';
 import { ScoreName } from '../scorer';
 import { sumArray } from '../../helpers/collection_helpers';
+import { type StringNumberDict } from '../../types';
 
 
 export default class FavouritedTagsScorer extends FeatureScorer {

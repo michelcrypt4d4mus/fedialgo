@@ -5,10 +5,10 @@
  */
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { config } from '../config';
 import { alphabetize } from '../helpers/string_helpers';
+import { config } from '../config';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
-import { FilterArgs, StringNumberDict } from "../types";
+import { type FilterArgs, type StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;

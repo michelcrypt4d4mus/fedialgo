@@ -6,8 +6,8 @@
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
 import { isDebugMode } from "../helpers/environment_helpers";
-import { StringNumberDict } from "../types";
 import { ScoreName } from './scorer';
+import { type StringNumberDict } from "../types";
 
 
 // TODO: Find a better name than "Feature" for this class

@@ -4,8 +4,8 @@
 import Account from '../../api/objects/account';
 import AccountScorer from "./acccount_scorer";
 import MastoApi from '../../api/api';
-import { StringNumberDict } from '../../types';
 import { ScoreName } from '../scorer';
+import { type StringNumberDict } from '../../types';
 
 
 export default class MostFavouritedAccountsScorer extends AccountScorer {

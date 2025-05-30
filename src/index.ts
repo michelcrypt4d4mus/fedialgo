@@ -30,7 +30,7 @@ import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
-import Storage from "./Storage";
+import Storage, { AlgorithmStorageKey, CacheKey } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TootsForTagsList from "./api/toots_for_tags_list";
@@ -47,6 +47,7 @@ import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
+import { MediaCategory, TrendingType } from './enums';
 import { NonScoreWeightName, ScoreName, type WeightName } from './scorer/scorer';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
@@ -66,24 +67,21 @@ import {
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
-    FeedFilterSettings,
-    KeysOfValueType,
-    MastodonInstance,
-    MastodonTag,
-    MediaCategory,
-    MinMaxAvgScore,
-    ScoreStats,
-    StringNumberDict,
-    TagWithUsageCounts,
-    TrendingData,
-    TrendingLink,
-    TrendingObj,
-    TrendingType,
-    TrendingWithHistory,
-    Weights,
-    WeightInfoDict,
+    type FeedFilterSettings,
+    type KeysOfValueType,
+    type MastodonInstance,
+    type MastodonTag,
+    type MinMaxAvgScore,
+    type ScoreStats,
+    type StringNumberDict,
+    type TagWithUsageCounts,
+    type TrendingData,
+    type TrendingLink,
+    type TrendingObj,
+    type TrendingWithHistory,
+    type Weights,
+    type WeightInfoDict,
 } from "./types";
-import { AlgorithmStorageKey, CacheKey } from './Storage';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;

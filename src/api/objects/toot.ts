@@ -19,7 +19,9 @@ import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
+import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
+import { ScoreName } from '../../scorer/scorer';
 import { TypeFilterName } from "../../filters/boolean_filter";
 import {
     DEFAULT_FONT_SIZE,
@@ -44,20 +46,18 @@ import {
     wordRegex,
 } from "../../helpers/string_helpers";
 import {
-    AccountLike,
-    FeedFilterSettings,
-    KeysOfValueType,
-    MastodonTag,
-    MediaCategory,
-    StatusList,
-    TagWithUsageCounts,
-    TootLike,
-    TootNumberProp,
-    TootScore,
-    TrendingLink,
-    WeightedScore,
+    type AccountLike,
+    type FeedFilterSettings,
+    type KeysOfValueType,
+    type MastodonTag,
+    type StatusList,
+    type TagWithUsageCounts,
+    type TootLike,
+    type TootNumberProp,
+    type TootScore,
+    type TrendingLink,
+    type WeightedScore,
 } from "../../types";
-import { ScoreName } from '../../scorer/scorer';
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {

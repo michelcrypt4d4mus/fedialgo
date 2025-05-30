@@ -6,7 +6,6 @@ exports.WEIGHT_PRESETS = exports.DEFAULT_WEIGHTS = exports.isWeightPresetLabel =
  */
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const scorer_1 = require("./scorer");
-const scorer_2 = require("./scorer");
 var WeightPresetLabel;
 (function (WeightPresetLabel) {
     WeightPresetLabel["CHRONOLOGICAL"] = "Chronological";
@@ -25,30 +24,30 @@ exports.DEFAULT_WEIGHTS = {
     [scorer_1.NonScoreWeightName.TRENDING]: 0.15,
     [scorer_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
-    [scorer_2.ScoreName.ALREADY_SHOWN]: 5,
-    [scorer_2.ScoreName.CHAOS]: 1.0,
-    [scorer_2.ScoreName.DIVERSITY]: 2.0,
-    [scorer_2.ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
-    [scorer_2.ScoreName.FAVOURITED_TAGS]: 0.1,
-    [scorer_2.ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
-    [scorer_2.ScoreName.FOLLOWED_TAGS]: 4.0,
-    [scorer_2.ScoreName.IMAGE_ATTACHMENTS]: 0,
-    [scorer_2.ScoreName.INTERACTIONS]: 1.0,
-    [scorer_2.ScoreName.MENTIONS_FOLLOWED]: 2.0,
-    [scorer_2.ScoreName.MOST_REPLIED_ACCOUNTS]: 1.0,
-    [scorer_2.ScoreName.MOST_RETOOTED_ACCOUNTS]: 1.5,
-    [scorer_2.ScoreName.NUM_FAVOURITES]: 0.1,
-    [scorer_2.ScoreName.NUM_REPLIES]: 1.0,
-    [scorer_2.ScoreName.NUM_RETOOTS]: 1.0,
-    [scorer_2.ScoreName.PARTICIPATED_TAGS]: 0.15,
-    [scorer_2.ScoreName.RETOOTED_IN_FEED]: 2.0,
-    [scorer_2.ScoreName.TRENDING_LINKS]: 0.7,
-    [scorer_2.ScoreName.TRENDING_TAGS]: 0.2,
-    [scorer_2.ScoreName.TRENDING_TOOTS]: 1.0,
-    [scorer_2.ScoreName.VIDEO_ATTACHMENTS]: 0,
+    [scorer_1.ScoreName.ALREADY_SHOWN]: 5,
+    [scorer_1.ScoreName.CHAOS]: 1.0,
+    [scorer_1.ScoreName.DIVERSITY]: 2.0,
+    [scorer_1.ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
+    [scorer_1.ScoreName.FAVOURITED_TAGS]: 0.1,
+    [scorer_1.ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
+    [scorer_1.ScoreName.FOLLOWED_TAGS]: 4.0,
+    [scorer_1.ScoreName.IMAGE_ATTACHMENTS]: 0,
+    [scorer_1.ScoreName.INTERACTIONS]: 1.0,
+    [scorer_1.ScoreName.MENTIONS_FOLLOWED]: 2.0,
+    [scorer_1.ScoreName.MOST_REPLIED_ACCOUNTS]: 1.0,
+    [scorer_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: 1.5,
+    [scorer_1.ScoreName.NUM_FAVOURITES]: 0.1,
+    [scorer_1.ScoreName.NUM_REPLIES]: 1.0,
+    [scorer_1.ScoreName.NUM_RETOOTS]: 1.0,
+    [scorer_1.ScoreName.PARTICIPATED_TAGS]: 0.15,
+    [scorer_1.ScoreName.RETOOTED_IN_FEED]: 2.0,
+    [scorer_1.ScoreName.TRENDING_LINKS]: 0.7,
+    [scorer_1.ScoreName.TRENDING_TAGS]: 0.2,
+    [scorer_1.ScoreName.TRENDING_TOOTS]: 1.0,
+    [scorer_1.ScoreName.VIDEO_ATTACHMENTS]: 0,
 };
 exports.WEIGHT_PRESETS = {
-    [WeightPresetLabel.CHRONOLOGICAL]: Object.values(scorer_2.ScoreName).reduce((preset, score) => {
+    [WeightPresetLabel.CHRONOLOGICAL]: Object.values(scorer_1.ScoreName).reduce((preset, score) => {
         preset[score] = 0;
         return preset;
     }, {
@@ -62,37 +61,37 @@ exports.WEIGHT_PRESETS = {
     [WeightPresetLabel.DISCUSSIONS]: {
         ...exports.DEFAULT_WEIGHTS,
         [scorer_1.NonScoreWeightName.TRENDING]: 0.001,
-        [scorer_2.ScoreName.CHAOS]: 0,
-        [scorer_2.ScoreName.DIVERSITY]: 0,
-        [scorer_2.ScoreName.INTERACTIONS]: 2.5,
-        [scorer_2.ScoreName.NUM_REPLIES]: 50.0,
-        [scorer_2.ScoreName.PARTICIPATED_TAGS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.PARTICIPATED_TAGS] * 2,
+        [scorer_1.ScoreName.CHAOS]: 0,
+        [scorer_1.ScoreName.DIVERSITY]: 0,
+        [scorer_1.ScoreName.INTERACTIONS]: 2.5,
+        [scorer_1.ScoreName.NUM_REPLIES]: 50.0,
+        [scorer_1.ScoreName.PARTICIPATED_TAGS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.PARTICIPATED_TAGS] * 2,
     },
     [WeightPresetLabel.FRIENDS]: {
         ...exports.DEFAULT_WEIGHTS,
         [scorer_1.NonScoreWeightName.TRENDING]: 0.02,
-        [scorer_2.ScoreName.INTERACTIONS]: 4,
-        [scorer_2.ScoreName.MENTIONS_FOLLOWED]: 3,
-        [scorer_2.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.NUM_REPLIES] * 0.3,
-        [scorer_2.ScoreName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.NUM_RETOOTS] * 0.3,
-        [scorer_2.ScoreName.MOST_REPLIED_ACCOUNTS]: 3,
-        [scorer_2.ScoreName.MOST_RETOOTED_ACCOUNTS]: 3,
+        [scorer_1.ScoreName.INTERACTIONS]: 4,
+        [scorer_1.ScoreName.MENTIONS_FOLLOWED]: 3,
+        [scorer_1.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.NUM_REPLIES] * 0.3,
+        [scorer_1.ScoreName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.NUM_RETOOTS] * 0.3,
+        [scorer_1.ScoreName.MOST_REPLIED_ACCOUNTS]: 3,
+        [scorer_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: 3,
     },
     [WeightPresetLabel.PICTURES]: {
         ...exports.DEFAULT_WEIGHTS,
-        [scorer_2.ScoreName.IMAGE_ATTACHMENTS]: 5.0,
-        [scorer_2.ScoreName.VIDEO_ATTACHMENTS]: 5.0,
+        [scorer_1.ScoreName.IMAGE_ATTACHMENTS]: 5.0,
+        [scorer_1.ScoreName.VIDEO_ATTACHMENTS]: 5.0,
     },
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
         [scorer_1.NonScoreWeightName.TRENDING]: 0.5,
-        [scorer_2.ScoreName.CHAOS]: 5,
-        [scorer_2.ScoreName.FOLLOWED_TAGS]: 0.1,
-        [scorer_2.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.NUM_REPLIES] * 3,
-        [scorer_2.ScoreName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.NUM_RETOOTS] * 3,
-        [scorer_2.ScoreName.TRENDING_LINKS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.TRENDING_LINKS] * 3,
-        [scorer_2.ScoreName.TRENDING_TAGS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.TRENDING_TAGS] * 3,
-        [scorer_2.ScoreName.TRENDING_TOOTS]: exports.DEFAULT_WEIGHTS[scorer_2.ScoreName.TRENDING_TOOTS] * 3,
+        [scorer_1.ScoreName.CHAOS]: 5,
+        [scorer_1.ScoreName.FOLLOWED_TAGS]: 0.1,
+        [scorer_1.ScoreName.NUM_REPLIES]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.NUM_REPLIES] * 3,
+        [scorer_1.ScoreName.NUM_RETOOTS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.NUM_RETOOTS] * 3,
+        [scorer_1.ScoreName.TRENDING_LINKS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.TRENDING_LINKS] * 3,
+        [scorer_1.ScoreName.TRENDING_TAGS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.TRENDING_TAGS] * 3,
+        [scorer_1.ScoreName.TRENDING_TOOTS]: exports.DEFAULT_WEIGHTS[scorer_1.ScoreName.TRENDING_TOOTS] * 3,
     },
 };
 //# sourceMappingURL=weight_presets.js.map

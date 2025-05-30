@@ -8,19 +8,24 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "../Storage";
+import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, CacheKey } from "../Storage";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList } from "../types";
-import { CacheKey } from '../Storage';
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
-import { TrendingType } from "../types";
+import { TrendingType } from '../enums';
+import {
+    type ApiMutex,
+    type MastodonApiObject,
+    type MastodonObjWithID,
+    type MastodonTag,
+    type StatusList
+} from "../types";
 
 const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 

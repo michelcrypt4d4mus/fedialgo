@@ -1,6 +1,6 @@
 import Toot from "./objects/toot";
 import { ComponentLogger } from '../helpers/log_helpers';
-import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingData } from "../types";
+import { type MastodonInstance, type MastodonInstances, type TagWithUsageCounts, type TrendingLink, type TrendingData } from "../types";
 export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;

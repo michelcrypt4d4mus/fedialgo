@@ -2,9 +2,9 @@
  * Math and numbers.
  */
 import { byteString, NUMBER_REGEX } from "./string_helpers";
-import { StringNumberDict } from "../types";
 import { sumArray } from "./collection_helpers";
 import { strBytes } from "./log_helpers";
+import { type StringNumberDict } from "../types";
 
 
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity

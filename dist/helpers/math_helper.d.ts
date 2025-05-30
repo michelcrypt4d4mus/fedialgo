@@ -1,4 +1,4 @@
-import { StringNumberDict } from "../types";
+import { type StringNumberDict } from "../types";
 export declare const isNumber: (n: string | number) => boolean;
 export declare class BytesDict {
     arrays: number;

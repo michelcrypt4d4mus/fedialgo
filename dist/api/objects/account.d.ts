@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import { InstanceResponse } from '../mastodon_server';
-import { AccountLike, AccountNames, StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;

@@ -8,26 +8,15 @@ import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
 import MastoApi from "./api";
-import Storage from "../Storage";
+import Storage, { CacheKey} from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { bracketed } from "../helpers/string_helpers";
-import { config } from "../config";
+import { FEDIVERSE_KEYS, config } from "../config";
 import { ComponentLogger, lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
-import {
-    ApiMutex,
-    MastodonInstance,
-    MastodonInstances,
-    FEDIVERSE_KEYS,
-    TagWithUsageCounts,
-    TrendingLink,
-    TrendingObj,
-    TrendingData,
-    TrendingType,
-} from "../types";
-import { CacheKey } from '../Storage';
+import { TrendingType } from '../enums';
 import {
     countValues,
     shuffle,
@@ -35,6 +24,15 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
+import {
+    type ApiMutex,
+    type MastodonInstance,
+    type MastodonInstances,
+    type TagWithUsageCounts,
+    type TrendingLink,
+    type TrendingObj,
+    type TrendingData,
+} from "../types";
 
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;

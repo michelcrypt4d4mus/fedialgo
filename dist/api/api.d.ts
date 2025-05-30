@@ -1,11 +1,11 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
+import { CacheKey } from "../Storage";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { MastodonTag } from "../types";
-import { CacheKey } from '../Storage';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { WaitTime } from '../helpers/log_helpers';
+import { type MastodonTag } from "../types";
 interface ApiParams {
     logger?: ComponentLogger;
     maxRecords?: number;

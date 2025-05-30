@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from "./objects/toot";
-import { AccountNames, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
+import { type AccountNames, type StringNumberDict, type TagNames, type TagWithUsageCounts } from "../types";
 interface UserApiData {
     favouritedToots: Toot[];
     followedAccounts: Account[];

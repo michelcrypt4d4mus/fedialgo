@@ -10,12 +10,12 @@ import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import {
-    BooleanFilters,
-    FeedFilterSettings,
-    FilterArgs,
-    NumericFilters,
-    StringNumberDict,
-    TootNumberProp,
+    type BooleanFilters,
+    type FeedFilterSettings,
+    type FilterArgs,
+    type NumericFilters,
+    type StringNumberDict,
+    type TootNumberProp,
 } from "../types";
 
 export const DEFAULT_FILTERS = {

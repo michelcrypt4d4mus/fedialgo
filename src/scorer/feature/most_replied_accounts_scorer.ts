@@ -5,7 +5,7 @@ import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers/collection_helpers';
-import { StringNumberDict } from '../../types';
+import { type StringNumberDict } from '../../types';
 import { ScoreName } from '../scorer';
 
 

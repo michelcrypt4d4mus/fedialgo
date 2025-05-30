@@ -1,5 +1,5 @@
 import Toot from "../api/objects/toot";
-import { FeedFilterSettings } from "../types";
+import { type FeedFilterSettings } from "../types";
 export declare const DEFAULT_FILTERS: FeedFilterSettings;
 export declare function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings;
 export declare function buildNewFilterSettings(): FeedFilterSettings;

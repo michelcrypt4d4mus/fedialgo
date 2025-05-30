@@ -1,12 +1,12 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { ComponentLogger } from "./helpers/log_helpers";
-import { FEDIVERSE_KEYS, NonScoreWeightInfoDict } from "./types";
 import { CacheKey } from './Storage';
+import { ComponentLogger } from "./helpers/log_helpers";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
 import { NonScoreWeightName } from './scorer/scorer';
+import { type NonScoreWeightInfoDict } from "./types";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
@@ -519,4 +519,9 @@ if (isLoadTest) {
     config.trending.tags.numTags = 40;
 };
 
-export { config };
+export { config };export const FEDIVERSE_KEYS = [
+        CacheKey.FEDIVERSE_POPULAR_SERVERS,
+        CacheKey.FEDIVERSE_TRENDING_LINKS,
+        CacheKey.FEDIVERSE_TRENDING_TAGS,
+        CacheKey.FEDIVERSE_TRENDING_TOOTS,
+    ];

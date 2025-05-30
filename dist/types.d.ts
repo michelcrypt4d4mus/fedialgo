@@ -6,18 +6,6 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
 import { CacheKey } from './Storage';
-export declare const FEDIVERSE_KEYS: CacheKey[];
-export declare enum MediaCategory {
-    AUDIO = "audio",
-    IMAGE = "image",
-    VIDEO = "video"
-}
-export declare enum TrendingType {
-    LINKS = "links",
-    SERVERS = "servers",
-    STATUSES = "statuses",
-    TAGS = "tags"
-}
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;

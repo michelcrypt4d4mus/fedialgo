@@ -1,6 +1,6 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { StringNumberDict } from '../../types';
+import { type StringNumberDict } from '../../types';
 export default class MentionsFollowedScorer extends FeatureScorer {
     description: string;
     constructor();

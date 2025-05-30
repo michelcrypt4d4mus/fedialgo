@@ -1,5 +1,5 @@
 import Toot from "./objects/toot";
-import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
+import { type MastodonTag, type StringNumberDict, type TagNames, type TagWithUsageCounts } from "../types";
 export default class TagList {
     tags: TagWithUsageCounts[];
     constructor(tags: MastodonTag[]);

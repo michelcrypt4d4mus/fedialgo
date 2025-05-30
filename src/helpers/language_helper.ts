@@ -5,8 +5,8 @@ import LanguageDetect from 'languagedetect';
 import { detectAll } from 'tinyld';
 
 import { isNumber } from "./math_helper";
-import { StringDict, StringSet } from '../types';
 import { swapKeysAndValues } from './collection_helpers';
+import { type StringDict, type StringSet } from '../types';
 
 // From https://gist.github.com/jrnk/8eb57b065ea0b098d571
 export const LANGUAGE_NAMES: StringDict = {
