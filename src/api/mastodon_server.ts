@@ -14,7 +14,7 @@ import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { bracketed, TELEMETRY } from "../helpers/string_helpers";
 import { config } from "../config";
-import { ComponentLogger, lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
+import { ComponentLogger, lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import {
     ApiMutex,
@@ -140,12 +140,12 @@ export default class MastodonServer {
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
         let url = this.endpointUrl(endpoint);
         if (limit) url += `?limit=${limit}`;
-        // traceLog(`[${this.endpointDomain(endpoint)}] fetching...`);
+        // this.logger.trace(`(${this.endpointDomain(endpoint)}) fetching...`);
         const startedAt = new Date();
         const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
 
         if (json.status === 200 && json.data) {
-            traceLog(`[${this.endpointDomain(endpoint)}] fetch response ${ageString(startedAt)}:`, json.data);
+            this.logger.trace(`(${this.endpointDomain(endpoint)}) fetch response ${ageString(startedAt)}:`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;

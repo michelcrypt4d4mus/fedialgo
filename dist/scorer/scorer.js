@@ -11,11 +11,12 @@ const scorer_cache_1 = __importDefault(require("./scorer_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
-const log_helpers_1 = require("../helpers/log_helpers");
 const types_1 = require("../types");
-const LOG_PREFIX = "scoreToots()";
+const LOG_PREFIX = "Scorer";
+const scoreLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const TRENDING_WEIGHTS = [
     types_1.ScoreName.TRENDING_LINKS,
@@ -24,10 +25,12 @@ const TRENDING_WEIGHTS = [
 ];
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
+    logger;
     name;
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
+        this.logger = new log_helpers_1.ComponentLogger(LOG_PREFIX, name);
     }
     // Return a ScorerInfo object with the description and the scorer itself
     getInfo() {
@@ -41,18 +44,14 @@ class Scorer {
         if (this.isReady)
             return await this._score(toot);
         if (!toot.scoreInfo) {
-            console.warn(`${this.logPrefix()} not ready, scoring 0...`);
+            this.logger.warn(`Not ready, scoring 0...`);
             return 0;
         }
         else {
             const existingScore = toot.getIndividualScore("raw", this.name);
-            console.debug(`${this.logPrefix()} Not ready but toot already scored (existing score: ${existingScore})`);
+            this.logger.debug(`Not ready but toot already scored (existing score: ${existingScore})`);
             return existingScore;
         }
-    }
-    // Logging helper
-    logPrefix() {
-        return `[${this.name} Scorer]`;
     }
     //////////////////////////////
     //   Static class methods   //
@@ -81,15 +80,15 @@ class Scorer {
                 releaseMutex?.();
             }
             // Sort feed based on score from high to low and return
-            (0, log_helpers_1.traceLog)(LOG_PREFIX, `scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
+            scoreLogger.trace(`Scored ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         }
         catch (e) {
             if (e == async_mutex_1.E_CANCELED) {
-                (0, log_helpers_1.traceLog)(LOG_PREFIX, `mutex cancellation`);
+                scoreLogger.trace(`Mutex cancellation...`);
             }
             else {
-                console.warn(`${LOG_PREFIX} caught error:`, e);
+                scoreLogger.warn(`Caught error:`, e);
             }
         }
         return toots;

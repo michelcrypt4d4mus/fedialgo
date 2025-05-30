@@ -5,9 +5,8 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { config } from '../../config';
-import { sumArray } from '../../helpers/collection_helpers';
-import { traceLog } from '../../helpers/log_helpers';
 import { ScoreName } from "../../types";
+import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class TrendingTagsScorer extends FeatureScorer {
@@ -24,7 +23,7 @@ export default class TrendingTagsScorer extends FeatureScorer {
 
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= config.scoring.excessiveTags) {
-            traceLog(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            this.logger.trace(`Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
             score *= config.scoring.excessiveTagsPenalty;
         }
 

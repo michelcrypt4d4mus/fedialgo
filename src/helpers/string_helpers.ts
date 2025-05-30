@@ -46,6 +46,8 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 
 // @something
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
+// "foo" => "<foo>"
+export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
 // [Bracketed]
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
 // Prefix a string with [Brackets] and a space

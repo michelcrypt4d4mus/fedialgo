@@ -17,7 +17,7 @@ import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, traceLog, WaitTime } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from "../types";
 
@@ -27,7 +27,9 @@ const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => unde
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+
 const LOG_PREFIX = 'API';
+const apiLogger = new ComponentLogger(LOG_PREFIX, 'static');
 
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
@@ -81,11 +83,11 @@ export default class MastoApi {
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
-            console.warn(`[${LOG_PREFIX}] MastoApi instance already initialized...`);
+            apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
 
-        console.log(`[${LOG_PREFIX}] Initializing MastoApi instance with user:`, user.acct);
+        apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
 
@@ -555,7 +557,6 @@ export default class MastoApi {
         let params: mastodon.DefaultPaginationParams = {limit: limit};
         if (minId) params = {...params, minId: `${minId}`};
         if (maxId) params = {...params, maxId: `${maxId}`};
-        // if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params as mastodon.DefaultPaginationParams;
     }
 
@@ -577,14 +578,14 @@ export default class MastoApi {
 
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     static throwIfAccessTokenRevoked(error: unknown, msg: string): void {
-        console.error(`${msg}. Error:`, error);
+        apiLogger.error(`${msg}. Error:`, error);
         if (isAccessTokenRevokedError(error)) throw error;
     }
 
     // Throw just a simple string as the error if it's a rate limit error; otherwise re-raise
     static throwSanitizedRateLimitError(error: unknown, msg: string): void {
         if (isRateLimitError(error)) {
-            console.error(`Rate limit error:`, error);
+            apiLogger.error(`Rate limit error:`, error);
             throw RATE_LIMIT_USER_WARNING;
         } else {
             logAndThrowError(msg, error);
@@ -602,7 +603,7 @@ function getLogger(subtitle?: string, subsubtitle?: string): ComponentLogger {
 // Return true if the error is an access token revoked error
 export function isAccessTokenRevokedError(e: Error | unknown): boolean {
     if (!(e instanceof Error)) {
-        console.warn(`error 'e' is not an instance of Error:`, e);
+        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
         return false;
     }
 
@@ -613,7 +614,7 @@ export function isAccessTokenRevokedError(e: Error | unknown): boolean {
 // Return true if the error is an access token revoked error
 export function isRateLimitError(e: Error | unknown): boolean {
     if (!(e instanceof Error)) {
-        console.warn(`error 'e' is not an instance of Error:`, e);
+        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
         return false;
     }
 
@@ -630,5 +631,5 @@ const logTrendingTagResults = (
 ): void => {
     let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots ${ageString(startedAt)}`;
     msg += ` (oldest=${quotedISOFmt(earliestTootedAt(toots))}, newest=${quotedISOFmt(mostRecentTootedAt(toots))}):`
-    console.debug(msg);
+    apiLogger.debug(msg);
 };

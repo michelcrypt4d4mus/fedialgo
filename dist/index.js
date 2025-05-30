@@ -123,6 +123,7 @@ class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
+    logger = new log_helpers_1.ComponentLogger(`TheAlgorithm`);
     trendingData = { links: [], tags: [], servers: {}, toots: [] };
     userData = new user_data_1.default();
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
@@ -226,12 +227,12 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        (0, log_helpers_1.traceLog)(`[${log_helpers_1.TRIGGER_FEED}] FINISHED promises, allResults:`, allResults);
+        this.logger.trace(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
     // Trigger the loading of additional toots, farther back on the home timeline
     async triggerHomeTimelineBackFill() {
-        console.log(`${(0, string_helpers_1.bracketed)(log_helpers_1.BACKFILL_FEED)} called, state:`, this.statusDict());
+        this.logger.log(`${(0, string_helpers_1.arrowed)(log_helpers_1.BACKFILL_FEED)} called, state:`, this.statusDict());
         this.checkIfLoading();
         this.setLoadingStateVariables(log_helpers_1.BACKFILL_FEED);
         this.homeFeed = await this.getHomeTimeline(true);
@@ -240,8 +241,8 @@ class TheAlgorithm {
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
     // Use with caution!
     async triggerPullAllUserData() {
-        const logPrefix = (0, string_helpers_1.bracketed)(`triggerPullAllUserData()`);
-        console.log(`${logPrefix} called, state:`, this.statusDict());
+        const logPrefix = (0, string_helpers_1.arrowed)(`triggerPullAllUserData()`);
+        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
         this.checkIfLoading();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
         this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
@@ -252,9 +253,8 @@ class TheAlgorithm {
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
                 api_1.default.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
-            // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
             await this.recomputeScorers();
-            console.log(`${logPrefix} finished`);
+            this.logger.log(`${logPrefix} finished`);
         }
         catch (error) {
             api_1.default.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
@@ -296,7 +296,7 @@ class TheAlgorithm {
     mostRecentHomeTootAt() {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
         if (this.homeFeed.length == 0 && this.numTriggers > 1) {
-            console.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
+            this.logger.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
             return (0, toot_1.mostRecentTootedAt)(this.feed);
         }
         return (0, toot_1.mostRecentTootedAt)(this.homeFeed);
@@ -306,26 +306,26 @@ class TheAlgorithm {
         const mostRecentAt = this.mostRecentHomeTootAt();
         if (!mostRecentAt) {
             if (this.feed.length)
-                console.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+                this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
             return null;
         }
         const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
-        (0, log_helpers_1.traceLog)(`TheAlgorithm.feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
     // Doesn't actually mute the account, just marks it as muted in the userData object
     async refreshMutedAccounts() {
-        const logPrefix = (0, string_helpers_1.bracketed)(`refreshMutedAccounts()`);
-        console.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const logPrefix = (0, string_helpers_1.arrowed)(`refreshMutedAccounts()`);
+        this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ skipCache: true });
-        console.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
         (await api_1.default.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
         await this.finishFeedUpdate(false);
     }
     // Clear everything from browser storage except the user's identity and weightings
     async reset(complete = false) {
-        console.warn(`reset() called, clearing all storage...`);
+        this.logger.warn(`reset() called, clearing all storage...`);
         this.dataPoller && clearInterval(this.dataPoller);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater);
@@ -354,20 +354,20 @@ class TheAlgorithm {
     }
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters) {
-        console.log(`updateFilters() called with newFilters:`, newFilters);
+        this.logger.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage_1.default.setFilters(newFilters);
         return this.filterFeedAndSetInApp();
     }
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights) {
-        console.log("updateUserWeights() called with weights:", userWeights);
+        this.logger.log("updateUserWeights() called with weights:", userWeights);
         await Storage_1.default.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName) {
-        console.log("updateUserWeightsToPreset() called with presetName:", presetName);
+        this.logger.log("updateUserWeightsToPreset() called with presetName:", presetName);
         if (!(0, weight_presets_1.isWeightPresetLabel)(presetName))
             (0, log_helpers_1.logAndThrowError)(`Invalid weight preset: "${presetName}"`);
         return await this.updateUserWeights(weight_presets_1.WEIGHT_PRESETS[presetName]);
@@ -378,7 +378,7 @@ class TheAlgorithm {
     // Throw an error if the feed is loading
     checkIfLoading() {
         if (this.isLoading()) {
-            console.warn(`[${log_helpers_1.TRIGGER_FEED}] Load in progress already!`, this.statusDict());
+            this.logger.warn(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} Load in progress already!`, this.statusDict());
             throw new Error(`${log_helpers_1.TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         }
     }
@@ -389,7 +389,7 @@ class TheAlgorithm {
             feedAgeInMinutes /= 60;
         const maxAgeMinutes = config_1.config.minTrendingMinutesUntilStale();
         if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            console.debug(`[${log_helpers_1.TRIGGER_FEED}] QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
+            this.logger.debug(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
@@ -401,7 +401,7 @@ class TheAlgorithm {
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
     async fetchAndMergeToots(tootFetcher, logPrefix) {
-        logPrefix = (0, string_helpers_1.bracketed)(logPrefix); // tootFetcher.name yield empty string in production :(
+        logPrefix = (0, string_helpers_1.arrowed)(logPrefix); // tootFetcher.name yield empty string in production :(
         const startedAt = new Date();
         let newToots = [];
         try {
@@ -429,9 +429,9 @@ class TheAlgorithm {
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logPrefix = (0, string_helpers_1.bracketed)(`finishFeedUpdate()`);
+        const logPrefix = (0, string_helpers_1.arrowed)(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+        this.logger.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
         this.feed = await toot_1.default.removeInvalidToots(this.feed, logPrefix);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
@@ -444,7 +444,7 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
-            console.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
+            this.logger.warn(`${logPrefix} ${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
         }
         this.loadStartedAt = null;
         this.loadingStatus = null;
@@ -461,7 +461,7 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     launchBackgroundPoller() {
         if (this.dataPoller) {
-            console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            this.logger.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
             return;
         }
         this.dataPoller = setInterval(async () => {
@@ -473,7 +473,7 @@ class TheAlgorithm {
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
         if (this.cacheUpdater) {
-            console.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            this.logger.log(`${moar_data_poller_1.MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
             return;
         }
         this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
@@ -487,7 +487,7 @@ class TheAlgorithm {
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
-        console.log(`[fedialgo] loadCachedData() loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        this.logger.log(`[fedialgo] loadCachedData() loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
@@ -496,7 +496,7 @@ class TheAlgorithm {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
         try {
             await this.mergeTootsToFeed(newToots, logPrefix);
-            (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
+            this.logger.trace(`${(0, string_helpers_1.arrowed)(string_helpers_1.SET_LOADING_STATUS)} ${logPrefix} lockedMergeToFeed() finished mutex`);
         }
         finally {
             releaseMutex();
@@ -568,7 +568,7 @@ class TheAlgorithm {
         else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
-        (0, log_helpers_1.traceLog)(`[${string_helpers_1.SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
+        this.logger.trace(`<${string_helpers_1.SET_LOADING_STATUS}) ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {
@@ -593,19 +593,19 @@ class TheAlgorithm {
     async updateTootCache() {
         if (this.isLoading())
             return;
-        const logPrefix = (0, string_helpers_1.bracketed)(`updateTootCache()`);
+        const logPrefix = (0, string_helpers_1.arrowed)(`updateTootCache()`);
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown)
             return;
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
+            this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
             await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {
-            console.error(`${logPrefix} Error saving toots:`, error);
+            this.logger.error(`${logPrefix} Error saving toots:`, error);
         }
     }
 }

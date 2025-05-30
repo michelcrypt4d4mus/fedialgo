@@ -47,6 +47,7 @@ const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 const LOG_PREFIX = 'API';
+const apiLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, 'static');
 ;
 ;
 ;
@@ -62,10 +63,10 @@ class MastoApi {
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     static init(api, user) {
         if (MastoApi.#instance) {
-            console.warn(`[${LOG_PREFIX}] MastoApi instance already initialized...`);
+            apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
-        console.log(`[${LOG_PREFIX}] Initializing MastoApi instance with user:`, user.acct);
+        apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
     static get instance() {
@@ -489,7 +490,6 @@ class MastoApi {
             params = { ...params, minId: `${minId}` };
         if (maxId)
             params = { ...params, maxId: `${maxId}` };
-        // if (logPfx) traceLog(`${logPfx} Fetching with params:`, params);
         return params;
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)
@@ -510,14 +510,14 @@ class MastoApi {
     ////////////////////////////
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
     static throwIfAccessTokenRevoked(error, msg) {
-        console.error(`${msg}. Error:`, error);
+        apiLogger.error(`${msg}. Error:`, error);
         if (isAccessTokenRevokedError(error))
             throw error;
     }
     // Throw just a simple string as the error if it's a rate limit error; otherwise re-raise
     static throwSanitizedRateLimitError(error, msg) {
         if (isRateLimitError(error)) {
-            console.error(`Rate limit error:`, error);
+            apiLogger.error(`Rate limit error:`, error);
             throw RATE_LIMIT_USER_WARNING;
         }
         else {
@@ -535,7 +535,7 @@ function getLogger(subtitle, subsubtitle) {
 // Return true if the error is an access token revoked error
 function isAccessTokenRevokedError(e) {
     if (!(e instanceof Error)) {
-        console.warn(`error 'e' is not an instance of Error:`, e);
+        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
         return false;
     }
     return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
@@ -545,7 +545,7 @@ exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
 // Return true if the error is an access token revoked error
 function isRateLimitError(e) {
     if (!(e instanceof Error)) {
-        console.warn(`error 'e' is not an instance of Error:`, e);
+        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
         return false;
     }
     return e.message.includes(RATE_LIMIT_ERROR_MSG);
@@ -556,6 +556,6 @@ exports.isRateLimitError = isRateLimitError;
 const logTrendingTagResults = (logPrefix, searchMethod, toots, startedAt) => {
     let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
     msg += ` (oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))}):`;
-    console.debug(msg);
+    apiLogger.debug(msg);
 };
 //# sourceMappingURL=api.js.map

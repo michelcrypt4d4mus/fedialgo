@@ -8,13 +8,13 @@ import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import Toot from "./objects/toot";
-import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts, TootLike } from "../types";
-import { buildTagNames } from "./objects/tag";
+import { AccountNames, CacheKey, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
+import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
-import { traceLog } from "../helpers/log_helpers";
-import { wordRegex } from "../helpers/string_helpers";
 import TagList from "./tag_list";
+
+const logger = new ComponentLogger("UserData");
 
 // Raw API data required to build UserData
 interface UserApiData {
@@ -46,7 +46,7 @@ export default class UserData {
         userData.participatedHashtags = TagList.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        traceLog("[UserData] built from data:", userData);
+        logger.trace("Built from data:", userData);
         return userData;
     }
 
@@ -91,7 +91,7 @@ export default class UserData {
         const serverSideFilters = await MastoApi.instance.getServerSideFilters();
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        traceLog(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
+        logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
         return keywords;
     }
 };

@@ -9,11 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = __importDefault(require("./api"));
 const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const user_data_1 = __importDefault(require("./user_data"));
+const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const logger = new log_helpers_1.ComponentLogger("TagList");
 const SORT_TAGS_BY = [
     "numToots",
     "name"
@@ -57,7 +58,7 @@ class TagList {
                 const newTag = Object.assign({}, tag);
                 newTag.numToots ??= 0;
                 if (!(tag.name in tagCounts) && (newTag.numToots > 0)) {
-                    console.warn(`countTags(): "${tag.name}" not in tagCounts but numToots is > 0`, tag);
+                    logger.warn(`<countTags()> "${tag.name}" not in tagCounts but numToots is > 0`, tag);
                 }
                 tagCounts[tag.name] ??= newTag;
                 tagCounts[tag.name].numToots += 1;
@@ -96,7 +97,7 @@ class TagList {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
         if (validTags.length != this.tags.length) {
-            (0, log_helpers_1.traceLog)(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
+            logger.trace(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
         }
         this.tags = validTags;
     }

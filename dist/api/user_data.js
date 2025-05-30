@@ -7,10 +7,11 @@ const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const types_1 = require("../types");
+const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
 const tag_list_1 = __importDefault(require("./tag_list"));
+const logger = new log_helpers_1.ComponentLogger("UserData");
 ;
 class UserData {
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
@@ -30,7 +31,7 @@ class UserData {
         userData.participatedHashtags = tag_list_1.default.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
-        (0, log_helpers_1.traceLog)("[UserData] built from data:", userData);
+        logger.trace("Built from data:", userData);
         return userData;
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
@@ -69,7 +70,7 @@ class UserData {
         const serverSideFilters = await api_1.default.instance.getServerSideFilters();
         let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        (0, log_helpers_1.traceLog)(`[mutedKeywords()] found ${keywords.length} keywords:`, keywords);
+        logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
         return keywords;
     }
 }

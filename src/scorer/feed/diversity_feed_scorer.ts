@@ -7,7 +7,6 @@ import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
 import { ScoreName, StringNumberDict } from "../../types";
-import { traceLog } from "../../helpers/log_helpers";
 
 
 export default class DiversityFeedScorer extends FeedScorer {
@@ -52,7 +51,7 @@ export default class DiversityFeedScorer extends FeedScorer {
             }, {} as StringNumberDict
         );
 
-        traceLog(`${this.logPrefix()} trendingTagIncrements:`, trendingTagIncrement);
+        this.logger.trace(`trendingTagIncrements:`, trendingTagIncrement);
 
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.

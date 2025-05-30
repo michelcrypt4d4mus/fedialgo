@@ -8,11 +8,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const api_1 = __importDefault(require("./api"));
 const tag_list_1 = __importDefault(require("./tag_list"));
+const string_helpers_1 = require("../helpers/string_helpers");
 const types_1 = require("../types");
+const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const string_helpers_1 = require("../helpers/string_helpers");
+const logger = new log_helpers_1.ComponentLogger("TootsForTagsList");
 class TootsForTagsList {
     cacheKey;
     tagList;
@@ -63,7 +65,7 @@ class TootsForTagsList {
     topTags(numTags) {
         numTags ||= this.tootsConfig.numTags;
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
-        console.debug(`${(0, string_helpers_1.bracketed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
+        logger.debug(`${(0, string_helpers_1.arrowed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
         return tags;
     }
     static async removeUnwantedTags(tagList, tootsConfig) {

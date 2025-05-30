@@ -8,9 +8,9 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumArray } from "../helpers/collection_helpers";
+import { ComponentLogger } from '../helpers/log_helpers';
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { traceLog } from '../helpers/log_helpers';
 import {
     NonScoreWeightName,
     ScoreName,
@@ -22,7 +22,8 @@ import {
     WeightName
 } from "../types";
 
-const LOG_PREFIX = "scoreToots()";
+const LOG_PREFIX = "Scorer";
+const scoreLogger = new ComponentLogger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new Mutex();
 
 const TRENDING_WEIGHTS = [
@@ -36,11 +37,13 @@ export default abstract class Scorer {
     abstract description: string;
 
     isReady: boolean = false;  // Set to true when the scorer is ready to score
+    logger: ComponentLogger;
     name: ScoreName;
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: ScoreName) {
         this.name = name;
+        this.logger = new ComponentLogger(LOG_PREFIX, name);
     }
 
     // Return a ScorerInfo object with the description and the scorer itself
@@ -56,22 +59,17 @@ export default abstract class Scorer {
         if (this.isReady) return await this._score(toot);
 
         if (!toot.scoreInfo) {
-            console.warn(`${this.logPrefix()} not ready, scoring 0...`);
+            this.logger.warn(`Not ready, scoring 0...`);
             return 0;
         } else {
             const existingScore = toot.getIndividualScore("raw", this.name);
-            console.debug(`${this.logPrefix()} Not ready but toot already scored (existing score: ${existingScore})`);
+            this.logger.debug(`Not ready but toot already scored (existing score: ${existingScore})`);
             return existingScore;
         }
     }
 
     // Actual implementation of the scoring algorithm should be implemented in subclasses
     abstract _score(_toot: Toot): Promise<number>;
-
-    // Logging helper
-    protected logPrefix(): string {
-        return `[${this.name} Scorer]`;
-    }
 
     //////////////////////////////
     //   Static class methods   //
@@ -104,13 +102,13 @@ export default abstract class Scorer {
             }
 
             // Sort feed based on score from high to low and return
-            traceLog(LOG_PREFIX, `scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
+            scoreLogger.trace(`Scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
             toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
         } catch (e) {
             if (e == E_CANCELED) {
-                traceLog(LOG_PREFIX, `mutex cancellation`);
+                scoreLogger.trace(`Mutex cancellation...`);
             } else {
-                console.warn(`${LOG_PREFIX} caught error:`, e);
+                scoreLogger.warn(`Caught error:`, e);
             }
         }
 

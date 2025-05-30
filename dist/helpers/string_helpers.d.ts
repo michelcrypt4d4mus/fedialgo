@@ -13,6 +13,7 @@ export declare const VIDEO_EXTENSIONS: string[];
 export declare const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[];
 export declare const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[];
 export declare const at: (str: string) => string;
+export declare const arrowed: (str: string) => string;
 export declare const bracketed: (str: string) => string;
 export declare const prefixed: (prefix: string, msg: string) => string;
 export declare const quoted: (str: string | null) => string;

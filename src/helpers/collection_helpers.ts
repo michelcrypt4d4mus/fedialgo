@@ -87,7 +87,6 @@ export function makeChunks<T>(
 // Check if the elements of 'array' are as unique as they should be
 export function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void {
     const logPrefix = `[${label}]`;
-    // traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
 

@@ -4,12 +4,14 @@
 import MastoApi from "./api";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
+import { arrowed } from "../helpers/string_helpers";
 import { CacheKey, TagWithUsageCounts } from "../types";
+import { ComponentLogger } from "../helpers/log_helpers";
 import { config, TagTootsConfig } from "../config";
 import { tagStr } from "./objects/tag";
-import { traceLog } from "../helpers/log_helpers";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
-import { bracketed } from "../helpers/string_helpers";
+
+const logger = new ComponentLogger("TootsForTagsList");
 
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
     | CacheKey.FAVOURITED_HASHTAG_TOOTS
@@ -73,7 +75,7 @@ export default class TootsForTagsList {
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.tootsConfig.numTags;
         const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
-        console.debug(`${bracketed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
+        logger.debug(`${arrowed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
         return tags;
     }
 

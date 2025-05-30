@@ -9,9 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const config_1 = require("../../config");
-const collection_helpers_1 = require("../../helpers/collection_helpers");
-const log_helpers_1 = require("../../helpers/log_helpers");
 const types_1 = require("../../types");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 class TrendingTagsScorer extends feature_scorer_1.default {
     description = "Favour hashtags that are trending in the Fediverse";
     constructor() {
@@ -23,7 +22,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         let score = (0, collection_helpers_1.sumArray)(tagScores);
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= config_1.config.scoring.excessiveTags) {
-            (0, log_helpers_1.traceLog)(`${this.logPrefix()} Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            this.logger.trace(`Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
             score *= config_1.config.scoring.excessiveTagsPenalty;
         }
         return score;

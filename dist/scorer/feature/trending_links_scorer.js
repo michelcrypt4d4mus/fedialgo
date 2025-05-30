@@ -26,7 +26,7 @@ class TrendingLinksScorer extends feature_scorer_1.default {
     async _score(toot) {
         toot = toot.reblog || toot;
         if (!toot.trendingLinks) {
-            console.warn(`${this.logPrefix()} No trendingLinks found for toot:`, toot);
+            this.logger.warn(`No trendingLinks found for toot:`, toot);
             return 0;
         }
         return (0, collection_helpers_1.sumArray)(toot.trendingLinks.map(link => this.scoreData[link.url] || 0));

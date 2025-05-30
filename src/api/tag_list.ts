@@ -5,12 +5,14 @@ import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
+import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { MastodonTag, StringNumberDict, TagNames, TagWithUsageCounts } from "../types";
 import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";
-import { traceLog } from "../helpers/log_helpers";
 import { wordRegex } from "../helpers/string_helpers";
+
+const logger = new ComponentLogger("TagList");
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TagWithUsageCounts,
@@ -67,7 +69,7 @@ export default class TagList {
                     newTag.numToots ??= 0;
 
                     if (!(tag.name in tagCounts) && (newTag.numToots > 0)) {
-                        console.warn(`countTags(): "${tag.name}" not in tagCounts but numToots is > 0`, tag);
+                        logger.warn(`<countTags()> "${tag.name}" not in tagCounts but numToots is > 0`, tag);
                     }
 
                     tagCounts[tag.name] ??= newTag;
@@ -114,7 +116,7 @@ export default class TagList {
         const validTags = this.tags.filter(tag => !keywords.includes(tag.name));
 
         if (validTags.length != this.tags.length) {
-            traceLog(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
+            logger.trace(`Removed ${this.tags.length - validTags.length} tags matching keywords "${keywords}":`, this.tags);
         }
 
         this.tags = validTags;

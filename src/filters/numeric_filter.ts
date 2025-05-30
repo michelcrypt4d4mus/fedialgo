@@ -42,7 +42,7 @@ export default class NumericFilter extends TootFilter {
 
         if (!propertyValue && propertyValue !== 0) {
             let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.describe()}`;
-            console.warn(msg);
+            this.logger.warn(msg);
             // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.describe()}`);
             return true;
         }

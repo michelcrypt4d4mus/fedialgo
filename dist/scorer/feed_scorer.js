@@ -9,12 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * before it knows how much to penalize prolific tooters.
  */
 const scorer_1 = __importDefault(require("./scorer"));
-const log_helpers_1 = require("../helpers/log_helpers");
 class FeedScorer extends scorer_1.default {
     // Take an array of Toots and extract the scoreData needed to score a toot
     extractScoreDataFromFeed(feed) {
         this.scoreData = this.extractScoringData(feed);
-        (0, log_helpers_1.traceLog)(`${this.logPrefix()} extractScoringData() returned scoreData:`, this.scoreData);
+        this.logger.trace(`extractScoringData() returned scoreData:`, this.scoreData);
         this.isReady = true;
     }
 }

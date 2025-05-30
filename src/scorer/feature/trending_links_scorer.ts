@@ -31,7 +31,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
         toot = toot.reblog || toot;
 
         if (!toot.trendingLinks) {
-            console.warn(`${this.logPrefix()} No trendingLinks found for toot:`, toot);
+            this.logger.warn(`No trendingLinks found for toot:`, toot);
             return 0;
         }
 

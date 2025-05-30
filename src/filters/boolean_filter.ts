@@ -150,13 +150,13 @@ export default class BooleanFilter extends TootFilter {
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element: string, isValidOption: boolean) {
-        console.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
+        this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
 
         if (isValidOption && !this.isThisSelectionEnabled(element)) {
             this.validValues.push(element);
         } else {
             if (!this.isThisSelectionEnabled(element)) {
-                console.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
+                this.logger.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
                 return;
             }
 

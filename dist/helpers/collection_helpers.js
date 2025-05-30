@@ -71,7 +71,6 @@ exports.makeChunks = makeChunks;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
     const logPrefix = `[${label}]`;
-    // traceLog(`${logPrefix} Checking ${array.length} ${label} IDs for uniqueness...`);
     const objsByID = groupBy(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
     if (uniqueIDs.length != array.length) {

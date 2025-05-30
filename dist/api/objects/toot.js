@@ -26,11 +26,11 @@ const scorer_1 = __importDefault(require("../../scorer/scorer"));
 const tag_list_1 = __importDefault(require("../tag_list"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const log_helpers_1 = require("../../helpers/log_helpers");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
-const log_helpers_1 = require("../../helpers/log_helpers");
 const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
 const string_helpers_1 = require("../../helpers/string_helpers");
@@ -56,7 +56,7 @@ const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
-const REPAIR_TOOT = (0, string_helpers_1.bracketed)("repairToot");
+const REPAIR_TOOT = (0, string_helpers_1.arrowed)("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesShown");
@@ -70,6 +70,7 @@ const TAG_ONLY_STRINGS = new Set([
     "un",
     "us",
 ]);
+const logger = new log_helpers_1.ComponentLogger("Toot");
 ;
 ;
 class Toot {
@@ -175,10 +176,10 @@ class Toot {
         tootObj.imageAttachments = tootObj.attachmentsOfType(types_1.MediaCategory.IMAGE);
         tootObj.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
         if (tootObj.account.suspended) {
-            console.warn(`Toot from suspended account:`, tootObj);
+            logger.warn(`Toot from suspended account:`, tootObj);
         }
         else if (tootObj.account.limited) {
-            (0, log_helpers_1.traceLog)(`Toot from limited account:`, tootObj);
+            logger.trace(`Toot from limited account:`, tootObj);
         }
         return tootObj;
     }
@@ -207,7 +208,7 @@ class Toot {
     containsTag(tag, fullScan) {
         if (fullScan && (tag.name.length > 1) && !TAG_ONLY_STRINGS.has(tag.name)) {
             if (!tag.regex) {
-                console.warn(`containsTag() called on tag without regex:`, tag);
+                logger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = (0, string_helpers_1.wordRegex)(tag.name);
             }
             return tag.regex.test(this.contentWithCard());
@@ -277,12 +278,12 @@ class Toot {
     }
     // Mastodon calls this a "context" but it's really a conversation
     async getConversation() {
-        const logPrefix = (0, string_helpers_1.bracketed)('getConversation()');
-        console.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
+        const logPrefix = (0, string_helpers_1.arrowed)('getConversation()');
+        logger.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, true);
-        (0, log_helpers_1.traceLog)(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
+        logger.trace(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }
     getIndividualScore(scoreType, name) {
@@ -290,7 +291,7 @@ class Toot {
             return this.scoreInfo.scores[name][scoreType];
         }
         else {
-            console.warn(`getIndividualScore() called on toot but no scoreInfo.scores:`, this);
+            logger.warn(`<getIndividualScore()> called on toot but no scoreInfo.scores:`, this);
             return 0;
         }
     }
@@ -302,7 +303,7 @@ class Toot {
     //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL() {
         const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
-        console.debug(`homeserverURL() converted '${this.realURL()}' to '${homeURL}'`);
+        logger.debug(`<homeserverURL()> converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }
     // Return true if it's a direct message
@@ -330,33 +331,33 @@ class Toot {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters) {
         if (this.isUsersOwnToot()) {
-            (0, log_helpers_1.traceLog)(`Removing fedialgo user's own toot:`, this.describe());
+            logger.trace(`Removing fedialgo user's own toot:`, this.describe());
             return false;
         }
         else if (this.reblog?.muted || this.muted) {
-            (0, log_helpers_1.traceLog)(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+            logger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
         else if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-            console.warn(`Removing toot with future timestamp:`, this);
+            logger.warn(`Removing toot with future timestamp:`, this);
             return false;
         }
         else if (this.filtered?.length || this.reblog?.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatches = (this.filtered || []).concat(this.reblog?.filtered || []);
             const filterMatchStr = filterMatches[0].keywordMatches?.join(' ');
-            (0, log_helpers_1.traceLog)(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            logger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
         else if (this.tootedAt() < (0, time_helpers_1.timelineCutoffAt)()) {
-            (0, log_helpers_1.traceLog)(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
+            logger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
             return false;
         }
         // Return false if toot matches any server side filters
         return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
             if (this.realToot().containsString(keyword.keyword)) {
-                (0, log_helpers_1.traceLog)(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                logger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
                 return true;
             }
         })));
@@ -391,7 +392,7 @@ class Toot {
             return await api_1.default.instance.resolveToot(this);
         }
         catch (error) {
-            console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+            logger.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             return this;
         }
     }
@@ -402,7 +403,7 @@ class Toot {
                 this.resolvedID = (await api_1.default.instance.resolveToot(this)).id;
             }
             catch (error) {
-                console.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+                logger.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
                 return this.id;
             }
         }
@@ -468,7 +469,7 @@ class Toot {
             tags = this.trendingTags || [];
         }
         else {
-            console.warn(`Toot.containsTagsMsg() called with invalid tagType: ${tagType}`);
+            logger.warn(`${(0, string_helpers_1.arrowed)('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
             return;
         }
         if (!tags.length)
@@ -508,11 +509,11 @@ class Toot {
         const langDetectInfo = (0, language_helper_1.detectLanguage)(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const langLogObj = { ...langDetectInfo, text, toot: this, tootLanguage: this.language };
-        const logTrace = (msg) => (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
+        const logTrace = (msg) => logger.trace(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
-                console.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
+                logger.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
@@ -596,23 +597,23 @@ class Toot {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
-                    (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
+                    logger.trace(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
                     media.type = types_1.MediaCategory.IMAGE;
                 }
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
-                    (0, log_helpers_1.traceLog)(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
+                    logger.trace(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
                     media.type = types_1.MediaCategory.VIDEO;
                 }
                 else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
-                    console.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
+                    logger.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = types_1.MediaCategory.IMAGE;
                 }
                 else {
-                    console.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                    logger.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
             }
             else if (!string_helpers_1.MEDIA_TYPES.includes(media.type)) {
-                console.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
+                logger.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
@@ -644,12 +645,12 @@ class Toot {
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort)
             toots.sort((a, b) => b.getScore() - a.getScore());
-        (0, log_helpers_1.traceLog)(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        logger.trace(`${logPrefix} ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logPrefix, isDeepInspect) {
-        logPrefix = (0, string_helpers_1.bracketed)(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
+        logPrefix = (0, string_helpers_1.arrowed)(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
         let completeToots = [];
         let tootsToComplete = toots;
         let startedAt = new Date();
@@ -670,7 +671,7 @@ class Toot {
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
         let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-        console.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
+        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
@@ -742,7 +743,7 @@ class Toot {
             if (!environment_helpers_1.isProduction) {
                 // Log when we are collating retoots and toots with the same realURI()
                 if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                    (0, log_helpers_1.traceLog)(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                    logger.trace(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
                 }
             }
             return mostRecent;

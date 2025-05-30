@@ -48,6 +48,7 @@ declare class TheAlgorithm {
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
+    logger: ComponentLogger;
     trendingData: TrendingData;
     userData: UserData;
     weightPresets: WeightPresets;

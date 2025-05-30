@@ -23,13 +23,13 @@ export default abstract class FeatureScorer extends Scorer {
         try {
             this.scoreData = await this.prepareScoreData();
         } catch (e) {
-            console.error(`${this.logPrefix()} Error in prepareScoreData():`, e);
+            this.logger.error(`Error in prepareScoreData():`, e);
             this.scoreData = {};
         }
 
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${ageString(startTime)}`;
-            console.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
+            const msg = `**TELEMETRY** prepareScoreData() finished ${ageString(startTime)}`;
+            this.logger.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
 
         this.isReady = true;

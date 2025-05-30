@@ -24,12 +24,12 @@ class FeatureScorer extends scorer_1.default {
             this.scoreData = await this.prepareScoreData();
         }
         catch (e) {
-            console.error(`${this.logPrefix()} Error in prepareScoreData():`, e);
+            this.logger.error(`Error in prepareScoreData():`, e);
             this.scoreData = {};
         }
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `${this.logPrefix()} TELEMETRY prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
-            console.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
+            const msg = `**TELEMETRY** prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
+            this.logger.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
         this.isReady = true;
     }

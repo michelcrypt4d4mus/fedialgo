@@ -15,7 +15,7 @@ import { BytesDict, sizeFromBufferByteLength, sizeFromTextEncoder } from "./help
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { ComponentLogger, logAndThrowError, traceLog } from './helpers/log_helpers';
+import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
 import { sizeOf } from './helpers/math_helper';
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";

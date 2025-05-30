@@ -41,7 +41,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
-import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, bracketed, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, TELEMETRY, VIDEO_TYPES, arrowed, bracketed, extractDomain } from './helpers/string_helpers';
 import { getMoarData, MOAR_DATA_PREFIX } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
@@ -56,7 +56,6 @@ import {
     logAndThrowError,
     logInfo,
     logTelemetry,
-    traceLog,
 } from './helpers/log_helpers';
 import {
     computeMinMax,
@@ -122,6 +121,7 @@ class TheAlgorithm {
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
+    logger: ComponentLogger = new ComponentLogger(`TheAlgorithm`);
     trendingData: TrendingData = {links: [], tags: [], servers: {}, toots: []};
     userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
@@ -242,13 +242,13 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        traceLog(`[${TRIGGER_FEED}] FINISHED promises, allResults:`, allResults);
+        this.logger.trace(`${arrowed(TRIGGER_FEED)} FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
 
     // Trigger the loading of additional toots, farther back on the home timeline
     async triggerHomeTimelineBackFill(): Promise<void> {
-        console.log(`${bracketed(BACKFILL_FEED)} called, state:`, this.statusDict());
+        this.logger.log(`${arrowed(BACKFILL_FEED)} called, state:`, this.statusDict());
         this.checkIfLoading();
         this.setLoadingStateVariables(BACKFILL_FEED);
         this.homeFeed = await this.getHomeTimeline(true);
@@ -258,8 +258,8 @@ class TheAlgorithm {
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
     // Use with caution!
     async triggerPullAllUserData(): Promise<void> {
-        const logPrefix = bracketed(`triggerPullAllUserData()`);
-        console.log(`${logPrefix} called, state:`, this.statusDict());
+        const logPrefix = arrowed(`triggerPullAllUserData()`);
+        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
         this.checkIfLoading();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
         this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
@@ -272,9 +272,8 @@ class TheAlgorithm {
                 MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
             ]);
 
-            // traceLog(`${logPrefix} FINISHED, allResults:`, allResults);
             await this.recomputeScorers();
-            console.log(`${logPrefix} finished`);
+            this.logger.log(`${logPrefix} finished`);
         } catch (error) {
             MastoApi.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
         } finally {
@@ -320,7 +319,7 @@ class TheAlgorithm {
     mostRecentHomeTootAt(): Date | null {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
         if (this.homeFeed.length == 0 && this.numTriggers > 1) {
-            console.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
+            this.logger.warn(`mostRecentHomeTootAt() homeFeed is empty, falling back to full feed`);
             return mostRecentTootedAt(this.feed);
         }
 
@@ -332,21 +331,21 @@ class TheAlgorithm {
         const mostRecentAt = this.mostRecentHomeTootAt();
 
         if (!mostRecentAt) {
-            if (this.feed.length) console.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+            if (this.feed.length) this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
             return null;
         }
 
         const feedAgeInSeconds = ageInSeconds(mostRecentAt);
-        traceLog(`TheAlgorithm.feed is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
+        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
         return feedAgeInSeconds;
     }
 
     // Doesn't actually mute the account, just marks it as muted in the userData object
     async refreshMutedAccounts(): Promise<void> {
-        const logPrefix = bracketed(`refreshMutedAccounts()`);
-        console.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const logPrefix = arrowed(`refreshMutedAccounts()`);
+        this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({skipCache: true});
-        console.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
         (await MastoApi.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
         await this.finishFeedUpdate(false);
@@ -354,7 +353,7 @@ class TheAlgorithm {
 
     // Clear everything from browser storage except the user's identity and weightings
     async reset(complete: boolean = false): Promise<void> {
-        console.warn(`reset() called, clearing all storage...`);
+        this.logger.warn(`reset() called, clearing all storage...`);
         this.dataPoller && clearInterval(this.dataPoller!);
         this.dataPoller = undefined;
         this.cacheUpdater && clearInterval(this.cacheUpdater!);
@@ -387,7 +386,7 @@ class TheAlgorithm {
 
     // Update the feed filters and return the newly filtered feed
     updateFilters(newFilters: FeedFilterSettings): Toot[] {
-        console.log(`updateFilters() called with newFilters:`, newFilters);
+        this.logger.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
         Storage.setFilters(newFilters);
         return this.filterFeedAndSetInApp();
@@ -395,14 +394,14 @@ class TheAlgorithm {
 
     // Update user weightings and rescore / resort the feed.
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
-        console.log("updateUserWeights() called with weights:", userWeights);
+        this.logger.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }
 
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]> {
-        console.log("updateUserWeightsToPreset() called with presetName:", presetName);
+        this.logger.log("updateUserWeightsToPreset() called with presetName:", presetName);
         if (!isWeightPresetLabel(presetName)) logAndThrowError(`Invalid weight preset: "${presetName}"`);
         return await this.updateUserWeights(WEIGHT_PRESETS[presetName as WeightPresetLabel]);
     }
@@ -414,7 +413,7 @@ class TheAlgorithm {
     // Throw an error if the feed is loading
     private checkIfLoading(): void {
         if (this.isLoading()) {
-            console.warn(`[${TRIGGER_FEED}] Load in progress already!`, this.statusDict());
+            this.logger.warn(`${arrowed(TRIGGER_FEED)} Load in progress already!`, this.statusDict());
             throw new Error(`${TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         }
     }
@@ -426,7 +425,7 @@ class TheAlgorithm {
         const maxAgeMinutes = config.minTrendingMinutesUntilStale();
 
         if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            console.debug(`[${TRIGGER_FEED}] QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
+            this.logger.debug(`${arrowed(TRIGGER_FEED)} QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
             this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
@@ -438,7 +437,7 @@ class TheAlgorithm {
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
     private async fetchAndMergeToots(tootFetcher: Promise<Toot[]>, logPrefix: string): Promise<Toot[]> {
-        logPrefix = bracketed(logPrefix); // tootFetcher.name yield empty string in production :(
+        logPrefix = arrowed(logPrefix); // tootFetcher.name yield empty string in production :(
         const startedAt = new Date();
         let newToots: Toot[] = [];
 
@@ -471,9 +470,9 @@ class TheAlgorithm {
 
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
-        const logPrefix = bracketed(`finishFeedUpdate()`);
+        const logPrefix = arrowed(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        console.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
+        this.logger.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
         this.feed = await Toot.removeInvalidToots(this.feed, logPrefix);
 
@@ -487,7 +486,7 @@ class TheAlgorithm {
             this.logTelemetry(logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
-            console.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
+            this.logger.warn(`${logPrefix} ${TELEMETRY} finished but loadStartedAt is null!`);
         }
 
         this.loadStartedAt = null;
@@ -507,7 +506,7 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     private launchBackgroundPoller(): void {
         if (this.dataPoller) {
-            console.log(`${MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
+            this.logger.log(`${MOAR_DATA_PREFIX} data poller already exists, not starting another one`);
             return;
         }
 
@@ -525,7 +524,7 @@ class TheAlgorithm {
         );
 
         if (this.cacheUpdater) {
-            console.log(`${MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
+            this.logger.log(`${MOAR_DATA_PREFIX} cacheUpdater already exists, not starting another one`);
             return;
         }
 
@@ -544,7 +543,7 @@ class TheAlgorithm {
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         updateBooleanFilterOptions(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
-        console.log(`[fedialgo] loadCachedData() loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        this.logger.log(`[fedialgo] loadCachedData() loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
 
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
@@ -555,7 +554,7 @@ class TheAlgorithm {
 
         try {
             await this.mergeTootsToFeed(newToots, logPrefix);
-            traceLog(`[${SET_LOADING_STATUS}] ${logPrefix} lockedMergeToFeed() finished mutex`);
+            this.logger.trace(`${arrowed(SET_LOADING_STATUS)} ${logPrefix} lockedMergeToFeed() finished mutex`);
         } finally {
             releaseMutex();
         }
@@ -628,7 +627,7 @@ class TheAlgorithm {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
 
-        traceLog(`[${SET_LOADING_STATUS}] ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
+        this.logger.trace(`<${SET_LOADING_STATUS}) ${logPrefix}`, `setLoadingStateVariables()`, this.statusDict());
     }
 
     // Info about the state of this TheAlgorithm instance
@@ -656,18 +655,18 @@ class TheAlgorithm {
     // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
     async updateTootCache(): Promise<void> {
         if (this.isLoading()) return;
-        const logPrefix = bracketed(`updateTootCache()`);
+        const logPrefix = arrowed(`updateTootCache()`);
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown) return;
 
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            console.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
+            this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
             await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         } catch (error) {
-            console.error(`${logPrefix} Error saving toots:`, error);
+            this.logger.error(`${logPrefix} Error saving toots:`, error);
         }
     }
 };
