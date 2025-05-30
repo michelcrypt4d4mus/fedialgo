@@ -9,7 +9,7 @@ import MastoApi from "./api";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { CacheKey } from '../Storage';
+import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";

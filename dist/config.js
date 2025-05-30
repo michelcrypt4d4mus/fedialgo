@@ -4,7 +4,7 @@ exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL =
 /*
  * Centralized location for non-user configurable settings.
  */
-const Storage_1 = require("./Storage");
+const enums_1 = require("./enums");
 const log_helpers_1 = require("./helpers/log_helpers");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_2 = require("./helpers/log_helpers");
@@ -45,70 +45,70 @@ class Config {
         mutexWarnSeconds: 5,
         timeoutMS: 5000,
         data: {
-            [Storage_1.CacheKey.BLOCKED_ACCOUNTS]: {
+            [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FAVOURITED_TOOTS]: {
+            [enums_1.CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+            [enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+            [enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+            [enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+            [enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FOLLOWED_ACCOUNTS]: {
+            [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 80,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.FOLLOWED_TAGS]: {
+            [enums_1.CacheKey.FOLLOWED_TAGS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.HASHTAG_TOOTS]: {
+            [enums_1.CacheKey.HASHTAG_TOOTS]: {
             // TODO: this is here for the mutexes but nothing is actually cached
             },
-            [Storage_1.CacheKey.HOME_TIMELINE_TOOTS]: {
+            [enums_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
                 lookbackForUpdatesMinutes: 180,
                 supportsMinMaxId: true,
             },
-            [Storage_1.CacheKey.MUTED_ACCOUNTS]: {
+            [enums_1.CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
-            [Storage_1.CacheKey.NOTIFICATIONS]: {
+            [enums_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [Storage_1.CacheKey.RECENT_USER_TOOTS]: {
+            [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [Storage_1.CacheKey.SERVER_SIDE_FILTERS]: {
+            [enums_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
-            [Storage_1.CacheKey.TIMELINE_TOOTS]: {
+            [enums_1.CacheKey.TIMELINE_TOOTS]: {
             // TODO: shouldn't have to configure this empty object but we do for typing reasons
             },
-            [Storage_1.CacheKey.TRENDING_TAG_TOOTS]: {
+            [enums_1.CacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
         },
@@ -371,16 +371,16 @@ const config = new Config();
 exports.config = config;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
-    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
+    config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
+    config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    config.api.data[Storage_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
-    config.api.data[Storage_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
+    config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
+    config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
     config.api.maxRecordsForFeatureScoring = 2500;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
@@ -388,7 +388,7 @@ if (environment_helpers_1.isDebugMode) {
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
+    config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
     config.toots.maxTimelineLength = 5000;
     config.api.maxRecordsForFeatureScoring = 15000;
     config.participatedTags.maxToots = 500;
@@ -399,9 +399,9 @@ if (environment_helpers_1.isLoadTest) {
 }
 ;
 exports.FEDIVERSE_KEYS = [
-    Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
-    Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
 ];
 //# sourceMappingURL=config.js.map

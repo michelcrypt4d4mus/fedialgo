@@ -1,6 +1,6 @@
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
-import { CacheKey } from '../Storage';
+import { CacheKey } from "../enums";
 import { TagTootsConfig } from "../config";
 import { type TagWithUsageCounts } from "../types";
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS | CacheKey.FAVOURITED_HASHTAG_TOOTS | CacheKey.TRENDING_TAG_TOOTS;

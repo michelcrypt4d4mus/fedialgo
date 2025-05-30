@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -33,7 +10,8 @@ const axios_1 = __importDefault(require("axios"));
 const change_case_1 = require("change-case");
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("./api"));
-const Storage_1 = __importStar(require("../Storage"));
+const Storage_1 = __importDefault(require("../Storage"));
+const enums_1 = require("../enums");
 const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -41,7 +19,7 @@ const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
-const enums_1 = require("../enums");
+const enums_2 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
@@ -86,13 +64,13 @@ class MastodonServer {
     // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
     // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
     async fetchTrendingStatuses() {
-        const toots = await this.fetchTrending(enums_1.TrendingType.STATUSES);
+        const toots = await this.fetchTrending(enums_2.TrendingType.STATUSES);
         const trendingToots = toots.map(t => toot_1.default.build(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.sources = [Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS];
+            toot.sources = [enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS];
         });
         return trendingToots;
     }
@@ -103,14 +81,14 @@ class MastodonServer {
             return [];
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending(enums_1.TrendingType.LINKS, numLinks);
+        const trendingLinks = await this.fetchTrending(enums_2.TrendingType.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
         return trendingLinks;
     }
     // Get the tags that are trending on 'server'
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        let trendingTags = await this.fetchTrending(enums_1.TrendingType.TAGS, numTags);
+        let trendingTags = await this.fetchTrending(enums_2.TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
         return trendingTags;
     }
@@ -164,7 +142,7 @@ class MastodonServer {
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+            key: enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(links, link => link.url);
@@ -174,7 +152,7 @@ class MastodonServer {
     // Get the top trending tags from all servers
     static async fediverseTrendingTags() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+            key: enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
@@ -184,24 +162,24 @@ class MastodonServer {
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+            key: enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                const trendingToots = await toot_1.default.buildToots(toots, Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
+                const trendingToots = await toot_1.default.buildToots(toots, enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
                 return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
             }
         });
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
-        const logger = getLogger(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger.logPrefix);
+        const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger.logPrefix);
         try {
-            let servers = await Storage_1.default.getIfNotStale(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
+            let servers = await Storage_1.default.getIfNotStale(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                await Storage_1.default.set(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, servers);
+                await Storage_1.default.set(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, servers);
             }
             return servers;
         }
@@ -226,8 +204,8 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
-        const logger = getLogger(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
-        logger.trace(`Fetching ${Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
+        const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
+        logger.trace(`Fetching ${enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
@@ -296,7 +274,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains() {
         const servers = await this.getMastodonInstancesInfo();
-        const logger = getLogger(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
+        const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
         // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
         logger.debug(`Top server domains:`, topServerDomains);
@@ -320,7 +298,7 @@ exports.default = MastodonServer;
 ;
 // Return a dict of servers with MAU over the minServerMAU threshold
 function filterMinMAU(serverInfos, minMAU) {
-    const logger = getLogger(Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
+    const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
     const servers = Object.entries(serverInfos).reduce((filtered, [domain, instanceObj]) => {
         if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
             filtered[domain] = instanceObj;

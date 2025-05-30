@@ -5,7 +5,7 @@ import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/b
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { CacheKey } from './Storage';
+import { CacheKey } from "./enums";
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;

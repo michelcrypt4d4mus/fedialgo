@@ -6,7 +6,7 @@ import chunk from 'lodash/chunk';
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
-import { CacheKey } from '../Storage';
+import { CacheKey } from "../enums";
 import { isNumber } from "./math_helper";
 import { sleep } from './time_helpers';
 

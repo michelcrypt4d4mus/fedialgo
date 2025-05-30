@@ -11,6 +11,7 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
+import { AlgorithmStorageKey, CacheKey } from "./enums";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
@@ -20,7 +21,7 @@ import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
-import { ScoreName, type WeightName } from './scorer/scorer';
+import { type WeightName } from './scorer/scorer';
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -40,36 +41,6 @@ localForage.config({
     name        : FEDIALGO,
     storeName   : `${FEDIALGO}_user_data`,
 });
-
-// Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
-// Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
-export enum CacheKey {
-    BLOCKED_ACCOUNTS = 'BlockedAccounts',
-    FAVOURITED_TOOTS = 'FavouritedToots',
-    FAVOURITED_HASHTAG_TOOTS = 'FavouritedHashtagToots',
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
-    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
-    HASHTAG_TOOTS = 'HashtagToots',             // TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',  // Toots that the API returns for the home timeline
-    MUTED_ACCOUNTS = 'MutedAccounts',
-    NOTIFICATIONS = 'Notifications',
-    PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
-    RECENT_USER_TOOTS = 'RecentUserToots',
-    SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',           // The entire timeline (home timeline + trending toots etc.)
-    TRENDING_TAG_TOOTS = 'TrendingTagToots'
-};
-
-export enum AlgorithmStorageKey {
-    APP_OPENS = 'AppOpens',
-    FILTERS = 'Filters',
-    USER = 'FedialgoUser',
-    WEIGHTS = 'Weights'
-};
 
 type StorageKey = AlgorithmStorageKey | CacheKey;
 

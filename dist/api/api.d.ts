@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { CacheKey } from "../Storage";
+import { CacheKey } from "../enums";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { ComponentLogger } from "../helpers/log_helpers";

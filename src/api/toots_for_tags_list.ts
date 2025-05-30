@@ -5,7 +5,7 @@ import MastoApi from "./api";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { arrowed } from "../helpers/string_helpers";
-import { CacheKey } from '../Storage';
+import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, TagTootsConfig } from "../config";
 import { tagStr } from "./objects/tag";

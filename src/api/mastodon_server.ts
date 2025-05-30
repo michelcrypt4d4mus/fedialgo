@@ -8,7 +8,8 @@ import { Mutex } from 'async-mutex';
 
 import Account from "./objects/account";
 import MastoApi from "./api";
-import Storage, { CacheKey} from "../Storage";
+import Storage from "../Storage";
+import { CacheKey } from "../enums";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";

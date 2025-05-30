@@ -7,7 +7,7 @@ const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
-const Storage_2 = require("../Storage");
+const enums_1 = require("../enums");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -56,7 +56,7 @@ class UserData {
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale() {
-        return await Storage_1.default.isDataStale(Storage_2.CacheKey.MUTED_ACCOUNTS);
+        return await Storage_1.default.isDataStale(enums_1.CacheKey.MUTED_ACCOUNTS);
     }
     // Returns TrendingTags the user has participated in sorted by number of times they tooted it
     popularUserTags() {
