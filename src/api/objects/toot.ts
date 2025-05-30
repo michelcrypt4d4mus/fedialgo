@@ -776,7 +776,7 @@ export default class Toot implements TootObj {
         skipSort?: boolean
     ): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
-        const logPrefix = `${bracketed(source)} buildToots()`;
+        const logPrefix = `${logger.logPrefix} ${bracketed(source)} buildToots()`;
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
@@ -789,7 +789,7 @@ export default class Toot implements TootObj {
         await Scorer.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort) toots.sort((a, b) => b.getScore() - a.getScore());
-        logger.trace(`${logPrefix} ${toots.length} toots built in ${ageString(startedAt)}`);
+        logger.trace(`<${source}> ${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 
