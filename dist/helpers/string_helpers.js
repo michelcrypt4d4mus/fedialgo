@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.compareStr = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -21,11 +21,11 @@ exports.NULL = "<<NULL>>";
 exports.SET_LOADING_STATUS = "SET_LOADING_STATUS";
 exports.TELEMETRY = 'TELEMETRY';
 // Regexes
+exports.NUMBER_REGEX = /^[\d.]+$/;
 const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const HAHSTAG_REGEX = /#\w+/g;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
-exports.NUMBER_REGEX = /^[\d.]+$/;
 const WHITESPACE_REGEX = /\s+/g;
 // Multimedia types
 exports.GIFV = "gifv";
@@ -41,7 +41,13 @@ exports.MEDIA_TYPES = [
     types_1.MediaCategory.AUDIO,
     types_1.MediaCategory.IMAGE,
 ];
-// @something
+// Alphabetize an array of strings
+const alphabetize = (arr) => arr.sort(exports.compareStr);
+exports.alphabetize = alphabetize;
+// for use with sort()
+const compareStr = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
+exports.compareStr = compareStr;
+// "string" => "@string"
 const at = (str) => str.startsWith('@') ? str : `@${str}`;
 exports.at = at;
 // "foo" => "<foo>"
@@ -56,9 +62,6 @@ exports.prefixed = prefixed;
 // Doublequotes
 const quoted = (str) => str == null ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
-// for use with sort()
-const compareStr = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
-exports.compareStr = compareStr;
 // Collapse whitespace in a string
 const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;

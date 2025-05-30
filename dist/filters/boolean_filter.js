@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const config_1 = require("../config");
+const string_helpers_1 = require("../helpers/string_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
@@ -129,6 +130,14 @@ class BooleanFilter extends toot_filter_1.default {
     numOptions() {
         return Object.keys(this.optionInfo).length;
     }
+    // Return the available options sorted alphabetically by name
+    optionsSortedByName() {
+        return (0, string_helpers_1.alphabetize)(Object.keys(this.optionInfo));
+    }
+    // Return the available options sorted by value from highest to lowest
+    optionsSortedByValue() {
+        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo);
+    }
     // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo) {
         // Filter out any options that are no longer valid
@@ -136,7 +145,7 @@ class BooleanFilter extends toot_filter_1.default {
         this.optionInfo = { ...optionInfo }; // TODO: new object ID triggers useMemo() in the demo app, not great
     }
     // Return the options as entries arrays sorted by value from highest to lowest
-    sortedByValue() {
+    entriesSortedByValue() {
         return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
             acc.push([key, this.optionInfo[key]]);
             return acc;

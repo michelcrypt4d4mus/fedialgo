@@ -6,6 +6,7 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { config } from '../config';
+import { alphabetize } from '../helpers/string_helpers';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
 import { FilterArgs, StringNumberDict } from "../types";
 
@@ -145,6 +146,16 @@ export default class BooleanFilter extends TootFilter {
         return Object.keys(this.optionInfo).length;
     }
 
+    // Return the available options sorted alphabetically by name
+    optionsSortedByName(): string[] {
+        return alphabetize(Object.keys(this.optionInfo));
+    }
+
+    // Return the available options sorted by value from highest to lowest
+    optionsSortedByValue(): string[] {
+        return sortKeysByValue(this.optionInfo);
+    }
+
     // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo: StringNumberDict) {
         // Filter out any options that are no longer valid
@@ -153,7 +164,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     // Return the options as entries arrays sorted by value from highest to lowest
-    sortedByValue(): [string, number][] {
+    entriesSortedByValue(): [string, number][] {
         return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
             acc.push([key, this.optionInfo[key]]);
             return acc;

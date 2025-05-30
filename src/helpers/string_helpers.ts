@@ -20,11 +20,11 @@ export const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 export const TELEMETRY = 'TELEMETRY';
 
 // Regexes
+export const NUMBER_REGEX = /^[\d.]+$/;
 const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const HAHSTAG_REGEX = /#\w+/g;
 const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
-export const NUMBER_REGEX = /^[\d.]+$/;
 const WHITESPACE_REGEX = /\s+/g;
 
 // Multimedia types
@@ -44,7 +44,12 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
     MediaCategory.IMAGE,
 ];
 
-// @something
+// Alphabetize an array of strings
+export const alphabetize = (arr: string[]) => arr.sort(compareStr);
+// for use with sort()
+export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
+
+// "string" => "@string"
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
 // "foo" => "<foo>"
 export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
@@ -55,8 +60,6 @@ export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} $
 // Doublequotes
 export const quoted = (str: string | null): string => str == null ? NULL : `"${str}"`;
 
-// for use with sort()
-export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
 // Remove diacritics ("ó" => "o", "é" => "e", etc.)
