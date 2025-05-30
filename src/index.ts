@@ -62,7 +62,6 @@ import {
     isValueInStringEnum,
     makeChunks,
     makePercentileChunks,
-    sortKeysByValue,
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
@@ -726,6 +725,5 @@ export {
     isValueInStringEnum,
     makeChunks,
     makePercentileChunks, // TODO: unused in demo app (for now)
-    sortKeysByValue,
     timeString,
 };
