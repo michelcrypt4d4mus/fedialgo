@@ -12,10 +12,10 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
+import { bracketed, TELEMETRY } from "../helpers/string_helpers";
 import { config } from "../config";
+import { ComponentLogger, lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
-import { lockExecution, logAndThrowError, traceLog } from '../helpers/log_helpers';
-import { TELEMETRY } from "../helpers/string_helpers";
 import {
     ApiMutex,
     MastodonInstance,
@@ -35,6 +35,7 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
+import { get } from "lodash";
 
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
@@ -43,6 +44,7 @@ const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const INSTANCE = "instance";
+const LOG_PREFIX = `MastodonServer`;
 
 const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
     (mutexes, key) => {
@@ -61,6 +63,7 @@ interface FetchTrendingProps<T extends TrendingObj> {
 
 export default class MastodonServer {
     domain: string;
+    logger: ComponentLogger;
 
     // Helper methods for building URLs
     private static v1Url = (path: string) => `${API_V1}/${path}`;
@@ -71,19 +74,22 @@ export default class MastodonServer {
 
     constructor(domain: string) {
         this.domain = domain;
+        this.logger = getLogger(this.domain);
     };
 
     // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server
     async fetchServerInfo(): Promise<InstanceResponse> {
+        const logPrefix = `(fetchServerInfo())`;
+
         if (MastodonServer.isNoMauServer(this.domain)) {
-            console.debug(`[fetchServerInfo()] Instance info for '${this.domain}' is not available...`);
+            this.logger.debug(`${logPrefix} Instance info for '${this.domain}' is not available...`);
             return null;
         }
 
         try {
             return await this.fetch<MastodonInstance>(MastodonServer.v2Url(INSTANCE));
         } catch (error) {
-            console.warn(`[fetchServerInfo()] Error for server '${this.domain}'`, error);
+            this.logger.warn(`${logPrefix} Error for server '${this.domain}'`, error);
             return null;
         }
     }
@@ -108,7 +114,7 @@ export default class MastodonServer {
     // Get the links that are trending on this server
     async fetchTrendingLinks(): Promise<TrendingLink[]> {
         if (config.fediverse.noTrendingLinksServers.includes(this.domain)) {
-            console.debug(`Trending links are not available for '${this.domain}', skipping...`);
+            this.logger.debug(`Trending links are not available for '${this.domain}', skipping...`);
             return [];
         }
 
@@ -150,6 +156,7 @@ export default class MastodonServer {
     private async fetchList<T>(endpoint: string, limit?: number): Promise<T[]> {
         const label = endpoint.split("/").pop();
         const endpointURI = `'${this.domain}/${endpoint}`;
+        const logPrefix = `(${endpointURI})`;
         let list: T[] = [];
 
         try {
@@ -158,10 +165,10 @@ export default class MastodonServer {
             if (!list) {
                 logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
             } else if (list.length === 0) {
-                console.warn(`[${endpointURI}] Empty array of ${label} found (but no actual error)`);
+                this.logger.warn(`${logPrefix} Empty array of ${label} found (but no actual error)`);
             }
         } catch (e) {
-            console.warn(`[${endpointURI}] Failed to get ${label} data! Error:`, e);
+            this.logger.warn(`${logPrefix} Failed to get ${label} data! Error:`, e);
             list = [];
         }
 
@@ -214,8 +221,8 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
-        const logPrefix = `[${CacheKey.FEDIVERSE_POPULAR_SERVERS}]`;
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logPrefix);
+        const logger =  getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logger.logPrefix);
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(CacheKey.FEDIVERSE_POPULAR_SERVERS);
@@ -251,8 +258,8 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
-        const logPrefix = `[${CacheKey.FEDIVERSE_POPULAR_SERVERS}] fetchMastodonServersInfo():`;
-        traceLog(`${logPrefix} fetching ${CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
+        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
+        logger.trace(`Fetching ${CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
@@ -272,17 +279,17 @@ export default class MastodonServer {
         // If we have haven't found enough servers yet add some known popular servers from the preconfigured list.
         // TODO: if some of the default servers barf we won't top up the list again
         if (numServersToAdd > 0) {
-            console.log(`${logPrefix} Only ${numActiveServers} servers w/min ${config.fediverse.minServerMAU} MAU, adding some`);
+            logger.log(`Only ${numActiveServers} servers w/min ${config.fediverse.minServerMAU} MAU, adding some`);
             let extraDomains: string[] = [];
 
             if (config.locale.language != config.locale.defaultLanguage) {
                 extraDomains = extraDomains.concat(config.fediverse.foreignLanguageServers[config.locale.language] || []);
-                console.log(`${logPrefix} Using ${extraDomains.length} custom "${config.locale.language}" servers`);
+                logger.log(`Using ${extraDomains.length} custom "${config.locale.language}" servers`);
             }
 
             extraDomains = extraDomains.concat(shuffle(config.fediverse.defaultServers));
             extraDomains = extraDomains.filter(s => !(s in serverDict)).slice(0, numServersToAdd);
-            console.log(`${logPrefix} Adding ${extraDomains.length} default servers:`, extraDomains);
+            logger.log(`Adding ${extraDomains.length} default servers:`, extraDomains);
             const extraServerInfos = await this.callForServers<InstanceResponse>(extraDomains, (s) => s.fetchServerInfo());
             serverDict = {...serverDict, ...extraServerInfos};
         }
@@ -303,7 +310,7 @@ export default class MastodonServer {
         );
 
         const numServers = Object.keys(servers).length;
-        console.log(`${logPrefix} Fetched ${numServers} Instances ${ageString(startedAt)}:`, servers);
+        logger.log(`Fetched ${numServers} Instances ${ageString(startedAt)}:`, servers);
         return servers;
     }
 
@@ -312,8 +319,8 @@ export default class MastodonServer {
         props: FetchTrendingProps<T>
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
-        const logPrefix = `[${key}]`;
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[key]!, logPrefix);
+        const logger = getLogger(key, "fetchTrendingObjsFromAllServers()");
+        const releaseMutex = await lockExecution(TRENDING_MUTEXES[key]!, logger.logPrefix);
         const startedAt = new Date();
 
         try {
@@ -321,11 +328,11 @@ export default class MastodonServer {
 
             if (!records?.length) {
                 const serverObjs = await this.callForTopServers<T[]>(serverFxn);
-                traceLog(`${logPrefix} result from all servers:`, serverObjs);
+                logger.trace(`result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
-                let msg = `[${TELEMETRY}] fetched ${records.length} unique records ${ageString(startedAt)}`;
-                console.log(`${logPrefix} ${msg}`, records);
+                let msg = `**${TELEMETRY}** fetched ${records.length} unique records ${ageString(startedAt)}`;
+                logger.log(`${msg}`, records);
                 await Storage.set(key, records);
             }
 
@@ -338,13 +345,14 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     private static async getTopServerDomains(): Promise<string[]> {
         const servers = await this.getMastodonInstancesInfo();
+        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
 
         // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort(
             (a, b) => servers[b].followedPctOfMAU! - servers[a].followedPctOfMAU!
         );
 
-        console.debug(`[${CacheKey.FEDIVERSE_POPULAR_SERVERS}] Top server domains:`, topServerDomains);
+        logger.debug(`Top server domains:`, topServerDomains);
         return topServerDomains;
     }
 
@@ -373,6 +381,8 @@ export default class MastodonServer {
 
 // Return a dict of servers with MAU over the minServerMAU threshold
 function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: number): InstanceDict {
+    const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
+
     const servers = Object.entries(serverInfos).reduce(
         (filtered, [domain, instanceObj]) => {
             if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
@@ -384,6 +394,12 @@ function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: num
         {} as InstanceDict
     );
 
-    traceLog(`[filterMinMAU()] ${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);
+    logger.trace(`${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);
     return servers;
+};
+
+
+// logs prefixed by [API]
+function getLogger(subtitle?: string, subsubtitle?: string): ComponentLogger {
+    return new ComponentLogger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };

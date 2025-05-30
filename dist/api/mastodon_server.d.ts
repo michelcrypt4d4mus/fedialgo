@@ -1,8 +1,10 @@
 import Toot from "./objects/toot";
+import { ComponentLogger } from '../helpers/log_helpers';
 import { MastodonInstance, MastodonInstances, TagWithUsageCounts, TrendingLink, TrendingData } from "../types";
 export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
+    logger: ComponentLogger;
     private static v1Url;
     private static v2Url;
     private static trendUrl;

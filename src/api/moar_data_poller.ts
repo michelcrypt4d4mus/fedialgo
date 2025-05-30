@@ -6,11 +6,13 @@ import { Mutex } from 'async-mutex';
 
 import MastoApi from "../api/api";
 import { ageString } from '../helpers/time_helpers';
+import { ComponentLogger, lockExecution } from '../helpers/log_helpers';
 import { config } from "../config";
-import { lockExecution } from '../helpers/log_helpers';
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
+const logger = new ComponentLogger(GET_MOAR_DATA);
+
 const MOAR_MUTEX = new Mutex();
 
 
@@ -18,7 +20,7 @@ const MOAR_MUTEX = new Mutex();
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
-    console.log(`${MOAR_DATA_PREFIX} triggered by timer...`);
+    logger.log(`triggered by timer...`);
     const releaseMutex = await lockExecution(MOAR_MUTEX, GET_MOAR_DATA);
     const startedAt = new Date();
 
@@ -37,7 +39,7 @@ export async function getMoarData(): Promise<boolean> {
         const newRecordCounts = await Promise.all(
             cacheSizes.map(async (size, i) => {
                 if (size >= config.api.maxRecordsForFeatureScoring) {
-                    console.log(`${MOAR_DATA_PREFIX} ${pollers[i].name} has enough records (${size})`);
+                    logger.log(`${pollers[i].name} has enough records (${size})`);
                     return 0;
                 };
 
@@ -51,10 +53,10 @@ export async function getMoarData(): Promise<boolean> {
             })
         );
 
-        console.log(`${MOAR_DATA_PREFIX} finished ${ageString(startedAt)}`);
+        logger.log(`Finished ${ageString(startedAt)}`);
 
         if (newRecordCounts.every((x) => x <= 0)) {
-            console.log(`${MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);
+            logger.log(`All ${pollers.length} pollers have enough data`);
             return false;
         } else {
             return true;

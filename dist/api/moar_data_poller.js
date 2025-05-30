@@ -11,16 +11,17 @@ exports.getMoarData = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
+const config_1 = require("../config");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
+const logger = new log_helpers_1.ComponentLogger(exports.GET_MOAR_DATA);
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
-    console.log(`${exports.MOAR_DATA_PREFIX} triggered by timer...`);
+    logger.log(`triggered by timer...`);
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const startedAt = new Date();
     const pollers = [
@@ -35,7 +36,7 @@ async function getMoarData() {
         // Launch with moar flag those that are insufficient
         const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
             if (size >= config_1.config.api.maxRecordsForFeatureScoring) {
-                console.log(`${exports.MOAR_DATA_PREFIX} ${pollers[i].name} has enough records (${size})`);
+                logger.log(`${pollers[i].name} has enough records (${size})`);
                 return 0;
             }
             ;
@@ -47,9 +48,9 @@ async function getMoarData() {
             extraCount < 0 ? console.warn(msg) : console.log(msg);
             return extraCount || 0;
         }));
-        console.log(`${exports.MOAR_DATA_PREFIX} finished ${(0, time_helpers_1.ageString)(startedAt)}`);
+        logger.log(`Finished ${(0, time_helpers_1.ageString)(startedAt)}`);
         if (newRecordCounts.every((x) => x <= 0)) {
-            console.log(`${exports.MOAR_DATA_PREFIX} all ${pollers.length} pollers have enough data`);
+            logger.log(`All ${pollers.length} pollers have enough data`);
             return false;
         }
         else {
