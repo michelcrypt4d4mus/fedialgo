@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* (Demo App) Undo some memoization in `Feed.tsx` after the scroll listener `showMoreToots()` somehow went crazy and loaded the entire timeline
+* (Demo App) Undo some memoization in `Feed.tsx` after the scroll listener `showMoreToots()` somehow went crazy and loaded the entire timeline (diff: https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/compare/baf2640872fb521b0b739d2e213d618cf2305317..master)
 
 ### v0.54.19
 
