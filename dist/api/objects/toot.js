@@ -650,7 +650,7 @@ class Toot {
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logPrefix, isDeepInspect) {
-        logPrefix = (0, string_helpers_1.arrowed)(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
+        logPrefix = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`;
         let completeToots = [];
         let tootsToComplete = toots;
         let startedAt = new Date();
@@ -670,7 +670,7 @@ class Toot {
             batchSize: config_1.config.toots.batchCompleteSize,
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
-        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+        let msg = `completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
         logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);
     }

@@ -604,7 +604,13 @@ class TheAlgorithm {
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         await this.prepareScorers();  // Make sure the scorers are ready to go
         this.feed = await Scorer.scoreToots(this.feed, true);
-        this.feed = truncateToConfiguredLength(this.feed, config.toots.maxTimelineLength, "scoreAndFilterFeed()");
+
+        this.feed = truncateToConfiguredLength(
+            this.feed,
+            config.toots.maxTimelineLength,
+            `${this.logger.logPrefix} ${arrowed('scoreAndFilterFeed()')}`
+        );
+
         await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }

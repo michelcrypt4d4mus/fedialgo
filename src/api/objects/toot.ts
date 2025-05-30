@@ -795,7 +795,7 @@ export default class Toot implements TootObj {
 
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]> {
-        logPrefix = arrowed(`${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`);
+        logPrefix = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`;
         let completeToots: TootLike[] = [];
         let tootsToComplete = toots;
         let startedAt = new Date();
@@ -823,7 +823,7 @@ export default class Toot implements TootObj {
             }
         );
 
-        let msg = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;
+        let msg = `completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${ageString(startedAt)}`;
         logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots as Toot[]);
     }

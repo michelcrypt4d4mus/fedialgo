@@ -544,7 +544,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
-        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, "scoreAndFilterFeed()");
+        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)('scoreAndFilterFeed()')}`);
         await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
