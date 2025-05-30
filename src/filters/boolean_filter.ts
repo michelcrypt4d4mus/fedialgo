@@ -127,6 +127,13 @@ export default class BooleanFilter extends TootFilter {
             this.visible = config.gui.isAppFilterVisible;
         }
     }
+    // Return the options as entries arrays sorted by value from highest to lowest
+    entriesSortedByValue(): [string, number][] {
+        return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
+            acc.push([key, this.optionInfo[key]]);
+            return acc;
+        }, [] as [string, number][]);
+    }
 
     // Return true if the toot matches the filter
     isAllowed(toot: Toot): boolean {
@@ -152,8 +159,16 @@ export default class BooleanFilter extends TootFilter {
     }
 
     // Return the available options sorted by value from highest to lowest
-    optionsSortedByValue(): string[] {
-        return sortKeysByValue(this.optionInfo);
+    // If minValue is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
+    optionsSortedByValue(minValue?: number): string[] {
+        let options = this.entriesSortedByValue();
+
+        if (minValue) {
+            options = options.filter(([k, v]) => v >= minValue || this.validValues.includes(k));
+        }
+
+        return options.map(([k, _v]) => k);
     }
 
     // Update the filter with the possible options that can be selected for validValues
@@ -161,14 +176,6 @@ export default class BooleanFilter extends TootFilter {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = {...optionInfo}; // TODO: new object ID triggers useMemo() in the demo app, not great
-    }
-
-    // Return the options as entries arrays sorted by value from highest to lowest
-    entriesSortedByValue(): [string, number][] {
-        return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
-            acc.push([key, this.optionInfo[key]]);
-            return acc;
-        }, [] as [string, number][]);
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

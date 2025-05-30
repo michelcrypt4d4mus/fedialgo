@@ -114,6 +114,13 @@ class BooleanFilter extends toot_filter_1.default {
             this.visible = config_1.config.gui.isAppFilterVisible;
         }
     }
+    // Return the options as entries arrays sorted by value from highest to lowest
+    entriesSortedByValue() {
+        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
+            acc.push([key, this.optionInfo[key]]);
+            return acc;
+        }, []);
+    }
     // Return true if the toot matches the filter
     isAllowed(toot) {
         // If there's no validValues allow everything
@@ -135,21 +142,20 @@ class BooleanFilter extends toot_filter_1.default {
         return (0, string_helpers_1.alphabetize)(Object.keys(this.optionInfo));
     }
     // Return the available options sorted by value from highest to lowest
-    optionsSortedByValue() {
-        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo);
+    // If minValue is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
+    optionsSortedByValue(minValue) {
+        let options = this.entriesSortedByValue();
+        if (minValue) {
+            options = options.filter(([k, v]) => v >= minValue || this.validValues.includes(k));
+        }
+        return options.map(([k, _v]) => k);
     }
     // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo) {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = { ...optionInfo }; // TODO: new object ID triggers useMemo() in the demo app, not great
-    }
-    // Return the options as entries arrays sorted by value from highest to lowest
-    entriesSortedByValue() {
-        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
-            acc.push([key, this.optionInfo[key]]);
-            return acc;
-        }, []);
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
