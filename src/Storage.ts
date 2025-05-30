@@ -194,7 +194,7 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
-        const logPrefix = `getWithStaleness("${key}"):`;
+        const logPrefix = `<getWithStaleness()> ("${key}")`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {

@@ -35,9 +35,10 @@ const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const types_1 = require("../types");
 const string_helpers_1 = require("../helpers/string_helpers");
+const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
+const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const types_2 = require("../types");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
@@ -45,6 +46,7 @@ const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+const LOG_PREFIX = 'API';
 ;
 ;
 ;
@@ -52,6 +54,7 @@ class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
     homeDomain;
+    logger;
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = {}; // Just for measuring performance (poorly)
@@ -59,10 +62,10 @@ class MastoApi {
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
     static init(api, user) {
         if (MastoApi.#instance) {
-            console.warn("MastoApi instance already initialized...");
+            console.warn(`[${LOG_PREFIX}] MastoApi instance already initialized...`);
             return;
         }
-        console.log(`[API] Initializing MastoApi instance with user:`, user.acct);
+        console.log(`[${LOG_PREFIX}] Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
     }
     static get instance() {
@@ -74,6 +77,7 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
+        this.logger = getLogger();
         // Initialize mutexes for each StorageKey
         this.mutexes = Object.keys(types_1.CacheKey).reduce((acc, key) => {
             acc[types_1.CacheKey[key]] = new async_mutex_1.Mutex();
@@ -85,7 +89,7 @@ class MastoApi {
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = types_1.CacheKey.HOME_TIMELINE_TOOTS;
-        const logPrefix = (0, string_helpers_1.bracketed)(cacheKey);
+        const logger = getLogger(cacheKey, moar ? "moar" : "initial");
         const startedAt = new Date();
         let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
         let allNewToots = [];
@@ -95,7 +99,7 @@ class MastoApi {
             const minMaxId = (0, collection_helpers_1.findMinMaxId)(homeTimelineToots);
             if (minMaxId)
                 maxId = minMaxId.min; // Use the min ID in the cache as the maxId for the MOAR request
-            console.log(`${logPrefix} Fetching more old toots (found min ID ${maxId})`);
+            logger.log(`Fetching more old toots (found min ID ${maxId})`);
         }
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
@@ -103,7 +107,7 @@ class MastoApi {
             const lookbackSeconds = config_1.config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes * 60;
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
-            console.debug(`${logPrefix} maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
+            logger.debug(`maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
         }
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
@@ -117,26 +121,26 @@ class MastoApi {
             breakIf: async (newStatuses, allStatuses) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(newStatuses);
                 if (!oldestTootAt) {
-                    console.warn(`${logPrefix} No new statuses in page of ${newStatuses.length} toots, halting`);
+                    logger.warn(`No new statuses in page of ${newStatuses.length} toots, halting`);
                     return true;
                 }
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
-                console.debug(`${logPrefix} Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
+                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
                 const newToots = await toot_1.default.buildToots(newStatuses, cacheKey);
-                await mergeTootsToFeed(newToots, logPrefix);
+                await mergeTootsToFeed(newToots, logger.logPrefix);
                 allNewToots = allNewToots.concat(newToots);
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
                 if (oldestTootAt < cutoffAt) {
-                    console.log(`${logPrefix} Halting fetch (${oldestTootStr} <= cutoff ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)})`);
+                    logger.log(`Halting fetch (${oldestTootStr} <= cutoff ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)})`);
                     return true;
                 }
             }
         });
         homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], cacheKey);
-        let msg = `${logPrefix} Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
-        console.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
+        let msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
+        logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logPrefix);
+        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger.logPrefix);
         await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -152,13 +156,14 @@ class MastoApi {
     // Generic data getter for things we want to cache but require custom fetch logic
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(fetch, key, maxRecords) {
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], key);
+        const logger = getLogger(key);
+        const releaseMutex = await (0, log_helpers_2.lockExecution)(this.mutexes[key], logger.logPrefix);
         const startedAt = new Date();
         try {
             let toots = await Storage_1.default.getIfNotStale(key);
             if (!toots) {
                 const statuses = await fetch();
-                (0, log_helpers_1.traceLog)(`${(0, string_helpers_1.bracketed)(key)} Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
+                logger.trace(`Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, key);
                 toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, key);
                 await Storage_1.default.set(key, toots);
@@ -226,8 +231,8 @@ class MastoApi {
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
-        const logPrefix = (0, string_helpers_1.bracketed)(types_1.CacheKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[types_1.CacheKey.SERVER_SIDE_FILTERS], logPrefix);
+        const logger = getLogger(types_1.CacheKey.SERVER_SIDE_FILTERS);
+        const releaseMutex = await (0, log_helpers_2.lockExecution)(this.mutexes[types_1.CacheKey.SERVER_SIDE_FILTERS], logger.logPrefix);
         const startTime = new Date();
         try {
             let filters = await Storage_1.default.getIfNotStale(types_1.CacheKey.SERVER_SIDE_FILTERS);
@@ -242,7 +247,7 @@ class MastoApi {
                         return false;
                     return true;
                 });
-                console.log(`${logPrefix} Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
+                logger.log(`Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
                 await Storage_1.default.set(types_1.CacheKey.SERVER_SIDE_FILTERS, filters);
             }
             return filters;
@@ -261,12 +266,12 @@ class MastoApi {
             this.searchForToots(tag.name, numToots),
             this.hashtagTimelineToots(tag, numToots),
         ]);
-        logTrendingTagResults(`[getStatusesForTag(#${tag.name})]`, "both hashtag searches", tagToots.flat(), startedAt);
+        logTrendingTagResults(`${LOG_PREFIX} <getStatusesForTag()> (${tag.name}))`, "both hashtag searches", tagToots.flat(), startedAt);
         return tagToots.flat();
     }
     // Collect and fully populate / dedup a collection of toots for an array of Tags
     async getStatusesForTags(tags, numTootsPerTag) {
-        console.log(`[getStatusesForTags()] called for ${tags.length} tags:`, tags.map(t => t.name));
+        this.logger.log(`<getStatusesForTags()> called for ${tags.length} tags:`, tags.map(t => t.name));
         const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag, numTootsPerTag)));
         return tagToots.flat();
     }
@@ -284,8 +289,8 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const logPrefix = `[hashtagTimelineToots("#${tag.name}")]`;
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
+        const logger = getLogger(types_1.CacheKey.HASHTAG_TOOTS, tag.name);
+        const releaseSemaphore = await (0, log_helpers_2.lockExecution)(this.requestSemphore, logger.logPrefix);
         const startedAt = new Date();
         try {
             const toots = await this.getApiRecords({
@@ -295,11 +300,11 @@ class MastoApi {
                 skipCache: true,
                 skipMutex: true,
             });
-            (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            logger.trace(`Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             return [];
         }
         finally {
@@ -312,7 +317,7 @@ class MastoApi {
             return await this.api.v2.instance.fetch();
         }
         catch (err) {
-            console.error(`[MastoApi] Failed to fetch user's instance info, trying V1 API:`, err);
+            this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
             return await this.api.v1.instance.fetch();
         }
     }
@@ -322,18 +327,18 @@ class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot) {
-        const logPrefix = `[API resolveToot()]`;
+        const logger = getLogger('resolveToot()', toot.realURI());
+        logger.trace(`called for`, toot);
         const tootURI = toot.realURI();
         const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
-        (0, log_helpers_1.traceLog)(`${logPrefix} called for`, toot);
         if (urlDomain == this.homeDomain)
             return toot;
         const lookupResult = await this.api.v2.search.list({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            (0, log_helpers_1.logAndThrowError)(`${logPrefix} got bad result for "${tootURI}"`, lookupResult);
+            (0, log_helpers_2.logAndThrowError)(`${logger.logPrefix} got bad result for "${tootURI}"`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
-        (0, log_helpers_1.traceLog)(`${logPrefix} found resolvedStatus for "${tootURI}":`, resolvedStatus);
+        logger.trace(`found resolvedStatus for "${tootURI}":`, resolvedStatus);
         return toot_1.default.build(resolvedStatus);
     }
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
@@ -341,19 +346,19 @@ class MastoApi {
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        let logPrefix = `[API searchForToots("${searchStr}")]`;
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logPrefix);
+        const logger = getLogger('searchForToots()', searchStr);
+        const releaseSemaphore = await (0, log_helpers_2.lockExecution)(this.requestSemphore, logger.logPrefix);
         const query = { limit: maxRecords, q: searchStr, type: types_2.TrendingType.STATUSES };
-        logPrefix += ` (semaphore)`;
+        logger.logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            (0, log_helpers_1.traceLog)(`${logPrefix} Retrieved ${statuses.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
+            logger.trace(`Retrieved ${statuses.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
             return statuses;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             return [];
         }
         finally {
@@ -361,7 +366,7 @@ class MastoApi {
         }
     }
     reset() {
-        console.log("[API reset()] Resetting MastoApi telemetry and userData");
+        this.logger.log(`Resetting MastoApi instance...`);
         this.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
         this.userData = undefined; // Clear the user data cache
         this.waitTimes = {}; // Reset the waiting timer
@@ -371,7 +376,7 @@ class MastoApi {
     // drain switching back to the browser window, which triggers a lot of background requests
     // TODO: should this call this.requestSemphore.setValue() instead? https://www.npmjs.com/package/async-mutex
     setSemaphoreConcurrency(concurrency) {
-        console.log(`[MastoApi] Setting semaphore to background concurrency to ${concurrency}`);
+        this.logger.log(`Setting semaphore to background concurrency to ${concurrency}`);
         this.requestSemphore = new async_mutex_1.Semaphore(concurrency);
     }
     // URL for tag on the user's homeserver
@@ -387,10 +392,10 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(params) {
-        let { breakIf, cacheKey, fetch, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
-        let logPfx = `${(0, string_helpers_1.bracketed)(cacheKey)}`;
+        let { breakIf, cacheKey, fetch, logger, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
+        logger ??= getLogger(cacheKey);
         if (moar && (skipCache || maxId))
-            console.warn(`${logPfx} skipCache=true AND moar or maxId set!`);
+            logger.warn(`skipCache=true AND moar or maxId set!`);
         // Parse params and set defaults
         const requestDefaults = config_1.config.api.data[cacheKey];
         maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
@@ -400,7 +405,7 @@ class MastoApi {
         let pageNumber = 0;
         let rows = [];
         // Lock mutex unless skipMutex is true
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logPfx);
+        const releaseMutex = skipMutex ? null : await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix);
         const startedAt = new Date();
         try {
             // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
@@ -422,26 +427,26 @@ class MastoApi {
                         // If we're incrementally updating stale data, use the max ID of the cache as the request minId
                         if (moar) {
                             maxId = minMaxId.min;
-                            console.debug(`${logPfx} Getting MOAR old data; loading backwards from maxId ${maxId}`);
+                            logger.debug(`Getting MOAR old data; loading backwards from maxId ${maxId}`);
                         }
                         else {
                             minId = minMaxId.max;
-                            console.debug(`${logPfx} Stale data; attempting incremental load from minId ${minId}`);
+                            logger.debug(`Stale data; attempting incremental load from minId ${minId}`);
                         }
                     }
                     else {
                         // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        let msg = `${logPfx} maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
-                        console.debug(msg, minMaxId, `, maxRecords=${maxRecords}\nrequestDefaults:`, requestDefaults);
+                        let msg = `maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
+                        logger.debug(msg, minMaxId, `, maxRecords=${maxRecords}\nrequestDefaults:`, requestDefaults);
                     }
                 }
                 ;
             }
             // 'limit' is the name of the max records per page param in the Mastodon API
             const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.config.api.defaultRecordsPerPage);
-            (0, log_helpers_1.traceLog)(`${logPfx} fetchData() params w/filled in defaults:`, { ...params, limit, minId, maxId, maxRecords });
+            logger.trace(`fetchData() params w/filled in defaults:`, { ...params, limit, minId, maxId, maxRecords });
             // Telemetry stuff, reset the WaitTime timer immediately before API request starts
-            this.waitTimes[cacheKey] ??= new log_helpers_1.WaitTime();
+            this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
             this.waitTimes[cacheKey].markStart();
             for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
                 this.waitTimes[cacheKey].markEnd(); // TODO: telemetry stuff that should be removed eventually
@@ -451,12 +456,12 @@ class MastoApi {
                 const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
                 if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
-                    console.debug(`${logPfx} Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
+                    logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 }
                 else {
-                    const msg = `${logPfx} Retrieved page ${pageNumber} (${recordsSoFar})`;
-                    (pageNumber % 5 == 0) ? console.debug(msg) : (0, log_helpers_1.traceLog)(msg);
+                    const msg = `Retrieved page ${pageNumber} (${recordsSoFar})`;
+                    (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
                 }
                 // Reset timer to try to only measure the time spent waiting for the API to respond
                 this.waitTimes[cacheKey].markStart();
@@ -465,7 +470,7 @@ class MastoApi {
         catch (e) {
             // TODO: handle rate limiting errors
             // If the access token was not revoked whatever rows we've retrieved will be returned
-            MastoApi.throwIfAccessTokenRevoked(e, `${logPfx} Failed ${(0, time_helpers_1.ageString)(startedAt)}, have ${rows.length} rows`);
+            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}, have ${rows.length} rows`);
         }
         finally {
             releaseMutex?.();
@@ -516,11 +521,16 @@ class MastoApi {
             throw RATE_LIMIT_USER_WARNING;
         }
         else {
-            (0, log_helpers_1.logAndThrowError)(msg, error);
+            (0, log_helpers_2.logAndThrowError)(msg, error);
         }
     }
 }
 exports.default = MastoApi;
+;
+// logs prefixed by [API]
+function getLogger(subtitle, subsubtitle) {
+    return new log_helpers_1.ComponentLogger((0, string_helpers_1.bracketed)(LOG_PREFIX), subtitle, subsubtitle);
+}
 ;
 // Return true if the error is an access token revoked error
 function isAccessTokenRevokedError(e) {

@@ -136,7 +136,7 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
 
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));
-        console.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
+        logger.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
     Storage.setFilters(filters);  // NOTE: there's no "await" here...
@@ -149,9 +149,9 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
 // containsTag() whereas the demo app uses containsString() to actually filter.
 // TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
 export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
-    const logPrefx = `[updateHashtagCounts()]`;
+    const logPrefx = `<updateHashtagCounts()>`;
     const newTootTagCounts = {} as StringNumberDict;
-    console.log(`${logPrefx} Launched...`);
+    logger.log(`${logPrefx} Launched...`);
     const startedAt = Date.now();
 
     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].optionInfo).forEach((tagName) => {
