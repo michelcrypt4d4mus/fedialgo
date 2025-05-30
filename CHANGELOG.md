@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Stop exporting sortKeysByValue() helper
+* Stop exporting `sortKeysByValue()` helper
 
 # v0.55.0
 * Add `entriesSortedByValue()`, `optionsSortedByValue()`, `optionsSortedByName()`, and `numOptions()` methods to `BooleanFilter`
@@ -21,7 +21,7 @@
 
 ### v0.54.15
 * (Demo App) Fix memoization watcher for type filter
-* (Demo App) Use ComponentLogger from fedialgo package
+* (Demo App) Use `ComponentLogger` from fedialgo package
 
 ### v0.54.14
 * (Demo App) Fix bug where long filter labels weren't getting trimmed to configured length
