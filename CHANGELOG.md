@@ -1,6 +1,9 @@
 # NEXT RELEASE
+
+# v0.55.0
 * Add `entriesSortedByValue()`, `optionsSortedByValue()`, `optionsSortedByName()`, and `numOptions()` methods to `BooleanFilter`
 * Export `TagList` class
+* (Demo App) Make the minTootsSlider initial value flexible to try to show the newly configured idealNumOptions
 
 ### v0.54.20 / v0.54.21
 * Rename `TRENDING_HASHTAGS` to `TRENDING_TAGS` and `PARTICIPATED_HASHTAGS` to `PARTICIPATED_TAGS`
