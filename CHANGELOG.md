@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-### v0.54.17
+### v0.54.18
 * (Demo App) Fix bug with color gradient for hashtags (was checking the wrong boolean), Revert to the original `getTooltip()` for now
 
 ### v0.54.16
