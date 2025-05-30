@@ -47,6 +47,7 @@ export default class BooleanFilter extends TootFilter {
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
     setOptions(optionInfo: StringNumberDict): void;
+    sortedByValue(): [string, number][];
     updateValidOptions(element: string, isValidOption: boolean): void;
     toArgs(): BooleanFilterArgs;
 }

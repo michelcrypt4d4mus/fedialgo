@@ -6,7 +6,7 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { config } from '../config';
-import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
+import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
 import { FilterArgs, StringNumberDict } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
@@ -145,6 +145,14 @@ export default class BooleanFilter extends TootFilter {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = {...optionInfo}; // TODO: new object ID triggers useMemo() in the demo app, not great
+    }
+
+    // Return the options as entries arrays sorted by value from highest to lowest
+    sortedByValue(): [string, number][] {
+        return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
+            acc.push([key, this.optionInfo[key]]);
+            return acc;
+        }, [] as [string, number][]);
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

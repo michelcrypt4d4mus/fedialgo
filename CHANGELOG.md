@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Export TagList class
+* Add `sortedByValue()` method to BooleanFilter
+* Export `TagList` class
 
 ### v0.54.20 / v0.54.21
 * Rename `TRENDING_HASHTAGS` to `TRENDING_TAGS` and `PARTICIPATED_HASHTAGS` to `PARTICIPATED_TAGS`

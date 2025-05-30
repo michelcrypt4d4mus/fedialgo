@@ -131,6 +131,12 @@ class BooleanFilter extends toot_filter_1.default {
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = { ...optionInfo }; // TODO: new object ID triggers useMemo() in the demo app, not great
     }
+    sortedByValue() {
+        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
+            acc.push([key, this.optionInfo[key]]);
+            return acc;
+        }, []);
+    }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element, isValidOption) {
