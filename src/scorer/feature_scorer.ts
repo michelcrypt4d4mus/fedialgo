@@ -28,7 +28,7 @@ export default abstract class FeatureScorer extends Scorer {
         }
 
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `(prepareScoreData()) finished ${ageString(startTime)}`;
+            const msg = `prepareScoreData() finished ${ageString(startTime)}`;
             this.logger.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
         }
 
