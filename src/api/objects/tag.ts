@@ -4,19 +4,10 @@
  */
 import MastoApi from "../../api/api";
 import { detectHashtagLanguage } from "../../helpers/language_helper";
-import { MastodonTag, TagNames, TagWithUsageCounts } from "../../types";
+import { MastodonTag, TagWithUsageCounts } from "../../types";
 import { removeDiacritics } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
-
-
-// Build a lookup table of tag names to tag objects
-export function buildTagNames(tags: MastodonTag[]): TagNames {
-    return tags.reduce((tagNames: TagNames, tag: MastodonTag) => {
-        tagNames[tag.name] as TagWithUsageCounts;
-        return tagNames;
-    }, {} as TagNames);
-};
 
 
 // Lowercase the tag name, replace URL with one on homeserver

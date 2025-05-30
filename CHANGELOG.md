@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Export buildTagNames() helper
+* Remove unused buildTagNames() (moved to demo app)
 
 ### v0.54.20 / v0.54.21
 * Rename `TRENDING_HASHTAGS` to `TRENDING_TAGS` and `PARTICIPATED_HASHTAGS` to `PARTICIPATED_TAGS`
