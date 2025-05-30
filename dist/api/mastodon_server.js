@@ -19,6 +19,7 @@ const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const types_1 = require("../types");
+const Storage_2 = require("../Storage");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
@@ -69,7 +70,7 @@ class MastodonServer {
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
         trendingToots.forEach((toot, i) => {
             toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.sources = [types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS];
+            toot.sources = [Storage_2.CacheKey.FEDIVERSE_TRENDING_TOOTS];
         });
         return trendingToots;
     }
@@ -141,7 +142,7 @@ class MastodonServer {
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: types_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+            key: Storage_2.CacheKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(links, link => link.url);
@@ -151,7 +152,7 @@ class MastodonServer {
     // Get the top trending tags from all servers
     static async fediverseTrendingTags() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: types_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+            key: Storage_2.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
@@ -161,24 +162,24 @@ class MastodonServer {
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
         return await this.fetchTrendingObjsFromAllServers({
-            key: types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+            key: Storage_2.CacheKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
                 (0, trending_with_history_1.setTrendingRankToAvg)(toots);
-                const trendingToots = await toot_1.default.buildToots(toots, types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
+                const trendingToots = await toot_1.default.buildToots(toots, Storage_2.CacheKey.FEDIVERSE_TRENDING_TOOTS);
                 return trendingToots.sort((a, b) => (b.trendingRank || 0) - (a.trendingRank || 0));
             }
         });
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
-        const logger = getLogger(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger.logPrefix);
+        const logger = getLogger(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger.logPrefix);
         try {
-            let servers = await Storage_1.default.getIfNotStale(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
+            let servers = await Storage_1.default.getIfNotStale(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
                 servers = await this.fetchMastodonInstances();
-                await Storage_1.default.set(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, servers);
+                await Storage_1.default.set(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS, servers);
             }
             return servers;
         }
@@ -203,8 +204,8 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
-        const logger = getLogger(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
-        logger.trace(`Fetching ${types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
+        const logger = getLogger(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
+        logger.trace(`Fetching ${Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
@@ -273,7 +274,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains() {
         const servers = await this.getMastodonInstancesInfo();
-        const logger = getLogger(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
+        const logger = getLogger(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
         // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
         logger.debug(`Top server domains:`, topServerDomains);
@@ -297,7 +298,7 @@ exports.default = MastodonServer;
 ;
 // Return a dict of servers with MAU over the minServerMAU threshold
 function filterMinMAU(serverInfos, minMAU) {
-    const logger = getLogger(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
+    const logger = getLogger(Storage_2.CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
     const servers = Object.entries(serverInfos).reduce((filtered, [domain, instanceObj]) => {
         if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
             filtered[domain] = instanceObj;

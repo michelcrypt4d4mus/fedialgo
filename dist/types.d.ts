@@ -5,33 +5,7 @@ import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/b
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-export declare enum CacheKey {
-    BLOCKED_ACCOUNTS = "BlockedAccounts",
-    FAVOURITED_TOOTS = "FavouritedToots",
-    FAVOURITED_HASHTAG_TOOTS = "FavouritedHashtagToots",
-    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
-    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
-    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
-    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
-    FOLLOWED_ACCOUNTS = "FollowedAccounts",
-    FOLLOWED_TAGS = "FollowedTags",
-    HASHTAG_TOOTS = "HashtagToots",
-    HOME_TIMELINE_TOOTS = "HomeTimelineToots",
-    MUTED_ACCOUNTS = "MutedAccounts",
-    NOTIFICATIONS = "Notifications",
-    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
-    RECENT_USER_TOOTS = "RecentUserToots",
-    SERVER_SIDE_FILTERS = "ServerFilters",
-    TIMELINE_TOOTS = "TimelineToots",
-    TRENDING_TAG_TOOTS = "TrendingTagToots"
-}
-export declare enum AlgorithmStorageKey {
-    APP_OPENS = "AppOpens",
-    FILTERS = "Filters",
-    USER = "FedialgoUser",
-    WEIGHTS = "Weights"
-}
-export type StorageKey = AlgorithmStorageKey | CacheKey;
+import { CacheKey } from './Storage';
 export declare const FEDIVERSE_KEYS: CacheKey[];
 export declare enum MediaCategory {
     AUDIO = "audio",

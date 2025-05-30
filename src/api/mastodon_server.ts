@@ -20,7 +20,6 @@ import {
     ApiMutex,
     MastodonInstance,
     MastodonInstances,
-    CacheKey,
     FEDIVERSE_KEYS,
     TagWithUsageCounts,
     TrendingLink,
@@ -28,6 +27,7 @@ import {
     TrendingData,
     TrendingType,
 } from "../types";
+import { CacheKey } from '../Storage';
 import {
     countValues,
     shuffle,

@@ -6,6 +6,7 @@ exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_
  */
 const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
+const Storage_1 = require("./Storage");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_2 = require("./helpers/log_helpers");
 const scorer_1 = require("./scorer/scorer");
@@ -45,70 +46,70 @@ class Config {
         mutexWarnSeconds: 5,
         timeoutMS: 5000,
         data: {
-            [types_1.CacheKey.BLOCKED_ACCOUNTS]: {
+            [Storage_1.CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FAVOURITED_TOOTS]: {
+            [Storage_1.CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+            [Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+            [Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+            [Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+            [Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FOLLOWED_ACCOUNTS]: {
+            [Storage_1.CacheKey.FOLLOWED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 80,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.FOLLOWED_TAGS]: {
+            [Storage_1.CacheKey.FOLLOWED_TAGS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.HASHTAG_TOOTS]: {
+            [Storage_1.CacheKey.HASHTAG_TOOTS]: {
             // TODO: this is here for the mutexes but nothing is actually cached
             },
-            [types_1.CacheKey.HOME_TIMELINE_TOOTS]: {
+            [Storage_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
                 lookbackForUpdatesMinutes: 180,
                 supportsMinMaxId: true,
             },
-            [types_1.CacheKey.MUTED_ACCOUNTS]: {
+            [Storage_1.CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [Storage_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
-            [types_1.CacheKey.NOTIFICATIONS]: {
+            [Storage_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [types_1.CacheKey.RECENT_USER_TOOTS]: {
+            [Storage_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [types_1.CacheKey.SERVER_SIDE_FILTERS]: {
+            [Storage_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
-            [types_1.CacheKey.TIMELINE_TOOTS]: {
+            [Storage_1.CacheKey.TIMELINE_TOOTS]: {
             // TODO: shouldn't have to configure this empty object but we do for typing reasons
             },
-            [types_1.CacheKey.TRENDING_TAG_TOOTS]: {
+            [Storage_1.CacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
         },
@@ -371,16 +372,16 @@ const config = new Config();
 exports.config = config;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
-    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
+    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
+    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    config.api.data[types_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
-    config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
+    config.api.data[Storage_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 1;
+    config.api.data[Storage_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
     config.api.maxRecordsForFeatureScoring = 2500;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
@@ -388,7 +389,7 @@ if (environment_helpers_1.isDebugMode) {
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
+    config.api.data[Storage_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
     config.toots.maxTimelineLength = 5000;
     config.api.maxRecordsForFeatureScoring = 15000;
     config.participatedTags.maxToots = 500;

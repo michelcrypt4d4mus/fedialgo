@@ -1,6 +1,33 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights, CacheKey, StorageKey } from "./types";
+import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights } from "./types";
+export declare enum CacheKey {
+    BLOCKED_ACCOUNTS = "BlockedAccounts",
+    FAVOURITED_TOOTS = "FavouritedToots",
+    FAVOURITED_HASHTAG_TOOTS = "FavouritedHashtagToots",
+    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
+    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
+    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
+    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
+    FOLLOWED_ACCOUNTS = "FollowedAccounts",
+    FOLLOWED_TAGS = "FollowedTags",
+    HASHTAG_TOOTS = "HashtagToots",
+    HOME_TIMELINE_TOOTS = "HomeTimelineToots",
+    MUTED_ACCOUNTS = "MutedAccounts",
+    NOTIFICATIONS = "Notifications",
+    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
+    RECENT_USER_TOOTS = "RecentUserToots",
+    SERVER_SIDE_FILTERS = "ServerFilters",
+    TIMELINE_TOOTS = "TimelineToots",
+    TRENDING_TAG_TOOTS = "TrendingTagToots"
+}
+export declare enum AlgorithmStorageKey {
+    APP_OPENS = "AppOpens",
+    FILTERS = "Filters",
+    USER = "FedialgoUser",
+    WEIGHTS = "Weights"
+}
+type StorageKey = AlgorithmStorageKey | CacheKey;
 type StorableObjWithStaleness = {
     isStale: boolean;
     obj: StorableObjWithCache;

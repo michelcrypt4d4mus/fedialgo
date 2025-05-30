@@ -33,14 +33,14 @@ const Storage_1 = __importStar(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const types_1 = require("../types");
+const Storage_2 = require("../Storage");
 const string_helpers_1 = require("../helpers/string_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
-const types_2 = require("../types");
+const types_1 = require("../types");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -80,8 +80,8 @@ class MastoApi {
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         this.logger = getLogger();
         // Initialize mutexes for each StorageKey
-        this.mutexes = Object.keys(types_1.CacheKey).reduce((acc, key) => {
-            acc[types_1.CacheKey[key]] = new async_mutex_1.Mutex();
+        this.mutexes = Object.keys(Storage_2.CacheKey).reduce((acc, key) => {
+            acc[Storage_2.CacheKey[key]] = new async_mutex_1.Mutex();
             return acc;
         }, {});
     }
@@ -89,7 +89,7 @@ class MastoApi {
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
-        const cacheKey = types_1.CacheKey.HOME_TIMELINE_TOOTS;
+        const cacheKey = Storage_2.CacheKey.HOME_TIMELINE_TOOTS;
         const logger = getLogger(cacheKey, moar ? "moar" : "initial");
         const startedAt = new Date();
         let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
@@ -105,7 +105,7 @@ class MastoApi {
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-            const lookbackSeconds = config_1.config.api.data[types_1.CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes * 60;
+            const lookbackSeconds = config_1.config.api.data[Storage_2.CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes * 60;
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             logger.debug(`maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
@@ -149,9 +149,9 @@ class MastoApi {
     async getBlockedAccounts() {
         const blockedAccounts = await this.getApiRecords({
             fetch: this.api.v1.blocks.list,
-            cacheKey: types_1.CacheKey.BLOCKED_ACCOUNTS
+            cacheKey: Storage_2.CacheKey.BLOCKED_ACCOUNTS
         });
-        account_1.default.logSuspendedAccounts(blockedAccounts, types_1.CacheKey.BLOCKED_ACCOUNTS);
+        account_1.default.logSuspendedAccounts(blockedAccounts, Storage_2.CacheKey.BLOCKED_ACCOUNTS);
         return blockedAccounts;
     }
     // Generic data getter for things we want to cache but require custom fetch logic
@@ -180,7 +180,7 @@ class MastoApi {
     async getFavouritedToots(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.favourites.list,
-            cacheKey: types_1.CacheKey.FAVOURITED_TOOTS,
+            cacheKey: Storage_2.CacheKey.FAVOURITED_TOOTS,
             ...(params || {})
         });
     }
@@ -188,7 +188,7 @@ class MastoApi {
     async getFollowedAccounts(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
-            cacheKey: types_1.CacheKey.FOLLOWED_ACCOUNTS,
+            cacheKey: Storage_2.CacheKey.FOLLOWED_ACCOUNTS,
             processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         });
@@ -197,7 +197,7 @@ class MastoApi {
     async getFollowedTags(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.followedTags.list,
-            cacheKey: types_1.CacheKey.FOLLOWED_TAGS,
+            cacheKey: Storage_2.CacheKey.FOLLOWED_TAGS,
             processFxn: (tag) => (0, tag_1.repairTag)(tag),
             ...(params || {})
         });
@@ -206,17 +206,17 @@ class MastoApi {
     async getMutedAccounts(params) {
         const mutedAccounts = await this.getApiRecords({
             fetch: this.api.v1.mutes.list,
-            cacheKey: types_1.CacheKey.MUTED_ACCOUNTS,
+            cacheKey: Storage_2.CacheKey.MUTED_ACCOUNTS,
             ...(params || {})
         });
-        account_1.default.logSuspendedAccounts(mutedAccounts, types_1.CacheKey.MUTED_ACCOUNTS);
+        account_1.default.logSuspendedAccounts(mutedAccounts, Storage_2.CacheKey.MUTED_ACCOUNTS);
         return mutedAccounts.concat(await this.getBlockedAccounts());
     }
     // Get the user's recent notifications
     async getNotifications(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
-            cacheKey: types_1.CacheKey.NOTIFICATIONS,
+            cacheKey: Storage_2.CacheKey.NOTIFICATIONS,
             ...(params || {})
         });
     }
@@ -225,18 +225,18 @@ class MastoApi {
     async getRecentUserToots(params) {
         return await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
-            cacheKey: types_1.CacheKey.RECENT_USER_TOOTS,
+            cacheKey: Storage_2.CacheKey.RECENT_USER_TOOTS,
             ...(params || {})
         });
     }
     // Retrieve content based feed filters the user has set up on the server
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
-        const logger = getLogger(types_1.CacheKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await (0, log_helpers_2.lockExecution)(this.mutexes[types_1.CacheKey.SERVER_SIDE_FILTERS], logger.logPrefix);
+        const logger = getLogger(Storage_2.CacheKey.SERVER_SIDE_FILTERS);
+        const releaseMutex = await (0, log_helpers_2.lockExecution)(this.mutexes[Storage_2.CacheKey.SERVER_SIDE_FILTERS], logger.logPrefix);
         const startTime = new Date();
         try {
-            let filters = await Storage_1.default.getIfNotStale(types_1.CacheKey.SERVER_SIDE_FILTERS);
+            let filters = await Storage_1.default.getIfNotStale(Storage_2.CacheKey.SERVER_SIDE_FILTERS);
             if (!filters) {
                 filters = await this.api.v2.filters.list();
                 // Filter out filters that either are just warnings or don't apply to the home context
@@ -249,7 +249,7 @@ class MastoApi {
                     return true;
                 });
                 logger.log(`Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
-                await Storage_1.default.set(types_1.CacheKey.SERVER_SIDE_FILTERS, filters);
+                await Storage_1.default.set(Storage_2.CacheKey.SERVER_SIDE_FILTERS, filters);
             }
             return filters;
         }
@@ -290,13 +290,13 @@ class MastoApi {
     // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const logger = getLogger(types_1.CacheKey.HASHTAG_TOOTS, tag.name);
+        const logger = getLogger(Storage_2.CacheKey.HASHTAG_TOOTS, tag.name);
         const releaseSemaphore = await (0, log_helpers_2.lockExecution)(this.requestSemphore, logger.logPrefix);
         const startedAt = new Date();
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                cacheKey: types_1.CacheKey.HASHTAG_TOOTS,
+                cacheKey: Storage_2.CacheKey.HASHTAG_TOOTS,
                 maxRecords: maxRecords,
                 skipCache: true,
                 skipMutex: true,
@@ -349,7 +349,7 @@ class MastoApi {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         const logger = getLogger(`searchForToots(${searchStr})`);
         const releaseSemaphore = await (0, log_helpers_2.lockExecution)(this.requestSemphore, logger.logPrefix);
-        const query = { limit: maxRecords, q: searchStr, type: types_2.TrendingType.STATUSES };
+        const query = { limit: maxRecords, q: searchStr, type: types_1.TrendingType.STATUSES };
         logger.logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {
@@ -382,7 +382,7 @@ class MastoApi {
     }
     // URL for tag on the user's homeserver
     tagUrl(tag) {
-        return `${this.endpointURL(types_2.TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
+        return `${this.endpointURL(types_1.TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
     }
     /////////////////////////////
     //     Private Methods     //

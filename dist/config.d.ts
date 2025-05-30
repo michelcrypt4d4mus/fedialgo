@@ -1,4 +1,5 @@
-import { NonScoreWeightInfoDict, CacheKey } from "./types";
+import { NonScoreWeightInfoDict } from "./types";
+import { CacheKey } from './Storage';
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;

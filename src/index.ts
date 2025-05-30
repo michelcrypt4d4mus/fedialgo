@@ -66,7 +66,6 @@ import {
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
-    AlgorithmStorageKey,
     FeedFilterSettings,
     KeysOfValueType,
     MastodonInstance,
@@ -74,7 +73,6 @@ import {
     MediaCategory,
     MinMaxAvgScore,
     ScoreStats,
-    CacheKey,
     StringNumberDict,
     TagWithUsageCounts,
     TrendingData,
@@ -85,6 +83,7 @@ import {
     Weights,
     WeightInfoDict,
 } from "./types";
+import { AlgorithmStorageKey, CacheKey } from './Storage';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;

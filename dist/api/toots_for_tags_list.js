@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = __importDefault(require("./api"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const string_helpers_1 = require("../helpers/string_helpers");
-const types_1 = require("../types");
+const Storage_1 = require("../Storage");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const tag_1 = require("./objects/tag");
@@ -23,7 +23,7 @@ class TootsForTagsList {
     static async create(cacheKey) {
         let tootsConfig;
         let tagList;
-        if (cacheKey === types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS) {
+        if (cacheKey === Storage_1.CacheKey.FAVOURITED_HASHTAG_TOOTS) {
             tootsConfig = config_1.config.favouritedTags;
             tagList = await tag_list_1.default.fromFavourites();
             await this.removeUnwantedTags(tagList, tootsConfig);
@@ -32,12 +32,12 @@ class TootsForTagsList {
             const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
             tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
         }
-        else if (cacheKey === types_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
+        else if (cacheKey === Storage_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
             tootsConfig = config_1.config.participatedTags;
             tagList = await tag_list_1.default.fromParticipated();
             await this.removeUnwantedTags(tagList, tootsConfig);
         }
-        else if (cacheKey === types_1.CacheKey.TRENDING_TAG_TOOTS) {
+        else if (cacheKey === Storage_1.CacheKey.TRENDING_TAG_TOOTS) {
             tootsConfig = config_1.config.trending.tags;
             tagList = await tag_list_1.default.fromTrending();
         }

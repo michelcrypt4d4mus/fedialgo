@@ -102,6 +102,7 @@ Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: 
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return types_1.TrendingType; } });
+const Storage_2 = require("./Storage");
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -218,10 +219,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), types_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.PARTICIPATED_TAG_TOOTS), types_1.CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(types_1.CacheKey.TRENDING_TAG_TOOTS), types_1.CacheKey.TRENDING_TAG_TOOTS),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(Storage_2.CacheKey.FAVOURITED_HASHTAG_TOOTS), Storage_2.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(Storage_2.CacheKey.PARTICIPATED_TAG_TOOTS), Storage_2.CacheKey.PARTICIPATED_TAG_TOOTS),
+            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(Storage_2.CacheKey.TRENDING_TAG_TOOTS), Storage_2.CacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), Storage_2.CacheKey.FEDIVERSE_TRENDING_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
@@ -341,7 +342,7 @@ class TheAlgorithm {
         api_1.default.instance.reset();
         await Storage_1.default.clearAll();
         if (complete) {
-            await Storage_1.default.remove(types_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
+            await Storage_1.default.remove(Storage_2.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
         }
         else {
             await this.loadCachedData();
@@ -482,8 +483,8 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
-        this.feed = await Storage_1.default.getCoerced(types_1.CacheKey.TIMELINE_TOOTS);
-        this.homeFeed = await Storage_1.default.getCoerced(types_1.CacheKey.HOME_TIMELINE_TOOTS);
+        this.feed = await Storage_1.default.getCoerced(Storage_2.CacheKey.TIMELINE_TOOTS);
+        this.homeFeed = await Storage_1.default.getCoerced(Storage_2.CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
@@ -547,7 +548,7 @@ class TheAlgorithm {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)('scoreAndFilterFeed()')}`);
-        await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
+        await Storage_1.default.set(Storage_2.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
@@ -604,7 +605,7 @@ class TheAlgorithm {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
             this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage_1.default.set(types_1.CacheKey.TIMELINE_TOOTS, this.feed);
+            await Storage_1.default.set(Storage_2.CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {

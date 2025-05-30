@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = void 0;
+exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -47,19 +47,51 @@ const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const math_helper_2 = require("./helpers/math_helper");
-const types_1 = require("./types");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,
     storeName: `${string_helpers_1.FEDIALGO}_user_data`,
 });
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
-exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(types_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
+// Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
+// Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
+var CacheKey;
+(function (CacheKey) {
+    CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
+    CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
+    CacheKey["FAVOURITED_HASHTAG_TOOTS"] = "FavouritedHashtagToots";
+    CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
+    CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
+    CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
+    CacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
+    CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
+    CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
+    CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
+    CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
+    CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
+    CacheKey["NOTIFICATIONS"] = "Notifications";
+    CacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
+    CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
+    CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
+    CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
+    CacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
+})(CacheKey || (exports.CacheKey = CacheKey = {}));
+;
+var AlgorithmStorageKey;
+(function (AlgorithmStorageKey) {
+    AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
+    AlgorithmStorageKey["FILTERS"] = "Filters";
+    AlgorithmStorageKey["USER"] = "FedialgoUser";
+    AlgorithmStorageKey["WEIGHTS"] = "Weights";
+})(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
+;
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
+exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
+// Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
 const STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
-    types_1.CacheKey.NOTIFICATIONS,
-    types_1.CacheKey.SERVER_SIDE_FILTERS,
+    CacheKey.NOTIFICATIONS,
+    CacheKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
 const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
@@ -108,18 +140,18 @@ class Storage {
     }
     // Get the user's saved timeline filter settings
     static async getFilters() {
-        const filters = await this.get(types_1.AlgorithmStorageKey.FILTERS);
+        const filters = await this.get(AlgorithmStorageKey.FILTERS);
         if (!filters)
             return null;
         try {
             if ((0, feed_filters_1.repairFilterSettings)(filters)) {
                 logger.warn(`Repaired old filter settings, updating...`);
-                await this.set(types_1.AlgorithmStorageKey.FILTERS, filters);
+                await this.set(AlgorithmStorageKey.FILTERS, filters);
             }
         }
         catch (e) {
             logger.error(`Error repairing filter settings, returning null:`, e);
-            await this.remove(types_1.AlgorithmStorageKey.FILTERS);
+            await this.remove(AlgorithmStorageKey.FILTERS);
             return null;
         }
         logger.debug(`getFilters() loaded filters from storage:`, filters);
@@ -138,20 +170,20 @@ class Storage {
     }
     // Get trending tags, toots, and links as a single TrendingData object
     static async getTrendingData() {
-        const servers = (await this.get(types_1.CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
-        const trendingTags = await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
+        const servers = (await this.get(CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
+        const trendingTags = await this.getCoerced(CacheKey.FEDIVERSE_TRENDING_TAGS);
         const trendingTagList = new tag_list_1.default(trendingTags);
         trendingTagList.removeInvalidTrendingTags(); // TODO: sucks to do this here...
         return {
-            links: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
+            links: await this.getCoerced(CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers,
             tags: trendingTagList.topTags(),
-            toots: await this.getCoerced(types_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            toots: await this.getCoerced(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
     // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeights() {
-        let weights = await this.get(types_1.AlgorithmStorageKey.WEIGHTS);
+        let weights = await this.get(AlgorithmStorageKey.WEIGHTS);
         if (!weights)
             return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
         let shouldSave = false;
@@ -212,25 +244,25 @@ class Storage {
     // Get a collection of information about the user's followed accounts, tags, blocks, etc.
     static async loadUserData() {
         // TODO: unify blocked and muted account logic?
-        const blockedAccounts = await this.getCoerced(types_1.CacheKey.BLOCKED_ACCOUNTS);
-        const mutedAccounts = await this.getCoerced(types_1.CacheKey.MUTED_ACCOUNTS);
+        const blockedAccounts = await this.getCoerced(CacheKey.BLOCKED_ACCOUNTS);
+        const mutedAccounts = await this.getCoerced(CacheKey.MUTED_ACCOUNTS);
         return user_data_1.default.buildFromData({
-            favouritedToots: await this.getCoerced(types_1.CacheKey.FAVOURITED_TOOTS),
-            followedAccounts: await this.getCoerced(types_1.CacheKey.FOLLOWED_ACCOUNTS),
-            followedTags: await this.getCoerced(types_1.CacheKey.FOLLOWED_TAGS),
+            favouritedToots: await this.getCoerced(CacheKey.FAVOURITED_TOOTS),
+            followedAccounts: await this.getCoerced(CacheKey.FOLLOWED_ACCOUNTS),
+            followedTags: await this.getCoerced(CacheKey.FOLLOWED_TAGS),
             mutedAccounts: mutedAccounts.concat(blockedAccounts).map((a) => account_1.default.build(a)),
-            recentToots: await this.getCoerced(types_1.CacheKey.RECENT_USER_TOOTS),
-            serverSideFilters: await this.getCoerced(types_1.CacheKey.SERVER_SIDE_FILTERS),
+            recentToots: await this.getCoerced(CacheKey.RECENT_USER_TOOTS),
+            serverSideFilters: await this.getCoerced(CacheKey.SERVER_SIDE_FILTERS),
         });
     }
     static async logAppOpen(user) {
         await Storage.setIdentity(user);
         const numAppOpens = (await this.getNumAppOpens()) + 1;
-        await this.set(types_1.AlgorithmStorageKey.APP_OPENS, numAppOpens);
+        await this.set(AlgorithmStorageKey.APP_OPENS, numAppOpens);
     }
     // Delete the value at the given key (with the user ID as a prefix)
     static async remove(key) {
-        const storageKey = key == types_1.AlgorithmStorageKey.USER ? key : await this.buildKey(key);
+        const storageKey = key == AlgorithmStorageKey.USER ? key : await this.buildKey(key);
         logger.log(`Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }
@@ -249,22 +281,22 @@ class Storage {
             booleanFilterArgs: Object.values(filters.booleanFilters).map(section => section.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
-        await this.set(types_1.AlgorithmStorageKey.FILTERS, filterSettings);
+        await this.set(AlgorithmStorageKey.FILTERS, filterSettings);
     }
     static async setWeightings(userWeightings) {
-        await this.set(types_1.AlgorithmStorageKey.WEIGHTS, userWeightings);
+        await this.set(AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
     // Dump information about the size of the data stored in localForage
     static async storedObjsInfo() {
-        const keyStrings = Object.values(types_1.CacheKey);
+        const keyStrings = Object.values(CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
-        storedData[types_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
-        logger.log(`Loaded user identity:`, storedData[types_1.AlgorithmStorageKey.USER]);
+        storedData[AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
+        logger.log(`Loaded user identity:`, storedData[AlgorithmStorageKey.USER]);
         let totalBytes = 0;
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
-                const value = key == types_1.AlgorithmStorageKey.USER ? obj : obj.value;
+                const value = key == AlgorithmStorageKey.USER ? obj : obj.value;
                 const sizes = new math_helper_1.BytesDict();
                 const sizeInBytes = (0, math_helper_2.sizeOf)(value, sizes);
                 totalBytes += sizeInBytes;
@@ -341,12 +373,12 @@ class Storage {
     }
     // Get the user identity from storage
     static async getIdentity() {
-        const user = await localforage_1.default.getItem(types_1.AlgorithmStorageKey.USER);
+        const user = await localforage_1.default.getItem(AlgorithmStorageKey.USER);
         return user ? (0, class_transformer_1.plainToInstance)(account_1.default, user) : null;
     }
     // Get the number of times the app has been opened by this user
     static async getNumAppOpens() {
-        return await this.get(types_1.AlgorithmStorageKey.APP_OPENS) ?? 0;
+        return await this.get(AlgorithmStorageKey.APP_OPENS) ?? 0;
     }
     // Get the raw StorableWithTimestamp object
     static async getStorableWithTimestamp(key) {
@@ -360,7 +392,7 @@ class Storage {
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
-        const timelineToots = await this.get(types_1.CacheKey.TIMELINE_TOOTS);
+        const timelineToots = await this.get(CacheKey.TIMELINE_TOOTS);
         if (!timelineToots)
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
@@ -387,7 +419,7 @@ class Storage {
     // TODO: the storage key is not prepended with the user ID (maybe that's OK?)
     static async setIdentity(user) {
         logger.trace(`Setting fedialgo user identity to:`, user);
-        await localforage_1.default.setItem(types_1.AlgorithmStorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
+        await localforage_1.default.setItem(AlgorithmStorageKey.USER, (0, class_transformer_1.instanceToPlain)(user));
     }
     static async updatedAt(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);

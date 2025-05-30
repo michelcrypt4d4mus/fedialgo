@@ -2,7 +2,8 @@
  * Centralized location for non-user configurable settings.
  */
 import { ComponentLogger } from "./helpers/log_helpers";
-import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, CacheKey } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeightInfoDict } from "./types";
+import { CacheKey } from './Storage';
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
 import { NonScoreWeightName } from './scorer/scorer';

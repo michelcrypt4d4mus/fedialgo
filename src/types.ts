@@ -9,38 +9,7 @@ import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/b
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-
-// Keys that are valid for local browser storage.
-// Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
-export enum CacheKey {
-    BLOCKED_ACCOUNTS = 'BlockedAccounts',
-    FAVOURITED_TOOTS = 'FavouritedToots',
-    FAVOURITED_HASHTAG_TOOTS = 'FavouritedHashtagToots',
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
-    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
-    HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',  // Just toots that are in the home timeline (followed accounts + tags)
-    MUTED_ACCOUNTS = 'MutedAccounts',
-    NOTIFICATIONS = 'Notifications',
-    PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
-    RECENT_USER_TOOTS = 'RecentUserToots',
-    SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',  // The entire time line (home timeline + trending toots etc.)
-    TRENDING_TAG_TOOTS = 'TrendingTagToots',
-};
-
-export enum AlgorithmStorageKey {
-    APP_OPENS = 'AppOpens',
-    FILTERS = 'Filters',
-    USER = 'FedialgoUser',
-    WEIGHTS = 'Weights',
-};
-
-export type StorageKey = AlgorithmStorageKey | CacheKey;
+import { CacheKey } from './Storage';
 
 export const FEDIVERSE_KEYS = [
     CacheKey.FEDIVERSE_POPULAR_SERVERS,

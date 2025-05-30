@@ -12,7 +12,8 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "..
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { ApiMutex, CacheKey, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList } from "../types";
+import { ApiMutex, MastodonApiObject, MastodonObjWithID, MastodonTag, StatusList } from "../types";
+import { CacheKey } from '../Storage';
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";

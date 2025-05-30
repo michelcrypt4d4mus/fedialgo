@@ -1,43 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
-// Keys that are valid for local browser storage.
-// Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
-var CacheKey;
-(function (CacheKey) {
-    CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
-    CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
-    CacheKey["FAVOURITED_HASHTAG_TOOTS"] = "FavouritedHashtagToots";
-    CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
-    CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
-    CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
-    CacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
-    CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
-    CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
-    CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
-    CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
-    CacheKey["NOTIFICATIONS"] = "Notifications";
-    CacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
-    CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
-    CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
-    CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
-    CacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
-})(CacheKey || (exports.CacheKey = CacheKey = {}));
-;
-var AlgorithmStorageKey;
-(function (AlgorithmStorageKey) {
-    AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
-    AlgorithmStorageKey["FILTERS"] = "Filters";
-    AlgorithmStorageKey["USER"] = "FedialgoUser";
-    AlgorithmStorageKey["WEIGHTS"] = "Weights";
-})(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
-;
+exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = void 0;
+const Storage_1 = require("./Storage");
 exports.FEDIVERSE_KEYS = [
-    CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    CacheKey.FEDIVERSE_TRENDING_LINKS,
-    CacheKey.FEDIVERSE_TRENDING_TAGS,
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
+    Storage_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+    Storage_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
 ];
 // Self explanatory
 var MediaCategory;

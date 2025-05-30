@@ -20,7 +20,7 @@ import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
-import { type WeightName } from './scorer/scorer';
+import { ScoreName, type WeightName } from './scorer/scorer';
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -33,9 +33,6 @@ import {
     type TrendingLink,
     type TrendingData,
     type Weights,
-    AlgorithmStorageKey,
-    CacheKey,
-    StorageKey,
 } from "./types";
 
 // Configure localForage to use WebSQL as the driver
@@ -43,6 +40,38 @@ localForage.config({
     name        : FEDIALGO,
     storeName   : `${FEDIALGO}_user_data`,
 });
+
+// Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
+// Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
+export enum CacheKey {
+    BLOCKED_ACCOUNTS = 'BlockedAccounts',
+    FAVOURITED_TOOTS = 'FavouritedToots',
+    FAVOURITED_HASHTAG_TOOTS = 'FavouritedHashtagToots',
+    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
+    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
+    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
+    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
+    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
+    FOLLOWED_TAGS = ScoreName.FOLLOWED_TAGS,
+    HASHTAG_TOOTS = 'HashtagToots',// TODO: there's nothing actually stored here but it's a flag for Toot serialization
+    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',// Just toots that are in the home timeline (followed accounts + tags)
+    MUTED_ACCOUNTS = 'MutedAccounts',
+    NOTIFICATIONS = 'Notifications',
+    PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
+    RECENT_USER_TOOTS = 'RecentUserToots',
+    SERVER_SIDE_FILTERS = 'ServerFilters',
+    TIMELINE_TOOTS = 'TimelineToots',// The entire time line (home timeline + trending toots etc.)
+    TRENDING_TAG_TOOTS = 'TrendingTagToots'
+};
+
+export enum AlgorithmStorageKey {
+    APP_OPENS = 'AppOpens',
+    FILTERS = 'Filters',
+    USER = 'FedialgoUser',
+    WEIGHTS = 'Weights'
+};
+
+type StorageKey = AlgorithmStorageKey | CacheKey;
 
 type StorableObjWithStaleness = {
     isStale: boolean,
@@ -60,6 +89,7 @@ export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey)
     [] as CacheKey[]
 );
 
+// Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
 const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
     ...STORAGE_KEYS_WITH_TOOTS,
     ...STORAGE_KEYS_WITH_ACCOUNTS,

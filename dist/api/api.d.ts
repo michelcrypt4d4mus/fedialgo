@@ -2,7 +2,8 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { CacheKey, MastodonTag } from "../types";
+import { MastodonTag } from "../types";
+import { CacheKey } from '../Storage';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { WaitTime } from '../helpers/log_helpers';
 interface ApiParams {
