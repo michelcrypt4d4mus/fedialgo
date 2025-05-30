@@ -122,15 +122,16 @@ class ComponentLogger {
         this.logPrefix = (0, string_helpers_1.bracketed)(componentName) + (subtitle ? ` <${subtitle}>` : "");
         this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
     }
-    // If the first argument is a string it will check whether the 2nd arg is an Error and do
-    // some special formatting.
+    // If first arg is a string, check if 2nd arg is an Error and do some special formatting
+    // Returns the error message in case it's of use.
     error(msg, ...args) {
         if (msg instanceof Error) {
             console.error(this.makeMsg(msg.message), msg, ...args);
-            return;
+            return msg.message;
         }
         msg = this.getErrorMessage(msg, ...args);
         console.error(this.makeMsg(msg), ...args);
+        return msg;
     }
     // Also checks the first argument for an Error but first arg must be a string
     warn(msg, ...args) {
