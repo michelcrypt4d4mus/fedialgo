@@ -21,6 +21,7 @@ import NumFavouritesScorer from "./scorer/feature/num_favourites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
+import TagList from './api/tag_list';
 import Toot from './api/objects/toot';
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
@@ -107,5 +108,5 @@ declare class TheAlgorithm {
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
-export { type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, ComponentLogger, NumericFilter, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
+export { type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, ComponentLogger, NumericFilter, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isDebugMode, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 sortKeysByValue, timeString, };

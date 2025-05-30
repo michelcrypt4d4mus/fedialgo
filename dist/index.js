@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.NumericFilter = exports.ComponentLogger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.ComponentLogger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -63,6 +63,8 @@ const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoo
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
+const tag_list_1 = __importDefault(require("./api/tag_list"));
+exports.TagList = tag_list_1.default;
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
 const toots_for_tags_list_1 = __importDefault(require("./api/toots_for_tags_list"));

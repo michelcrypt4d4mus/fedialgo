@@ -31,6 +31,7 @@ import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage from "./Storage";
+import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TootsForTagsList from "./api/toots_for_tags_list";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
@@ -707,6 +708,7 @@ export {
     BooleanFilter,
     ComponentLogger,
     NumericFilter,
+    TagList,
     Toot,
     // Enums
     BooleanFilterName,
