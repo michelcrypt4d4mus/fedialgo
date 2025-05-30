@@ -122,10 +122,19 @@ class ComponentLogger {
         this.logPrefix = (0, string_helpers_1.bracketed)(componentName) + (subtitle ? ` <${subtitle}>` : "");
         this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
     }
+    // If the first argument is a string it will check whether the 2nd arg is an Error and do
+    // some special formatting.
     error(msg, ...args) {
+        if (msg instanceof Error) {
+            console.error(this.makeMsg(msg.message), msg, ...args);
+            return;
+        }
+        msg = this.getErrorMessage(msg, ...args);
         console.error(this.makeMsg(msg), ...args);
     }
+    // Also checks the first argument for an Error but first arg must be a string
     warn(msg, ...args) {
+        msg = this.getErrorMessage(msg, ...args);
         console.warn(this.makeMsg(msg), ...args);
     }
     log(msg, ...args) {
@@ -137,11 +146,21 @@ class ComponentLogger {
     debug(msg, ...args) {
         console.debug(this.makeMsg(msg), ...args);
     }
-    // Only writes logs in debug mode
+    // Only writes logs when FEDIALGO_DEBUG env var is set
     trace(msg, ...args) {
-        if (!environment_helpers_1.isDebugMode)
-            return;
-        this.debug(msg, ...args);
+        environment_helpers_1.isDebugMode && this.debug(msg, ...args);
+    }
+    // Mutates args array to pop the first Error if it exists
+    getErrorMessage(msg, ...args) {
+        if (args[0] instanceof Error) {
+            return this.makeErrorMsg(args.shift(), msg);
+        }
+        else {
+            return msg;
+        }
+    }
+    makeErrorMsg(error, msg) {
+        return msg ? `${msg} (error.message="${error.message}")` : error.message;
     }
     makeMsg(msg) {
         return `${this.logPrefix} ${msg}`;
