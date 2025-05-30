@@ -125,12 +125,17 @@ class BooleanFilter extends toot_filter_1.default {
     isThisSelectionEnabled(optionName) {
         return this.validValues.includes(optionName);
     }
+    // Return the number of options in the filter
+    numOptions() {
+        return Object.keys(this.optionInfo).length;
+    }
     // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo) {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
         this.optionInfo = { ...optionInfo }; // TODO: new object ID triggers useMemo() in the demo app, not great
     }
+    // Return the options as entries arrays sorted by value from highest to lowest
     sortedByValue() {
         return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
             acc.push([key, this.optionInfo[key]]);

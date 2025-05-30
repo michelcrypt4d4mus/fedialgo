@@ -140,6 +140,11 @@ export default class BooleanFilter extends TootFilter {
         return this.validValues.includes(optionName);
     }
 
+    // Return the number of options in the filter
+    numOptions(): number {
+        return Object.keys(this.optionInfo).length;
+    }
+
     // Update the filter with the possible options that can be selected for validValues
     setOptions(optionInfo: StringNumberDict) {
         // Filter out any options that are no longer valid

@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Add `sortedByValue()` method to BooleanFilter
+* Add `sortedByValue()` and `numOptions()` methods to `BooleanFilter`
 * Export `TagList` class
 
 ### v0.54.20 / v0.54.21
