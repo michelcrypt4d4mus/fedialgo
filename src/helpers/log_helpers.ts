@@ -10,7 +10,6 @@ import { TELEMETRY, bracketed, prefixed } from './string_helpers';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
-export const CLEANUP_FEED = "cleanupFeed()";
 export const PREP_SCORERS = "prepareScorers()";
 export const TRIGGER_FEED = "triggerFeedUpdate()";
 

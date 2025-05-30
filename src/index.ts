@@ -578,13 +578,14 @@ class TheAlgorithm {
 
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     private async prepareScorers(force?: boolean): Promise<void> {
-        const releaseMutex = await lockExecution(this.prepareScorersMutex, PREP_SCORERS);
+        const logPrefix = `${this.logger.logPrefix} ${arrowed(PREP_SCORERS)}`
+        const releaseMutex = await lockExecution(this.prepareScorersMutex, logPrefix);
 
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                this.logTelemetry(PREP_SCORERS, `${this.featureScorers.length} scorers ready`, startedAt);
+                this.logTelemetry(logPrefix, `${this.featureScorers.length} scorers ready`, startedAt);
             }
         } finally {
             releaseMutex();

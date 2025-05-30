@@ -1,13 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponentLogger = exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.CLEANUP_FEED = exports.BACKFILL_FEED = void 0;
+exports.ComponentLogger = exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 const string_helpers_1 = require("./string_helpers");
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
-exports.CLEANUP_FEED = "cleanupFeed()";
 exports.PREP_SCORERS = "prepareScorers()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock

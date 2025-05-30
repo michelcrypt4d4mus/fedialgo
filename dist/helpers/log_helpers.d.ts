@@ -1,6 +1,5 @@
 import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
-export declare const CLEANUP_FEED = "cleanupFeed()";
 export declare const PREP_SCORERS = "prepareScorers()";
 export declare const TRIGGER_FEED = "triggerFeedUpdate()";
 export declare function lockExecution(locker: Mutex | Semaphore, logPrefix: string): Promise<MutexInterface.Releaser | SemaphoreInterface.Releaser>;
