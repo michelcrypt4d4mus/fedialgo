@@ -89,6 +89,9 @@ const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
 const language_helper_1 = require("./helpers/language_helper");
 Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: function () { return language_helper_1.LANGUAGE_CODES; } });
+const scorer_2 = require("./scorer/scorer");
+Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return scorer_2.NonScoreWeightName; } });
+Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return scorer_2.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
 Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return log_helpers_1.ComponentLogger; } });
@@ -98,8 +101,6 @@ Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function (
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 const types_1 = require("./types");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return types_1.MediaCategory; } });
-Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return types_1.NonScoreWeightName; } });
-Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return types_1.ScoreName; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return types_1.TrendingType; } });
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
@@ -179,7 +180,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(types_1.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
+    }, Object.values(scorer_2.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
         nonScoreWeights[weightName] = Object.assign({}, config_1.config.scoring.nonScoreWeightsConfig[weightName]);
         nonScoreWeights[weightName].minValue = config_1.config.scoring.nonScoreWeightMinValue;
         return nonScoreWeights;

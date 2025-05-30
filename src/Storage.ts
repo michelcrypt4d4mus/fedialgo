@@ -11,32 +11,31 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { BytesDict, sizeFromBufferByteLength, sizeFromTextEncoder } from "./helpers/math_helper";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
+import { BytesDict, sizeFromBufferByteLength, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
-import { sizeOf } from './helpers/math_helper';
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
-import { isNumber } from "./helpers/math_helper";
+import { isNumber, sizeOf } from "./helpers/math_helper";
+import { type WeightName } from './scorer/scorer';
 import {
-    CacheKey,
-    FeedFilterSettings,
-    FeedFilterSettingsSerialized,
-    MastodonObjWithID,
+    type FeedFilterSettings,
+    type FeedFilterSettingsSerialized,
+    type MastodonInstances,
+    type MastodonObjWithID,
+    type StorableObj,
+    type StorableObjWithCache,
+    type StorableWithTimestamp,
+    type TagWithUsageCounts,
+    type TrendingLink,
+    type TrendingData,
+    type Weights,
     AlgorithmStorageKey,
-    StorableObj,
-    StorableObjWithCache,
-    StorableWithTimestamp,
+    CacheKey,
     StorageKey,
-    TagWithUsageCounts,
-    TrendingLink,
-    TrendingData,
-    WeightName,
-    Weights,
-    MastodonInstances,
 } from "./types";
 
 // Configure localForage to use WebSQL as the driver

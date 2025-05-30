@@ -5,7 +5,7 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { ScoreName } from "../../types";
+import { ScoreName } from '../scorer';
 
 
 export default class NumFavouritesScorer extends FeatureScorer {

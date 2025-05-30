@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score based on the numTimesShown, which is managed by the client app.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class AlreadyShownScorer extends feature_scorer_1.default {
     description = 'Disfavour toots marked as already seen';
     constructor() {
-        super(types_1.ScoreName.ALREADY_SHOWN);
+        super(scorer_1.ScoreName.ALREADY_SHOWN);
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {

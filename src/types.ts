@@ -7,43 +7,8 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer from './scorer/scorer';
+import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-
-export enum ScoreName {
-    ALREADY_SHOWN = 'AlreadyShown',
-    CHAOS = 'Chaos',
-    DIVERSITY = 'Diversity',
-    FAVOURITED_ACCOUNTS = 'FavouritedAccounts',
-    FAVOURITED_TAGS = 'FavouritedTags',
-    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = 'FollowedTags',
-    IMAGE_ATTACHMENTS = 'ImageAttachments',
-    INTERACTIONS = 'Interactions',
-    MENTIONS_FOLLOWED = 'MentionsFollowed',
-    MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
-    MOST_RETOOTED_ACCOUNTS = 'MostRetootedAccounts',
-    NUM_FAVOURITES = 'NumFavourites',
-    NUM_REPLIES = 'NumReplies',
-    NUM_RETOOTS = 'NumRetoots',
-    PARTICIPATED_TAGS = 'ParticipatedTags',
-    RETOOTED_IN_FEED = 'RetootedInFeed',
-    TRENDING_LINKS = 'TrendingLinks',
-    TRENDING_TAGS = "TrendingTags",
-    TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = 'VideoAttachments',
-};
-
-// Order currently influences the order of the score weighting sliders in the demo app
-export enum NonScoreWeightName {
-    TIME_DECAY = 'TimeDecay',
-    TRENDING = 'Trending',
-    OUTLIER_DAMPENER = 'OutlierDampener',
-};
-
-// Names of the user adjustable score weightings
-export type WeightName = ScoreName | NonScoreWeightName;
-
 
 // Keys that are valid for local browser storage.
 // Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"

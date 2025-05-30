@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score the number of video attachments in the toot.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class VideoAttachmentScorer extends feature_scorer_1.default {
     description = "Favour video attachments";
     constructor() {
-        super(types_1.ScoreName.VIDEO_ATTACHMENTS);
+        super(scorer_1.ScoreName.VIDEO_ATTACHMENTS);
     }
     async _score(toot) {
         return toot.realToot().videoAttachments.length;

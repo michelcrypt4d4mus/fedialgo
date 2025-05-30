@@ -1,39 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = exports.NonScoreWeightName = exports.ScoreName = void 0;
-var ScoreName;
-(function (ScoreName) {
-    ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
-    ScoreName["CHAOS"] = "Chaos";
-    ScoreName["DIVERSITY"] = "Diversity";
-    ScoreName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
-    ScoreName["FAVOURITED_TAGS"] = "FavouritedTags";
-    ScoreName["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    ScoreName["FOLLOWED_TAGS"] = "FollowedTags";
-    ScoreName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
-    ScoreName["INTERACTIONS"] = "Interactions";
-    ScoreName["MENTIONS_FOLLOWED"] = "MentionsFollowed";
-    ScoreName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
-    ScoreName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
-    ScoreName["NUM_FAVOURITES"] = "NumFavourites";
-    ScoreName["NUM_REPLIES"] = "NumReplies";
-    ScoreName["NUM_RETOOTS"] = "NumRetoots";
-    ScoreName["PARTICIPATED_TAGS"] = "ParticipatedTags";
-    ScoreName["RETOOTED_IN_FEED"] = "RetootedInFeed";
-    ScoreName["TRENDING_LINKS"] = "TrendingLinks";
-    ScoreName["TRENDING_TAGS"] = "TrendingTags";
-    ScoreName["TRENDING_TOOTS"] = "TrendingToots";
-    ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
-})(ScoreName || (exports.ScoreName = ScoreName = {}));
-;
-// Order currently influences the order of the score weighting sliders in the demo app
-var NonScoreWeightName;
-(function (NonScoreWeightName) {
-    NonScoreWeightName["TIME_DECAY"] = "TimeDecay";
-    NonScoreWeightName["TRENDING"] = "Trending";
-    NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
-})(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
-;
+exports.TrendingType = exports.MediaCategory = exports.FEDIVERSE_KEYS = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
 // Keys that are valid for local browser storage.
 // Keys that contain Toot objects should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 var CacheKey;

@@ -10,11 +10,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";
     constructor() {
-        super(types_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
+        super(scorer_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
     }
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();

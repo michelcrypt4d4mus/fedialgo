@@ -3,7 +3,8 @@
  */
 import Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
-import { MinMaxAvgScore, ScoreName, ScoresStats, WeightedScore } from "../types";
+import { MinMaxAvgScore, ScoresStats, WeightedScore } from "../types";
+import { ScoreName } from '../scorer/scorer';
 import { suffixedInt } from "./string_helpers";
 import { traceLog } from "./log_helpers";
 

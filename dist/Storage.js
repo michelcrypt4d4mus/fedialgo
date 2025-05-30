@@ -38,16 +38,15 @@ const tag_list_1 = __importDefault(require("./api/tag_list"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
-const math_helper_1 = require("./helpers/math_helper");
 const feed_filters_1 = require("./filters/feed_filters");
+const math_helper_1 = require("./helpers/math_helper");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
-const math_helper_2 = require("./helpers/math_helper");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const math_helper_3 = require("./helpers/math_helper");
+const math_helper_2 = require("./helpers/math_helper");
 const types_1 = require("./types");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
@@ -159,7 +158,7 @@ class Storage {
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
-            if (!(0, math_helper_3.isNumber)(value)) {
+            if (!(0, math_helper_2.isNumber)(value)) {
                 logger.warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;

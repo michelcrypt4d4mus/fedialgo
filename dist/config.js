@@ -8,6 +8,7 @@ const log_helpers_1 = require("./helpers/log_helpers");
 const types_1 = require("./types");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_2 = require("./helpers/log_helpers");
+const scorer_1 = require("./scorer/scorer");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
@@ -269,16 +270,16 @@ class Config {
         nonScoreWeightMinValue: 0.001,
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
-            [types_1.NonScoreWeightName.TIME_DECAY]: {
+            [scorer_1.NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
             },
             // Trending data has a lot of reblogs, likes, replies, etc. giving disproportionately high scores.
             // To adjust for this we multiply those scores by the TRENDING weighting value.
-            [types_1.NonScoreWeightName.TRENDING]: {
+            [scorer_1.NonScoreWeightName.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-            [types_1.NonScoreWeightName.OUTLIER_DAMPENER]: {
+            [scorer_1.NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
             },
         },

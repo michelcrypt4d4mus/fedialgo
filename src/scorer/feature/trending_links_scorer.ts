@@ -5,7 +5,8 @@
 import FeatureScorer from '../feature_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';
-import { ScoreName, StringNumberDict } from "../../types";
+import { StringNumberDict } from "../../types";
+import { ScoreName } from '../scorer';
 import { sumArray } from '../../helpers/collection_helpers';
 
 

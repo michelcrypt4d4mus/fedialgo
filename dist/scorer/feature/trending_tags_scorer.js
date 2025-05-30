@@ -9,12 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const config_1 = require("../../config");
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class TrendingTagsScorer extends feature_scorer_1.default {
     description = "Favour hashtags that are trending in the Fediverse";
     constructor() {
-        super(types_1.ScoreName.TRENDING_TAGS);
+        super(scorer_1.ScoreName.TRENDING_TAGS);
     }
     async _score(toot) {
         const tags = toot.realToot().trendingTags || [];

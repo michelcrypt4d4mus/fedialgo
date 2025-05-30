@@ -11,11 +11,11 @@ const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const toot_1 = require("../../api/objects/toot");
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class DiversityFeedScorer extends feed_scorer_1.default {
     description = "Disfavour accounts that are tooting a lot right now";
     constructor() {
-        super(types_1.ScoreName.DIVERSITY);
+        super(scorer_1.ScoreName.DIVERSITY);
     }
     // Count toots by account (but negative instead of positive count)
     extractScoringData(feed) {

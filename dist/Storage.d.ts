@@ -1,6 +1,6 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { CacheKey, FeedFilterSettings, StorableObj, StorableObjWithCache, StorageKey, TrendingData, Weights } from "./types";
+import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights, CacheKey, StorageKey } from "./types";
 type StorableObjWithStaleness = {
     isStale: boolean;
     obj: StorableObjWithCache;

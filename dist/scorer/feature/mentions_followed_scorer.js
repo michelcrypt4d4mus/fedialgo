@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class MentionsFollowedScorer extends feature_scorer_1.default {
     description = "Favour toots that mention accounts you follow";
     constructor() {
-        super(types_1.ScoreName.MENTIONS_FOLLOWED);
+        super(scorer_1.ScoreName.MENTIONS_FOLLOWED);
     }
     // Build simple dictionary of followed accounts (key is webfingerURI, value is 1)
     async prepareScoreData() {

@@ -49,7 +49,6 @@ import {
     KeysOfValueType,
     MastodonTag,
     MediaCategory,
-    ScoreName,
     StatusList,
     TagWithUsageCounts,
     TootLike,
@@ -58,6 +57,7 @@ import {
     TrendingLink,
     WeightedScore,
 } from "../../types";
+import { ScoreName } from '../../scorer/scorer';
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {

@@ -33,9 +33,10 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { isDebugMode } from './helpers/environment_helpers';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
+import { NonScoreWeightName, ScoreName, type WeightName } from './scorer/scorer';
 import { ComponentLogger } from './helpers/log_helpers';
 import { isValueInStringEnum, makeChunks, makePercentileChunks } from "./helpers/collection_helpers";
-import { FeedFilterSettings, KeysOfValueType, MastodonInstance, MastodonTag, MediaCategory, MinMaxAvgScore, NonScoreWeightName, ScoreName, ScoreStats, StringNumberDict, TagWithUsageCounts, TrendingData, TrendingLink, TrendingObj, TrendingType, TrendingWithHistory, WeightName, Weights, WeightInfoDict } from "./types";
+import { FeedFilterSettings, KeysOfValueType, MastodonInstance, MastodonTag, MediaCategory, MinMaxAvgScore, ScoreStats, StringNumberDict, TagWithUsageCounts, TrendingData, TrendingLink, TrendingObj, TrendingType, TrendingWithHistory, Weights, WeightInfoDict } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {

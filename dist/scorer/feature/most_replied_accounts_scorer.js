@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {
     description = "Favour accounts you often reply to";
     constructor() {
-        super(types_1.ScoreName.MOST_REPLIED_ACCOUNTS);
+        super(scorer_1.ScoreName.MOST_REPLIED_ACCOUNTS);
     }
     // Count replied per user. Note that this does NOT pull the Account object because that
     // would require a lot of API calls, so it's just working with the account ID which is NOT

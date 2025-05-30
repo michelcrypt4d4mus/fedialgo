@@ -5,7 +5,8 @@ import Account from '../../api/objects/account';
 import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
-import { ScoreName, StringNumberDict } from '../../types';
+import { StringNumberDict } from '../../types';
+import { ScoreName } from '../scorer';
 
 
 export default class MentionsFollowedScorer extends FeatureScorer {

@@ -3,8 +3,8 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
+import { type TagWithUsageCounts } from "../../types";
 import { detectHashtagLanguage } from "../../helpers/language_helper";
-import { MastodonTag, TagWithUsageCounts } from "../../types";
 import { removeDiacritics } from "../../helpers/string_helpers";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";

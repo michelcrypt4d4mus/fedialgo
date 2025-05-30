@@ -2,9 +2,10 @@
  * Centralized location for non-user configurable settings.
  */
 import { ComponentLogger } from "./helpers/log_helpers";
-import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, NonScoreWeightName, CacheKey } from "./types";
+import { FEDIVERSE_KEYS, NonScoreWeightInfoDict, CacheKey } from "./types";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
+import { NonScoreWeightName } from './scorer/scorer';
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;

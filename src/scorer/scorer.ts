@@ -12,16 +12,50 @@ import { ComponentLogger } from '../helpers/log_helpers';
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import {
-    NonScoreWeightName,
-    ScoreName,
-    StringNumberDict,
-    TootScore,
-    TootScores,
-    WeightedScore,
-    WeightInfo,
-    WeightName
+    type StringNumberDict,
+    type TootScore,
+    type TootScores,
+    type WeightedScore,
+    type WeightInfo
 } from "../types";
 
+// There's a scorer for each of these ScoreNames
+export enum ScoreName {
+    ALREADY_SHOWN = 'AlreadyShown',
+    CHAOS = 'Chaos',
+    DIVERSITY = 'Diversity',
+    FAVOURITED_ACCOUNTS = 'FavouritedAccounts',
+    FAVOURITED_TAGS = 'FavouritedTags',
+    FOLLOWED_ACCOUNTS = 'FollowedAccounts',
+    FOLLOWED_TAGS = 'FollowedTags',
+    IMAGE_ATTACHMENTS = 'ImageAttachments',
+    INTERACTIONS = 'Interactions',
+    MENTIONS_FOLLOWED = 'MentionsFollowed',
+    MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
+    MOST_RETOOTED_ACCOUNTS = 'MostRetootedAccounts',
+    NUM_FAVOURITES = 'NumFavourites',
+    NUM_REPLIES = 'NumReplies',
+    NUM_RETOOTS = 'NumRetoots',
+    PARTICIPATED_TAGS = 'ParticipatedTags',
+    RETOOTED_IN_FEED = 'RetootedInFeed',
+    TRENDING_LINKS = 'TrendingLinks',
+    TRENDING_TAGS = "TrendingTags",
+    TRENDING_TOOTS = "TrendingToots",
+    VIDEO_ATTACHMENTS = 'VideoAttachments'
+}
+;
+
+// Order currently influences the order of the score weighting sliders in the demo app
+export enum NonScoreWeightName {
+    TIME_DECAY = 'TimeDecay',
+    TRENDING = 'Trending',
+    OUTLIER_DAMPENER = 'OutlierDampener'
+};
+
+// Names of all the user adjustable score weightings, both those with a Scorer and those without
+export type WeightName = ScoreName | NonScoreWeightName;
+
+// Local constants
 const LOG_PREFIX = "Scorer";
 const scoreLogger = new ComponentLogger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new Mutex();

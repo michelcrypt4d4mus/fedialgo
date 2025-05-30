@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 class InteractionsScorer extends acccount_scorer_1.default {
     description = "Favour accounts that interact with your toots";
     constructor() {
-        super(types_1.ScoreName.INTERACTIONS);
+        super(scorer_1.ScoreName.INTERACTIONS);
     }
     async prepareScoreData() {
         const notifications = await api_1.default.instance.getNotifications();

@@ -47,6 +47,7 @@ import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
+import { NonScoreWeightName, ScoreName, type WeightName } from './scorer/scorer';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     BACKFILL_FEED,
@@ -72,8 +73,6 @@ import {
     MastodonTag,
     MediaCategory,
     MinMaxAvgScore,
-    NonScoreWeightName,
-    ScoreName,
     ScoreStats,
     CacheKey,
     StringNumberDict,
@@ -83,7 +82,6 @@ import {
     TrendingObj,
     TrendingType,
     TrendingWithHistory,
-    WeightName,
     Weights,
     WeightInfoDict,
 } from "./types";

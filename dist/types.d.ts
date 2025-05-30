@@ -3,37 +3,8 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer from './scorer/scorer';
+import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
-export declare enum ScoreName {
-    ALREADY_SHOWN = "AlreadyShown",
-    CHAOS = "Chaos",
-    DIVERSITY = "Diversity",
-    FAVOURITED_ACCOUNTS = "FavouritedAccounts",
-    FAVOURITED_TAGS = "FavouritedTags",
-    FOLLOWED_ACCOUNTS = "FollowedAccounts",
-    FOLLOWED_TAGS = "FollowedTags",
-    IMAGE_ATTACHMENTS = "ImageAttachments",
-    INTERACTIONS = "Interactions",
-    MENTIONS_FOLLOWED = "MentionsFollowed",
-    MOST_REPLIED_ACCOUNTS = "MostRepliedAccounts",
-    MOST_RETOOTED_ACCOUNTS = "MostRetootedAccounts",
-    NUM_FAVOURITES = "NumFavourites",
-    NUM_REPLIES = "NumReplies",
-    NUM_RETOOTS = "NumRetoots",
-    PARTICIPATED_TAGS = "ParticipatedTags",
-    RETOOTED_IN_FEED = "RetootedInFeed",
-    TRENDING_LINKS = "TrendingLinks",
-    TRENDING_TAGS = "TrendingTags",
-    TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = "VideoAttachments"
-}
-export declare enum NonScoreWeightName {
-    TIME_DECAY = "TimeDecay",
-    TRENDING = "Trending",
-    OUTLIER_DAMPENER = "OutlierDampener"
-}
-export type WeightName = ScoreName | NonScoreWeightName;
 export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",

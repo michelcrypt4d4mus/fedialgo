@@ -8,12 +8,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const tag_list_1 = __importDefault(require("../../api/tag_list"));
-const types_1 = require("../../types");
+const scorer_1 = require("../scorer");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class HashtagParticipationScorer extends feature_scorer_1.default {
     description = "Favour hastags you've tooted about";
     constructor() {
-        super(types_1.ScoreName.PARTICIPATED_TAGS);
+        super(scorer_1.ScoreName.PARTICIPATED_TAGS);
     }
     async prepareScoreData() {
         return (await tag_list_1.default.fromParticipated()).numTootsLookupDict();

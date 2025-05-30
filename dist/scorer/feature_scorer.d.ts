@@ -1,5 +1,6 @@
 import Scorer from "./scorer";
-import { ScoreName, StringNumberDict } from "../types";
+import { StringNumberDict } from "../types";
+import { ScoreName } from './scorer';
 export default abstract class FeatureScorer extends Scorer {
     constructor(scoreName: ScoreName);
     fetchRequiredData(): Promise<void>;

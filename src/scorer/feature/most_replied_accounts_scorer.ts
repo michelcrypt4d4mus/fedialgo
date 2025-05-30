@@ -5,7 +5,8 @@ import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
 import { countValues } from '../../helpers/collection_helpers';
-import { ScoreName, StringNumberDict } from '../../types';
+import { StringNumberDict } from '../../types';
+import { ScoreName } from '../scorer';
 
 
 export default class MostRepliedAccountsScorer extends FeatureScorer {
