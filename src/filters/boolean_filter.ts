@@ -165,7 +165,7 @@ export default class BooleanFilter extends TootFilter {
         let options = this.entriesSortedByValue();
 
         if (minValue) {
-            options = options.filter(([k, v]) => v >= minValue || this.validValues.includes(k));
+            options = options.filter(([k, v]) => v >= minValue || this.isThisSelectionEnabled(k));
         }
 
         return options.map(([k, _v]) => k);
