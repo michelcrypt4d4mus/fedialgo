@@ -317,13 +317,13 @@ export default class MastoApi {
             this.hashtagTimelineToots(tag, numToots),
         ]);
 
-        logTrendingTagResults(`${LOG_PREFIX} <getStatusesForTag()> (${tag.name}))`, "both hashtag searches", tagToots.flat(), startedAt);
+        logTrendingTagResults(`(getStatusesForTag(${tag.name}))`, "both hashtag searches", tagToots.flat(), startedAt);
         return tagToots.flat();
     }
 
     // Collect and fully populate / dedup a collection of toots for an array of Tags
     async getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]> {
-        this.logger.log(`<getStatusesForTags()> called for ${tags.length} tags:`, tags.map(t => t.name));
+        this.logger.log(`(getStatusesForTags()) called for ${tags.length} tags:`, tags.map(t => t.name));
         const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag, numTootsPerTag)));
         return tagToots.flat();
     }
@@ -404,7 +404,7 @@ export default class MastoApi {
     //   - maxRecords:    the maximum number of records to fetch
     async searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]> {
         maxRecords = maxRecords || config.api.defaultRecordsPerPage;
-        const logger = getLogger('searchForToots()', searchStr);
+        const logger = getLogger(`searchForToots(${searchStr})`);
         const releaseSemaphore = await lockExecution(this.requestSemphore, logger.logPrefix);
         const query: mastodon.rest.v1.SearchParams = {limit: maxRecords, q: searchStr, type: TrendingType.STATUSES};
         logger.logPrefix += ` (semaphore)`;

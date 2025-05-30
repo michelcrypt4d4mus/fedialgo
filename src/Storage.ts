@@ -194,7 +194,7 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
-        const logPrefix = `<getWithStaleness()> ("${key}")`;
+        const logPrefix = `<${key}> (getWithStaleness())`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
@@ -269,7 +269,7 @@ export default class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = {updatedAt, value: storableValue} as StorableWithTimestamp;
-        logger.trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        logger.trace(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localForage.setItem(storageKey, withTimestamp);
     }
 

@@ -174,7 +174,7 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
-        const logPrefix = `<getWithStaleness()> ("${key}")`;
+        const logPrefix = `<${key}> (getWithStaleness())`;
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
             logger.trace(`${logPrefix} No data found, returning null`);
@@ -241,7 +241,7 @@ class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt, value: storableValue };
-        logger.trace(`Setting value at key: ${storageKey} to value:`, withTimestamp);
+        logger.trace(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Serialize the FeedFilterSettings object

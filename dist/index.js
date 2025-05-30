@@ -429,7 +429,7 @@ class TheAlgorithm {
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logPrefix = (0, string_helpers_1.arrowed)(`finishFeedUpdate()`);
+        const logPrefix = `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)(`finishFeedUpdate()`)}`;
         this.loadingStatus = FINALIZING_SCORES_MSG;
         this.logger.debug(`${logPrefix} ${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
