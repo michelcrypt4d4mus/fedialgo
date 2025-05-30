@@ -382,7 +382,7 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[types_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
     config.api.maxRecordsForFeatureScoring = 2500;
     config.toots.maxTimelineLength = 1500;
-    config.toots.saveChangesIntervalSeconds = 5;
+    config.toots.saveChangesIntervalSeconds = 15;
 }
 ;
 // Heavy load test settings
