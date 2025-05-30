@@ -163,8 +163,8 @@ export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {
 export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;
-    toots: Toot[];
     tags: TagWithUsageCounts[];
+    toots: Toot[];
 };
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
