@@ -485,7 +485,7 @@ class TheAlgorithm {
             this.logTelemetry(logger.logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
         } else {
-            logger.warn(`${TELEMETRY} finished but loadStartedAt is null!`);
+            logger.warn(`finished but loadStartedAt is null!`);
         }
 
         this.loadStartedAt = null;

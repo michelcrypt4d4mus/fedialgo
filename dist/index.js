@@ -444,7 +444,7 @@ class TheAlgorithm {
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
-            logger.warn(`${string_helpers_1.TELEMETRY} finished but loadStartedAt is null!`);
+            logger.warn(`finished but loadStartedAt is null!`);
         }
         this.loadStartedAt = null;
         this.loadingStatus = null;

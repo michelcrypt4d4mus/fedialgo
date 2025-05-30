@@ -258,11 +258,10 @@ class MastodonServer {
             let records = await Storage_1.default.getIfNotStale(key);
             if (!records?.length) {
                 const serverObjs = await this.callForTopServers(serverFxn);
-                logger.trace(`result from all servers:`, serverObjs);
+                // logger.trace(`result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
-                let msg = `**${string_helpers_1.TELEMETRY}** fetched ${records.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`;
-                logger.log(`${msg}`, records);
+                logger.debug(`fetched ${records.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`, records);
                 await Storage_1.default.set(key, records);
             }
             return records;

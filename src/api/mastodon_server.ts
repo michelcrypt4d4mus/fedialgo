@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { bracketed, TELEMETRY } from "../helpers/string_helpers";
+import { bracketed } from "../helpers/string_helpers";
 import { config } from "../config";
 import { ComponentLogger, lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
@@ -35,7 +35,6 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
-import { get } from "lodash";
 
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
@@ -328,11 +327,10 @@ export default class MastodonServer {
 
             if (!records?.length) {
                 const serverObjs = await this.callForTopServers<T[]>(serverFxn);
-                logger.trace(`result from all servers:`, serverObjs);
+                // logger.trace(`result from all servers:`, serverObjs);
                 const flatObjs = Object.values(serverObjs).flat();
                 records = await processingFxn(flatObjs);
-                let msg = `**${TELEMETRY}** fetched ${records.length} unique records ${ageString(startedAt)}`;
-                logger.log(`${msg}`, records);
+                logger.debug(`fetched ${records.length} unique records ${ageString(startedAt)}`, records);
                 await Storage.set(key, records);
             }
 
