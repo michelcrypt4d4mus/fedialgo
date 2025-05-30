@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.54.21
+
 ### v0.54.20
 * Rename `TRENDING_HASHTAGS` to `TRENDING_TAGS` and `PARTICIPATED_HASHTAGS` to `PARTICIPATED_TAGS`
 * (Demo App) Rework / generalize color gradient config for participated hashtags
