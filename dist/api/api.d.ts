@@ -58,6 +58,7 @@ export default class MastoApi {
     private getApiRecords;
     private buildParams;
     private completeParamsWithCache;
+    private handleApiError;
     private buildFromApiObjects;
     private validateFetchParams;
     static throwIfAccessTokenRevoked(error: unknown, msg: string): void;

@@ -545,28 +545,7 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            // TODO: handle rate limiting errors
-            // If the access token was not revoked we need to decide which of any of the rows we have to keep
-            let msg = `Error: "${e}" after ${rows.length} new rows, cache has ${cachedRows.length} rows.`;
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${ageString(startedAt)}. ${msg}`);
-
-            // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-            if (!supportsMinMaxId) {
-                msg += ` Endpoint doesn't support incremental min/max ID.`;
-
-                if (rows.length < cachedRows.length) {
-                    console.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
-                    return cachedRows;  // TODO: this means we skip final processing. Should be ok bc rows are from cache.
-                } else {
-                    // Whereas here we fall through to the final processing.
-                    logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
-                }
-            } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-                logger.warn(`${msg} Merging cached rows with new rows.`);
-                rows = [...cachedRows, ...rows];
-            } else {
-                throw new Error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`, {cause: e});
-            }
+            rows = this.handleApiError<T>(params, rows, startedAt, e);
         } finally {
             releaseMutex?.();
         }
@@ -640,6 +619,39 @@ export default class MastoApi {
 
         this.validateFetchParams<T>(completedParams);
         return completedParams;
+    }
+
+    // If the access token was not revoked we need to decide which of the rows we have to keep
+    // TODO: handle rate limiting errors
+    private handleApiError<T extends MastodonApiObject>(
+        params: FetchParamsComplete<T>,
+        rows: T[],
+        startedAt: Date,
+        err: Error | unknown,
+    ): T[] {
+        const { cacheResult, cacheKey, logger, supportsMinMaxId } = params;
+        const cachedRows = cacheResult!.rows || [];
+        let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        MastoApi.throwIfAccessTokenRevoked(err, `${logger.logPrefix} Failed ${ageString(startedAt)}. ${msg}`);
+
+        // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
+        if (!supportsMinMaxId) {
+            msg += ` Endpoint doesn't support incremental min/max ID.`;
+
+            if (rows.length < cachedRows.length) {
+                logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
+                return cachedRows;
+            } else {
+                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
+                return rows;
+            }
+        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            logger.warn(`${msg} Merging cached rows with new rows.`);
+            return [...cachedRows, ...rows];
+        } else {
+            logger.error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`);
+            return rows;
+        }
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
