@@ -8,9 +8,14 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_KEYS_WITH_UNIQUE_IDS, type CacheTimestamp } from "../Storage";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
+import Storage, {
+    type CacheTimestamp,
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    STORAGE_KEYS_WITH_UNIQUE_IDS,
+} from "../Storage";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
