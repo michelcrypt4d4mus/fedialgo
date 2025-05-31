@@ -88,10 +88,10 @@ interface HomeTimelineParams extends MaxIdParams {
 };
 
 type CacheCheckResult<T> = {
-    rows?: T[] | null;            // Cached rows if they exist
     isStale?: boolean;            // True if the cached data is stale
     minMaxId?: MinMaxID | null;   // If the request supports min/max ID, the min/max ID in the cache
     newMaxRecords?: number;       // If the request has moar=true the new maxRecords should be bigger than cachedRows.length
+    rows?: T[] | null;            // Cached rows if they exist
 };
 
 
@@ -482,17 +482,16 @@ export default class MastoApi {
 
         // Get the data from the cache
         const cachedData = await Storage.getWithStaleness(cacheKey);
+        const rows = cachedData?.obj as T[];
 
-        if (!cachedData?.obj) {
+        if (!rows) {
             logger.trace(`No cached data for ${cacheKey}, returning null`);
             return { rows: null };
         }
 
-        const rows = cachedData?.obj as T[];
-
         // Return the cachedRows if they exist, the data is not stale, and moar is false
         return {
-            isStale: cachedData.isStale,
+            isStale: cachedData!.isStale,
             minMaxId: supportsMinMaxId ? findMinMaxId(rows as MastodonObjWithID[]) : null,  // only set if supported!
             // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
             newMaxRecords: moar ? (maxRecords! + rows!.length) : undefined,

@@ -396,11 +396,11 @@ class MastoApi {
         logger ??= getLogger(cacheKey);
         // Get the data from the cache
         const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
-        if (!cachedData?.obj) {
+        const rows = cachedData?.obj;
+        if (!rows) {
             logger.trace(`No cached data for ${cacheKey}, returning null`);
             return { rows: null };
         }
-        const rows = cachedData?.obj;
         // Return the cachedRows if they exist, the data is not stale, and moar is false
         return {
             isStale: cachedData.isStale,
