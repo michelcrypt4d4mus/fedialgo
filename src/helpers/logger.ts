@@ -3,26 +3,31 @@
  */
 import { ageString } from './time_helpers';
 import { isDebugMode } from './environment_helpers';
-import { TELEMETRY, bracketed, createRandomString, isEmptyStr } from './string_helpers';
+import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
+
+const PREFIXERS = [
+    bracketed,
+    arrowed,
+    (str: string) => `(${str})`,
+    (str: string) => `~${str}~`,
+    (str: string) => `*${str}*`,
+    (str: string) => `-${str}-`,
+    (str: string) => `#${str}#`,
+];
 
 
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
 export class Logger {
-    componentName: string;
     logPrefix: string;
-    subtitle?: string;
-    subsubtitle?: string;
-    subsubsubtitle?: string;
+    prefixes: string[];
 
-    // TODO: just use an array
-    constructor(componentName: string, subtitle?: string, subsubtitle?: string, subsubsubtitle?: string) {
-        this.componentName = componentName;
-        this.subtitle = subtitle;
-        this.subsubtitle = subsubtitle;
-        this.subsubsubtitle = subsubsubtitle;
-        this.logPrefix = bracketed(componentName) + (subtitle ? ` <${subtitle}>` : "");
-        this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
-        this.logPrefix += (subsubsubtitle ? ` -${subsubsubtitle}-` : "");
+    constructor(componentName: string, ...args: string[]) {
+        this.prefixes = [componentName, ...args]
+        this.logPrefix = this.prefixes.map((str, i) => PREFIXERS[i] ? PREFIXERS[i](str) : str).join(' ');
+
+        if (this.prefixes.length > PREFIXERS.length) {
+            this.warn(`Logger created with too many prefixes: ${this.prefixes}`);
+        }
     }
 
     // If first arg is a string, check if 2nd arg is an Error and do some special formatting
@@ -74,16 +79,8 @@ export class Logger {
 
     // Fill in first available prefix slot with string
     tempLogger(prefix: string): Logger {
-        if (!this.subtitle) {
-            return new Logger(this.componentName, prefix);
-        } else if (!this.subsubtitle) {
-            return new Logger(this.componentName, this.subtitle, prefix);
-        } else if (!this.subsubsubtitle) {
-            return new Logger(this.componentName, this.subtitle, this.subsubtitle, prefix);
-        } else {
-            this.error(`tempLogger() called on logger with all prefix slots filled with prefix="${prefix}"`);
-            return this;
-        }
+        const args = [...this.prefixes, prefix];
+        return new Logger(args[0], ...args.slice(1));
     }
 
     // Can be helpful when there's a lot of threads and you want to distinguish them
@@ -106,5 +103,12 @@ export class Logger {
 
     private makeMsg(msg: string | undefined): string {
         return this.logPrefix + (isEmptyStr(msg) ? '' : ` ${msg}`);
+    }
+
+    // Returns a function that will build Logger objects with the starting prefixes
+    static logBuilder(componentName: string, ...prefixes: string[]): ((...args: string[]) => Logger) {
+        return (...args: string[]) => {
+            return new Logger(componentName, ...[...prefixes, ...args]);
+        };
     }
 };

@@ -41,20 +41,22 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
+;
+;
+;
+;
+;
+;
+;
+;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 const LOG_PREFIX = 'API';
-const apiLogger = new logger_1.Logger(LOG_PREFIX, 'static');
-;
-;
-;
-;
-;
-;
-;
-;
+// Loggers prefixed by [API]
+const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
+const apiLogger = getLogger();
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
@@ -637,10 +639,6 @@ function fillInBasicDefaults(params) {
         skipMutex: skipMutex || false,
     };
     return withDefaults;
-}
-// logs prefixed by [API]
-function getLogger(subtitle, subsubtitle) {
-    return new logger_1.Logger((0, string_helpers_1.bracketed)(LOG_PREFIX), subtitle, subsubtitle);
 }
 ;
 // Return true if the error is an access token revoked error

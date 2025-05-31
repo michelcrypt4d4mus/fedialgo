@@ -17,7 +17,7 @@ import Storage, {
     STORAGE_KEYS_WITH_UNIQUE_IDS,
 } from "../Storage";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { bracketed, extractDomain } from '../helpers/string_helpers';
+import { extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
@@ -35,14 +35,6 @@ import {
     type StatusList,
     type TootLike,
 } from "../types";
-
-// Error messages for MastoHttpError
-const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
-const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
-const LOG_PREFIX = 'API';
-
-const apiLogger = new Logger(LOG_PREFIX, 'static');
 
 interface CachedRows<T> extends CacheTimestamp {
     minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
@@ -100,6 +92,16 @@ interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchPar
 interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>,
 };
+
+// Error messages for MastoHttpError
+const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
+const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+const LOG_PREFIX = 'API';
+
+// Loggers prefixed by [API]
+const getLogger = Logger.logBuilder(LOG_PREFIX);
+const apiLogger = getLogger();
 
 
 export default class MastoApi {
@@ -753,12 +755,6 @@ function fillInBasicDefaults<T extends MastodonApiObject>(params: FetchParams<T>
     };
 
     return withDefaults;
-}
-
-
-// logs prefixed by [API]
-function getLogger(subtitle?: string, subsubtitle?: string): Logger {
-    return new Logger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };
 
 

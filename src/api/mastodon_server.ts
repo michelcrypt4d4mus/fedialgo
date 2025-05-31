@@ -44,12 +44,6 @@ import {
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
 
-const API_URI = "api";
-const API_V1 = `${API_URI}/v1`;
-const API_V2 = `${API_URI}/v2`;
-const INSTANCE = "instance";
-const LOG_PREFIX = `MastodonServer`;
-
 const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
     (mutexes, key) => {
         mutexes[key] = new Mutex();
@@ -57,6 +51,14 @@ const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
     },
     {} as ApiMutex
 );
+
+const API_URI = "api";
+const API_V1 = `${API_URI}/v1`;
+const API_V2 = `${API_URI}/v2`;
+const INSTANCE = "instance";
+const LOG_PREFIX = `MastodonServer`;
+
+const getLogger = Logger.logBuilder(LOG_PREFIX);
 
 interface FetchTrendingProps<T extends TrendingObj> {
     key: CacheKey;
@@ -399,10 +401,4 @@ function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: num
 
     logger.trace(`${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);
     return servers;
-};
-
-
-// logs prefixed by [API]
-function getLogger(subtitle?: string, subsubtitle?: string): Logger {
-    return new Logger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };

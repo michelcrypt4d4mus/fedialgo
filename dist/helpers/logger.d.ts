@@ -1,10 +1,7 @@
 export declare class Logger {
-    componentName: string;
     logPrefix: string;
-    subtitle?: string;
-    subsubtitle?: string;
-    subsubsubtitle?: string;
-    constructor(componentName: string, subtitle?: string, subsubtitle?: string, subsubsubtitle?: string);
+    prefixes: string[];
+    constructor(componentName: string, ...args: string[]);
     error(msg: string | Error, ...args: any[]): string;
     warn(msg: string, ...args: any[]): void;
     log(msg: string, ...args: any[]): void;
@@ -17,4 +14,5 @@ export declare class Logger {
     private getErrorMessage;
     private makeErrorMsg;
     private makeMsg;
+    static logBuilder(componentName: string, ...prefixes: string[]): ((...args: string[]) => Logger);
 }

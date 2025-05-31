@@ -14,7 +14,6 @@ const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const string_helpers_1 = require("../helpers/string_helpers");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
@@ -22,15 +21,16 @@ const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
+const TRENDING_MUTEXES = config_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
+    mutexes[key] = new async_mutex_1.Mutex();
+    return mutexes;
+}, {});
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
-const TRENDING_MUTEXES = config_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
-    mutexes[key] = new async_mutex_1.Mutex();
-    return mutexes;
-}, {});
+const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 ;
 class MastodonServer {
     domain;
@@ -308,11 +308,6 @@ function filterMinMAU(serverInfos, minMAU) {
     }, {});
     logger.trace(`${Object.keys(servers).length} servers with MAU >= ${minMAU}:`, servers);
     return servers;
-}
-;
-// logs prefixed by [API]
-function getLogger(subtitle, subsubtitle) {
-    return new logger_1.Logger((0, string_helpers_1.bracketed)(LOG_PREFIX), subtitle, subsubtitle);
 }
 ;
 //# sourceMappingURL=mastodon_server.js.map
