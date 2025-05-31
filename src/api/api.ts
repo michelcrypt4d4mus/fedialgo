@@ -180,8 +180,9 @@ export default class MastoApi {
                 }
 
                 oldestTootStr = `oldest toot: ${quotedISOFmt(oldestTootAt)}`;
-                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
+                logger.trace(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
                 const newToots = await Toot.buildToots(newStatuses, cacheKey);
+                logger.trace(`Finished building ${newToots.length} toots`);
                 await mergeTootsToFeed(newToots, logger.logPrefix);
                 allNewToots = allNewToots.concat(newToots)
 
@@ -508,19 +509,20 @@ export default class MastoApi {
         logger ??= getLogger(cacheKey, 'getApiRecords()');
         logger.logPrefix += ` *#(${createRandomString(4)})#*`;
         inParams.logger = logger;  // Ensure logger is set in params for completeParamsWithCache()
-        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
+        logger.trace(`called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
 
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await lockExecution(this.mutexes[cacheKey], logger.logPrefix));
-        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
+        logger.trace(`called with params, mutex locked`);
         const params = await this.completeParamsWithCache<T>({...inParams, logger });
-        logger.trace(`getApiRecords() completed params:`, params);
+        logger.trace(`completed cache check, new params:`, params);
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
+            logger.trace(`returning still fresh cachedRows:`, params);
             return cachedRows;
         }
 
@@ -530,9 +532,11 @@ export default class MastoApi {
         this.waitTimes[cacheKey]!.markStart();
         let pageNumber = 0;
         let rows: T[] = [];
+        const fetchParams = this.buildParams(params);
+        logger.trace(`About to do first fetch with fetchParams`, fetchParams);
 
         try {
-            for await (const page of fetch(this.buildParams(params))) {
+            for await (const page of fetch(fetchParams)) {
                 this.waitTimes[cacheKey]!.markEnd();   // TODO: telemetry stuff that should be removed eventually
 
                 // The actual action
@@ -558,7 +562,7 @@ export default class MastoApi {
             releaseMutex?.();
         }
 
-        const objs = this.buildFromApiObjects(cacheKey, rows);
+        const objs = this.buildFromApiObjects(cacheKey, rows, logger);
         if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
         if (!skipCache) await Storage.set(cacheKey, objs);
         return objs;
@@ -570,7 +574,7 @@ export default class MastoApi {
         let apiParams: mastodon.DefaultPaginationParams = { limit };
         if (minId) apiParams = {...apiParams, minId: `${minId}`};
         if (maxId) apiParams = {...apiParams, maxId: `${maxId}`};
-        return apiParams as mastodon.DefaultPaginationParams;
+        return apiParams;
     }
 
     // Check the cache, consult the endpoint defaults, and fill out a complete set of request parameters
@@ -664,7 +668,9 @@ export default class MastoApi {
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[]): MastodonApiObject[] {
+    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: ComponentLogger): MastodonApiObject[] {
+        logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
+
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => Account.build(o as mastodon.v1.Account));  // TODO: dedupe accounts?
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {

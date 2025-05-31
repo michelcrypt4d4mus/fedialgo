@@ -128,8 +128,9 @@ class MastoApi {
                     return true;
                 }
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
-                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
+                logger.trace(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
                 const newToots = await toot_1.default.buildToots(newStatuses, cacheKey);
+                logger.trace(`Finished building ${newToots.length} toots`);
                 await mergeTootsToFeed(newToots, logger.logPrefix);
                 allNewToots = allNewToots.concat(newToots);
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
@@ -418,17 +419,18 @@ class MastoApi {
         logger ??= getLogger(cacheKey, 'getApiRecords()');
         logger.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
         inParams.logger = logger; // Ensure logger is set in params for completeParamsWithCache()
-        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
+        logger.trace(`called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
-        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
+        logger.trace(`called with params, mutex locked`);
         const params = await this.completeParamsWithCache({ ...inParams, logger });
-        logger.trace(`getApiRecords() completed params:`, params);
+        logger.trace(`completed cache check, new params:`, params);
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
+            logger.trace(`returning still fresh cachedRows:`, params);
             return cachedRows;
         }
         // TODO: is this right w/maxRecords?
@@ -437,8 +439,10 @@ class MastoApi {
         this.waitTimes[cacheKey].markStart();
         let pageNumber = 0;
         let rows = [];
+        const fetchParams = this.buildParams(params);
+        logger.trace(`About to do first fetch with fetchParams`, fetchParams);
         try {
-            for await (const page of fetch(this.buildParams(params))) {
+            for await (const page of fetch(fetchParams)) {
                 this.waitTimes[cacheKey].markEnd(); // TODO: telemetry stuff that should be removed eventually
                 // The actual action
                 rows = rows.concat(page);
@@ -463,7 +467,7 @@ class MastoApi {
         finally {
             releaseMutex?.();
         }
-        const objs = this.buildFromApiObjects(cacheKey, rows);
+        const objs = this.buildFromApiObjects(cacheKey, rows, logger);
         if (processFxn)
             objs.forEach(obj => obj && processFxn(obj));
         if (!skipCache)
@@ -561,7 +565,8 @@ class MastoApi {
         }
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    buildFromApiObjects(key, objects) {
+    buildFromApiObjects(key, objects, logger) {
+        logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return objects.map(o => account_1.default.build(o)); // TODO: dedupe accounts?
         }
