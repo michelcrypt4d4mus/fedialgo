@@ -6,6 +6,7 @@ import { Mutex, Semaphore } from 'async-mutex';
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
+import { Logger } from './logger';
 import { TELEMETRY, bracketed, prefixed } from './string_helpers';
 import { type ConcurrencyLockRelease } from '../types';
 
@@ -18,28 +19,29 @@ export const TRIGGER_FEED = "triggerFeedUpdate()";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 export async function lockExecution(
     locker: Mutex | Semaphore,
-    logPrefix: string
+    logger: Logger,
+    logPrefix?: string
 ): Promise<ConcurrencyLockRelease> {
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
     let releaseLock: ConcurrencyLockRelease;
-    let logMsg = bracketed(logPrefix);
+    let logMsg = logPrefix ? `${logPrefix} ` : '';
 
     if (Array.isArray(acquireLock)) {
-        logMsg += ` Semaphore ${acquireLock[0]}`;
+        logMsg += `Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     } else {
-        logMsg += ` Mutex`;
+        logMsg += `Mutex`;
         releaseLock = acquireLock;
     }
 
     logMsg += ` lock acquired ${ageString(startedAt)}`;
 
     if (waitSeconds > config.api.mutexWarnSeconds) {
-        console.warn(logMsg);
+        logger.warn(logMsg);
     } else if (waitSeconds > 2) {
-        traceLog(logMsg);
+        logger.trace(logMsg);
     }
 
     return releaseLock;
@@ -59,23 +61,10 @@ export function logAndThrowError(message: string, obj?: any): never {
 };
 
 
-// Log a message with a telemetry timing suffix
-export function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ...args: any[]): void {
-    msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
-
-    // If there's ...args and first arg is a string, assume it's a label for any other arg objects
-    if (args.length && typeof args[0] == 'string') {
-        msg += `, ${args.shift()}`;
-    }
-
-    console.info(prefixed(logPrefix, msg), ...args)
-};
-
-
-// Simple log helper that only fires if numRemoved > 0
-export function logTootRemoval(prefix: string, tootType: string, numRemoved: number, numTotal: number): void {
+// Simple log helper that only fires if numRemoved > 0 // TODO: move into Logger class
+export function logTootRemoval(logger: Logger, tootType: string, numRemoved: number, numTotal: number): void {
     if (numRemoved == 0) return;
-    console.debug(`${bracketed(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    logger.debug(`Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 };
 
 

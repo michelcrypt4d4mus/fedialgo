@@ -1,5 +1,6 @@
 import { CacheKey } from "../enums";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
+import { Logger } from './logger';
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
@@ -15,7 +16,7 @@ export declare function makeChunks<T>(array: T[], options: {
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
-export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
+export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logger: Logger, reason: string, // Describe why things were filtered
 objType?: string): T[];
 export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;

@@ -16,14 +16,14 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
-exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
 const MOAR_MUTEX = new async_mutex_1.Mutex();
+exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
 // TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
     exports.moarDataLogger.log(`triggered by timer...`);
-    const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
+    const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.moarDataLogger);
     const startedAt = new Date();
     const pollers = [
         // TODO: followed accounts?

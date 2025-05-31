@@ -109,14 +109,14 @@ function countValues(items, getKey = (item) => item, countNulls) {
 exports.countValues = countValues;
 ;
 // Basic collection filter but logs the numebr of elements removed
-function filterWithLog(array, filterFxn, logPrefix, reason, // Describe why things were filtered
+function filterWithLog(array, filterFxn, logger, reason, // Describe why things were filtered
 objType) {
     objType ||= 'obj';
     const startingLength = array.length;
     const filtered = array.filter(filterFxn);
     const numRemoved = startingLength - filtered.length;
     if (numRemoved > 0) {
-        console.debug(`${(0, string_helpers_1.bracketed)(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+        logger.debug(`Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
     }
     return filtered;
 }

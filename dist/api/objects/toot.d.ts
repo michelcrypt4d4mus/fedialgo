@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
+import { Logger } from '../../helpers/logger';
 import { MediaCategory } from '../../enums';
 import { ScoreName } from '../../enums';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink, type WeightedScore } from "../../types";
@@ -139,10 +140,10 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     private repair;
     static buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]>;
-    static completeToots(toots: TootLike[], logPrefix: string, isDeepInspect: boolean): Promise<Toot[]>;
-    static dedupeToots(toots: Toot[], logPrefix?: string): Toot[];
+    static completeToots(toots: TootLike[], logger: Logger, isDeepInspect: boolean): Promise<Toot[]>;
+    static dedupeToots(toots: Toot[], inLogger?: Logger): Toot[];
     static findMinIdForMaxIdParam(toots: Toot[]): string | null;
-    static removeInvalidToots(toots: Toot[], logPrefix: string): Promise<Toot[]>;
+    static removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]>;
     private static uniqFlatMap;
 }
 export declare const tootedAt: (toot: TootLike) => Date;

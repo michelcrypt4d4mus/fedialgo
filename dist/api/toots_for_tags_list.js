@@ -47,13 +47,20 @@ class TootsForTagsList {
     }
     constructor(cacheKey, tagList, tootsConfig) {
         this.cacheKey = cacheKey;
-        this.logger = new logger_1.Logger(`TootsForTagsList(${cacheKey})`, cacheKey);
+        this.logger = new logger_1.Logger("TootsForTagsList", cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }
     // Get toots for the list of tags, caching the results
     async getToots() {
-        return await api_1.default.instance.getCacheableToots(async () => await api_1.default.instance.getStatusesForTags(this.topTags(), this.tootsConfig.numTootsPerTag), this.cacheKey, this.tootsConfig.maxToots);
+        return await api_1.default.instance.getCacheableToots(async () => {
+            const tags = this.topTags();
+            this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
+            const tagToots = await Promise.all(tags.map(async (tag) => {
+                return await api_1.default.instance.getStatusesForTag(tag, this.logger, this.tootsConfig.numTootsPerTag);
+            }));
+            return tagToots.flat();
+        }, this.cacheKey, this.tootsConfig.maxToots);
     }
     ;
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)

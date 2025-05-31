@@ -12,9 +12,9 @@ import { Logger } from '../helpers/logger';
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
-export const moarDataLogger = new Logger(GET_MOAR_DATA);
-
 const MOAR_MUTEX = new Mutex();
+
+export const moarDataLogger = new Logger(GET_MOAR_DATA);
 
 
 // Get morar historical data. Returns false if we have enough data and should
@@ -22,7 +22,7 @@ const MOAR_MUTEX = new Mutex();
 // TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
     moarDataLogger.log(`triggered by timer...`);
-    const releaseMutex = await lockExecution(MOAR_MUTEX, GET_MOAR_DATA);
+    const releaseMutex = await lockExecution(MOAR_MUTEX, moarDataLogger);
     const startedAt = new Date();
 
     const pollers = [

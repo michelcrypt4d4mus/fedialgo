@@ -133,7 +133,7 @@ class MastoApi {
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
                 logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
                 const newToots = await toot_1.default.buildToots(newStatuses, cacheKey);
-                await mergeTootsToFeed(newToots, logger.logPrefix);
+                await mergeTootsToFeed(newToots, logger);
                 allNewToots = allNewToots.concat(newToots);
                 // Break the toot fetching loop if we encounter a toot older than cutoffAt
                 if (oldestTootAt < cutoffAt) {
@@ -142,7 +142,7 @@ class MastoApi {
                 }
             }
         });
-        homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], cacheKey);
+        homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], logger);
         let msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
@@ -163,7 +163,7 @@ class MastoApi {
     //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
     async getCacheableToots(fetch, key, maxRecords) {
         const logger = getLogger(key);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logger.logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logger);
         const startedAt = new Date();
         try {
             let toots = await Storage_1.default.getIfNotStale(key);
@@ -240,7 +240,7 @@ class MastoApi {
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters() {
         const logger = getLogger(enums_1.CacheKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[enums_1.CacheKey.SERVER_SIDE_FILTERS], logger.logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[enums_1.CacheKey.SERVER_SIDE_FILTERS], logger);
         const startTime = new Date();
         try {
             let filters = await Storage_1.default.getIfNotStale(enums_1.CacheKey.SERVER_SIDE_FILTERS);
@@ -267,20 +267,14 @@ class MastoApi {
     ;
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
-    async getStatusesForTag(tag, numToots) {
+    async getStatusesForTag(tag, logger, numToots) {
         numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const tagToots = await Promise.all([
-            this.searchForToots(tag.name, numToots),
-            this.hashtagTimelineToots(tag, numToots),
+            this.searchForToots(tag.name, logger, numToots),
+            this.hashtagTimelineToots(tag, logger, numToots),
         ]);
-        logTrendingTagResults(`(getStatusesForTag(${tag.name}))`, "both hashtag searches", tagToots.flat(), startedAt);
-        return tagToots.flat();
-    }
-    // Collect and fully populate / dedup a collection of toots for an array of Tags
-    async getStatusesForTags(tags, numTootsPerTag) {
-        this.logger.log(`(getStatusesForTags()) called for ${tags.length} tags:`, tags.map(t => t.name));
-        const tagToots = await Promise.all(tags.map(tag => this.getStatusesForTag(tag, numTootsPerTag)));
+        logTrendingTagResults(logger, `"${tag.name}" both hashtag searches`, tagToots.flat(), startedAt);
         return tagToots.flat();
     }
     // Retrieve background data about the user that will be used for scoring etc.
@@ -296,16 +290,16 @@ class MastoApi {
     // Concurrency is managed by a semaphore in this method, not the normal mutexes.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could maybe use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async hashtagTimelineToots(tag, maxRecords) {
+    async hashtagTimelineToots(tag, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const logger = getLogger(enums_1.CacheKey.HASHTAG_TOOTS, tag.name);
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger.logPrefix);
+        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
         const startedAt = new Date();
         try {
             const toots = await this.getApiRecords({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
                 cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
-                maxRecords: maxRecords,
+                logger,
+                maxRecords,
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
                 // to create other sets of toots from a lot of small requests, e.g. PARTICIPATED_TAG_TOOTS
                 skipCache: true,
@@ -342,7 +336,7 @@ class MastoApi {
     }
     async lockAllMutexes() {
         apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
-        return await Promise.all(Object.values(this.mutexes).map(mutex => (0, log_helpers_1.lockExecution)(mutex, 'lockAllMutexes()')));
+        return await Promise.all(Object.values(this.mutexes).map(mutex => (0, log_helpers_1.lockExecution)(mutex, apiLogger, 'lockAllMutexes()')));
     }
     ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
@@ -368,12 +362,10 @@ class MastoApi {
     // Does a keyword substring search for toots. Search API can be used to find toots, profiles, or hashtags.
     //   - searchString:  the string to search for
     //   - maxRecords:    the maximum number of records to fetch
-    async searchForToots(searchStr, maxRecords) {
+    async searchForToots(searchStr, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const logger = getLogger(`searchForToots(${searchStr})`);
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger.logPrefix);
+        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
         const query = { limit: maxRecords, q: searchStr, type: enums_2.TrendingType.STATUSES };
-        logger.logPrefix += ` (semaphore)`;
         const startedAt = new Date();
         try {
             const searchResult = await this.api.v2.search.list(query);
@@ -421,7 +413,7 @@ class MastoApi {
         let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
         // Lock mutex before checking cache (unless skipMutex is true)
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger.logPrefix);
+        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger);
         const completeParams = await this.addCacheDataToParams({ ...inParams, logger });
         let { cacheResult, maxRecords } = completeParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
@@ -582,7 +574,7 @@ class MastoApi {
         }
         else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof toot_1.default ? obj : toot_1.default.build(obj));
-            return toot_1.default.dedupeToots(toots, `${key} buildFromApiObjects`);
+            return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects()`));
         }
         else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
@@ -593,8 +585,11 @@ class MastoApi {
     }
     // Check that the params passed to the fetch methods are valid and work together
     validateFetchParams(params) {
-        let { logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
-        logger.trace(`(validateFetchParams()) params:`, params);
+        let { cacheKey, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
+        if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
+            logger.trace(`(validateFetchParams()) params:`, params);
+        }
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);
         }
@@ -669,9 +664,9 @@ function isRateLimitError(e) {
 exports.isRateLimitError = isRateLimitError;
 ;
 // TODO: get rid of this eventually
-const logTrendingTagResults = (logPrefix, searchMethod, toots, startedAt) => {
-    let msg = `${logPrefix} ${searchMethod} found ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+const logTrendingTagResults = (logger, searchMethod, toots, startedAt) => {
+    let msg = `${searchMethod} found ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
     msg += ` (oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))}):`;
-    apiLogger.debug(msg);
+    logger.debug(msg);
 };
 //# sourceMappingURL=api.js.map

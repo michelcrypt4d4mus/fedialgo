@@ -52,7 +52,7 @@ export default class TootsForTagsList {
 
     private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
         this.cacheKey = cacheKey;
-        this.logger = new Logger(`TootsForTagsList(${cacheKey})`, cacheKey);
+        this.logger = new Logger("TootsForTagsList", cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }
@@ -60,7 +60,22 @@ export default class TootsForTagsList {
     // Get toots for the list of tags, caching the results
     async getToots(): Promise<Toot[]> {
         return await MastoApi.instance.getCacheableToots(
-            async () => await MastoApi.instance.getStatusesForTags(this.topTags(), this.tootsConfig.numTootsPerTag),
+            async () => {
+                const tags = this.topTags();
+                this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
+
+                const tagToots = await Promise.all(
+                    tags.map(async (tag) => {
+                        return await MastoApi.instance.getStatusesForTag(
+                            tag,
+                            this.logger,
+                            this.tootsConfig.numTootsPerTag
+                        );
+                    }
+                ));
+
+                return tagToots.flat();
+            },
             this.cacheKey,
             this.tootsConfig.maxToots,
         );

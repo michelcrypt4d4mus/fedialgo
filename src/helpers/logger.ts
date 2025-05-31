@@ -1,8 +1,9 @@
 /*
  * Standardized logger
  */
-import { bracketed, createRandomString, isEmptyStr } from './string_helpers';
+import { ageString } from './time_helpers';
 import { isDebugMode } from './environment_helpers';
+import { TELEMETRY, bracketed, createRandomString, isEmptyStr } from './string_helpers';
 
 
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
@@ -11,13 +12,17 @@ export class Logger {
     logPrefix: string;
     subtitle?: string;
     subsubtitle?: string;
+    subsubsubtitle?: string;
 
-    constructor(componentName: string, subtitle?: string, subsubtitle?: string) {
+    // TODO: just use an array
+    constructor(componentName: string, subtitle?: string, subsubtitle?: string, subsubsubtitle?: string) {
         this.componentName = componentName;
         this.subtitle = subtitle;
         this.subsubtitle = subsubtitle;
+        this.subsubsubtitle = subsubsubtitle;
         this.logPrefix = bracketed(componentName) + (subtitle ? ` <${subtitle}>` : "");
         this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
+        this.logPrefix += (subsubsubtitle ? ` -${subsubsubtitle}-` : "");
     }
 
     // If first arg is a string, check if 2nd arg is an Error and do some special formatting
@@ -43,6 +48,17 @@ export class Logger {
         console.log(this.makeMsg(msg), ...args);
     }
 
+    logTelemetry(msg: string, startedAt: Date, ...args: any[]): void {
+        msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
+
+        // If there's ...args and first arg is a string, assume it's a label for any other arg objects
+        if (args.length && typeof args[0] == 'string') {
+            msg += `, ${args.shift()}`;
+        }
+
+        this.info(msg, ...args)
+    }
+
     info(msg: string, ...args: any[]) {
         console.info(this.makeMsg(msg), ...args);
     }
@@ -54,6 +70,20 @@ export class Logger {
     // Only writes logs when FEDIALGO_DEBUG env var is set
     trace(msg: string, ...args: any[]) {
         isDebugMode && this.debug(msg, ...args);
+    }
+
+    // Fill in first available prefix slot with string
+    tempLogger(prefix: string): Logger {
+        if (!this.subtitle) {
+            return new Logger(this.componentName, prefix);
+        } else if (!this.subsubtitle) {
+            return new Logger(this.componentName, this.subtitle, prefix);
+        } else if (!this.subsubsubtitle) {
+            return new Logger(this.componentName, this.subtitle, this.subsubtitle, prefix);
+        } else {
+            this.error(`tempLogger() called on logger with all prefix slots filled with prefix="${prefix}"`);
+            return this;
+        }
     }
 
     // Can be helpful when there's a lot of threads and you want to distinguish them

@@ -14,11 +14,11 @@ const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
-const logger = new logger_1.Logger("TagList");
 const SORT_TAGS_BY = [
     "numToots",
     "name"
 ];
+const logger = new logger_1.Logger("TagList");
 class TagList {
     tags;
     constructor(tags) {

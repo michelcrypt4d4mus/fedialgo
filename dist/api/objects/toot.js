@@ -71,7 +71,7 @@ const TAG_ONLY_STRINGS = new Set([
     "un",
     "us",
 ]);
-const logger = new logger_1.Logger("Toot");
+const tootLogger = new logger_1.Logger("Toot");
 ;
 ;
 class Toot {
@@ -177,10 +177,10 @@ class Toot {
         tootObj.imageAttachments = tootObj.attachmentsOfType(enums_1.MediaCategory.IMAGE);
         tootObj.videoAttachments = string_helpers_1.VIDEO_TYPES.flatMap((videoType) => tootObj.attachmentsOfType(videoType));
         if (tootObj.account.suspended) {
-            logger.warn(`Toot from suspended account:`, tootObj);
+            tootLogger.warn(`Toot from suspended account:`, tootObj);
         }
         else if (tootObj.account.limited) {
-            logger.trace(`Toot from limited account:`, tootObj);
+            tootLogger.trace(`Toot from limited account:`, tootObj);
         }
         return tootObj;
     }
@@ -209,7 +209,7 @@ class Toot {
     containsTag(tag, fullScan) {
         if (fullScan && (tag.name.length > 1) && !TAG_ONLY_STRINGS.has(tag.name)) {
             if (!tag.regex) {
-                logger.warn(`containsTag() called on tag without regex:`, tag);
+                tootLogger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = (0, string_helpers_1.wordRegex)(tag.name);
             }
             return tag.regex.test(this.contentWithCard());
@@ -280,11 +280,11 @@ class Toot {
     // Mastodon calls this a "context" but it's really a conversation
     async getConversation() {
         const logPrefix = (0, string_helpers_1.arrowed)('getConversation()');
-        logger.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
+        tootLogger.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, true);
-        logger.trace(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
+        tootLogger.trace(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }
     getIndividualScore(scoreType, name) {
@@ -292,7 +292,7 @@ class Toot {
             return this.scoreInfo.scores[name][scoreType];
         }
         else {
-            logger.warn(`<getIndividualScore()> called on toot but no scoreInfo.scores:`, this);
+            tootLogger.warn(`<getIndividualScore()> called on toot but no scoreInfo.scores:`, this);
             return 0;
         }
     }
@@ -304,7 +304,7 @@ class Toot {
     //       becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async homeserverURL() {
         const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
-        logger.debug(`<homeserverURL()> converted '${this.realURL()}' to '${homeURL}'`);
+        tootLogger.debug(`<homeserverURL()> converted '${this.realURL()}' to '${homeURL}'`);
         return homeURL;
     }
     // Return true if it's a direct message
@@ -332,33 +332,33 @@ class Toot {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters) {
         if (this.isUsersOwnToot()) {
-            logger.trace(`Removing fedialgo user's own toot:`, this.describe());
+            tootLogger.trace(`Removing fedialgo user's own toot:`, this.describe());
             return false;
         }
         else if (this.reblog?.muted || this.muted) {
-            logger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
         else if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
-            logger.warn(`Removing toot with future timestamp:`, this);
+            tootLogger.warn(`Removing toot with future timestamp:`, this);
             return false;
         }
         else if (this.filtered?.length || this.reblog?.filtered?.length) {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatches = (this.filtered || []).concat(this.reblog?.filtered || []);
             const filterMatchStr = filterMatches[0].keywordMatches?.join(' ');
-            logger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
         else if (this.tootedAt() < (0, time_helpers_1.timelineCutoffAt)()) {
-            logger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
+            tootLogger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
             return false;
         }
         // Return false if toot matches any server side filters
         return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
             if (this.realToot().containsString(keyword.keyword)) {
-                logger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                tootLogger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
                 return true;
             }
         })));
@@ -390,13 +390,13 @@ class Toot {
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
         try {
-            logger.trace(`Resolving local toot ID for`, this);
+            tootLogger.trace(`Resolving local toot ID for`, this);
             const resolvedToot = await api_1.default.instance.resolveToot(this);
             this.resolvedID = resolvedToot.id; // Cache the resolved ID for future calls
             return resolvedToot;
         }
         catch (error) {
-            logger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+            tootLogger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             throw error;
         }
     }
@@ -465,7 +465,7 @@ class Toot {
             tags = this.trendingTags || [];
         }
         else {
-            logger.warn(`${(0, string_helpers_1.arrowed)('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
+            tootLogger.warn(`${(0, string_helpers_1.arrowed)('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
             return;
         }
         if (!tags.length)
@@ -505,11 +505,11 @@ class Toot {
         const langDetectInfo = (0, language_helper_1.detectLanguage)(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const langLogObj = { ...langDetectInfo, text, toot: this, tootLanguage: this.language };
-        const logTrace = (msg) => logger.trace(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
+        const logTrace = (msg) => tootLogger.trace(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
-                logger.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
+                tootLogger.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
             }
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
@@ -593,23 +593,23 @@ class Toot {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
-                    logger.trace(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
+                    tootLogger.trace(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
-                    logger.trace(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
+                    tootLogger.trace(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.VIDEO;
                 }
                 else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
-                    logger.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
+                    tootLogger.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else {
-                    logger.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                    tootLogger.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
             }
             else if (!string_helpers_1.MEDIA_TYPES.includes(media.type)) {
-                logger.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
+                tootLogger.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
@@ -627,26 +627,27 @@ class Toot {
     static async buildToots(statuses, source, skipSort) {
         if (!statuses.length)
             return []; // Avoid the data fetching if we don't to build anything
-        const logPrefix = `${logger.logPrefix} ${(0, string_helpers_1.bracketed)(source)} buildToots()`;
+        const logger = new logger_1.Logger(tootLogger.logPrefix, source, `buildToots()`);
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
-        let toots = await this.completeToots(statuses, logPrefix, false);
+        let toots = await this.completeToots(statuses, logger, false);
+        // TODO: without the 'if skipSort' this removes users own toots from threads
         if (!skipSort)
-            toots = await this.removeInvalidToots(toots, logPrefix); // TODO: without the if this removes users own toots from threads
+            toots = await this.removeInvalidToots(toots, logger);
         toots.forEach((toot) => toot.sources = [source]);
-        toots = Toot.dedupeToots(toots, logPrefix);
+        toots = Toot.dedupeToots(toots, logger);
         // Make a first pass at scoring with whatever scorers are ready to score
         await scorer_1.default.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort)
             toots.sort((a, b) => b.getScore() - a.getScore());
-        logger.trace(`<${source}> ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        tootLogger.trace(`<${source}> ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
-    static async completeToots(toots, logPrefix, isDeepInspect) {
-        logPrefix = `${logPrefix} completeToots(isDeepInspect=${isDeepInspect})`;
+    static async completeToots(toots, logger, isDeepInspect) {
+        const logPrefix = `${logger.logPrefix} completeToots(isDeepInspect=${isDeepInspect})`;
         let completeToots = [];
         let tootsToComplete = toots;
         let startedAt = new Date();
@@ -667,12 +668,13 @@ class Toot {
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
         let msg = `completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
+        tootLogger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry
-    static dedupeToots(toots, logPrefix) {
-        logPrefix = `${(0, string_helpers_1.bracketed)(logPrefix || "dedupeToots")} dedupeToots()`;
+    static dedupeToots(toots, inLogger) {
+        inLogger ||= tootLogger;
+        const logger = inLogger.tempLogger('dedupeToots()');
         const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
@@ -739,12 +741,12 @@ class Toot {
             if (!environment_helpers_1.isProduction) {
                 // Log when we are collating retoots and toots with the same realURI()
                 if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                    logger.trace(`${logPrefix} deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                    logger.trace(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
                 }
             }
             return mostRecent;
         });
-        (0, log_helpers_1.logTootRemoval)(logPrefix, "duplicate", toots.length - deduped.length, deduped.length);
+        (0, log_helpers_1.logTootRemoval)(logger, "duplicate", toots.length - deduped.length, deduped.length);
         return deduped;
     }
     // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
@@ -757,9 +759,9 @@ class Toot {
         const idx = Math.min(toots.length - 1, MAX_ID_IDX);
         return sortByCreatedAt(toots)[idx].id;
     }
-    static async removeInvalidToots(toots, logPrefix) {
+    static async removeInvalidToots(toots, logger) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
-        return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logPrefix, 'invalid', 'Toot');
+        return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
     }
     // Return a new array of a toot property collected and uniquified from an array of toots
     // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]

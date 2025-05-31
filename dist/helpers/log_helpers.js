@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logTelemetry = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
+exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -10,26 +10,26 @@ exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 exports.PREP_SCORERS = "prepareScorers()";
 exports.TRIGGER_FEED = "triggerFeedUpdate()";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
-async function lockExecution(locker, logPrefix) {
+async function lockExecution(locker, logger, logPrefix) {
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     let releaseLock;
-    let logMsg = (0, string_helpers_1.bracketed)(logPrefix);
+    let logMsg = logPrefix ? `${logPrefix} ` : '';
     if (Array.isArray(acquireLock)) {
-        logMsg += ` Semaphore ${acquireLock[0]}`;
+        logMsg += `Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     }
     else {
-        logMsg += ` Mutex`;
+        logMsg += `Mutex`;
         releaseLock = acquireLock;
     }
     logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
     if (waitSeconds > config_1.config.api.mutexWarnSeconds) {
-        console.warn(logMsg);
+        logger.warn(logMsg);
     }
     else if (waitSeconds > 2) {
-        traceLog(logMsg);
+        logger.trace(logMsg);
     }
     return releaseLock;
 }
@@ -48,22 +48,11 @@ function logAndThrowError(message, obj) {
 }
 exports.logAndThrowError = logAndThrowError;
 ;
-// Log a message with a telemetry timing suffix
-function logTelemetry(logPrefix, msg, startedAt, ...args) {
-    msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
-    // If there's ...args and first arg is a string, assume it's a label for any other arg objects
-    if (args.length && typeof args[0] == 'string') {
-        msg += `, ${args.shift()}`;
-    }
-    console.info((0, string_helpers_1.prefixed)(logPrefix, msg), ...args);
-}
-exports.logTelemetry = logTelemetry;
-;
-// Simple log helper that only fires if numRemoved > 0
-function logTootRemoval(prefix, tootType, numRemoved, numTotal) {
+// Simple log helper that only fires if numRemoved > 0 // TODO: move into Logger class
+function logTootRemoval(logger, tootType, numRemoved, numTotal) {
     if (numRemoved == 0)
         return;
-    console.debug(`${(0, string_helpers_1.bracketed)(prefix)} Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
+    logger.debug(`Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
 }
 exports.logTootRemoval = logTootRemoval;
 ;

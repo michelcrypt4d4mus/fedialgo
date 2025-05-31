@@ -139,7 +139,7 @@ export function countValues<T>(
 export function filterWithLog<T>(
     array: T[],
     filterFxn: (value: T) => boolean,
-    logPrefix: string,
+    logger: Logger,
     reason: string,    // Describe why things were filtered
     objType?: string,
 ): T[] {
@@ -149,7 +149,7 @@ export function filterWithLog<T>(
     const numRemoved = startingLength - filtered.length;
 
     if (numRemoved > 0) {
-        console.debug(`${bracketed(logPrefix)} Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
+        logger.debug(`Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
     }
 
     return filtered;

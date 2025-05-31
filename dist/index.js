@@ -156,9 +156,9 @@ class TheAlgorithm {
         new followed_accounts_scorer_1.default(),
         new followed_tags_scorer_1.default(),
         new hashtag_participation_scorer_1.default(),
-        new mentions_followed_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
+        new mentions_followed_scorer_1.default(),
         new most_favourited_accounts_scorer_1.default(),
         new most_replied_accounts_scorer_1.default(),
         new most_retooted_accounts_scorer_1.default(),
@@ -214,7 +214,8 @@ class TheAlgorithm {
             return;
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const hashtagToots = async (key) => {
-            return await this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(key), key);
+            const tagList = await toots_for_tags_list_1.default.create(key);
+            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
         let dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
@@ -223,7 +224,7 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
             hashtagToots(enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
             hashtagToots(enums_1.CacheKey.PARTICIPATED_TAG_TOOTS),
             hashtagToots(enums_1.CacheKey.TRENDING_TAG_TOOTS),
@@ -408,18 +409,17 @@ class TheAlgorithm {
     }
     // Merge a new batch of toots into the feed.
     // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
-    async fetchAndMergeToots(tootFetcher, logPrefix) {
-        logPrefix = (0, string_helpers_1.arrowed)(logPrefix); // tootFetcher.name yield empty string in production :(
+    async fetchAndMergeToots(tootFetcher, logger) {
         const startedAt = new Date();
         let newToots = [];
         try {
             newToots = await tootFetcher;
-            this.logTelemetry(logPrefix, `fetched ${newToots.length} toots`, startedAt);
+            this.logTelemetry(`fetched ${newToots.length} toots`, startedAt, logger);
         }
         catch (e) {
-            api_1.default.throwIfAccessTokenRevoked(e, `${logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            api_1.default.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
-        await this.lockedMergeToFeed(newToots, logPrefix);
+        await this.lockedMergeToFeed(newToots, logger);
         return newToots;
     }
     // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
@@ -431,24 +431,24 @@ class TheAlgorithm {
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
             const msg = `First ${filteredFeed.length} toots sent to client`;
-            this.logTelemetry('filterFeedAndSetInApp()', msg, this.loadStartedAt || new Date());
+            this.logTelemetry(msg, this.loadStartedAt || new Date());
         }
         return filteredFeed;
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logger = new logger_1.Logger(this.logger.logPrefix, `finishFeedUpdate()`);
+        const logger = this.logger.tempLogger(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
-        this.feed = await toot_1.default.removeInvalidToots(this.feed, logger.logPrefix);
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        await toot_1.default.completeToots(this.feed, logger.logPrefix, isDeepInspect);
+        await toot_1.default.completeToots(this.feed, logger, isDeepInspect);
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
-            this.logTelemetry(logger.logPrefix, `finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
+            this.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
@@ -500,11 +500,11 @@ class TheAlgorithm {
     // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
-    async lockedMergeToFeed(newToots, logPrefix) {
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logPrefix);
+    async lockedMergeToFeed(newToots, logger) {
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, logger, 'mergeTootsToFeed()');
         try {
-            await this.mergeTootsToFeed(newToots, logPrefix);
-            this.logger.trace(`${(0, string_helpers_1.arrowed)(string_helpers_1.SET_LOADING_STATUS)} ${logPrefix} lockedMergeToFeed() finished mutex`);
+            await this.mergeTootsToFeed(newToots, logger);
+            logger.trace(`${(0, string_helpers_1.arrowed)(string_helpers_1.SET_LOADING_STATUS)} lockedMergeToFeed() finished mutex`);
         }
         finally {
             releaseMutex();
@@ -512,29 +512,28 @@ class TheAlgorithm {
     }
     ;
     // Log timing info
-    logTelemetry(logPrefix, msg, startedAt) {
-        (0, log_helpers_1.logTelemetry)(logPrefix, msg, startedAt, 'current state', this.statusDict());
+    logTelemetry(msg, startedAt, logger) {
+        (logger || this.logger).logTelemetry(msg, startedAt, 'current state', this.statusDict());
     }
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
-    async mergeTootsToFeed(newToots, logPrefix) {
+    async mergeTootsToFeed(newToots, logger) {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
-        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logPrefix);
+        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logger);
         (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        this.logTelemetry(logPrefix, `merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
-        this.setLoadingStateVariables(logPrefix);
+        this.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
+        this.setLoadingStateVariables(logger.logPrefix);
     }
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     async prepareScorers(force) {
-        const logPrefix = `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)(log_helpers_1.PREP_SCORERS)}`;
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, logPrefix);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, this.logger, log_helpers_1.PREP_SCORERS);
         try {
             if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
                 const startedAt = new Date();
                 await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                this.logTelemetry(logPrefix, `${this.featureScorers.length} scorers ready`, startedAt);
+                this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(log_helpers_1.PREP_SCORERS));
             }
         }
         finally {

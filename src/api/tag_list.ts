@@ -17,12 +17,12 @@ import {
     type TagWithUsageCounts
 } from "../types";
 
-const logger = new Logger("TagList");
-
 const SORT_TAGS_BY = [
     "numToots" as keyof TagWithUsageCounts,
     "name" as keyof TagWithUsageCounts
 ];
+
+const logger = new Logger("TagList");
 
 
 export default class TagList {

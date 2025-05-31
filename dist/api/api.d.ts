@@ -16,7 +16,7 @@ interface MaxIdParams extends ApiParams {
     maxId?: string | number | null;
 }
 interface HomeTimelineParams extends MaxIdParams {
-    mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
+    mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>;
 }
 export default class MastoApi {
     #private;
@@ -43,14 +43,13 @@ export default class MastoApi {
     getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getStatusesForTag(tag: MastodonTag, numToots?: number): Promise<mastodon.v1.Status[]>;
-    getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]>;
+    getStatusesForTag(tag: MastodonTag, logger: Logger, numToots?: number): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
-    hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]>;
+    hashtagTimelineToots(tag: MastodonTag, logger: Logger, maxRecords?: number): Promise<Toot[]>;
     instanceInfo(): Promise<mastodon.v2.Instance>;
     lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;
     resolveToot(toot: Toot): Promise<Toot>;
-    searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    searchForToots(searchStr: string, logger: Logger, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     reset(): void;
     setSemaphoreConcurrency(concurrency: number): void;
     tagUrl(tag: MastodonTag | string): string;
