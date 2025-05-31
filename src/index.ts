@@ -362,6 +362,7 @@ class TheAlgorithm {
 
         // Call other classes' reset methods
         MastoApi.instance.reset();
+        ScorerCache.resetScorers();
         await Storage.clearAll();
 
         if (complete) {

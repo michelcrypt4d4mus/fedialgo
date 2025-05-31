@@ -224,7 +224,7 @@ class MastoApi {
             cacheKey: enums_1.CacheKey.NOTIFICATIONS,
             ...(params || {})
         });
-        this.logger.log(`[${enums_1.CacheKey.NOTIFICATIONS}] (getNotifications()) retrieved ${notifs.length} notifications:`);
+        this.logger.log(`[${enums_1.CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
         return notifs;
     }
     // Get the user's recent toots

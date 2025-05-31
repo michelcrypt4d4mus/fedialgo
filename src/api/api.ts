@@ -296,7 +296,7 @@ export default class MastoApi {
             ...(params || {})
         }) as mastodon.v1.Notification[];
 
-        this.logger.log(`[${CacheKey.NOTIFICATIONS}] (getNotifications()) retrieved ${notifs.length} notifications:`);
+        this.logger.log(`[${CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
         return notifs;
     }
 
