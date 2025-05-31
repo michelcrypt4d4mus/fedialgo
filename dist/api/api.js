@@ -451,18 +451,19 @@ class MastoApi {
         }
         catch (e) {
             // TODO: handle rate limiting errors
-            // If the access token was not revoked whatever rows we've retrieved will be returned
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}, have ${rows.length} rows`);
+            // If the access token was not revoked we need to decide which of any of the rows we have to keep
             let msg = `Error: "${e}" after ${rows.length} new rows, cache has ${cachedRows.length} rows.`;
+            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
             // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
             if (!supportsMinMaxId) {
                 msg += ` Endpoint doesn't support incremental min/max ID.`;
                 if (rows.length < cachedRows.length) {
-                    console.warn(`${msg} Discarding new rows and returning old ones bc there's more.`);
-                    return cachedRows;
+                    console.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
+                    return cachedRows; // TODO: this means we skip final processing. Should be ok bc rows are from cache.
                 }
                 else {
-                    logger.warn(`${msg} Keeping the new rows, discarding the cached ones bc there's more.`);
+                    // Whereas here we fall through to the final processing.
+                    logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
                 }
             }
             else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
