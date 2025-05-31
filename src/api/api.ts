@@ -21,11 +21,11 @@ import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helper
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
-    type MinMaxID,
     type ApiMutex,
     type MastodonApiObject,
     type MastodonObjWithID,
     type MastodonTag,
+    type MinMaxID,
     type StatusList,
 } from "../types";
 
@@ -33,8 +33,8 @@ import {
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
-
 const LOG_PREFIX = 'API';
+
 const apiLogger = new ComponentLogger(LOG_PREFIX, 'static');
 
 type CachedRows<T> = {
@@ -539,10 +539,8 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            // handleApiError() will make a decision about whether to use the cache, the new rows, or both
-            // and return the appropriate rows so we don't use the cached rows to be a separate thing any more
             rows = this.handleApiError<T>(completedParams, rows, this.waitTimes[cacheKey]!.startedAt, e);
-            cachedRows = [];
+            cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
             releaseMutex?.();
         }
@@ -586,11 +584,11 @@ export default class MastoApi {
                 }
 
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
-                logger.debug(`Getting MOAR data; loading backwards from maxId "${minMaxIdParams.maxIdForFetch}"`);
+                logger.info(`Getting MOAR data; loading backwards from maxId "${minMaxIdParams.maxIdForFetch}"`);
             } else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-                logger.debug(`Incremental load possible; setting minId="${minMaxIdParams.minIdForFetch}"`);
+                logger.info(`Incremental load possible; setting minId="${minMaxIdParams.minIdForFetch}"`);
             }
         } else if (maxId) {
             minMaxIdParams.maxIdForFetch = maxId;  // If we have a manually provided maxId use it as the maxIdForFetch
@@ -604,8 +602,8 @@ export default class MastoApi {
         }
 
         const completedParams: FetchParamsWithCacheData<T> = {
-            ...params,
             ...minMaxIdParams,
+            ...params,
             cacheResult,
             maxRecords,
         };
@@ -628,7 +626,9 @@ export default class MastoApi {
         };
     }
 
-    // If the access token was not revoked we need to decide which of the rows we have to keep
+    // If the access token was not revoked we need to decide which of the rows we have to keep.
+    // handleApiError() will make a decision about whether to use the cache, the new rows, or both
+    // and return the appropriate rows and return the appropriate rows in a single array.
     // TODO: handle rate limiting errors
     private handleApiError<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>,

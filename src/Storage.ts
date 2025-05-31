@@ -27,7 +27,6 @@ import {
     type FeedFilterSettingsSerialized,
     type MastodonInstances,
     type MastodonObjWithID,
-    type MinMaxID,
     type StorableObj,
     type StorableObjWithCache,
     type StorableWithTimestamp,
