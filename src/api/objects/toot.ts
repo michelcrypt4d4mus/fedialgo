@@ -502,6 +502,7 @@ export default class Toot implements TootObj {
      // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve(): Promise<Toot> {
         try {
+            logger.trace(`Resolving local toot ID for`, this);
             return await MastoApi.instance.resolveToot(this);
         } catch (error) {
             logger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
@@ -511,16 +512,7 @@ export default class Toot implements TootObj {
 
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolveID(): Promise<string> {
-        if (!this.resolvedID) {
-            try {
-                logger.log(`Resolving local toot ID for`, this);
-                this.resolvedID = (await MastoApi.instance.resolveToot(this)).id;
-            } catch (error) {
-                logger.error(`Error resolving toot`, error, `\nThis was the toot:`, this);
-                throw error;
-            }
-        }
-
+        this.resolvedID ||= (await MastoApi.instance.resolveToot(this)).id;
         return this.resolvedID;
     }
 

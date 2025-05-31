@@ -389,6 +389,7 @@ class Toot {
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
         try {
+            logger.trace(`Resolving local toot ID for`, this);
             return await api_1.default.instance.resolveToot(this);
         }
         catch (error) {
@@ -398,16 +399,7 @@ class Toot {
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolveID() {
-        if (!this.resolvedID) {
-            try {
-                logger.log(`Resolving local toot ID for`, this);
-                this.resolvedID = (await api_1.default.instance.resolveToot(this)).id;
-            }
-            catch (error) {
-                logger.error(`Error resolving toot`, error, `\nThis was the toot:`, this);
-                throw error;
-            }
-        }
+        this.resolvedID ||= (await api_1.default.instance.resolveToot(this)).id;
         return this.resolvedID;
     }
     // TODO: this maybe needs to take into consideration reblogsBy??
