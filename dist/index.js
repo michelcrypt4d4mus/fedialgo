@@ -63,7 +63,6 @@ const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoo
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
-const enums_1 = require("./enums");
 const tag_list_1 = __importDefault(require("./api/tag_list"));
 exports.TagList = tag_list_1.default;
 const toot_1 = __importStar(require("./api/objects/toot"));
@@ -76,6 +75,7 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
+const enums_1 = require("./enums");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
