@@ -165,6 +165,7 @@ export default class MastoApi {
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
+            logger,
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
@@ -178,9 +179,8 @@ export default class MastoApi {
                 }
 
                 oldestTootStr = `oldest toot: ${quotedISOFmt(oldestTootAt)}`;
-                logger.trace(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
+                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
                 const newToots = await Toot.buildToots(newStatuses, cacheKey);
-                logger.trace(`Finished building ${newToots.length} toots`);
                 await mergeTootsToFeed(newToots, logger.logPrefix);
                 allNewToots = allNewToots.concat(newToots)
 
@@ -476,16 +476,17 @@ export default class MastoApi {
     // URL for a given API endpoint on this user's home server
     private endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
 
-    private async checkCache<T extends MastodonApiObject>(params: CacheCheckParams<T>): Promise<CacheCheckResult<T>> {
+    // Load data from the cache and make some early decisions about future params
+    private async checkCache<T extends MastodonApiObject>(
+        params: CacheCheckParams<T>
+    ): Promise<CacheCheckResult<T> | null> {
         let { cacheKey, logger, maxRecords, moar, supportsMinMaxId } = params;
-
-        // Get the data from the cache
         const cachedData = await Storage.getWithStaleness(cacheKey);
         const rows = cachedData?.obj as T[];
 
         if (!rows) {
             logger.trace(`No cached data for ${cacheKey}, returning null`);
-            return { rows: null };
+            return null; // Return null to match behavior of Storage.get() when no cache is found
         }
 
         // Return the cachedRows if they exist, the data is not stale, and moar is false
@@ -503,22 +504,17 @@ export default class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
-        let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
+        let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
-        inParams.logger = logger;  // Ensure logger is set in params for completeParamsWithCache()
-        logger.trace(`called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
 
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
-        const releaseMutex = skipMutex ? null : (await lockExecution(this.mutexes[cacheKey], logger.logPrefix));
-        logger.trace(`called with params, mutex locked`);
-        const completedParams = await this.completeParamsWithCache<T>({...inParams, logger });
-        logger.trace(`completed cache check, completedParams:`, completedParams);
-        let { breakIf, cacheResult, maxRecords } = completedParams;
+        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger.logPrefix);
+        const completedParams = await this.completeParamsWithCache<T>({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completedParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
-            logger.trace(`returning still fresh cachedRows:`, completedParams);
             releaseMutex?.();  // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
             return cacheResult?.rows;
         }
@@ -595,7 +591,6 @@ export default class MastoApi {
         // Check the cache and get the min/max ID for next request if supported
         const cacheParams: CacheCheckParams<T> = { ...params, maxRecords, supportsMinMaxId };
         const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
-        logger.trace(`completeParamsWithCache() finished checking cache, result:`, cacheResult);
         let minId: string | number | null = null;
 
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -611,9 +606,6 @@ export default class MastoApi {
                 minId = cacheResult.minMaxId.max;
                 logger.debug(`Incremental load possible; setting minId="${minId}"`);
             }
-        } else if (!skipCache){
-            // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-            logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
         }
 
         const completedParams: FetchParamsComplete<T> = {

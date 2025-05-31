@@ -341,7 +341,7 @@ function uniquifyByProp(rows, transform, logPrefix) {
     const logger = new log_helpers_1.ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
     if (logPrefix && newRows.length < rows.length) {
-        logger.debug(`Removed ${rows.length - newRows.length} duplicate rows`);
+        logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);
     }
     return newRows;
 }

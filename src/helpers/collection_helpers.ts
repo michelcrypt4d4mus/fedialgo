@@ -399,7 +399,7 @@ export function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logP
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
 
     if (logPrefix && newRows.length < rows.length) {
-        logger.debug(`Removed ${rows.length - newRows.length} duplicate rows`);
+        logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);
     }
 
     return newRows;
