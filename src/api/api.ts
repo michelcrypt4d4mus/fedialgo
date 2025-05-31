@@ -12,7 +12,7 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_K
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { bracketed, createRandomString, extractDomain } from '../helpers/string_helpers';
+import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
@@ -505,7 +505,6 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
-        logger.logPrefix += ` *#(${createRandomString(4)})#*`;
         inParams.logger = logger;  // Ensure logger is set in params for completeParamsWithCache()
         logger.trace(`called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
@@ -515,11 +514,12 @@ export default class MastoApi {
         logger.trace(`called with params, mutex locked`);
         const completedParams = await this.completeParamsWithCache<T>({...inParams, logger });
         logger.trace(`completed cache check, completedParams:`, completedParams);
-        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = completedParams;
+        let { breakIf, cacheResult, maxRecords } = completedParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             logger.trace(`returning still fresh cachedRows:`, completedParams);
+            releaseMutex?.();  // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
             return cacheResult?.rows;
         }
 
@@ -530,11 +530,9 @@ export default class MastoApi {
         this.waitTimes[cacheKey]!.markStart();
         let pageNumber = 0;
         let rows: T[] = [];
-        const fetchParams = this.buildParams(completedParams);
-        logger.trace(`About to do first fetch with fetchParams`, fetchParams);
 
         try {
-            for await (const page of fetch(fetchParams)) {
+            for await (const page of fetch(this.buildParams(completedParams))) {
                 this.waitTimes[cacheKey]!.markEnd();   // TODO: telemetry stuff that should be removed eventually
 
                 // The actual action
@@ -595,7 +593,6 @@ export default class MastoApi {
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
         // Check the cache and get the min/max ID for next request if supported
-        logger.trace(`completeParamsWithCache() checking cache with params:`, params);
         const cacheParams: CacheCheckParams<T> = { ...params, maxRecords, supportsMinMaxId };
         const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
         logger.trace(`completeParamsWithCache() finished checking cache, result:`, cacheResult);
@@ -612,7 +609,7 @@ export default class MastoApi {
             } else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minId = cacheResult.minMaxId.max;
-                logger.debug(`Stale-ish data; doing incremental load from minId="${minId}"`);
+                logger.debug(`Incremental load possible; setting minId="${minId}"`);
             }
         } else if (!skipCache){
             // If maxId isn't supported then we don't start with the cached data in the 'rows' array

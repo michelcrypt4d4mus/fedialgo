@@ -416,7 +416,6 @@ class MastoApi {
     async getApiRecords(inParams) {
         let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
-        logger.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
         inParams.logger = logger; // Ensure logger is set in params for completeParamsWithCache()
         logger.trace(`called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
@@ -425,10 +424,11 @@ class MastoApi {
         logger.trace(`called with params, mutex locked`);
         const completedParams = await this.completeParamsWithCache({ ...inParams, logger });
         logger.trace(`completed cache check, completedParams:`, completedParams);
-        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = completedParams;
+        let { breakIf, cacheResult, maxRecords } = completedParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             logger.trace(`returning still fresh cachedRows:`, completedParams);
+            releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
             return cacheResult?.rows;
         }
         let cachedRows = cacheResult?.rows || [];
@@ -438,10 +438,8 @@ class MastoApi {
         this.waitTimes[cacheKey].markStart();
         let pageNumber = 0;
         let rows = [];
-        const fetchParams = this.buildParams(completedParams);
-        logger.trace(`About to do first fetch with fetchParams`, fetchParams);
         try {
-            for await (const page of fetch(fetchParams)) {
+            for await (const page of fetch(this.buildParams(completedParams))) {
                 this.waitTimes[cacheKey].markEnd(); // TODO: telemetry stuff that should be removed eventually
                 // The actual action
                 rows = rows.concat(page);
@@ -498,7 +496,6 @@ class MastoApi {
         const supportsMinMaxId = requestDefaults?.supportsMinMaxId ?? false;
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
         // Check the cache and get the min/max ID for next request if supported
-        logger.trace(`completeParamsWithCache() checking cache with params:`, params);
         const cacheParams = { ...params, maxRecords, supportsMinMaxId };
         const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
         logger.trace(`completeParamsWithCache() finished checking cache, result:`, cacheResult);
@@ -516,7 +513,7 @@ class MastoApi {
             else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minId = cacheResult.minMaxId.max;
-                logger.debug(`Stale-ish data; doing incremental load from minId="${minId}"`);
+                logger.debug(`Incremental load possible; setting minId="${minId}"`);
             }
         }
         else if (!skipCache) {
