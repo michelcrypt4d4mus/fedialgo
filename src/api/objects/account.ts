@@ -23,8 +23,8 @@ interface AccountObj extends mastodon.v1.Account {
     homeInstanceInfo?: () => Promise<InstanceResponse>;
     homeserver?: () => string;
     homserverURL?: () => string;
-    noteWithAccountInfo?: () => string;
     isFollowed?: boolean;
+    noteWithAccountInfo?: () => string;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 

@@ -73,15 +73,6 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
     let bytes = 0;
 
     switch (typeof obj) {
-        case "number":
-            bytes += 8;
-            sizes.numbers += 8;
-            break;
-        case "string":
-            const stringLength = strBytes(obj);
-            bytes += stringLength;
-            sizes.strings += stringLength;
-            break;
         case "boolean":
             bytes += 4;
             sizes.booleans += 4;
@@ -90,6 +81,15 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
             const fxnLength = strBytes(obj.toString());
             bytes += fxnLength; // functions aren't serialized in JSON i don't think?
             sizes.functions += fxnLength;
+            break;
+        case "number":
+            bytes += 8;
+            sizes.numbers += 8;
+            break;
+        case "string":
+            const stringLength = strBytes(obj);
+            bytes += stringLength;
+            sizes.strings += stringLength;
             break;
         case "object":
             if (Array.isArray(obj)) {

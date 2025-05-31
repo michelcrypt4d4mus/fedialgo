@@ -9,8 +9,8 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
  */
 const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
-const config_1 = require("../config");
 const log_helpers_1 = require("./log_helpers");
+const config_1 = require("../config");
 const math_helper_1 = require("./math_helper");
 const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
