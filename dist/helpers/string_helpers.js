@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -44,6 +44,9 @@ exports.MEDIA_TYPES = [
 // Check if it's a string
 const isString = (s) => typeof s === 'string'; // || s instanceof String; // TODO: wtf is String about?
 exports.isString = isString;
+// Check if it's empty (all whitespace or null or undefined)
+const isEmptyStr = (s) => s === null || s === undefined || s.trim() === '';
+exports.isEmptyStr = isEmptyStr;
 // Alphabetize an array of strings
 const alphabetize = (arr) => arr.sort(exports.compareStr);
 exports.alphabetize = alphabetize;

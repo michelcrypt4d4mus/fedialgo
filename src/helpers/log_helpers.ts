@@ -6,7 +6,7 @@ import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mute
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
-import { TELEMETRY, bracketed, prefixed } from './string_helpers';
+import { TELEMETRY, bracketed, isEmptyStr, prefixed } from './string_helpers';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -191,7 +191,7 @@ export class ComponentLogger {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
     }
 
-    private makeMsg(msg: string): string {
-        return `${this.logPrefix} ${msg}`;
+    private makeMsg(msg: string | undefined): string {
+        return this.logPrefix + isEmptyStr(msg) ? '' : ` ${msg}`;
     }
 };

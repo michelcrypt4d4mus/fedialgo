@@ -46,6 +46,8 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 
 // Check if it's a string
 export const isString = (s: unknown) => typeof s === 'string'; // || s instanceof String; // TODO: wtf is String about?
+// Check if it's empty (all whitespace or null or undefined)
+export const isEmptyStr = (s: string | null | undefined) => s === null || s === undefined || s.trim() === '';
 
 // Alphabetize an array of strings
 export const alphabetize = (arr: string[]) => arr.sort(compareStr);

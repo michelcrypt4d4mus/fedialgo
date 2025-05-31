@@ -164,7 +164,7 @@ class ComponentLogger {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
     }
     makeMsg(msg) {
-        return `${this.logPrefix} ${msg}`;
+        return this.logPrefix + (0, string_helpers_1.isEmptyStr)(msg) ? '' : ` ${msg}`;
     }
 }
 exports.ComponentLogger = ComponentLogger;
