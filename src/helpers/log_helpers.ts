@@ -1,14 +1,13 @@
 /*
  * Logging related methods.
  */
-import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+import { Mutex, Semaphore } from 'async-mutex';
 
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { TELEMETRY, bracketed, createRandomString, isEmptyStr, prefixed } from './string_helpers';
-
-export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
+import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";

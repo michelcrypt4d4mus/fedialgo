@@ -2,7 +2,7 @@
  * Typescript type definitions.
  */
 import { mastodon } from 'masto';
-import { Mutex } from 'async-mutex';
+import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
 
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
@@ -25,6 +25,7 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;
+export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | TootNumberProp;

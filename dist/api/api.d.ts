@@ -4,8 +4,8 @@ import Toot from './objects/toot';
 import UserData from "./user_data";
 import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
-import { ConcurrencyLockRelease, WaitTime } from '../helpers/log_helpers';
-import { type MastodonTag } from "../types";
+import { WaitTime } from '../helpers/log_helpers';
+import { type ConcurrencyLockRelease, type MastodonTag } from "../types";
 interface ApiParams {
     logger?: ComponentLogger;
     maxRecords?: number;
