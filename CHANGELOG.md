@@ -1,8 +1,8 @@
 # NEXT RELEASE
 
-### v0.55.3
+### v0.55.4
 
-### v0.55.1
+### v0.55.1 - v0.55.3
 * Stop exporting `sortKeysByValue()` helper
 * Use `import type Thing` instead of just `import Thing` where appropriate bc apparently it makes the typescript compiler happy
 * Add missing `enums.ts` files
@@ -14,7 +14,7 @@
 * Export `TagList` class
 * (Demo App) Make the minTootsSlider's initial value flexible to try to show the newly configured `idealNumOptions`
 
-### v0.54.20 / v0.54.21
+### v0.54.20 - v0.54.21
 * Rename `TRENDING_HASHTAGS` to `TRENDING_TAGS` and `PARTICIPATED_HASHTAGS` to `PARTICIPATED_TAGS`
 * (Demo App) Rework / generalize color gradient config for participated hashtags
 * (Demo App) Undo some memoization in `Feed.tsx` after the scroll listener `showMoreToots()` somehow went crazy and loaded the entire timeline (diff: https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/compare/baf2640872fb521b0b739d2e213d618cf2305317..master)
