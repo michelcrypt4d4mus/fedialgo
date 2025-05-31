@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.56.1
 * Use `Logger`s instead of `logPrefix` args everywhere
 
 # v0.56.0
