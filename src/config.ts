@@ -196,14 +196,14 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
-            [CacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 15,
-            },
             [CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
+            },
+            [CacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 15,
             },
             [CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,

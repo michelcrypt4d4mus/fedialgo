@@ -88,14 +88,14 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 15,
-            },
             [enums_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
+            },
+            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 15,
             },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,

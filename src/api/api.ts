@@ -288,11 +288,14 @@ export default class MastoApi {
 
     // Get the user's recent notifications
     async getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
-        return await this.getApiRecords<mastodon.v1.Notification>({
+        const notifs = await this.getApiRecords<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             cacheKey: CacheKey.NOTIFICATIONS,
             ...(params || {})
         }) as mastodon.v1.Notification[];
+
+        this.logger.log(`[${CacheKey.NOTIFICATIONS}] (getNotifications()) retrieved ${notifs.length} notifications:`);
+        return notifs;
     }
 
     // Get the user's recent toots
