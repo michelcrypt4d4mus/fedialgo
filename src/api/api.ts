@@ -516,7 +516,7 @@ export default class MastoApi {
             return cacheResult?.rows;
         }
 
-        if (!skipCache) logger.trace(`Cache is stale or moar=true, fetching from API w/completedParams:`, completeParams);
+        logger.trace(`Fetching from API w/completedParams:`, completeParams);
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows: T[] = [];
