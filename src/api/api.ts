@@ -30,7 +30,6 @@ import {
 } from "../types";
 
 const DEFAULT_BREAK_IF = async <T>(pageOfResults: T[], allResults: T[]) => undefined;
-const DEFAULT_PROCESS_FXN = <T>(obj: T) => undefined;
 
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -633,7 +632,7 @@ export default class MastoApi {
             minId,
             maxRecords,
             moar: moar ?? false,
-            processFxn: params.processFxn ?? DEFAULT_PROCESS_FXN,   // TODO: this sucks, could make nullable?
+            processFxn: params.processFxn ?? null,
             skipCache: skipCache ?? false,
             skipMutex: params.skipMutex ?? false,
             supportsMinMaxId,

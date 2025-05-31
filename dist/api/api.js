@@ -42,7 +42,6 @@ const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
-const DEFAULT_PROCESS_FXN = (obj) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
@@ -537,7 +536,7 @@ class MastoApi {
             minId,
             maxRecords,
             moar: moar ?? false,
-            processFxn: params.processFxn ?? DEFAULT_PROCESS_FXN,
+            processFxn: params.processFxn ?? null,
             skipCache: skipCache ?? false,
             skipMutex: params.skipMutex ?? false,
             supportsMinMaxId,
