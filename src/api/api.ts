@@ -591,7 +591,7 @@ export default class MastoApi {
                 }
 
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
-                logger.info(`Getting MOAR data; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
+                logger.info(`Getting MOAR_DATA; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             } else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
@@ -605,8 +605,7 @@ export default class MastoApi {
         // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
         if (cacheResult && moar) {
             const newMaxRecords = maxRecords! + cacheResult.rows!.length;
-            logger.info(`Increasing maxRecords to ${newMaxRecords} for MOAR request`);
-        } else {
+            logger.info(`Increasing maxRecords for MOAR_DATA to ${newMaxRecords}`);
         }
 
         const completedParams: FetchParamsWithCacheData<T> = {
