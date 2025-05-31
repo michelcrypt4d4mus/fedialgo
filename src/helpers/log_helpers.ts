@@ -25,7 +25,6 @@ export class ComponentLogger {
         this.componentName = componentName;
         this.subtitle = subtitle;
         this.subsubtitle = subsubtitle;
-
         this.logPrefix = bracketed(componentName) + (subtitle ? ` <${subtitle}>` : "");
         this.logPrefix += (subsubtitle ? ` (${subsubtitle})` : "");
     }
@@ -80,7 +79,7 @@ export class ComponentLogger {
     }
 
     private makeMsg(msg: string | undefined): string {
-        return this.logPrefix + isEmptyStr(msg) ? '' : ` ${msg}`;
+        return this.logPrefix + (isEmptyStr(msg) ? '' : ` ${msg}`);
     }
 };
 
