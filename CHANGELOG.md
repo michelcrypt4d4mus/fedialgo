@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.55.3
+
 ### v0.55.1
 * Stop exporting `sortKeysByValue()` helper
 * Use `import type Thing` instead of just `import Thing` where appropriate bc apparently it makes the typescript compiler happy
