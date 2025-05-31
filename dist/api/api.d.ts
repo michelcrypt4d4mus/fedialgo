@@ -54,6 +54,7 @@ export default class MastoApi {
     setSemaphoreConcurrency(concurrency: number): void;
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;
+    private supportsMinMaxId;
     private checkCache;
     private getApiRecords;
     private buildParams;

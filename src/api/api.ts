@@ -70,7 +70,6 @@ interface FetchParams<T> extends MaxIdParams {
 
 interface CacheCheckParams<T> extends FetchParams<T> {
     logger: ComponentLogger,
-    supportsMinMaxId?: boolean,
 };
 
 // Same as FetchParams but with a few derived fields
@@ -475,12 +474,14 @@ export default class MastoApi {
 
     // URL for a given API endpoint on this user's home server
     private endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
+    // Check the config for supportsMinMaxId boolean
+    private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
     // Load data from the cache and make some early decisions about future params
     private async checkCache<T extends MastodonApiObject>(
         params: CacheCheckParams<T>
     ): Promise<CacheCheckResult<T> | null> {
-        let { cacheKey, logger, maxRecords, moar, supportsMinMaxId } = params;
+        let { cacheKey, logger, maxRecords, moar } = params;
         const cachedData = await Storage.getWithStaleness(cacheKey);
         const rows = cachedData?.obj as T[];
 
@@ -493,7 +494,7 @@ export default class MastoApi {
         return {
             isStale: cachedData!.isStale,
              // minMaxId only set if endpoint supportsMinMaxId!
-            minMaxId: supportsMinMaxId ? findMinMaxId(rows as MastodonObjWithID[]) : null,
+            minMaxId: this.supportsMinMaxId(cacheKey) ? findMinMaxId(rows as MastodonObjWithID[]) : null,
             // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
             newMaxRecords: moar ? (maxRecords! + rows!.length) : undefined,
             rows,
@@ -585,11 +586,10 @@ export default class MastoApi {
 
         // Get some defaults set up
         const requestDefaults = config.api.data[cacheKey];
-        const supportsMinMaxId = requestDefaults?.supportsMinMaxId ?? false
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
         // Check the cache and get the min/max ID for next request if supported
-        const cacheParams: CacheCheckParams<T> = { ...params, maxRecords, supportsMinMaxId };
+        const cacheParams: CacheCheckParams<T> = { ...params, maxRecords };
         const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
         let minId: string | number | null = null;
 
@@ -621,7 +621,6 @@ export default class MastoApi {
             processFxn: params.processFxn ?? null,
             skipCache: skipCache ?? false,
             skipMutex: params.skipMutex ?? false,
-            supportsMinMaxId,
         };
 
         this.validateFetchParams<T>(completedParams);
@@ -636,13 +635,13 @@ export default class MastoApi {
         startedAt: Date,
         err: Error | unknown,
     ): T[] {
-        const { cacheResult, cacheKey, logger, supportsMinMaxId } = params;
+        const { cacheResult, cacheKey, logger } = params;
         const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(err, `${logger.logPrefix} Failed ${ageString(startedAt)}. ${msg}`);
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (!supportsMinMaxId) {
+        if (!this.supportsMinMaxId(cacheKey)) {
             msg += ` Endpoint doesn't support incremental min/max ID.`;
 
             if (rows.length < cachedRows.length) {
