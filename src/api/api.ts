@@ -598,6 +598,7 @@ export default class MastoApi {
                 logger.info(`Incremental load possible; loading fwd from maxId in cache: "${minMaxIdParams.minIdForFetch}"`);
             }
         } else if (maxId) {
+            logger.info(`loading backward from manually provided maxId: "${maxId}"`);
             minMaxIdParams.maxIdForFetch = maxId;  // If we have a manually provided maxId use it as the maxIdForFetch
         }
 
