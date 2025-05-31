@@ -49,7 +49,6 @@ import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
 import { MediaCategory, TrendingType } from './enums';
-import { type WeightName } from './scorer/scorer';
 import { NonScoreWeightName, ScoreName } from './enums';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
@@ -81,6 +80,7 @@ import {
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
+    type WeightName,
     type Weights,
     type WeightInfoDict,
 } from "./types";

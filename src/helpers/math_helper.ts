@@ -2,8 +2,8 @@
  * Math and numbers.
  */
 import { byteString, NUMBER_REGEX } from "./string_helpers";
-import { sumArray } from "./collection_helpers";
 import { strBytes } from "./log_helpers";
+import { sumArray } from "./collection_helpers";
 import { type StringNumberDict } from "../types";
 
 

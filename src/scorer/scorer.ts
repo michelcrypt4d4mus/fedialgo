@@ -11,19 +11,15 @@ import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { ComponentLogger } from '../helpers/log_helpers';
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
+import { ScoreName, NonScoreWeightName } from '../enums';
 import {
     type StringNumberDict,
     type TootScore,
     type TootScores,
     type WeightedScore,
-    type WeightInfo
+    type WeightInfo,
+    type WeightName,
 } from "../types";
-import { ScoreName, NonScoreWeightName } from '../enums';
-
-
-// Names of all the user adjustable score weightings, both those with a Scorer and those without
-export type WeightName = ScoreName | NonScoreWeightName;
-
 
 // Local constants
 const LOG_PREFIX = "Scorer";

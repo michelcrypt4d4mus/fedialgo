@@ -9,13 +9,13 @@ import { Mutex } from 'async-mutex';
 import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
-import { CacheKey } from "../enums";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { bracketed } from "../helpers/string_helpers";
-import { FEDIVERSE_KEYS, config } from "../config";
+import { CacheKey } from "../enums";
 import { ComponentLogger, lockExecution, logAndThrowError } from '../helpers/log_helpers';
+import { config, FEDIVERSE_KEYS } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { TrendingType } from '../enums';
 import {

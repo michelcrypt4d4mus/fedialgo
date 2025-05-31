@@ -21,7 +21,6 @@ import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
-import { type WeightName } from './scorer/scorer';
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -33,6 +32,7 @@ import {
     type TagWithUsageCounts,
     type TrendingLink,
     type TrendingData,
+    type WeightName,
     type Weights,
 } from "./types";
 

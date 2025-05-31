@@ -5,8 +5,8 @@ exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder 
  * Math and numbers.
  */
 const string_helpers_1 = require("./string_helpers");
-const collection_helpers_1 = require("./collection_helpers");
 const log_helpers_1 = require("./log_helpers");
+const collection_helpers_1 = require("./collection_helpers");
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
 const isNumber = (n) => {
     if (typeof n === "string") {

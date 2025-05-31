@@ -1,5 +1,5 @@
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { CacheKey } from "../enums";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
