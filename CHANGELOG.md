@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
+* `MastoApi.instanceInfo()` only returns the v2 API data structure for a server configuration. If the v1 version exists it will be logged and thrown as an error.
 
 ### v0.55.1 - v0.55.4
 * Stop exporting `sortKeysByValue()` helper
