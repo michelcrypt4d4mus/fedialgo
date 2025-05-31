@@ -510,9 +510,9 @@ export default class Toot implements TootObj {
         }
     }
 
-    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
+    // Get Status ID for toot from user's home server so the property URLs point to the home sever.
     async resolveID(): Promise<string> {
-        this.resolvedID ||= (await MastoApi.instance.resolveToot(this)).id;
+        this.resolvedID ||= (await this.resolve()).id;
         return this.resolvedID;
     }
 

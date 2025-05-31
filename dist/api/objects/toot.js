@@ -397,9 +397,9 @@ class Toot {
             throw error;
         }
     }
-    // Get Status obj for toot from user's home server so the property URLs point to the home sever.
+    // Get Status ID for toot from user's home server so the property URLs point to the home sever.
     async resolveID() {
-        this.resolvedID ||= (await api_1.default.instance.resolveToot(this)).id;
+        this.resolvedID ||= (await this.resolve()).id;
         return this.resolvedID;
     }
     // TODO: this maybe needs to take into consideration reblogsBy??
