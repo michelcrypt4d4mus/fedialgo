@@ -492,7 +492,8 @@ export default class MastoApi {
         // Return the cachedRows if they exist, the data is not stale, and moar is false
         return {
             isStale: cachedData!.isStale,
-            minMaxId: supportsMinMaxId ? findMinMaxId(rows as MastodonObjWithID[]) : null,  // only set if supported!
+             // minMaxId only set if endpoint supportsMinMaxId!
+            minMaxId: supportsMinMaxId ? findMinMaxId(rows as MastodonObjWithID[]) : null,
             // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
             newMaxRecords: moar ? (maxRecords! + rows!.length) : undefined,
             rows,

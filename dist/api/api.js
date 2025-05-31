@@ -404,6 +404,7 @@ class MastoApi {
         // Return the cachedRows if they exist, the data is not stale, and moar is false
         return {
             isStale: cachedData.isStale,
+            // minMaxId only set if endpoint supportsMinMaxId!
             minMaxId: supportsMinMaxId ? (0, collection_helpers_1.findMinMaxId)(rows) : null,
             // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
             newMaxRecords: moar ? (maxRecords + rows.length) : undefined,
