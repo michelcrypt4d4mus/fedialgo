@@ -15,7 +15,7 @@ import { AlgorithmStorageKey, CacheKey } from "./enums";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
-import { checkUniqueIDs, findMinMaxId, zipPromises } from "./helpers/collection_helpers";
+import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
@@ -47,7 +47,6 @@ type StorageKey = AlgorithmStorageKey | CacheKey;
 
 type StorableObjWithStaleness = {
     isStale: boolean,
-    minMaxID?: MinMaxID | null,  // Optional min/max ID for the data, only set if CacheKey endpoint supports it
     obj: StorableObjWithCache,
     updatedAt: Date,
 };
@@ -204,7 +203,6 @@ export default class Storage {
             return null;
         };
 
-        const obj = this.deserialize(key, withTimestamp.value) as StorableObjWithCache;
         const dataAgeInMinutes = ageInMinutes(withTimestamp.updatedAt);
         const staleAfterMinutes = config.api.data[key]?.minutesUntilStale || config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${toLocaleInt(dataAgeInMinutes)}`;
@@ -227,7 +225,7 @@ export default class Storage {
 
         return {
             isStale,
-            obj,
+            obj: this.deserialize(key, withTimestamp.value) as StorableObjWithCache,
             updatedAt: new Date(withTimestamp.updatedAt),
         }
     }

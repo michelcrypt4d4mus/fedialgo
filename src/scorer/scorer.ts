@@ -85,7 +85,6 @@ export default abstract class Scorer {
     static async scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]> {
         const scorers = ScorerCache.weightedScorers;
         const startedAt = new Date();
-        scoreLogger.trace(`Scoring ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
 
         try {
             // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.

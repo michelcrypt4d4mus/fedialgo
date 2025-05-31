@@ -63,7 +63,6 @@ class Scorer {
     static async scoreToots(toots, isScoringFeed) {
         const scorers = scorer_cache_1.default.weightedScorers;
         const startedAt = new Date();
-        scoreLogger.trace(`Scoring ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)} (${scorers.length} scorers)`);
         try {
             // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
             // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).

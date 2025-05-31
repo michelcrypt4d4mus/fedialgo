@@ -349,8 +349,6 @@ class Config {
             }
         }
     }
-    // Helper method for checking if an endpoing supports min/maxId in request params
-    supportsMinMaxId = (cacheKey) => !!this.api.data[cacheKey]?.supportsMinMaxId;
     // Check for NaN values in number fields and emptry strings in string fields
     validate(cfg) {
         cfg ??= this;
