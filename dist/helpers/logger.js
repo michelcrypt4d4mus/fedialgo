@@ -10,11 +10,12 @@ const string_helpers_1 = require("./string_helpers");
 const PREFIXERS = [
     string_helpers_1.bracketed,
     string_helpers_1.arrowed,
+    (str) => `{${str}}`,
     (str) => `(${str})`,
-    (str) => `~${str}~`,
-    (str) => `*${str}*`,
-    (str) => `-${str}-`,
     (str) => `#${str}#`,
+    (str) => `*${str}*`,
+    (str) => `~${str}~`,
+    (str) => `-${str}-`,
 ];
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
 class Logger {

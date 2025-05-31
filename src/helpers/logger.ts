@@ -8,11 +8,12 @@ import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from '.
 const PREFIXERS = [
     bracketed,
     arrowed,
+    (str: string) => `{${str}}`,
     (str: string) => `(${str})`,
-    (str: string) => `~${str}~`,
-    (str: string) => `*${str}*`,
-    (str: string) => `-${str}-`,
     (str: string) => `#${str}#`,
+    (str: string) => `*${str}*`,
+    (str: string) => `~${str}~`,
+    (str: string) => `-${str}-`,
 ];
 
 
