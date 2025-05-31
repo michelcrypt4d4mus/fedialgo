@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use `Logger`s instead of `logPrefix` args everywhere
 
 # v0.56.0
 * Refactor main `MastoApi` method method into a few easier to follow pieces
