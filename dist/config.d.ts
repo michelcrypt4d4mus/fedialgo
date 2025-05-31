@@ -1,5 +1,6 @@
 import { CacheKey } from "./enums";
 import { type NonScoreWeightInfoDict } from "./types";
+export declare const FEDIVERSE_KEYS: CacheKey[];
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -192,4 +193,3 @@ declare class Config implements ConfigType {
 }
 declare const config: Config;
 export { config };
-export declare const FEDIVERSE_KEYS: CacheKey[];

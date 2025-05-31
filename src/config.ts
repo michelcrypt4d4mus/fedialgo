@@ -8,6 +8,14 @@ import { Logger } from "./helpers/logger";
 import { NonScoreWeightName } from './enums';
 import { type NonScoreWeightInfoDict } from "./types";
 
+// Cachey keys for the fediverse wide trending data
+export const FEDIVERSE_KEYS = [
+    CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    CacheKey.FEDIVERSE_TRENDING_LINKS,
+    CacheKey.FEDIVERSE_TRENDING_TAGS,
+    CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
+
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
 export const MINUTES_IN_HOUR = 60;
@@ -27,8 +35,6 @@ const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
 
-// TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
-// logger
 const logger = new Logger(LOG_PREFIX);
 
 type ApiRequestDefaults = {
@@ -522,9 +528,4 @@ if (isLoadTest) {
     config.trending.tags.numTags = 40;
 };
 
-export { config };export const FEDIVERSE_KEYS = [
-        CacheKey.FEDIVERSE_POPULAR_SERVERS,
-        CacheKey.FEDIVERSE_TRENDING_LINKS,
-        CacheKey.FEDIVERSE_TRENDING_TAGS,
-        CacheKey.FEDIVERSE_TRENDING_TOOTS,
-    ];
+export { config };

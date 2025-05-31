@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_KEYS = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -9,6 +9,13 @@ const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const logger_1 = require("./helpers/logger");
 const enums_2 = require("./enums");
+// Cachey keys for the fediverse wide trending data
+exports.FEDIVERSE_KEYS = [
+    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
@@ -25,8 +32,6 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
-// TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
-// logger
 const logger = new logger_1.Logger(LOG_PREFIX);
 ;
 ;
@@ -400,10 +405,4 @@ if (environment_helpers_1.isLoadTest) {
     config.trending.tags.numTags = 40;
 }
 ;
-exports.FEDIVERSE_KEYS = [
-    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
 //# sourceMappingURL=config.js.map
