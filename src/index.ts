@@ -445,7 +445,7 @@ class TheAlgorithm {
             newToots = await tootFetcher;
             this.logTelemetry(`fetched ${newToots.length} toots`, startedAt, logger);
         } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Error fetching toots ${ageString(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${ageString(startedAt)}`);
         }
 
         await this.lockedMergeToFeed(newToots, logger);
@@ -608,7 +608,7 @@ class TheAlgorithm {
         this.feed = truncateToConfiguredLength(
             this.feed,
             config.toots.maxTimelineLength,
-            `${this.logger.logPrefix} ${arrowed('scoreAndFilterFeed()')}`
+            this.logger.tempLogger('scoreAndFilterFeed()')
         );
 
         await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);

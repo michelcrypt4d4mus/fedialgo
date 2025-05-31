@@ -33,7 +33,7 @@ export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function swapKeysAndValues<T extends StringDict>(dict: T): StringDict;
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
-export declare function truncateToConfiguredLength(array: any[], maxRecords: number, label?: string): any[];
+export declare function truncateToConfiguredLength(array: any[], maxRecords: number, logger?: Logger): any[];
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
 export declare function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[];
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;

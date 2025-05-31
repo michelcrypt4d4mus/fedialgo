@@ -146,7 +146,7 @@ class MastoApi {
         let msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger.logPrefix);
+        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
         await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -171,7 +171,7 @@ class MastoApi {
                 const statuses = await fetch();
                 logger.trace(`Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, key);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, key);
+                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
                 await Storage_1.default.set(key, toots);
             }
             return toots;
@@ -310,7 +310,7 @@ class MastoApi {
             return toots;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             return [];
         }
         finally {
@@ -374,7 +374,7 @@ class MastoApi {
             return statuses;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             return [];
         }
         finally {
@@ -542,7 +542,7 @@ class MastoApi {
         const { cacheResult, cacheKey, logger } = params;
         const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
-        MastoApi.throwIfAccessTokenRevoked(err, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
         // TODO: i think we can just check for the existence of minMaxId in cacheResult?
         if (!this.supportsMinMaxId(cacheKey)) {
@@ -601,8 +601,8 @@ class MastoApi {
     //     Static Methods     //
     ////////////////////////////
     // Re-raise access revoked errors so they can trigger a logout() cal otherwise just log and move on
-    static throwIfAccessTokenRevoked(error, msg) {
-        apiLogger.error(`${msg}. Error:`, error);
+    static throwIfAccessTokenRevoked(logger, error, msg) {
+        logger.error(`${msg}. Error:`, error);
         if (isAccessTokenRevokedError(error))
             throw error;
     }

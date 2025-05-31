@@ -417,7 +417,7 @@ class TheAlgorithm {
             this.logTelemetry(`fetched ${newToots.length} toots`, startedAt, logger);
         }
         catch (e) {
-            api_1.default.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            api_1.default.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         await this.lockedMergeToFeed(newToots, logger);
         return newToots;
@@ -551,7 +551,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
-        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, `${this.logger.logPrefix} ${(0, string_helpers_1.arrowed)('scoreAndFilterFeed()')}`);
+        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, this.logger.tempLogger('scoreAndFilterFeed()'));
         await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }

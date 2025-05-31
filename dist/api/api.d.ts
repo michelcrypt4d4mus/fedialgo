@@ -62,7 +62,7 @@ export default class MastoApi {
     private handleApiError;
     private buildFromApiObjects;
     private validateFetchParams;
-    static throwIfAccessTokenRevoked(error: unknown, msg: string): void;
+    static throwIfAccessTokenRevoked(logger: Logger, error: unknown, msg: string): void;
     static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }
 export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;

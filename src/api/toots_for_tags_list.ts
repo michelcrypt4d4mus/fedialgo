@@ -84,7 +84,7 @@ export default class TootsForTagsList {
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.tootsConfig.numTags;
-        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
+        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
         return tags;
     }

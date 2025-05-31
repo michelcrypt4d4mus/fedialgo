@@ -316,13 +316,13 @@ function transformKeys(data, transform) {
 exports.transformKeys = transformKeys;
 ;
 // Find the configured value at configKey and truncate array to that length
-function truncateToConfiguredLength(array, maxRecords, label) {
+function truncateToConfiguredLength(array, maxRecords, logger) {
     if (array.length <= maxRecords)
         return array;
-    const logPfx = (0, string_helpers_1.bracketed)(label || "truncateToConfiguredLength()");
+    logger ||= new logger_1.Logger("truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    console.log(`${logPfx} Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
+    logger.log(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
     return array;
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;
