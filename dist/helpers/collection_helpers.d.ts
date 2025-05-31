@@ -17,7 +17,7 @@ export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => num
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logPrefix: string, reason: string, // Describe why things were filtered
 objType?: string): T[];
-export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined;
+export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
 export declare function incrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;

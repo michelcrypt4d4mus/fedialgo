@@ -129,13 +129,13 @@ exports.filterWithLog = filterWithLog;
 function findMinMaxId(array) {
     if (!array.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
-        return undefined;
+        return null;
     }
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(math_helper_1.isNumber);
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
-        return undefined;
+        return null;
     }
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {

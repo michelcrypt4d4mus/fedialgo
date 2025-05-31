@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = void 0;
+exports.STORAGE_KEYS_WITH_UNIQUE_IDS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -56,7 +56,7 @@ localforage_1.default.config({
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
-const STORAGE_KEYS_WITH_UNIQUE_IDS = [
+exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
     enums_1.CacheKey.NOTIFICATIONS,
@@ -197,7 +197,7 @@ class Storage {
             logger.trace(`${logPrefix} ${msg}`);
         }
         // Check for unique IDs in the stored data if we're in debug mode
-        if (environment_helpers_1.isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
+        if (environment_helpers_1.isDebugMode && exports.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, key);
         }
         return {

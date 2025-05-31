@@ -30,11 +30,11 @@ exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importStar(require("../Storage"));
-const enums_1 = require("../enums");
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const enums_1 = require("../enums");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -42,12 +42,15 @@ const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
 const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
+const DEFAULT_PROCESS_FXN = (obj) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 const LOG_PREFIX = 'API';
 const apiLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, 'static');
+;
+;
 ;
 ;
 ;
@@ -389,67 +392,46 @@ class MastoApi {
     /////////////////////////////
     // URL for a given API endpoint on this user's home server
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
+    async checkCache(params) {
+        let { cacheKey, logger, maxRecords, moar, supportsMinMaxId } = params;
+        logger ??= getLogger(cacheKey);
+        // Get the data from the cache
+        const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
+        if (!cachedData?.obj) {
+            logger.trace(`No cached data for ${cacheKey}, returning null`);
+            return { rows: null };
+        }
+        const rows = cachedData?.obj;
+        // Return the cachedRows if they exist, the data is not stale, and moar is false
+        return {
+            isStale: cachedData.isStale,
+            minMaxId: supportsMinMaxId ? (0, collection_helpers_1.findMinMaxId)(rows) : null,
+            // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
+            newMaxRecords: moar ? (maxRecords + rows.length) : undefined,
+            rows,
+        };
+    }
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    async getApiRecords(params) {
-        let { breakIf, cacheKey, fetch, logger, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
-        logger ??= getLogger(cacheKey);
-        if (moar && (skipCache || maxId))
-            logger.warn(`skipCache=true AND moar or maxId set!`);
-        // Parse params and set defaults
-        const requestDefaults = config_1.config.api.data[cacheKey];
-        maxRecords ??= requestDefaults?.initialMaxRecords ?? config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-        breakIf ??= DEFAULT_BREAK_IF;
-        // Declare required variables
-        let minId; // Used for incremental loading when data is stale (if supported)
+    async getApiRecords(inParams) {
+        let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
+        logger ??= getLogger(cacheKey, moar ? "MOAR" : undefined);
+        const startedAt = new Date();
+        // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
+        const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
+        const params = await this.completeParamsWithCache(inParams);
+        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = params;
+        const cachedRows = cacheResult.rows || [];
+        // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
+        if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
+            return cachedRows;
+        }
+        maxRecords = cacheResult?.newMaxRecords || maxRecords; // TODO: is this right w/maxRecords?
         let pageNumber = 0;
         let rows = [];
-        // Lock mutex unless skipMutex is true
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix);
-        const startedAt = new Date();
         try {
-            // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
-            if (!skipCache) {
-                const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
-                if (cachedData?.obj) {
-                    // Return the cachedRows if they exist, the data is not stale, and moar is false
-                    const cachedRows = cachedData.obj;
-                    if (!cachedData.isStale && !moar)
-                        return cachedRows;
-                    const minMaxId = (0, collection_helpers_1.findMinMaxId)(cachedRows);
-                    if (moar) {
-                        maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to the rows we have now
-                    }
-                    // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    if (requestDefaults?.supportsMinMaxId && minMaxId) {
-                        rows = cachedRows;
-                        // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
-                        // If we're incrementally updating stale data, use the max ID of the cache as the request minId
-                        if (moar) {
-                            maxId = minMaxId.min;
-                            logger.debug(`Getting MOAR old data; loading backwards from maxId ${maxId}`);
-                        }
-                        else {
-                            minId = minMaxId.max;
-                            logger.debug(`Stale data; attempting incremental load from minId ${minId}`);
-                        }
-                    }
-                    else {
-                        // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        let msg = `maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
-                        logger.debug(msg, minMaxId, `, maxRecords=${maxRecords}\nrequestDefaults:`, requestDefaults);
-                    }
-                }
-                ;
-            }
-            // 'limit' is the name of the max records per page param in the Mastodon API
-            const limit = Math.min(maxRecords, requestDefaults?.limit || config_1.config.api.defaultRecordsPerPage);
-            logger.trace(`(fetchData()) params w/filled in defaults:`, { ...params, limit, minId, maxId, maxRecords });
-            // Telemetry stuff, reset the WaitTime timer immediately before API request starts
-            this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
-            this.waitTimes[cacheKey].markStart();
-            for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
+            for await (const page of fetch(this.buildParams(params))) {
                 this.waitTimes[cacheKey].markEnd(); // TODO: telemetry stuff that should be removed eventually
                 // The actual action
                 rows = rows.concat(page);
@@ -472,6 +454,25 @@ class MastoApi {
             // TODO: handle rate limiting errors
             // If the access token was not revoked whatever rows we've retrieved will be returned
             MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}, have ${rows.length} rows`);
+            let msg = `Error: "${e}" after ${rows.length} new rows, cache has ${cachedRows.length} rows.`;
+            // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
+            if (!supportsMinMaxId) {
+                msg += ` Endpoint doesn't support incremental min/max ID.`;
+                if (rows.length < cachedRows.length) {
+                    console.warn(`${msg} Discarding new rows and returning old ones bc there's more.`);
+                    return cachedRows;
+                }
+                else {
+                    logger.warn(`${msg} Keeping the new rows, discarding the cached ones bc there's more.`);
+                }
+            }
+            else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+                logger.warn(`${msg} Merging cached rows with new rows.`);
+                rows = [...cachedRows, ...rows];
+            }
+            else {
+                throw new Error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`, { cause: e });
+            }
         }
         finally {
             releaseMutex?.();
@@ -484,13 +485,65 @@ class MastoApi {
         return objs;
     }
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    buildParams(limit, minId, maxId) {
-        let params = { limit: limit };
+    buildParams(params) {
+        const { limit, minId, maxId } = params;
+        let apiParams = { limit };
         if (minId)
-            params = { ...params, minId: `${minId}` };
+            apiParams = { ...apiParams, minId: `${minId}` };
         if (maxId)
-            params = { ...params, maxId: `${maxId}` };
-        return params;
+            apiParams = { ...apiParams, maxId: `${maxId}` };
+        return apiParams;
+    }
+    // Check the cache, consult the endpoint defaults, and fill out a complete set of request parameters
+    // along with the cachedResult (if any).
+    async completeParamsWithCache(params) {
+        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        // Get some defaults set up
+        logger ??= getLogger(cacheKey);
+        const requestDefaults = config_1.config.api.data[cacheKey];
+        const supportsMinMaxId = requestDefaults?.supportsMinMaxId ?? false;
+        maxRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
+        // Check the cache and get the min/max ID for next request if supported
+        const cacheParams = { ...params, maxRecords, supportsMinMaxId };
+        const cacheResult = skipCache ? null : await this.checkCache(cacheParams);
+        let minId = null;
+        // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
+        // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
+        // If we're incrementally updating stale data, use the max ID of the cache as the request minId
+        if (cacheResult?.minMaxId) {
+            if (moar) {
+                if (maxId)
+                    logger.warn(`maxId param "${maxId}" but overwriting w/minID in cache "${cacheResult.minMaxId.min}"!`);
+                maxId = cacheResult.minMaxId.min;
+                logger.debug(`Getting MOAR data; loading backwards from maxId "${maxId}"`);
+            }
+            else {
+                // TODO: is this right? we used to return the cached data quickly if it was OK...
+                minId = cacheResult.minMaxId.max;
+                logger.debug(`Stale-ish data; doing incremental load from minId="${minId}"`);
+            }
+        }
+        else {
+            // If maxId isn't supported then we don't start with the cached data in the 'rows' array
+            logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
+        }
+        const completedParams = {
+            ...cacheParams,
+            breakIf: params.breakIf ?? DEFAULT_BREAK_IF,
+            cacheResult,
+            limit: Math.min(maxRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
+            logger,
+            maxId: maxId ?? null,
+            minId,
+            maxRecords,
+            moar: moar ?? false,
+            processFxn: params.processFxn ?? DEFAULT_PROCESS_FXN,
+            skipCache: skipCache ?? false,
+            skipMutex: params.skipMutex ?? false,
+            supportsMinMaxId,
+        };
+        this.validateFetchParams(completedParams);
+        return completedParams;
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)
     buildFromApiObjects(key, objects) {
@@ -501,8 +554,23 @@ class MastoApi {
             const toots = objects.map(obj => obj instanceof toot_1.default ? obj : toot_1.default.build(obj));
             return toot_1.default.dedupeToots(toots, `${key} buildFromApiObjects`);
         }
+        else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
+            return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id);
+        }
         else {
             return objects;
+        }
+    }
+    validateFetchParams(params) {
+        let { cacheKey, cacheResult, logger, maxId, maxRecords, minId, moar, skipCache } = params;
+        logger ??= getLogger(cacheKey);
+        logger.trace(`(validateFetchParams()) params:`, params);
+        if (moar && (skipCache || maxId))
+            logger.warn(`skipCache=true AND moar or maxId set!`);
+        if (minId && maxId)
+            logger.warn(`Both minId="${minId}" and maxId="${maxId}" set!`);
+        if (maxRecords && cacheResult?.newMaxRecords && maxRecords < cacheResult.newMaxRecords) {
+            logger.warn(`maxRecords=${maxRecords} < cacheResult.newMaxRecords=${cacheResult.newMaxRecords}, should we be using ${cacheResult.newMaxRecords}?`);
         }
     }
     ////////////////////////////

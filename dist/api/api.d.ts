@@ -1,8 +1,8 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { CacheKey } from "../enums";
 import Toot from './objects/toot';
 import UserData from "./user_data";
+import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { WaitTime } from '../helpers/log_helpers';
 import { type MastodonTag } from "../types";
@@ -13,7 +13,7 @@ interface ApiParams {
     skipCache?: boolean;
 }
 interface MaxIdParams extends ApiParams {
-    maxId?: string | number;
+    maxId?: string | number | null;
 }
 interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
@@ -54,9 +54,12 @@ export default class MastoApi {
     setSemaphoreConcurrency(concurrency: number): void;
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;
+    private checkCache;
     private getApiRecords;
     private buildParams;
+    private completeParamsWithCache;
     private buildFromApiObjects;
+    private validateFetchParams;
     static throwIfAccessTokenRevoked(error: unknown, msg: string): void;
     static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }
