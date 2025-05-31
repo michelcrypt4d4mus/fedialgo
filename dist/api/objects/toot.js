@@ -392,8 +392,8 @@ class Toot {
             return await api_1.default.instance.resolveToot(this);
         }
         catch (error) {
-            logger.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
-            return this;
+            logger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
+            throw error;
         }
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
