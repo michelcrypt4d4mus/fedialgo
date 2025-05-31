@@ -154,6 +154,9 @@ class WaitTime {
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date(); // TODO: this shouldn't really be set yet...
+    ageString() {
+        return (0, time_helpers_1.ageString)(this.startedAt);
+    }
     markStart() {
         this.startedAt = new Date();
     }

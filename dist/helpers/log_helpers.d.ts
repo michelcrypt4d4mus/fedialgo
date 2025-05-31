@@ -30,6 +30,7 @@ export declare class WaitTime {
     milliseconds: number;
     numRequests: number;
     startedAt: Date;
+    ageString(): string;
     markStart(): void;
     markEnd(): void;
     toDict(): Record<string, number>;

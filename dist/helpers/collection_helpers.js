@@ -128,7 +128,7 @@ exports.filterWithLog = filterWithLog;
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
 function findMinMaxId(array) {
-    if (!array.length) {
+    if (!array?.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
         return null;
     }

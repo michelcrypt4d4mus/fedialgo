@@ -179,6 +179,10 @@ export class WaitTime {
     numRequests: number = 0;
     startedAt: Date = new Date();  // TODO: this shouldn't really be set yet...
 
+    ageString(): string {
+        return ageString(this.startedAt);
+    }
+
     markStart(): void {
         this.startedAt = new Date();
     }

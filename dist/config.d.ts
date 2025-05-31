@@ -187,6 +187,7 @@ declare class Config implements ConfigType {
     constructor();
     minTrendingMinutesUntilStale(): number;
     setLocale(locale?: string): void;
+    supportsMinMaxId: (cacheKey: CacheKey) => boolean;
     private validate;
 }
 declare const config: Config;

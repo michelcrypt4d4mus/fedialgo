@@ -1,10 +1,11 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
 import { AlgorithmStorageKey, CacheKey } from "./enums";
-import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights } from "./types";
+import { type FeedFilterSettings, type MinMaxID, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights } from "./types";
 type StorageKey = AlgorithmStorageKey | CacheKey;
 type StorableObjWithStaleness = {
     isStale: boolean;
+    minMaxID?: MinMaxID | null;
     obj: StorableObjWithCache;
     updatedAt: Date;
 };

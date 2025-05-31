@@ -181,6 +181,7 @@ class Storage {
             return null;
         }
         ;
+        const obj = this.deserialize(key, withTimestamp.value);
         const dataAgeInMinutes = (0, time_helpers_1.ageInMinutes)(withTimestamp.updatedAt);
         const staleAfterMinutes = config_1.config.api.data[key]?.minutesUntilStale || config_1.config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${(0, string_helpers_1.toLocaleInt)(dataAgeInMinutes)}`;
@@ -202,7 +203,7 @@ class Storage {
         }
         return {
             isStale,
-            obj: this.deserialize(key, withTimestamp.value),
+            obj,
             updatedAt: new Date(withTimestamp.updatedAt),
         };
     }
