@@ -372,7 +372,7 @@ class TheAlgorithm {
     }
 
     // Return info about the Fedialgo user's home mastodon instance
-    async serverInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance> {
+    async serverInfo(): Promise<mastodon.v2.Instance> {
         return await MastoApi.instance.instanceInfo();
     }
 

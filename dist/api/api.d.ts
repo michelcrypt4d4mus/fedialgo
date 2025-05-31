@@ -47,7 +47,7 @@ export default class MastoApi {
     getStatusesForTags(tags: MastodonTag[], numTootsPerTag?: number): Promise<mastodon.v1.Status[]>;
     getUserData(): Promise<UserData>;
     hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]>;
-    instanceInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance>;
+    instanceInfo(): Promise<mastodon.v2.Instance>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     reset(): void;

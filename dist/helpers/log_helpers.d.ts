@@ -14,6 +14,7 @@ export declare class ComponentLogger {
     info(msg: string, ...args: any[]): void;
     debug(msg: string, ...args: any[]): void;
     trace(msg: string, ...args: any[]): void;
+    tagWithRandomString(): void;
     private getErrorMessage;
     private makeErrorMsg;
     private makeMsg;

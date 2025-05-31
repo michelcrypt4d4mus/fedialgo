@@ -375,12 +375,19 @@ export default class MastoApi {
     }
 
     // Retrieve the user's home instance configuration from the API
-    async instanceInfo(): Promise<mastodon.v2.Instance | mastodon.v1.Instance> {
+    async instanceInfo(): Promise<mastodon.v2.Instance> {
         try {
             return await this.api.v2.instance.fetch();
         } catch (err) {
             this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
-            return await this.api.v1.instance.fetch();
+            const v1Instance = await this.api.v1.instance.fetch();
+
+            if (v1Instance) {
+                let msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
+                logAndThrowError(msg, v1Instance);
+            } else {
+                logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+            }
         }
     }
 

@@ -51,6 +51,10 @@ class ComponentLogger {
     trace(msg, ...args) {
         environment_helpers_1.isDebugMode && this.debug(msg, ...args);
     }
+    // Can be helpful when there's a lot of threads and you want to distinguish them
+    tagWithRandomString() {
+        this.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
+    }
     // Mutates args array to pop the first Error if it exists
     getErrorMessage(msg, ...args) {
         if (args[0] instanceof Error) {
