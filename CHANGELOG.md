@@ -1,11 +1,15 @@
 # NEXT RELEASE
+
+### v0.55.5
+* Refactor main `MastoApi` method method into a few easier to follow pieces
 * Fix bug where scorers were not resetting their state when `reset()` was called and all other data was reset
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
 * `MastoApi.instanceInfo()` only returns the v2 API data structure for a server configuration. If the v1 version exists it will be logged and thrown as an error.
+* adjust `DISCUSSIONS` weight preset
 
 ### v0.55.1 - v0.55.4
 * Stop exporting `sortKeysByValue()` helper
-* Use `import type Thing` instead of just `import Thing` where appropriate bc apparently it makes the typescript compiler happy
+* Use `import { type Thing }` instead of just `import { Thing} ` where appropriate bc apparently it makes the typescript compiler happy
 * Add missing `enums.ts` files
 * (Demo App) Better error handling/formatting, esp. in `ReplyModal`
 * (Demo App) Fix small bug with bootstrapping the minTootsSlider

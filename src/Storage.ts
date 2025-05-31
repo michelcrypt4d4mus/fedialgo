@@ -16,12 +16,12 @@ import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filte
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
 import { config } from "./config";
+import { logAndThrowError } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
-import { type WeightName } from './scorer/scorer';
+import { Logger } from './helpers/logger';
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -33,6 +33,7 @@ import {
     type TagWithUsageCounts,
     type TrendingLink,
     type TrendingData,
+    type WeightName,
     type Weights,
 } from "./types";
 
@@ -42,13 +43,16 @@ localForage.config({
     storeName   : `${FEDIALGO}_user_data`,
 });
 
-type StorageKey = AlgorithmStorageKey | CacheKey;
-
-type StorableObjWithStaleness = {
-    isStale: boolean,
-    obj: StorableObjWithCache,
-    updatedAt: Date,
+export interface CacheTimestamp {
+    isStale: boolean;
+    updatedAt: Date;
 };
+
+interface StorableObjWithStaleness extends CacheTimestamp {
+    obj: StorableObjWithCache,
+};
+
+type StorageKey = AlgorithmStorageKey | CacheKey;
 
 export const STORAGE_KEYS_WITH_TOOTS: StorageKey[] = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
@@ -69,7 +73,7 @@ export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
 ]
 
 const LOG_PREFIX = '[STORAGE]';
-const logger = new ComponentLogger(LOG_PREFIX);
+const logger = new Logger(LOG_PREFIX);
 
 
 export default class Storage {
@@ -78,14 +82,21 @@ export default class Storage {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeights();
-        await localForage.clear();
+        const releasers = await MastoApi.instance.lockAllMutexes();
 
-        if (user) {
-            logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
-            await this.setIdentity(user);
-            if (weights) await this.setWeightings(weights);
-        } else {
-            logger.warn(`No user identity found, cleared storage anyways`);
+        try {
+            await localForage.clear();
+
+            if (user) {
+                logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+                await this.setIdentity(user);
+                if (weights) await this.setWeightings(weights);
+            } else {
+                logger.warn(`No user identity found, cleared storage anyways`);
+            }
+        } finally {
+            releasers.forEach((release) => release?.());
+            logger.log(`Cleared all storage items, released mutexes`);
         }
     }
 
@@ -194,11 +205,11 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
-        const logPrefix = `<${key}> (getWithStaleness())`;
+        const logger = new Logger(LOG_PREFIX, key, `getWithStaleness()`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            logger.trace(`${logPrefix} No data found, returning null`);
+            logger.trace(`No data found, returning null`);
             return null;
         };
 
@@ -209,12 +220,12 @@ export default class Storage {
         let isStale = false;
 
         if (dataAgeInMinutes > staleAfterMinutes) {
-            logger.debug(`${logPrefix} Data is stale ${minutesMsg}`);
+            logger.debug(`Data is stale ${minutesMsg}`);
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(`${logPrefix} ${msg}`);
+            logger.trace(`${msg}`);
         }
 
         // Check for unique IDs in the stored data if we're in debug mode

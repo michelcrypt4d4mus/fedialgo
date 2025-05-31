@@ -11,11 +11,12 @@ exports.getMoarData = exports.moarDataLogger = exports.MOAR_DATA_PREFIX = export
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
+const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
-exports.moarDataLogger = new log_helpers_1.ComponentLogger(exports.GET_MOAR_DATA);
+exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
@@ -25,6 +26,7 @@ async function getMoarData() {
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const startedAt = new Date();
     const pollers = [
+        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
         api_1.default.instance.getNotifications.bind(api_1.default.instance),

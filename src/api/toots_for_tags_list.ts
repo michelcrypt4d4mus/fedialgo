@@ -6,17 +6,17 @@ import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { arrowed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from "../helpers/log_helpers";
 import { config, TagTootsConfig } from "../config";
+import { Logger } from '../helpers/logger';
 import { tagStr } from "./objects/tag";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
-const logger = new ComponentLogger("TootsForTagsList");
+const logger = new Logger("TootsForTagsList");
 
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
-    | CacheKey.FAVOURITED_HASHTAG_TOOTS
-    | CacheKey.TRENDING_TAG_TOOTS;
+                      | CacheKey.FAVOURITED_HASHTAG_TOOTS
+                      | CacheKey.TRENDING_TAG_TOOTS;
 
 
 export default class TootsForTagsList {

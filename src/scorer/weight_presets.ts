@@ -70,9 +70,15 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [NonScoreWeightName.TRENDING]: 0.001,
         [ScoreName.CHAOS]: 0,
         [ScoreName.DIVERSITY]: 0,
-        [ScoreName.INTERACTIONS]: 2.5,
+        [ScoreName.FOLLOWED_ACCOUNTS]: 0.3,
+        [ScoreName.INTERACTIONS]: 1.0,
+        [ScoreName.MENTIONS_FOLLOWED]: 5.0,
+        [ScoreName.MOST_REPLIED_ACCOUNTS]: 0.15,
+        [ScoreName.MOST_RETOOTED_ACCOUNTS]: 0.2,
         [ScoreName.NUM_REPLIES]: 50.0,
+        [ScoreName.NUM_RETOOTS]: 0.2,
         [ScoreName.PARTICIPATED_TAGS]: DEFAULT_WEIGHTS[ScoreName.PARTICIPATED_TAGS] * 2,
+        [ScoreName.RETOOTED_IN_FEED]: 6.0,
     },
 
     [WeightPresetLabel.FRIENDS]: {

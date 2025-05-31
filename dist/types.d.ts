@@ -3,9 +3,9 @@ import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer, { WeightName } from './scorer/scorer';
-import { NonScoreWeightName, ScoreName } from './enums';
+import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
+import { NonScoreWeightName, ScoreName } from './enums';
 import { CacheKey } from "./enums";
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<CacheKey, Mutex>;
@@ -117,3 +117,4 @@ export type WeightInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
+export type WeightName = ScoreName | NonScoreWeightName;

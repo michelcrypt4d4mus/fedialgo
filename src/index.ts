@@ -31,7 +31,6 @@ import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
-import { AlgorithmStorageKey, CacheKey } from "./enums";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TootsForTagsList from "./api/toots_for_tags_list";
@@ -41,6 +40,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
+import { AlgorithmStorageKey, CacheKey } from "./enums";
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain } from './helpers/string_helpers';
@@ -48,15 +48,14 @@ import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
+import { Logger } from './helpers/logger';
 import { MediaCategory, TrendingType } from './enums';
-import { type WeightName } from './scorer/scorer';
 import { NonScoreWeightName, ScoreName } from './enums';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     BACKFILL_FEED,
     PREP_SCORERS,
     TRIGGER_FEED,
-    ComponentLogger,
     lockExecution,
     logAndThrowError,
     logTelemetry,
@@ -81,6 +80,7 @@ import {
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
+    type WeightName,
     type Weights,
     type WeightInfoDict,
 } from "./types";
@@ -117,7 +117,7 @@ class TheAlgorithm {
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
-    logger: ComponentLogger = new ComponentLogger(`TheAlgorithm`);
+    logger: Logger = new Logger(`TheAlgorithm`);
     trendingData: TrendingData = {links: [], tags: [], servers: {}, toots: []};
     userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
@@ -467,7 +467,7 @@ class TheAlgorithm {
 
     // The "load is finished" version of setLoadingStateVariables().
     private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
-        const logger = new ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
+        const logger = new Logger(this.logger.logPrefix, `finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...
@@ -703,7 +703,7 @@ export {
     // Classes
     Account,
     BooleanFilter,
-    ComponentLogger,
+    Logger as ComponentLogger,
     NumericFilter,
     TagList,
     Toot,

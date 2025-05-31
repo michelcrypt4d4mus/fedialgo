@@ -1,14 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_KEYS = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const enums_1 = require("./enums");
-const log_helpers_1 = require("./helpers/log_helpers");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const log_helpers_2 = require("./helpers/log_helpers");
+const log_helpers_1 = require("./helpers/log_helpers");
+const logger_1 = require("./helpers/logger");
 const enums_2 = require("./enums");
+// Cachey keys for the fediverse wide trending data
+exports.FEDIVERSE_KEYS = [
+    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
+    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
@@ -25,8 +32,7 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
-// logger
-const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
+const logger = new logger_1.Logger(LOG_PREFIX);
 ;
 ;
 ;
@@ -76,7 +82,8 @@ class Config {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
-            // TODO: this is here for the mutexes but nothing is actually cached
+            // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+            // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
             },
             [enums_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
@@ -87,14 +94,14 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 15,
-            },
             [enums_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
+            },
+            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 15,
             },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
@@ -106,7 +113,7 @@ class Config {
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.TIMELINE_TOOTS]: {
-            // TODO: shouldn't have to configure this empty object but we do for typing reasons
+            // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
             },
             [enums_1.CacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
@@ -358,10 +365,10 @@ class Config {
                 this.validate(value);
             }
             else if (typeof value == "number" && isNaN(value)) {
-                (0, log_helpers_2.logAndThrowError)(`${LOG_PREFIX} value at ${key} is NaN`);
+                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is NaN`);
             }
             else if (typeof value == "string" && value.length == 0) {
-                (0, log_helpers_2.logAndThrowError)(`${LOG_PREFIX} value at ${key} is empty string`);
+                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is empty string`);
             }
         });
     }
@@ -398,10 +405,4 @@ if (environment_helpers_1.isLoadTest) {
     config.trending.tags.numTags = 40;
 }
 ;
-exports.FEDIVERSE_KEYS = [
-    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
 //# sourceMappingURL=config.js.map

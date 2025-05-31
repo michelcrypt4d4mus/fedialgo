@@ -63,7 +63,6 @@ const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoo
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
-const enums_1 = require("./enums");
 const tag_list_1 = __importDefault(require("./api/tag_list"));
 exports.TagList = tag_list_1.default;
 const toot_1 = __importStar(require("./api/objects/toot"));
@@ -76,6 +75,7 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
+const enums_1 = require("./enums");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -90,6 +90,8 @@ const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
 const language_helper_1 = require("./helpers/language_helper");
 Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: function () { return language_helper_1.LANGUAGE_CODES; } });
+const logger_1 = require("./helpers/logger");
+Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const enums_2 = require("./enums");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_2.MediaCategory; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_2.TrendingType; } });
@@ -98,7 +100,6 @@ Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: fu
 Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
-Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return log_helpers_1.ComponentLogger; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -126,7 +127,7 @@ class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
-    logger = new log_helpers_1.ComponentLogger(`TheAlgorithm`);
+    logger = new logger_1.Logger(`TheAlgorithm`);
     trendingData = { links: [], tags: [], servers: {}, toots: [] };
     userData = new user_data_1.default();
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
@@ -433,7 +434,7 @@ class TheAlgorithm {
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logger = new log_helpers_1.ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
+        const logger = new logger_1.Logger(this.logger.logPrefix, `finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...

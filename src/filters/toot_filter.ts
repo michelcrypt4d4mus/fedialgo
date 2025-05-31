@@ -3,14 +3,14 @@
  * to a Toot to determine if it should be included in the timeline feed.
  */
 import Toot from '../api/objects/toot';
-import { ComponentLogger } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { type FilterArgs, type FilterTitle } from "../types";
 
 
 export default abstract class TootFilter {
     description: string;
     invertSelection: boolean;
-    logger: ComponentLogger;
+    logger: Logger;
     title: FilterTitle;
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
@@ -19,7 +19,7 @@ export default abstract class TootFilter {
         this.invertSelection = invertSelection ?? false;
         this.title = title;
         this.visible = visible ?? true;
-        this.logger = new ComponentLogger("TootFilter", this.constructor.name, title);
+        this.logger = new Logger("TootFilter", this.constructor.name, title);
     }
 
     // Return true if the toot should appear in the timeline feed

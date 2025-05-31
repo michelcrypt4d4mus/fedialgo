@@ -5,8 +5,8 @@ exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder 
  * Math and numbers.
  */
 const string_helpers_1 = require("./string_helpers");
-const collection_helpers_1 = require("./collection_helpers");
 const log_helpers_1 = require("./log_helpers");
+const collection_helpers_1 = require("./collection_helpers");
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
 const isNumber = (n) => {
     if (typeof n === "string") {
@@ -75,15 +75,6 @@ function sizeOf(obj, sizes) {
         return 0;
     let bytes = 0;
     switch (typeof obj) {
-        case "number":
-            bytes += 8;
-            sizes.numbers += 8;
-            break;
-        case "string":
-            const stringLength = (0, log_helpers_1.strBytes)(obj);
-            bytes += stringLength;
-            sizes.strings += stringLength;
-            break;
         case "boolean":
             bytes += 4;
             sizes.booleans += 4;
@@ -92,6 +83,15 @@ function sizeOf(obj, sizes) {
             const fxnLength = (0, log_helpers_1.strBytes)(obj.toString());
             bytes += fxnLength; // functions aren't serialized in JSON i don't think?
             sizes.functions += fxnLength;
+            break;
+        case "number":
+            bytes += 8;
+            sizes.numbers += 8;
+            break;
+        case "string":
+            const stringLength = (0, log_helpers_1.strBytes)(obj);
+            bytes += stringLength;
+            sizes.strings += stringLength;
             break;
         case "object":
             if (Array.isArray(obj)) {

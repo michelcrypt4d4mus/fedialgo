@@ -1,19 +1,19 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { CacheKey } from "../enums";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { CacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
-import { type MastodonTag } from "../types";
+import { Logger } from '../helpers/logger';
+import { type ConcurrencyLockRelease, type MastodonTag } from "../types";
 interface ApiParams {
-    logger?: ComponentLogger;
+    logger?: Logger;
     maxRecords?: number;
     moar?: boolean;
     skipCache?: boolean;
 }
 interface MaxIdParams extends ApiParams {
-    maxId?: string | number;
+    maxId?: string | number | null;
 }
 interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logPrefix: string) => Promise<void>;
@@ -22,7 +22,7 @@ export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
     homeDomain: string;
-    logger: ComponentLogger;
+    logger: Logger;
     user: Account;
     userData?: UserData;
     waitTimes: {
@@ -48,15 +48,21 @@ export default class MastoApi {
     getUserData(): Promise<UserData>;
     hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]>;
     instanceInfo(): Promise<mastodon.v2.Instance>;
+    lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     reset(): void;
     setSemaphoreConcurrency(concurrency: number): void;
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;
+    private supportsMinMaxId;
     private getApiRecords;
     private buildParams;
+    private addCacheDataToParams;
+    private getCachedRows;
+    private handleApiError;
     private buildFromApiObjects;
+    private validateFetchParams;
     static throwIfAccessTokenRevoked(error: unknown, msg: string): void;
     static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }

@@ -8,8 +8,8 @@ interface AccountObj extends mastodon.v1.Account {
     homeInstanceInfo?: () => Promise<InstanceResponse>;
     homeserver?: () => string;
     homserverURL?: () => string;
-    noteWithAccountInfo?: () => string;
     isFollowed?: boolean;
+    noteWithAccountInfo?: () => string;
     webfingerURI: string;
 }
 export default class Account implements AccountObj {
