@@ -28,6 +28,7 @@ import {
     type MastodonTag,
     type StatusList
 } from "../types";
+import { skip } from "node:test";
 
 const DEFAULT_BREAK_IF = async <T>(pageOfResults: T[], allResults: T[]) => undefined;
 
@@ -71,6 +72,7 @@ interface FetchParams<T> extends MaxIdParams {
 };
 
 interface CacheCheckParams<T> extends FetchParams<T> {
+    logger: ComponentLogger,
     supportsMinMaxId?: boolean,
 };
 
@@ -478,7 +480,6 @@ export default class MastoApi {
 
     private async checkCache<T extends MastodonApiObject>(params: CacheCheckParams<T>): Promise<CacheCheckResult<T>> {
         let { cacheKey, logger, maxRecords, moar, supportsMinMaxId } = params;
-        logger ??= getLogger(cacheKey);
 
         // Get the data from the cache
         const cachedData = await Storage.getWithStaleness(cacheKey);
@@ -511,7 +512,7 @@ export default class MastoApi {
 
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await lockExecution(this.mutexes[cacheKey], logger.logPrefix));
-        const params = await this.completeParamsWithCache<T>(inParams);
+        const params = await this.completeParamsWithCache<T>({...inParams, logger });
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
 
@@ -572,22 +573,20 @@ export default class MastoApi {
     // Check the cache, consult the endpoint defaults, and fill out a complete set of request parameters
     // along with the cachedResult (if any).
     private async completeParamsWithCache<T extends MastodonApiObject>(
-        params: FetchParams<any>
+        params: CacheCheckParams<any>
     ): Promise<FetchParamsComplete<T>> {
         let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
-        logger ||= getLogger(cacheKey);
 
         // Get some defaults set up
-        logger ??= getLogger(cacheKey);
         const requestDefaults = config.api.data[cacheKey];
         const supportsMinMaxId = requestDefaults?.supportsMinMaxId ?? false
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
         // Check the cache and get the min/max ID for next request if supported
-        logger.trace(`getApiRecords() checking cache with params:`, params);
+        logger.trace(`completeParamsWithCache() checking cache with params:`, params);
         const cacheParams: CacheCheckParams<T> = { ...params, maxRecords, supportsMinMaxId };
-        const cacheResult = skipCache ? null : await this.checkCache<T>(cacheParams);
-        logger.trace(`getApiRecords() finished checking cache, result::`, params);
+        const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
+        logger.trace(`completeParamsWithCache() finished checking cache, result:`, cacheResult);
         let minId: string | number | null = null;
 
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -603,10 +602,12 @@ export default class MastoApi {
                 minId = cacheResult.minMaxId.max;
                 logger.debug(`Stale-ish data; doing incremental load from minId="${minId}"`);
             }
-        } else {
+        } else if (!skipCache){
             // If maxId isn't supported then we don't start with the cached data in the 'rows' array
             logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
         }
+
+        logger.trace(`completeParamsWithCache() about to make completedPara`);
 
         const completedParams: FetchParamsComplete<T> = {
             ...cacheParams,
@@ -676,8 +677,7 @@ export default class MastoApi {
     }
 
     private validateFetchParams<T extends MastodonApiObject>(params: FetchParamsComplete<T>): void {
-        let { cacheKey, cacheResult, logger, maxId, maxRecords, minId, moar, skipCache } = params;
-        logger ??= getLogger(cacheKey);
+        let { cacheResult, logger, maxId, maxRecords, minId, moar, skipCache } = params;
 
         logger.trace(`(validateFetchParams()) params:`, params);
         if (moar && (skipCache || maxId)) logger.warn(`skipCache=true AND moar or maxId set!`)

@@ -393,7 +393,6 @@ class MastoApi {
     endpointURL = (endpoint) => `https://${this.homeDomain}/${endpoint}`;
     async checkCache(params) {
         let { cacheKey, logger, maxRecords, moar, supportsMinMaxId } = params;
-        logger ??= getLogger(cacheKey);
         // Get the data from the cache
         const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
         const rows = cachedData?.obj;
@@ -421,7 +420,7 @@ class MastoApi {
         const startedAt = new Date();
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
-        const params = await this.completeParamsWithCache(inParams);
+        const params = await this.completeParamsWithCache({ ...inParams, logger });
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
@@ -481,17 +480,15 @@ class MastoApi {
     // along with the cachedResult (if any).
     async completeParamsWithCache(params) {
         let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
-        logger ||= getLogger(cacheKey);
         // Get some defaults set up
-        logger ??= getLogger(cacheKey);
         const requestDefaults = config_1.config.api.data[cacheKey];
         const supportsMinMaxId = requestDefaults?.supportsMinMaxId ?? false;
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
         // Check the cache and get the min/max ID for next request if supported
-        logger.trace(`getApiRecords() checking cache with params:`, params);
+        logger.trace(`completeParamsWithCache() checking cache with params:`, params);
         const cacheParams = { ...params, maxRecords, supportsMinMaxId };
-        const cacheResult = skipCache ? null : await this.checkCache(cacheParams);
-        logger.trace(`getApiRecords() finished checking cache, result::`, params);
+        const cacheResult = skipCache ? null : (await this.checkCache(cacheParams));
+        logger.trace(`completeParamsWithCache() finished checking cache, result:`, cacheResult);
         let minId = null;
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
         // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
@@ -509,10 +506,11 @@ class MastoApi {
                 logger.debug(`Stale-ish data; doing incremental load from minId="${minId}"`);
             }
         }
-        else {
+        else if (!skipCache) {
             // If maxId isn't supported then we don't start with the cached data in the 'rows' array
             logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
         }
+        logger.trace(`completeParamsWithCache() about to make completedPara`);
         const completedParams = {
             ...cacheParams,
             breakIf: params.breakIf ?? DEFAULT_BREAK_IF,
@@ -576,8 +574,7 @@ class MastoApi {
         }
     }
     validateFetchParams(params) {
-        let { cacheKey, cacheResult, logger, maxId, maxRecords, minId, moar, skipCache } = params;
-        logger ??= getLogger(cacheKey);
+        let { cacheResult, logger, maxId, maxRecords, minId, moar, skipCache } = params;
         logger.trace(`(validateFetchParams()) params:`, params);
         if (moar && (skipCache || maxId))
             logger.warn(`skipCache=true AND moar or maxId set!`);
