@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Stop exporting `sortKeysByValue()` helper
 * Use `import type Thing` instead of just `import Thing` where appropriate bc apparently it makes the typescript compiler happy
+* Add missing `enums.ts` files
 
 # v0.55.0
 * Add `entriesSortedByValue()`, `optionsSortedByValue()`, `optionsSortedByName()`, and `numOptions()` methods to `BooleanFilter`
