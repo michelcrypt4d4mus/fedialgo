@@ -1,4 +1,4 @@
-export declare class ComponentLogger {
+export declare class Logger {
     componentName: string;
     logPrefix: string;
     subtitle?: string;

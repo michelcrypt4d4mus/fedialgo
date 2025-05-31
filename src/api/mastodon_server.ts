@@ -14,10 +14,10 @@ import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { bracketed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from '../helpers/logger';
 import { config, FEDIVERSE_KEYS } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { TrendingType } from '../enums';
 import {
     countValues,
@@ -62,7 +62,7 @@ interface FetchTrendingProps<T extends TrendingObj> {
 
 export default class MastodonServer {
     domain: string;
-    logger: ComponentLogger;
+    logger: Logger;
 
     // Helper methods for building URLs
     private static v1Url = (path: string) => `${API_V1}/${path}`;
@@ -398,6 +398,6 @@ function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: num
 
 
 // logs prefixed by [API]
-function getLogger(subtitle?: string, subsubtitle?: string): ComponentLogger {
-    return new ComponentLogger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
+function getLogger(subtitle?: string, subsubtitle?: string): Logger {
+    return new Logger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };

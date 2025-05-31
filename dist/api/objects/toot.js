@@ -26,12 +26,12 @@ const scorer_1 = __importDefault(require("../../scorer/scorer"));
 const tag_list_1 = __importDefault(require("../tag_list"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const log_helpers_1 = require("../../helpers/log_helpers");
-const logger_1 = require("../../helpers/logger");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
+const logger_1 = require("../../helpers/logger");
+const log_helpers_1 = require("../../helpers/log_helpers");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
@@ -71,7 +71,7 @@ const TAG_ONLY_STRINGS = new Set([
     "un",
     "us",
 ]);
-const logger = new logger_1.ComponentLogger("Toot");
+const logger = new logger_1.Logger("Toot");
 ;
 ;
 class Toot {

@@ -8,9 +8,9 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumArray } from "../helpers/collection_helpers";
-import { ComponentLogger } from '../helpers/logger';
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
+import { Logger } from '../helpers/logger';
 import { ScoreName, NonScoreWeightName } from '../enums';
 import {
     type StringNumberDict,
@@ -23,7 +23,7 @@ import {
 
 // Local constants
 const LOG_PREFIX = "Scorer";
-const scoreLogger = new ComponentLogger(LOG_PREFIX, "scoreToots");
+const scoreLogger = new Logger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new Mutex();
 
 const TRENDING_WEIGHTS = [
@@ -37,13 +37,13 @@ export default abstract class Scorer {
     abstract description: string;
 
     isReady: boolean = false;  // Set to true when the scorer is ready to score
-    logger: ComponentLogger;
+    logger: Logger;
     name: ScoreName;
     scoreData: StringNumberDict = {};  // Background data used to score a toot
 
     constructor(name: ScoreName) {
         this.name = name;
-        this.logger = new ComponentLogger(LOG_PREFIX, name);
+        this.logger = new Logger(LOG_PREFIX, name);
     }
 
     // Return a ScorerInfo object with the description and the scorer itself

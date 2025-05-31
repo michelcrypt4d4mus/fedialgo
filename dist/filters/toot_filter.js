@@ -12,7 +12,7 @@ class TootFilter {
         this.invertSelection = invertSelection ?? false;
         this.title = title;
         this.visible = visible ?? true;
-        this.logger = new logger_1.ComponentLogger("TootFilter", this.constructor.name, title);
+        this.logger = new logger_1.Logger("TootFilter", this.constructor.name, title);
     }
     // Extend in subclasses. Required for serialization to local storage
     toArgs() {

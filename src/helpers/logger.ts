@@ -6,7 +6,7 @@ import { isDebugMode } from './environment_helpers';
 
 
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
-export class ComponentLogger {
+export class Logger {
     componentName: string;
     logPrefix: string;
     subtitle?: string;

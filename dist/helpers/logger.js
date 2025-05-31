@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponentLogger = void 0;
+exports.Logger = void 0;
 /*
  * Standardized logger
  */
 const string_helpers_1 = require("./string_helpers");
 const environment_helpers_1 = require("./environment_helpers");
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
-class ComponentLogger {
+class Logger {
     componentName;
     logPrefix;
     subtitle;
@@ -68,6 +68,6 @@ class ComponentLogger {
         return this.logPrefix + ((0, string_helpers_1.isEmptyStr)(msg) ? '' : ` ${msg}`);
     }
 }
-exports.ComponentLogger = ComponentLogger;
+exports.Logger = Logger;
 ;
 //# sourceMappingURL=logger.js.map

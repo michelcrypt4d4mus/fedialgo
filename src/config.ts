@@ -2,9 +2,9 @@
  * Centralized location for non-user configurable settings.
  */
 import { CacheKey } from "./enums";
-import { ComponentLogger } from "./helpers/logger";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
+import { Logger } from "./helpers/logger";
 import { NonScoreWeightName } from './enums';
 import { type NonScoreWeightInfoDict } from "./types";
 
@@ -29,7 +29,7 @@ const LOG_PREFIX = "Config";
 
 // TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
 // logger
-const logger = new ComponentLogger(LOG_PREFIX);
+const logger = new Logger(LOG_PREFIX);
 
 type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap

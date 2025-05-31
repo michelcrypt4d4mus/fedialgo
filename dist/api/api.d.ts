@@ -3,11 +3,11 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from '../helpers/logger';
 import { WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { type MastodonTag } from "../types";
 interface ApiParams {
-    logger?: ComponentLogger;
+    logger?: Logger;
     maxRecords?: number;
     moar?: boolean;
     skipCache?: boolean;
@@ -22,7 +22,7 @@ export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
     homeDomain: string;
-    logger: ComponentLogger;
+    logger: Logger;
     user: Account;
     userData?: UserData;
     waitTimes: {

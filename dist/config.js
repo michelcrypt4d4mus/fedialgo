@@ -5,10 +5,9 @@ exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL =
  * Centralized location for non-user configurable settings.
  */
 const enums_1 = require("./enums");
-// TODO: circular dependency issues with this import
-const logger_1 = require("./helpers/logger");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
+const logger_1 = require("./helpers/logger");
 const enums_2 = require("./enums");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
@@ -28,7 +27,7 @@ const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
 // TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
 // logger
-const logger = new logger_1.ComponentLogger(LOG_PREFIX);
+const logger = new logger_1.Logger(LOG_PREFIX);
 ;
 ;
 ;
@@ -326,7 +325,7 @@ class Config {
     minTrendingMinutesUntilStale() {
         const trendStalenesses = exports.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
         if (trendStalenesses.length != exports.FEDIVERSE_KEYS.length) {
-            // logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
+            logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
             return 60;
         }
         else {

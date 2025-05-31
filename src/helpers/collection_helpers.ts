@@ -5,10 +5,10 @@ import chunk from 'lodash/chunk';
 
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from './logger';
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
+import { Logger } from './logger';
 import { sleep } from './time_helpers';
 
 const BATCH_MAP = "batchMap()";
@@ -395,7 +395,7 @@ export const uniquify = (array: (string | undefined)[]): string[] | undefined =>
 
 // Remove elements of an array if they have duplicate values for the given transform function
 export function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[] {
-    const logger = new ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const logger = new Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
 
     if (logPrefix && newRows.length < rows.length) {

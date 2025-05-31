@@ -16,12 +16,12 @@ import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filte
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { ComponentLogger } from './helpers/logger';
 import { config } from "./config";
 import { logAndThrowError } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
+import { Logger } from './helpers/logger';
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -73,7 +73,7 @@ export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
 ]
 
 const LOG_PREFIX = '[STORAGE]';
-const logger = new ComponentLogger(LOG_PREFIX);
+const logger = new Logger(LOG_PREFIX);
 
 
 export default class Storage {
@@ -205,7 +205,7 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
-        const logger = new ComponentLogger(LOG_PREFIX, key, `getWithStaleness()`);
+        const logger = new Logger(LOG_PREFIX, key, `getWithStaleness()`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {

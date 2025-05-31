@@ -19,10 +19,10 @@ import Storage, {
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
-import { ComponentLogger } from '../helpers/logger';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
@@ -40,7 +40,7 @@ const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many r
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 const LOG_PREFIX = 'API';
 
-const apiLogger = new ComponentLogger(LOG_PREFIX, 'static');
+const apiLogger = new Logger(LOG_PREFIX, 'static');
 
 interface CachedRows<T> extends CacheTimestamp {
     minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
@@ -57,7 +57,7 @@ interface MinMaxIDParams {
 //   - maxRecords: optional max number of records to fetch
 //   - skipCache: if true, don't use cached data
 interface ApiParams {
-    logger?: ComponentLogger,  // Optional logger to use for logging API calls
+    logger?: Logger,  // Optional logger to use for logging API calls
     maxRecords?: number,
     moar?: boolean,
     skipCache?: boolean,
@@ -105,7 +105,7 @@ export default class MastoApi {
 
     api: mastodon.rest.Client;
     homeDomain: string;
-    logger: ComponentLogger;
+    logger: Logger;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Just for measuring performance (poorly)
@@ -681,7 +681,7 @@ export default class MastoApi {
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: ComponentLogger): MastodonApiObject[] {
+    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: Logger): MastodonApiObject[] {
         logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
 
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
@@ -757,8 +757,8 @@ function fillInBasicDefaults<T extends MastodonApiObject>(params: FetchParams<T>
 
 
 // logs prefixed by [API]
-function getLogger(subtitle?: string, subsubtitle?: string): ComponentLogger {
-    return new ComponentLogger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
+function getLogger(subtitle?: string, subsubtitle?: string): Logger {
+    return new Logger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };
 
 

@@ -16,10 +16,10 @@ const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const enums_1 = require("../enums");
-const log_helpers_1 = require("../helpers/log_helpers");
-const logger_1 = require("../helpers/logger");
 const config_1 = require("../config");
 const trending_with_history_1 = require("./objects/trending_with_history");
+const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const API_URI = "api";
@@ -312,7 +312,7 @@ function filterMinMAU(serverInfos, minMAU) {
 ;
 // logs prefixed by [API]
 function getLogger(subtitle, subsubtitle) {
-    return new logger_1.ComponentLogger((0, string_helpers_1.bracketed)(LOG_PREFIX), subtitle, subsubtitle);
+    return new logger_1.Logger((0, string_helpers_1.bracketed)(LOG_PREFIX), subtitle, subsubtitle);
 }
 ;
 //# sourceMappingURL=mastodon_server.js.map

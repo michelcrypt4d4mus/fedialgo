@@ -10,9 +10,9 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from '../helpers/logger';
 import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
+import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
     type StringNumberDict,
@@ -20,7 +20,7 @@ import {
     type TagWithUsageCounts
 } from "../types";
 
-const logger = new ComponentLogger("UserData");
+const logger = new Logger("UserData");
 
 // Raw API data required to build UserData
 interface UserApiData {
