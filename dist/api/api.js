@@ -53,6 +53,7 @@ const apiLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, 'static');
 ;
 ;
 ;
+;
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;

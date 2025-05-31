@@ -44,6 +44,11 @@ type CachedRows<T> = {
     updatedAt: Date;               // Optional date when the cache was last updated
 };
 
+interface MinMaxIDParams {
+    maxIdForFetch: string | number | null,  // The max ID to use for the API request
+    minIdForFetch: string | number | null,
+};
+
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
@@ -75,14 +80,10 @@ interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
     processFxn?: ((obj: T) => void) | null,
 };
 
+// Same as FetchParams but all properties are required and we add 'limit'
 interface FetchParamsWithDefaults<T extends MastodonApiObject> extends Required<FetchParams<T>> {
     limit: number,
 };
-
-interface MinMaxIDParams {
-    maxIdForFetch: string | number | null,  // The max ID to use for the API request
-    minIdForFetch: string | number | null,
-}
 
 // Same as FetchParams but with a few derived fields
 interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
