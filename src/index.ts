@@ -33,7 +33,7 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
-import TootsForTagsList from "./api/toots_for_tags_list";
+import TootsForTagsList, { TagTootsCacheKey } from "./api/toots_for_tags_list";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
@@ -217,6 +217,10 @@ class TheAlgorithm {
         if (this.checkIfSkipping()) return;
         this.setLoadingStateVariables(TRIGGER_FEED);
 
+        const hashtagToots = async (key: CacheKey) => {
+            return await this.fetchAndMergeToots(TootsForTagsList.getToots(key as TagTootsCacheKey), key);
+        };
+
         let dataLoads: Promise<any>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
@@ -226,10 +230,10 @@ class TheAlgorithm {
         await sleep(config.api.hashtagTootRetrievalDelaySeconds * 1000);  // TODO: do we really need to do this sleeping?
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.FAVOURITED_HASHTAG_TOOTS), CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.PARTICIPATED_TAG_TOOTS), CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(TootsForTagsList.getToots(CacheKey.TRENDING_TAG_TOOTS), CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            hashtagToots(CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            hashtagToots(CacheKey.PARTICIPATED_TAG_TOOTS),
+            hashtagToots(CacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             MastoApi.instance.getUserData().then((userData) => this.userData = userData),

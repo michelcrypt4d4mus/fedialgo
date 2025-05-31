@@ -17,7 +17,6 @@ import {
     type TagWithUsageCounts
 } from "../types";
 
-
 const logger = new Logger("TagList");
 
 const SORT_TAGS_BY = [

@@ -213,6 +213,9 @@ class TheAlgorithm {
         if (this.checkIfSkipping())
             return;
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
+        const hashtagToots = async (key) => {
+            return await this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(key), key);
+        };
         let dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
@@ -220,10 +223,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS), enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(enums_1.CacheKey.PARTICIPATED_TAG_TOOTS), enums_1.CacheKey.PARTICIPATED_TAG_TOOTS),
-            this.fetchAndMergeToots(toots_for_tags_list_1.default.getToots(enums_1.CacheKey.TRENDING_TAG_TOOTS), enums_1.CacheKey.TRENDING_TAG_TOOTS),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            hashtagToots(enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            hashtagToots(enums_1.CacheKey.PARTICIPATED_TAG_TOOTS),
+            hashtagToots(enums_1.CacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),

@@ -4,7 +4,6 @@
 import MastoApi from "./api";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
-import { arrowed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
 import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
@@ -12,15 +11,15 @@ import { tagStr } from "./objects/tag";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
-const logger = new Logger("TootsForTagsList");
-
-type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
-                      | CacheKey.FAVOURITED_HASHTAG_TOOTS
-                      | CacheKey.TRENDING_TAG_TOOTS;
+export type TagTootsCacheKey =
+      CacheKey.PARTICIPATED_TAG_TOOTS
+    | CacheKey.FAVOURITED_HASHTAG_TOOTS
+    | CacheKey.TRENDING_TAG_TOOTS;
 
 
 export default class TootsForTagsList {
     cacheKey: TagTootsCacheKey;
+    logger: Logger;
     tagList: TagList;
     tootsConfig: TagTootsConfig;
 
@@ -51,14 +50,9 @@ export default class TootsForTagsList {
         return new TootsForTagsList(cacheKey, tagList, tootsConfig);
     }
 
-    // Create then immediately fetch toots for the tags
-    static async getToots(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
-        const tagList = await TootsForTagsList.create(cacheKey);
-        return await tagList.getToots();
-    }
-
     private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
         this.cacheKey = cacheKey;
+        this.logger = new Logger(`TootsForTagsList(${cacheKey})`, cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }
@@ -76,8 +70,14 @@ export default class TootsForTagsList {
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.tootsConfig.numTags;
         const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.cacheKey);
-        logger.debug(`${arrowed(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
+        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
         return tags;
+    }
+
+    // Create then immediately fetch toots for the tags
+    static async getToots(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
+        const tagList = await TootsForTagsList.create(cacheKey);
+        return await tagList.getToots();
     }
 
     private static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {

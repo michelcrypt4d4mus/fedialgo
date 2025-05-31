@@ -8,15 +8,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const api_1 = __importDefault(require("./api"));
 const tag_list_1 = __importDefault(require("./tag_list"));
-const string_helpers_1 = require("../helpers/string_helpers");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const logger = new logger_1.Logger("TootsForTagsList");
 class TootsForTagsList {
     cacheKey;
+    logger;
     tagList;
     tootsConfig;
     // Alternate constructor
@@ -46,13 +45,9 @@ class TootsForTagsList {
         }
         return new TootsForTagsList(cacheKey, tagList, tootsConfig);
     }
-    // Create then immediately fetch toots for the tags
-    static async getToots(cacheKey) {
-        const tagList = await TootsForTagsList.create(cacheKey);
-        return await tagList.getToots();
-    }
     constructor(cacheKey, tagList, tootsConfig) {
         this.cacheKey = cacheKey;
+        this.logger = new logger_1.Logger(`TootsForTagsList(${cacheKey})`, cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }
@@ -65,8 +60,13 @@ class TootsForTagsList {
     topTags(numTags) {
         numTags ||= this.tootsConfig.numTags;
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.cacheKey);
-        logger.debug(`${(0, string_helpers_1.arrowed)(this.cacheKey)} topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
+        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
         return tags;
+    }
+    // Create then immediately fetch toots for the tags
+    static async getToots(cacheKey) {
+        const tagList = await TootsForTagsList.create(cacheKey);
+        return await tagList.getToots();
     }
     static async removeUnwantedTags(tagList, tootsConfig) {
         await tagList.removeFollowedAndMutedTags();
