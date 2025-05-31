@@ -25,6 +25,7 @@ async function getMoarData() {
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.GET_MOAR_DATA);
     const startedAt = new Date();
     const pollers = [
+        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
         api_1.default.instance.getNotifications.bind(api_1.default.instance),

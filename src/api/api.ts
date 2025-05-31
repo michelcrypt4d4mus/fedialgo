@@ -29,8 +29,6 @@ import {
     type StatusList
 } from "../types";
 
-const DEFAULT_BREAK_IF = async <T>(pageOfResults: T[], allResults: T[]) => undefined;
-
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
@@ -57,7 +55,7 @@ interface MaxIdParams extends ApiParams {
 };
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
-//   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF
+//   - breakIf: fxn to call to check if we should fetch more pages
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - processFxn: optional function to process the object before storing and returning it
@@ -517,18 +515,16 @@ export default class MastoApi {
         logger.trace(`called with params, mutex locked`);
         const completedParams = await this.completeParamsWithCache<T>({...inParams, logger });
         logger.trace(`completed cache check, completedParams:`, completedParams);
-        let { breakIf, cacheResult, maxRecords } = completedParams;
-        const cachedRows = cacheResult?.rows || [];
+        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = completedParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
-        if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
+        if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             logger.trace(`returning still fresh cachedRows:`, completedParams);
-            return cachedRows;
-        } else {
+            return cacheResult?.rows;
         }
 
-        // TODO: is this right w/maxRecords?
-        maxRecords = cacheResult?.newMaxRecords || maxRecords;
+        let cachedRows = cacheResult?.rows || [];
+        maxRecords = cacheResult?.newMaxRecords || maxRecords;         // TODO: is this right w/maxRecords?
         logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/maxRecords=${maxRecords}...`);
         this.waitTimes[cacheKey] ??= new WaitTime();
         this.waitTimes[cacheKey]!.markStart();
@@ -560,8 +556,15 @@ export default class MastoApi {
             }
         } catch (e) {
             rows = this.handleApiError<T>(completedParams, rows, startedAt, e);
+            cachedRows = []; // handleApiError() has already either merged or not merged the cached rows
         } finally {
             releaseMutex?.();
+        }
+
+        // If endpoint has unique IDs (e.g. Toots) then we merge the cached rows with the new ones
+        // (they will be deduped in buildFromApiObjects() if needed)
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            rows = [...cachedRows, ...rows];
         }
 
         const objs = this.buildFromApiObjects(cacheKey, rows, logger);
@@ -674,7 +677,8 @@ export default class MastoApi {
         logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
 
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => Account.build(o as mastodon.v1.Account));  // TODO: dedupe accounts?
+            const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
+            return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
             return Toot.dedupeToots(toots, `${key} buildFromApiObjects`);

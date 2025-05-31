@@ -41,7 +41,6 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
-const DEFAULT_BREAK_IF = async (pageOfResults, allResults) => undefined;
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
@@ -426,17 +425,14 @@ class MastoApi {
         logger.trace(`called with params, mutex locked`);
         const completedParams = await this.completeParamsWithCache({ ...inParams, logger });
         logger.trace(`completed cache check, completedParams:`, completedParams);
-        let { breakIf, cacheResult, maxRecords } = completedParams;
-        const cachedRows = cacheResult?.rows || [];
+        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = completedParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
-        if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
+        if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             logger.trace(`returning still fresh cachedRows:`, completedParams);
-            return cachedRows;
+            return cacheResult?.rows;
         }
-        else {
-        }
-        // TODO: is this right w/maxRecords?
-        maxRecords = cacheResult?.newMaxRecords || maxRecords;
+        let cachedRows = cacheResult?.rows || [];
+        maxRecords = cacheResult?.newMaxRecords || maxRecords; // TODO: is this right w/maxRecords?
         logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/maxRecords=${maxRecords}...`);
         this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
         this.waitTimes[cacheKey].markStart();
@@ -466,9 +462,15 @@ class MastoApi {
         }
         catch (e) {
             rows = this.handleApiError(completedParams, rows, startedAt, e);
+            cachedRows = []; // handleApiError() has already either merged or not merged the cached rows
         }
         finally {
             releaseMutex?.();
+        }
+        // If endpoint has unique IDs (e.g. Toots) then we merge the cached rows with the new ones
+        // (they will be deduped in buildFromApiObjects() if needed)
+        if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            rows = [...cachedRows, ...rows];
         }
         const objs = this.buildFromApiObjects(cacheKey, rows, logger);
         if (processFxn)
@@ -571,7 +573,8 @@ class MastoApi {
     buildFromApiObjects(key, objects, logger) {
         logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => account_1.default.build(o)); // TODO: dedupe accounts?
+            const accounts = objects.map(o => account_1.default.build(o));
+            return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.id, key);
         }
         else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof toot_1.default ? obj : toot_1.default.build(obj));

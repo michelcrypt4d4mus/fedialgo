@@ -25,6 +25,7 @@ export async function getMoarData(): Promise<boolean> {
     const startedAt = new Date();
 
     const pollers = [
+        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),
