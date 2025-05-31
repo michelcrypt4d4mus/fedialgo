@@ -12,7 +12,7 @@ import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_K
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { bracketed, extractDomain } from '../helpers/string_helpers';
+import { bracketed, createRandomString, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
@@ -28,7 +28,6 @@ import {
     type MastodonTag,
     type StatusList
 } from "../types";
-import { skip } from "node:test";
 
 const DEFAULT_BREAK_IF = async <T>(pageOfResults: T[], allResults: T[]) => undefined;
 
@@ -506,13 +505,17 @@ export default class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
-        logger ??= getLogger(cacheKey, moar ? "MOAR" : undefined);
-        logger.trace(`getApiRecords() called with params:`, inParams);
+        logger ??= getLogger(cacheKey, 'getApiRecords()');
+        logger.logPrefix += ` *#(${createRandomString(4)})#*`;
+        inParams.logger = logger;  // Ensure logger is set in params for completeParamsWithCache()
+        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
 
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await lockExecution(this.mutexes[cacheKey], logger.logPrefix));
+        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
         const params = await this.completeParamsWithCache<T>({...inParams, logger });
+        logger.trace(`getApiRecords() completed params:`, params);
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
 
@@ -606,8 +609,6 @@ export default class MastoApi {
             // If maxId isn't supported then we don't start with the cached data in the 'rows' array
             logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
         }
-
-        logger.trace(`completeParamsWithCache() about to make completedPara`);
 
         const completedParams: FetchParamsComplete<T> = {
             ...cacheParams,

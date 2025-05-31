@@ -6,7 +6,7 @@ import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mute
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
-import { TELEMETRY, bracketed, isEmptyStr, prefixed } from './string_helpers';
+import { TELEMETRY, bracketed, createRandomString, isEmptyStr, prefixed } from './string_helpers';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -63,6 +63,11 @@ export class ComponentLogger {
     // Only writes logs when FEDIALGO_DEBUG env var is set
     trace(msg: string, ...args: any[]) {
         isDebugMode && this.debug(msg, ...args);
+    }
+
+    // Can be helpful when there's a lot of threads and you want to distinguish them
+    tagWithRandomString(): void {
+        this.logPrefix += ` *#(${createRandomString(4)})#*`
     }
 
     // Mutates args array to pop the first Error if it exists

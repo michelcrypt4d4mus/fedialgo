@@ -415,12 +415,16 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(inParams) {
         let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
-        logger ??= getLogger(cacheKey, moar ? "MOAR" : undefined);
-        logger.trace(`getApiRecords() called with params:`, inParams);
+        logger ??= getLogger(cacheKey, 'getApiRecords()');
+        logger.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
+        inParams.logger = logger; // Ensure logger is set in params for completeParamsWithCache()
+        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
         const startedAt = new Date();
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
+        logger.trace(`getApiRecords() called with params, about to lock mutex`, inParams);
         const params = await this.completeParamsWithCache({ ...inParams, logger });
+        logger.trace(`getApiRecords() completed params:`, params);
         let { breakIf, cacheResult, maxRecords } = params;
         const cachedRows = cacheResult?.rows || [];
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
@@ -510,7 +514,6 @@ class MastoApi {
             // If maxId isn't supported then we don't start with the cached data in the 'rows' array
             logger.debug(`maxId not supported, no cache, or skipped cache. cacheResult:`, cacheResult);
         }
-        logger.trace(`completeParamsWithCache() about to make completedPara`);
         const completedParams = {
             ...cacheParams,
             breakIf: params.breakIf ?? DEFAULT_BREAK_IF,
