@@ -520,6 +520,8 @@ export default class MastoApi {
         }
 
         maxRecords = cacheResult?.newMaxRecords || maxRecords;  // TODO: is this right w/maxRecords?
+        this.waitTimes[cacheKey] ??= new WaitTime();
+        this.waitTimes[cacheKey]!.markStart();
         let pageNumber = 0;
         let rows: T[] = [];
 

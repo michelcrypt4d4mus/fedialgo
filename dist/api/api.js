@@ -428,6 +428,8 @@ class MastoApi {
             return cachedRows;
         }
         maxRecords = cacheResult?.newMaxRecords || maxRecords; // TODO: is this right w/maxRecords?
+        this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
+        this.waitTimes[cacheKey].markStart();
         let pageNumber = 0;
         let rows = [];
         try {
