@@ -375,8 +375,9 @@ export default class MastoApi {
     }
 
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // Concurrency is managed by a semaphore in this method, not the normal mutexes.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    // TODO: we could maybe use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || config.api.defaultRecordsPerPage;
         const logger = getLogger(CacheKey.HASHTAG_TOOTS, tag.name);
@@ -391,7 +392,7 @@ export default class MastoApi {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
                 // to create other sets of toots from a lot of small requests, e.g. PARTICIPATED_TAG_TOOTS
                 skipCache: true,
-                // Concurrency is managed by the semaphore in this method not the normal mutexes
+                // Concurrency is managed by the semaphore above, not the mutexes
                 skipMutex: true,
             });
 
