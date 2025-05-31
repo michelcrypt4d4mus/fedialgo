@@ -406,14 +406,12 @@ class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(inParams) {
-        let { cacheKey, logger } = inParams;
+        let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
-        const fullParams = fillInBasicDefaults({ ...inParams, logger });
-        const { skipMutex } = fullParams;
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix);
-        const completedParams = await this.addCacheDataToParams({ ...fullParams, logger });
-        let { breakIf, cacheResult, fetch, moar, processFxn, skipCache, maxRecords } = completedParams;
+        const completedParams = await this.addCacheDataToParams({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completedParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
@@ -422,7 +420,7 @@ class MastoApi {
         logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/ completedParams:`, completedParams);
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
-        let rows = [];
+        let newRows = [];
         // Telemetry stuff that should be removed eventually
         this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
         this.waitTimes[cacheKey].markStart();
@@ -430,11 +428,11 @@ class MastoApi {
             for await (const page of fetch(this.buildParams(completedParams))) {
                 this.waitTimes[cacheKey].markEnd(); // telemetry
                 // the important stuff
-                rows = rows.concat(page);
+                newRows = newRows.concat(page);
                 pageNumber += 1;
-                const shouldStop = breakIf ? (await breakIf(page, rows)) : false; // breakIf() must be called before we check the length of rows!
-                const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${this.waitTimes[cacheKey].ageString()}`;
-                if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
+                const shouldStop = breakIf ? (await breakIf(page, newRows)) : false; // breakIf() must be called before we check the length of rows!
+                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey].ageString()}`;
+                if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 }
@@ -447,7 +445,7 @@ class MastoApi {
             }
         }
         catch (e) {
-            rows = this.handleApiError(completedParams, rows, this.waitTimes[cacheKey].startedAt, e);
+            newRows = this.handleApiError(completedParams, newRows, this.waitTimes[cacheKey].startedAt, e);
             cachedRows = []; // Set cachedRows to empty because hanldeApiError() already handled the merge
         }
         finally {
@@ -456,9 +454,9 @@ class MastoApi {
         // If endpoint has unique IDs (e.g. Toots) then we merge the cached rows with the new ones
         // (they will be deduped in buildFromApiObjects() if needed)
         if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            rows = [...cachedRows, ...rows];
+            newRows = [...cachedRows, ...newRows];
         }
-        const objs = this.buildFromApiObjects(cacheKey, rows, logger);
+        const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
         if (processFxn)
             objs.forEach(obj => obj && processFxn(obj));
         if (!skipCache)
@@ -477,7 +475,11 @@ class MastoApi {
     }
     // Fill in defaults in params and derive the min/maxIdForFetch from cached data if appropriate
     async addCacheDataToParams(params) {
-        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        let { cacheKey, logger, maxId, moar, skipCache } = params;
+        logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
+        const fullParams = fillInBasicDefaults({ ...params, logger });
+        const { maxRecords } = fullParams;
+        // Fetch from cache unless skipCache is true
         const cacheResult = skipCache ? null : (await this.getCachedRows(cacheKey));
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -504,13 +506,14 @@ class MastoApi {
         if (cacheResult && moar) {
             const newMaxRecords = maxRecords + cacheResult.rows.length;
             logger.info(`Increasing maxRecords to ${newMaxRecords} for MOAR request`);
-            maxRecords = newMaxRecords;
+        }
+        else {
         }
         const completedParams = {
             ...minMaxIdParams,
-            ...params,
+            ...fullParams,
             cacheResult,
-            maxRecords,
+            maxRecords
         };
         this.validateFetchParams(completedParams);
         return completedParams;
@@ -610,23 +613,24 @@ class MastoApi {
 }
 exports.default = MastoApi;
 ;
-// Populate the various option booleans and things from the Config
+// Populate the various fetch options with basic defaults
 function fillInBasicDefaults(params) {
     let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
     const requestDefaults = config_1.config.api.data[cacheKey];
-    maxRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-    return {
+    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
+    const withDefaults = {
         ...params,
         breakIf: params.breakIf || null,
-        limit: Math.min(maxRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
+        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
         logger: logger || getLogger(cacheKey),
         maxId: maxId || null,
-        maxRecords: maxRecords,
+        maxRecords: maxApiRecords,
         moar: moar || false,
         processFxn: params.processFxn || null,
         skipCache: skipCache || false,
         skipMutex: skipMutex || false,
     };
+    return withDefaults;
 }
 // logs prefixed by [API]
 function getLogger(subtitle, subsubtitle) {

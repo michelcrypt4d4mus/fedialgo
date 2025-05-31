@@ -28,6 +28,7 @@ import {
     type MinMaxID,
     type StatusList,
 } from "../types";
+import { max } from "lodash";
 
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -493,15 +494,13 @@ export default class MastoApi {
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
-        let { cacheKey, logger } = inParams;
+        let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, 'getApiRecords()');
-        const fullParams = fillInBasicDefaults<T>({ ...inParams, logger });
-        const { skipMutex } = fullParams;
 
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger.logPrefix);
-        const completedParams = await this.addCacheDataToParams<T>({ ...fullParams, logger });
-        let { breakIf, cacheResult, fetch, moar, processFxn, skipCache, maxRecords } = completedParams;
+        const completedParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completedParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
@@ -512,7 +511,7 @@ export default class MastoApi {
         logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/ completedParams:`, completedParams);
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
-        let rows: T[] = [];
+        let newRows: T[] = [];
         // Telemetry stuff that should be removed eventually
         this.waitTimes[cacheKey] ??= new WaitTime();
         this.waitTimes[cacheKey]!.markStart();
@@ -522,12 +521,12 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markEnd(); // telemetry
 
                 // the important stuff
-                rows = rows.concat(page as T[]);
+                newRows = newRows.concat(page as T[]);
                 pageNumber += 1;
-                const shouldStop = breakIf ? (await breakIf(page, rows)) : false;  // breakIf() must be called before we check the length of rows!
-                const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${this.waitTimes[cacheKey]!.ageString()}`;
+                const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;  // breakIf() must be called before we check the length of rows!
+                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey]!.ageString()}`;
 
-                if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
+                if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 } else {
@@ -539,7 +538,7 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            rows = this.handleApiError<T>(completedParams, rows, this.waitTimes[cacheKey]!.startedAt, e);
+            newRows = this.handleApiError<T>(completedParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
             cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
             releaseMutex?.();
@@ -548,10 +547,10 @@ export default class MastoApi {
         // If endpoint has unique IDs (e.g. Toots) then we merge the cached rows with the new ones
         // (they will be deduped in buildFromApiObjects() if needed)
         if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            rows = [...cachedRows, ...rows];
+            newRows = [...cachedRows, ...newRows];
         }
 
-        const objs = this.buildFromApiObjects(cacheKey, rows, logger);
+        const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
         if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
         if (!skipCache) await Storage.set(cacheKey, objs);
         return objs;
@@ -568,11 +567,16 @@ export default class MastoApi {
 
     // Fill in defaults in params and derive the min/maxIdForFetch from cached data if appropriate
     private async addCacheDataToParams<T extends MastodonApiObject>(
-        params: FetchParamsWithDefaults<T>
+        params: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
-        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        let { cacheKey, logger, maxId, moar, skipCache } = params;
+        logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
+        const fullParams = fillInBasicDefaults<T>({ ...params, logger });
+        const { maxRecords } = fullParams;
+
+        // Fetch from cache unless skipCache is true
         const cacheResult = skipCache ? null : (await this.getCachedRows<T>(cacheKey));
-        const minMaxIdParams: MinMaxIDParams = { maxIdForFetch: null, minIdForFetch: null };
+        const minMaxIdParams: MinMaxIDParams = {maxIdForFetch: null, minIdForFetch: null};
 
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
         // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
@@ -598,14 +602,14 @@ export default class MastoApi {
         if (cacheResult && moar) {
             const newMaxRecords = maxRecords! + cacheResult.rows!.length;
             logger.info(`Increasing maxRecords to ${newMaxRecords} for MOAR request`);
-            maxRecords = newMaxRecords;
+        } else {
         }
 
         const completedParams: FetchParamsWithCacheData<T> = {
             ...minMaxIdParams,
-            ...params,
+            ...fullParams,
             cacheResult,
-            maxRecords,
+            maxRecords
         };
 
         this.validateFetchParams<T>(completedParams);
@@ -715,24 +719,26 @@ export default class MastoApi {
 };
 
 
-// Populate the various option booleans and things from the Config
+// Populate the various fetch options with basic defaults
 function fillInBasicDefaults<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
     let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
     const requestDefaults = config.api.data[cacheKey];
-    maxRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
+    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
-    return {
+    const withDefaults: FetchParamsWithDefaults<T> = {
         ...params,
         breakIf: params.breakIf || null,
-        limit: Math.min(maxRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
+        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
         logger: logger || getLogger(cacheKey),
         maxId: maxId || null,
-        maxRecords: maxRecords,
+        maxRecords: maxApiRecords,
         moar: moar || false,
         processFxn: params.processFxn || null,
         skipCache: skipCache || false,
         skipMutex: skipMutex || false,
     };
+
+    return withDefaults;
 }
 
 
