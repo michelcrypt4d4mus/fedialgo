@@ -214,11 +214,13 @@ class MastoApi {
     }
     // Get the user's recent notifications
     async getNotifications(params) {
-        return await this.getApiRecords({
+        const notifs = await this.getApiRecords({
             fetch: this.api.v1.notifications.list,
             cacheKey: enums_1.CacheKey.NOTIFICATIONS,
             ...(params || {})
         });
+        this.logger.log(`[${enums_1.CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
+        return notifs;
     }
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!

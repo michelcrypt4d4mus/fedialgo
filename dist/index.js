@@ -340,6 +340,7 @@ class TheAlgorithm {
         this.feed = [];
         // Call other classes' reset methods
         api_1.default.instance.reset();
+        scorer_cache_1.default.resetScorers();
         await Storage_1.default.clearAll();
         if (complete) {
             await Storage_1.default.remove(enums_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded

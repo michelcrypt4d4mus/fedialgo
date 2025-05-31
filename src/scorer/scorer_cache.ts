@@ -18,4 +18,8 @@ export default class ScorerCache {
         this.feedScorers = feedScorers;
         this.weightedScorers = [...featureScorers, ...feedScorers];
     }
+
+    static resetScorers() {
+        this.weightedScorers.forEach(scorer => scorer.isReady = false);
+    }
 };
