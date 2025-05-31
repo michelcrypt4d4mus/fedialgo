@@ -4,7 +4,7 @@ import Toot from './objects/toot';
 import UserData from "./user_data";
 import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
-import { WaitTime } from '../helpers/log_helpers';
+import { ConcurrencyLockRelease, WaitTime } from '../helpers/log_helpers';
 import { type MastodonTag } from "../types";
 interface ApiParams {
     logger?: ComponentLogger;
@@ -48,6 +48,7 @@ export default class MastoApi {
     getUserData(): Promise<UserData>;
     hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]>;
     instanceInfo(): Promise<mastodon.v2.Instance>;
+    lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;
     resolveToot(toot: Toot): Promise<Toot>;
     searchForToots(searchStr: string, maxRecords?: number): Promise<mastodon.v1.Status[]>;
     reset(): void;

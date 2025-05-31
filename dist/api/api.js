@@ -36,9 +36,9 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const enums_1 = require("../enums");
 const log_helpers_1 = require("../helpers/log_helpers");
+const log_helpers_2 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const log_helpers_2 = require("../helpers/log_helpers");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
 // Error messages for MastoHttpError
@@ -340,6 +340,11 @@ class MastoApi {
             }
         }
     }
+    async lockAllMutexes() {
+        apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
+        return await Promise.all(Object.values(this.mutexes).map(mutex => (0, log_helpers_2.lockExecution)(mutex, 'lockAllMutexes()')));
+    }
+    ;
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
     //

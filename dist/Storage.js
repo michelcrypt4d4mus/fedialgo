@@ -72,15 +72,22 @@ class Storage {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeights();
-        await localforage_1.default.clear();
-        if (user) {
-            logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
-            await this.setIdentity(user);
-            if (weights)
-                await this.setWeightings(weights);
+        const releasers = await api_1.default.instance.lockAllMutexes();
+        try {
+            await localforage_1.default.clear();
+            if (user) {
+                logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+                await this.setIdentity(user);
+                if (weights)
+                    await this.setWeightings(weights);
+            }
+            else {
+                logger.warn(`No user identity found, cleared storage anyways`);
+            }
         }
-        else {
-            logger.warn(`No user identity found, cleared storage anyways`);
+        finally {
+            releasers.forEach((release) => release?.());
+            logger.log(`Cleared all storage items, released mutexes`);
         }
     }
     // Get the value at the given key (with the user ID as a prefix)

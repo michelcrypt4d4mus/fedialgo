@@ -81,14 +81,21 @@ export default class Storage {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeights();
-        await localForage.clear();
+        const releasers = await MastoApi.instance.lockAllMutexes();
 
-        if (user) {
-            logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
-            await this.setIdentity(user);
-            if (weights) await this.setWeightings(weights);
-        } else {
-            logger.warn(`No user identity found, cleared storage anyways`);
+        try {
+            await localForage.clear();
+
+            if (user) {
+                logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+                await this.setIdentity(user);
+                if (weights) await this.setWeightings(weights);
+            } else {
+                logger.warn(`No user identity found, cleared storage anyways`);
+            }
+        } finally {
+            releasers.forEach((release) => release?.());
+            logger.log(`Cleared all storage items, released mutexes`);
         }
     }
 

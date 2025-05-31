@@ -90,8 +90,8 @@ export default class Account implements AccountObj {
         accountObj.fields = account.fields || [];
         // boolean flags
         accountObj.discoverable = account.discoverable || false;
-        accountObj.noindex = account.noindex || false;
         accountObj.limited = account.limited || false;
+        accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields

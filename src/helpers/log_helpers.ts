@@ -8,6 +8,8 @@ import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { TELEMETRY, bracketed, createRandomString, isEmptyStr, prefixed } from './string_helpers';
 
+export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
+
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export const PREP_SCORERS = "prepareScorers()";
@@ -93,11 +95,11 @@ export class ComponentLogger {
 export async function lockExecution(
     locker: Mutex | Semaphore,
     logPrefix: string
-): Promise<MutexInterface.Releaser | SemaphoreInterface.Releaser> {
+): Promise<ConcurrencyLockRelease> {
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
-    let releaseLock: MutexInterface.Releaser |SemaphoreInterface.Releaser;
+    let releaseLock: ConcurrencyLockRelease;
     let logMsg = bracketed(logPrefix);
 
     if (Array.isArray(acquireLock)) {

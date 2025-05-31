@@ -20,9 +20,9 @@ import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timeline
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
+import { ConcurrencyLockRelease, lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
@@ -422,6 +422,11 @@ export default class MastoApi {
             }
         }
     }
+
+    async lockAllMutexes(): Promise<ConcurrencyLockRelease[]> {
+        apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
+        return await Promise.all(Object.values(this.mutexes).map(mutex => lockExecution(mutex, 'lockAllMutexes()')));
+    };
 
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
