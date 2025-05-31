@@ -421,8 +421,8 @@ class MastoApi {
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
         const params = await this.completeParamsWithCache(inParams);
-        let { breakIf, cacheResult, maxRecords, supportsMinMaxId } = params;
-        const cachedRows = cacheResult.rows || [];
+        let { breakIf, cacheResult, maxRecords } = params;
+        const cachedRows = cacheResult?.rows || [];
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
             return cachedRows;
@@ -528,7 +528,7 @@ class MastoApi {
     // TODO: handle rate limiting errors
     handleApiError(params, rows, startedAt, err) {
         const { cacheResult, cacheKey, logger, supportsMinMaxId } = params;
-        const cachedRows = cacheResult.rows || [];
+        const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(err, `${logger.logPrefix} Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
@@ -576,8 +576,8 @@ class MastoApi {
             logger.warn(`skipCache=true AND moar or maxId set!`);
         if (minId && maxId)
             logger.warn(`Both minId="${minId}" and maxId="${maxId}" set!`);
-        if (maxRecords && cacheResult?.newMaxRecords && maxRecords < cacheResult.newMaxRecords) {
-            logger.warn(`maxRecords=${maxRecords} < cacheResult.newMaxRecords=${cacheResult.newMaxRecords}, should we be using ${cacheResult.newMaxRecords}?`);
+        if (maxRecords && maxRecords < (cacheResult?.newMaxRecords || 0)) {
+            logger.warn(`maxRecords=${maxRecords} < cacheResult.newMaxRecords=${cacheResult?.newMaxRecords}. Should we be using newMaxRecords?`);
         }
     }
     ////////////////////////////
