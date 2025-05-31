@@ -1,12 +1,13 @@
 /*
  * Logging related methods.
  */
-import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+import { Mutex, Semaphore } from 'async-mutex';
 
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { TELEMETRY, bracketed, createRandomString, isEmptyStr, prefixed } from './string_helpers';
+import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
 export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -93,11 +94,11 @@ export class ComponentLogger {
 export async function lockExecution(
     locker: Mutex | Semaphore,
     logPrefix: string
-): Promise<MutexInterface.Releaser | SemaphoreInterface.Releaser> {
+): Promise<ConcurrencyLockRelease> {
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
-    let releaseLock: MutexInterface.Releaser |SemaphoreInterface.Releaser;
+    let releaseLock: ConcurrencyLockRelease;
     let logMsg = bracketed(logPrefix);
 
     if (Array.isArray(acquireLock)) {

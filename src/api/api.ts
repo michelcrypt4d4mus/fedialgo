@@ -22,6 +22,7 @@ import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
     type ApiMutex,
+    type ConcurrencyLockRelease,
     type MastodonApiObject,
     type MastodonObjWithID,
     type MastodonTag,
