@@ -400,11 +400,12 @@ class Toot {
     async resolveID() {
         if (!this.resolvedID) {
             try {
+                logger.log(`Resolving local toot ID for`, this);
                 this.resolvedID = (await api_1.default.instance.resolveToot(this)).id;
             }
             catch (error) {
-                logger.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
-                return this.id;
+                logger.error(`Error resolving toot`, error, `\nThis was the toot:`, this);
+                throw error;
             }
         }
         return this.resolvedID;

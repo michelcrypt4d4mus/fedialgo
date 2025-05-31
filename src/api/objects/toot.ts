@@ -513,16 +513,16 @@ export default class Toot implements TootObj {
     async resolveID(): Promise<string> {
         if (!this.resolvedID) {
             try {
+                logger.log(`Resolving local toot ID for`, this);
                 this.resolvedID = (await MastoApi.instance.resolveToot(this)).id;
             } catch (error) {
-                logger.warn(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
-                return this.id;
+                logger.error(`Error resolving toot`, error, `\nThis was the toot:`, this);
+                throw error;
             }
         }
 
         return this.resolvedID;
     }
-
 
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt(): Date {
