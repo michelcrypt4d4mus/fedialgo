@@ -5,6 +5,7 @@ import chunk from 'lodash/chunk';
 
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
+import { ComponentLogger } from './log_helpers';
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { CacheKey } from "../enums";
 import { isNumber } from "./math_helper";
@@ -393,8 +394,15 @@ export const uniquify = (array: (string | undefined)[]): string[] | undefined =>
 
 
 // Remove elements of an array if they have duplicate values for the given transform function
-export function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[] {
-    return [...new Map(array.map((element) => [transform(element), element])).values()];
+export function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[] {
+    const logger = new ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
+
+    if (logPrefix && newRows.length < rows.length) {
+        logger.debug(`Removed ${rows.length - newRows.length} duplicate rows`);
+    }
+
+    return newRows;
 };
 
 

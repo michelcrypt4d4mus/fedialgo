@@ -8,7 +8,7 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS } from "../Storage";
+import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_KEYS_WITH_UNIQUE_IDS } from "../Storage";
 import { CacheKey } from "../enums";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
@@ -16,7 +16,7 @@ import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timeline
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
-import { findMinMaxId, truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
@@ -574,6 +574,8 @@ export default class MastoApi {
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
             return Toot.dedupeToots(toots, `${key} buildFromApiObjects`);
+        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
+            return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
             return objects;
         }

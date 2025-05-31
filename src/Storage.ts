@@ -61,7 +61,7 @@ export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey)
 );
 
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
-const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
+export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
     ...STORAGE_KEYS_WITH_TOOTS,
     ...STORAGE_KEYS_WITH_ACCOUNTS,
     CacheKey.NOTIFICATIONS,
