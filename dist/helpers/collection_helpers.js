@@ -37,10 +37,10 @@ exports.average = average;
 //    - sleepBetweenMS: optional number of milliseconds to sleep between batches
 // If fxn returns anything it returns the results of mapping items with fxn().
 async function batchMap(array, fxn, options) {
-    let { batchSize, logPrefix, sleepBetweenMS } = (options || {});
-    logPrefix = logPrefix ? `${(0, string_helpers_1.bracketed)(logPrefix)} ${BATCH_MAP}` : (0, string_helpers_1.bracketed)(BATCH_MAP);
+    let { batchSize, logger, sleepBetweenMS } = (options || {});
+    logger = logger ? logger.tempLogger(BATCH_MAP) : new logger_1.Logger(BATCH_MAP);
     const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
-    const chunks = makeChunks(array, { chunkSize, logPrefix });
+    const chunks = makeChunks(array, { chunkSize, logger });
     let results = [];
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
@@ -48,7 +48,7 @@ async function batchMap(array, fxn, options) {
         if (newResults.filter(Boolean).length)
             results = [...results, ...newResults]; // Only append non-null results
         if (sleepBetweenMS && (i < (chunks.length - 1))) {
-            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${array.length}, sleeping ${sleepBetweenMS}ms`);
+            logger.debug(`${(i + 1) * chunkSize} of ${array.length}, sleeping ${sleepBetweenMS}ms`);
             await (0, time_helpers_1.sleep)(sleepBetweenMS);
         }
     }
@@ -59,10 +59,9 @@ exports.batchMap = batchMap;
 ;
 // Split the array into numChunks OR n chunks of size chunkSize
 function makeChunks(array, options) {
-    let { chunkSize, logPrefix, numChunks } = options;
-    logPrefix = (0, string_helpers_1.bracketed)(logPrefix || "makeChunks()");
+    let { chunkSize, logger, numChunks } = options;
     if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
-        throw new Error(`${logPrefix} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
+        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
     }
     chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
     return (0, chunk_1.default)(array, chunkSize);
@@ -206,7 +205,7 @@ exports.keyByProperty = keyByProperty;
 // Sort array by fxn() value & divide into numPercentiles sections
 function makePercentileChunks(array, fxn, numPercentiles) {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, { logPrefix: `makePercentileChunks(${numPercentiles})`, numChunks: numPercentiles });
+    return makeChunks(sortedArray, { numChunks: numPercentiles });
 }
 exports.makePercentileChunks = makePercentileChunks;
 ;

@@ -5,12 +5,12 @@ export declare function atLeastValues(obj: StringNumberDict, minValue: number): 
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
     batchSize?: number;
-    logPrefix?: string;
+    logger?: Logger;
     sleepBetweenMS?: number;
 }): Promise<any[]>;
 export declare function makeChunks<T>(array: T[], options: {
     chunkSize?: number;
-    logPrefix?: string;
+    logger?: Logger;
     numChunks?: number;
 }): T[][];
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;

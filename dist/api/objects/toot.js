@@ -279,12 +279,13 @@ class Toot {
     }
     // Mastodon calls this a "context" but it's really a conversation
     async getConversation() {
-        const logPrefix = (0, string_helpers_1.arrowed)('getConversation()');
-        tootLogger.log(`${logPrefix} Fetching conversation for toot:`, this.describe());
+        const prefix = 'getConversation()';
+        const logger = tootLogger.tempLogger(prefix);
+        logger.log(`Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], logPrefix, true);
-        tootLogger.trace(`${logPrefix} Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], prefix, true);
+        logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }
     getIndividualScore(scoreType, name) {
@@ -647,7 +648,6 @@ class Toot {
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logger, isDeepInspect) {
-        const logPrefix = `${logger.logPrefix} completeToots(isDeepInspect=${isDeepInspect})`;
         let completeToots = [];
         let tootsToComplete = toots;
         let startedAt = new Date();
@@ -663,8 +663,8 @@ class Toot {
             toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
             return toot;
         }, {
-            logPrefix,
             batchSize: config_1.config.toots.batchCompleteSize,
+            logger: logger.tempLogger(`completeToots(isDeepInspect=${isDeepInspect})`),
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
         let msg = `completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;

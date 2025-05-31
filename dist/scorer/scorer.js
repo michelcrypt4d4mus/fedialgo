@@ -17,13 +17,13 @@ const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
 // Local constants
 const LOG_PREFIX = "Scorer";
-const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const TRENDING_WEIGHTS = [
     enums_1.ScoreName.TRENDING_LINKS,
     enums_1.ScoreName.TRENDING_TAGS,
     enums_1.ScoreName.TRENDING_TOOTS,
 ];
+const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
     logger;
@@ -75,7 +75,7 @@ class Scorer {
                 scorer_cache_1.default.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
             }
             try { // Score the toots asynchronously in batches
-                await (0, collection_helpers_1.batchMap)(toots, t => this.decorateWithScoreInfo(t, scorers), { logPrefix: LOG_PREFIX });
+                await (0, collection_helpers_1.batchMap)(toots, t => this.decorateWithScoreInfo(t, scorers), { logger: scoreLogger });
             }
             finally {
                 releaseMutex?.();

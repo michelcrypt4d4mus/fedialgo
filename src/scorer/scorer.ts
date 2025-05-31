@@ -23,7 +23,6 @@ import {
 
 // Local constants
 const LOG_PREFIX = "Scorer";
-const scoreLogger = new Logger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new Mutex();
 
 const TRENDING_WEIGHTS = [
@@ -31,6 +30,8 @@ const TRENDING_WEIGHTS = [
     ScoreName.TRENDING_TAGS,
     ScoreName.TRENDING_TOOTS,
 ];
+
+const scoreLogger = new Logger(LOG_PREFIX, "scoreToots");
 
 
 export default abstract class Scorer {
@@ -96,7 +97,7 @@ export default abstract class Scorer {
             }
 
             try {  // Score the toots asynchronously in batches
-                await batchMap(toots, t => this.decorateWithScoreInfo(t, scorers), {logPrefix: LOG_PREFIX});
+                await batchMap(toots, t => this.decorateWithScoreInfo(t, scorers), {logger: scoreLogger});
             } finally {
                 releaseMutex?.();
             }

@@ -40,14 +40,14 @@ export async function batchMap<T>(
     fxn: (e: T) => Promise<any>,
     options?: {
         batchSize?: number,
-        logPrefix?: string,
+        logger?: Logger,
         sleepBetweenMS?: number
     }
 ): Promise<any[]> {
-    let { batchSize, logPrefix, sleepBetweenMS } = (options || {});
-    logPrefix = logPrefix ? `${bracketed(logPrefix)} ${BATCH_MAP}` : bracketed(BATCH_MAP);
+    let { batchSize, logger, sleepBetweenMS } = (options || {});
+    logger = logger ? logger.tempLogger(BATCH_MAP) : new Logger(BATCH_MAP);
     const chunkSize = batchSize || config.scoring.scoringBatchSize;
-    const chunks = makeChunks(array, { chunkSize, logPrefix });
+    const chunks = makeChunks(array, { chunkSize, logger });
     let results: any[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
@@ -56,7 +56,7 @@ export async function batchMap<T>(
         if (newResults.filter(Boolean).length) results = [...results, ...newResults]; // Only append non-null results
 
         if (sleepBetweenMS && (i < (chunks.length - 1))) {
-            console.debug(`${logPrefix} ${(i + 1) * chunkSize} of ${array.length}, sleeping ${sleepBetweenMS}ms`);
+            logger.debug(`${(i + 1) * chunkSize} of ${array.length}, sleeping ${sleepBetweenMS}ms`);
             await sleep(sleepBetweenMS);
         }
     };
@@ -70,15 +70,14 @@ export function makeChunks<T>(
     array: T[],
     options: {
         chunkSize?: number,
-        logPrefix?: string,
+        logger?: Logger,
         numChunks?: number
     }
 ): T[][] {
-    let { chunkSize, logPrefix, numChunks } = options;
-    logPrefix = bracketed(logPrefix || "makeChunks()");
+    let { chunkSize, logger, numChunks } = options;
 
     if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
-        throw new Error(`${logPrefix} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
+        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
     }
 
     chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
@@ -254,7 +253,7 @@ export function makePercentileChunks<T>(
     numPercentiles: number
 ): T[][] {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
-    return makeChunks(sortedArray, {logPrefix: `makePercentileChunks(${numPercentiles})`, numChunks: numPercentiles});
+    return makeChunks(sortedArray, {numChunks: numPercentiles});
 };
 
 
