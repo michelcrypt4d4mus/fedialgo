@@ -25,7 +25,7 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;
-export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
+// export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | TootNumberProp;

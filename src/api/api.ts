@@ -22,12 +22,11 @@ import { CacheKey } from "../enums";
 import { ComponentLogger } from "../helpers/log_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
     type ApiMutex,
-    type ConcurrencyLockRelease,
     type MastodonApiObject,
     type MastodonObjWithID,
     type MastodonTag,

@@ -1,5 +1,5 @@
-import { Mutex, Semaphore } from 'async-mutex';
-import { type ConcurrencyLockRelease } from '../types';
+import { Mutex, MutexInterface, Semaphore, SemaphoreInterface } from 'async-mutex';
+export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const PREP_SCORERS = "prepareScorers()";
 export declare const TRIGGER_FEED = "triggerFeedUpdate()";

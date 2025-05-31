@@ -1,5 +1,5 @@
 import { mastodon } from 'masto';
-import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
+import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
@@ -17,7 +17,6 @@ export type TagNames = Record<string, TagWithUsageCounts>;
 export type Weights = Record<WeightName, number>;
 export type WeightInfoDict = Record<WeightName, WeightInfo>;
 export type AccountLike = Account | mastodon.v1.Account;
-export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | TootNumberProp;

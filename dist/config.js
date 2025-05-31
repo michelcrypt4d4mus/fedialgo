@@ -5,9 +5,9 @@ exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL =
  * Centralized location for non-user configurable settings.
  */
 const enums_1 = require("./enums");
-const log_helpers_1 = require("./helpers/log_helpers");
+// import { ComponentLogger } from "./helpers/log_helpers";
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const log_helpers_2 = require("./helpers/log_helpers");
+const log_helpers_1 = require("./helpers/log_helpers");
 const enums_2 = require("./enums");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
@@ -25,8 +25,6 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
-// logger
-const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
 ;
 ;
 ;
@@ -317,14 +315,14 @@ class Config {
     };
     constructor() {
         this.validate();
-        logger.debug(`validated:`, this);
+        // logger.debug(`validated:`, this);
     }
     ;
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
     minTrendingMinutesUntilStale() {
         const trendStalenesses = exports.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
         if (trendStalenesses.length != exports.FEDIVERSE_KEYS.length) {
-            logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
+            // logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
             return 60;
         }
         else {
@@ -335,7 +333,7 @@ class Config {
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
         if (!LOCALE_REGEX.test(locale)) {
-            logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            // logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
             return;
         }
         this.locale.locale = locale;
@@ -346,7 +344,7 @@ class Config {
                 this.locale.language = language;
             }
             else {
-                logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
+                // logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
             }
         }
     }
@@ -359,10 +357,10 @@ class Config {
                 this.validate(value);
             }
             else if (typeof value == "number" && isNaN(value)) {
-                (0, log_helpers_2.logAndThrowError)(`${LOG_PREFIX} value at ${key} is NaN`);
+                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is NaN`);
             }
             else if (typeof value == "string" && value.length == 0) {
-                (0, log_helpers_2.logAndThrowError)(`${LOG_PREFIX} value at ${key} is empty string`);
+                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is empty string`);
             }
         });
     }
