@@ -15,7 +15,6 @@ import { ageString } from "../helpers/time_helpers";
 import { bracketed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
 import { config, FEDIVERSE_KEYS } from "../config";
-import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
 import { lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { TrendingType } from '../enums';
@@ -26,6 +25,12 @@ import {
     transformKeys,
     zipPromises
 } from "../helpers/collection_helpers";
+import {
+    decorateLinkHistory,
+    decorateTagHistory,
+    setTrendingRankToAvg,
+    uniquifyTrendingObjs
+} from "./objects/trending_with_history";
 import {
     type ApiMutex,
     type MastodonInstance,
