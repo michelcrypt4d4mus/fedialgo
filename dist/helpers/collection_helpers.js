@@ -122,7 +122,7 @@ objType) {
 }
 exports.filterWithLog = filterWithLog;
 ;
-// Find the minimum id in an array of objects using the given idFxn to extract the id
+// Find the minimum 'id' property in an array of objects that have an 'id' property.
 // TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
 // the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
