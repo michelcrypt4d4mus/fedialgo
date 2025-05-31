@@ -35,6 +35,7 @@ type ApiRequestDefaults = {
     limit?: number;                     // Max per page is usually 40
     lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
     minutesUntilStale?: number;         // How long until the data is considered stale
+    skipCache?: boolean;                // If true, skip the cache and always make a request
     supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
 };
 
@@ -183,11 +184,12 @@ class Config implements ConfigType {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.HASHTAG_TOOTS]: {
-                // TODO: this is here for the mutexes but nothing is actually cached
+                // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+                // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
             },
             [CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
-                lookbackForUpdatesMinutes: 180,    // How long to look back for updates (edits, increased reblogs, etc.)
+                lookbackForUpdatesMinutes: 180,  // How long to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
             },
             [CacheKey.MUTED_ACCOUNTS]: {
@@ -213,7 +215,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 24 * MINUTES_IN_HOUR,
             },
             [CacheKey.TIMELINE_TOOTS]: {
-                // TODO: shouldn't have to configure this empty object but we do for typing reasons
+                // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
             },
             [CacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,

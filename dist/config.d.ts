@@ -13,6 +13,7 @@ type ApiRequestDefaults = {
     limit?: number;
     lookbackForUpdatesMinutes?: number;
     minutesUntilStale?: number;
+    skipCache?: boolean;
     supportsMinMaxId?: boolean;
 };
 type ApiDataConfig = {

@@ -76,7 +76,8 @@ class Config {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
-            // TODO: this is here for the mutexes but nothing is actually cached
+            // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+            // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
             },
             [enums_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
@@ -106,7 +107,7 @@ class Config {
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.TIMELINE_TOOTS]: {
-            // TODO: shouldn't have to configure this empty object but we do for typing reasons
+            // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
             },
             [enums_1.CacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,

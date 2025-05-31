@@ -15,8 +15,8 @@ import { type TagWithUsageCounts } from "../types";
 const logger = new ComponentLogger("TootsForTagsList");
 
 type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS
-    | CacheKey.FAVOURITED_HASHTAG_TOOTS
-    | CacheKey.TRENDING_TAG_TOOTS;
+                      | CacheKey.FAVOURITED_HASHTAG_TOOTS
+                      | CacheKey.TRENDING_TAG_TOOTS;
 
 
 export default class TootsForTagsList {

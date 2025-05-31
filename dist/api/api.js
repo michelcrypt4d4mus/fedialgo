@@ -302,7 +302,10 @@ class MastoApi {
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
                 cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
                 maxRecords: maxRecords,
+                // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+                // to create other sets of toots from a lot of small requests, e.g. PARTICIPATED_TAG_TOOTS
                 skipCache: true,
+                // Concurrency is managed by the semaphore in this method not the normal mutexes
                 skipMutex: true,
             });
             logger.trace(`Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
@@ -491,12 +494,12 @@ class MastoApi {
                     logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
                 }
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
-                logger.info(`Getting MOAR data; loading backwards from maxId "${minMaxIdParams.maxIdForFetch}"`);
+                logger.info(`Getting MOAR data; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             }
             else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-                logger.info(`Incremental load possible; setting minId="${minMaxIdParams.minIdForFetch}"`);
+                logger.info(`Incremental load possible; loading fwd from maxId in cache: "${minMaxIdParams.minIdForFetch}"`);
             }
         }
         else if (maxId) {

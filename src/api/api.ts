@@ -381,9 +381,12 @@ export default class MastoApi {
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                cacheKey: CacheKey.HASHTAG_TOOTS,
+                cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
                 maxRecords: maxRecords,
+                // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+                // to create other sets of toots from a lot of small requests, e.g. PARTICIPATED_TAG_TOOTS
                 skipCache: true,
+                // Concurrency is managed by the semaphore in this method not the normal mutexes
                 skipMutex: true,
             });
 
@@ -588,11 +591,11 @@ export default class MastoApi {
                 }
 
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
-                logger.info(`Getting MOAR data; loading backwards from maxId "${minMaxIdParams.maxIdForFetch}"`);
+                logger.info(`Getting MOAR data; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             } else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-                logger.info(`Incremental load possible; setting minId="${minMaxIdParams.minIdForFetch}"`);
+                logger.info(`Incremental load possible; loading fwd from maxId in cache: "${minMaxIdParams.minIdForFetch}"`);
             }
         } else if (maxId) {
             minMaxIdParams.maxIdForFetch = maxId;  // If we have a manually provided maxId use it as the maxIdForFetch
