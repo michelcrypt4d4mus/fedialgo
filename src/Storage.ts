@@ -194,11 +194,12 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
-        const logPrefix = `<${key}> (getWithStaleness())`;
+        const logger = new ComponentLogger(LOG_PREFIX, key, `(getWithStaleness())`);
+        logger.trace(`Getting value at key: ${key}`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            logger.trace(`${logPrefix} No data found, returning null`);
+            logger.trace(`No data found, returning null`);
             return null;
         };
 
@@ -209,12 +210,12 @@ export default class Storage {
         let isStale = false;
 
         if (dataAgeInMinutes > staleAfterMinutes) {
-            logger.debug(`${logPrefix} Data is stale ${minutesMsg}`);
+            logger.debug(`Data is stale ${minutesMsg}`);
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(`${logPrefix} ${msg}`);
+            logger.trace(`${msg}`);
         }
 
         // Check for unique IDs in the stored data if we're in debug mode

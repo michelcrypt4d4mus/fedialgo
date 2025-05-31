@@ -506,6 +506,7 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
         logger ??= getLogger(cacheKey, moar ? "MOAR" : undefined);
+        logger.trace(`getApiRecords() called with params:`, inParams);
         const startedAt = new Date();
 
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
@@ -519,7 +520,8 @@ export default class MastoApi {
             return cachedRows;
         }
 
-        maxRecords = cacheResult?.newMaxRecords || maxRecords;  // TODO: is this right w/maxRecords?
+        // TODO: is this right w/maxRecords?
+        maxRecords = cacheResult?.newMaxRecords || maxRecords;
         this.waitTimes[cacheKey] ??= new WaitTime();
         this.waitTimes[cacheKey]!.markStart();
         let pageNumber = 0;
@@ -573,6 +575,7 @@ export default class MastoApi {
         params: FetchParams<any>
     ): Promise<FetchParamsComplete<T>> {
         let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        logger ||= getLogger(cacheKey);
 
         // Get some defaults set up
         logger ??= getLogger(cacheKey);
@@ -581,8 +584,10 @@ export default class MastoApi {
         maxRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
         // Check the cache and get the min/max ID for next request if supported
+        logger.trace(`getApiRecords() checking cache with params:`, params);
         const cacheParams: CacheCheckParams<T> = { ...params, maxRecords, supportsMinMaxId };
         const cacheResult = skipCache ? null : await this.checkCache<T>(cacheParams);
+        logger.trace(`getApiRecords() finished checking cache, result::`, params);
         let minId: string | number | null = null;
 
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
