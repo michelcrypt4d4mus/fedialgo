@@ -630,12 +630,15 @@ class Toot {
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
+        logger.trace(`<${source}> About to try to completeToots() ${statuses.length} toots...`);
         let toots = await this.completeToots(statuses, logPrefix, false);
+        logger.trace(`<${source}> Finished completeToots() ${statuses.length} toots...`);
         if (!skipSort)
             toots = await this.removeInvalidToots(toots, logPrefix); // TODO: without the if this removes users own toots from threads
         toots.forEach((toot) => toot.sources = [source]);
         toots = Toot.dedupeToots(toots, logPrefix);
         // Make a first pass at scoring with whatever scorers are ready to score
+        logger.trace(`<${source}> About to scoreToots ${statuses.length} toots...`);
         await scorer_1.default.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort)

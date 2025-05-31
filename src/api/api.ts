@@ -66,7 +66,7 @@ interface FetchParams<T> extends MaxIdParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     cacheKey: CacheKey,  // Mutex will be skipped if label is a string not a StorageKey,
     skipMutex?: boolean,
-    breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,  // TODO: could make nullable
+    breakIf?: ((pageOfResults: T[], allResults: T[]) => Promise<true | undefined>) | null ,
     processFxn?: ((obj: T) => void) | null,
 };
 
@@ -515,24 +515,26 @@ export default class MastoApi {
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await lockExecution(this.mutexes[cacheKey], logger.logPrefix));
         logger.trace(`called with params, mutex locked`);
-        const params = await this.completeParamsWithCache<T>({...inParams, logger });
-        logger.trace(`completed cache check, new params:`, params);
-        let { breakIf, cacheResult, maxRecords } = params;
+        const completedParams = await this.completeParamsWithCache<T>({...inParams, logger });
+        logger.trace(`completed cache check, completedParams:`, completedParams);
+        let { breakIf, cacheResult, maxRecords } = completedParams;
         const cachedRows = cacheResult?.rows || [];
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
-            logger.trace(`returning still fresh cachedRows:`, params);
+            logger.trace(`returning still fresh cachedRows:`, completedParams);
             return cachedRows;
+        } else {
         }
 
         // TODO: is this right w/maxRecords?
         maxRecords = cacheResult?.newMaxRecords || maxRecords;
+        logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/maxRecords=${maxRecords}...`);
         this.waitTimes[cacheKey] ??= new WaitTime();
         this.waitTimes[cacheKey]!.markStart();
         let pageNumber = 0;
         let rows: T[] = [];
-        const fetchParams = this.buildParams(params);
+        const fetchParams = this.buildParams(completedParams);
         logger.trace(`About to do first fetch with fetchParams`, fetchParams);
 
         try {
@@ -542,7 +544,7 @@ export default class MastoApi {
                 // The actual action
                 rows = rows.concat(page as T[]);
                 pageNumber += 1;
-                const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
+                const shouldStop = breakIf ? (await breakIf(page, rows)) : false;  // Must be called before we check the length of rows!
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
 
                 if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
@@ -557,7 +559,7 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            rows = this.handleApiError<T>(params, rows, startedAt, e);
+            rows = this.handleApiError<T>(completedParams, rows, startedAt, e);
         } finally {
             releaseMutex?.();
         }
@@ -616,7 +618,7 @@ export default class MastoApi {
 
         const completedParams: FetchParamsComplete<T> = {
             ...cacheParams,
-            breakIf: params.breakIf ?? DEFAULT_BREAK_IF,
+            breakIf: params.breakIf ?? null,
             cacheResult,
             limit: Math.min(maxRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
             logger,

@@ -424,22 +424,25 @@ class MastoApi {
         // Lock mutex unless skipMutex is true then load cache + compute params for actual API request
         const releaseMutex = skipMutex ? null : (await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix));
         logger.trace(`called with params, mutex locked`);
-        const params = await this.completeParamsWithCache({ ...inParams, logger });
-        logger.trace(`completed cache check, new params:`, params);
-        let { breakIf, cacheResult, maxRecords } = params;
+        const completedParams = await this.completeParamsWithCache({ ...inParams, logger });
+        logger.trace(`completed cache check, completedParams:`, completedParams);
+        let { breakIf, cacheResult, maxRecords } = completedParams;
         const cachedRows = cacheResult?.rows || [];
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult && !cacheResult.isStale && cachedRows && !moar) {
-            logger.trace(`returning still fresh cachedRows:`, params);
+            logger.trace(`returning still fresh cachedRows:`, completedParams);
             return cachedRows;
+        }
+        else {
         }
         // TODO: is this right w/maxRecords?
         maxRecords = cacheResult?.newMaxRecords || maxRecords;
+        logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/maxRecords=${maxRecords}...`);
         this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
         this.waitTimes[cacheKey].markStart();
         let pageNumber = 0;
         let rows = [];
-        const fetchParams = this.buildParams(params);
+        const fetchParams = this.buildParams(completedParams);
         logger.trace(`About to do first fetch with fetchParams`, fetchParams);
         try {
             for await (const page of fetch(fetchParams)) {
@@ -447,7 +450,7 @@ class MastoApi {
                 // The actual action
                 rows = rows.concat(page);
                 pageNumber += 1;
-                const shouldStop = await breakIf(page, rows); // Must be called before we check the length of rows!
+                const shouldStop = breakIf ? (await breakIf(page, rows)) : false; // Must be called before we check the length of rows!
                 const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${(0, time_helpers_1.ageString)(startedAt)}`;
                 if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
@@ -462,7 +465,7 @@ class MastoApi {
             }
         }
         catch (e) {
-            rows = this.handleApiError(params, rows, startedAt, e);
+            rows = this.handleApiError(completedParams, rows, startedAt, e);
         }
         finally {
             releaseMutex?.();
@@ -520,7 +523,7 @@ class MastoApi {
         }
         const completedParams = {
             ...cacheParams,
-            breakIf: params.breakIf ?? DEFAULT_BREAK_IF,
+            breakIf: params.breakIf ?? null,
             cacheResult,
             limit: Math.min(maxRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
             logger,
