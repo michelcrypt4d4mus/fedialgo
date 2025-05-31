@@ -14,10 +14,10 @@ import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { bracketed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
-import { lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { ComponentLogger } from '../helpers/logger';
 import { config, FEDIVERSE_KEYS } from "../config";
 import { decorateLinkHistory, decorateTagHistory, setTrendingRankToAvg, uniquifyTrendingObjs } from "./objects/trending_with_history";
+import { lockExecution, logAndThrowError } from '../helpers/log_helpers';
 import { TrendingType } from '../enums';
 import {
     countValues,

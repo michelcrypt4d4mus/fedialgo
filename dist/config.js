@@ -6,7 +6,7 @@ exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL =
  */
 const enums_1 = require("./enums");
 // TODO: circular dependency issues with this import
-// import { ComponentLogger } from "./helpers/log_helpers";
+const logger_1 = require("./helpers/logger");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
 const enums_2 = require("./enums");
@@ -26,6 +26,9 @@ const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = "Config";
+// TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
+// logger
+const logger = new logger_1.ComponentLogger(LOG_PREFIX);
 ;
 ;
 ;
@@ -316,7 +319,7 @@ class Config {
     };
     constructor() {
         this.validate();
-        // logger.debug(`validated:`, this);
+        logger.debug(`validated:`, this);
     }
     ;
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
@@ -334,7 +337,7 @@ class Config {
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
         if (!LOCALE_REGEX.test(locale)) {
-            // logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
             return;
         }
         this.locale.locale = locale;
@@ -345,7 +348,7 @@ class Config {
                 this.locale.language = language;
             }
             else {
-                // logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
+                logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
             }
         }
     }

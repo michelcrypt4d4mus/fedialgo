@@ -6,8 +6,8 @@ import { Mutex } from 'async-mutex';
 
 import MastoApi from "../api/api";
 import { ageString } from '../helpers/time_helpers';
-import { lockExecution } from '../helpers/log_helpers';
 import { ComponentLogger } from '../helpers/logger';
+import { lockExecution } from '../helpers/log_helpers';
 import { config } from "../config";
 
 export const GET_MOAR_DATA = "getMoarData()";

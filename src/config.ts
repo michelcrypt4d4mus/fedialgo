@@ -2,8 +2,7 @@
  * Centralized location for non-user configurable settings.
  */
 import { CacheKey } from "./enums";
-// TODO: circular dependency issues with this import
-// import { ComponentLogger } from "./helpers/log_helpers";
+import { ComponentLogger } from "./helpers/logger";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
 import { NonScoreWeightName } from './enums';
@@ -30,7 +29,7 @@ const LOG_PREFIX = "Config";
 
 // TODO: instantiating this logger causes circular dependency issues, so commenting it out for now
 // logger
-// const logger = new ComponentLogger(LOG_PREFIX);
+const logger = new ComponentLogger(LOG_PREFIX);
 
 type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
@@ -436,7 +435,7 @@ class Config implements ConfigType {
 
     constructor() {
         this.validate();
-        // logger.debug(`validated:`, this);
+        logger.debug(`validated:`, this);
     };
 
     // Compute min value for FEDIVERSE_KEYS minutesUntilStale
@@ -444,7 +443,7 @@ class Config implements ConfigType {
         const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
 
         if (trendStalenesses.length != FEDIVERSE_KEYS.length) {
-            // logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
+            logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
             return 60;
         } else {
             return Math.min(...trendStalenesses as number[]);
@@ -456,7 +455,7 @@ class Config implements ConfigType {
         locale ??= DEFAULT_LOCALE;
 
         if (!LOCALE_REGEX.test(locale)) {
-            // logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            logger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
             return;
         }
 
@@ -468,7 +467,7 @@ class Config implements ConfigType {
             if (language == DEFAULT_LANGUAGE || language in this.fediverse.foreignLanguageServers) {
                 this.locale.language = language;
             } else {
-                // logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
+                logger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
             }
         }
     }
