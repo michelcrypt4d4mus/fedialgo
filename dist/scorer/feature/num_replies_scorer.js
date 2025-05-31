@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times the toot has been replied to by other users.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class NumRepliesScorer extends feature_scorer_1.default {
     description = "Favour toots with lots of replies";
     constructor() {
-        super(scorer_1.ScoreName.NUM_REPLIES);
+        super(enums_1.ScoreName.NUM_REPLIES);
     }
     async _score(toot) {
         return toot.realToot().repliesCount || 0;

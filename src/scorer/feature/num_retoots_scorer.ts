@@ -3,7 +3,7 @@
  */
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 
 
 export default class NumRetootsScorer extends FeatureScorer {

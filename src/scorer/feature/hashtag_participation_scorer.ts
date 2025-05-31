@@ -4,7 +4,7 @@
 import FeatureScorer from '../feature_scorer';
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from "../../types";
 

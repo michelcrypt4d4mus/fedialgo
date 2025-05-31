@@ -21,7 +21,7 @@ import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/l
 import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
 import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
-import { ScoreName } from '../../scorer/scorer';
+import { ScoreName } from '../../enums';
 import { TypeFilterName } from "../../filters/boolean_filter";
 import {
     DEFAULT_FONT_SIZE,

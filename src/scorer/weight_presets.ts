@@ -2,7 +2,7 @@
  * Preset configurations to simplify user weight management.
  */
 import { isValueInStringEnum } from "../helpers/collection_helpers";
-import { NonScoreWeightName, ScoreName } from './scorer';
+import { NonScoreWeightName, ScoreName } from '../enums';
 import { type Weights } from "../types";
 
 export enum WeightPresetLabel {

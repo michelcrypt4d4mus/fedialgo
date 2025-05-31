@@ -126,7 +126,7 @@ class ComponentLogger {
     // Returns the error message in case it's of use.
     error(msg, ...args) {
         if (msg instanceof Error) {
-            console.error(this.makeMsg(msg.message), msg, ...args);
+            console.error(this.makeMsg(msg.message), ...args);
             return msg.message;
         }
         msg = this.getErrorMessage(msg, ...args);

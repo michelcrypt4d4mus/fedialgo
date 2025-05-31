@@ -7,7 +7,8 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer, { NonScoreWeightName, ScoreName, WeightName } from './scorer/scorer';
+import Scorer, { WeightName } from './scorer/scorer';
+import { NonScoreWeightName, ScoreName } from './enums';
 import Toot, { SerializableToot } from './api/objects/toot';
 import { CacheKey } from "./enums";
 

@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class RetootsInFeedScorer extends feature_scorer_1.default {
     description = "Favour toots retooted by accounts you follow";
     constructor() {
-        super(scorer_1.ScoreName.RETOOTED_IN_FEED);
+        super(enums_1.ScoreName.RETOOTED_IN_FEED);
     }
     async _score(toot) {
         if (!toot.reblog)

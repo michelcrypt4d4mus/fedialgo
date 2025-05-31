@@ -146,7 +146,7 @@ export class ComponentLogger {
     // Returns the error message in case it's of use.
     error(msg: string | Error, ...args: any[]): string {
         if (msg instanceof Error) {
-            console.error(this.makeMsg(msg.message), msg, ...args);
+            console.error(this.makeMsg(msg.message), ...args);
             return msg.message;
         }
 

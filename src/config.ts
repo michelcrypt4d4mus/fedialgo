@@ -5,7 +5,7 @@ import { CacheKey } from "./enums";
 import { ComponentLogger } from "./helpers/log_helpers";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";
-import { NonScoreWeightName } from './scorer/scorer';
+import { NonScoreWeightName } from './enums';
 import { type NonScoreWeightInfoDict } from "./types";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
@@ -500,8 +500,8 @@ if (isQuickMode) {
 
 // Debug mode settings
 if (isDebugMode) {
-    config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 1;
-    config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
+    config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 60;
+    config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 60;
     config.api.maxRecordsForFeatureScoring = 2_500;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rechartsDataPoints = void 0;
 const collection_helpers_1 = require("./collection_helpers");
-const scorer_1 = require("../scorer/scorer");
+const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
 // Return an array of objects suitable for use with Recharts
@@ -46,7 +46,7 @@ exports.rechartsDataPoints = rechartsDataPoints;
 ;
 // Compute stats about the scores of a list of toots
 function computeScoreStats(toots, numPercentiles) {
-    return Object.values(scorer_1.ScoreName).reduce((stats, scoreName) => {
+    return Object.values(enums_1.ScoreName).reduce((stats, scoreName) => {
         stats[scoreName] = {
             raw: scoreStats(toots, "raw", scoreName, numPercentiles),
             weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),

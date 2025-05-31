@@ -93,9 +93,9 @@ Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: functi
 const enums_2 = require("./enums");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_2.MediaCategory; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_2.TrendingType; } });
-const scorer_2 = require("./scorer/scorer");
-Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return scorer_2.NonScoreWeightName; } });
-Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return scorer_2.ScoreName; } });
+const enums_3 = require("./enums");
+Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_3.NonScoreWeightName; } });
+Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
 Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return log_helpers_1.ComponentLogger; } });
@@ -181,7 +181,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(scorer_2.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
+    }, Object.values(enums_3.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
         nonScoreWeights[weightName] = Object.assign({}, config_1.config.scoring.nonScoreWeightsConfig[weightName]);
         nonScoreWeights[weightName].minValue = config_1.config.scoring.nonScoreWeightMinValue;
         return nonScoreWeights;

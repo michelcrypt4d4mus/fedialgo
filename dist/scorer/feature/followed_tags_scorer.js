@@ -8,11 +8,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * on the Toot that the user is following.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class FollowedTagsScorer extends feature_scorer_1.default {
     description = "Favour toots containing hashtags you follow";
     constructor() {
-        super(scorer_1.ScoreName.FOLLOWED_TAGS);
+        super(enums_1.ScoreName.FOLLOWED_TAGS);
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {

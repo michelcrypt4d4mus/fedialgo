@@ -8,11 +8,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * that as the score.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class TrendingTootScorer extends feature_scorer_1.default {
     description = "Favour toots that are trending in the Fediverse";
     constructor() {
-        super(scorer_1.ScoreName.TRENDING_TOOTS);
+        super(enums_1.ScoreName.TRENDING_TOOTS);
     }
     async _score(toot) {
         return toot.realToot().trendingRank || 0;

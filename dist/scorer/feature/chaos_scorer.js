@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Random number generator to mix up the feed.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class ChaosScorer extends feature_scorer_1.default {
     description = "Insert Chaos into the scoring (social media ist krieg)";
     constructor() {
-        super(scorer_1.ScoreName.CHAOS);
+        super(enums_1.ScoreName.CHAOS);
     }
     async _score(toot) {
         // Return the existing score if it exists

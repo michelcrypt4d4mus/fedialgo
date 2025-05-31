@@ -10,11 +10,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class FollowedAccountsScorer extends feature_scorer_1.default {
     description = "Favour accounts you follow";
     constructor() {
-        super(scorer_1.ScoreName.FOLLOWED_ACCOUNTS);
+        super(enums_1.ScoreName.FOLLOWED_ACCOUNTS);
     }
     ;
     async prepareScoreData() {

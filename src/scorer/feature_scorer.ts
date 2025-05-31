@@ -6,7 +6,7 @@
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
 import { isDebugMode } from "../helpers/environment_helpers";
-import { ScoreName } from './scorer';
+import { ScoreName } from '../enums';
 import { type StringNumberDict } from "../types";
 
 

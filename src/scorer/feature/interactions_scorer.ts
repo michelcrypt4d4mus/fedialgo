@@ -5,7 +5,7 @@ import Account from "../../api/objects/account";
 import AccountScorer from "./acccount_scorer";
 import MastoApi from "../../api/api";
 import { type StringNumberDict } from "../../types";
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 
 
 export default class InteractionsScorer extends AccountScorer {

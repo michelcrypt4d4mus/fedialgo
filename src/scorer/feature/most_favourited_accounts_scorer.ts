@@ -4,7 +4,7 @@
 import Account from '../../api/objects/account';
 import AccountScorer from "./acccount_scorer";
 import MastoApi from '../../api/api';
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 

@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NonScoreWeightName = exports.ScoreName = void 0;
 /*
  * Base class for Toot scorers.
  */
@@ -15,48 +14,15 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
-// There's a scorer for each of these ScoreNames
-var ScoreName;
-(function (ScoreName) {
-    ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
-    ScoreName["CHAOS"] = "Chaos";
-    ScoreName["DIVERSITY"] = "Diversity";
-    ScoreName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";
-    ScoreName["FAVOURITED_TAGS"] = "FavouritedTags";
-    ScoreName["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
-    ScoreName["FOLLOWED_TAGS"] = "FollowedTags";
-    ScoreName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
-    ScoreName["INTERACTIONS"] = "Interactions";
-    ScoreName["MENTIONS_FOLLOWED"] = "MentionsFollowed";
-    ScoreName["MOST_REPLIED_ACCOUNTS"] = "MostRepliedAccounts";
-    ScoreName["MOST_RETOOTED_ACCOUNTS"] = "MostRetootedAccounts";
-    ScoreName["NUM_FAVOURITES"] = "NumFavourites";
-    ScoreName["NUM_REPLIES"] = "NumReplies";
-    ScoreName["NUM_RETOOTS"] = "NumRetoots";
-    ScoreName["PARTICIPATED_TAGS"] = "ParticipatedTags";
-    ScoreName["RETOOTED_IN_FEED"] = "RetootedInFeed";
-    ScoreName["TRENDING_LINKS"] = "TrendingLinks";
-    ScoreName["TRENDING_TAGS"] = "TrendingTags";
-    ScoreName["TRENDING_TOOTS"] = "TrendingToots";
-    ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
-})(ScoreName || (exports.ScoreName = ScoreName = {}));
-;
-// Order currently influences the order of the score weighting sliders in the demo app
-var NonScoreWeightName;
-(function (NonScoreWeightName) {
-    NonScoreWeightName["TIME_DECAY"] = "TimeDecay";
-    NonScoreWeightName["TRENDING"] = "Trending";
-    NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
-})(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
-;
+const enums_1 = require("../enums");
 // Local constants
 const LOG_PREFIX = "Scorer";
 const scoreLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const TRENDING_WEIGHTS = [
-    ScoreName.TRENDING_LINKS,
-    ScoreName.TRENDING_TAGS,
-    ScoreName.TRENDING_TOOTS,
+    enums_1.ScoreName.TRENDING_LINKS,
+    enums_1.ScoreName.TRENDING_TAGS,
+    enums_1.ScoreName.TRENDING_TOOTS,
 ];
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
@@ -137,9 +103,9 @@ class Scorer {
         const userWeights = await Storage_1.default.getWeights();
         // Find non scorer weights
         const getWeight = (weightKey) => userWeights[weightKey] ?? weight_presets_1.DEFAULT_WEIGHTS[weightKey];
-        const outlierDampener = getWeight(NonScoreWeightName.OUTLIER_DAMPENER);
-        const timeDecayWeight = getWeight(NonScoreWeightName.TIME_DECAY) / 10; // Divide by 10 to make it more user friendly
-        const trendingMultiplier = getWeight(NonScoreWeightName.TRENDING);
+        const outlierDampener = getWeight(enums_1.NonScoreWeightName.OUTLIER_DAMPENER);
+        const timeDecayWeight = getWeight(enums_1.NonScoreWeightName.TIME_DECAY) / 10; // Divide by 10 to make it more user friendly
+        const trendingMultiplier = getWeight(enums_1.NonScoreWeightName.TRENDING);
         // Do scoring
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Compute a weighted score a toot based by multiplying the value of each numerical property

@@ -10,11 +10,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";
     constructor() {
-        super(scorer_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
+        super(enums_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
     }
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();

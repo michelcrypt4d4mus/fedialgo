@@ -9,12 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const mastodon_server_1 = __importDefault(require("../../api/mastodon_server"));
-const scorer_1 = require("../scorer");
+const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class TrendingLinksScorer extends feature_scorer_1.default {
     description = "Favour links that are trending in the Fediverse";
     constructor() {
-        super(scorer_1.ScoreName.TRENDING_LINKS);
+        super(enums_1.ScoreName.TRENDING_LINKS);
     }
     // TODO: this is unnecessary as numAccounts should be stored in the TrendingLink objects
     async prepareScoreData() {

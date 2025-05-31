@@ -5,7 +5,7 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { config } from '../../config';
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 

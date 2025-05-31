@@ -6,7 +6,7 @@ import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
-import { ScoreName } from '../scorer';
+import { ScoreName } from '../../enums';
 import { type StringNumberDict } from "../../types";
 
 
