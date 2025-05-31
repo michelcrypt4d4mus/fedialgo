@@ -503,7 +503,9 @@ export default class Toot implements TootObj {
     async resolve(): Promise<Toot> {
         try {
             logger.trace(`Resolving local toot ID for`, this);
-            return await MastoApi.instance.resolveToot(this);
+            const resolvedToot = await MastoApi.instance.resolveToot(this);
+            this.resolvedID = resolvedToot.id; // Cache the resolved ID for future calls
+            return resolvedToot;
         } catch (error) {
             logger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
             throw error;

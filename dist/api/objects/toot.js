@@ -390,7 +390,9 @@ class Toot {
     async resolve() {
         try {
             logger.trace(`Resolving local toot ID for`, this);
-            return await api_1.default.instance.resolveToot(this);
+            const resolvedToot = await api_1.default.instance.resolveToot(this);
+            this.resolvedID = resolvedToot.id; // Cache the resolved ID for future calls
+            return resolvedToot;
         }
         catch (error) {
             logger.error(`Error resolving a toot:`, error, `\nThis was the toot:`, this);
