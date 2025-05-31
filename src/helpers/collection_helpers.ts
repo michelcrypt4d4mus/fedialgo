@@ -4,11 +4,11 @@
 import chunk from 'lodash/chunk';
 
 import { bracketed, compareStr, hashObject } from "./string_helpers";
-import { config } from "../config";
-import { ComponentLogger } from './log_helpers';
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { CacheKey } from "../enums";
+import { config } from "../config";
+import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
+import { Logger } from './logger';
 import { sleep } from './time_helpers';
 
 const BATCH_MAP = "batchMap()";
@@ -156,15 +156,15 @@ export function filterWithLog<T>(
 };
 
 
-// Find the minimum id in an array of objects using the given idFxn to extract the id
+// Find the minimum 'id' property in an array of objects that have an 'id' property.
 // TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
 // the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
-export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
-    if (!array.length) {
+export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null {
+    if (!array?.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
-        return undefined;
+        return null;
     }
 
     const idVals = array.map(e => e.id);
@@ -172,7 +172,7 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | undefined {
 
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
-        return undefined;
+        return null;
     }
 
     // IDs are presented as strings but are usually numbers
@@ -395,11 +395,11 @@ export const uniquify = (array: (string | undefined)[]): string[] | undefined =>
 
 // Remove elements of an array if they have duplicate values for the given transform function
 export function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[] {
-    const logger = new ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const logger = new Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
 
     if (logPrefix && newRows.length < rows.length) {
-        logger.debug(`Removed ${rows.length - newRows.length} duplicate rows`);
+        logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);
     }
 
     return newRows;

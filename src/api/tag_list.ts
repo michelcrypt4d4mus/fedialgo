@@ -5,8 +5,8 @@ import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
-import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
+import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
@@ -18,7 +18,7 @@ import {
 } from "../types";
 
 
-const logger = new ComponentLogger("TagList");
+const logger = new Logger("TagList");
 
 const SORT_TAGS_BY = [
     "numToots" as keyof TagWithUsageCounts,

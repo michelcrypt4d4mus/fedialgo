@@ -34,16 +34,16 @@ const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const logger_1 = require("../helpers/logger");
 exports.DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},
     numericFilterArgs: [],
     numericFilters: {},
 };
-const logger = new log_helpers_1.ComponentLogger('feed_filters.ts');
+const logger = new logger_1.Logger('feed_filters.ts');
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
 function buildFiltersFromArgs(filterArgs) {

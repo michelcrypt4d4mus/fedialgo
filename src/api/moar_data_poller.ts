@@ -6,12 +6,13 @@ import { Mutex } from 'async-mutex';
 
 import MastoApi from "../api/api";
 import { ageString } from '../helpers/time_helpers';
-import { ComponentLogger, lockExecution } from '../helpers/log_helpers';
 import { config } from "../config";
+import { lockExecution } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
-export const moarDataLogger = new ComponentLogger(GET_MOAR_DATA);
+export const moarDataLogger = new Logger(GET_MOAR_DATA);
 
 const MOAR_MUTEX = new Mutex();
 
@@ -25,6 +26,7 @@ export async function getMoarData(): Promise<boolean> {
     const startedAt = new Date();
 
     const pollers = [
+        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),

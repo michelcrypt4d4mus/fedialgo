@@ -43,16 +43,19 @@ const feed_filters_1 = require("./filters/feed_filters");
 const math_helper_1 = require("./helpers/math_helper");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
-const log_helpers_1 = require("./helpers/log_helpers");
 const config_1 = require("./config");
+const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const math_helper_2 = require("./helpers/math_helper");
+const logger_1 = require("./helpers/logger");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,
     storeName: `${string_helpers_1.FEDIALGO}_user_data`,
 });
+;
+;
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
@@ -63,22 +66,29 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     enums_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
-const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
+const logger = new logger_1.Logger(LOG_PREFIX);
 class Storage {
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
         const weights = await this.getWeights();
-        await localforage_1.default.clear();
-        if (user) {
-            logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
-            await this.setIdentity(user);
-            if (weights)
-                await this.setWeightings(weights);
+        const releasers = await api_1.default.instance.lockAllMutexes();
+        try {
+            await localforage_1.default.clear();
+            if (user) {
+                logger.log(`Cleared storage for user ${user.webfingerURI}, keeping weights:`, weights);
+                await this.setIdentity(user);
+                if (weights)
+                    await this.setWeightings(weights);
+            }
+            else {
+                logger.warn(`No user identity found, cleared storage anyways`);
+            }
         }
-        else {
-            logger.warn(`No user identity found, cleared storage anyways`);
+        finally {
+            releasers.forEach((release) => release?.());
+            logger.log(`Cleared all storage items, released mutexes`);
         }
     }
     // Get the value at the given key (with the user ID as a prefix)
@@ -174,10 +184,10 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
-        const logPrefix = `<${key}> (getWithStaleness())`;
+        const logger = new logger_1.Logger(LOG_PREFIX, key, `getWithStaleness()`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            logger.trace(`${logPrefix} No data found, returning null`);
+            logger.trace(`No data found, returning null`);
             return null;
         }
         ;
@@ -187,14 +197,14 @@ class Storage {
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
         if (dataAgeInMinutes > staleAfterMinutes) {
-            logger.debug(`${logPrefix} Data is stale ${minutesMsg}`);
+            logger.debug(`Data is stale ${minutesMsg}`);
             isStale = true;
         }
         else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value))
                 msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(`${logPrefix} ${msg}`);
+            logger.trace(`${msg}`);
         }
         // Check for unique IDs in the stored data if we're in debug mode
         if (environment_helpers_1.isDebugMode && exports.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {

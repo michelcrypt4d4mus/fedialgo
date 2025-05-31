@@ -2,14 +2,14 @@
  * Typescript type definitions.
  */
 import { mastodon } from 'masto';
-import { Mutex } from 'async-mutex';
+import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
 
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer, { WeightName } from './scorer/scorer';
-import { NonScoreWeightName, ScoreName } from './enums';
+import Scorer from './scorer/scorer';
 import Toot, { SerializableToot } from './api/objects/toot';
+import { NonScoreWeightName, ScoreName } from './enums';
 import { CacheKey } from "./enums";
 
 // Records
@@ -25,6 +25,7 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;
+// export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterTitle = BooleanFilterName | TootNumberProp;
@@ -187,6 +188,9 @@ export type WeightInfo = {
     minValue?: number;
     scorer?: Scorer;
 };
+
+// Names of all the user adjustable score weightings, both those with a Scorer and those without
+export type WeightName = ScoreName | NonScoreWeightName;
 
 
 // TODO: unused stuff below here

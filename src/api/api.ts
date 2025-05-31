@@ -8,16 +8,21 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_KEYS_WITH_UNIQUE_IDS } from "../Storage";
-import { CacheKey } from "../enums";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
+import Storage, {
+    type CacheTimestamp,
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    STORAGE_KEYS_WITH_UNIQUE_IDS,
+} from "../Storage";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { bracketed, extractDomain } from '../helpers/string_helpers';
-import { ComponentLogger } from "../helpers/log_helpers";
+import { CacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
+import { lockExecution, logAndThrowError, WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
@@ -25,48 +30,67 @@ import {
     type MastodonApiObject,
     type MastodonObjWithID,
     type MastodonTag,
-    type StatusList
+    type MinMaxID,
+    type StatusList,
 } from "../types";
-
-const DEFAULT_BREAK_IF = async (pageOfResults: any[], allResults: any[]) => undefined;
 
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
-
 const LOG_PREFIX = 'API';
-const apiLogger = new ComponentLogger(LOG_PREFIX, 'static');
+
+const apiLogger = new Logger(LOG_PREFIX, 'static');
+
+interface CachedRows<T> extends CacheTimestamp {
+    minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
+    rows: T[];                     // Cached rows of API objects
+};
+
+interface MinMaxIDParams {
+    maxIdForFetch: string | number | null,  // The max ID to use for the API request
+    minIdForFetch: string | number | null,
+};
 
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
 //   - skipCache: if true, don't use cached data
 interface ApiParams {
-    logger?: ComponentLogger,  // Optional logger to use for logging API calls
+    logger?: Logger,  // Optional logger to use for logging API calls
     maxRecords?: number,
     moar?: boolean,
     skipCache?: boolean,
-}
+};
 
 // Generic params that apply to a lot of methods in the MastoApi class
 //   - moar: if true, continue fetching from the max_id found in the cache
 interface MaxIdParams extends ApiParams {
-    maxId?: string | number,
+    maxId?: string | number | null,
 };
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
-//   - breakIf: fxn to call to check if we should fetch more pages, defaults to DEFAULT_BREAK_IF
+//   - breakIf: fxn to call to check if we should fetch more pages
 //   - fetch: the data fetching function to call with params
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - processFxn: optional function to process the object before storing and returning it
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
-interface FetchParams<T> extends MaxIdParams {
+interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
     fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     cacheKey: CacheKey,  // Mutex will be skipped if label is a string not a StorageKey,
     skipMutex?: boolean,
-    breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
-    processFxn?: (obj: T) => void,
+    breakIf?: ((pageOfResults: T[], allResults: T[]) => Promise<true | undefined>) | null ,
+    processFxn?: ((obj: T) => void) | null,
+};
+
+// Same as FetchParams but all properties are required and we add 'limit'
+interface FetchParamsWithDefaults<T extends MastodonApiObject> extends Required<FetchParams<T>> {
+    limit: number,
+};
+
+// Same as FetchParams but with a few derived fields
+interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
+    cacheResult: CachedRows<T> | null,
 };
 
 // Home timeline request params
@@ -81,7 +105,7 @@ export default class MastoApi {
 
     api: mastodon.rest.Client;
     homeDomain: string;
-    logger: ComponentLogger;
+    logger: Logger;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Just for measuring performance (poorly)
@@ -147,6 +171,7 @@ export default class MastoApi {
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
+            logger,
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
@@ -160,7 +185,7 @@ export default class MastoApi {
                 }
 
                 oldestTootStr = `oldest toot: ${quotedISOFmt(oldestTootAt)}`;
-                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
+                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
                 const newToots = await Toot.buildToots(newStatuses, cacheKey);
                 await mergeTootsToFeed(newToots, logger.logPrefix);
                 allNewToots = allNewToots.concat(newToots)
@@ -350,8 +375,9 @@ export default class MastoApi {
     }
 
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
+    // Concurrency is managed by a semaphore in this method, not the normal mutexes.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
-    // TODO: we could use the min_id param to avoid redundancy and extra work reprocessing the same toots
+    // TODO: we could maybe use the min_id param to avoid redundancy and extra work reprocessing the same toots
     async hashtagTimelineToots(tag: MastodonTag, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || config.api.defaultRecordsPerPage;
         const logger = getLogger(CacheKey.HASHTAG_TOOTS, tag.name);
@@ -361,9 +387,12 @@ export default class MastoApi {
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
                 fetch: this.api.v1.timelines.tag.$select(tag.name).list,
-                cacheKey: CacheKey.HASHTAG_TOOTS,
+                cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
                 maxRecords: maxRecords,
+                // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+                // to create other sets of toots from a lot of small requests, e.g. PARTICIPATED_TAG_TOOTS
                 skipCache: true,
+                // Concurrency is managed by the semaphore above, not the mutexes
                 skipMutex: true,
             });
 
@@ -393,6 +422,11 @@ export default class MastoApi {
             }
         }
     }
+
+    async lockAllMutexes(): Promise<ConcurrencyLockRelease[]> {
+        apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
+        return await Promise.all(Object.values(this.mutexes).map(mutex => lockExecution(mutex, 'lockAllMutexes()')));
+    };
 
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
     // foreign server toot URI to one on the user's local server.
@@ -466,81 +500,47 @@ export default class MastoApi {
 
     // URL for a given API endpoint on this user's home server
     private endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
+    // Check the config for supportsMinMaxId boolean
+    private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
+
 
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getApiRecords<T extends MastodonApiObject>(params: FetchParams<T>): Promise<MastodonApiObject[]> {
-        let { breakIf, cacheKey, fetch, logger, maxId, maxRecords, moar, processFxn, skipCache, skipMutex } = params;
-        logger ??= getLogger(cacheKey);
-        if (moar && (skipCache || maxId)) logger.warn(`skipCache=true AND moar or maxId set!`);
+    private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
+        let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
+        logger ??= getLogger(cacheKey, 'getApiRecords()');
 
-        // Parse params and set defaults
-        const requestDefaults = config.api.data[cacheKey];
-        maxRecords ??= requestDefaults?.initialMaxRecords ?? MIN_RECORDS_FOR_FEATURE_SCORING;
-        breakIf ??= DEFAULT_BREAK_IF;
-        // Declare required variables
-        let minId: string | undefined; // Used for incremental loading when data is stale (if supported)
-        let pageNumber = 0;
-        let rows: T[] = [];
-
-        // Lock mutex unless skipMutex is true
+        // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger.logPrefix);
-        const startedAt = new Date();
+        const completeParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completeParams;
+
+        // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
+        if (cacheResult?.rows && !cacheResult.isStale && !moar) {
+            releaseMutex?.();  // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
+            return cacheResult?.rows;
+        }
+
+        logger.trace(`Fetching from API w/completedParams:`, completeParams);
+        let cachedRows = cacheResult?.rows || [];
+        let pageNumber = 0;
+        let newRows: T[] = [];
+        // Telemetry stuff that should be removed eventually
+        this.waitTimes[cacheKey] ??= new WaitTime();
+        this.waitTimes[cacheKey]!.markStart();
 
         try {
-            // Check if we have any cached data that's fresh enough to use (and if so return it, unless moar=true.
-            if (!skipCache) {
-                const cachedData = await Storage.getWithStaleness(cacheKey);
+            for await (const page of fetch(this.buildParams(completeParams))) {
+                this.waitTimes[cacheKey]!.markEnd(); // telemetry
 
-                if (cachedData?.obj) {
-                    // Return the cachedRows if they exist, the data is not stale, and moar is false
-                    const cachedRows = cachedData.obj as T[];
-                    if (!cachedData.isStale && !moar) return cachedRows;
-                    const minMaxId = findMinMaxId(cachedRows as MastodonObjWithID[]);
-
-                    if (moar) {
-                        maxRecords = maxRecords + cachedRows.length; // Add another unit of maxRecords to the rows we have now
-                    }
-
-                    // If maxId is supported then we find the minimum ID in the cached data use it as the next maxId.
-                    if (requestDefaults?.supportsMinMaxId && minMaxId) {
-                        rows = cachedRows;
-
-                        // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
-                        // If we're incrementally updating stale data, use the max ID of the cache as the request minId
-                        if (moar) {
-                            maxId = minMaxId.min;
-                            logger.debug(`Getting MOAR old data; loading backwards from maxId ${maxId}`);
-                        } else {
-                            minId = minMaxId.max;
-                            logger.debug(`Stale data; attempting incremental load from minId ${minId}`);
-                        }
-                    } else {
-                        // If maxId isn't supported then we don't start with the cached data in the 'rows' array
-                        let msg = `maxId not supported or no cache, ${cachedRows.length} records, minMaxId:`;
-                        logger.debug(msg, minMaxId, `, maxRecords=${maxRecords}\nrequestDefaults:`, requestDefaults);
-                    }
-                };
-            }
-
-            // 'limit' is the name of the max records per page param in the Mastodon API
-            const limit = Math.min(maxRecords, requestDefaults?.limit || config.api.defaultRecordsPerPage);
-            logger.trace(`(fetchData()) params w/filled in defaults:`, {...params, limit, minId, maxId, maxRecords});
-            // Telemetry stuff, reset the WaitTime timer immediately before API request starts
-            this.waitTimes[cacheKey] ??= new WaitTime();
-            this.waitTimes[cacheKey]!.markStart();
-
-            for await (const page of fetch(this.buildParams(limit, minId, maxId))) {
-                this.waitTimes[cacheKey]!.markEnd();   // TODO: telemetry stuff that should be removed eventually
-
-                // The actual action
-                rows = rows.concat(page as T[]);
+                // the important stuff
+                newRows = newRows.concat(page as T[]);
                 pageNumber += 1;
-                const shouldStop = await breakIf(page, rows);  // Must be called before we check the length of rows!
-                const recordsSoFar = `${page.length} in page, ${rows.length} records so far ${ageString(startedAt)}`;
+                const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;  // breakIf() must be called before we check the length of rows!
+                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey]!.ageString()}`;
 
-                if (rows.length >= maxRecords || page.length == 0 || shouldStop) {
+                if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 } else {
@@ -552,35 +552,141 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            // TODO: handle rate limiting errors
-            // If the access token was not revoked whatever rows we've retrieved will be returned
-            MastoApi.throwIfAccessTokenRevoked(e, `${logger.logPrefix} Failed ${ageString(startedAt)}, have ${rows.length} rows`);
+            newRows = this.handleApiError<T>(completeParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
+            cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
             releaseMutex?.();
         }
 
-        const objs = this.buildFromApiObjects(cacheKey, rows);
+        // If endpoint has unique IDs (e.g. Toots) then we merge the cached rows with the new ones
+        // (they will be deduped in buildFromApiObjects() if needed)
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            newRows = [...cachedRows, ...newRows];
+        }
+
+        const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
         if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
         if (!skipCache) await Storage.set(cacheKey, objs);
         return objs;
     }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
-    private buildParams(
-        limit: number,
-        minId?: number | string,
-        maxId?: number | string,
-    ): mastodon.DefaultPaginationParams {
-        let params: mastodon.DefaultPaginationParams = {limit: limit};
-        if (minId) params = {...params, minId: `${minId}`};
-        if (maxId) params = {...params, maxId: `${maxId}`};
-        return params as mastodon.DefaultPaginationParams;
+    private buildParams(params: FetchParamsWithCacheData<any>): mastodon.DefaultPaginationParams {
+        const { limit, minIdForFetch, maxIdForFetch } = params;
+        let apiParams: mastodon.DefaultPaginationParams = { limit };
+        if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
+        if (maxIdForFetch) apiParams = {...apiParams, maxId: `${maxIdForFetch}`};
+        return apiParams;
+    }
+
+    // Fill in defaults in params and derive the min/maxIdForFetch from cached data if appropriate
+    private async addCacheDataToParams<T extends MastodonApiObject>(
+        params: FetchParams<T>
+    ): Promise<FetchParamsWithCacheData<T>> {
+        let { cacheKey, logger, maxId, moar, skipCache } = params;
+        logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
+        const fullParams = fillInBasicDefaults<T>({ ...params, logger });
+        const { maxRecords } = fullParams;
+
+        // Fetch from cache unless skipCache is true
+        const cacheResult = skipCache ? null : (await this.getCachedRows<T>(cacheKey));
+        const minMaxIdParams: MinMaxIDParams = {maxIdForFetch: null, minIdForFetch: null};
+
+        // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
+        // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
+        // If we're incrementally updating stale data, use the max ID of the cache as the request minId
+        if (cacheResult?.minMaxId) {
+            if (moar) {
+                if (maxId) {
+                    logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
+                }
+
+                minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
+                logger.info(`Getting MOAR_DATA; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
+            } else {
+                // TODO: is this right? we used to return the cached data quickly if it was OK...
+                minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
+                logger.info(`Incremental load possible; loading fwd from maxId in cache: "${minMaxIdParams.minIdForFetch}"`);
+            }
+        } else if (maxId) {
+            logger.info(`loading backward from manually provided maxId: "${maxId}"`);
+            minMaxIdParams.maxIdForFetch = maxId;  // If we have a manually provided maxId use it as the maxIdForFetch
+        }
+
+        // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
+        if (cacheResult && moar) {
+            const newMaxRecords = maxRecords! + cacheResult.rows!.length;
+            logger.info(`Increasing maxRecords for MOAR_DATA to ${newMaxRecords}`);
+        }
+
+        const completedParams: FetchParamsWithCacheData<T> = {
+            ...minMaxIdParams,
+            ...fullParams,
+            cacheResult,
+            maxRecords
+        };
+
+        this.validateFetchParams<T>(completedParams);
+        return completedParams;
+    }
+
+    // Load data from the cache and make some inferences. Thin wrapper around Storage.getWithStaleness()
+    private async getCachedRows<T extends MastodonApiObject>(key: CacheKey): Promise<CachedRows<T> | null> {
+        const cachedData = await Storage.getWithStaleness(key);
+        if (!cachedData) return null;
+        const rows = cachedData?.obj as T[];
+
+        return {
+            isStale: cachedData.isStale,
+            minMaxId: this.supportsMinMaxId(key) ? findMinMaxId(rows as MastodonObjWithID[]) : null,  // Only set if endpoint supports MinMaxId!
+            rows,
+            updatedAt: cachedData.updatedAt,
+        };
+    }
+
+    // If the access token was not revoked we need to decide which of the rows we have to keep.
+    // handleApiError() will make a decision about whether to use the cache, the new rows, or both
+    // and return the appropriate rows and return the appropriate rows in a single array.
+    // TODO: handle rate limiting errors
+    private handleApiError<T extends MastodonApiObject>(
+        params: FetchParamsWithCacheData<T>,
+        rows: T[],
+        startedAt: Date,
+        err: Error | unknown,
+    ): T[] {
+        const { cacheResult, cacheKey, logger } = params;
+        const cachedRows = cacheResult?.rows || [];
+        let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        MastoApi.throwIfAccessTokenRevoked(err, `${logger.logPrefix} Failed ${ageString(startedAt)}. ${msg}`);
+
+        // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
+        // TODO: i think we can just check for the existence of minMaxId in cacheResult?
+        if (!this.supportsMinMaxId(cacheKey)) {
+            msg += ` Endpoint doesn't support incremental min/max ID.`;
+
+            if (rows.length < cachedRows.length) {
+                logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
+                return cachedRows;
+            } else {
+                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
+                return rows;
+            }
+        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            logger.warn(`${msg} Merging cached rows with new rows.`);
+            return [...cachedRows, ...rows];
+        } else {
+            logger.error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`);
+            return rows;
+        }
     }
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
-    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[]): MastodonApiObject[] {
+    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: Logger): MastodonApiObject[] {
+        logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
+
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            return objects.map(o => Account.build(o as mastodon.v1.Account));  // TODO: dedupe accounts?
+            const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
+            return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
             return Toot.dedupeToots(toots, `${key} buildFromApiObjects`);
@@ -588,6 +694,20 @@ export default class MastoApi {
             return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
             return objects;
+        }
+    }
+
+    // Check that the params passed to the fetch methods are valid and work together
+    private validateFetchParams<T extends MastodonApiObject>(params: FetchParamsWithCacheData<T>): void {
+        let { logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        logger.trace(`(validateFetchParams()) params:`, params);
+
+        if (moar && (skipCache || maxId)) {
+            logger.warn(`skipCache=true AND moar or maxId set!`);
+        }
+
+        if (maxIdForFetch && minIdForFetch) {
+            logAndThrowError(`Both maxIdForFetch="${maxIdForFetch}" and minIdForFetch="${minIdForFetch}" set!`, params);
         }
     }
 
@@ -613,9 +733,32 @@ export default class MastoApi {
 };
 
 
+// Populate the various fetch options with basic defaults
+function fillInBasicDefaults<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+    let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
+    const requestDefaults = config.api.data[cacheKey];
+    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
+
+    const withDefaults: FetchParamsWithDefaults<T> = {
+        ...params,
+        breakIf: params.breakIf || null,
+        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
+        logger: logger || getLogger(cacheKey),
+        maxId: maxId || null,
+        maxRecords: maxApiRecords,
+        moar: moar || false,
+        processFxn: params.processFxn || null,
+        skipCache: skipCache || false,
+        skipMutex: skipMutex || false,
+    };
+
+    return withDefaults;
+}
+
+
 // logs prefixed by [API]
-function getLogger(subtitle?: string, subsubtitle?: string): ComponentLogger {
-    return new ComponentLogger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
+function getLogger(subtitle?: string, subsubtitle?: string): Logger {
+    return new Logger(bracketed(LOG_PREFIX), subtitle, subsubtitle);
 };
 
 

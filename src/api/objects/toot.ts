@@ -14,11 +14,12 @@ import TagList from "../tag_list";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
-import { ComponentLogger, logTootRemoval } from '../../helpers/log_helpers';
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
+import { Logger } from '../../helpers/logger';
+import { logTootRemoval } from '../../helpers/log_helpers';
 import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
 import { ScoreName } from '../../enums';
@@ -101,7 +102,7 @@ const TAG_ONLY_STRINGS = new Set([
     "us",
 ]);
 
-const logger = new ComponentLogger("Toot");
+const logger = new Logger("Toot");
 
 
 // Extension of mastodon.v1.Status data object with additional properties used by fedialgo

@@ -6,9 +6,9 @@ import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { ComponentLogger } from "../helpers/log_helpers";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
+import { Logger } from '../helpers/logger';
 import {
     type BooleanFilters,
     type FeedFilterSettings,
@@ -25,7 +25,7 @@ export const DEFAULT_FILTERS = {
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
 
-const logger = new ComponentLogger('feed_filters.ts');
+const logger = new Logger('feed_filters.ts');
 
 
 // For building a FeedFilterSettings object from the serialized version.

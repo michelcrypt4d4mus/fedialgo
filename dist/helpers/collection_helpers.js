@@ -10,8 +10,8 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
 const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
-const log_helpers_1 = require("./log_helpers");
 const math_helper_1 = require("./math_helper");
+const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
 // Return a new object with only the key/value pairs that have a value greater than minValue
@@ -122,21 +122,21 @@ objType) {
 }
 exports.filterWithLog = filterWithLog;
 ;
-// Find the minimum id in an array of objects using the given idFxn to extract the id
+// Find the minimum 'id' property in an array of objects that have an 'id' property.
 // TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
 // the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
 // If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
 // This is an unfixable server side problem that we work around in TheAlgorithm.maybeFetchMoreData()
 function findMinMaxId(array) {
-    if (!array.length) {
+    if (!array?.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
-        return undefined;
+        return null;
     }
     const idVals = array.map(e => e.id);
     const isNumberArray = idVals.every(math_helper_1.isNumber);
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
-        return undefined;
+        return null;
     }
     // IDs are presented as strings but are usually numbers
     const sortedIDs = idVals.toSorted((a, b) => {
@@ -338,10 +338,10 @@ const uniquify = (array) => {
 exports.uniquify = uniquify;
 // Remove elements of an array if they have duplicate values for the given transform function
 function uniquifyByProp(rows, transform, logPrefix) {
-    const logger = new log_helpers_1.ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const logger = new logger_1.Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
     if (logPrefix && newRows.length < rows.length) {
-        logger.debug(`Removed ${rows.length - newRows.length} duplicate rows`);
+        logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);
     }
     return newRows;
 }
