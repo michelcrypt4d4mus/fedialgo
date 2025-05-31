@@ -6,7 +6,7 @@ import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import {

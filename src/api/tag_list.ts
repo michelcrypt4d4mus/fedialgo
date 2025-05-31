@@ -5,7 +5,7 @@ import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { config } from "../config";
 import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";

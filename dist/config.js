@@ -5,6 +5,7 @@ exports.FEDIVERSE_KEYS = exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL =
  * Centralized location for non-user configurable settings.
  */
 const enums_1 = require("./enums");
+// TODO: circular dependency issues with this import
 // import { ComponentLogger } from "./helpers/log_helpers";
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");

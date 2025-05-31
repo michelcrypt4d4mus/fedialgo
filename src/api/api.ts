@@ -19,7 +19,7 @@ import Storage, {
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { bracketed, extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
 import { lockExecution, logAndThrowError, WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 class TootFilter {
     description;
     invertSelection;
@@ -12,7 +12,7 @@ class TootFilter {
         this.invertSelection = invertSelection ?? false;
         this.title = title;
         this.visible = visible ?? true;
-        this.logger = new log_helpers_1.ComponentLogger("TootFilter", this.constructor.name, title);
+        this.logger = new logger_1.ComponentLogger("TootFilter", this.constructor.name, title);
     }
     // Extend in subclasses. Required for serialization to local storage
     toArgs() {

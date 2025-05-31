@@ -42,6 +42,7 @@ import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { AlgorithmStorageKey, CacheKey } from "./enums";
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
+import { ComponentLogger } from './helpers/logger';
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain } from './helpers/string_helpers';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
@@ -55,7 +56,6 @@ import {
     BACKFILL_FEED,
     PREP_SCORERS,
     TRIGGER_FEED,
-    ComponentLogger,
     lockExecution,
     logAndThrowError,
     logTelemetry,

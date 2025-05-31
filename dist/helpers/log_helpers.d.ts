@@ -3,23 +3,6 @@ export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterfac
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
 export declare const PREP_SCORERS = "prepareScorers()";
 export declare const TRIGGER_FEED = "triggerFeedUpdate()";
-export declare class ComponentLogger {
-    componentName: string;
-    logPrefix: string;
-    subtitle?: string;
-    subsubtitle?: string;
-    constructor(componentName: string, subtitle?: string, subsubtitle?: string);
-    error(msg: string | Error, ...args: any[]): string;
-    warn(msg: string, ...args: any[]): void;
-    log(msg: string, ...args: any[]): void;
-    info(msg: string, ...args: any[]): void;
-    debug(msg: string, ...args: any[]): void;
-    trace(msg: string, ...args: any[]): void;
-    tagWithRandomString(): void;
-    private getErrorMessage;
-    private makeErrorMsg;
-    private makeMsg;
-}
 export declare function lockExecution(locker: Mutex | Semaphore, logPrefix: string): Promise<ConcurrencyLockRelease>;
 export declare function logAndThrowError(message: string, obj?: any): never;
 export declare function logTelemetry(logPrefix: string, msg: string, startedAt: Date, ...args: any[]): void;

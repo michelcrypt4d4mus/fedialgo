@@ -6,7 +6,7 @@ import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { arrowed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { config, TagTootsConfig } from "../config";
 import { tagStr } from "./objects/tag";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";

@@ -3,7 +3,7 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { WaitTime, type ConcurrencyLockRelease } from '../helpers/log_helpers';
 import { type MastodonTag } from "../types";
 interface ApiParams {

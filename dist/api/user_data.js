@@ -8,10 +8,10 @@ const api_1 = __importDefault(require("./api"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const enums_1 = require("../enums");
-const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const logger = new log_helpers_1.ComponentLogger("UserData");
+const logger = new logger_1.ComponentLogger("UserData");
 ;
 class UserData {
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory

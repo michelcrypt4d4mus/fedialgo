@@ -5,7 +5,7 @@ import chunk from 'lodash/chunk';
 
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from './log_helpers';
+import { ComponentLogger } from './logger';
 import { config } from "../config";
 import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";

@@ -12,10 +12,11 @@ const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 const config_1 = require("../config");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
-exports.moarDataLogger = new log_helpers_1.ComponentLogger(exports.GET_MOAR_DATA);
+exports.moarDataLogger = new logger_1.ComponentLogger(exports.GET_MOAR_DATA);
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.

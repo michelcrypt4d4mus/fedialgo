@@ -8,7 +8,7 @@ import Storage from "../Storage";
 import Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumArray } from "../helpers/collection_helpers";
-import { ComponentLogger } from '../helpers/log_helpers';
+import { ComponentLogger } from '../helpers/logger';
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { ScoreName, NonScoreWeightName } from '../enums';

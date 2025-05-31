@@ -9,7 +9,7 @@ exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniqu
  */
 const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
-const log_helpers_1 = require("./log_helpers");
+const logger_1 = require("./logger");
 const config_1 = require("../config");
 const math_helper_1 = require("./math_helper");
 const time_helpers_1 = require("./time_helpers");
@@ -338,7 +338,7 @@ const uniquify = (array) => {
 exports.uniquify = uniquify;
 // Remove elements of an array if they have duplicate values for the given transform function
 function uniquifyByProp(rows, transform, logPrefix) {
-    const logger = new log_helpers_1.ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const logger = new logger_1.ComponentLogger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
     if (logPrefix && newRows.length < rows.length) {
         logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);

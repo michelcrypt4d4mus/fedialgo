@@ -10,7 +10,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { CacheKey } from "../enums";
-import { ComponentLogger } from "../helpers/log_helpers";
+import { ComponentLogger } from '../helpers/logger';
 import { config } from "../config";
 import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import {

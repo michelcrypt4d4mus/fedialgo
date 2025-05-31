@@ -77,6 +77,8 @@ const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
 const feed_filters_1 = require("./filters/feed_filters");
+const logger_1 = require("./helpers/logger");
+Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return logger_1.ComponentLogger; } });
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () { return string_helpers_1.FEDIALGO; } });
@@ -98,7 +100,6 @@ Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: fu
 Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const log_helpers_1 = require("./helpers/log_helpers");
-Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return log_helpers_1.ComponentLogger; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -126,7 +127,7 @@ class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
-    logger = new log_helpers_1.ComponentLogger(`TheAlgorithm`);
+    logger = new logger_1.ComponentLogger(`TheAlgorithm`);
     trendingData = { links: [], tags: [], servers: {}, toots: [] };
     userData = new user_data_1.default();
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
@@ -433,7 +434,7 @@ class TheAlgorithm {
     }
     // The "load is finished" version of setLoadingStateVariables().
     async finishFeedUpdate(isDeepInspect = true) {
-        const logger = new log_helpers_1.ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
+        const logger = new logger_1.ComponentLogger(this.logger.logPrefix, `finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Required for refreshing muted accounts  // TODO: this is pretty janky...

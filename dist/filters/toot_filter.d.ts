@@ -1,5 +1,5 @@
 import Toot from '../api/objects/toot';
-import { ComponentLogger } from '../helpers/log_helpers';
+import { ComponentLogger } from '../helpers/logger';
 import { type FilterArgs, type FilterTitle } from "../types";
 export default abstract class TootFilter {
     description: string;

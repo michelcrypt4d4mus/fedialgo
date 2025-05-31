@@ -2,6 +2,7 @@
  * Centralized location for non-user configurable settings.
  */
 import { CacheKey } from "./enums";
+// TODO: circular dependency issues with this import
 // import { ComponentLogger } from "./helpers/log_helpers";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { logAndThrowError } from "./helpers/log_helpers";

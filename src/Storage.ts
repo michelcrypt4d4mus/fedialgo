@@ -16,7 +16,8 @@ import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filte
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
-import { ComponentLogger, logAndThrowError } from './helpers/log_helpers';
+import { logAndThrowError } from './helpers/log_helpers';
+import { ComponentLogger } from './helpers/logger';
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";

@@ -44,6 +44,7 @@ const math_helper_1 = require("./helpers/math_helper");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const log_helpers_1 = require("./helpers/log_helpers");
+const logger_1 = require("./helpers/logger");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
@@ -65,7 +66,7 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     enums_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
 const LOG_PREFIX = '[STORAGE]';
-const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX);
+const logger = new logger_1.ComponentLogger(LOG_PREFIX);
 class Storage {
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
@@ -183,7 +184,7 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
-        const logger = new log_helpers_1.ComponentLogger(LOG_PREFIX, key, `getWithStaleness()`);
+        const logger = new logger_1.ComponentLogger(LOG_PREFIX, key, `getWithStaleness()`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
             logger.trace(`No data found, returning null`);

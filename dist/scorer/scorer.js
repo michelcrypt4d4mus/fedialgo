@@ -11,13 +11,13 @@ const scorer_cache_1 = __importDefault(require("./scorer_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
+const logger_1 = require("../helpers/logger");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
 const enums_1 = require("../enums");
 // Local constants
 const LOG_PREFIX = "Scorer";
-const scoreLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, "scoreToots");
+const scoreLogger = new logger_1.ComponentLogger(LOG_PREFIX, "scoreToots");
 const SCORE_MUTEX = new async_mutex_1.Mutex();
 const TRENDING_WEIGHTS = [
     enums_1.ScoreName.TRENDING_LINKS,
@@ -31,7 +31,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.logger = new log_helpers_1.ComponentLogger(LOG_PREFIX, name);
+        this.logger = new logger_1.ComponentLogger(LOG_PREFIX, name);
     }
     // Return a ScorerInfo object with the description and the scorer itself
     getInfo() {

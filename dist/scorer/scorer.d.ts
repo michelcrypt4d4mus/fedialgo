@@ -1,5 +1,5 @@
 import Toot from '../api/objects/toot';
-import { ComponentLogger } from '../helpers/log_helpers';
+import { ComponentLogger } from '../helpers/logger';
 import { ScoreName } from '../enums';
 import { type StringNumberDict, type WeightInfo } from "../types";
 export default abstract class Scorer {
