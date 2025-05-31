@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug where scorers were not resetting their state when `reset()` was called and all other data was reset
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
 * `MastoApi.instanceInfo()` only returns the v2 API data structure for a server configuration. If the v1 version exists it will be logged and thrown as an error.
 
