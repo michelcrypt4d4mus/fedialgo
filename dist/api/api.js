@@ -555,7 +555,7 @@ class MastoApi {
             return toot_1.default.dedupeToots(toots, `${key} buildFromApiObjects`);
         }
         else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id);
+            return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
         }
         else {
             return objects;

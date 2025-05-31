@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
 
 ### v0.55.1 - v0.55.4
 * Stop exporting `sortKeysByValue()` helper

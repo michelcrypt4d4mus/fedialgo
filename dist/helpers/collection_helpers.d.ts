@@ -34,6 +34,6 @@ export declare function swapKeysAndValues<T extends StringDict>(dict: T): String
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
 export declare function truncateToConfiguredLength(array: any[], maxRecords: number, label?: string): any[];
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
-export declare function uniquifyByProp<T>(array: T[], transform: (value: T) => string): T[];
+export declare function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[];
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;

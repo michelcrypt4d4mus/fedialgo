@@ -651,7 +651,7 @@ export default class MastoApi {
             const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
             return Toot.dedupeToots(toots, `${key} buildFromApiObjects`);
         } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id);
+            return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
             return objects;
         }
