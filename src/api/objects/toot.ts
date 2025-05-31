@@ -13,7 +13,6 @@ import Scorer from "../../scorer/scorer";
 import TagList from "../tag_list";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
-import { batchMap, filterWithLog, groupBy, sortObjsByProps, split, sumArray, uniquify, uniquifyByProp } from "../../helpers/collection_helpers";
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
@@ -24,6 +23,16 @@ import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
 import { ScoreName } from '../../enums';
 import { TypeFilterName } from "../../filters/boolean_filter";
+import {
+    batchMap,
+    filterWithLog,
+    groupBy,
+    sortObjsByProps,
+    split,
+    sumArray,
+    uniquify,
+    uniquifyByProp
+} from "../../helpers/collection_helpers";
 import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,

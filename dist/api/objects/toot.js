@@ -25,7 +25,6 @@ const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const scorer_1 = __importDefault(require("../../scorer/scorer"));
 const tag_list_1 = __importDefault(require("../tag_list"));
 const time_helpers_1 = require("../../helpers/time_helpers");
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
@@ -35,6 +34,7 @@ const log_helpers_1 = require("../../helpers/log_helpers");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;

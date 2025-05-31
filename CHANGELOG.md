@@ -1,8 +1,6 @@
 # NEXT RELEASE
 
 # v0.56.0
-
-### v0.55.5
 * Refactor main `MastoApi` method method into a few easier to follow pieces
 * Fix bug where scorers were not resetting their state when `reset()` was called and all other data was reset
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes

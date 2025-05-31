@@ -1,9 +1,9 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
 /*
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
 // Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
 // Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 // This should live in Storage.ts but that creates a circular dependency with config.ts
