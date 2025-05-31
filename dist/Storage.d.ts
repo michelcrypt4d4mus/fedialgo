@@ -2,12 +2,14 @@ import Account from "./api/objects/account";
 import UserData from "./api/user_data";
 import { AlgorithmStorageKey, CacheKey } from "./enums";
 import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights } from "./types";
-type StorageKey = AlgorithmStorageKey | CacheKey;
-type StorableObjWithStaleness = {
+export interface CacheTimestamp {
     isStale: boolean;
-    obj: StorableObjWithCache;
     updatedAt: Date;
-};
+}
+interface StorableObjWithStaleness extends CacheTimestamp {
+    obj: StorableObjWithCache;
+}
+type StorageKey = AlgorithmStorageKey | CacheKey;
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];

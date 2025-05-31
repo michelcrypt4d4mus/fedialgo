@@ -53,6 +53,8 @@ localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,
     storeName: `${string_helpers_1.FEDIALGO}_user_data`,
 });
+;
+;
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []);
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)

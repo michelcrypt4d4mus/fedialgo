@@ -54,6 +54,7 @@ const apiLogger = new log_helpers_1.ComponentLogger(LOG_PREFIX, 'static');
 ;
 ;
 ;
+;
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
@@ -415,14 +416,15 @@ class MastoApi {
         logger ??= getLogger(cacheKey, 'getApiRecords()');
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await (0, log_helpers_2.lockExecution)(this.mutexes[cacheKey], logger.logPrefix);
-        const completedParams = await this.addCacheDataToParams({ ...inParams, logger });
-        let { cacheResult, maxRecords } = completedParams;
+        const completeParams = await this.addCacheDataToParams({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completeParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
             return cacheResult?.rows;
         }
-        logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/ completedParams:`, completedParams);
+        if (!skipCache)
+            logger.trace(`Cache is stale or moar=true, fetching from API w/completedParams:`, completeParams);
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows = [];
@@ -430,7 +432,7 @@ class MastoApi {
         this.waitTimes[cacheKey] ??= new log_helpers_2.WaitTime();
         this.waitTimes[cacheKey].markStart();
         try {
-            for await (const page of fetch(this.buildParams(completedParams))) {
+            for await (const page of fetch(this.buildParams(completeParams))) {
                 this.waitTimes[cacheKey].markEnd(); // telemetry
                 // the important stuff
                 newRows = newRows.concat(page);
@@ -450,7 +452,7 @@ class MastoApi {
             }
         }
         catch (e) {
-            newRows = this.handleApiError(completedParams, newRows, this.waitTimes[cacheKey].startedAt, e);
+            newRows = this.handleApiError(completeParams, newRows, this.waitTimes[cacheKey].startedAt, e);
             cachedRows = []; // Set cachedRows to empty because hanldeApiError() already handled the merge
         }
         finally {

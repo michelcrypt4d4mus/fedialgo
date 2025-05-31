@@ -42,13 +42,16 @@ localForage.config({
     storeName   : `${FEDIALGO}_user_data`,
 });
 
-type StorageKey = AlgorithmStorageKey | CacheKey;
-
-type StorableObjWithStaleness = {
-    isStale: boolean,
-    obj: StorableObjWithCache,
-    updatedAt: Date,
+export interface CacheTimestamp {
+    isStale: boolean;
+    updatedAt: Date;
 };
+
+interface StorableObjWithStaleness extends CacheTimestamp {
+    obj: StorableObjWithCache,
+};
+
+type StorageKey = AlgorithmStorageKey | CacheKey;
 
 export const STORAGE_KEYS_WITH_TOOTS: StorageKey[] = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,

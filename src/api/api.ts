@@ -8,7 +8,7 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_KEYS_WITH_UNIQUE_IDS } from "../Storage";
+import Storage, { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, STORAGE_KEYS_WITH_UNIQUE_IDS, type CacheTimestamp } from "../Storage";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
@@ -28,7 +28,6 @@ import {
     type MinMaxID,
     type StatusList,
 } from "../types";
-import { max } from "lodash";
 
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
@@ -38,11 +37,9 @@ const LOG_PREFIX = 'API';
 
 const apiLogger = new ComponentLogger(LOG_PREFIX, 'static');
 
-type CachedRows<T> = {
-    isStale: boolean;              // True if the cached data is stale
+interface CachedRows<T> extends CacheTimestamp {
     minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
     rows: T[];                     // Cached rows of API objects
-    updatedAt: Date;               // Optional date when the cache was last updated
 };
 
 interface MinMaxIDParams {
@@ -505,8 +502,8 @@ export default class MastoApi {
 
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger.logPrefix);
-        const completedParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
-        let { cacheResult, maxRecords } = completedParams;
+        const completeParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
+        let { cacheResult, maxRecords } = completeParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
@@ -514,7 +511,7 @@ export default class MastoApi {
             return cacheResult?.rows;
         }
 
-        logger.trace(`Cache is stale or moar=true, proceeding to fetch from API w/ completedParams:`, completedParams);
+        if (!skipCache) logger.trace(`Cache is stale or moar=true, fetching from API w/completedParams:`, completeParams);
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows: T[] = [];
@@ -523,7 +520,7 @@ export default class MastoApi {
         this.waitTimes[cacheKey]!.markStart();
 
         try {
-            for await (const page of fetch(this.buildParams(completedParams))) {
+            for await (const page of fetch(this.buildParams(completeParams))) {
                 this.waitTimes[cacheKey]!.markEnd(); // telemetry
 
                 // the important stuff
@@ -544,7 +541,7 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
-            newRows = this.handleApiError<T>(completedParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
+            newRows = this.handleApiError<T>(completeParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
             cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
             releaseMutex?.();
