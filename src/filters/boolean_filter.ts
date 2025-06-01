@@ -155,11 +155,11 @@ export default class BooleanFilter extends TootFilter {
         return Object.keys(this.optionInfo).length;
     }
 
+    // Convert the optionInfo to a TagList with the counts as numToots
     optionsAsTagList(): TagList {
-        // Convert the optionInfo to a TagList with the counts as numToots
-        const tags: TagWithUsageCounts[] = Object.entries(this.optionInfo).map(([name, count]) => ({
+        const tags: TagWithUsageCounts[] = Object.entries(this.optionInfo).map(([name, numToots]) => ({
             name,
-            numToots: count,
+            numToots,
             regex: wordRegex(name),  // Create a regex for the tag name
             url: MastoApi.instance.tagUrl(name),
         }));
