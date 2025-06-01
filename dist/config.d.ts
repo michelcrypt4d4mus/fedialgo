@@ -25,8 +25,7 @@ interface ApiConfig {
     data: ApiDataConfig;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
-    maxConcurrentRequestsBackground: number;
-    maxConcurrentRequestsInitial: number;
+    maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
@@ -106,8 +105,7 @@ declare class Config implements ConfigType {
         backgroundLoadIntervalMinutes: number;
         defaultRecordsPerPage: number;
         hashtagTootRetrievalDelaySeconds: number;
-        maxConcurrentRequestsInitial: number;
-        maxConcurrentRequestsBackground: number;
+        maxConcurrentHashtagRequests: number;
         maxRecordsForFeatureScoring: number;
         minutesUntilStaleDefault: number;
         mutexWarnSeconds: number;

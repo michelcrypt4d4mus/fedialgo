@@ -489,7 +489,6 @@ class TheAlgorithm {
 
         this.loadStartedAt = null;
         this.loadingStatus = null;
-        MastoApi.instance.setSemaphoreConcurrency(config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
 

@@ -457,7 +457,6 @@ class TheAlgorithm {
         }
         this.loadStartedAt = null;
         this.loadingStatus = null;
-        api_1.default.instance.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsBackground);
         this.launchBackgroundPoller();
     }
     // Simple wrapper for triggering fetchHomeFeed()

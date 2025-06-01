@@ -38,19 +38,19 @@ class Logger {
     // Returns the error message in case it's of use.
     error(msg, ...args) {
         if (msg instanceof Error) {
-            console.error(this.makeMsg(msg.message), ...args);
+            console.error(this.str(msg.message), ...args);
             return msg.message;
         }
-        msg = this.getErrorMessage(msg, ...args);
-        console.error(this.makeMsg(msg), ...args);
+        msg = this.errorStr(msg, ...args);
+        console.error(this.str(msg), ...args);
         return msg;
     }
     // warn() also checks the first argument for an Error but first arg must be a string
-    warn = (msg, ...args) => console.warn(this.makeMsg(this.getErrorMessage(msg, ...args)), ...args);
-    log = (msg, ...args) => console.log(msg, ...args);
-    info = (msg, ...args) => console.info(msg, ...args);
-    debug = (msg, ...args) => console.debug(msg, ...args);
-    trace = (msg, ...args) => { environment_helpers_1.isDebugMode && this.debug(msg, ...args); };
+    warn = (s, ...args) => console.warn(this.str(this.errorStr(s, ...args)), ...args);
+    log = (s, ...args) => console.log(this.str(s), ...args);
+    info = (s, ...args) => console.info(this.str(s), ...args);
+    debug = (s, ...args) => console.debug(this.str(s), ...args);
+    trace = (s, ...args) => { environment_helpers_1.isDebugMode && this.debug(s, ...args); };
     // Log an error message and throw an Error with the stringified args and the message.
     logAndThrowError(message, ...args) {
         console.error(message, args);
@@ -91,7 +91,7 @@ class Logger {
         this.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
     }
     // Mutates args array to pop the first Error if it exists
-    getErrorMessage(msg, ...args) {
+    errorStr(msg, ...args) {
         if (args[0] instanceof Error) {
             return this.makeErrorMsg(args.shift(), msg);
         }
@@ -99,17 +99,24 @@ class Logger {
             return msg;
         }
     }
+    // Make a custom error message
     makeErrorMsg(error, msg) {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
     }
-    makeMsg(msg) {
+    // Concatenate prefix and strings
+    str(msg) {
         return this.logPrefix + ((0, string_helpers_1.isEmptyStr)(msg) ? '' : ` ${msg}`);
     }
     // Returns a function that will build Logger objects with the starting prefixes
-    static logBuilder(componentName, ...prefixes) {
-        return (...args) => {
-            return new Logger(componentName, ...[...prefixes, ...args]);
+    static logBuilder(name, ...prefixes) {
+        console.debug(`Logger.logBuilder() called for ${name} with prefixes:`, prefixes);
+        // I think we have to define as const to get the closer to capture the name and prefixes?
+        const logMaker = (...args) => {
+            console.debug(`logBuilder() building a log called for ${name} with args:`, args);
+            const loggerArgs = [...prefixes, ...args];
+            return new Logger(name, ...loggerArgs);
         };
+        return logMaker;
     }
 }
 exports.Logger = Logger;

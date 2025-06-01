@@ -57,6 +57,10 @@ const LOG_PREFIX = 'API';
 // Loggers prefixed by [API]
 const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 const apiLogger = getLogger();
+// const fLogger = getLogger("barf");
+// fLogger.log(`This is a test log message for the barf logger.`); // Test log to ensure logger works
+// const gLogger = getLogger("gggggg", "hhhh");
+// gLogger.log(`This is a test log message for the ggggg logger.`); // Test log to ensure logger works
 class MastoApi {
     static #instance; // Singleton instance of MastoApi
     api;
@@ -66,7 +70,7 @@ class MastoApi {
     userData; // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = {}; // Just for measuring performance (poorly)
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
-    requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+    requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
     static init(api, user) {
         if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
@@ -161,8 +165,8 @@ class MastoApi {
         account_1.default.logSuspendedAccounts(blockedAccounts, enums_1.CacheKey.BLOCKED_ACCOUNTS);
         return blockedAccounts;
     }
-    // Generic data getter for things we want to cache but require custom fetch logic
-    //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
+    // Generic data getter for things we want to cache but require custom fetch logic.
+    // Currently used for the variou hashtag feeds (participated, trending, favourited).
     async getCacheableToots(fetch, key, maxRecords) {
         const logger = getLogger(key);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logger);
@@ -388,7 +392,7 @@ class MastoApi {
     }
     reset() {
         this.logger.log(`Resetting MastoApi instance...`);
-        this.setSemaphoreConcurrency(config_1.config.api.maxConcurrentRequestsInitial);
+        this.setSemaphoreConcurrency(config_1.config.api.maxConcurrentHashtagRequests);
         this.userData = undefined; // Clear the user data cache
         this.waitTimes = {}; // Reset the waiting timer
     }

@@ -55,8 +55,7 @@ interface ApiConfig {
     data: ApiDataConfig;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
-    maxConcurrentRequestsBackground: number;
-    maxConcurrentRequestsInitial: number;
+    maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
@@ -152,8 +151,7 @@ class Config implements ConfigType {
         backgroundLoadIntervalMinutes: 10,      // Background poll for user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
-        maxConcurrentRequestsInitial: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
-        maxConcurrentRequestsBackground: 15,    // How many toot requests to make in parallel once the initial load is done
+        maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock

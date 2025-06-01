@@ -4,18 +4,18 @@ export declare class Logger {
     constructor(name: string, ...args: string[]);
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger;
     error(msg: string | Error, ...args: any[]): string;
-    warn: (msg: string, ...args: any[]) => void;
-    log: (msg: string, ...args: any[]) => void;
-    info: (msg: string, ...args: any[]) => void;
-    debug: (msg: string, ...args: any[]) => void;
-    trace: (msg: string, ...args: any[]) => void;
+    warn: (s: string, ...args: any[]) => void;
+    log: (s: string, ...args: any[]) => void;
+    info: (s: string, ...args: any[]) => void;
+    debug: (s: string, ...args: any[]) => void;
+    trace: (s: string, ...args: any[]) => void;
     logAndThrowError(message: string, ...args: any[]): never;
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
     tempLogger(prefix: string): Logger;
     tagWithRandomString(): void;
-    private getErrorMessage;
+    private errorStr;
     private makeErrorMsg;
-    private makeMsg;
-    static logBuilder(componentName: string, ...prefixes: string[]): ((...args: string[]) => Logger);
+    private str;
+    static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger);
 }

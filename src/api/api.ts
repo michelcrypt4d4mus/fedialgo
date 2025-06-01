@@ -103,6 +103,12 @@ const LOG_PREFIX = 'API';
 const getLogger = Logger.logBuilder(LOG_PREFIX);
 const apiLogger = getLogger();
 
+// const fLogger = getLogger("barf");
+// fLogger.log(`This is a test log message for the barf logger.`); // Test log to ensure logger works
+
+// const gLogger = getLogger("gggggg", "hhhh");
+// gLogger.log(`This is a test log message for the ggggg logger.`); // Test log to ensure logger works
+
 
 export default class MastoApi {
     static #instance: MastoApi;  // Singleton instance of MastoApi
@@ -114,7 +120,7 @@ export default class MastoApi {
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Just for measuring performance (poorly)
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
-    private requestSemphore = new Semaphore(config.api.maxConcurrentRequestsInitial); // Limit concurrency of search & tag requests
+    private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
 
     static init(api: mastodon.rest.Client, user: Account): void {
         if (MastoApi.#instance) {
@@ -222,8 +228,8 @@ export default class MastoApi {
         return blockedAccounts;
     }
 
-    // Generic data getter for things we want to cache but require custom fetch logic
-    //    - maxRecordsConfigKey: optional config key to use to truncate the number of records returned
+    // Generic data getter for things we want to cache but require custom fetch logic.
+    // Currently used for the variou hashtag feeds (participated, trending, favourited).
     async getCacheableToots(
         fetch: () => Promise<mastodon.v1.Status[]>,
         key: CacheKey,
@@ -477,7 +483,7 @@ export default class MastoApi {
 
     reset(): void {
         this.logger.log(`Resetting MastoApi instance...`);
-        this.setSemaphoreConcurrency(config.api.maxConcurrentRequestsInitial);
+        this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
         this.userData = undefined;  // Clear the user data cache
         this.waitTimes = {};  // Reset the waiting timer
     };
