@@ -183,7 +183,7 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
-        const logger = new logger_1.Logger(LOG_PREFIX, key, `getWithStaleness()`);
+        const logger = new logger_1.Logger(LOG_PREFIX, key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
             logger.trace(`No data found, returning null`);
