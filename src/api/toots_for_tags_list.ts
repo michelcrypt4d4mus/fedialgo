@@ -52,7 +52,7 @@ export default class TootsForTagsList {
 
     private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
         this.cacheKey = cacheKey;
-        this.logger = Logger.withParenthesizedName("TootsForTagsList", cacheKey);
+        this.logger = new Logger(cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }

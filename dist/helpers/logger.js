@@ -109,10 +109,10 @@ class Logger {
     }
     // Returns a function that will build Logger objects with the starting prefixes
     static logBuilder(name, ...prefixes) {
-        console.debug(`Logger.logBuilder() called for ${name} with prefixes:`, prefixes);
+        // console.debug(`Logger.logBuilder() called for ${name} with prefixes:`, prefixes);
         // I think we have to define as const to get the closer to capture the name and prefixes?
         const logMaker = (...args) => {
-            console.debug(`logBuilder() building a log called for ${name} with args:`, args);
+            // console.debug(`logBuilder() building a log called for ${name} with args:`, args);
             const loggerArgs = [...prefixes, ...args];
             return new Logger(name, ...loggerArgs);
         };

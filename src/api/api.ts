@@ -334,7 +334,7 @@ export default class MastoApi {
                     return true;
                 });
 
-                logger.log(`Retrieved ${filters.length} records ${ageString(startTime)}:`, filters);
+                logger.log(`Retrieved ${filters.length} filters ${ageString(startTime)}:`, filters);
                 await Storage.set(CacheKey.SERVER_SIDE_FILTERS, filters);
             }
 
@@ -351,8 +351,8 @@ export default class MastoApi {
         const startedAt = new Date();
 
         const tagToots = await Promise.all([
-            this.searchForToots(tag.name, logger, numToots),
-            this.hashtagTimelineToots(tag, logger, numToots),
+            this.searchForToots(tag.name, logger.tempLogger('search'), numToots),
+            this.hashtagTimelineToots(tag, logger.tempLogger('timeline'), numToots),
         ]);
 
         const toots = tagToots.flat();
@@ -464,7 +464,7 @@ export default class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            logger.trace(`Retrieved ${statuses.length} ${ageString(startedAt)}`);
+            logger.trace(`Retrieved ${statuses.length} toots ${ageString(startedAt)}`);
             return statuses;
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);

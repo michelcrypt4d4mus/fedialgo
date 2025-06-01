@@ -47,7 +47,7 @@ class TootsForTagsList {
     }
     constructor(cacheKey, tagList, tootsConfig) {
         this.cacheKey = cacheKey;
-        this.logger = logger_1.Logger.withParenthesizedName("TootsForTagsList", cacheKey);
+        this.logger = new logger_1.Logger(cacheKey);
         this.tagList = tagList;
         this.tootsConfig = tootsConfig;
     }

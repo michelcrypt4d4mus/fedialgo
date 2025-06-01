@@ -257,7 +257,7 @@ class MastoApi {
                         return false;
                     return true;
                 });
-                logger.log(`Retrieved ${filters.length} records ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
+                logger.log(`Retrieved ${filters.length} filters ${(0, time_helpers_1.ageString)(startTime)}:`, filters);
                 await Storage_1.default.set(enums_1.CacheKey.SERVER_SIDE_FILTERS, filters);
             }
             return filters;
@@ -273,8 +273,8 @@ class MastoApi {
         numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const tagToots = await Promise.all([
-            this.searchForToots(tag.name, logger, numToots),
-            this.hashtagTimelineToots(tag, logger, numToots),
+            this.searchForToots(tag.name, logger.tempLogger('search'), numToots),
+            this.hashtagTimelineToots(tag, logger.tempLogger('timeline'), numToots),
         ]);
         const toots = tagToots.flat();
         let msg = `search endpoint got ${tagToots[0].length} toots, hashtag timeline got ${tagToots[1].length}`;
@@ -375,7 +375,7 @@ class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            logger.trace(`Retrieved ${statuses.length} ${(0, time_helpers_1.ageString)(startedAt)}`);
+            logger.trace(`Retrieved ${statuses.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return statuses;
         }
         catch (e) {
