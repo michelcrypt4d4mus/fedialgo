@@ -22,13 +22,19 @@ export class Logger {
     logPrefix: string;
     prefixes: string[];
 
-    constructor(componentName: string, ...args: string[]) {
-        this.prefixes = [componentName, ...args]
+    constructor(name: string, ...args: string[]) {
+        this.prefixes = [name, ...args]
         this.logPrefix = this.prefixes.map((str, i) => PREFIXERS[i] ? PREFIXERS[i](str) : str).join(' ');
 
         if (this.prefixes.length > PREFIXERS.length) {
             this.warn(`Logger created with too many prefixes: ${this.prefixes}`);
         }
+    }
+
+    // Alternate constructor; makes the first two arguments into a parenthesized bracketed string
+    // e.g. Logger("ComponentName", "domain") -> "[ComponentName<domain>] "
+    static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger {
+        return new this(`${name}${arrowed(parenthesized)}`, ...args)
     }
 
     // If first arg is a string, check if 2nd arg is an Error and do some special formatting

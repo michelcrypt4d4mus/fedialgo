@@ -43,7 +43,7 @@ class MastodonServer {
     endpointUrl = (endpoint) => `https://${this.endpointDomain(endpoint)}`;
     constructor(domain) {
         this.domain = domain;
-        this.logger = getLogger(this.domain);
+        this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
     }
     ;
     // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server

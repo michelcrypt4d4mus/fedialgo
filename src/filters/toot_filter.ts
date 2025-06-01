@@ -19,7 +19,7 @@ export default abstract class TootFilter {
         this.invertSelection = invertSelection ?? false;
         this.title = title;
         this.visible = visible ?? true;
-        this.logger = new Logger("TootFilter", this.constructor.name, title);
+        this.logger = Logger.withParenthesizedName("TootFilter", title);
     }
 
     // Return true if the toot should appear in the timeline feed

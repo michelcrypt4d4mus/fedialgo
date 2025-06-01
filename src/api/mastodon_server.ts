@@ -80,7 +80,7 @@ export default class MastodonServer {
 
     constructor(domain: string) {
         this.domain = domain;
-        this.logger = getLogger(this.domain);
+        this.logger = Logger.withParenthesizedName(LOG_PREFIX, domain);
     };
 
     // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server

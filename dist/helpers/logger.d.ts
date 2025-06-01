@@ -1,7 +1,8 @@
 export declare class Logger {
     logPrefix: string;
     prefixes: string[];
-    constructor(componentName: string, ...args: string[]);
+    constructor(name: string, ...args: string[]);
+    static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger;
     error(msg: string | Error, ...args: any[]): string;
     warn(msg: string, ...args: any[]): void;
     log(msg: string, ...args: any[]): void;
