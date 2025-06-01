@@ -33,7 +33,6 @@ import {
     type MastodonTag,
     type MinMaxID,
     type StatusList,
-    type TootLike,
 } from "../types";
 
 interface CachedRows<T> extends CacheTimestamp {
@@ -103,12 +102,6 @@ const LOG_PREFIX = 'API';
 const getLogger = Logger.logBuilder(LOG_PREFIX);
 const apiLogger = getLogger();
 
-// const fLogger = getLogger("barf");
-// fLogger.log(`This is a test log message for the barf logger.`); // Test log to ensure logger works
-
-// const gLogger = getLogger("gggggg", "hhhh");
-// gLogger.log(`This is a test log message for the ggggg logger.`); // Test log to ensure logger works
-
 
 export default class MastoApi {
     static #instance: MastoApi;  // Singleton instance of MastoApi
@@ -155,7 +148,7 @@ export default class MastoApi {
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = CacheKey.HOME_TIMELINE_TOOTS;
-        const logger = getLogger(cacheKey, moar ? "moar" : "initial");
+        const logger = getLogger(...[cacheKey as string].concat(moar ? ["moar"] : []));
         const startedAt = new Date();
 
         let homeTimelineToots = await Storage.getCoerced<Toot>(cacheKey);
