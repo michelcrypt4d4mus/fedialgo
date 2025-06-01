@@ -1,6 +1,9 @@
 # NEXT RELEASE
+
+# v0.57.0
 * Add `favouritedTags` property to `UserData` object
 * Export `TagTootsCacheKey` type
+* (Demo App) Add cyan color gradient for user's favourited hashtags
 
 ### v0.56.4
 * (Demo App) Link the Github Release Notes instead of the raw CHANGELOG.md in the header
