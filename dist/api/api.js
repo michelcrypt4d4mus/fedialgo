@@ -276,8 +276,11 @@ class MastoApi {
             this.searchForToots(tag.name, logger, numToots),
             this.hashtagTimelineToots(tag, logger, numToots),
         ]);
-        logTrendingTagResults(logger, `"${tag.name}" both hashtag searches`, tagToots.flat(), startedAt);
-        return tagToots.flat();
+        const toots = tagToots.flat();
+        let msg = `search endpoint got ${tagToots[0].length} toots, hashtag timeline got ${tagToots[1].length}`;
+        msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
+        logger.trace(`${msg}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))})`);
+        return toots;
     }
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
@@ -483,7 +486,7 @@ class MastoApi {
     async addCacheDataToParams(params) {
         let { cacheKey, logger, maxId, moar, skipCache } = params;
         logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
-        const fullParams = fillInBasicDefaults({ ...params, logger });
+        const fullParams = fillInDefaultParams({ ...params, logger });
         const { maxRecords } = fullParams;
         // Fetch from cache unless skipCache is true
         const cacheResult = skipCache ? null : (await this.getCachedRows(cacheKey));
@@ -622,7 +625,7 @@ class MastoApi {
 exports.default = MastoApi;
 ;
 // Populate the various fetch options with basic defaults
-function fillInBasicDefaults(params) {
+function fillInDefaultParams(params) {
     let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
     const requestDefaults = config_1.config.api.data[cacheKey];
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
@@ -661,10 +664,4 @@ function isRateLimitError(e) {
 }
 exports.isRateLimitError = isRateLimitError;
 ;
-// TODO: get rid of this eventually
-const logTrendingTagResults = (logger, searchMethod, toots, startedAt) => {
-    let msg = `${searchMethod} found ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-    msg += ` (oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))}):`;
-    logger.debug(msg);
-};
 //# sourceMappingURL=api.js.map

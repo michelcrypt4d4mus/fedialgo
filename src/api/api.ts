@@ -356,8 +356,11 @@ export default class MastoApi {
             this.hashtagTimelineToots(tag, logger, numToots),
         ]);
 
-        logTrendingTagResults(logger, `"${tag.name}" both hashtag searches`, tagToots.flat(), startedAt);
-        return tagToots.flat();
+        const toots = tagToots.flat();
+        let msg = `search endpoint got ${tagToots[0].length} toots, hashtag timeline got ${tagToots[1].length}`;
+        msg += ` ${ageString(startedAt)} (total ${toots.length}, oldest=${quotedISOFmt(earliestTootedAt(toots))}`;
+        logger.trace(`${msg}, newest=${quotedISOFmt(mostRecentTootedAt(toots))})`);
+        return toots;
     }
 
     // Retrieve background data about the user that will be used for scoring etc.
@@ -583,7 +586,7 @@ export default class MastoApi {
     ): Promise<FetchParamsWithCacheData<T>> {
         let { cacheKey, logger, maxId, moar, skipCache } = params;
         logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
-        const fullParams = fillInBasicDefaults<T>({ ...params, logger });
+        const fullParams = fillInDefaultParams<T>({ ...params, logger });
         const { maxRecords } = fullParams;
 
         // Fetch from cache unless skipCache is true
@@ -736,7 +739,7 @@ export default class MastoApi {
 
 
 // Populate the various fetch options with basic defaults
-function fillInBasicDefaults<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
     let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
     const requestDefaults = config.api.data[cacheKey];
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
@@ -777,17 +780,4 @@ export function isRateLimitError(e: Error | unknown): boolean {
     }
 
     return e.message.includes(RATE_LIMIT_ERROR_MSG);
-};
-
-
-// TODO: get rid of this eventually
-const logTrendingTagResults = (
-    logger: Logger,
-    searchMethod: string,
-    toots: TootLike[],
-    startedAt: Date
-): void => {
-    let msg = `${searchMethod} found ${toots.length} toots ${ageString(startedAt)}`;
-    msg += ` (oldest=${quotedISOFmt(earliestTootedAt(toots))}, newest=${quotedISOFmt(mostRecentTootedAt(toots))}):`
-    logger.debug(msg);
 };
