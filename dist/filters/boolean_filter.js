@@ -144,11 +144,11 @@ class BooleanFilter extends toot_filter_1.default {
     numOptions() {
         return Object.keys(this.optionInfo).length;
     }
+    // Convert the optionInfo to a TagList with the counts as numToots
     optionsAsTagList() {
-        // Convert the optionInfo to a TagList with the counts as numToots
-        const tags = Object.entries(this.optionInfo).map(([name, count]) => ({
+        const tags = Object.entries(this.optionInfo).map(([name, numToots]) => ({
             name,
-            numToots: count,
+            numToots,
             regex: (0, string_helpers_1.wordRegex)(name),
             url: api_1.default.instance.tagUrl(name),
         }));

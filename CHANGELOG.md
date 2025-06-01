@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* New BoleanFilter method `optionsAsTagList()`
+
+### v0.56.4
+* (Demo App) Link the Github Release Notes instead of the raw CHANGELOG.md in the header
+* New `BoleanFilter` method `optionsAsTagList()`
 * Lower staleness duration for server side filters to four hours
 * Don't alias `Logger` to `ComponentLogger` when exporting
 * (Demo App) Use new `MinTootsSlider` component to control the number of trending objects in the list
@@ -12,7 +15,7 @@
 * Fix bug where scorers were not resetting their state when `reset()` was called and all other data was reset
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
 * `MastoApi.instanceInfo()` only returns the v2 API data structure for a server configuration. If the v1 version exists it will be logged and thrown as an error.
-* adjust `DISCUSSIONS` weight preset
+* Adjust `DISCUSSIONS` weight preset
 
 ### v0.55.1 - v0.55.4
 * Stop exporting `sortKeysByValue()` helper
