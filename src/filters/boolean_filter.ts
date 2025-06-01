@@ -10,7 +10,7 @@ import TootFilter from "./toot_filter";
 import { alphabetize, wordRegex } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
-import { type FilterArgs, type StringNumberDict } from "../types";
+import { type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -157,7 +157,7 @@ export default class BooleanFilter extends TootFilter {
 
     optionsAsTagList(): TagList {
         // Convert the optionInfo to a TagList with the counts as numToots
-        const tags = Object.entries(this.optionInfo).map(([name, count]) => ({
+        const tags: TagWithUsageCounts[] = Object.entries(this.optionInfo).map(([name, count]) => ({
             name,
             numToots: count,
             regex: wordRegex(name),  // Create a regex for the tag name
