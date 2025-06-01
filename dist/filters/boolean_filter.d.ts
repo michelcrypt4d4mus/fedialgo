@@ -1,3 +1,4 @@
+import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type FilterArgs, type StringNumberDict } from "../types";
@@ -48,6 +49,7 @@ export default class BooleanFilter extends TootFilter {
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
     numOptions(): number;
+    optionsAsTagList(): TagList;
     optionsSortedByName(): string[];
     optionsSortedByValue(minValue?: number): string[];
     setOptions(optionInfo: StringNumberDict): void;

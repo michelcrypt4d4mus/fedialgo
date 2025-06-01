@@ -3,9 +3,11 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
+import MastoApi from '../api/api';
+import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { alphabetize } from '../helpers/string_helpers';
+import { alphabetize, wordRegex } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
 import { type FilterArgs, type StringNumberDict } from "../types";
@@ -151,6 +153,18 @@ export default class BooleanFilter extends TootFilter {
     // Return the number of options in the filter
     numOptions(): number {
         return Object.keys(this.optionInfo).length;
+    }
+
+    optionsAsTagList(): TagList {
+        // Convert the optionInfo to a TagList with the counts as numToots
+        const tags = Object.entries(this.optionInfo).map(([name, count]) => ({
+            name,
+            numToots: count,
+            regex: wordRegex(name),  // Create a regex for the tag name
+            url: MastoApi.instance.tagUrl(name),
+        }));
+
+        return new TagList(tags);
     }
 
     // Return the available options sorted alphabetically by name
