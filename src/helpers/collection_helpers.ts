@@ -142,9 +142,8 @@ export function filterWithLog<T>(
     reason: string,    // Describe why things were filtered
     objType?: string,
 ): T[] {
-    objType ||= 'obj'
     const filtered = array.filter(filterFxn);
-    logger.logArrayReduction(array, filtered, objType || "objects", reason);
+    logger.logArrayReduction(array, filtered, objType || "object", reason);
     return filtered;
 };
 

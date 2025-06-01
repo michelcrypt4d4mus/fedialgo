@@ -702,7 +702,7 @@ export {
     // Classes
     Account,
     BooleanFilter,
-    Logger as ComponentLogger,
+    Logger,
     NumericFilter,
     TagList,
     Toot,

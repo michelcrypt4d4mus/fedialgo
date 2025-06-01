@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Lower staleness duration for server side filters to four hours
+* Don't alias Logger to ComponentLogger when exporting
 
 ### v0.56.1 - v0.56.3
 * Use `Logger`s instead of `logPrefix` args everywhere

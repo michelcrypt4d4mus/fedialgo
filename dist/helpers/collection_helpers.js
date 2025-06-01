@@ -110,9 +110,8 @@ exports.countValues = countValues;
 // Basic collection filter but logs the numebr of elements removed
 function filterWithLog(array, filterFxn, logger, reason, // Describe why things were filtered
 objType) {
-    objType ||= 'obj';
     const filtered = array.filter(filterFxn);
-    logger.logArrayReduction(array, filtered, objType || "objects", reason);
+    logger.logArrayReduction(array, filtered, objType || "object", reason);
     return filtered;
 }
 exports.filterWithLog = filterWithLog;

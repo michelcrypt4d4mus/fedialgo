@@ -534,6 +534,7 @@ class MastoApi {
         const rows = cachedData?.obj;
         return {
             isStale: cachedData.isStale,
+            // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)
             minMaxId: this.supportsMinMaxId(key) ? (0, collection_helpers_1.findMinMaxId)(rows) : null,
             rows,
             updatedAt: cachedData.updatedAt,

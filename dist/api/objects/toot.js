@@ -278,12 +278,12 @@ class Toot {
     }
     // Mastodon calls this a "context" but it's really a conversation
     async getConversation() {
-        const prefix = 'getConversation()';
-        const logger = tootLogger.tempLogger(prefix);
-        logger.log(`Fetching conversation for toot:`, this.describe());
+        const source = 'getConversation';
+        const logger = tootLogger.tempLogger(source);
+        logger.debug(`Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], prefix, true);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], source, true);
         logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }

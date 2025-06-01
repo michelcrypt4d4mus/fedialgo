@@ -638,7 +638,8 @@ export default class MastoApi {
 
         return {
             isStale: cachedData.isStale,
-            minMaxId: this.supportsMinMaxId(key) ? findMinMaxId(rows as MastodonObjWithID[]) : null,  // Only set if endpoint supports MinMaxId!
+            // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)
+            minMaxId: this.supportsMinMaxId(key) ? findMinMaxId(rows as MastodonObjWithID[]) : null,
             rows,
             updatedAt: cachedData.updatedAt,
         };

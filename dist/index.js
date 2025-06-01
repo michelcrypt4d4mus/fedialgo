@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.ComponentLogger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -92,7 +92,7 @@ Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: fun
 const language_helper_1 = require("./helpers/language_helper");
 Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: function () { return language_helper_1.LANGUAGE_CODES; } });
 const logger_1 = require("./helpers/logger");
-Object.defineProperty(exports, "ComponentLogger", { enumerable: true, get: function () { return logger_1.Logger; } });
+Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const enums_2 = require("./enums");
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_2.MediaCategory; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_2.TrendingType; } });
