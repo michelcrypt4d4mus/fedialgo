@@ -20,7 +20,7 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsConfig> = {
     [CacheKey.FAVOURITED_TAG_TOOTS]: config.favouritedTags,
     [CacheKey.PARTICIPATED_TAG_TOOTS]: config.participatedTags,
     [CacheKey.TRENDING_TAG_TOOTS]: config.trending.tags,
-}
+};
 
 
 export default class TootsForTagsList {

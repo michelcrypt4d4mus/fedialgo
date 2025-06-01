@@ -14,6 +14,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
+    favouritedTags = new tag_list_1.default([]);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = {}; // TODO: could be TagList?
     languagesPostedIn = {};
@@ -24,6 +25,7 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
+        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags).tagNameDict();
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?

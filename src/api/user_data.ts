@@ -34,6 +34,7 @@ interface UserApiData {
 
 
 export default class UserData {
+    favouritedTags: TagList = new TagList([]);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagNames = {};  // TODO: could be TagList?
     languagesPostedIn: StringNumberDict = {};
@@ -45,6 +46,7 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
+        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags).tagNameDict();
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
