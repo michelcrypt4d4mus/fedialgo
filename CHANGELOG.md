@@ -1,10 +1,7 @@
 # NEXT RELEASE
+* Lower staleness duration for server side filters to four hours
 
-### v0.56.3
-
-### v0.56.2
-
-### v0.56.1
+### v0.56.1 - v0.56.3
 * Use `Logger`s instead of `logPrefix` args everywhere
 
 # v0.56.0

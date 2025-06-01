@@ -108,7 +108,7 @@ class Config {
             },
             [enums_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.TIMELINE_TOOTS]: {
             // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.

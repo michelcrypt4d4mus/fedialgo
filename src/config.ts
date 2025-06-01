@@ -216,7 +216,7 @@ class Config implements ConfigType {
             },
             [CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: 24 * MINUTES_IN_HOUR,
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.TIMELINE_TOOTS]: {
                 // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
