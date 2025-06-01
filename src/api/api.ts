@@ -682,8 +682,6 @@ export default class MastoApi {
 
     // Construct an Account or Toot object from the API object (otherwise just return the object)
     private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: Logger): MastodonApiObject[] {
-        logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
-
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
             return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);

@@ -224,7 +224,7 @@ export default class Storage {
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(`${msg}`);
+            logger.trace(msg);
         }
 
         // Check for unique IDs in the stored data if we're in debug mode

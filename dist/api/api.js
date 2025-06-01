@@ -572,7 +572,6 @@ class MastoApi {
     }
     // Construct an Account or Toot object from the API object (otherwise just return the object)
     buildFromApiObjects(key, objects, logger) {
-        logger.trace(`(buildFromApiObjects) called for key "${key}" with ${objects.length} objects`);
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(o => account_1.default.build(o));
             return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.id, key);
