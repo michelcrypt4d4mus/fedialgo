@@ -41,6 +41,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { AlgorithmStorageKey, CacheKey } from "./enums";
+import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain } from './helpers/string_helpers';
@@ -52,13 +53,6 @@ import { Logger } from './helpers/logger';
 import { MediaCategory, TrendingType } from './enums';
 import { NonScoreWeightName, ScoreName } from './enums';
 import { rechartsDataPoints } from "./helpers/stats_helper";
-import {
-    BACKFILL_FEED,
-    PREP_SCORERS,
-    TRIGGER_FEED,
-    lockExecution,
-    logAndThrowError,
-} from './helpers/log_helpers';
 import {
     computeMinMax,
     isValueInStringEnum,
@@ -403,7 +397,11 @@ class TheAlgorithm {
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]> {
         this.logger.log("updateUserWeightsToPreset() called with presetName:", presetName);
-        if (!isWeightPresetLabel(presetName)) logAndThrowError(`Invalid weight preset: "${presetName}"`);
+
+        if (!isWeightPresetLabel(presetName)) {
+            this.logger.logAndThrowError(`Invalid weight preset: "${presetName}"`);
+        }
+
         return await this.updateUserWeights(WEIGHT_PRESETS[presetName as WeightPresetLabel]);
     }
 

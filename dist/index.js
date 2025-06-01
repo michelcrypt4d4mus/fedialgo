@@ -76,6 +76,7 @@ const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/vide
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
+const log_helpers_1 = require("./helpers/log_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -99,7 +100,6 @@ const enums_3 = require("./enums");
 Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_3.NonScoreWeightName; } });
 Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
-const log_helpers_1 = require("./helpers/log_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -377,8 +377,9 @@ class TheAlgorithm {
     // Update user weightings to one of the preset values and rescore / resort the feed.
     async updateUserWeightsToPreset(presetName) {
         this.logger.log("updateUserWeightsToPreset() called with presetName:", presetName);
-        if (!(0, weight_presets_1.isWeightPresetLabel)(presetName))
-            (0, log_helpers_1.logAndThrowError)(`Invalid weight preset: "${presetName}"`);
+        if (!(0, weight_presets_1.isWeightPresetLabel)(presetName)) {
+            this.logger.logAndThrowError(`Invalid weight preset: "${presetName}"`);
+        }
         return await this.updateUserWeights(weight_presets_1.WEIGHT_PRESETS[presetName]);
     }
     ///////////////////////////////

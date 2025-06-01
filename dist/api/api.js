@@ -329,10 +329,10 @@ class MastoApi {
             const v1Instance = await this.api.v1.instance.fetch();
             if (v1Instance) {
                 let msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
-                (0, log_helpers_1.logAndThrowError)(msg, v1Instance);
+                this.logger.logAndThrowError(msg, v1Instance);
             }
             else {
-                (0, log_helpers_1.logAndThrowError)(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+                this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
             }
         }
     }
@@ -355,7 +355,7 @@ class MastoApi {
             return toot;
         const lookupResult = await this.api.v2.search.list({ q: tootURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            (0, log_helpers_1.logAndThrowError)(`${logger.logPrefix} got bad result for "${tootURI}"`, lookupResult);
+            logger.logAndThrowError(`Got bad result for "${tootURI}"`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
         logger.trace(`found resolvedStatus for "${tootURI}":`, resolvedStatus);
@@ -596,7 +596,7 @@ class MastoApi {
             logger.warn(`skipCache=true AND moar or maxId set!`);
         }
         if (maxIdForFetch && minIdForFetch) {
-            (0, log_helpers_1.logAndThrowError)(`Both maxIdForFetch="${maxIdForFetch}" and minIdForFetch="${minIdForFetch}" set!`, params);
+            this.logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
         }
     }
     ////////////////////////////
@@ -615,7 +615,7 @@ class MastoApi {
             throw RATE_LIMIT_USER_WARNING;
         }
         else {
-            (0, log_helpers_1.logAndThrowError)(msg, error);
+            apiLogger.logAndThrowError(msg, error);
         }
     }
 }

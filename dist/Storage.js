@@ -44,7 +44,6 @@ const math_helper_1 = require("./helpers/math_helper");
 const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
-const log_helpers_1 = require("./helpers/log_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const math_helper_2 = require("./helpers/math_helper");
@@ -113,7 +112,7 @@ class Storage {
             value = [];
         }
         else if (!Array.isArray(value)) {
-            (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
+            logger.logAndThrowError(`Expected array at '${key}' but got`, value);
         }
         return value;
     }
@@ -321,7 +320,7 @@ class Storage {
                 await this.setIdentity(user);
             }
             else {
-                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} No user identity found! Cannot build key for ${key}`);
+                logger.logAndThrowError(`No user identity found! Cannot build key for ${key}`);
             }
         }
         return `${user.id}_${key}`;

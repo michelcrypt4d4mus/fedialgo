@@ -16,12 +16,12 @@ import Storage, {
     STORAGE_KEYS_WITH_TOOTS,
     STORAGE_KEYS_WITH_UNIQUE_IDS,
 } from "../Storage";
-import { ageInMS, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
+import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { extractDomain } from '../helpers/string_helpers';
 import { CacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
-import { lockExecution, logAndThrowError, WaitTime } from '../helpers/log_helpers';
+import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
@@ -413,9 +413,9 @@ export default class MastoApi {
 
             if (v1Instance) {
                 let msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
-                logAndThrowError(msg, v1Instance);
+                this.logger.logAndThrowError(msg, v1Instance);
             } else {
-                logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+                this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
             }
         }
     }
@@ -442,7 +442,7 @@ export default class MastoApi {
         const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
-            logAndThrowError(`${logger.logPrefix} got bad result for "${tootURI}"`, lookupResult);
+            logger.logAndThrowError(`Got bad result for "${tootURI}"`, lookupResult);
         }
 
         const resolvedStatus = lookupResult.statuses[0];
@@ -709,7 +709,7 @@ export default class MastoApi {
         }
 
         if (maxIdForFetch && minIdForFetch) {
-            logAndThrowError(`Both maxIdForFetch="${maxIdForFetch}" and minIdForFetch="${minIdForFetch}" set!`, params);
+            this.logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
         }
     }
 
@@ -729,7 +729,7 @@ export default class MastoApi {
             apiLogger.error(`Rate limit error:`, error);
             throw RATE_LIMIT_USER_WARNING;
         } else {
-            logAndThrowError(msg, error);
+            apiLogger.logAndThrowError(msg, error);
         }
     }
 };

@@ -111,12 +111,8 @@ exports.countValues = countValues;
 function filterWithLog(array, filterFxn, logger, reason, // Describe why things were filtered
 objType) {
     objType ||= 'obj';
-    const startingLength = array.length;
     const filtered = array.filter(filterFxn);
-    const numRemoved = startingLength - filtered.length;
-    if (numRemoved > 0) {
-        logger.debug(`Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
-    }
+    logger.logArrayReduction(array, filtered, objType || "objects", reason);
     return filtered;
 }
 exports.filterWithLog = filterWithLog;

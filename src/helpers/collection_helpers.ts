@@ -143,14 +143,8 @@ export function filterWithLog<T>(
     objType?: string,
 ): T[] {
     objType ||= 'obj'
-    const startingLength = array.length;
     const filtered = array.filter(filterFxn);
-    const numRemoved = startingLength - filtered.length;
-
-    if (numRemoved > 0) {
-        logger.debug(`Removed ${numRemoved} ${reason} ${objType}s leaving ${filtered.length}`);
-    }
-
+    logger.logArrayReduction(array, filtered, objType || "objects", reason);
     return filtered;
 };
 

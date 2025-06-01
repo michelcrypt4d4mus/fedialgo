@@ -48,26 +48,6 @@ export async function lockExecution(
 };
 
 
-// Log an error message and throw an Error
-export function logAndThrowError(message: string, obj?: any): never {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    } else {
-        console.error(message);
-    }
-
-    throw new Error(message);
-};
-
-
-// Simple log helper that only fires if numRemoved > 0 // TODO: move into Logger class
-export function logTootRemoval(logger: Logger, tootType: string, numRemoved: number, numTotal: number): void {
-    if (numRemoved == 0) return;
-    logger.debug(`Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-};
-
-
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 export function traceLog(msg: string, ...args: any[]): void {

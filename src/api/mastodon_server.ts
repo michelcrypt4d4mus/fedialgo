@@ -12,10 +12,9 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { bracketed } from "../helpers/string_helpers";
 import { CacheKey } from "../enums";
 import { config, FEDIVERSE_KEYS } from "../config";
-import { lockExecution, logAndThrowError } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { TrendingType } from '../enums';
 import {
@@ -169,7 +168,7 @@ export default class MastodonServer {
             list = await this.fetch<T[]>(endpoint, limit);
 
             if (!list) {
-                logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
+                getLogger(endpoint).logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
             } else if (list.length === 0) {
                 this.logger.warn(`${logPrefix} Empty array of ${label} found (but no actual error)`);
             }

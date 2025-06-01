@@ -121,7 +121,7 @@ class MastodonServer {
         try {
             list = await this.fetch(endpoint, limit);
             if (!list) {
-                (0, log_helpers_1.logAndThrowError)(`No ${label} found! list: ${JSON.stringify(list)}`);
+                getLogger(endpoint).logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
             else if (list.length === 0) {
                 this.logger.warn(`${logPrefix} Empty array of ${label} found (but no actual error)`);

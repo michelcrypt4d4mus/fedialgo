@@ -3,6 +3,7 @@
  */
 import { ageString } from './time_helpers';
 import { isDebugMode } from './environment_helpers';
+import { split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
 
 const PREFIXERS = [
@@ -50,16 +51,40 @@ export class Logger {
         return msg;
     }
 
-    // Also checks the first argument for an Error but first arg must be a string
-    warn(msg: string, ...args: any[]) {
-        msg = this.getErrorMessage(msg, ...args);
-        console.warn(this.makeMsg(msg), ...args);
+    // warn() also checks the first argument for an Error but first arg must be a string
+    warn = (msg: string, ...args: any[]): void => console.warn(this.makeMsg(this.getErrorMessage(msg, ...args)), ...args)
+    log = (msg: string, ...args: any[]): void => console.log(msg, ...args);
+    info = (msg: string, ...args: any[]): void => console.info(msg, ...args);
+    debug = (msg: string, ...args: any[]): void => console.debug(msg, ...args);
+    trace = (msg: string, ...args: any[]): void => {isDebugMode && this.debug(msg, ...args)};
+
+    // Log an error message and throw an Error with the stringified args and the message.
+    logAndThrowError(message: string, ...args: any[]): never {
+        console.error(message, args);
+
+        if (args.length > 0) {
+            const [errorArgs, otherArgs] = split(args, arg => arg instanceof Error);
+
+            if (errorArgs.length > 0) {
+                message = this.makeErrorMsg(errorArgs[0], message);
+            }
+
+            if (otherArgs.length > 0) {
+                message += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
+            }
+        }
+
+        throw new Error(message);
     }
 
-    log(msg: string, ...args: any[]) {
-        console.log(this.makeMsg(msg), ...args);
+    // Log the fact that an array was reduced in size.
+    logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void {
+        const numRemoved = before.length - after.length;
+        if (numRemoved == 0) return;
+        this.debug(`Removed ${numRemoved} ${ reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
     }
 
+    // Log a message with the amount of time from startedAt to now.
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void {
         msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
 
@@ -71,26 +96,13 @@ export class Logger {
         this.info(msg, ...args)
     }
 
-    info(msg: string, ...args: any[]) {
-        console.info(this.makeMsg(msg), ...args);
-    }
-
-    debug(msg: string, ...args: any[]) {
-        console.debug(this.makeMsg(msg), ...args);
-    }
-
-    // Only writes logs when FEDIALGO_DEBUG env var is set
-    trace(msg: string, ...args: any[]) {
-        isDebugMode && this.debug(msg, ...args);
-    }
-
-    // Fill in first available prefix slot with string
+    // Returns new Logger with one additional prefix.
     tempLogger(prefix: string): Logger {
         const args = [...this.prefixes, prefix];
         return new Logger(args[0], ...args.slice(1));
     }
 
-    // Can be helpful when there's a lot of threads and you want to distinguish them
+    // Add a random string to the prefix. Can be helpful when there's a lot of threads w/same prefix.
     tagWithRandomString(): void {
         this.logPrefix += ` *#(${createRandomString(4)})#*`;
     }

@@ -3,7 +3,6 @@
  */
 import { CacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
-import { logAndThrowError } from "./helpers/log_helpers";
 import { Logger } from "./helpers/logger";
 import { NonScoreWeightName } from './enums';
 import { type NonScoreWeightInfoDict } from "./types";
@@ -487,9 +486,9 @@ class Config implements ConfigType {
             if (typeof value === "object") {
                 this.validate(value);
             } else if (typeof value == "number" && isNaN(value)) {
-                logAndThrowError(`${LOG_PREFIX} value at ${key} is NaN`);
+                logger.logAndThrowError(`value at ${key} is NaN`);
             } else if (typeof value == "string" && value.length == 0) {
-                logAndThrowError(`${LOG_PREFIX} value at ${key} is empty string`);
+                logger.logAndThrowError(`value at ${key} is empty string`);
             }
         });
     }

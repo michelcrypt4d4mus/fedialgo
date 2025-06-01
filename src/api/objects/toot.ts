@@ -18,7 +18,6 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
-import { logTootRemoval } from '../../helpers/log_helpers';
 import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
 import { ScoreName } from '../../enums';
@@ -795,7 +794,7 @@ export default class Toot implements TootObj {
         await Scorer.scoreToots(toots, false);
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort) toots.sort((a, b) => b.getScore() - a.getScore());
-        tootLogger.trace(`<${source}> ${toots.length} toots built in ${ageString(startedAt)}`);
+        logger.trace(`${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 
@@ -916,7 +915,7 @@ export default class Toot implements TootObj {
             return mostRecent;
         });
 
-        logTootRemoval(logger, "duplicate", toots.length - deduped.length, deduped.length);
+        logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
         return deduped;
     }
 

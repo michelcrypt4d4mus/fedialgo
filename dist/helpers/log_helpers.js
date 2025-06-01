@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.strBytes = exports.traceLog = exports.logTootRemoval = exports.logAndThrowError = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
+exports.WaitTime = exports.strBytes = exports.traceLog = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -34,27 +34,6 @@ async function lockExecution(locker, logger, logPrefix) {
     return releaseLock;
 }
 exports.lockExecution = lockExecution;
-;
-// Log an error message and throw an Error
-function logAndThrowError(message, obj) {
-    if (obj) {
-        console.error(message, obj);
-        message += `\n${JSON.stringify(obj, null, 4)}`;
-    }
-    else {
-        console.error(message);
-    }
-    throw new Error(message);
-}
-exports.logAndThrowError = logAndThrowError;
-;
-// Simple log helper that only fires if numRemoved > 0 // TODO: move into Logger class
-function logTootRemoval(logger, tootType, numRemoved, numTotal) {
-    if (numRemoved == 0)
-        return;
-    logger.debug(`Removed ${numRemoved} ${tootType} toots leaving ${numTotal} toots`);
-}
-exports.logTootRemoval = logTootRemoval;
 ;
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.

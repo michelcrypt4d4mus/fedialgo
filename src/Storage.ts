@@ -17,7 +17,6 @@ import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { config } from "./config";
-import { logAndThrowError } from './helpers/log_helpers';
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
@@ -124,7 +123,7 @@ export default class Storage {
         if (!value) {
             value = [];
         } else if (!Array.isArray(value)) {
-            logAndThrowError(`${LOG_PREFIX} Expected array at '${key}' but got`, value);
+            logger.logAndThrowError(`Expected array at '${key}' but got`, value);
         }
 
         return value as T[];
@@ -362,11 +361,11 @@ export default class Storage {
                 user = MastoApi.instance.user;
                 await this.setIdentity(user);
             } else {
-                logAndThrowError(`${LOG_PREFIX} No user identity found! Cannot build key for ${key}`);
+                logger.logAndThrowError(`No user identity found! Cannot build key for ${key}`);
             }
         }
 
-        return `${user.id}_${key}`;
+        return `${user!.id}_${key}`;
     }
 
     private static deserialize(key: StorageKey, value: StorableObj): StorableObj {

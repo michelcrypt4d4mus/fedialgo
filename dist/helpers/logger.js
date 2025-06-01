@@ -6,6 +6,7 @@ exports.Logger = void 0;
  */
 const time_helpers_1 = require("./time_helpers");
 const environment_helpers_1 = require("./environment_helpers");
+const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
 const PREFIXERS = [
     string_helpers_1.bracketed,
@@ -44,14 +45,34 @@ class Logger {
         console.error(this.makeMsg(msg), ...args);
         return msg;
     }
-    // Also checks the first argument for an Error but first arg must be a string
-    warn(msg, ...args) {
-        msg = this.getErrorMessage(msg, ...args);
-        console.warn(this.makeMsg(msg), ...args);
+    // warn() also checks the first argument for an Error but first arg must be a string
+    warn = (msg, ...args) => console.warn(this.makeMsg(this.getErrorMessage(msg, ...args)), ...args);
+    log = (msg, ...args) => console.log(msg, ...args);
+    info = (msg, ...args) => console.info(msg, ...args);
+    debug = (msg, ...args) => console.debug(msg, ...args);
+    trace = (msg, ...args) => { environment_helpers_1.isDebugMode && this.debug(msg, ...args); };
+    // Log an error message and throw an Error with the stringified args and the message.
+    logAndThrowError(message, ...args) {
+        console.error(message, args);
+        if (args.length > 0) {
+            const [errorArgs, otherArgs] = (0, collection_helpers_1.split)(args, arg => arg instanceof Error);
+            if (errorArgs.length > 0) {
+                message = this.makeErrorMsg(errorArgs[0], message);
+            }
+            if (otherArgs.length > 0) {
+                message += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
+            }
+        }
+        throw new Error(message);
     }
-    log(msg, ...args) {
-        console.log(this.makeMsg(msg), ...args);
+    // Log the fact that an array was reduced in size.
+    logArrayReduction(before, after, objType, reason) {
+        const numRemoved = before.length - after.length;
+        if (numRemoved == 0)
+            return;
+        this.debug(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
     }
+    // Log a message with the amount of time from startedAt to now.
     logTelemetry(msg, startedAt, ...args) {
         msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;
         // If there's ...args and first arg is a string, assume it's a label for any other arg objects
@@ -60,22 +81,12 @@ class Logger {
         }
         this.info(msg, ...args);
     }
-    info(msg, ...args) {
-        console.info(this.makeMsg(msg), ...args);
-    }
-    debug(msg, ...args) {
-        console.debug(this.makeMsg(msg), ...args);
-    }
-    // Only writes logs when FEDIALGO_DEBUG env var is set
-    trace(msg, ...args) {
-        environment_helpers_1.isDebugMode && this.debug(msg, ...args);
-    }
-    // Fill in first available prefix slot with string
+    // Returns new Logger with one additional prefix.
     tempLogger(prefix) {
         const args = [...this.prefixes, prefix];
         return new Logger(args[0], ...args.slice(1));
     }
-    // Can be helpful when there's a lot of threads and you want to distinguish them
+    // Add a random string to the prefix. Can be helpful when there's a lot of threads w/same prefix.
     tagWithRandomString() {
         this.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
     }

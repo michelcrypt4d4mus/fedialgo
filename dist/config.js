@@ -6,7 +6,6 @@ exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_
  */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const log_helpers_1 = require("./helpers/log_helpers");
 const logger_1 = require("./helpers/logger");
 const enums_2 = require("./enums");
 // Cachey keys for the fediverse wide trending data
@@ -365,10 +364,10 @@ class Config {
                 this.validate(value);
             }
             else if (typeof value == "number" && isNaN(value)) {
-                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is NaN`);
+                logger.logAndThrowError(`value at ${key} is NaN`);
             }
             else if (typeof value == "string" && value.length == 0) {
-                (0, log_helpers_1.logAndThrowError)(`${LOG_PREFIX} value at ${key} is empty string`);
+                logger.logAndThrowError(`value at ${key} is empty string`);
             }
         });
     }

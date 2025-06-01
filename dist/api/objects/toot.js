@@ -30,7 +30,6 @@ const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
 const logger_1 = require("../../helpers/logger");
-const log_helpers_1 = require("../../helpers/log_helpers");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
 const boolean_filter_1 = require("../../filters/boolean_filter");
@@ -643,7 +642,7 @@ class Toot {
         // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort)
             toots.sort((a, b) => b.getScore() - a.getScore());
-        tootLogger.trace(`<${source}> ${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
+        logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
@@ -746,7 +745,7 @@ class Toot {
             }
             return mostRecent;
         });
-        (0, log_helpers_1.logTootRemoval)(logger, "duplicate", toots.length - deduped.length, deduped.length);
+        logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
         return deduped;
     }
     // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
