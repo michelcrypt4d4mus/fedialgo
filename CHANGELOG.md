@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add `favouritedTags` property to `UserData` object
+* Export `TagTootsCacheKey` type
 
 ### v0.56.4
 * (Demo App) Link the Github Release Notes instead of the raw CHANGELOG.md in the header

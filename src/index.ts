@@ -686,6 +686,7 @@ export {
     type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
+    type TagTootsCacheKey,
     type TagWithUsageCounts,
     type TrendingData,
     type TrendingLink,
