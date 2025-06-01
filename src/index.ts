@@ -210,8 +210,8 @@ class TheAlgorithm {
         if (this.checkIfSkipping()) return;
         this.setLoadingStateVariables(TRIGGER_FEED);
 
-        const hashtagToots = async (key: CacheKey) => {
-            const tagList = await TootsForTagsList.create(key as TagTootsCacheKey);
+        const hashtagToots = async (key: TagTootsCacheKey) => {
+            const tagList = await TootsForTagsList.create(key);
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
 
@@ -225,7 +225,7 @@ class TheAlgorithm {
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            hashtagToots(CacheKey.FAVOURITED_TAG_TOOTS),
             hashtagToots(CacheKey.PARTICIPATED_TAG_TOOTS),
             hashtagToots(CacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded

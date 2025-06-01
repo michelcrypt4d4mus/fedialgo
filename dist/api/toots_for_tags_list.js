@@ -13,17 +13,21 @@ const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const HASHTAG_TOOTS_CONFIG = {
+    [enums_1.CacheKey.FAVOURITED_TAG_TOOTS]: config_1.config.favouritedTags,
+    [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: config_1.config.participatedTags,
+    [enums_1.CacheKey.TRENDING_TAG_TOOTS]: config_1.config.trending.tags,
+};
 class TootsForTagsList {
     cacheKey;
+    config;
     logger;
     tagList;
-    tootsConfig;
     // Alternate constructor
     static async create(cacheKey) {
-        let tootsConfig;
+        const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         let tagList;
-        if (cacheKey === enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS) {
-            tootsConfig = config_1.config.favouritedTags;
+        if (cacheKey === enums_1.CacheKey.FAVOURITED_TAG_TOOTS) {
             tagList = await tag_list_1.default.fromFavourites();
             await this.removeUnwantedTags(tagList, tootsConfig);
             // Remove tags that have been used in 2 or more toots by the user
@@ -32,12 +36,10 @@ class TootsForTagsList {
             tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
         }
         else if (cacheKey === enums_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
-            tootsConfig = config_1.config.participatedTags;
             tagList = await tag_list_1.default.fromParticipated();
             await this.removeUnwantedTags(tagList, tootsConfig);
         }
         else if (cacheKey === enums_1.CacheKey.TRENDING_TAG_TOOTS) {
-            tootsConfig = config_1.config.trending.tags;
             tagList = await tag_list_1.default.fromTrending();
         }
         else {
@@ -45,11 +47,11 @@ class TootsForTagsList {
         }
         return new TootsForTagsList(cacheKey, tagList, tootsConfig);
     }
-    constructor(cacheKey, tagList, tootsConfig) {
+    constructor(cacheKey, tagList, tagsConfig) {
         this.cacheKey = cacheKey;
+        this.config = tagsConfig;
         this.logger = new logger_1.Logger(cacheKey);
         this.tagList = tagList;
-        this.tootsConfig = tootsConfig;
     }
     // Get toots for the list of tags, caching the results
     async getToots() {
@@ -57,15 +59,15 @@ class TootsForTagsList {
             const tags = this.topTags();
             this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
             const tagToots = await Promise.all(tags.map(async (tag) => {
-                return await api_1.default.instance.getStatusesForTag(tag, this.logger, this.tootsConfig.numTootsPerTag);
+                return await api_1.default.instance.getStatusesForTag(tag, this.logger, this.config.numTootsPerTag);
             }));
             return tagToots.flat();
-        }, this.cacheKey, this.tootsConfig.maxToots);
+        }, this.cacheKey, this.config.maxToots);
     }
     ;
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags) {
-        numTags ||= this.tootsConfig.numTags;
+        numTags ||= this.config.numTags;
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
         return tags;

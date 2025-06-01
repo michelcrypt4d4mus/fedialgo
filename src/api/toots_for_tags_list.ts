@@ -12,24 +12,29 @@ import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
 export type TagTootsCacheKey =
-      CacheKey.PARTICIPATED_TAG_TOOTS
-    | CacheKey.FAVOURITED_HASHTAG_TOOTS
+      CacheKey.FAVOURITED_TAG_TOOTS
+    | CacheKey.PARTICIPATED_TAG_TOOTS
     | CacheKey.TRENDING_TAG_TOOTS;
+
+const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsConfig> = {
+    [CacheKey.FAVOURITED_TAG_TOOTS]: config.favouritedTags,
+    [CacheKey.PARTICIPATED_TAG_TOOTS]: config.participatedTags,
+    [CacheKey.TRENDING_TAG_TOOTS]: config.trending.tags,
+}
 
 
 export default class TootsForTagsList {
     cacheKey: TagTootsCacheKey;
+    config: TagTootsConfig;
     logger: Logger;
     tagList: TagList;
-    tootsConfig: TagTootsConfig;
 
     // Alternate constructor
     static async create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList> {
-        let tootsConfig: TagTootsConfig;
+        const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         let tagList: TagList;
 
-        if (cacheKey === CacheKey.FAVOURITED_HASHTAG_TOOTS) {
-            tootsConfig = config.favouritedTags;
+        if (cacheKey === CacheKey.FAVOURITED_TAG_TOOTS) {
             tagList = await TagList.fromFavourites();
             await this.removeUnwantedTags(tagList, tootsConfig);
             // Remove tags that have been used in 2 or more toots by the user
@@ -37,11 +42,9 @@ export default class TootsForTagsList {
             const participatedTags = (await TagList.fromParticipated()).tagNameDict();
             tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
         } else if (cacheKey === CacheKey.PARTICIPATED_TAG_TOOTS) {
-            tootsConfig = config.participatedTags;
             tagList = await TagList.fromParticipated();
             await this.removeUnwantedTags(tagList, tootsConfig);
         } else if (cacheKey === CacheKey.TRENDING_TAG_TOOTS) {
-            tootsConfig = config.trending.tags;
             tagList = await TagList.fromTrending();
         } else {
             throw new Error(`TootsForTagsList: Invalid cacheKey ${cacheKey}`);
@@ -50,11 +53,11 @@ export default class TootsForTagsList {
         return new TootsForTagsList(cacheKey, tagList, tootsConfig);
     }
 
-    private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tootsConfig: TagTootsConfig) {
+    private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tagsConfig: TagTootsConfig) {
         this.cacheKey = cacheKey;
+        this.config = tagsConfig;
         this.logger = new Logger(cacheKey);
         this.tagList = tagList;
-        this.tootsConfig = tootsConfig;
     }
 
     // Get toots for the list of tags, caching the results
@@ -69,7 +72,7 @@ export default class TootsForTagsList {
                         return await MastoApi.instance.getStatusesForTag(
                             tag,
                             this.logger,
-                            this.tootsConfig.numTootsPerTag
+                            this.config.numTootsPerTag
                         );
                     }
                 ));
@@ -77,13 +80,13 @@ export default class TootsForTagsList {
                 return tagToots.flat();
             },
             this.cacheKey,
-            this.tootsConfig.maxToots,
+            this.config.maxToots,
         );
     };
 
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags?: number): TagWithUsageCounts[] {
-        numTags ||= this.tootsConfig.numTags;
+        numTags ||= this.config.numTags;
         const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
         return tags;

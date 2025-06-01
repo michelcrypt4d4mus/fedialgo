@@ -4,12 +4,12 @@ import { CacheKey } from "../enums";
 import { TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { type TagWithUsageCounts } from "../types";
-export type TagTootsCacheKey = CacheKey.PARTICIPATED_TAG_TOOTS | CacheKey.FAVOURITED_HASHTAG_TOOTS | CacheKey.TRENDING_TAG_TOOTS;
+export type TagTootsCacheKey = CacheKey.FAVOURITED_TAG_TOOTS | CacheKey.PARTICIPATED_TAG_TOOTS | CacheKey.TRENDING_TAG_TOOTS;
 export default class TootsForTagsList {
     cacheKey: TagTootsCacheKey;
+    config: TagTootsConfig;
     logger: Logger;
     tagList: TagList;
-    tootsConfig: TagTootsConfig;
     static create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList>;
     private constructor();
     getToots(): Promise<Toot[]>;

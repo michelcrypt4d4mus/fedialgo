@@ -509,7 +509,7 @@ export default class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
         let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
-        logger ??= getLogger(cacheKey, 'getApiRecords()');
+        logger ??= getLogger(cacheKey, 'getApiRecords');
 
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger);

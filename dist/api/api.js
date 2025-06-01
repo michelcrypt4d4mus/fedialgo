@@ -416,7 +416,7 @@ class MastoApi {
     // See comment above on FetchParams object for more info about arguments
     async getApiRecords(inParams) {
         let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
-        logger ??= getLogger(cacheKey, 'getApiRecords()');
+        logger ??= getLogger(cacheKey, 'getApiRecords');
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger);
         const completeParams = await this.addCacheDataToParams({ ...inParams, logger });

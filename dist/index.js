@@ -225,7 +225,7 @@ class TheAlgorithm {
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(enums_1.CacheKey.FAVOURITED_HASHTAG_TOOTS),
+            hashtagToots(enums_1.CacheKey.FAVOURITED_TAG_TOOTS),
             hashtagToots(enums_1.CacheKey.PARTICIPATED_TAG_TOOTS),
             hashtagToots(enums_1.CacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
