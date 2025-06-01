@@ -56,7 +56,6 @@ const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
 const BLUESKY_BRIDGY = 'bsky.brid.gy';
-const REPAIR_TOOT = (0, string_helpers_1.arrowed)("repairToot");
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesShown");
@@ -71,6 +70,7 @@ const TAG_ONLY_STRINGS = new Set([
     "us",
 ]);
 const tootLogger = new logger_1.Logger("Toot");
+const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 ;
 class Toot {
@@ -505,11 +505,11 @@ class Toot {
         const langDetectInfo = (0, language_helper_1.detectLanguage)(text);
         const { chosenLanguage, langDetector, tinyLD } = langDetectInfo;
         const langLogObj = { ...langDetectInfo, text, toot: this, tootLanguage: this.language };
-        const logTrace = (msg) => tootLogger.trace(`${REPAIR_TOOT} ${msg} for "${text}"`, langLogObj);
+        const logTrace = (msg) => repairLogger.trace(`${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
             if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
-                tootLogger.warn(`${REPAIR_TOOT} no language detected`, langLogObj);
+                repairLogger.warn(`no language detected`, langLogObj);
             }
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
@@ -593,23 +593,23 @@ class Toot {
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
                 if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
-                    tootLogger.trace(`${REPAIR_TOOT} Repairing broken image attachment in toot:`, this);
+                    repairLogger.trace(`Repairing broken image attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
-                    tootLogger.trace(`${REPAIR_TOOT} Repairing broken video attachment in toot:`, this);
+                    repairLogger.trace(`Repairing broken video attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.VIDEO;
                 }
                 else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
-                    tootLogger.debug(`${REPAIR_TOOT} Repairing broken bluesky bridge image attachment in toot:`, this);
+                    repairLogger.debug(`Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.IMAGE;
                 }
                 else {
-                    tootLogger.warn(`${REPAIR_TOOT} Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
+                    repairLogger.warn(`Unknown media type for URL: '${media.remoteUrl}' for toot:`, this);
                 }
             }
             else if (!string_helpers_1.MEDIA_TYPES.includes(media.type)) {
-                tootLogger.warn(`${REPAIR_TOOT} Unknown media of type: '${media.type}' for toot:`, this);
+                repairLogger.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
         });
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
