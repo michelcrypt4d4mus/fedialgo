@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.57.2
 * Add `config.favouritedTags.maxParticipations` param
 * (Demo App) Fix bug where reply mentions were injected twice
 
