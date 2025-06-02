@@ -1,25 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.BytesDict = exports.isNumber = void 0;
+exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumber = exports.BytesDict = void 0;
 /*
  * Math and numbers.
  */
 const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
 const collection_helpers_1 = require("./collection_helpers");
-// Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-const isNumber = (n) => {
-    if (typeof n === "string") {
-        return string_helpers_1.NUMBER_REGEX.test(n);
-    }
-    else if (typeof n != "number") {
-        return false;
-    }
-    else {
-        return !isNaN(n) && isFinite(n);
-    }
-};
-exports.isNumber = isNumber;
 // For use with sizeOf() to try to see internals of object size.
 // There's duplication of byte count here - arrays and objects include the other types
 class BytesDict {
@@ -47,6 +34,19 @@ class BytesDict {
 }
 exports.BytesDict = BytesDict;
 ;
+// Returns true if it's a digits striing or if it's a number besides NaN or Infinity
+const isNumber = (n) => {
+    if (typeof n === "string") {
+        return string_helpers_1.NUMBER_REGEX.test(n);
+    }
+    else if (typeof n != "number") {
+        return false;
+    }
+    else {
+        return !isNaN(n) && isFinite(n);
+    }
+};
+exports.isNumber = isNumber;
 function sizeFromTextEncoder(obj) {
     try {
         return new TextEncoder().encode(JSON.stringify(obj)).length;

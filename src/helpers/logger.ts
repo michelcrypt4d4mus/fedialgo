@@ -96,15 +96,15 @@ export class Logger {
         this.info(msg, ...args)
     }
 
+    // Add a random string to the prefix. Can be helpful when there's a lot of threads w/same prefix.
+    tagWithRandomString(): void {
+        this.logPrefix += ` *#(${createRandomString(4)})#*`;
+    }
+
     // Returns new Logger with one additional prefix.
     tempLogger(prefix: string): Logger {
         const args = [...this.prefixes, prefix];
         return new Logger(args[0], ...args.slice(1));
-    }
-
-    // Add a random string to the prefix. Can be helpful when there's a lot of threads w/same prefix.
-    tagWithRandomString(): void {
-        this.logPrefix += ` *#(${createRandomString(4)})#*`;
     }
 
     // Mutates args array to pop the first Error if it exists

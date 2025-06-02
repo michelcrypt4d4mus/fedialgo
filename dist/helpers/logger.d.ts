@@ -12,8 +12,8 @@ export declare class Logger {
     logAndThrowError(msg: string, ...args: any[]): never;
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
-    tempLogger(prefix: string): Logger;
     tagWithRandomString(): void;
+    tempLogger(prefix: string): Logger;
     private errorStr;
     private makeErrorMsg;
     private str;

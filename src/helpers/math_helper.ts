@@ -7,18 +7,6 @@ import { sumArray } from "./collection_helpers";
 import { type StringNumberDict } from "../types";
 
 
-// Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-export const isNumber = (n: string | number): boolean => {
-    if (typeof n === "string") {
-        return NUMBER_REGEX.test(n);
-    } else if (typeof n != "number") {
-        return false;
-    } else {
-        return !isNaN(n) && isFinite(n);
-    }
-};
-
-
 // For use with sizeOf() to try to see internals of object size.
 // There's duplication of byte count here - arrays and objects include the other types
 export class BytesDict {
@@ -44,6 +32,18 @@ export class BytesDict {
 
     toBytesStringDict(): Record<string, string> {
         return Object.fromEntries(Object.entries(this.toDict()).map(([k, v]) => [k, byteString(v)]));
+    }
+};
+
+
+// Returns true if it's a digits striing or if it's a number besides NaN or Infinity
+export const isNumber = (n: string | number): boolean => {
+    if (typeof n === "string") {
+        return NUMBER_REGEX.test(n);
+    } else if (typeof n != "number") {
+        return false;
+    } else {
+        return !isNaN(n) && isFinite(n);
     }
 };
 
