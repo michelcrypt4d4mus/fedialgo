@@ -75,7 +75,7 @@ class ObjWithCountList {
     removeKeywords(keywords) {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validObjs = this.objs.filter(tag => !keywords.includes(tag.name));
-        this.logger.logArrayReduction(this.objs, validObjs, "tags", `matching keywords "${keywords}"`);
+        this.logger.logArrayReduction(this.objs, validObjs, "tags", `matching keywords`); //  "${keywords}"`);
         this.objs = validObjs;
     }
     ;

@@ -147,7 +147,7 @@ export default class MastodonServer {
         const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
 
         if (json.status === 200 && json.data) {
-            this.logger.trace(`(${endpoint}) fetch response ${ageString(startedAt)}:`, json.data);
+            this.logger.deep(`(${endpoint}) fetch response ${ageString(startedAt)}:`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;

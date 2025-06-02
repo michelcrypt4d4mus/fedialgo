@@ -29,7 +29,7 @@ async function lockExecution(locker, logger, logPrefix) {
         logger.warn(logMsg);
     }
     else if (waitSeconds > 2) {
-        logger.trace(logMsg);
+        logger.deep(logMsg);
     }
     return releaseLock;
 }

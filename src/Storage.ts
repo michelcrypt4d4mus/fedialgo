@@ -278,7 +278,7 @@ export default class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = {updatedAt, value: storableValue} as StorableWithTimestamp;
-        logger.trace(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
+        logger.deep(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localForage.setItem(storageKey, withTimestamp);
     }
 

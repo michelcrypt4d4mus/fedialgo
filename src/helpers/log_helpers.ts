@@ -41,7 +41,7 @@ export async function lockExecution(
     if (waitSeconds > config.api.mutexWarnSeconds) {
         logger.warn(logMsg);
     } else if (waitSeconds > 2) {
-        logger.trace(logMsg);
+        logger.deep(logMsg);
     }
 
     return releaseLock;

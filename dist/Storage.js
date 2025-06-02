@@ -249,7 +249,7 @@ class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt, value: storableValue };
-        logger.trace(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
+        logger.deep(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Serialize the FeedFilterSettings object
