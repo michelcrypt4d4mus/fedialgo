@@ -35,7 +35,7 @@ interface UserApiData {
 
 
 export default class UserData {
-    favouriteAccounts: StringNumberDict = {};  // Add up the favourites, retoots, and replies for each account
+    favouriteAccounts: TagList = new TagList([]);  // Add up the favourites, retoots, and replies for each account
     favouritedTags: TagList = new TagList([]);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagList = new TagList([])
@@ -60,7 +60,7 @@ export default class UserData {
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = MostFavouritedAccountsScorer.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = MostRetootedAccountsScorer.buildRetootedAccounts(data.recentToots);
-        userData.favouriteAccounts = addDicts(favouritedAccounts, retootedAccounts)
+        userData.favouriteAccounts = TagList.buildFromDict(addDicts(favouritedAccounts, retootedAccounts));
 
         logger.trace("Built from data:", userData);
         return userData;

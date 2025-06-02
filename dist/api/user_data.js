@@ -16,7 +16,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
-    favouriteAccounts = {}; // Add up the favourites, retoots, and replies for each account
+    favouriteAccounts = new tag_list_1.default([]); // Add up the favourites, retoots, and replies for each account
     favouritedTags = new tag_list_1.default([]);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = new tag_list_1.default([]);
@@ -39,7 +39,7 @@ class UserData {
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = most_favourited_accounts_scorer_1.default.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = most_retooted_accounts_scorer_1.default.buildRetootedAccounts(data.recentToots);
-        userData.favouriteAccounts = (0, collection_helpers_1.addDicts)(favouritedAccounts, retootedAccounts);
+        userData.favouriteAccounts = tag_list_1.default.buildFromDict((0, collection_helpers_1.addDicts)(favouritedAccounts, retootedAccounts));
         logger.trace("Built from data:", userData);
         return userData;
     }

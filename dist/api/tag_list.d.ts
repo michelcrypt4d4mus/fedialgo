@@ -5,6 +5,7 @@ export default class TagList {
     tagNames: TagNames;
     private _tags;
     constructor(tags: MastodonTag[]);
+    static buildFromDict(dict: StringNumberDict): TagList;
     get tags(): TagWithUsageCounts[];
     set tags(theTags: TagWithUsageCounts[]);
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;

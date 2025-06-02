@@ -37,6 +37,16 @@ export default class TagList {
         this.tagNames = this.tagNameDict();
     }
 
+    // Alternate constructor to create synthetic tags
+    static buildFromDict(dict: StringNumberDict): TagList {
+        const tags = Object.entries(dict).map(([name, numToots]) => {
+            const tag: TagWithUsageCounts = { name, numToots, url: "blank" };
+            return tag;
+        });
+
+        return new TagList(tags);
+    }
+
     public get tags(): TagWithUsageCounts[] {
         return this._tags;
     }

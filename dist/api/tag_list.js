@@ -29,6 +29,14 @@ class TagList {
         this.length = this._tags.length;
         this.tagNames = this.tagNameDict();
     }
+    // Alternate constructor to create synthetic tags
+    static buildFromDict(dict) {
+        const tags = Object.entries(dict).map(([name, numToots]) => {
+            const tag = { name, numToots, url: "blank" };
+            return tag;
+        });
+        return new TagList(tags);
+    }
     get tags() {
         return this._tags;
     }
