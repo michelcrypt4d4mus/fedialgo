@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-### v0.57.4
+### v0.58.1
 * Add `UserData.favouriteAccounts` property
 * Repair broken audio attachments too
 * Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
