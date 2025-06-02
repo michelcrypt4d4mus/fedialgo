@@ -13,10 +13,12 @@ const PREFIXERS = [
     string_helpers_1.arrowed,
     (str) => `{${str}}`,
     (str) => `(${str})`,
-    (str) => `#${str}#`,
+    (str) => `|${str}|`,
+    (str) => `=${str}=`,
     (str) => `*${str}*`,
     (str) => `~${str}~`,
     (str) => `-${str}-`,
+    (str) => `#${str}#`,
 ];
 // Log lines with "[ComponentName] <Subtitle> (subsubtitle)" prefix
 class Logger {

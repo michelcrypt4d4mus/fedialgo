@@ -11,10 +11,12 @@ const PREFIXERS = [
     arrowed,
     (str: string) => `{${str}}`,
     (str: string) => `(${str})`,
-    (str: string) => `#${str}#`,
+    (str: string) => `|${str}|`,
+    (str: string) => `=${str}=`,
     (str: string) => `*${str}*`,
     (str: string) => `~${str}~`,
     (str: string) => `-${str}-`,
+    (str: string) => `#${str}#`,
 ];
 
 
