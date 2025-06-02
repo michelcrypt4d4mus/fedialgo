@@ -11,10 +11,34 @@ import { TagTootsCacheKey } from "../enums";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
-const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsConfig> = {
-    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: config.favouritedTags,
-    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: config.participatedTags,
-    [TagTootsCacheKey.TRENDING_TAG_TOOTS]: config.trending.tags,
+type TagTootsBuildConfig = {
+    buildTagList: () => Promise<TagList>;
+    config: TagTootsConfig;
+    removeUnwantedTags: boolean;
+};
+
+const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
+    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+        buildTagList: async () => {
+            const maxParticipations = config.favouritedTags.maxParticipations;  // TODO: a heuristic to decide this number?
+            const participatedTags = (await TagList.fromParticipated()).tagNameDict();
+            const tagList = await TagList.fromFavourites();
+            // Remove tags that user uses often (we want only what they favourite, not what they participate in)
+            return tagList.filter(t => (participatedTags[t.name]?.numToots || 0) <= maxParticipations);
+        },
+        config: config.favouritedTags,
+        removeUnwantedTags: true,
+    },
+    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+        buildTagList: async () => await TagList.fromParticipated(),
+        config: config.participatedTags,
+        removeUnwantedTags: true,
+    },
+    [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+        buildTagList: async () => await TagList.fromTrending(),
+        config: config.trending.tags,
+        removeUnwantedTags: false,  // Trending tags are already filtered
+    }
 };
 
 
@@ -27,25 +51,13 @@ export default class TootsForTagsList {
     // Alternate constructor
     static async create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
-        let tagList: TagList;
+        const tagList = await tootsConfig.buildTagList();
 
-        if (cacheKey === TagTootsCacheKey.FAVOURITED_TAG_TOOTS) {
-            tagList = await TagList.fromFavourites();
-            await this.removeUnwantedTags(tagList, tootsConfig);
-            // Remove tags that have been used in 2 or more toots by the user
-            // TODO: use a configured value or a heuristic instead of hardcoded 2
-            const participatedTags = (await TagList.fromParticipated()).tagNameDict();
-            tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
-        } else if (cacheKey === TagTootsCacheKey.PARTICIPATED_TAG_TOOTS) {
-            tagList = await TagList.fromParticipated();
-            await this.removeUnwantedTags(tagList, tootsConfig);
-        } else if (cacheKey === TagTootsCacheKey.TRENDING_TAG_TOOTS) {
-            tagList = await TagList.fromTrending();
-        } else {
-            throw new Error(`TootsForTagsList: Invalid cacheKey ${cacheKey}`);
+        if (tootsConfig.removeUnwantedTags) {
+            await this.removeUnwantedTags(tagList, tootsConfig.config);
         }
 
-        return new TootsForTagsList(cacheKey, tagList, tootsConfig);
+        return new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
     }
 
     private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tagsConfig: TagTootsConfig) {
@@ -88,12 +100,13 @@ export default class TootsForTagsList {
     }
 
     // Create then immediately fetch toots for the tags
-    static async getToots(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
+    static async getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
         const tagList = await TootsForTagsList.create(cacheKey);
         return await tagList.getToots();
     }
 
-    private static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {
+    // Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags
+    static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {
         await tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
         tagList.removeKeywordsFromTags((await TagList.fromTrending()).tags.map(t => t.name)); // Remove trending tags

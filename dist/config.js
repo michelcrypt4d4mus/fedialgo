@@ -123,7 +123,8 @@ class Config {
     favouritedTags = {
         maxToots: 100,
         numTags: 15,
-        numTootsPerTag: 5, // How many toots to pull for each tag
+        numTootsPerTag: 5,
+        maxParticipations: 3, // Remove tags that have been used in more than this many toots by the user
     };
     fediverse = {
         minServerMAU: 100,

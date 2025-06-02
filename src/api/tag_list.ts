@@ -37,6 +37,12 @@ export default class TagList {
         });
     }
 
+    // Mutates the 'tags' array
+    filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
+        this.tags = this.tags.filter(predicate);
+        return this;
+    }
+
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
         return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots());
@@ -87,6 +93,10 @@ export default class TagList {
         );
 
         return new this(Object.values(tagsWithUsageCounts));
+    }
+
+    length(): number {
+        return this.tags.length;
     }
 
     // Returns a dict of tag names to numToots

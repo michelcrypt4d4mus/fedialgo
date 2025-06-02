@@ -114,6 +114,7 @@ declare class Config implements ConfigType {
         maxToots: number;
         numTags: number;
         numTootsPerTag: number;
+        maxParticipations: number;
     };
     fediverse: {
         minServerMAU: number;

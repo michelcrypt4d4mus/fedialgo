@@ -29,6 +29,11 @@ class TagList {
             return newTag;
         });
     }
+    // Mutates the 'tags' array
+    filter(predicate) {
+        this.tags = this.tags.filter(predicate);
+        return this;
+    }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
         return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
@@ -66,6 +71,9 @@ class TagList {
             return tagCounts;
         }, {});
         return new this(Object.values(tagsWithUsageCounts));
+    }
+    length() {
+        return this.tags.length;
     }
     // Returns a dict of tag names to numToots
     numTootsLookupDict() {

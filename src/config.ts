@@ -231,6 +231,7 @@ class Config implements ConfigType {
         maxToots: 100,                          // How many toots to pull for each tag
         numTags: 15,                            // How many tags to pull toots for
         numTootsPerTag: 5,                      // How many toots to pull for each tag
+        maxParticipations: 3,                   // Remove tags that have been used in more than this many toots by the user
     }
 
     fediverse = {

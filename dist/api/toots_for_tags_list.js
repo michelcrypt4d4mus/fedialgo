@@ -14,9 +14,27 @@ const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const HASHTAG_TOOTS_CONFIG = {
-    [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: config_1.config.favouritedTags,
-    [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: config_1.config.participatedTags,
-    [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: config_1.config.trending.tags,
+    [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+        buildTagList: async () => {
+            const maxParticipations = config_1.config.favouritedTags.maxParticipations; // TODO: a heuristic to decide this number?
+            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
+            const tagList = await tag_list_1.default.fromFavourites();
+            // Remove tags that user uses often (we want only what they favourite, not what they participate in)
+            return tagList.filter(t => (participatedTags[t.name]?.numToots || 0) <= maxParticipations);
+        },
+        config: config_1.config.favouritedTags,
+        removeUnwantedTags: true,
+    },
+    [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+        buildTagList: async () => await tag_list_1.default.fromParticipated(),
+        config: config_1.config.participatedTags,
+        removeUnwantedTags: true,
+    },
+    [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+        buildTagList: async () => await tag_list_1.default.fromTrending(),
+        config: config_1.config.trending.tags,
+        removeUnwantedTags: false, // Trending tags are already filtered
+    }
 };
 class TootsForTagsList {
     cacheKey;
@@ -26,26 +44,11 @@ class TootsForTagsList {
     // Alternate constructor
     static async create(cacheKey) {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
-        let tagList;
-        if (cacheKey === enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS) {
-            tagList = await tag_list_1.default.fromFavourites();
-            await this.removeUnwantedTags(tagList, tootsConfig);
-            // Remove tags that have been used in 2 or more toots by the user
-            // TODO: use a configured value or a heuristic instead of hardcoded 2
-            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
-            tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
+        const tagList = await tootsConfig.buildTagList();
+        if (tootsConfig.removeUnwantedTags) {
+            await this.removeUnwantedTags(tagList, tootsConfig.config);
         }
-        else if (cacheKey === enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS) {
-            tagList = await tag_list_1.default.fromParticipated();
-            await this.removeUnwantedTags(tagList, tootsConfig);
-        }
-        else if (cacheKey === enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
-            tagList = await tag_list_1.default.fromTrending();
-        }
-        else {
-            throw new Error(`TootsForTagsList: Invalid cacheKey ${cacheKey}`);
-        }
-        return new TootsForTagsList(cacheKey, tagList, tootsConfig);
+        return new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
     }
     constructor(cacheKey, tagList, tagsConfig) {
         this.cacheKey = cacheKey;
@@ -73,10 +76,11 @@ class TootsForTagsList {
         return tags;
     }
     // Create then immediately fetch toots for the tags
-    static async getToots(cacheKey) {
+    static async getTootsFor(cacheKey) {
         const tagList = await TootsForTagsList.create(cacheKey);
         return await tagList.getToots();
     }
+    // Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags
     static async removeUnwantedTags(tagList, tootsConfig) {
         await tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();

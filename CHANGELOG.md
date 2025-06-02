@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add `config.favouritedTags.maxParticipations` param
 
 ### v0.57.1
 * Fully separate `TagTootsCacheKey` enum elements from `CacheKey` enum
