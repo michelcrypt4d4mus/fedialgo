@@ -36,7 +36,7 @@ class TagList {
     }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
-        return this.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
+        return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots());
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
     static async fromFollowedTags() {
@@ -44,7 +44,7 @@ class TagList {
     }
     // Tags the user has posted in
     static async fromParticipated() {
-        return this.fromUsageCounts(await api_1.default.instance.getRecentUserToots());
+        return TagList.fromUsageCounts(await api_1.default.instance.getRecentUserToots());
     }
     // Trending tags across the fediverse
     static async fromTrending() {

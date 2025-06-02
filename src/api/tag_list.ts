@@ -45,7 +45,7 @@ export default class TagList {
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
-        return this.fromUsageCounts(await MastoApi.instance.getFavouritedToots());
+        return TagList.fromUsageCounts(await MastoApi.instance.getFavouritedToots());
     }
 
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
@@ -55,7 +55,7 @@ export default class TagList {
 
     // Tags the user has posted in
     static async fromParticipated(): Promise<TagList> {
-        return this.fromUsageCounts(await MastoApi.instance.getRecentUserToots());
+        return TagList.fromUsageCounts(await MastoApi.instance.getRecentUserToots());
     }
 
     // Trending tags across the fediverse
