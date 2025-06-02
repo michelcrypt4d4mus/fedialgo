@@ -35,7 +35,7 @@ export class Logger {
     // Alternate constructor; makes the first two arguments into a parenthesized bracketed string
     // e.g. Logger("ComponentName", "domain") -> "[ComponentName<domain>] "
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger {
-        return new this(`${name} ${arrowed(parenthesized)}`, ...args)
+        return new Logger(`${name} ${arrowed(parenthesized)}`, ...args)
     }
 
     // If first arg is a string, check if 2nd arg is an Error and do some special formatting

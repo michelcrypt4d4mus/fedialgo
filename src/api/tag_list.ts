@@ -50,7 +50,7 @@ export default class TagList {
 
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
     static async fromFollowedTags(): Promise<TagList> {
-        return new this(await MastoApi.instance.getFollowedTags());
+        return new TagList(await MastoApi.instance.getFollowedTags());
     }
 
     // Tags the user has posted in
@@ -60,7 +60,7 @@ export default class TagList {
 
     // Trending tags across the fediverse
     static async fromTrending(): Promise<TagList> {
-        const tagList = new this(await MastodonServer.fediverseTrendingTags());
+        const tagList = new TagList(await MastodonServer.fediverseTrendingTags());
         tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
         return tagList;
@@ -92,7 +92,7 @@ export default class TagList {
             {} as TagNames
         );
 
-        return new this(Object.values(tagsWithUsageCounts));
+        return new TagList(Object.values(tagsWithUsageCounts));
     }
 
     length(): number {

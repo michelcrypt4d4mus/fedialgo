@@ -40,7 +40,7 @@ class TagList {
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
     static async fromFollowedTags() {
-        return new this(await api_1.default.instance.getFollowedTags());
+        return new TagList(await api_1.default.instance.getFollowedTags());
     }
     // Tags the user has posted in
     static async fromParticipated() {
@@ -48,7 +48,7 @@ class TagList {
     }
     // Trending tags across the fediverse
     static async fromTrending() {
-        const tagList = new this(await mastodon_server_1.default.fediverseTrendingTags());
+        const tagList = new TagList(await mastodon_server_1.default.fediverseTrendingTags());
         tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
         return tagList;
@@ -70,7 +70,7 @@ class TagList {
             });
             return tagCounts;
         }, {});
-        return new this(Object.values(tagsWithUsageCounts));
+        return new TagList(Object.values(tagsWithUsageCounts));
     }
     length() {
         return this.tags.length;
