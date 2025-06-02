@@ -12,7 +12,6 @@ import { type StringDict, type StringSet } from '../types';
 export const LANGUAGE_NAMES: StringDict = {
     afar: "aa",
     abkhazian: "ab",
-    avestan: "ae",
     afrikaans: "af",
     akan: "ak",
     amharic: "am",
@@ -20,6 +19,7 @@ export const LANGUAGE_NAMES: StringDict = {
     arabic: "ar",
     assamese: "as",
     avaric: "av",
+    avestan: "ae",
     aymara: "ay",
     azerbaijani: "az",
     azeri: "az",
@@ -55,6 +55,7 @@ export const LANGUAGE_NAMES: StringDict = {
     spanish: "es",
     estonian: "et",
     basque: "eu",
+    farsi: "fa",
     persian: "fa",
     fulah: "ff",
     finnish: "fi",

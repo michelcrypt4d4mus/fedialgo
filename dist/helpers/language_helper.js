@@ -15,7 +15,6 @@ const collection_helpers_1 = require("./collection_helpers");
 exports.LANGUAGE_NAMES = {
     afar: "aa",
     abkhazian: "ab",
-    avestan: "ae",
     afrikaans: "af",
     akan: "ak",
     amharic: "am",
@@ -23,6 +22,7 @@ exports.LANGUAGE_NAMES = {
     arabic: "ar",
     assamese: "as",
     avaric: "av",
+    avestan: "ae",
     aymara: "ay",
     azerbaijani: "az",
     azeri: "az",
@@ -58,6 +58,7 @@ exports.LANGUAGE_NAMES = {
     spanish: "es",
     estonian: "et",
     basque: "eu",
+    farsi: "fa",
     persian: "fa",
     fulah: "ff",
     finnish: "fi",
