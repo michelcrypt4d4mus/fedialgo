@@ -109,10 +109,16 @@ export type MinMaxID = {
 export type ObjListDataSource = (
     BooleanFilterName
   | CacheKey.FEDIVERSE_TRENDING_TAGS
-  | ScoreName.FAVOURITED_ACCOUNTS
   | ScoreName.FOLLOWED_TAGS
-  | TagTootsCacheKey
+  | UserDataSource
 );
+
+// TODO: this is a janky name for what we want, which is a name for a data source that can be used
+// in demo app to compute gradient colors.
+export type UserDataSource = (
+    ScoreName.FAVOURITED_ACCOUNTS
+  | TagTootsCacheKey
+)
 
 // Abstract interface for objects that have numToots of some kind
 export interface ObjWithTootCount extends WithCounts {
