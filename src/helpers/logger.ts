@@ -1,5 +1,5 @@
 /*
- * Standardized logger
+ * Standardized logger.
  */
 import { ageString } from './time_helpers';
 import { isDebugMode } from './environment_helpers';
@@ -52,29 +52,29 @@ export class Logger {
     }
 
     // warn() also checks the first argument for an Error but first arg must be a string
-    warn = (s: string, ...args: any[]) => console.warn(this.str(this.errorStr(s, ...args)), ...args)
-    log = (s: string, ...args: any[]) => console.log(this.str(s), ...args);
-    info = (s: string, ...args: any[]) => console.info(this.str(s), ...args);
-    debug = (s: string, ...args: any[]) => console.debug(this.str(s), ...args);
-    trace = (s: string, ...args: any[]) => {isDebugMode && this.debug(s, ...args)};
+    warn =  (msg: string, ...args: any[]) => console.warn(this.str(this.errorStr(msg, ...args)), ...args);
+    log =   (msg: string, ...args: any[]) => console.log(this.str(msg), ...args);
+    info =  (msg: string, ...args: any[]) => console.info(this.str(msg), ...args);
+    debug = (msg: string, ...args: any[]) => console.debug(this.str(msg), ...args);
+    trace = (msg: string, ...args: any[]) => {isDebugMode && this.debug(msg, ...args)};
 
     // Log an error message and throw an Error with the stringified args and the message.
-    logAndThrowError(message: string, ...args: any[]): never {
-        console.error(message, args);
+    logAndThrowError(msg: string, ...args: any[]): never {
+        console.error(msg, args);
 
         if (args.length > 0) {
             const [errorArgs, otherArgs] = split(args, arg => arg instanceof Error);
 
             if (errorArgs.length > 0) {
-                message = this.makeErrorMsg(errorArgs[0], message);
+                msg = this.makeErrorMsg(errorArgs[0], msg);
             }
 
             if (otherArgs.length > 0) {
-                message += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
+                msg += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
             }
         }
 
-        throw new Error(message);
+        throw new Error(msg);
     }
 
     // Log the fact that an array was reduced in size.
@@ -128,11 +128,8 @@ export class Logger {
 
     // Returns a function that will build Logger objects with the starting prefixes
     static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger) {
-        // console.debug(`Logger.logBuilder() called for ${name} with prefixes:`, prefixes);
-
         // I think we have to define as const to get the closer to capture the name and prefixes?
         const logMaker = (...args: string[]) => {
-            // console.debug(`logBuilder() building a log called for ${name} with args:`, args);
             const loggerArgs = [...prefixes, ...args];
             return new Logger(name, ...loggerArgs);
         };
