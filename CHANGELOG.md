@@ -1,6 +1,9 @@
 # NEXT RELEASE
+
+### v0.57.3
 * Stop exporting `isDebugMode` (it's a static property now)
-* Add FEDIALGO_DEEP_DEBUG env var
+* Add `FEDIALGO_DEEP_DEBUG` env var and corresponding `Logger.deep()` method
+* `UserData`'s `Tag` properties are now `TagList` objects; `TagList` has a few new methods to make it easier to work with
 
 ### v0.57.2
 * Add `config.favouritedTags.maxParticipations` param
