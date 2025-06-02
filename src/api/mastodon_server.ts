@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { CacheKey } from "../enums";
+import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, FEDIVERSE_CACHE_KEYS } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
@@ -207,7 +207,7 @@ export default class MastodonServer {
             }
         });
 
-        const trendingTagList = new TagList(tags, CacheKey.FEDIVERSE_TRENDING_TAGS);
+        const trendingTagList = new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
         trendingTagList.removeInvalidTrendingTags();
         await trendingTagList.removeMutedTags();
         return trendingTagList;
